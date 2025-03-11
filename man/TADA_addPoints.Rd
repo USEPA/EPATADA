@@ -36,5 +36,4 @@ lmap <- TADA_addPoints(
 )
 lmap
 }
-
 }

@@ -38,5 +38,4 @@ Uses the different plotting symbols available in R to create PNG files that can 
 # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
 pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 }
-
 }

@@ -20,6 +20,6 @@ TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode, and
 TADA.MethodSpeciationName in a TADA data frame.
 }
 \examples{
-UniqueCharUnitSpecExample <- TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
-
+UniqueCharUnitSpecExample <- 
+TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
 }

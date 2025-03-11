@@ -29,5 +29,4 @@ bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasur
 layerfilepath <- "extdata/AmericanIndian.shp"
 getLayer(layerfilepath, bbox)
 }
-
 }

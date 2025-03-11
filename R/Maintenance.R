@@ -2,7 +2,6 @@
 #' @return Saves updated reference files
 #' This is only needed for ref tables in WQXRefTables.R
 #' and the tribal feature layers in TADAGeospatialRefLayers.R
-#'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
   TADA_UpdateMeasureUnitRef()
@@ -70,7 +69,7 @@ TADA_UpdateExampleData <- function() {
   y <- TADA_FlagMethod(y, clean = TRUE)
   y <- TADA_FlagAboveThreshold(y, clean = TRUE)
   y <- TADA_FlagBelowThreshold(y, clean = TRUE)
-  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
+  # y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
   y <- TADA_FindPotentialDuplicatesSingleOrg(y)
   y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
   y <- TADA_SimpleCensoredMethods(y,
@@ -92,6 +91,7 @@ TADA_UpdateExampleData <- function() {
     compress = "xz", version = 3, ascii = FALSE
   )
   rm(Data_6Tribes_5y_Harmonized)
+  rm(y)
 
   # Generate Data_NCTCShepherdstown_HUC12
   Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(

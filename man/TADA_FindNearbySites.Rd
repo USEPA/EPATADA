@@ -13,60 +13,67 @@ TADA_FindNearbySites(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe OR TADA sites dataframe}
+\item{.data}{TADA dataframe OR TADA sites dataframe.}
 
 \item{dist_buffer}{Numeric. The maximum distance (in meters) two sites can be
 from one another to be considered "nearby" and grouped together.}
 
-\item{nhd_res}{Character argument to determine whether the NHD catchments used should be high
-("Hi") or medium ("Med") res. Default = "Hi" for consistency with other TADA geospatial
-functions.}
+\item{nhd_res}{Character argument to determine whether the NHD catchments
+used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
+consistency with other TADA geospatial functions.}
 
-\item{org_hierarchy}{Vector of organization identifiers that acts as the order in which the
-function should select representative metadata for grouped sites based on the organization
-that collected the data. If left blank, the function does not factor organization in to the
-metadata selection process. When a vector is provided, the metadata will first be selected by
-organization and the "meta_select" argument will only be applied in cases where more than
-one set of metadata per site grouping are available from the highest ranking organization
-available.}
+\item{org_hierarchy}{Vector of organization identifiers that acts as the
+order in which the function should select representative metadata for
+grouped sites based on the organization that collected the data. If left
+blank, the function does not factor organization in to the metadata
+selection process. When a vector is provided, the metadata will first be
+selected by organization and the "meta_select" argument will only be
+applied in cases where more than one set of metadata per site grouping are
+available from the highest ranking organization available.}
 
-\item{meta_select}{Character argument to determine how metadata should be selected if no
-org_hierarchy is specified or if multiple options for metadata from the same organization
-exist. Options are "oldest", which selects the metadata associated with the oldest result from
-the grouped nearby sites, "newest", which selects the metadata associated with the newest
-result from the grouped nearby sites, "count" which selects the metadata associated with the
-greatest number of results, and "random" which selects random metadata from the site group.
-The default is meta_select = "random".}
+\item{meta_select}{Character argument to determine how metadata should be
+selected if no org_hierarchy is specified or if multiple options for metadata
+from the same organization exist. Options are "oldest", which selects the
+metadata associated with the oldest result from the grouped nearby sites,
+"newest", which selects the metadata associated with the newest result from
+the grouped nearby sites, "count" which selects the metadata associated with
+the greatest number of results, and "random" which selects random metadata
+from the site group. The default is meta_select = "random".}
 }
 \value{
-Input dataframe with a TADA.SiteGroup column that
-indicates the nearby site group each monitoring location belongs to. Grouped
-sites are concatenated in the TADA.MonitoringLocationIdentifier column
+Input dataframe with a TADA.SiteGroup column that indicates the
+nearby site group each monitoring location belongs to. Grouped sites are
+concatenated in the TADA.MonitoringLocationIdentifier column
 (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
 This JSON array is the new TADA monitoring location ID for the grouped sites.
 TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
-nearby sites together (as the same general location). Related metadata, including
-TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure, and
-TADA.MonitoringLocationTypeName are added to the input df. Meta data selection is determined by
-user inputs as users may provide an organization hierarchy to determine which organization's
-metadata should be preferentially selected and further specify whether meta data should be
-selected: randomly, by the oldest or newest sampling date, or by the site with the greatest
-number of overall results in the TADA df.
+nearby sites together (as the same general location). Related metadata,
+including TADA.MonitoringLocationName, TADA.LatitudeMeasure,
+TADA.LongitudeMeasure, and TADA.MonitoringLocationTypeName are added to the
+input df. Meta data selection is determined by user inputs as users may
+provide an organization hierarchy to determine which organization's
+metadata should be preferentially selected and further specify whether
+metadata should be selected: randomly, by the oldest or newest sampling date,
+or by the site with the greatest number of overall results in the TADA df.
 }
 \description{
-This function takes a TADA dataset and identifies the NHD catchments that each MonitoringLocation
-is in. Within each group of MonitoringLocations in the same catchment, a distance matrix is
-created and an adjacency matrix is used to identify groups of nearby sites within the same
-catchment. Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier which is
-created by concatenating the original TADA.MonitoringLocationIdentifiers of all sites within
-the group. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
-TADA.NearbySiteGroup contains a unique numeric value for each group of sites within the same catchment.
-TADA.NearbySites.Flag identifies whether or not a result is from a grouped site or not and for
-grouped sites identifies how the TADA prefixed metadata columns (TADA.MonitoringLocationName,
-TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and TADA.LatitudeMeasure) were determined.
+This function takes a TADA dataset and identifies the NHD catchments that
+each MonitoringLocation is in. Within each group of MonitoringLocations in
+the same catchment, a distance matrix is created and an adjacency matrix
+is used to identify groups of nearby sites within the same catchment.
+Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
+which is created by concatenating the original
+TADA.MonitoringLocationIdentifiers of all sites within the group. Two
+additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
+TADA.NearbySiteGroup contains a unique numeric value for each group of sites
+within the same catchment. TADA.NearbySites.Flag identifies whether or not
+a result is from a grouped site or not and for grouped sites identifies how
+the TADA prefixed metadata columns (TADA.MonitoringLocationName,
+TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and
+TADA.LatitudeMeasure) were determined.
 }
 \examples{
 GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
-GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, dist_buffer = 10)
-
+GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, 
+dist_buffer = 10)
 }

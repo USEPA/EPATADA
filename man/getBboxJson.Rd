@@ -24,5 +24,4 @@ bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = 
 # Get a string containing the JSON of the bounding box
 getBboxJson(bbox)
 }
-
 }

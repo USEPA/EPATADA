@@ -22,5 +22,4 @@ writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 }
-
 }

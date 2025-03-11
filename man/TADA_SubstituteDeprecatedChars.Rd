@@ -17,17 +17,18 @@ TADA.CharacteristicName column. Original columns are unchanged.
 This function uses the WQX Characteristic domain table to substitute
 deprecated (i.e. retired and/or suspect) Characteristic Names with the new
 name in the TADA.CharacteristicName column. TADA_SubstituteDeprecatedChars is
-run within TADA_AutoClean, which runs within TADA_DataRetrieval and (if autoclean = TRUE)
-in TADA_BigDataRetrieval. Therefore, deprecated characteristic names are
-harmonized to the new name automatically upon data retrieval.
-TADA_SubstituteDeprecatedChars can also be used by itself on a user supplied
-dataset that is in the WQX/WQP format, if desired. This solution works for both
-EPA WQX and USGS NWIS provided data.
+run within TADA_AutoClean, which runs within TADA_DataRetrieval and
+(if autoclean = TRUE) in TADA_BigDataRetrieval. Therefore, deprecated
+characteristic names are harmonized to the new name automatically upon data
+retrieval. TADA_SubstituteDeprecatedChars can also be used by itself on a
+user supplied dataset that is in the WQX/WQP format, if desired. This
+solution works for both EPA WQX and USGS NWIS provided data.
 }
 \details{
-Enter ?TADA_GetCharacteristicRef() to review a list of all WQX characteristics, the including
-deprecated names (Char_Flag). This can be used as a crosswalk between the deprecated names
-(CharacteristicName) and their new names (Comparable.Name).
+Enter ?TADA_GetCharacteristicRef() to review a list of all WQX
+characteristics, the including deprecated names (Char_Flag). This can be
+used as a crosswalk between the deprecated names (CharacteristicName) and
+their new names (Comparable.Name).
 }
 \examples{
 \dontrun{
@@ -57,5 +58,4 @@ df4 <- TADA_SubstituteDeprecatedChars(df3)
 unique(df4$CharacteristicName)
 unique(df4$TADA.CharacteristicName)
 }
-
 }
