@@ -23,7 +23,7 @@ TADA_UpdateAllRefs <- function() {
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
 TADA_UpdateExampleData <- function() {
-  # Generate Data_Nutrients_UT.rda
+  # Generate Data_Nutrients_UT
   Data_Nutrients_UT <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -33,7 +33,6 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
-  # save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   usethis::use_data(Data_Nutrients_UT,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
@@ -56,7 +55,6 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
-  # save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
   usethis::use_data(Data_6Tribes_5y,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
@@ -81,11 +79,9 @@ TADA_UpdateExampleData <- function() {
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
-  # uses HarmonizationTemplate.csv in the extdata folder
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
-  # save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   usethis::use_data(Data_6Tribes_5y_Harmonized,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
@@ -112,7 +108,6 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
-  # save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
   usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_NCTCShepherdstown_HUC12)
 
@@ -135,11 +130,10 @@ TADA_UpdateExampleData <- function() {
   )
   print("Data_R5_TADAPackageDemo:")
   print(dim(Data_R5_TADAPackageDemo))
-  # save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
   usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_R5_TADAPackageDemo)
 
-  # MODULE 3 VIGNETTE EXAMPLE DATA
+  # Generate MODULE 3 VIGNETTE EXAMPLE DATA
   # Get data
   Data_WV <- TADA_DataRetrieval(
     startDate = "2020-03-14",
@@ -147,90 +141,73 @@ TADA_UpdateExampleData <- function() {
     applyautoclean = FALSE,
     ask = FALSE
   )
-
   # Remove non-surface water media
   # OPTIONAL
-  Data_WV_2 <- TADA_AnalysisDataFilter(
+  Data_WV <- TADA_AnalysisDataFilter(
     Data_WV,
     clean = TRUE,
     surface_water = TRUE,
     ground_water = FALSE,
     sediment = FALSE
   )
-
   # Remove single org duplicates
   # REQUIRED
-  Data_WV_3 <- TADA_FindPotentialDuplicatesSingleOrg(
-    Data_WV_2
+  Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(
+    Data_WV
   )
-
-  Data_WV_4 <- dplyr::filter(
-    Data_WV_3,
+  Data_WV <- dplyr::filter(
+    Data_WV,
     TADA.SingleOrgDup.Flag == "Unique"
   )
-
   # Run autoclean
   # REQUIRED
-  Data_WV_5 <- TADA_AutoClean(Data_WV_4)
-
+  Data_WV <- TADA_AutoClean(Data_WV)
   # Prepare censored results
   # REQUIRED
-  Data_WV_6 <- TADA_SimpleCensoredMethods(
-    Data_WV_5,
+  Data_WV <- TADA_SimpleCensoredMethods(
+    Data_WV,
     nd_method = "multiplier",
     nd_multiplier = 0.5,
     od_method = "as-is",
     od_multiplier = "null"
   )
-
   # Remove multiple org duplicates
   # OPTIONAL
-  Data_WV_7 <- TADA_FindPotentialDuplicatesMultipleOrgs(
-    Data_WV_6
-  )
-
-  Data_WV_8 <- dplyr::filter(
-    Data_WV_7,
-    TADA.ResultSelectedMultipleOrgs == "Y"
-  )
-
+  # Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  #   Data_WV
+  # )
+  # Data_WV <- dplyr::filter(
+  #   Data_WV,
+  #   TADA.ResultSelectedMultipleOrgs == "Y"
+  # )
   # Filter out remaining irrelevant data, NA's and empty cols
   # REQUIRED
-  unique(Data_WV_8$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV_8$TADA.ResultMeasureValue))
-  Data_WV_9 <- TADA_AutoFilter(Data_WV_8)
-  unique(Data_WV_9$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV_9$TADA.ResultMeasureValue))
-
+  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV$TADA.ResultMeasureValue))
+  Data_WV <- TADA_AutoFilter(Data_WV)
+  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV$TADA.ResultMeasureValue))
   # Remove results with QC issues
   # REQUIRED
-  Data_WV_10 <- TADA_RunKeyFlagFunctions(
-    Data_WV_9,
+  Data_WV <- TADA_RunKeyFlagFunctions(
+    Data_WV,
     clean = TRUE
   )
-
   # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
-
   # Flag above and below threshold. Do not remove
   # OPTIONAL
-  Data_WV_11 <- TADA_FlagAboveThreshold(Data_WV_10, clean = FALSE, flaggedonly = FALSE)
-  Data_WV_12 <- TADA_FlagBelowThreshold(Data_WV_11, clean = FALSE, flaggedonly = FALSE)
-
+  Data_WV <- TADA_FlagAboveThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
+  Data_WV <- TADA_FlagBelowThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
   # Harmonize synonyms
   # OPTIONAL
-  Data_WV_13 <- TADA_HarmonizeSynonyms(Data_WV_12)
-
+  Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
   # Review
-  Data_WV_14 <- dplyr::filter(Data_WV_13, TADA.CharacteristicName %in% c("ZINC", "PH", "NITRATE"))
-
-  TADA_FieldValuesTable(Data_WV_14, field = "TADA.ComparableDataIdentifier")
-
+  Data_WV <- dplyr::filter(Data_WV, TADA.CharacteristicName %in% c("ZINC", "PH", "NITRATE"))
+  TADA_FieldValuesTable(Data_WV, field = "TADA.ComparableDataIdentifier")
   # Save example data
-  Data_HUC8_02070004_Mod1Output <- Data_WV_14
-
+  Data_HUC8_02070004_Mod1Output <- Data_WV
   print("Data_HUC8_02070004_Mod1Output:")
   print(dim(Data_HUC8_02070004_Mod1Output))
-
   usethis::use_data(Data_HUC8_02070004_Mod1Output,
     internal = FALSE,
     overwrite = TRUE,
@@ -239,6 +216,7 @@ TADA_UpdateExampleData <- function() {
     ascii = FALSE
   )
   rm(Data_HUC8_02070004_Mod1Output)
+  rm(Data_WV)
 }
 
 ###########################################################
