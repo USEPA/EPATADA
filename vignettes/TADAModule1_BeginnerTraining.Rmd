@@ -83,7 +83,7 @@ console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "482-create-tadamonitoringlocationidentifier-in-tada_autoclean",
+  ref = "develop",
   dependencies = TRUE
 )
 
@@ -92,7 +92,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, eval = T, include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-Reference-Tables",
+  ref = "prerelease",
   dependencies = TRUE
 )
 
@@ -565,20 +565,15 @@ by entering the following into the console:
 -   **?TADA_FindPotentialDuplicatesMultipleOrgs**
 -   **?TADA_FindPotentialDuplicatesSingleOrg**
 
-```{r FindPotentialDuplicates}
-# Flag potential duplicates from multiple organizations
-R5ProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(R5ProfileClean3,
-  dist_buffer = 100,
-  org_hierarchy = "none"
-)
-
-# Flag potential duplicates from a single organization
+Flag potential duplicates from a single organization:
+```{r TADA_FindPotentialDuplicatesSingleOrg}
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
+```
 
-# Remove multiple and single org duplicates (random selection of single result)
+Remove flagged duplicates from a single organization (random selection of single result):
+```{r FindPotentialDuplicates}
 R5ProfileClean4 <- R5ProfileClean3 %>%
   dplyr::filter(
-    TADA.ResultSelectedMultipleOrgs == "Y",
     TADA.SingleOrgDup.Flag == "Unique"
   )
 ```

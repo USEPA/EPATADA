@@ -88,9 +88,10 @@ using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
 ```{r install_remotes, results = 'hide', eval = F}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+
 library(remotes)
 ```
 
@@ -108,9 +109,17 @@ the `ref` input in `install_github` (see code chunk below). This
 functionality is mainly only useful to TADA package
 developers/contributors.
 
+```{r install_TADA_dev, eval = T, include = F}
+# helps with development (knit and checks), this chunk should not appear on the pkgdown website
+remotes::install_github("USEPA/EPATADA",
+  ref = "prerelease",
+  dependencies = TRUE
+)
+```
+
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "482-create-tadamonitoringlocationidentifier-in-tada_autoclean",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
@@ -118,7 +127,7 @@ remotes::install_github("USEPA/EPATADA",
 Use the **library()** function to load the TADA R Package into your R
 session.
 
-```{r load_TADA, results = 'hide'}
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -129,11 +138,10 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r, eval = F, results = 'hide'}
-list.of.packages <- c("tidyverse")
-new.packages <- list.of.packages[!(list.of.packages %in%
-  installed.packages()[, "Package"])]
-if (length(new.packages)) install.packages(new.packages)
+```{r setup, eval = T, results = 'hide'}
+if(!"tidyverse"%in%installed.packages()){
+install.packages("tidyverse")
+}
 
 library(tidyverse)
 ```
@@ -147,7 +155,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
-```{r, eval = F}
+```{r help, eval = F}
 ?TADA_DataRetrieval
 ```
 

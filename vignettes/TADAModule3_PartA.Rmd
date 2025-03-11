@@ -1,5 +1,5 @@
 ---
-title: "TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses"
+title: "TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names"
 format: html
 editor: visual
 author: "TADA Team"
@@ -12,9 +12,9 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses}
+  %\VignetteIndexEntry{TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names}
   %\VignetteEngine{knitr::rmarkdown}
-description: The first of multiple vignettes (under development) showcasing TADA Module 3 functions and a recommended workflow.
+description: The first of multiple Module 3 vignettes (under development) showcasing water quality data analysis functions and example workflows.
 editor_options:
   chunk_output_type: console
   markdown:
@@ -62,9 +62,9 @@ recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
 ```{r install_TADA_dev, eval = T, include = F}
-# helps with development (knit and checks), this chunk should not appear on website
+# helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
-  ref = "NMC-Workshop-Draft",
+  ref = "prerelease",
   dependencies = TRUE
 )
 ```
@@ -170,7 +170,6 @@ function from rATTAINS, which provides functions for downloading tidy
 data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
-
 ```{r, eval = FALSE, echo = FALSE}
 # return ATTAINS domain names
 rATTAINS::domain_values()
@@ -182,10 +181,11 @@ TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 ```
 
-As the ATTAINS Parameter Names are more general than the
-TADA Comparable Data Identifiers, it is not possible at this time to automate the crosswalk. TADA_CreateParamRef() creates a template which
-includes all TADA.ComparableDataIdentifiers from the TADA data frame and
-provides a blank column, "ATTAINS.ParameterName" for users to input the
+As the ATTAINS Parameter Names are more general than the TADA Comparable
+Data Identifiers, it is not possible at this time to automate the
+crosswalk. TADA_CreateParamRef() creates a template which includes all
+TADA.ComparableDataIdentifiers from the TADA data frame and provides a
+blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name. The function automatically pairs
 the EPA 304(a) pollutant name with the TADA.ComparableDataIdentifier for
 some priority characteristics.
