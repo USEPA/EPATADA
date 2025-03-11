@@ -61,6 +61,35 @@ more comprehensive module vignettes:
 -   [TADA Module
     2](https://usepa.github.io/EPATADA/articles/TADAModule2.html)
 
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing TADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package.
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA_developer, eval = T, results = 'hide', include = FALSE}
+remotes::install_github("USEPA/EPATADA",
+  ref = "12-26-24-maintenance",
+  dependencies = TRUE
+)
+```
+
 ## Load Required Packages
 
 The fist step is to load the TADA package and other packages used in our

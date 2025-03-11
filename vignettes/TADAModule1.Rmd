@@ -63,7 +63,7 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. USGS's
+Next, install and load EPATADA using the remotes package. USGS's
 dataRetrieval and other TADA R Package dependencies will also be
 downloaded automatically from CRAN with the TADA install. If desired,
 the development version of dataRetrieval can be downloaded directly from
