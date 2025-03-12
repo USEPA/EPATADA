@@ -17,8 +17,10 @@
 #' data(Data_Nutrients_UT)
 #' # Count table of key fields in Data_Nutrients_UT dataset
 #' fieldCountUT <- TADA_FieldCounts(Data_Nutrients_UT)
-#' # Count table of most fields in Data_Nutrients_UT, filtered to only AMMONIA results.
-#' fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT, display = "most", characteristicName = "AMMONIA")
+#' # Count table of most fields in Data_Nutrients_UT, filtered to only
+#' # AMMONIA results.
+#' fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT, 
+#' display = "most", characteristicName = "AMMONIA")
 TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), characteristicName = "null") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")

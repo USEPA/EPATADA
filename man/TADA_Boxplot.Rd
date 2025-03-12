@@ -57,7 +57,8 @@ Boxplots_TPbyOrg[[2]]
 # (e.g. stream, reservoir, canal, etc.)
 # Load example dataframe:
 data(Data_Nutrients_UT)
-Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, 
+id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
 # This example generates 32 box plots.
 Boxplot_output[[2]]
 Boxplot_output[[25]]

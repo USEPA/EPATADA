@@ -22,7 +22,7 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
-![*TADA poster created for the 2025 National Water Quality Monitoring Conference* ](images/TADA-Poster.png)
+![*TADA poster created for the 2025 National Water Quality Monitoring Conference*](vignettes/images/Poster.png)
 
 ## Installation
 
