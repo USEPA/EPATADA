@@ -1332,7 +1332,7 @@ getBboxJson <- function(bbox) {
 #'
 #' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
 #'
-#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle).
+#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/. Defaults to 1 (an open circle).
 #' @param width Width of the plot character. Defaults to 30 pixels.
 #' @param height Height of the plot character. Defaults to 30 pixels.
 #' @param bg Background color of the plot character Defaults to transparent.
