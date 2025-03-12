@@ -1,23 +1,27 @@
 ---
 title: "Creating Efficient and Reproducible Water Quality Workflows Using R"
-output: slidy_presentation
-date: "`r Sys.Date()`"
+format: html
 editor: visual
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Creating Efficient and Reproducible Water Quality Workflows Using R}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options:
-  wrap: 72
-execute:
-  echo: true
-  eval: true
-  output: true
-  warning: false
-  error: false
-  include: true
-  code_folding: true
+  chunk_output_type: console
+  markdown:
+    wrap: 72
 authors: 
-  - name: "Hillary Marler"
-    affiliation: EPA
   - name: "Cristina Mullin"
     orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Hillary Marler"
     affiliation: EPA
   - name: "Marc Weber"
     affiliation: EPA
@@ -29,36 +33,37 @@ authors:
     affiliation: EPA
   - name: "Kenny Wong"
     affiliation: ORISE at EPA
-footer: "EPATADA, dataRetrieval, nhdplusTools, StreamCatTools, hydroloom, spsurvey, spmodel, SSN2, sf, prism, terra, leaflet and tmap"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r knitsetup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      eval = F)
 ```
 
-# DRAFT WORKSHOP PRESENTATION
+## DRAFT EPA-USGS Joint Workshop
+Creating Efficient and Reproducible Water Quality Workflows Using R
 
 ## (5 mins) Introduction
 
-This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the U.S. Geological Survey (USGS) to create efficient and reproducible workflows that support water quality programs and research. For example, performing watershed or waterbody level analyses such as Clean Water Act Assessments.
+This workshop showcases how to integrate several R Packages developed by the U.S. Environmental Protection Agency (EPA) and the U.S. Geological Survey (USGS) to create efficient and reproducible workflows that support water quality programs and research. For example, performing watershed or waterbody level analyses such as Clean Water Act (CWA) analyses.
 
 ## Intended audience
 
-Water Quality eXchange (WQX) and Water Quality Portal (WQP) community, Clean Water Act (CWA) Assessment community (EPA, States and Tribal Nations), water quality and geospatial data analysts/researchers, EPA/USGS and other federal agencies.
+Water Quality eXchange (WQX) and Water Quality Portal (WQP) community, CWA assessment community (EPA, States and Tribal Nations), water quality and geospatial data analysts/researchers, EPA/USGS and other federal agencies.
 
 ## Agenda
 
-This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from Water Quality Portal (WQP). To start, participants will learn how to use EPA's Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
+This workshop demonstrates potential uses (beyond their original collection purpose) for publicly available water quality data from WQP. To start, participants will learn how to use EPA's Tools for Automated Data Analysis (TADA) R Package to retrieve, wrangle, harmonize, quality check, visualize and analyze WQP data from multiple organizations.
 
-Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic data including USGS continuous sensor data (using the NLDI via DR?) and geospatial data (using StreamCat). We then plan to touch briefly on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Units, which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
+Next, we will showcase how to bring in other web services and libraries for easy integration of additional hydrologic and geospatial data. We then plan to touch briefly on packages that can assist with building statistical models. Finally, we will demonstrate an example workflow for analyzing water quality by Assessment Units (AUs), which are state or tribal nation defined watershed or waterbody areas used for CWA assessments and reporting water quality conditions to EPA and the public.
 
 ## Packages
 
 -   EPA: EPATADA, StreamCatTools, spsurvey, spmodel, SSN2
 
--   USGS: dataRetrieval/NLDI, nhdplusTools, hydroloom
+-   USGS: dataRetrieval, nhdplusTools, hydroloom
 
--   Fundamental geospatial packages: sf, terra, leaflet and tmap
+-   Fundamental geospatial packages: sf, prism, terra, leaflet and tmap
 
 # (30 mins) Retrieving and Preparing Data for Analysis
 
@@ -68,19 +73,14 @@ Let's dive into Green Bay, WI!
 
 ## Install and load EPATADA
 
-Install and load the remotes package.
+Install and load required packages including remotes, [EPATADA](https://github.com/USEPA/EPATADA), StreamCatTools, and NMCWorkshopData (example data) for this workshop from CRAN or GitHub.
 
-```{r, eval = F}
+```{r devsetup, include = F}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
-
 library(remotes)
-```
 
-Install and load the [EPATADA R Package](https://github.com/USEPA/EPATADA), StreamCatTools, and example data (NMC-Workshop-Data) for this workshop from GitHub.
-
-```{r}
 if(!"EPATADA"%in%installed.packages()){
   remotes::install_github(
     "USEPA/EPATADA",
@@ -89,26 +89,59 @@ if(!"EPATADA"%in%installed.packages()){
     force = TRUE
     )
 }
+library(EPATADA)
 
 if(!"StreamCatTools"%in%installed.packages()){
   remotes::install_github('USEPA/StreamCatTools')
 }
+library(StreamCatTools)
 
 if(!"NMCWorkshopData"%in%installed.packages()){
   remotes::install_github("mhweber/NMC-Workshop-Data")
 }
+library(NMCWorkshopData)
+
 if(!"nhdplusTools"%in%installed.packages()){
   remotes::install.packages("nhdplusTools")
 }
+library(nhdplusTools)
+```
+
+```{r usersetup, eval = F}
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+library(remotes)
+
+if(!"EPATADA"%in%installed.packages()){
+  remotes::install_github(
+    "USEPA/EPATADA",
+    ref = "develop",
+    dependencies = TRUE,
+    force = TRUE
+    )
+}
 library(EPATADA)
+
+if(!"StreamCatTools"%in%installed.packages()){
+  remotes::install_github('USEPA/StreamCatTools')
+}
 library(StreamCatTools)
+
+if(!"NMCWorkshopData"%in%installed.packages()){
+  remotes::install_github("mhweber/NMC-Workshop-Data")
+}
 library(NMCWorkshopData)
+
+if(!"nhdplusTools"%in%installed.packages()){
+  remotes::install.packages("nhdplusTools")
+}
 library(nhdplusTools)
 ```
 
 It's go time! Let's time our process.
 
-```{r}
+```{r startime}
 # Record start time
 start.time <- Sys.time()
 ```
@@ -123,7 +156,7 @@ In this example, we will first use EPA's How's My Waterway (HMW) application to 
 
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
-```{r}
+```{r getdata}
 # GreenBay_FoxRiver <- TADA_DataRetrieval(
 #   statecode = "WI",
 #   startDate = "2015-01-01",
@@ -139,11 +172,9 @@ GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
 
 Now, let's use EPATADA functions to review, visualize, and whittle the returned WQP data down to include only results that are applicable to our water quality analysis and area of interest.
 
-![](images/Funnel.png)
-
 ## Flag and remove duplicate results from a single organization
 
-```{r}
+```{r single-org-dups}
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
 
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == "Unique")
@@ -151,13 +182,13 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == 
 
 ## Autoclean
 
-```{r}
+```{r autoclean}
 GreenBay_FoxRiver <- TADA_AutoClean(GreenBay_FoxRiver)
 ```
 
 ## Handle censored results
 
-```{r}
+```{r censored}
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
@@ -165,7 +196,7 @@ GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "
 
 Two organizations sometimes submit the same exact data to WQP.
 
-```{r}
+```{r multi-org-dups, eval = F}
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
@@ -173,13 +204,13 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipl
 
 ## Filter out any remaining irrelevant data, NA's and empty columns
 
-```{r}
+```{r autofilter}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
 GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
-# CM note for TADA team discussion: Should results with NA units be dealt with here or in the TADA unit conversions function? These have not yet been addressed
+# Topic for discussion: Would users like results with NA units to be dealt with in TADA_AutoFilter or in the TADA_ConvertResultUnits()? These have not yet been addressed.
 
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
@@ -188,13 +219,13 @@ sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
 ## Flag and remove QAQC samples and suspect results
 
-```{r}
+```{r flag}
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
 ## Flag results above and below threshold, but do not remove them
 
-```{r}
+```{r thresholds}
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 
 GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
@@ -202,19 +233,19 @@ GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, f
 
 ## Harmonize synonyms across characteristic, fraction, and speciation
 
-```{r}
+```{r harmonize}
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
 
 ## Calculate Total N and Total P from various species and fractions
 
-```{r}
+```{r TN-TP}
 GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 ```
 
 ## Review unique characteristic, fraction, and species combinations
 
-```{r}
+```{r table}
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
 
 DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
@@ -222,7 +253,7 @@ DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
 
 ## Filter to focus on frequently monitored characteristics in example data
 
-```{r}
+```{r subset}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in%
       c("SPECIFIC CONDUCTANCE_NA_NA_US/CM", 
@@ -234,7 +265,7 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
 
 ## Review organizations for subset
 
-```{r}
+```{r org-review}
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
@@ -243,7 +274,7 @@ TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 
 ## Generate stats table
 
-```{r}
+```{r stats}
 GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 
 DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
@@ -251,13 +282,13 @@ DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 
 ## Generate scatterplot
 
-```{r}
+```{r scatterplot}
 TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
 ## Generate map
 
-```{r}
+```{r map}
 TADA_OverviewMap(GreenBay_FoxRiver_Subset)
 
 GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)

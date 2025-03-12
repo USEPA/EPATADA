@@ -27,7 +27,8 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE, 
+  eval = F
 )
 ```
 
@@ -61,7 +62,7 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA_dev, eval = T, include = F}
+```{r install_TADA_dev, include = F}
 # helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
   ref = "prerelease",

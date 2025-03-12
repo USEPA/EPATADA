@@ -21,13 +21,14 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include = FALSE}
+```{r knitr, include = FALSE}
 library(knitr)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE, 
+  eval = F
 )
 ```
 
@@ -109,7 +110,7 @@ the `ref` input in `install_github` (see code chunk below). This
 functionality is mainly only useful to TADA package
 developers/contributors.
 
-```{r install_TADA_dev, eval = T, include = F}
+```{r install_TADA_dev, eval = F, include = F}
 # helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
   ref = "prerelease",
@@ -138,7 +139,7 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r setup, eval = T, results = 'hide'}
+```{r setup, eval = F, results = 'hide'}
 if(!"tidyverse"%in%installed.packages()){
 install.packages("tidyverse")
 }
