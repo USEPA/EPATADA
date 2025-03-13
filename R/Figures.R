@@ -37,7 +37,8 @@
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
 #' # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
-#' Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
+#' Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = 
+#' c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
 #' # This example generates 2 box plots.
 #' Boxplots_TPbyOrg[[1]]
 #' Boxplots_TPbyOrg[[2]]
@@ -678,9 +679,11 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
 #' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
-#' # If there are more than 12 categories to display, any remaining categories, the ones that have the smallest number of results,
+#' # If there are more than 12 categories to display, any remaining categories, 
+#' # the ones that have the smallest number of results,
 #' # are combined into an "ALL OTHERS" category.
-#' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.ComparableDataIdentifier")
+#' TADA_FieldValuesPie(Data_Nutrients_UT, field = 
+#' "TADA.ComparableDataIdentifier")
 #'
 TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "null") {
   dat <- utils::head(TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName), 12)

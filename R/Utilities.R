@@ -105,7 +105,9 @@ utils::globalVariables(c(
   "ProviderName", "TADA.SingleOrgDup.Flag", "UNIT_NAME", "URLencode", "USE_CLASS_NAME_LOCATION_ETC",
   "assessment_unit_identifier", "monitoring_data_link_text", "monitoring_location_identifier",
   "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
-  "organization_identifier.y", "parameter", "use_name", "use_name.y"
+  "organization_identifier.y", "parameter", "use_name", "use_name.y", 
+  "MONITORING_DATA_LINK_TEXT", "PARCEL_NO", "TRIBE_NAME", "everything", 
+  "resultCount", "tribal_area", "txtProgressBar"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1311,14 +1313,19 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' Get bounding box JSON
 #'
 #' @param bbox A bounding box from the sf function st_bbox
-#' @return A string containing bounding box JSON that can be passed to an ArcGIS feature layer in the Input Geometry field
+#' @return A string containing bounding box JSON that can be passed to an 
+#' ArcGIS feature layer in the Input Geometry field
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y))
+#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#' ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure), 
+#' xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure), 
+#' ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)), 
+#' crs = sf::st_crs(Data_6Tribes_5y))
 #' # Get a string containing the JSON of the bounding box
 #' getBboxJson(bbox)
 #' }

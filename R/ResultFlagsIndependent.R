@@ -1109,23 +1109,30 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
+#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' flaggedonly = TRUE)
 #'
 #' # Remove data with coordinates outside the USA, but keep flagged data with
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "remove")
 #'
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "change sign")
 #'
-#' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
+#' # Remove data with imprecise coordinates, but keep flagged data with 
+#' # coordinates outside the USA;
 #' # imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_imprecise = TRUE)
 #'
-#' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' # Remove data with imprecise coordinates or coordinates outside the USA 
+#' # from the dataframe:
+#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "remove", clean_imprecise = TRUE)
 #'
 TADA_FlagCoordinates <- function(.data,
                                  clean_outsideUSA = c("no", "remove", "change sign"),

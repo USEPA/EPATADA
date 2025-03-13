@@ -1130,7 +1130,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    small_prog_bar <- txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
+    small_prog_bar <- utils::txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
 
     # Download the data for each group
     for (i in 1:max(smallsitesgrp$group)) {
@@ -1174,7 +1174,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    big_prog_bar <- txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
+    big_prog_bar <- utils::txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
 
     # Unique site IDs
     bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
