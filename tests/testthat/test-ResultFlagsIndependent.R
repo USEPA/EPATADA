@@ -1,7 +1,4 @@
 test_that("SuspectCoordinates works", {
-  # use example dataset
-  data(Data_Nutrients_UT)
-
   # flagonly
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
   unique(SuspectCoord_flags$TADA.SuspectCoordinates)
@@ -32,9 +29,6 @@ test_that("SuspectCoordinates works", {
 
 
 test_that("Imprecise_lessthan3decimaldigits works", {
-  # use example dataset
-  data(Data_Nutrients_UT)
-
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
   FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
