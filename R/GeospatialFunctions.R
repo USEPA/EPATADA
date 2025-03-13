@@ -979,15 +979,20 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   ask = FALSE
 #' )
 #'
-#' # note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run
+#' # note: these example ATTAINS data retrieval queries below may take a 
+#' # long time (10+ minutes) to run
 #'
-#' tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = FALSE)
+#' tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, 
+#' return_sf = FALSE)
 #'
-#' tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = TRUE)
+#' tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, 
+#' return_sf = TRUE)
 #'
-#' tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = FALSE)
+#' tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, 
+#' resolution = "Hi", return_sf = FALSE)
 #'
-#' tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = TRUE)
+#' tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE,
+#' resolution = "Hi", return_sf = TRUE)
 #' }
 TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", return_sf = TRUE) {
   sf::sf_use_s2(FALSE)

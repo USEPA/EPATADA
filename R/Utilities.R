@@ -1421,7 +1421,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer and write local file to inst/extdata/OKTribe.shp
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write 
+#' # local file to inst/extdata/OKTribe.shp
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 #' }
@@ -1453,8 +1454,15 @@ writeLayer <- function(url, layerfilepath) {
 #' # Load example dataset
 #' data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
-#' bbox <- sf::st_bbox(c(xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
-#' # Get the American Indian Reservations feature layer, filtered by the bounding box for the Data_6Tribes_5y_Harmonized example dataset
+#' bbox <- sf::st_bbox(c(
+#' xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#' ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure), 
+#' xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure), 
+#' ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)), 
+#' crs = sf::st_crs(Data_6Tribes_5y_Harmonized))
+#' # Get the American Indian Reservations feature layer, 
+#' # filtered by the bounding box for the Data_6Tribes_5y_Harmonized 
+#' # example dataset
 #' layerfilepath <- "extdata/AmericanIndian.shp"
 #' getLayer(layerfilepath, bbox)
 #' }

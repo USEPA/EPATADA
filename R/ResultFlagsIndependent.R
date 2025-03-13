@@ -35,15 +35,20 @@
 #' # Load example dataset
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
-#' # Remove Suspect characteristic-analytical method combinations from dataframe:
-#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' # Remove Suspect characteristic-analytical method combinations from 
+#' # dataframe:
+#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = TRUE)
 #'
-#' # Flag, but do not remove, Suspect characteristic-analytical method combinations
+#' # Flag, but do not remove, Suspect characteristic-analytical method 
+#' # combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = FALSE)
 #'
 #' # Show only Suspect characteristic-analytical method combinations:
-#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -171,28 +176,35 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
+#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", 
+#' "MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 #' all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
 #'
-#' # Show only rows flagged as continuous data (note that all results are flagged in the example)
-#' all_data_flaggedonly <- TADA_FlagContinuousData(all_data, clean = FALSE, flaggedonly = TRUE)
+#' # Show only rows flagged as continuous data (note that all results are 
+#' # flagged in the example)
+#' all_data_flaggedonly <- TADA_FlagContinuousData(all_data, 
+#' clean = FALSE, flaggedonly = TRUE)
 #'
-#' # Remove continuous data in dataframe (note that this dataframe will have 0 results because all are flagged in the example)
+#' # Remove continuous data in dataframe (note that this dataframe will 
+#' # have 0 results because all are flagged in the example)
 #' all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 #'
 #' data(Data_Nutrients_UT)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-#' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE)
+#' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, 
+#' clean = FALSE)
 #' unique(Data_Nutrients_UT_flags$TADA.ContinuousData.Flag)
 #'
 #' # Show only rows flagged as continuous data
-#' Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT,
+#' clean = FALSE, flaggedonly = TRUE)
 #'
 #' # Remove continuous data in dataframe
-#' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
+#' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, 
+#' clean = TRUE)
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
 #' }
 #'
@@ -439,14 +451,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = TRUE)
 #'
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -638,14 +653,17 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = TRUE)
 #'
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -1243,10 +1261,13 @@ TADA_FlagCoordinates <- function(.data,
 #' @examples
 #' \dontrun{
 #' # Load dataset
-#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE)
+#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", 
+#' endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE)
 #' unique(dat$OrganizationIdentifier)
-#' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
-#' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
+#' # If duplicates across organizations exist, pick the result belonging 
+#' # to "21PA_WQX" if available.
+#' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, 
+#' dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #' }
 #'

@@ -27,7 +27,8 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE, 
+  eval = F
 )
 ```
 
@@ -90,7 +91,7 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r install_TADA_developer, eval = T, include = F}
+```{r install_TADA_developer, eval = F, include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "prerelease",
   dependencies = TRUE
@@ -566,11 +567,14 @@ by entering the following into the console:
 -   **?TADA_FindPotentialDuplicatesSingleOrg**
 
 Flag potential duplicates from a single organization:
+
 ```{r TADA_FindPotentialDuplicatesSingleOrg}
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
 ```
 
-Remove flagged duplicates from a single organization (random selection of single result):
+Remove flagged duplicates from a single organization (random selection
+of single result):
+
 ```{r FindPotentialDuplicates}
 R5ProfileClean4 <- R5ProfileClean3 %>%
   dplyr::filter(
