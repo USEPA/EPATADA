@@ -15,7 +15,7 @@ pchIcons(
 )
 }
 \arguments{
-\item{pch}{Plot character code; either a single number or a vector of multiple numbers. Possible values available at http://www.sthda.com/english/wiki/r-plot-pch-symbols-the-different-point-shapes-available-in-r. Defaults to 1 (an open circle).}
+\item{pch}{Plot character code; either a single number or a vector of multiple numbers. Possible values available at https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/. Defaults to 1 (an open circle).}
 
 \item{width}{Width of the plot character. Defaults to 30 pixels.}
 
