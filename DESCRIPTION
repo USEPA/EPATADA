@@ -99,7 +99,7 @@ Suggests:
     yaml, 
     remotes
 Remotes:
-    DOI-USGS/dataRetrieval/develop
+    DOI-USGS/dataRetrieval
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
