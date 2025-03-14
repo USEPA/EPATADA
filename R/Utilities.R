@@ -1195,7 +1195,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
   }
   
   verify_random_data <- function() {
-    df <- dat
+    df <- get_random_data()
     while(nrow(df) < 10) {
       df <- get_random_data()
     }
