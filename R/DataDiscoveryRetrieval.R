@@ -23,7 +23,9 @@
 #' aoi_sf cannot be used with tribal_area_type. If countrycode, countycode, huc,
 #' siteid, or statecode are used with aoi_sf or tribal_area_type they will be ignored
 #' under the assumption that the sf object or tribal location are the intended
-#' area of interest.
+#' area of interest. 
+#' 
+#' aoi_sf is only designed to work with polygon shapefiles.
 #'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 #' to find allowable values for queries, e.g., reference the WQX domain table to find countycode
@@ -42,7 +44,8 @@
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param aoi_sf An sf object to use for a query area of interest. If using a local shapefile,
-#'        sf::read_sf can be used to read in a user provided shapefile.
+#'        sf::read_sf can be used to read in a user provided shapefile. This will only 
+#'        work for polygons.
 #' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
 #'        countrycode = "OA" for Atlantic Ocean).
 #'        See https://www.waterqualitydata.us/Codes/countrycode for options.
@@ -1130,7 +1133,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    small_prog_bar <- txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
+    small_prog_bar <- utils::txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
 
     # Download the data for each group
     for (i in 1:max(smallsitesgrp$group)) {
@@ -1174,7 +1177,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    big_prog_bar <- txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
+    big_prog_bar <- utils::txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
 
     # Unique site IDs
     bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)

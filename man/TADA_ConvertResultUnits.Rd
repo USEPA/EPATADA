@@ -73,10 +73,14 @@ those with speciation in units.
 data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
-# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.ResultMeasure.MeasureUnitCode", and "TADA.SpeciationUnitConversion":
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
+# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", 
+# "TADA.Target.ResultMeasure.MeasureUnitCode", and 
+# "TADA.SpeciationUnitConversion":
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, 
+transform = FALSE)
 
 # Convert values and units for results and detection limits:
-ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
+ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, 
+transform = TRUE)
 
 }
