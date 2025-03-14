@@ -105,7 +105,7 @@ dependencies for this workflow will be downloaded automatically.
 
 ```{r devsetup, include = F, eval = T}
 remotes::install_github("USEPA/EPATADA", 
-                        ref = "prerelease",
+                        ref = "geospatial-vignette",
                         dependencies = TRUE,
                         force = TRUE)
 library(EPATADA)
@@ -428,8 +428,7 @@ We'll pull in all the NLCD categories at the local catchment level for
 each location
 
 ```{r}
-library(ggplot2)
-GB_FR_NLCD <- sc_nlcd(year='2019', aoi='cat', comid=GreenBay_FoxRiver_sf_locs$COMID)
+GB_FR_NLCD <- StreamCatTools::sc_nlcd(year='2019', aoi='cat', comid=GreenBay_FoxRiver_sf_locs$COMID)
 
 
 GB_FR_Urb <- GB_FR_NLCD |> 
@@ -441,7 +440,7 @@ GB_FR_Urb
 ### Visualize urbanization for local catchment for each location
 
 ```{r}
-ggplot(GB_FR_Urb, aes(x=Pct_Urbanized)) + 
+ggplot2::ggplot(GB_FR_Urb, aes(x=Pct_Urbanized)) + 
   geom_density()
 ```
 
@@ -603,7 +602,8 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ```{r}
-WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+# # need to troubleshoot why this is not working
+# WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
 ```
 
 # Visualizing Water Quality Issues
