@@ -33,7 +33,8 @@ TADA_DataRetrieval(
 \item{endDate}{End Date string in the format YYYY-MM-DD, for example, "2020-01-01"}
 
 \item{aoi_sf}{An sf object to use for a query area of interest. If using a local shapefile,
-sf::read_sf can be used to read in a user provided shapefile.}
+sf::read_sf can be used to read in a user provided shapefile. This will only
+work for polygons.}
 
 \item{countrycode}{Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
 countrycode = "OA" for Atlantic Ocean).
@@ -124,6 +125,8 @@ aoi_sf cannot be used with tribal_area_type. If countrycode, countycode, huc,
 siteid, or statecode are used with aoi_sf or tribal_area_type they will be ignored
 under the assumption that the sf object or tribal location are the intended
 area of interest.
+
+aoi_sf is only designed to work with polygon shapefiles.
 
 Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
 to find allowable values for queries, e.g., reference the WQX domain table to find countycode

@@ -1150,7 +1150,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
                                    autoclean = TRUE) {
   
   get_random_data <-  function(ndays = number_of_days, state_choice = choose_random_state, 
-                               ac = autoclean) {
+                               ac = autoclean, ask = FALSE) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -1195,14 +1195,15 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
   }
   
   verify_random_data <- function() {
-    df <- get_random_data()
+    df <- dat
     while(nrow(df) < 10) {
       df <- get_random_data()
     }
     return(df)
   }
   
-  verify_random_data()
+  df <- verify_random_data()
+  return(df)
 }
 
 #' Aggregate multiple result values to a min, max, or mean
