@@ -32,7 +32,7 @@ ResultDepthHeightMeasure Result Value/Unit columns."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -125,17 +125,23 @@ unit = "m".</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert all depth units to meters and review unit harmonization:</span></span></span>
-<span class="r-in"><span><span class="co"># "ActivityDepthHeightMeasure.MeasureUnitCode" and "ActivityDepthHeightMeasure.MeasureValue"</span></span></span>
-<span class="r-in"><span><span class="co"># are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and "TADA.ActivityDepthHeightMeasure.MeasureValue"</span></span></span>
+<span class="r-in"><span><span class="co"># "ActivityDepthHeightMeasure.MeasureUnitCode" and </span></span></span>
+<span class="r-in"><span><span class="co"># "ActivityDepthHeightMeasure.MeasureValue"</span></span></span>
+<span class="r-in"><span><span class="co"># are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and </span></span></span>
+<span class="r-in"><span><span class="co"># "TADA.ActivityDepthHeightMeasure.MeasureValue"</span></span></span>
 <span class="r-in"><span><span class="va">DepthUnitsConverted_m</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertDepthUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert all depth units to feet:</span></span></span>
 <span class="r-in"><span><span class="va">DepthUnitsConverted_ft</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertDepthUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, unit <span class="op">=</span> <span class="st">"ft"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Do not convert any depth units, but address depth unit synonyms, add TADA depth columns (copies),</span></span></span>
-<span class="r-in"><span><span class="co"># Add columns with target units and conversion factors for each depth measure unit:</span></span></span>
-<span class="r-in"><span><span class="va">DepthUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertDepthUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Compare columns before and after transformation to see example transformation from "meters" to "m"</span></span></span>
+<span class="r-in"><span><span class="co"># Do not convert any depth units, but address depth unit synonyms, add </span></span></span>
+<span class="r-in"><span><span class="co"># TADA depth columns (copies),</span></span></span>
+<span class="r-in"><span><span class="co"># Add columns with target units and conversion factors for each depth </span></span></span>
+<span class="r-in"><span><span class="co"># measure unit:</span></span></span>
+<span class="r-in"><span><span class="va">DepthUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertDepthUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
+<span class="r-in"><span>transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Compare columns before and after transformation to see example </span></span></span>
+<span class="r-in"><span><span class="co"># transformation from "meters" to "m"</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">DepthUnitsNotConverted</span><span class="op">$</span><span class="va">TADA.ActivityDepthHeightMeasure.MeasureUnitCode</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA     "m"    "feet"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">DepthUnitsNotConverted</span><span class="op">$</span><span class="va">ActivityDepthHeightMeasure.MeasureUnitCode</span><span class="op">)</span></span></span>
@@ -148,7 +154,7 @@ unit = "m".</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

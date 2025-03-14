@@ -41,7 +41,7 @@
     <li><a class="dropdown-item" href="articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul>
@@ -60,7 +60,7 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level2">
-<h2 id="welcome-to-tada-tools-for-automated-data-analysis">Welcome to TADA: Tools for Automated Data Analysis!<a class="anchor" aria-label="anchor" href="#welcome-to-tada-tools-for-automated-data-analysis"></a>
+<h2 id="welcome-to-epatada-tools-for-automated-data-analysis">Welcome to EPATADA: Tools for Automated Data Analysis!<a class="anchor" aria-label="anchor" href="#welcome-to-epatada-tools-for-automated-data-analysis"></a>
 </h2>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg"></a></p>
 <p><a href="https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg"></a></p>
@@ -83,6 +83,9 @@
 <li><p>More information on how TADA leverages the <a href="https://usepa.github.io/EPATADA/articles/WQXValidationService.html">WQX QAQC Service</a></p></li>
 <li><p><a href="https://www.epa.gov/waterdata/TADA" class="external-link">More about the TADA Project</a></p></li>
 </ul>
+<div class="float">
+<img src="articles/images/Poster.png" alt="TADA poster created for the 2025 National Water Quality Monitoring Conference"><div class="figcaption"><em>TADA poster created for the 2025 National Water Quality Monitoring Conference</em></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -101,6 +104,11 @@ install.packages("remotes")
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
 
 TADAShiny::run_app()</code></pre>
+<div class="section level3">
+<h3 id="recommended-citation">Recommended Citation:<a class="anchor" aria-label="anchor" href="#recommended-citation"></a>
+</h3>
+<pre><code>Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Healy, K., Willi, K., Brousil, M., Bousquin, J., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/</code></pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="water-quality-portal">Water Quality Portal<a class="anchor" aria-label="anchor" href="#water-quality-portal"></a>
@@ -174,11 +182,15 @@ TADAShiny::run_app()</code></pre>
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>U.S. Environmental Protection Agency <br><small class="roles"> Author </small>  </li>
 <li>Cristina Mullin <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-0615-6087" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li>Hillary Marler <br><small class="roles"> Author </small>  </li>
+<li>Hillary Marler <br><small class="roles"> Author </small> <a href="https://orcid.org/0009-0006-0323-1172" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 <li>Jacob Greif <br><small class="roles"> Author </small>  </li>
 <li>Elise Hinman <br><small class="roles"> Author </small>  </li>
+<li>Kenny Wong <br><small class="roles"> Author </small>  </li>
+<li>Kathryn Willi <br><small class="roles"> Author </small>  </li>
+<li>Matt Brousil <br><small class="roles"> Author </small>  </li>
+<li>Kathleen Healy <br><small class="roles"> Author </small>  </li>
+<li>Justin Bousquin <br><small class="roles"> Author </small>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -190,7 +202,7 @@ TADAShiny::run_app()</code></pre>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

@@ -32,7 +32,7 @@ censored data function, TADA_SimpleCensoredMethods."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -114,17 +114,21 @@ cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FA
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag and keep all suspect samples:</span></span></span>
-<span class="r-in"><span><span class="va">MeasureQualifierCode_flagged</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">MeasureQualifierCode_flagged</span> <span class="op">&lt;-</span> </span></span>
+<span class="r-in"><span><span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag suspect samples and filter to suspect data only:</span></span></span>
-<span class="r-in"><span><span class="va">MeasureQualifierCode_flags_only</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">MeasureQualifierCode_flags_only</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">Data_6Tribes_5y</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove all suspect samples:</span></span></span>
-<span class="r-in"><span><span class="va">MeasureQualifierCode_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">MeasureQualifierCode_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, </span></span>
+<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove all suspect samples and DO NOT include a new column with</span></span></span>
 <span class="r-in"><span><span class="co"># qualifier definitions (TADA.MeasureQualifierCode.Def):</span></span></span>
-<span class="r-in"><span><span class="va">MeasureQualifierCode_clean_nodefs</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, define <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">MeasureQualifierCode_clean_nodefs</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMeasureQualifierCode</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">TRUE</span>, define <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -132,7 +136,7 @@ cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FA
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

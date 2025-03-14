@@ -34,7 +34,7 @@ Default is flaggedonly = FALSE.'></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -124,30 +124,40 @@ The WQX team plans to review and update these new combinations quarterly.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove data with Suspect characteristic-media-result unit combinations from dataframe,</span></span></span>
-<span class="r-in"><span><span class="co"># but retain "NonStandardized" combinations flagged in new column 'TADA.ResultUnit.Flag':</span></span></span>
+<span class="r-in"><span><span class="co"># Remove data with Suspect characteristic-media-result unit combinations</span></span></span>
+<span class="r-in"><span><span class="co"># from dataframe, but retain "NonStandardized" combinations flagged in new</span></span></span>
+<span class="r-in"><span><span class="co"># column 'TADA.ResultUnit.Flag':</span></span></span>
 <span class="r-in"><span><span class="va">SuspectUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove data with "NonStandardized" characteristic-media-result unit combinations</span></span></span>
-<span class="r-in"><span><span class="co"># from dataframe but retain Suspect combinations flagged in new column 'TADA.ResultUnit.Flag:</span></span></span>
-<span class="r-in"><span><span class="va">NonstandardUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"nonstandardized_only"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Remove data with "NonStandardized" characteristic-media-result unit</span></span></span>
+<span class="r-in"><span><span class="co"># combinations from dataframe but retain Suspect combinations flagged in</span></span></span>
+<span class="r-in"><span><span class="co"># new column 'TADA.ResultUnit.Flag:</span></span></span>
+<span class="r-in"><span><span class="va">NonstandardUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="st">"nonstandardized_only"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove both Suspect and "NonStandardized" characteristic-media-result unit combinations</span></span></span>
-<span class="r-in"><span><span class="co"># from dataframe:</span></span></span>
+<span class="r-in"><span><span class="co"># Remove both Suspect and "NonStandardized" characteristic-media-result</span></span></span>
+<span class="r-in"><span><span class="co"># unit combinations from dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">ResultUnit_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Flag, but do not remove, data with Suspect or "NonStandardized" characteristic-media-result unit</span></span></span>
-<span class="r-in"><span><span class="co"># combinations in new column titled "TADA.ResultUnit.Flag":</span></span></span>
+<span class="r-in"><span><span class="co"># Flag, but do not remove, data with Suspect or "NonStandardized"</span></span></span>
+<span class="r-in"><span><span class="co"># characteristic-media-result unit combinations in new column titled</span></span></span>
+<span class="r-in"><span><span class="co"># "TADA.ResultUnit.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">SuspectUnit_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only Suspect characteristic-media-result unit combinations:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"nonstandardized_only"</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="st">"nonstandardized_only"</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-media-result unit combinations or they were all filtered out"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only "NonStandardized" characteristic-media-result unit combinations:</span></span></span>
-<span class="r-in"><span><span class="va">NonstandardUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"suspect_only"</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">NonstandardUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="st">"suspect_only"</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-media-result unit combinations or they were all filtered out"</span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -155,7 +165,7 @@ The WQX team plans to review and update these new combinations quarterly.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

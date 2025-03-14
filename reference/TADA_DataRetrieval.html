@@ -4,12 +4,16 @@ dataframe. Note that the inputs (e.g. project, organization, siteType) with the
 exceptions of endDate and startDate match the web service call format from the
 online WQP GUI. endDate and startDate match the format suggested in USGS's
 dataRetrieval package (endDate = &quot;YYYY-MM-DD&quot;), which is a more familiar date
-format for R users than the WQP GUI's endDateHi = &quot;MM-DD-YYYY&quot;."><meta property="og:description" content="Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
+format for R users than the WQP GUI's endDateHi = &quot;MM-DD-YYYY&quot;. aoi_sf,
+tribal_area_type, and tribe_name_parcel do not have corresponding inputs in
+the web service."><meta property="og:description" content="Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
 dataframe. Note that the inputs (e.g. project, organization, siteType) with the
 exceptions of endDate and startDate match the web service call format from the
 online WQP GUI. endDate and startDate match the format suggested in USGS's
 dataRetrieval package (endDate = &quot;YYYY-MM-DD&quot;), which is a more familiar date
-format for R users than the WQP GUI's endDateHi = &quot;MM-DD-YYYY&quot;."></head><body>
+format for R users than the WQP GUI's endDateHi = &quot;MM-DD-YYYY&quot;. aoi_sf,
+tribal_area_type, and tribe_name_parcel do not have corresponding inputs in
+the web service."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -34,7 +38,7 @@ format for R users than the WQP GUI's endDateHi = &quot;MM-DD-YYYY&quot;."></hea
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -60,7 +64,9 @@ dataframe. Note that the inputs (e.g. project, organization, siteType) with the
 exceptions of endDate and startDate match the web service call format from the
 online WQP GUI. endDate and startDate match the format suggested in USGS's
 dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
-format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
+format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY". aoi_sf,
+tribal_area_type, and tribe_name_parcel do not have corresponding inputs in
+the web service.</p>
     </div>
 
     <div class="section level2">
@@ -68,11 +74,14 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  aoi_sf <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  countrycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteid <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  siteType <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  tribal_area_type <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  tribe_name_parcel <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicName <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  characteristicType <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  sampleMedia <span class="op">=</span> <span class="st">"null"</span>,</span>
@@ -80,6 +89,8 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 <span>  organization <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  project <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  providers <span class="op">=</span> <span class="st">"null"</span>,</span>
+<span>  maxrecs <span class="op">=</span> <span class="fl">350000</span>,</span>
+<span>  ask <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  applyautoclean <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -96,16 +107,29 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 <dd><p>End Date string in the format YYYY-MM-DD, for example, "2020-01-01"</p></dd>
 
 
+<dt id="arg-aoi-sf">aoi_sf<a class="anchor" aria-label="anchor" href="#arg-aoi-sf"></a></dt>
+<dd><p>An sf object to use for a query area of interest. If using a local shapefile,
+sf::read_sf can be used to read in a user provided shapefile. This will only
+work for polygons.</p></dd>
+
+
 <dt id="arg-countrycode">countrycode<a class="anchor" aria-label="anchor" href="#arg-countrycode"></a></dt>
-<dd><p>Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada, countrycode = "OA" for Atlantic Ocean). See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
+<dd><p>Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
+countrycode = "OA" for Atlantic Ocean).
+See https://www.waterqualitydata.us/Codes/countrycode for options.</p></dd>
 
 
 <dt id="arg-countycode">countycode<a class="anchor" aria-label="anchor" href="#arg-countycode"></a></dt>
-<dd><p>FIPS county name. Note that a state code must also be supplied (e.g. statecode = "AL", countycode = "Chilton"). See https://www.waterqualitydata.us/Codes/countycode for options.</p></dd>
+<dd><p>FIPS county name. Note that a state code must also be supplied (e.g.
+statecode = "AL", countycode = "Chilton").
+See https://www.waterqualitydata.us/Codes/countycode for options.</p></dd>
 
 
 <dt id="arg-huc">huc<a class="anchor" aria-label="anchor" href="#arg-huc"></a></dt>
-<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs can be entered. See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a map with HUCS. Click on a HUC to find the associated code.</p></dd>
+<dd><p>A numeric code denoting a hydrologic unit. Example: "04030202". Different size hucs
+can be entered.
+See https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3 for a
+map with HUCS. Click on a HUC to find the associated code.</p></dd>
 
 
 <dt id="arg-siteid">siteid<a class="anchor" aria-label="anchor" href="#arg-siteid"></a></dt>
@@ -113,39 +137,74 @@ format for R users than the WQP GUI's endDateHi = "MM-DD-YYYY".</p>
 
 
 <dt id="arg-sitetype">siteType<a class="anchor" aria-label="anchor" href="#arg-sitetype"></a></dt>
-<dd><p>Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for options.</p></dd>
+<dd><p>Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype for
+options.</p></dd>
+
+
+<dt id="arg-tribal-area-type">tribal_area_type<a class="anchor" aria-label="anchor" href="#arg-tribal-area-type"></a></dt>
+<dd><p>One of four tribal spatial layers: "Alaska Native Allotments",
+"American Indian Reservations", "Off-reservation Trust Lands", or "Oklahoma Tribal
+Statistical Areas". More info in TADA_TribalOptions(). Note that "Alaska Native Villages"
+and "Virginia Federally Recognized Tribes" layers will not return a successful query.</p></dd>
+
+
+<dt id="arg-tribe-name-parcel">tribe_name_parcel<a class="anchor" aria-label="anchor" href="#arg-tribe-name-parcel"></a></dt>
+<dd><p>The name of one or more tribes corresponding to entries in the
+TRIBE_NAME field of the specified tribal_area_type. OR if the type is "Alaska Native
+Allotments" then the corresponding PARCEL_NO. If a tribal_area_type is selected,
+tribal_name_parcel is required. More info in TADA_TribalOptions().</p></dd>
 
 
 <dt id="arg-characteristicname">characteristicName<a class="anchor" aria-label="anchor" href="#arg-characteristicname"></a></dt>
-<dd><p>Name of parameter. See https://www.waterqualitydata.us/Codes/characteristicName for options.</p></dd>
+<dd><p>Name of parameter.
+See https://www.waterqualitydata.us/Codes/characteristicName for options.</p></dd>
 
 
 <dt id="arg-characteristictype">characteristicType<a class="anchor" aria-label="anchor" href="#arg-characteristictype"></a></dt>
-<dd><p>Groups of environmental measurements/parameters. See https://www.waterqualitydata.us/Codes/characteristicType for options.</p></dd>
+<dd><p>Groups of environmental measurements/parameters.
+See https://www.waterqualitydata.us/Codes/characteristicType for options.</p></dd>
 
 
 <dt id="arg-samplemedia">sampleMedia<a class="anchor" aria-label="anchor" href="#arg-samplemedia"></a></dt>
-<dd><p>Sampling substrate such as water, air, or sediment. See https://www.waterqualitydata.us/Codes/sampleMedia for options.</p></dd>
+<dd><p>Sampling substrate such as water, air, or sediment.
+See https://www.waterqualitydata.us/Codes/sampleMedia for options.</p></dd>
 
 
 <dt id="arg-statecode">statecode<a class="anchor" aria-label="anchor" href="#arg-statecode"></a></dt>
-<dd><p>FIPS state alpha code that identifies a state (e.g. statecode = "DE" for Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.</p></dd>
+<dd><p>FIPS state alpha code that identifies a state (e.g. statecode = "DE" for
+Delaware). See https://www.waterqualitydata.us/Codes/statecode for options.</p></dd>
 
 
 <dt id="arg-organization">organization<a class="anchor" aria-label="anchor" href="#arg-organization"></a></dt>
-<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify an organization with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/organization for options.</p></dd>
+<dd><p>A string of letters and/or numbers (some additional characters also possible)
+used to signify an organization with data in the Water Quality Portal.
+See https://www.waterqualitydata.us/Codes/organization for options.</p></dd>
 
 
 <dt id="arg-project">project<a class="anchor" aria-label="anchor" href="#arg-project"></a></dt>
-<dd><p>A string of letters and/or numbers (some additional characters also possible) used to signify a project with data in the Water Quality Portal. See https://www.waterqualitydata.us/Codes/project for options.</p></dd>
+<dd><p>A string of letters and/or numbers (some additional characters also possible) used
+to signify a project with data in the Water Quality Portal.
+See https://www.waterqualitydata.us/Codes/project for options.</p></dd>
 
 
 <dt id="arg-providers">providers<a class="anchor" aria-label="anchor" href="#arg-providers"></a></dt>
-<dd><p>Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.</p></dd>
+<dd><p>Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
+"NWIS". See https://www.waterqualitydata.us/Codes/providers for options.</p></dd>
+
+
+<dt id="arg-maxrecs">maxrecs<a class="anchor" aria-label="anchor" href="#arg-maxrecs"></a></dt>
+<dd><p>Maximum number of records to query at once (i.e., without breaking into smaller
+queries).</p></dd>
+
+
+<dt id="arg-ask">ask<a class="anchor" aria-label="anchor" href="#arg-ask"></a></dt>
+<dd><p>A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before
+downloads begin. Defaults to TRUE.</p></dd>
 
 
 <dt id="arg-applyautoclean">applyautoclean<a class="anchor" aria-label="anchor" href="#arg-applyautoclean"></a></dt>
-<dd><p>Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned data profile.</p></dd>
+<dd><p>Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
+data profile. Suggest switching to FALSE for queries that are expected to be large.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -164,9 +223,16 @@ from only Virginia or Illinois; the data must fit into one of the values from BO
 of the query fields.
 characteristicName and Characteristic Group also work as an AND, therefore the
 characteristicName must fall within the Characteristic Group when both are entered.</p>
+<p>aoi_sf cannot be used with tribal_area_type. If countrycode, countycode, huc,
+siteid, or statecode are used with aoi_sf or tribal_area_type they will be ignored
+under the assumption that the sf object or tribal location are the intended
+area of interest.</p>
+<p>aoi_sf is only designed to work with polygon shapefiles.</p>
 <p>Users can reference the <a href="https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads" class="external-link">WQX domain tables</a>
-to find allowable values for queries, e.g., reference the WQX domain table to find countycode and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
-Alternatively, you can use the WQP services to find areas where data is available in the US: https://www.waterqualitydata.us/Codes/countycode</p>
+to find allowable values for queries, e.g., reference the WQX domain table to find countycode
+and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+Alternatively, you can use the WQP services to find areas where data is available in the US:
+https://www.waterqualitydata.us/Codes/countycode</p>
 <p>TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as
 harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.</p>
@@ -174,116 +240,79 @@ harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.<
 the date times to UTC. It also automatically converts the data to dates,
 datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPdata</p>
     </div>
+    <div class="section level2">
+    <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
+    <p>Alaska Native Villages and Virginia Federally Recognized Tribes are point
+geometries in the Map Service, not polygons. At the time of this writing they
+do not return any data when used for WQP bbox queries and so are set to return
+errors when used with this function.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># example for WI</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example for a single characteristic from one county</span></span></span>
 <span class="r-in"><span><span class="va">tada1</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"WI"</span>, countycode <span class="op">=</span> <span class="st">"Dane"</span>,</span></span>
-<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span></span></span>
+<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="st">"Phosphorus"</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for UT</span></span></span>
+<span class="r-in"><span><span class="co"># example for NM with a startDate and multiple characteristics</span></span></span>
 <span class="r-in"><span><span class="va">tada2</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"UT"</span>,</span></span>
-<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ammonia"</span>, <span class="st">"Nitrate"</span>, <span class="st">"Nitrogen"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for SC</span></span></span>
-<span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"SC"</span>, countycode <span class="op">=</span> <span class="st">"Abbeville"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for CT</span></span></span>
-<span class="r-in"><span><span class="va">tada4</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"CT"</span>, startDate <span class="op">=</span> <span class="st">"2020-10-01"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># note that countycode queries require a statecode (see example below)</span></span></span>
-<span class="r-in"><span><span class="va">tada5</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>countycode <span class="op">=</span> <span class="st">"US:02:020"</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for NM</span></span></span>
-<span class="r-in"><span><span class="va">tada6</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"NM"</span>,</span></span>
 <span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="st">"Ammonia"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"Nitrate"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"Nitrogen"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2020-05-01"</span></span></span>
+<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2020-05-01"</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for AK project</span></span></span>
-<span class="r-in"><span><span class="va">tada7</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>project <span class="op">=</span> <span class="st">"Anchorage Bacteria 20-21"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># example for retrieving data from a single project</span></span></span>
+<span class="r-in"><span><span class="va">tada3</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>project <span class="op">=</span> <span class="st">"Anchorage Bacteria 20-21"</span>, ask <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># another example for AK</span></span></span>
-<span class="r-in"><span><span class="va">tada8</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"AK"</span>,</span></span>
-<span class="r-in"><span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="st">"Fecal Coliform"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"Escherichia coli"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"Enterococcus"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"Ammonia"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"Nitrate"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"Nitrogen"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2018-05-01"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># example using tribal_area_type and tribe_name_parcel to query</span></span></span>
+<span class="r-in"><span><span class="va">tada4</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  tribal_area_type <span class="op">=</span> <span class="st">"American Indian Reservations"</span>,</span></span>
+<span class="r-in"><span>  tribe_name_parcel <span class="op">=</span> <span class="st">"Pueblo of Pojoaque, New Mexico"</span>,</span></span>
+<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2018-01-01"</span>,</span></span>
+<span class="r-in"><span>  endDate <span class="op">=</span> <span class="st">"2019-01-01"</span>,</span></span>
+<span class="r-in"><span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># example for tribes</span></span></span>
-<span class="r-in"><span><span class="co"># Download data for many of the ATTAINS participating tribes</span></span></span>
-<span class="r-in"><span><span class="co"># Note this query may take about a half hour to run</span></span></span>
-<span class="r-in"><span><span class="co"># https://www.itecmembers.org/attains/</span></span></span>
-<span class="r-in"><span><span class="co"># ATTAINS participating tribes also have tribal pages in EPA's</span></span></span>
-<span class="r-in"><span><span class="co"># How's My Waterway Application</span></span></span>
-<span class="r-in"><span><span class="co"># Example: https://mywaterway.epa.gov/tribe/SFNOES</span></span></span>
-<span class="r-in"><span><span class="co">#</span></span></span>
-<span class="r-in"><span><span class="co"># Sac &amp; Fox Nation, Oklahoma "SFNOES_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Citizen Potawatomi Nation, Oklahoma "CPNWATER"</span></span></span>
-<span class="r-in"><span><span class="co"># Delaware Nation, Oklahoma "DELAWARENATION"</span></span></span>
-<span class="r-in"><span><span class="co"># Hoopa Valley Tribe, California "HVTEPA_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Otoe Missouria Tribe of Oklahoma "O_MTRIBE_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Minnesota Chippewa Tribe, Minnesota (Fond du Lac Band) "FONDULAC_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Pueblo of San Ildefonso, New Mexico "SANILDEFONSODECP"</span></span></span>
-<span class="r-in"><span><span class="co"># Pueblo of Santa Ana, New Mexico "PUEBLO_SANTAANA"</span></span></span>
-<span class="r-in"><span><span class="co"># Pueblo of Tesuque, New Mexico "PUEBLOOFTESUQUE"</span></span></span>
-<span class="r-in"><span><span class="co"># Red Lake Band of Chippewa Indians, Minnesota "REDLAKE_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Seneca-Cayuga Nation "SCEQ"</span></span></span>
-<span class="r-in"><span><span class="co"># The Chickasaw Nation "CNENVSER"</span></span></span>
-<span class="r-in"><span><span class="co"># The Choctaw Nation of Oklahoma "CHOCNATWQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Wyandotte Nation "WNENVDPT_WQX"</span></span></span>
-<span class="r-in"><span><span class="co"># Pueblo of Pojoaque "PUEBLO_POJOAQUE"</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tada9</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span>organization <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>  <span class="st">"SFNOES_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"CPNWATER"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"DELAWARENATION"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"HVTEPA_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"O_MTRIBE_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"FONDULAC_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"SANILDEFONSODECP"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"PUEBLO_SANTAANA"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"PUEBLOOFTESUQUE"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"REDLAKE_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"SCEQ"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"CNENVSER"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"CHOCNATWQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"WNENVDPT_WQX"</span>,</span></span>
-<span class="r-in"><span>  <span class="st">"PUEBLO_POJOAQUE"</span></span></span>
-<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># query only NWIS data for a 10 year period in CT</span></span></span>
-<span class="r-in"><span><span class="va">tada10</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">tada5</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2013-01-01"</span>,</span></span>
 <span class="r-in"><span>  endDate <span class="op">=</span> <span class="st">"2022-12-31"</span>,</span></span>
 <span class="r-in"><span>  sampleMedia <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Water"</span>, <span class="st">"water"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="st">"CT"</span>, <span class="co"># consider downloading only 1 state at a time</span></span></span>
 <span class="r-in"><span>  providers <span class="op">=</span> <span class="st">"NWIS"</span>,</span></span>
-<span class="r-in"><span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span>  applyautoclean <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># query by country code (e.g. Canada, countrycode = "CA")</span></span></span>
-<span class="r-in"><span><span class="va">tada11</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">tada6</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2015-01-01"</span>,</span></span>
-<span class="r-in"><span>  countrycode <span class="op">=</span> <span class="st">"CA"</span></span></span>
+<span class="r-in"><span>  countrycode <span class="op">=</span> <span class="st">"CA"</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># query by shapefile for Navajo Nation</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">navajo_sf</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">read_sf</a></span><span class="op">(</span><span class="st">"inst/extdata/AmericanIndian.shp"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">NAME</span> <span class="op">==</span> <span class="st">"Navajo Nation"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tada7</span> <span class="op">&lt;-</span> <span class="fu">TADA_DataRetrieval</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  aoi_sf <span class="op">=</span> <span class="va">navajo_sf</span>,</span></span>
+<span class="r-in"><span>  startDate <span class="op">=</span> <span class="st">"2023-01-01"</span>,</span></span>
+<span class="r-in"><span>  endDate <span class="op">=</span> <span class="st">"2023-12-31"</span>,</span></span>
+<span class="r-in"><span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
@@ -294,7 +323,7 @@ datetimes, numerics based on a standard algorithm. See: ?dataRetrieval::readWQPd
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

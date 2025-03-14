@@ -48,7 +48,7 @@ and Kaplan Meier."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -99,7 +99,7 @@ where each row represents a unique data record. Dataframe must include the
 columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
-'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
+'DetectionQuantitationLimitTypeName', and 'TADA.MonitoringLocationIdentifier' to
 run this function. The 'TADA.ComparableDataIdentifier' can be added to the
 dataframe by running the function TADA_CreateComparableID().</p></dd>
 
@@ -109,8 +109,8 @@ dataframe by running the function TADA_CreateComparableID().</p></dd>
 'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
 want to summarize their dataset by additional grouping columns. For
 example, a user may want to create a summary table where each row is
-specific to one comparable data identifier AND one monitoring location.
-This input would look like: group_cols = c("MonitoringLocationIdentifier")</p></dd>
+specific to one comparable data identifier AND one TADA monitoring location.
+This input would look like: group_cols = c("TADA.MonitoringLocationIdentifier")</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -132,7 +132,7 @@ This input would look like: group_cols = c("MonitoringLocationIdentifier")</p></
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

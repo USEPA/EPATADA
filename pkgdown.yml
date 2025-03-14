@@ -3,15 +3,15 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
-  articles/TADAAssessmentUnitUseCase: TADAAssessmentUnitUseCase.html
-  articles/TADAModule1_AdvancedTraining: TADAModule1_AdvancedTraining.html
-  articles/TADAModule1_BeginnerTraining: TADAModule1_BeginnerTraining.html
+  TADAAssessmentUnitUseCase: TADAAssessmentUnitUseCase.html
+  TADAModule1_AdvancedTraining: TADAModule1_AdvancedTraining.html
+  TADAModule1_BeginnerTraining: TADAModule1_BeginnerTraining.html
   TADAModule1: TADAModule1.html
   TADAModule2: TADAModule2.html
   TADAModule3_PartA: TADAModule3_PartA.html
-  articles/TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
+  TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
   WQXValidationService: WQXValidationService.html
-last_built: 2025-02-11T16:20Z
+last_built: 2025-03-14T19:01Z
 urls:
   reference: usepa.github.io/EPATADA/reference
   article: usepa.github.io/EPATADA/articles

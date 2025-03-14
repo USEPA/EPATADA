@@ -24,7 +24,7 @@
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -115,10 +115,10 @@
         <dd>AutoFilter</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_BigDataRetrieval.html">TADA_BigDataRetrieval()</a></code>
+          <code><a href="TADA_BigDataHelper.html">TADA_BigDataHelper()</a></code>
 
         </dt>
-        <dd>Large WQP data pulls using dataRetrieval</dd>
+        <dd>Assist with large WQP data pulls using dataRetrieval</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_Boxplot.html">TADA_Boxplot()</a></code>
@@ -187,10 +187,16 @@
         <dd>Create TADA.ComparableDataIdentifier Column</dd>
       </dl><dl><dt>
 
+          <code><a href="TADA_CreateDateTime.html">TADA_CreateDateTime()</a></code>
+
+        </dt>
+        <dd>Create ActivityStartDateTime column</dd>
+      </dl><dl><dt>
+
           <code><a href="TADA_CreatePairRef.html">TADA_CreatePairRef()</a></code>
 
         </dt>
-        <dd>Create Reference Dataframe to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)</dd>
+        <dd>Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_CreateParamRef.html">TADA_CreateParamRef()</a></code>
@@ -199,16 +205,16 @@
         <dd>Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool (CST) Parameter Name Crosswalk</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_CreateParamUseRef.html">TADA_CreateParamUseRef()</a></code>
-
-        </dt>
-        <dd>Create or Update ATTAINS Parameter and Use crosswalk</dd>
-      </dl><dl><dt>
-
           <code><a href="TADA_CreateUnitRef.html">TADA_CreateUnitRef()</a></code>
 
         </dt>
         <dd>Generate A DataFrame of Units and Target by Characteristic Name</dd>
+      </dl><dl><dt>
+
+          <code><a href="TADA_CreateUseParamRef.html">TADA_CreateUseParamRef()</a></code>
+
+        </dt>
+        <dd>Create or Update ATTAINS Parameter and Use crosswalk</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code>
@@ -421,12 +427,6 @@
         <dd>Update Measure Unit Reference Table</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_GetMonLocByOrgId.html">TADA_GetMonLocByOrgId()</a></code>
-
-        </dt>
-        <dd>Get WQP Organization Identifier For Each WQP Monitoring Location Identifier</dd>
-      </dl><dl><dt>
-
           <code><a href="TADA_GetMonLocTypeRef.html">TADA_GetMonLocTypeRef()</a></code>
 
         </dt>
@@ -607,6 +607,12 @@
         <dd>Create downloadable table</dd>
       </dl><dl><dt>
 
+          <code><a href="TADA_TribalOptions.html">TADA_TribalOptions()</a></code>
+
+        </dt>
+        <dd>Access options available for querying tribal spatial data with <code><a href="../reference/TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code>.</dd>
+      </dl><dl><dt>
+
           <code><a href="TADA_TwoCharacteristicScatterplot.html">TADA_TwoCharacteristicScatterplot()</a></code>
 
         </dt>
@@ -659,6 +665,12 @@
 
         </dt>
         <dd>Add polygons from an ArcGIS feature layer to a leaflet map</dd>
+      </dl><dl><dt>
+
+          <code><a href="ask_user.html">ask_user()</a></code>
+
+        </dt>
+        <dd>Ask user to approve WQP downloads</dd>
       </dl><dl><dt>
 
           <code><a href="fetchATTAINS.html">fetchATTAINS()</a></code>
@@ -718,7 +730,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

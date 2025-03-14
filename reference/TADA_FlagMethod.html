@@ -34,7 +34,7 @@ flaggedonly = FALSE."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS and EPA 304(a) Parameters and Uses</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -112,15 +112,20 @@ The WQX team plans to review and update these new combinations quarterly.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove Suspect characteristic-analytical method combinations from dataframe:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Remove Suspect characteristic-analytical method combinations from </span></span></span>
+<span class="r-in"><span><span class="co"># dataframe:</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
+<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Flag, but do not remove, Suspect characteristic-analytical method combinations</span></span></span>
+<span class="r-in"><span><span class="co"># Flag, but do not remove, Suspect characteristic-analytical method </span></span></span>
+<span class="r-in"><span><span class="co"># combinations</span></span></span>
 <span class="r-in"><span><span class="co"># in new column titled "TADA.AnalyticalMethod.Flag":</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
+<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only Suspect characteristic-analytical method combinations:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
+<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -129,7 +134,7 @@ The WQX team plans to review and update these new combinations quarterly.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by U.S. Environmental Protection Agency, Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman.</p>
+  <p>Developed by Cristina Mullin, Hillary Marler, Jacob Greif, Elise Hinman, Kenny Wong, Kathryn Willi, Matt Brousil, Kathleen Healy, Justin Bousquin.</p>
 </div>
 
 <div class="pkgdown-footer-right">

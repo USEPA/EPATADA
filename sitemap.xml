@@ -23,7 +23,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AutoClean.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AutoFilter.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_BigDataRetrieval.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_BigDataHelper.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Boxplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNA.html</loc></url>
@@ -35,10 +35,11 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateDateTime.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamRef.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamUseRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUseParamRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DepthProfilePlot.html</loc></url>
@@ -74,7 +75,6 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetEPACSTRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMeasureUnitRef.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_GetMonLocByOrgId.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetMonLocTypeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.html</loc></url>
@@ -105,6 +105,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_SubstituteDeprecatedChars.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_SummarizeColumn.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_TableExport.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_TribalOptions.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UpdateAllRefs.html</loc></url>
@@ -114,6 +115,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ViewColorPalette.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_addPoints.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_addPolys.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/ask_user.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>
