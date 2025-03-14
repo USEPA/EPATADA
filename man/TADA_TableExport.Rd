@@ -20,5 +20,4 @@ This function creates a data table that can be downloaded as a .csv, .xlsx or .p
 # return ATTAINS parameter domain values
 TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
 }
-
 }

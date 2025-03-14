@@ -15,10 +15,8 @@ ActivityType
 ActivityTypeCode
 ActivityTypeCodes
 AggregateMeasurements
-Aliesha
 AnalysisDataFilter
 AnalyticalMethod
-Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -44,10 +42,8 @@ CharacteristicNameUserSupplied
 CharacteristicNames
 CharacteristicsForDepthProfile
 Chilton
-ComparableDataIdenitfiers
 ComparableDataIdentifier
 ComparableDataIdentifiers
-ComparableIentifiers
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -62,6 +58,7 @@ CreatePairRef
 CreateParamRef
 CreateParamUseRef
 CreateUnitRef
+DOI
 DataFrame
 DataQuality
 DataRetrieval
@@ -79,7 +76,6 @@ EASP's
 ECHO's
 EMEF
 FONDULAC
-Farmington
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -103,19 +99,15 @@ FlagSpeciation
 FlagUseName
 FractionAssumptions
 FullPhysChem
-Geospatial
 GetATTAINS
 GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
 Github
-HMW
 HUC
 HUCS
-HUCs
 HarmonizeSynonyms
 HiRes
-HorizontalCoordinateReferenceSystemDatumName
 Hydrography
 HydrologicCondition
 HydrologicEvent
@@ -132,7 +124,6 @@ JoinWQPProfiles
 KJELDAHL
 Kaplan
 Kjeldahl
-Krall
 LaboratoryName
 LatitudeMeasure
 LocalAqfrName
@@ -146,7 +137,6 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
-MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -158,9 +148,9 @@ MethodSpeciationName
 MonitoringDataLinkText
 MonitoringLocation
 MonitoringLocationIdentifier
-MonitoringLocationIdentifiers
 MonitoringLocationName
 MonitoringLocationTypeName
+MonitoringLocations
 Msr
 MultipleOrgDupGroupID
 MultipleOrgDuplicate
@@ -171,6 +161,8 @@ ND's
 NHD
 NHDPlus
 NWIS
+NearbySiteGroup
+NearbySites
 NoResultValue
 NoTargetUnit
 NonStandardized
@@ -190,6 +182,7 @@ OutsideUSA
 OverviewMap
 POJOAQUE
 PUEBLOOFTESUQUE
+PairForCriteriaCalc
 PairReplicates
 PairingGroup
 PairingGroupRank
@@ -212,7 +205,6 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
-QCing
 README
 REDLAKE
 RMarkdown
@@ -263,6 +255,7 @@ Shepherdstown
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
+SiteGroup
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
@@ -281,9 +274,9 @@ TADAPackageDemo
 TADAPriorityCharUnitRef
 TADAProfile
 TADAShiny
-TMDL
 TargetUnit
 Tesuque
+TribalOptions
 UG
 USEPA
 USERPROFILE
@@ -317,9 +310,6 @@ WQXVal
 WQXcharValRef
 WQXunitRef
 WVDEP
-WaterSciCon
-Waterbody
-WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -329,6 +319,7 @@ addPolys
 agg
 aggregatedonly
 analytes
+aoi
 applyautoclean
 arcgis
 asNO
@@ -336,7 +327,6 @@ assessmentunitidentifier
 autoclean
 autocleaned
 bbox
-bnd
 bottomvalue
 bycategory
 cdx
@@ -354,6 +344,7 @@ cwa
 dailyagg
 dataProfile
 dataRetrieval
+dateTime
 datetimes
 decimaldigits
 depthcat
@@ -363,12 +354,10 @@ dplyr
 du
 eXchange
 ecc
-ecoregions
 endDate
 endDateHi
 english
 epa
-estimatiom
 extdata
 fabec
 fetchATTAINS
@@ -377,7 +366,6 @@ flaggedonly
 flowlines
 geopub
 geospatial
-geospatially
 getFeatureLayer
 getLayer
 getPopup
@@ -391,11 +379,14 @@ https
 huc
 hucs
 hydrologic
+importWQP
 interoperable
 io
 lessthan
 magrittr
 manys
+mapviewer
+maxrecs
 mimeType
 mlt
 myfileRef
@@ -406,6 +397,7 @@ nonstandardized
 np
 nresults
 od
+offsetLibrary
 orgs
 ousideUSA
 outsideUSA
@@ -424,7 +416,9 @@ rda
 readWQPdata
 repo
 reproducibility
+resultCount
 sampleMedia
+sd
 secchi
 shp
 siteType
@@ -442,6 +436,7 @@ sysdata
 tada
 testthat
 th
+tigris
 un
 uncomment
 uncommenting

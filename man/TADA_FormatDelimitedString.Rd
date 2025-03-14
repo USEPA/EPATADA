@@ -2,21 +2,23 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_FormatDelimitedString}
 \alias{TADA_FormatDelimitedString}
-\title{Convert a delimited string to the format used by WQX 3.0 profiles for one-to-manys}
+\title{Convert a delimited string to the format used by WQX 3.0 profiles for
+one-to-manys}
 \usage{
 TADA_FormatDelimitedString(delimited_string, delimiter = ",")
 }
 \arguments{
-\item{delimited_string}{Character argument. Should be a string delimited by the character
-passed in the delimiter parameter.}
+\item{delimited_string}{Character argument. Should be a string delimited
+by the character passed in the delimiter parameter.}
 
-\item{delimiter}{Character argument The character used to delimit the string passed in
-delimited_string. Defaults to a comma.}
+\item{delimiter}{Character argument The character used to delimit the
+string passed in delimited_string. Defaults to a comma.}
 }
 \value{
 String.
 }
 \description{
-This utility function takes a delimited string of entities, and a delimiter (which defaults to a comma)
-and returns a new string in the WQX 3.0 format of c("StringA","StringB")
+This utility function takes a delimited string of entities, and a delimiter
+(which defaults to a comma) and returns a new string in the WQX 3.0 format
+of c("StringA","StringB").
 }

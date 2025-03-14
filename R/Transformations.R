@@ -35,20 +35,28 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # Load example dataset:
 #' data(Data_6Tribes_5y)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
-#' Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
-#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
+#' Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, 
+#' !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
+#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, 
+#' clean = TRUE)
+#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, 
+#' clean = "suspect_only")
+#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, 
+#' clean = "suspect_only")
 #' Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
 #' CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 #'
 #' # Append synonym reference table columns to dataframe and transform/convert
 #' # data to the USER SUPPLIED reference table values:
-#' Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+#' Data_6Tribes_5yClean_Harmonized <- 
+#' TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+#' }
+#' 
 TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -233,7 +241,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' @param .data TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
 #'   If user wants to consider grouping N or P subspecies across multiple
 #'   organizations, user should have run TADA_FindNearbySites and grouped all
-#'   nearby sites to one common MonitoringLocationIdentifier,
+#'   nearby sites to one common TADA.MonitoringLocationIdentifier,
 #'   TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.
 #' @param sum_ref Optional. A custom summation reference dataframe the user has
 #'   loaded into the R environment. Dataframe must have same columns as default
@@ -267,7 +275,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.ResultMeasureValue",
     "ActivityStartDate",
-    "MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationIdentifier",
     "ActivityTypeCode"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
@@ -293,7 +301,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityStartDate",
     # "ActivityStartDateTime", #does not make sense to include for daily agg
     "ActivityRelativeDepthName",
-    "MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationIdentifier",
     "MonitoringLocationName",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -317,7 +325,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
 
     # # find nearby sites
-    # nearsites = unique(sum_dat[,c("MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
+    # nearsites = unique(sum_dat[,c("TADA.MonitoringLocationIdentifier","TADA.LatitudeMeasure","TADA.LongitudeMeasure")])
     # nearsites = TADA_FindNearbySites(nearsites)
     # nearsites = subset(nearsites, !nearsites$TADA.NearbySiteGroups%in%c("No nearby sites"))
 

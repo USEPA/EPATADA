@@ -37,5 +37,4 @@ bbox <- sf::st_bbox(
 # filtered by the bounding box for the Data_Nutrients_UT example dataset
 getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 }
-
 }

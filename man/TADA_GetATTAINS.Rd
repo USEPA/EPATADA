@@ -44,18 +44,24 @@ tada_data <- TADA_DataRetrieval(
   endDate = "2018-07-31",
   characteristicName = "pH",
   statecode = "IL",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
-# note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run
+# note: these example ATTAINS data retrieval queries below may take a 
+# long time (10+ minutes) to run
 
-tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = FALSE)
+tada_attains <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, 
+return_sf = FALSE)
 
-tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, return_sf = TRUE)
+tada_attains_sf <- TADA_GetATTAINS(tada_data, fill_catchments = FALSE, 
+return_sf = TRUE)
 
-tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = FALSE)
+tada_attains_filled <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, 
+resolution = "Hi", return_sf = FALSE)
 
-tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, resolution = "Hi", return_sf = TRUE)
+tada_attains_filled_sf <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE,
+resolution = "Hi", return_sf = TRUE)
 }
 }
 \seealso{

@@ -2,7 +2,6 @@
 #' @return Saves updated reference files
 #' This is only needed for ref tables in WQXRefTables.R
 #' and the tribal feature layers in TADAGeospatialRefLayers.R
-#'
 TADA_UpdateAllRefs <- function() {
   TADA_UpdateWQXCharValRef()
   TADA_UpdateMeasureUnitRef()
@@ -12,7 +11,7 @@ TADA_UpdateAllRefs <- function() {
   TADA_UpdateCharacteristicRef()
   TADA_UpdateMeasureQualifierCodeRef()
   TADA_UpdateMonLocTypeRef()
-  TADA_UpdateEPA304aRef()
+  TADA_UpdateEPACSTRef()
   TADA_UpdateWQPOrgProviderRef()
   TADA_UpdateATTAINSOrgIDsRef()
   TADA_UpdateATTAINSParamUseOrgRef()
@@ -24,16 +23,16 @@ TADA_UpdateAllRefs <- function() {
 ## FUNCTION TO UPDATE EXAMPLE DATA
 
 TADA_UpdateExampleData <- function() {
-  # Generate Data_Nutrients_UT.rda
+  # Generate Data_Nutrients_UT
   Data_Nutrients_UT <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
     startDate = "2020-10-01",
-    endDate = "2022-09-30"
+    endDate = "2022-09-30",
+    ask = FALSE
   )
   print("Data_Nutrients_UT")
   print(dim(Data_Nutrients_UT))
-  # save(Data_Nutrients_UT, file = "data/Data_Nutrients_UT.rda")
   usethis::use_data(Data_Nutrients_UT,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
@@ -51,11 +50,11 @@ TADA_UpdateExampleData <- function() {
       "CNENVSER"
     ),
     startDate = "2018-01-01",
-    endDate = "2023-01-01"
+    endDate = "2023-01-01",
+    ask = FALSE
   )
   print("Data_6Tribes_5y:")
   print(dim(Data_6Tribes_5y))
-  # save(Data_6Tribes_5y, file = "data/Data_6Tribes_5y.rda")
   usethis::use_data(Data_6Tribes_5y,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
@@ -68,7 +67,7 @@ TADA_UpdateExampleData <- function() {
   y <- TADA_FlagMethod(y, clean = TRUE)
   y <- TADA_FlagAboveThreshold(y, clean = TRUE)
   y <- TADA_FlagBelowThreshold(y, clean = TRUE)
-  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
+  # y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
   y <- TADA_FindPotentialDuplicatesSingleOrg(y)
   y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
   y <- TADA_SimpleCensoredMethods(y,
@@ -80,16 +79,15 @@ TADA_UpdateExampleData <- function() {
   y <- dplyr::filter(y, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
     TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
     !is.na(TADA.ResultMeasureValue))
-  # uses HarmonizationTemplate.csv in the extdata folder
   Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(y)
   print("Data_6Tribes_5y_Harmonized:")
   print(dim(Data_6Tribes_5y_Harmonized))
-  # save(Data_6Tribes_5y_Harmonized, file = "data/Data_6Tribes_5y_Harmonized.rda")
   usethis::use_data(Data_6Tribes_5y_Harmonized,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
   )
   rm(Data_6Tribes_5y_Harmonized)
+  rm(y)
 
   # Generate Data_NCTCShepherdstown_HUC12
   Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(
@@ -105,11 +103,11 @@ TADA_UpdateExampleData <- function() {
     statecode = "null",
     organization = "null",
     project = "null",
-    applyautoclean = TRUE
+    applyautoclean = TRUE,
+    ask = FALSE
   )
   print("Data_NCTCShepherdstown_HUC12:")
   print(dim(Data_NCTCShepherdstown_HUC12))
-  # save(Data_NCTCShepherdstown_HUC12, file = "data/Data_NCTCShepherdstown_HUC12.rda")
   usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_NCTCShepherdstown_HUC12)
 
@@ -127,105 +125,89 @@ TADA_UpdateExampleData <- function() {
     statecode = c("IL", "IN", "MI", "MN", "OH", "WI"),
     organization = "null",
     project = "null",
-    applyautoclean = FALSE
+    applyautoclean = FALSE,
+    ask = FALSE
   )
   print("Data_R5_TADAPackageDemo:")
   print(dim(Data_R5_TADAPackageDemo))
-  # save(Data_R5_TADAPackageDemo, file = "data/Data_R5_TADAPackageDemo.rda")
   usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_R5_TADAPackageDemo)
 
-  # MODULE 3 VIGNETTE EXAMPLE DATA
+  # Generate MODULE 3 VIGNETTE EXAMPLE DATA
   # Get data
   Data_WV <- TADA_DataRetrieval(
     startDate = "2020-03-14",
     huc = "02070004",
-    applyautoclean = FALSE
+    applyautoclean = FALSE,
+    ask = FALSE
   )
-
   # Remove non-surface water media
   # OPTIONAL
-  Data_WV_2 <- TADA_AnalysisDataFilter(
+  Data_WV <- TADA_AnalysisDataFilter(
     Data_WV,
     clean = TRUE,
     surface_water = TRUE,
     ground_water = FALSE,
     sediment = FALSE
   )
-
   # Remove single org duplicates
   # REQUIRED
-  Data_WV_3 <- TADA_FindPotentialDuplicatesSingleOrg(
-    Data_WV_2
+  Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(
+    Data_WV
   )
-
-  Data_WV_4 <- dplyr::filter(
-    Data_WV_3,
+  Data_WV <- dplyr::filter(
+    Data_WV,
     TADA.SingleOrgDup.Flag == "Unique"
   )
-
   # Run autoclean
   # REQUIRED
-  Data_WV_5 <- TADA_AutoClean(Data_WV_4)
-
+  Data_WV <- TADA_AutoClean(Data_WV)
   # Prepare censored results
   # REQUIRED
-  Data_WV_6 <- TADA_SimpleCensoredMethods(
-    Data_WV_5,
+  Data_WV <- TADA_SimpleCensoredMethods(
+    Data_WV,
     nd_method = "multiplier",
     nd_multiplier = 0.5,
     od_method = "as-is",
     od_multiplier = "null"
   )
-
   # Remove multiple org duplicates
   # OPTIONAL
-  Data_WV_7 <- TADA_FindPotentialDuplicatesMultipleOrgs(
-    Data_WV_6
-  )
-
-  Data_WV_8 <- dplyr::filter(
-    Data_WV_7,
-    TADA.ResultSelectedMultipleOrgs == "Y"
-  )
-
+  # Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  #   Data_WV
+  # )
+  # Data_WV <- dplyr::filter(
+  #   Data_WV,
+  #   TADA.ResultSelectedMultipleOrgs == "Y"
+  # )
   # Filter out remaining irrelevant data, NA's and empty cols
   # REQUIRED
-  unique(Data_WV_8$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV_8$TADA.ResultMeasureValue))
-  Data_WV_9 <- TADA_AutoFilter(Data_WV_8)
-  unique(Data_WV_9$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV_9$TADA.ResultMeasureValue))
-
+  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV$TADA.ResultMeasureValue))
+  Data_WV <- TADA_AutoFilter(Data_WV)
+  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
+  sum(is.na(Data_WV$TADA.ResultMeasureValue))
   # Remove results with QC issues
   # REQUIRED
-  Data_WV_10 <- TADA_RunKeyFlagFunctions(
-    Data_WV_9,
+  Data_WV <- TADA_RunKeyFlagFunctions(
+    Data_WV,
     clean = TRUE
   )
-
   # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
-
   # Flag above and below threshold. Do not remove
   # OPTIONAL
-  Data_WV_11 <- TADA_FlagAboveThreshold(Data_WV_10, clean = FALSE, flaggedonly = FALSE)
-  Data_WV_12 <- TADA_FlagBelowThreshold(Data_WV_11, clean = FALSE, flaggedonly = FALSE)
-
+  Data_WV <- TADA_FlagAboveThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
+  Data_WV <- TADA_FlagBelowThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
   # Harmonize synonyms
   # OPTIONAL
-  Data_WV_13 <- TADA_HarmonizeSynonyms(Data_WV_12)
-
+  Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
   # Review
-  Data_WV_14 <- dplyr::filter(Data_WV_13, TADA.CharacteristicName %in% c("ZINC", "PH", "NITRATE"))
-
-  TADA_FieldValuesTable(Data_WV_14, field = "TADA.ComparableDataIdentifier")
-
+  Data_WV <- dplyr::filter(Data_WV, TADA.CharacteristicName %in% c("ZINC", "PH", "NITRATE"))
+  TADA_FieldValuesTable(Data_WV, field = "TADA.ComparableDataIdentifier")
   # Save example data
-  Data_HUC8_02070004_Mod1Output <- Data_WV_14
-
+  Data_HUC8_02070004_Mod1Output <- Data_WV
   print("Data_HUC8_02070004_Mod1Output:")
   print(dim(Data_HUC8_02070004_Mod1Output))
-
   usethis::use_data(Data_HUC8_02070004_Mod1Output,
     internal = FALSE,
     overwrite = TRUE,
@@ -234,6 +216,7 @@ TADA_UpdateExampleData <- function() {
     ascii = FALSE
   )
   rm(Data_HUC8_02070004_Mod1Output)
+  rm(Data_WV)
 }
 
 ###########################################################
@@ -335,7 +318,7 @@ TADA_UpdateExampleData <- function() {
 # devtools::test()
 
 ###########################################################
- 
+
 # # spell check
 # library(spelling)
 # spelling::spell_check_package(
@@ -354,31 +337,31 @@ TADA_UpdateExampleData <- function() {
 # extract_urls <- function(text) {
 #   stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
 # }
-#
+# 
 # # clean urls function
 # clean_url <- function(url) {
 #   stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") %>%
 #     stringr::str_remove_all("[<>]")
 # }
-#
+# 
 # # create lists of files to check
 # other_files <- c(
 #   system.file("README.md", package = "EPATADA"),
 #   system.file("DESCRIPTION", package = "EPATADA"),
 #   system.file("NAMESPACE", package = "EPATADA")
 # )
-#
+# 
 # vignettes <- list.files(system.file("vignettes", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
-#
+# 
 # articles <- list.files(system.file("vignettes/articles", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
-#
+# 
 # r_files <- list.files(system.file("R", package = "EPATADA"), pattern = ".R", full.names = TRUE)
-#
+# 
 # # combine file lists
 # files <- append(other_files, vignettes) %>%
 #   append(articles) %>%
 #   append(r_files)
-#
+# 
 # # create list of urls
 # urls <- purrr::map(files, ~ readLines(.x)) %>%
 #   unlist() %>%
@@ -387,25 +370,31 @@ TADA_UpdateExampleData <- function() {
 #   unique() %>%
 #   # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
 #   setdiff(c(
-#     "https://www.itecmembers.org/attains/"
-#   ))
-#
+#          # url works (HRM 11/7/24), but does not provide a recognizable response code
+#             "https://www.itecmembers.org/attains/",
+#          # if included will get 500 response because this is an incomplete URL
+#          # additional query information is pasted in as part of geospatial functions
+#           "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
+#          # page loads but does not return a response code (NA)
+#          "http://cran.us.r-project.org"
+#           ))
+# 
 # # retrieve http response headers from url list
 # headers <- urls %>%
 #   purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
-#
+# 
 # # extract response code from first line of header response
 # response_code <- sapply(headers, "[[", 1)
-#
+# 
 # # create dataframe of urls and response codes
 # df <- data.frame(urls, response_code)
-#
+# 
 # # filter for any response codes that are not successful or redirect responses
 # df_false <- df %>%
 #   dplyr::filter(!grepl("200", response_code) &
 #                   !grepl("301", response_code) &
 #                   !grepl("302", response_code))
-#
+
 # Review the output of df_false.
 # More information about http response codes can be found here:
 # [Mozilla Developer HTTP response status codes] (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
@@ -441,3 +430,23 @@ TADA_UpdateExampleData <- function() {
 # # review csv and send to WQX team to update the validation table
 #
 ###########################################################
+# # Precompile articles for pkdown site,  should be run after any updates to articles or updates to
+# # functions that may impact articles
+#
+# rmarkdown::render("vignettes/articles/_TADAAssessmentUnitUseCase.Rmd",
+#                   output_format = "html_document")
+#
+# rmarkdown::render("vignettes/articles/TADAModule1_AdvancedTraining.Rmd",
+#                   output_format = "html_document")
+#
+# rmarkdown::render("vignettes/articles/TADAModule1_BeginnerTraining.Rmd",
+#                   output_format = "html_document")
+#
+# rmarkdown::render("vignettes/articles/TADAModule2.Rmd",
+#                   output_format = "html_document")
+#
+# rmarkdown::render("vignettes/articles/TADAModule3_PartA.Rmd",
+#                   output_format = "html_document")
+#
+# rmarkdown::render("vignettes/articles/TADAWaterSciConWorkshopDemo.Rmd",
+#                   output_format = "html_document")

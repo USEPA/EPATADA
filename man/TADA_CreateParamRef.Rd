@@ -21,7 +21,7 @@ censored data prior to running TADA_CreateParamRef.}
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab.
 The "code" column contains the organization identifiers that
 should be used for this parameter. If a user supplied crosswalk is entered
@@ -113,7 +113,7 @@ value list, even if the parameter name  has not previously
 been listed as a cause by the specific organization in the
 past. The full list of ATTAINS parameter names can be found by downloading
 the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2023-09/DOMAINS.xlsx.
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 In the meantime, users can proceed by overriding the data validation in Excel
 by value pasting. In that case, users will be warned in the
 ATTAINS.FlagParameterName column that they choose to include an
@@ -121,6 +121,7 @@ ATTAINS.ParameterName that was not used by the selected organization in prior
 ATTAINS assessment cycles.
 }
 \examples{
+\dontrun{
 # This creates a blank paramRef template of UT Nutrients data.
 # Users will need to fill this template out.
 # Uncomment example below to generate Excel file
@@ -139,10 +140,12 @@ paramRef_UT <- TADA_CreateParamRef(
 # See below for a simple example of this workflow:
 
 # Manually add ATTAINS parameters to crosswalk using R
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
-  TADA.CharacteristicName == "AMMONIA" ~ "AMMONIA, TOTAL",
-  TADA.CharacteristicName == "NITRATE" ~ "NITRATE",
-  TADA.CharacteristicName == "NITROGEN" ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, 
+ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ 
+  "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
@@ -153,12 +156,14 @@ paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 # Example where multiple org_id's are selected
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <- TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
+Data_NCTCShepherdstown <- 
+TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
 paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
   org_id =
     c("MDE_EASP", "21VASWCB", "21PA"), excel = FALSE
 )
+}
 
 }

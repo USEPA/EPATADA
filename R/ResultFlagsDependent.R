@@ -35,12 +35,14 @@
 #' # Remove data with Suspect characteristic-fraction combinations:
 #' SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
 #'
-#' # Flag, but do not remove, data with Suspect characteristic-fraction combinations
+#' # Flag, but do not remove, data with Suspect characteristic-fraction 
+#' # combinations
 #' # in new column titled "TADA.SampleFraction.Flag":
 #' SuspectFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 #'
 #' # Show only Suspect characteristic-fraction combinations:
-#' SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, 
+#' clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -164,27 +166,37 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Remove data with Suspect characteristic-method speciation combinations from dataframe,
-#' # but retain "NonStandardized" combinations flagged in new column 'TADA.MethodSpeciation.Flag':
+#' # Remove data with Suspect characteristic-method speciation combinations 
+#' # from dataframe,
+#' # but retain "NonStandardized" combinations flagged in new column 
+#' # 'TADA.MethodSpeciation.Flag':
 #' SuspectSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 #'
-#' # Remove data with "NonStandardized" characteristic-method speciation combinations
-#' # from dataframe but retain Suspect combinations flagged in new column 'TADA.MethodSpeciation.Flag':
-#' NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only")
+#' # Remove data with "NonStandardized" characteristic-method speciation 
+#' # combinations
+#' # from dataframe but retain Suspect combinations flagged in new column 
+#' # 'TADA.MethodSpeciation.Flag':
+#' NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, 
+#' clean = "nonstandardized_only")
 #'
-#' # Remove both "Suspect" and "NonStandardized" characteristic-method speciation combinations
+#' # Remove both "Suspect" and "NonStandardized" characteristic-method 
+#' # speciation combinations
 #' # from dataframe:
 #' Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 #'
-#' # Flag, but do not remove, data with "Suspect" or "NonStandardized" characteristic-method speciation
+#' # Flag, but do not remove, data with "Suspect" or "NonStandardized" 
+#' # characteristic-method speciation
 #' # combinations in new column titled "TADA.MethodSpeciation.Flag":
-#' SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "none")
+#' SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, 
+#' clean = "none")
 #'
 #' # Show only Suspect characteristic-method speciation combinations:
-#' SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
+#' SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, 
+#' clean = "nonstandardized_only", flaggedonly = TRUE)
 #'
 #' # Show only "NonStandardized" characteristic-method speciation combinations:
-#' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
+#' NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, 
+#' clean = "suspect_only", flaggedonly = TRUE)
 #'
 TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
@@ -332,27 +344,37 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' # Load example dataset:
 #' data(Data_Nutrients_UT)
 #'
-#' # Remove data with Suspect characteristic-media-result unit combinations from dataframe,
-#' # but retain "NonStandardized" combinations flagged in new column 'TADA.ResultUnit.Flag':
+#' # Remove data with Suspect characteristic-media-result unit combinations
+#' # from dataframe, but retain "NonStandardized" combinations flagged in new
+#' # column 'TADA.ResultUnit.Flag':
 #' SuspectUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
 #'
-#' # Remove data with "NonStandardized" characteristic-media-result unit combinations
-#' # from dataframe but retain Suspect combinations flagged in new column 'TADA.ResultUnit.Flag:
-#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only")
+#' # Remove data with "NonStandardized" characteristic-media-result unit
+#' # combinations from dataframe but retain Suspect combinations flagged in
+#' # new column 'TADA.ResultUnit.Flag:
+#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT,
+#'   clean = "nonstandardized_only"
+#' )
 #'
-#' # Remove both Suspect and "NonStandardized" characteristic-media-result unit combinations
-#' # from dataframe:
+#' # Remove both Suspect and "NonStandardized" characteristic-media-result
+#' # unit combinations from dataframe:
 #' ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
 #'
-#' # Flag, but do not remove, data with Suspect or "NonStandardized" characteristic-media-result unit
-#' # combinations in new column titled "TADA.ResultUnit.Flag":
+#' # Flag, but do not remove, data with Suspect or "NonStandardized"
+#' # characteristic-media-result unit combinations in new column titled
+#' # "TADA.ResultUnit.Flag":
 #' SuspectUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
 #'
 #' # Show only Suspect characteristic-media-result unit combinations:
-#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "nonstandardized_only", flaggedonly = TRUE)
+#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT,
+#'   clean = "nonstandardized_only", flaggedonly = TRUE
+#' )
 #'
 #' # Show only "NonStandardized" characteristic-media-result unit combinations:
-#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "suspect_only", flaggedonly = TRUE)
+#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT,
+#'   clean = "suspect_only", flaggedonly = TRUE
+#' )
+#'
 TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -798,17 +820,21 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #' data(Data_6Tribes_5y)
 #'
 #' # Flag and keep all suspect samples:
-#' MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
+#' MeasureQualifierCode_flagged <- 
+#' TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
 #'
 #' # Flag suspect samples and filter to suspect data only:
-#' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, flaggedonly = TRUE)
+#' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(
+#' Data_6Tribes_5y, flaggedonly = TRUE)
 #'
 #' # Remove all suspect samples:
-#' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
+#' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, 
+#' clean = TRUE)
 #'
 #' # Remove all suspect samples and DO NOT include a new column with
 #' # qualifier definitions (TADA.MeasureQualifierCode.Def):
-#' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE, define = FALSE)
+#' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(
+#' Data_6Tribes_5y, clean = TRUE, define = FALSE)
 TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
