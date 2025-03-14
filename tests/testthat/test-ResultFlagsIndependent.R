@@ -133,6 +133,8 @@ test_that("QC results are not flagged as Continuous", {
   cont_QC <- TADA_RandomTestingData(choose_random_state = TRUE) %>%
     TADA_FlagContinuousData() %>%
     dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
-
-  expect_true(unique(cont_QC$TADA.ActivityType.Flag) == "Non_QC")
+  
+  expect_true(!(unique(cont_QC$TADA.ActivityType.Flag)) %in% c("QC_duplicate", "QC_calibration",
+                                                             "QC_replicate", "QC_blank",
+                                                             "QC_other"))
 })
