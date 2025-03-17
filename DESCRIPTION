@@ -96,8 +96,7 @@ Suggests:
     spelling,
     htmltools,
     tigris,
-    yaml, 
-    remotes
+    yaml
 Remotes:
     DOI-USGS/dataRetrieval@develop,
     USEPA/StreamCatTools

@@ -554,13 +554,14 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' # See below for a simple example of this workflow:
 #'
 #' # Manually add ATTAINS parameters to crosswalk using R
-#' paramRef_UT2 <- dplyr::mutate(paramRef_UT, 
-#' ATTAINS.ParameterName = dplyr::case_when(
-#'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-#'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-#'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ 
-#'   "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-#' ))
+#' paramRef_UT2 <- dplyr::mutate(paramRef_UT,
+#'   ATTAINS.ParameterName = dplyr::case_when(
+#'     grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+#'     grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+#'     grepl("NITROGEN", TADA.ComparableDataIdentifier) ~
+#'       "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+#'   )
+#' )
 #' # Update the 'ATTAINS.FlagParameterName' values
 #' paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2,
@@ -570,8 +571,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' # Example where multiple org_id's are selected
 #' # First, run key flag functions and harmonize synonyms across
 #' # characteristic, fraction, and speciation columns
-#' Data_NCTCShepherdstown <- 
-#' TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
+#' Data_NCTCShepherdstown <-
+#'   TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 #' Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 #' # Create ATTAINS parameter crosswalk for MD, VA, and PA
 #' paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
@@ -742,7 +743,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
         )
       ) %>%
       dplyr::select(
-        TADA.ComparableDataIdentifier, organization_identifier, 
+        TADA.ComparableDataIdentifier, organization_identifier,
         EPA304A.PollutantName, ATTAINS.ParameterName
       ) %>%
       dplyr::filter(organization_identifier %in% org_id) %>%
@@ -1338,7 +1339,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
       dplyr::filter(organization_identifier %in% org_id)
   }
 
-  # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to 
+  # This updates the flagging column. Users who only creates an R dataframe in the R environment will need to
   # ensure they re-run the function with their completed paramRef as an input to reflect this column accurately.
   Flag1 <- CreateParamUseRef %>%
     dplyr::anti_join(
@@ -1431,18 +1432,18 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
     n_sheets <- length(wb$worksheets)
-    for(i in 1:n_sheets){
+    for (i in 1:n_sheets) {
       sV <- wb$worksheets[[i]]$sheetViews
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
-      
+
     # sV <- wb$worksheets[[2]]$sheetViews
     # wb$worksheets[[2]]$sheetViews <- set_zoom(90)
     # sV <- wb$worksheets[[3]]$sheetViews
     # wb$worksheets[[3]]$sheetViews <- set_zoom(90)
     # sV <- wb$worksheets[[4]]$sheetViews
     # wb$worksheets[[4]]$sheetViews <- set_zoom(90)
-    
+
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
@@ -1539,4 +1540,3 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
   }
   return(CreateParamUseRef)
 }
-

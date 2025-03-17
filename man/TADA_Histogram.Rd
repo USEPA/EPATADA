@@ -50,9 +50,12 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataframe:
 data(Data_Nutrients_UT)
-Histogram_output <- TADA_Histogram(Data_Nutrients_UT, 
-id_cols = c("TADA.ComparableDataIdentifier", 
-"MonitoringLocationTypeName"))
+Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
+  id_cols = c(
+    "TADA.ComparableDataIdentifier",
+    "MonitoringLocationTypeName"
+  )
+)
 # This example generates 32 histograms
 Histogram_output[[10]]
 Histogram_output[[25]]

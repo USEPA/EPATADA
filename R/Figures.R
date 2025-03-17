@@ -37,8 +37,10 @@
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
 #' # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
-#' Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = 
-#' c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
+#' Boxplots_TPbyOrg <- TADA_Boxplot(df,
+#'   id_cols =
+#'     c("TADA.ComparableDataIdentifier", "OrganizationIdentifier")
+#' )
 #' # This example generates 2 box plots.
 #' Boxplots_TPbyOrg[[1]]
 #' Boxplots_TPbyOrg[[2]]
@@ -49,8 +51,9 @@
 #' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
 #' data(Data_Nutrients_UT)
-#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, 
-#' id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
+#'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+#' )
 #' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
@@ -229,9 +232,12 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
 #' data(Data_Nutrients_UT)
-#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, 
-#' id_cols = c("TADA.ComparableDataIdentifier", 
-#' "MonitoringLocationTypeName"))
+#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
+#'   id_cols = c(
+#'     "TADA.ComparableDataIdentifier",
+#'     "MonitoringLocationTypeName"
+#'   )
+#' )
 #' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
@@ -679,11 +685,13 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
 #' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
-#' # If there are more than 12 categories to display, any remaining categories, 
+#' # If there are more than 12 categories to display, any remaining categories,
 #' # the ones that have the smallest number of results,
 #' # are combined into an "ALL OTHERS" category.
-#' TADA_FieldValuesPie(Data_Nutrients_UT, field = 
-#' "TADA.ComparableDataIdentifier")
+#' TADA_FieldValuesPie(Data_Nutrients_UT,
+#'   field =
+#'     "TADA.ComparableDataIdentifier"
+#' )
 #'
 TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "null") {
   dat <- utils::head(TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName), 12)
@@ -1207,7 +1215,9 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 #' # create scatterplots for selected counties
 #' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-#' df2, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
+#'   df2,
+#'   group_col = "CountyCode", groups = c("057", "011", "003", "037")
+#' )
 #' # view the 3rd and 4th plots
 #' UT_Nutrients_by_CountyCode[[3]]
 #' UT_Nutrients_by_CountyCode[[4]]
@@ -1215,18 +1225,25 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' # Load example dataset:
 #' data(Data_6Tribes_5y_Harmonized)
 #'
-#' # Filter the example data so it includes only one 
+#' # Filter the example data so it includes only one
 #' # TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, 
-#' TADA.ComparableDataIdentifier %in% c(
-#' "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
-#' # Creates a scatterplot of the three specified sites of interest in the 
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier %in% c(
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#'   )
+#' )
+#' # Creates a scatterplot of the three specified sites of interest in the
 #' # same plot.
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", 
-#' groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", 
-#' "Upper Red Lake: East Central"))
+#' TADA_GroupedScatterplot(df,
+#'   group_col = "MonitoringLocationName",
+#'   groups = c(
+#'     "Upper Red Lake: West", "Upper Red Lake: West-Central",
+#'     "Upper Red Lake: East Central"
+#'   )
+#' )
 #'
-#' # If no groups are selected, return the 4 groups 
+#' # If no groups are selected, return the 4 groups
 #' # (by MonitoringLocationName) with the greatest number of results
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 #'
