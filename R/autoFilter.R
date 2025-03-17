@@ -24,6 +24,14 @@
 TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), characteristicName = "null") {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # # run required flagging/cleaning functions
+  # if ("TADA.UseForAnalysis.Flag" %in% colnames(.data)) {
+  #   .data <- .data
+  # } else {
+  #   # create TADA.UseForAnalysis.Flag
+  #   .data <- TADA_AnalysisDataFilter(.data)
+  # }
 
   display <- match.arg(display)
 
@@ -42,12 +50,11 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   if (display == "key") {
     cols <- c(
       "ActivityTypeCode",
+      "TADA.ActivityType.Flag",
+      # "TADA.UseForAnalysis.Flag",
       "TADA.ActivityMediaName",
       "ActivityMediaSubdivisionName",
-      "ActivityCommentText",
-      "ResultCommentText",
       "TADA.MonitoringLocationTypeName",
-      "StateCode",
       "OrganizationFormalName",
       "TADA.CharacteristicName",
       "SubjectTaxonomicName",
@@ -55,25 +62,19 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "HydrologicCondition",
       "HydrologicEvent",
       "BiologicalIntentName",
-      "ActivityGroup",
       "AssemblageSampledName",
-      "ProjectName",
-      "ProjectDescriptionText",
       "CharacteristicNameUserSupplied",
-      "DetectionQuantitationLimitTypeName",
       "SampleTissueAnatomyName",
-      "LaboratoryName",
-      "ResultAnalyticalMethod.MethodName",
-      "SampleCollectionMethod.MethodName",
       "CharacteristicNameUserSupplied",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultSampleFractionText",
       "TADA.ComparableDataIdentifier",
-      "ResultLaboratoryCommentText"
+      "ActivityRelativeDepthName",
+      "ResultStatusIdentifier",
+      "ResultValueTypeName"
     )
   }
   if (display == "most") {
     cols <- c(
+      "ActivityGroup",
       "OrganizationIdentifier",
       "OrganizationFormalName",
       "ActivityTypeCode",
@@ -82,9 +83,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ProjectIdentifier",
       "ProjectName",
       "TADA.MonitoringLocationIdentifier",
-      "MonitoringLocationIdentifier",
       "MonitoringLocationName",
-      "MonitoringLocationTypeName",
       "ActivityCommentText",
       "SampleAquifer",
       "HydrologicCondition",
@@ -109,22 +108,15 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ResultAnalyticalMethod.MethodIdentifier",
       "ResultAnalyticalMethod.MethodIdentifierContext",
       "ResultAnalyticalMethod.MethodName",
-      "ResultAnalyticalMethod.MethodUrl",
       "ResultAnalyticalMethod.MethodDescriptionText",
       "LaboratoryName",
       "ResultLaboratoryCommentText",
-      "ResultDetectionQuantitationLimitUrl",
       "DetectionQuantitationLimitTypeName",
       "ProviderName",
       "MonitoringLocationDescriptionText",
       "HUCEightDigitCode",
-      "HorizontalCollectionMethodName",
       "HorizontalCoordinateReferenceSystemDatumName",
-      "VerticalCollectionMethodName",
       "VerticalCoordinateReferenceSystemDatumName",
-      "CountryCode",
-      "StateCode",
-      "CountyCode",
       "AquiferName",
       "LocalAqfrName",
       "FormationTypeText",
@@ -132,15 +124,14 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "ProjectDescriptionText",
       "SamplingDesignTypeCode",
       "QAPPApprovalAgencyName",
-      "TADA.LatitudeMeasure",
-      "TADA.LongitudeMeasure",
       "TADA.ActivityMediaName",
       "TADA.CharacteristicName",
       "CharacteristicNameUserSupplied",
       "TADA.MeasureQualifierCode.Def",
       "TADA.MethodSpeciationName",
       "TADA.ResultSampleFractionText",
-      "TADA.ComparableDataIdentifier"
+      "TADA.ComparableDataIdentifier",
+      "TADA.MonitoringLocationTypeName"
     )
   }
   if (display == "all") {
@@ -401,4 +392,114 @@ TADA_AnalysisDataFilter <- function(.data,
 
     return(.data)
   }
+}
+
+#' AutoFilter
+#'
+#' This function removes rows where the result value is not numeric to
+#' prepare a dataframe for quantitative analyses. Ideally, this function should
+#' be run after other data cleaning, QA/QC, and harmonization steps are
+#' completed using other TADA package functions, or manually. Specifically,
+#' this function removes rows with "Text" and "NA - Not Available"
+#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+#' TADA.ResultMeasureValue column. In addition, this function removes results 
+#' with QA/QC ActivityTypeCode's. This function also removes any columns not 
+#' required for TADA workflow where all values are equal to NA. It provides a 
+#' warning message identifying any TADA required columns containing only NA 
+#' values.
+#'
+#' @param .data TADA dataframe
+#'
+#' @return .data with rows non-quantitative and QA/QC results removed 
+#'
+#' @export
+#'
+#' @examples
+#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+TADA_AutoFilter <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  TADA_CheckColumns(.data, c(
+    "ActivityTypeCode", "MeasureQualifierCode",
+    "TADA.ResultMeasureValueDataTypes.Flag",
+    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
+    "ActivityTypeCode"
+  ))
+  
+  # keep track of starting and ending number of rows
+  start <- dim(.data)[1]
+  
+  # run TADA_FindQCActivities if needed
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+  
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
+    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+  }
+  
+  # remove text, NAs and QC results
+  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+                           TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
+                           TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
+                           !is.na(TADA.ResultMeasureValue))
+  
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
+  
+  # create list of columns containing all NA values.
+  na.cols <- .data %>%
+    purrr::keep(~ all(is.na(.x))) %>%
+    names()
+  
+  # create list of columns to be removed by comparing columns containing all NA values to required columns.
+  # any required columns with all NA values will be excluded from the list of columns to remove.
+  remove.cols <- setdiff(na.cols, require.cols)
+  
+  # remove not required columns containing all NA values from dataframe.
+  .data <- .data %>%
+    dplyr::select(-dplyr::contains(remove.cols))
+  
+  # check to make sure required columns contain some data that is not NA
+  req.check <- intersect(require.cols, na.cols)
+  
+  # create character string for list of required columns containing only NAs
+  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
+  
+  # remove column name lists
+  rm(na.cols)
+  
+  # create character string for list of removed columns
+  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+  
+  # print list of columns removed from dataframe
+  if (length(remove.cols) > 0) {
+    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
+  } else {
+    print("All columns contained some non-NA values and were retained in the dataframe.")
+  }
+  
+  # remove columns that are not required for TADA workflow
+  print("TADA_Autofilter: checking required columns for non-NA values.")
+  
+  # if some required columns contain only NA values print a warning message.
+  if (length(req.check) > 0) {
+    print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
+  } else {
+    print("All TADA Required columns contain some non-NA values.")
+  }
+  
+  # remove intermediate objects
+  rm(req.paste, remove.cols, remove.paste, req.check)
+  
+  end <- dim(.data)[1]
+  
+  # print number of results removed
+  if (!start == end) {
+    net <- start - end
+    print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
+  }
+  
+  return(.data)
 }

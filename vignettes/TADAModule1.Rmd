@@ -66,7 +66,8 @@ library(remotes)
 Next, install and load EPATADA using the remotes package. USGS's
 dataRetrieval and other TADA R Package dependencies will also be
 downloaded automatically from CRAN with the TADA install. If desired,
-the development version of dataRetrieval can be downloaded directly from GitHub (un-comment).
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -1503,8 +1504,8 @@ TADAShiny::run_app()
 Go to:
 <https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd>
 
-[![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
+![Click the highlighted icon to download TADAModule1.Rmd from GitHub.
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own script. Note:
 You must have a GitHub account to download TADAModule1.Rmd from
-GitHub](images/DownloadModule1.jpg)](https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1.Rmd)
+GitHub](images/DownloadModule1.jpg)
