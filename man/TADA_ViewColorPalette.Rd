@@ -23,5 +23,4 @@ color pairings when col_pair = TRUE can be viewed in a matrix format.
 \examples{
 TestViewPalette <- TADA_ViewColorPalette()
 TestViewPalettePairing <- TADA_ViewColorPalette(col_pair = TRUE)
-
 }

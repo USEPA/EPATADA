@@ -130,7 +130,8 @@ data <- TADA_DataRetrieval(
   statecode = "NM",
   huc = c("140801050505", "140801041006"),
   characteristicType = "Physical",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 ```
 
@@ -356,7 +357,7 @@ results are available per each monitoring location group.
 data <- ATTAINS_data$TADA_with_ATTAINS %>%
   # Remove geometry to reduce size of data set
   sf::st_drop_geometry() %>%
-  # Assing "Other" as name for unnamed assessment units
+  # Adding "Other" as name for unnamed assessment units
   dplyr::mutate(
     ATTAINS.assessmentunitname =
       ifelse(is.na(ATTAINS.assessmentunitname),

@@ -10,7 +10,8 @@ getBboxJson(bbox)
 \item{bbox}{A bounding box from the sf function st_bbox}
 }
 \value{
-A string containing bounding box JSON that can be passed to an ArcGIS feature layer in the Input Geometry field
+A string containing bounding box JSON that can be passed to an
+ArcGIS feature layer in the Input Geometry field
 }
 \description{
 Get bounding box JSON
@@ -28,5 +29,4 @@ crs = sf::st_crs(Data_6Tribes_5y))
 # Get a string containing the JSON of the bounding box
 getBboxJson(bbox)
 }
-
 }

@@ -45,14 +45,19 @@ The WQX team plans to review and update these new combinations quarterly.
 # Load example dataset
 data(Data_NCTCShepherdstown_HUC12)
 
-# Remove Suspect characteristic-analytical method combinations from dataframe:
-SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+# Remove Suspect characteristic-analytical method combinations from 
+# dataframe:
+SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+clean = TRUE)
 
-# Flag, but do not remove, Suspect characteristic-analytical method combinations
+# Flag, but do not remove, Suspect characteristic-analytical method 
+# combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+clean = FALSE)
 
 # Show only Suspect characteristic-analytical method combinations:
-SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+clean = FALSE, flaggedonly = TRUE)
 
 }

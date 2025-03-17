@@ -43,3 +43,44 @@ test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
 
   expect_true(old_latedate == new_latedate)
 })
+
+
+# MORE ROBUST TEST FOR WQX VAL TABLE, UPDATED 1/8/25
+test_that("WQXcharValRef.csv contains only one row for each unique characteristic/media/unit/max/min combination for threshold functions", {
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+    dplyr::filter(
+      Type == "CharacteristicUnit"
+    )
+
+  find.dups <- unit.ref %>%
+    dplyr::filter(Type == "CharacteristicUnit") %>%
+    dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+    dplyr::mutate(
+      Min_n = length(unique(Minimum)),
+      Max_n = length(unique(Maximum))
+    ) %>%
+    dplyr::filter(Min_n > 1 |
+      Max_n > 1)
+
+  expect_true(nrow(find.dups) == 0)
+})
+
+# test_that("WQXcharValRef.csv contains only one row for each unique characteristic/media/unit/max/min combination for threshold functions", {
+#   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+#     dplyr::filter(
+#       Type == "CharacteristicUnit",
+#       Status == "Accepted"
+#     )
+#
+#   find.dups <- unit.ref %>%
+#     dplyr::filter(Type == "CharacteristicUnit") %>%
+#     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+#     dplyr::mutate(
+#       Min_n = length(unique(Minimum)),
+#       Max_n = length(unique(Maximum))
+#     ) %>%
+#     dplyr::filter(Min_n > 1 |
+#                     Max_n > 1)
+#
+#   expect_true(nrow(find.dups) == 0)
+# })

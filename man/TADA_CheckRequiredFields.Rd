@@ -40,8 +40,8 @@ TADAProfile <- TADA_JoinWQPProfiles(
 TADA_CheckRequiredFields(TADAProfile)
 
 # Add missing col
-TADAProfile1 <- dataRetrieval:::create_dateTime(
-  df = TADAProfile,
+TADAProfile1 <- TADA_CreateDateTime(
+  .data = TADAProfile,
   date_col = "ActivityStartDate",
   time_col = "ActivityStartTime.Time",
   tz_col = "ActivityStartTime.TimeZoneCode",

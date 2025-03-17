@@ -10,7 +10,7 @@ TADA_IDDepthProfiles(.data, nresults = TRUE, nvalue = 2, aggregates = FALSE)
 \item{.data}{TADA dataframe which must include the columns ActivityStartDate,
 TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Unit, TADA.ConsolidatedDepth.Bottom,
 TADA.ResultMeasureValue, TADA.ResultMeasureValue.UnitCode,
-OrganizationIdentifier, MonitoringLocationName, MonitoringLocationIdentifier,
+OrganizationIdentifier, TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier,
 and TADA.ComparableDataIdentifier.}
 
 \item{nresults}{Boolean argument with options "TRUE" or "FALSE". The
@@ -21,7 +21,7 @@ When nresults = FALSE.}
 \item{nvalue}{numeric argument to specify the number of results required to identify
 a depth profile. The default is 2, which means that a depth profile will be identified
 if 2 or more results at different depths exists for the same ActivityStartDate,
-MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
+TADA.MonitoringLocationIdentifier, OrganizationIdentifier, and TADA.ComparableDataIdentifier.
 A few characteristics are excluded from this requirement because they are expected to
 have only a single result in depth units (ex: secchi disk depth).}
 
@@ -34,17 +34,17 @@ FALSE. When aggregates = TRUE, all aggregate values are included when identifyin
 depth profile data.}
 }
 \value{
-A dataframe with the columns MonitoringLocationIdentifier,
-MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
+A dataframe with the columns TADA.MonitoringLocationIdentifier,
+TADA.MonitoringLocationName, OrganizationIdentifier, ActivityStartDate,
 TADA.CharacteristicsForDepthProfile. Based on the user input for the nresults
 param, TADA.CharacteristicsForDepthProfile may or may not contain the number
 of results for each characteristic.
 }
 \description{
-This function identifies depth profiles within a dataframe to assist the user in
+This function identifies depth profiles within a data frame to assist the user in
 selecting params for TADA_DepthProfilePlot. A TADA compatible data set is required.
 If TADA_FlagDepthCategory has not yet been run, it will be run as part of this
-function. The output dataframe is grouped by MonitoringLocationIdentifier,
+function. The output data frame is grouped by TADA.MonitoringLocationIdentifier,
 OrganizationIdentifier, and ActivityStartDate.
 }
 \details{
@@ -54,11 +54,12 @@ users can specify whether characteristic names should be followed by the number
 of results available for the characteristic in parentheses.
 }
 \examples{
-# Load dataframe
+# Load data frame
 data(Data_6Tribes_5y)
 
 # find depth profile data without showing number of results
-Data_6Tribes_5y_DepthProfileID_Nresults <- TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
+Data_6Tribes_5y_DepthProfileID_Nresults <-
+  TADA_IDDepthProfiles(Data_6Tribes_5y, nresults = FALSE)
 
 # find depth profile data showing number of results
 Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)

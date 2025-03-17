@@ -155,7 +155,8 @@ TADA_dataframe <- TADA_DataRetrieval(
   endDate = "2020-12-31",
   characteristicName = "pH",
   countycode = "US:08:069",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 ```
 

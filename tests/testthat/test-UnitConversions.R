@@ -63,7 +63,8 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
     organization = "USGS-UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
     startDate = "2023-01-01",
-    endDate = "2023-03-01"
+    endDate = "2023-03-01",
+    ask = FALSE
   )
   check_depth_meters <- TADA_ConvertDepthUnits(check_depth_meters)
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)

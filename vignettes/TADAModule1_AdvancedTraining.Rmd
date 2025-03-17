@@ -21,13 +21,14 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include = FALSE}
+```{r knitr, include = FALSE}
 library(knitr)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE, 
+  eval = F
 )
 ```
 
@@ -88,9 +89,10 @@ using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
 ```{r install_remotes, results = 'hide', eval = F}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+if(!"remotes"%in%installed.packages()){
+install.packages("remotes")
+}
+
 library(remotes)
 ```
 
@@ -99,14 +101,22 @@ the console to update dependency packages that have more recent versions
 available. If you see this prompt, it is recommended to update all of
 them (enter 1 into the console).
 
-The most stable branch for TADA right now is the develop
-branch. Contributors generally create their own branches based on
-develop, make some improvements, and then submit a pull request to be
-reviewed by the TADA Team. Once approved, updates are then merged into
-the develop branch. However, you are welcome to download any branch
-you'd like using the `ref` input in `install_github` (see code chunk
-below). This functionality is mainly only useful to TADA package
+The most stable branch for TADA right now is the develop branch.
+Contributors generally create their own branches based on develop, make
+some improvements, and then submit a pull request to be reviewed by the
+TADA Team. Once approved, updates are then merged into the develop
+branch. However, you are welcome to download any branch you'd like using
+the `ref` input in `install_github` (see code chunk below). This
+functionality is mainly only useful to TADA package
 developers/contributors.
+
+```{r install_TADA_dev, eval = F, include = F}
+# helps with development (knit and checks), this chunk should not appear on the pkgdown website
+remotes::install_github("USEPA/EPATADA",
+  ref = "prerelease",
+  dependencies = TRUE
+)
+```
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -118,22 +128,21 @@ remotes::install_github("USEPA/EPATADA",
 Use the **library()** function to load the TADA R Package into your R
 session.
 
-```{r load_TADA, results = 'hide'}
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
-It's that easy! 
+It's that easy!
 
 The following code block ensures the additional packages needed to run
 the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r, eval = F, results = 'hide'}
-list.of.packages <- c("tidyverse")
-new.packages <- list.of.packages[!(list.of.packages %in%
-  installed.packages()[, "Package"])]
-if (length(new.packages)) install.packages(new.packages)
+```{r setup, eval = F, results = 'hide'}
+if(!"tidyverse"%in%installed.packages()){
+install.packages("tidyverse")
+}
 
 library(tidyverse)
 ```
@@ -147,7 +156,7 @@ the GitHub site. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
-```{r, eval = F}
+```{r help, eval = F}
 ?TADA_DataRetrieval
 ```
 
@@ -176,12 +185,12 @@ template <- TADA_GetTemplate() # download template to working directory
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
 
-`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata` and 
-`dataRetrieval::whatWQPsites` functions within the dataRetrieval package, 
-which uses web service calls to bring WQP data into the R environment. 
-Additionally, `TADA_DataRetrieval` performs some basic quality control checks 
-via `TADA_AutoClean` on the data using new TADA-specific columns to preserve
-the original dataframe:
+`TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
+and `dataRetrieval::whatWQPsites` functions within the dataRetrieval
+package, which uses web service calls to bring WQP data into the R
+environment. Additionally, `TADA_DataRetrieval` performs some basic
+quality control checks via `TADA_AutoClean` on the data using new
+TADA-specific columns to preserve the original dataframe:
 
 -   Converts key character columns to ALL CAPS for easier harmonization
     and validation.
@@ -232,14 +241,14 @@ data. This ensures that all important quality control columns are
 included in the dataframe.
 
 **Note:** USGS and EPA are working together to create WQP 3.0 data
-profiles. Once released (coming in 2025), one data profile will contain the 
-columns critical to TADA, removing the need to combine profiles in this first
-step. This will simplify the steps needed to upload a custom or WQP 
-GUI-downloaded dataframe into the R package. However, column names are 
-changing in the new WQP 3.0 data profiles. This may impact TADA package users 
-usage of the `TADA_DataRetrieval` function in their workflows. The WQP and 
-TADA teams are available to assist with cross walking the old to new column
-names when the time comes.
+profiles. Once released (coming in 2025), one data profile will contain
+the columns critical to TADA, removing the need to combine profiles in
+this first step. This will simplify the steps needed to upload a custom
+or WQP GUI-downloaded dataframe into the R package. However, column
+names are changing in the new WQP 3.0 data profiles. This may impact
+TADA package users usage of the `TADA_DataRetrieval` function in their
+workflows. The WQP and TADA teams are available to assist with cross
+walking the old to new column names when the time comes.
 
 ## Initial data review
 
@@ -619,7 +628,7 @@ estimate detection limit values, check out the `?TADA_Stats` function,
 which accepts user-defined data groupings (or defaults to
 TADA.ComparableDataIdentifier to determine measurement count, location
 count, censored data stats, min, max, and percentile stats, and suggests
-non-detect estimatiom methods based on the number of results, % of data
+non-detect estimation methods based on the number of results, % of data
 frame censored, and number of censoring levels (detection limits). The
 decision tree used in the function was outlined in a [National Nonpoint
 Source Tech
@@ -637,7 +646,7 @@ functions and pipes.
 # get table of characteristics with number of results, sites, and organizations
 dataset_cens_summary <- dataset_cens %>%
   dplyr::group_by(TADA.CharacteristicName) %>%
-  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
+  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(TADA.MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) %>%
   dplyr::arrange(desc(Result_Count))
 ```
 
@@ -667,7 +676,7 @@ upon your program's goals and methods, you might want to filter out some
 of the types you see.
 
 ```{r location pie}
-TADA_FieldValuesPie(dataset_cens, field = "MonitoringLocationTypeName")
+TADA_FieldValuesPie(dataset_cens, field = "TADA.MonitoringLocationTypeName")
 ```
 
 One of the next big steps is data harmonization: translating and

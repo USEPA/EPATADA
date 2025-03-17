@@ -45,7 +45,9 @@ suppressWarnings(
         "https://www.itecmembers.org/attains/",
         # if included will get 500 response because this is an incomplete URL
         # additional query information is pasted in as part of geospatial functions
-        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier="
+        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
+        # page loads but does not return a response code (NA)
+        "http://cran.us.r-project.org"
       ))
 
     # retrieve http response headers from url list

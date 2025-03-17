@@ -9,3 +9,6 @@ readme.html
 .gitignore
 ^articles
 ^vignettes/articles$
+^doc$
+^Meta$
+^vignettes/articles/*_files$

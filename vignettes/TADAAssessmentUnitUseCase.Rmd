@@ -25,7 +25,8 @@ editor_options:
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  eval = F
 )
 ```
 
@@ -61,6 +62,37 @@ more comprehensive module vignettes:
 -   [TADA Module
     2](https://usepa.github.io/EPATADA/articles/TADAModule2.html)
 
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing TADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package.
+
+```{r install_TADA, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA_developer, include = FALSE}
+remotes::install_github("USEPA/EPATADA",
+  ref = "prerelease",
+  dependencies = TRUE
+)
+
+library(EPATADA)
+```
+
 ## Load Required Packages
 
 The fist step is to load the TADA package and other packages used in our
@@ -73,8 +105,13 @@ We'll also record the start time for our analysis, beginning after
 loading packages.
 
 ```{r library, results = 'hide'}
+list.of.packages <- c("dplyr", "yaml", "lwgeom", "sf", "lubridate",
+                      "knitr", "DT")
+new.packages <- list.of.packages[!(list.of.packages %in%
+  installed.packages()[, "Package"])]
+if (length(new.packages)) install.packages(new.packages)
+
 # Load required packages
-library(EPATADA)
 library(dplyr)
 library(yaml)
 library(lwgeom)
@@ -82,7 +119,6 @@ library(sf)
 library(lubridate)
 library(knitr)
 library(DT)
-
 
 # Record start time
 start.time <- Sys.time()
@@ -130,13 +166,13 @@ used to harmonize these synonyms.
 
 ```{r TADA_DataRetrieval}
 # Import data from WQP
-
 data <- TADA_DataRetrieval(
   statecode = "IL",
   startDate = "2010-01-01",
   endDate = "2020-12-31",
   huc = c("0714010505", "0714010504", "0714010508", "0714010501", "0714010503"),
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 ```
 
@@ -192,9 +228,8 @@ from **ATTAINS** relevant to the Monitoring Locations included in the
 more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
-```{r TADA_GetAttains}
+```{r TADA_GetATTAINS, eval = F}
 # Import data from ATTAINS geospatial services
-
 ATTAINS_data <- TADA_GetATTAINS(data)
 ```
 
@@ -207,7 +242,7 @@ Monitoring Locations should be retained for additional analysis. For
 this demo, we are focusing on a single Assessment Unit, IL-84, with
 multiple monitoring locations (*MonitoringLocationIdentifier*).
 
-```{r TADA_ViewAttains}
+```{r TADA_ViewATTAINS}
 # View catchments and assessment units on map
 
 ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_data)
@@ -279,9 +314,8 @@ earlydate <- min(Analysis_data$ActivityStartDate)
 latedate <- max(Analysis_data$ActivityStartDate)
 ```
 
-We can see that there are `r nmls` monitoring locations from `r norgs`
-organizations with results from `r earlydate` to `r latedate`. There are
-`r nres` results in the dataframe.
+This allows us to easily review how many monitoring locations, organizations, 
+and results are in the dataframe for the selected time period.
 
 ## Water Chemistry Data Preparation and QC
 

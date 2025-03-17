@@ -35,15 +35,20 @@
 #' # Load example dataset
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
-#' # Remove Suspect characteristic-analytical method combinations from dataframe:
-#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' # Remove Suspect characteristic-analytical method combinations from 
+#' # dataframe:
+#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = TRUE)
 #'
-#' # Flag, but do not remove, Suspect characteristic-analytical method combinations
+#' # Flag, but do not remove, Suspect characteristic-analytical method 
+#' # combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = FALSE)
 #'
 #' # Show only Suspect characteristic-analytical method combinations:
-#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, 
+#' clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -171,28 +176,35 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", "MA_Continuous", "Anchorage Bacteria 20-21"))
+#' all_data <- TADA_DataRetrieval(project = c("Continuous LC1", 
+#' "MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 #' all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
 #'
-#' # Show only rows flagged as continuous data (note that all results are flagged in the example)
-#' all_data_flaggedonly <- TADA_FlagContinuousData(all_data, clean = FALSE, flaggedonly = TRUE)
+#' # Show only rows flagged as continuous data (note that all results are 
+#' # flagged in the example)
+#' all_data_flaggedonly <- TADA_FlagContinuousData(all_data, 
+#' clean = FALSE, flaggedonly = TRUE)
 #'
-#' # Remove continuous data in dataframe (note that this dataframe will have 0 results because all are flagged in the example)
+#' # Remove continuous data in dataframe (note that this dataframe will 
+#' # have 0 results because all are flagged in the example)
 #' all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 #'
 #' data(Data_Nutrients_UT)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-#' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE)
+#' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, 
+#' clean = FALSE)
 #' unique(Data_Nutrients_UT_flags$TADA.ContinuousData.Flag)
 #'
 #' # Show only rows flagged as continuous data
-#' Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+#' Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT,
+#' clean = FALSE, flaggedonly = TRUE)
 #'
 #' # Remove continuous data in dataframe
-#' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, clean = TRUE)
+#' Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, 
+#' clean = TRUE)
 #' unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
 #' }
 #'
@@ -439,14 +451,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Remove data that is above the upper WQX threshold from dataframe:
-#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = TRUE)
 #'
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
-#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
 #' # Show only data flagged as above the upper WQX threshold:
-#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -638,14 +653,17 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' data(Data_NCTCShepherdstown_HUC12)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
-#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+#' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = TRUE)
 #'
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
-#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+#' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE)
 #'
 #' # Show only data that is below the lower WQX threshold:
-#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+#' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(
+#' Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
 #'
 TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
@@ -1091,23 +1109,30 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, flaggedonly = TRUE)
+#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' flaggedonly = TRUE)
 #'
 #' # Remove data with coordinates outside the USA, but keep flagged data with
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "remove")
 #'
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "change sign")
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "change sign")
 #'
-#' # Remove data with imprecise coordinates, but keep flagged data with coordinates outside the USA;
+#' # Remove data with imprecise coordinates, but keep flagged data with 
+#' # coordinates outside the USA;
 #' # imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_imprecise = TRUE)
 #'
-#' # Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+#' # Remove data with imprecise coordinates or coordinates outside the USA 
+#' # from the dataframe:
+#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, 
+#' clean_outsideUSA = "remove", clean_imprecise = TRUE)
 #'
 TADA_FlagCoordinates <- function(.data,
                                  clean_outsideUSA = c("no", "remove", "change sign"),
@@ -1243,38 +1268,52 @@ TADA_FlagCoordinates <- function(.data,
 #' @examples
 #' \dontrun{
 #' # Load dataset
-#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water")
+#' dat <- TADA_DataRetrieval(startDate = "2022-09-01", 
+#' endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE)
 #' unique(dat$OrganizationIdentifier)
-#' # If duplicates across organizations exist, pick the result belonging to "21PA_WQX" if available.
-#' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
+#' # If duplicates across organizations exist, pick the result belonging 
+#' # to "21PA_WQX" if available.
+#' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat, 
+#' dist_buffer = 100, org_hierarchy = c("21PA_WQX"))
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #' }
 #'
-TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, org_hierarchy = "none") {
+TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, 
+                                                     org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
-  if (!"TADA.MonitoringLocationIdentifier" %in% names(.data)) {
+  if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
   }
 
-  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier")])
+  dupsites <- unique(.data[, c("MonitoringLocationIdentifier", "TADA.LatitudeMeasure", 
+                               "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier",
+                               "TADA.NearbySiteGroup")])
 
   # get rid of results with no site group added - not duplicated spatially
-  dupsites <- subset(dupsites, !dupsites$TADA.MonitoringLocationIdentifier %in% c("No nearby sites")) %>%
-    tidyr::separate_rows(TADA.MonitoringLocationIdentifier, sep = ",")
+  dupsites <- dupsites %>%
+    dplyr::filter(!is.na(TADA.NearbySiteGroup))
 
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data %>%
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) %>%
     dplyr::select(
       OrganizationIdentifier, ResultIdentifier, ActivityStartDate, ActivityStartTime.Time,
-      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, TADA.MonitoringLocationIdentifier
+      TADA.CharacteristicName, ActivityTypeCode, TADA.ResultMeasureValue, 
+      TADA.MonitoringLocationIdentifier, TADA.NearbySiteGroup
     ) %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
+  
+  # remove intermediate object
+  rm(dupsites)
 
-  # group by date, time, characteristic, and rounded result value and determine the number of organizations that have those same row values, and filter to those summary rows with more than one organization
+  # group by date, time, characteristic, and rounded result value and determine the number of 
+  # organizations that have those same row values, and filter to those summary rows with more than 
+  # one organization
   dups_sum <- dupsprep %>%
-    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier) %>%
+    dplyr::group_by(ActivityStartDate, ActivityStartTime.Time, TADA.CharacteristicName, 
+                    ActivityTypeCode, roundRV, TADA.MonitoringLocationIdentifier,
+                    TADA.NearbySiteGroup) %>%
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) %>%
     dplyr::filter(numorgs > 1) %>%
     # group duplicates
@@ -1291,7 +1330,8 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     "OrganizationIdentifier",
     "ResultIdentifier",
     "TADA.ResultMeasureValue",
-    "TADA.MonitoringLocationIdentifier"
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.NearbySiteGroup"
   )) %>%
     dplyr::mutate(TADA.MultipleOrgDuplicate = ifelse(is.na(TADA.MultipleOrgDupGroupID), "N", "Y")) %>%
     # remove results that are listed twice (as part of two groups)
@@ -1299,15 +1339,18 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100, o
     dplyr::slice_sample(n = 1) %>%
     dplyr::ungroup() %>%
     dplyr::select(-roundRV)
-
+  
+# remove intermediate object
+  rm(dups_sum)
 
   # select representative results
   if (dim(dupsdat)[1] > 0) {
     # make a selection of a representative result
-    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result with lowest rank in hierarchy
+    if (!any(org_hierarchy == "none")) { # if there is an org hierarchy, use that to pick result 
+      # with lowest rank in hierarchy
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
-        print("One or more organizations in input hierarchy are not present in the input dataset.")
+        print("TADA_FindPotentialDuplicatesMultipleOrgs: One or more organizations in input hierarchy are not present in the input dataset.")
       }
       hierarchy_df <- data.frame("OrganizationIdentifier" = org_hierarchy, "rank" = 1:length(org_hierarchy))
       dupranks <- dupsdat %>%
@@ -1405,14 +1448,18 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   depthcols <- names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
 
   # tack depth columns onto additional grouping columns
-  colss <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
+  cols <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
 
   # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data %>%
-    dplyr::group_by(dplyr::across(tidyselect::any_of(colss))) %>%
-    dplyr::summarise(numres = length(unique(ResultIdentifier))) %>%
+    dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) %>%
+    dplyr::summarise(numres = length(unique(ResultIdentifier)),
+                     .groups = "keep") %>%
     dplyr::filter(numres > 1) %>%
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
+  
+  # remove intermediate objects
+  rm(depthcols, cols)
 
   if (dim(dups_sum_org)[1] > 0) {
     # apply to .data and remove numbers column
@@ -1431,7 +1478,16 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$ResultIdentifier %in% picks$ResultIdentifier, "Unique", .data$TADA.SingleOrgDup.Flag)
     # flags non-duplicates as passing
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
-    print(paste0(dim(dups_sum_org)[1], " groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."))
+    print(paste0("TADA_FindPotentialDuplicatesSingleOrg: ", dim(dups_sum_org)[1], 
+                 " groups of potentially duplicated results found in dataset.",
+                 " These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID ",
+                 "column and the function randomly selected one result from each group to ",
+                 "represent a single, unduplicated value. Selected values are indicated in the ",
+                 "TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' ",
+                 "for easy filtering."))
+    
+    # remove intermediate objects
+    rm(dup_rids)
   }
 
   if (dim(dups_sum_org)[1] == 0) {
@@ -1444,7 +1500,13 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
   }
-
+  
+  # remove intermediate objects
+  rm(dups_sum_org)
+  
+  # reorder columns
   .data <- TADA_OrderCols(.data)
+  
+  # return TADA df
   return(.data)
 }

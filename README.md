@@ -1,4 +1,4 @@
-## Welcome to TADA: Tools for Automated Data Analysis!
+## Welcome to EPATADA: Tools for Automated Data Analysis!
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
@@ -22,6 +22,8 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
+![*TADA poster created for the 2025 National Water Quality Monitoring Conference*](vignettes/images/Poster.png)
+
 ## Installation
 
 You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/EPATADA) and all dependencies by running:
@@ -44,6 +46,12 @@ install.packages("remotes")
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
 
 TADAShiny::run_app()
+```
+
+### Recommended Citation:
+
+```         
+Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Healy, K., Willi, K., Brousil, M., Bousquin, J., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/
 ```
 
 ## Water Quality Portal
