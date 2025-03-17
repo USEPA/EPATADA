@@ -1767,7 +1767,7 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
   }
   
   .data <- data.frame(.data)
-  AUtoMLRef[["ATTAINS.assessmentunitidentifier"]] <- as.character(ATTAINS.assessmentunitidentifier)
+  AUtoMLRef[["ATTAINS.assessmentunitidentifier"]] <- as.character(AUtoMLRef[["ATTAINS.assessmentunitidentifier"]])
   
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))

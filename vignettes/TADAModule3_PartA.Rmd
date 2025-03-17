@@ -386,7 +386,7 @@ TADA_TableExport(UseParamRef)
 NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
   Data_NCTC,
   paramRef = NCTC_ParamRef_Final,
-  UseParamRef = UseParamRef, # Edits were made to UseParamRef, updates flag column
+  useParamRef = UseParamRef, # Edits were made to UseParamRef, updates flag column
   org_id = c("EPA304a", "MDE_EASP"),
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
