@@ -246,7 +246,7 @@ spelling::update_wordlist()
 
 # Run devtools check and test
 devtools::test()
-devtools::check()
+# devtools::check()
 
 # more robust test for releases (includes broken link check)
 devtools::check(manual = TRUE, remote = TRUE, incoming = TRUE)
