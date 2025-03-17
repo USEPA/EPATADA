@@ -168,7 +168,7 @@ NCTC_UseParamRef3.1 <- TADA_CreateUseParamRef(
   # excel = TRUE, overwrite = TRUE 
   ) 
 
-NCTC_AURef <- TADA_CreateAURef(Data_NCTC, excel = TRUE, overwrite = TRUE)
+NCTC_SpatialRef <- TADA_CreateSpatialRef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 ```
 
 # Defining Criteria - Magnitude Methodology
@@ -197,7 +197,7 @@ determine the number of individual excursions for each based on the
 defined magnitudes.
 
 ```{r}
-NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, AUtoMLRef = AURef, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
+NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, AUtoMLRef = NCTC_AURef, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
 
 
 NCTC_Excursions <- TADA_MagnitudeSummary(
