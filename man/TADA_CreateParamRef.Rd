@@ -140,13 +140,14 @@ paramRef_UT <- TADA_CreateParamRef(
 # See below for a simple example of this workflow:
 
 # Manually add ATTAINS parameters to crosswalk using R
-paramRef_UT2 <- dplyr::mutate(paramRef_UT, 
-ATTAINS.ParameterName = dplyr::case_when(
-  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
-  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
-  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ 
-  "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
-))
+paramRef_UT2 <- dplyr::mutate(paramRef_UT,
+  ATTAINS.ParameterName = dplyr::case_when(
+    grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+    grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+    grepl("NITROGEN", TADA.ComparableDataIdentifier) ~
+      "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+  )
+)
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
   paramRef = paramRef_UT2,
@@ -156,8 +157,8 @@ paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 # Example where multiple org_id's are selected
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <- 
-TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
+Data_NCTCShepherdstown <-
+  TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
 Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
 paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,

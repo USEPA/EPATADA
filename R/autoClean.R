@@ -83,8 +83,8 @@
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface:
 #' # https://www.waterqualitydata.us/
-#' 
-#' # Example WQP URL: 
+#'
+#' # Example WQP URL:
 #' # https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
@@ -106,10 +106,10 @@ TADA_AutoClean <- function(.data) {
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-  
+
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
@@ -118,17 +118,17 @@ TADA_AutoClean <- function(.data) {
     "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
   )
-  
+
   # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
-  
+
   # execute function after checks are passed
-  
-  
+
+
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
   print("TADA_Autoclean: creating TADA-specific columns.")
-  
+
   if ("TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in% colnames(.data)) {
     .data <- .data
   } else {
@@ -136,63 +136,63 @@ TADA_AutoClean <- function(.data) {
     .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
       toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
   }
-  
+
   if ("TADA.ActivityMediaName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original ActivityMediaName
     .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   }
-  
+
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original CharacteristicName
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
-  
+
   if ("TADA.ResultSampleFractionText" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original ResultSampleFractionText
     .data$TADA.ResultSampleFractionText <- toupper(.data$ResultSampleFractionText)
   }
-  
+
   if ("TADA.MethodSpeciationName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original MethodSpeciationName
     .data$TADA.MethodSpeciationName <- toupper(.data$MethodSpeciationName)
   }
-  
+
   if ("TADA.ResultMeasure.MeasureUnitCode" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original ResultMeasure.MeasureUnitCode
     .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(.data$ResultMeasure.MeasureUnitCode)
   }
-  
+
   if ("TADA.MonitoringLocationIdentifier" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original MonitoringLocationIdentifier
     .data$TADA.MonitoringLocationIdentifier <- toupper(.data$MonitoringLocationIdentifier)
   }
-  
+
   if ("TADA.MonitoringLocationName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original MonitoringLocationName
     .data$TADA.MonitoringLocationName <- toupper(.data$MonitoringLocationName)
   }
-  
+
   if ("TADA.MonitoringLocationTypeName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original MonitoringLocationName
     .data$TADA.MonitoringLocationTypeName <- toupper(.data$MonitoringLocationTypeName)
   }
-  
+
   if ("ActivityStartDateTime" %in% colnames(.data)) {
     .data <- .data
   } else {
@@ -206,58 +206,57 @@ TADA_AutoClean <- function(.data) {
       tz = "UTC"
     )
   }
-  
+
   # Transform "Dissolved oxygen (DO)" characteristic name to "DISSOLVED OXYGEN SATURATION" IF
   # result unit is "%" or "% SATURATN".
-  
-  if(any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
-    
+
+  if (any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
     print("TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN.")
-    
+
     do.units <- c("%", "% SATURATN")
-    
+
     do.data <- .data %>%
       dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
       dplyr::mutate(
         TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
         TADA.ResultMeasure.MeasureUnitCode = "%"
       )
-    
+
     do.list <- do.data %>%
       dplyr::select(ResultIdentifier) %>%
       dplyr::pull()
-    
+
     other.data <- .data %>%
       dplyr::filter(!ResultIdentifier %in% do.list)
-    
+
     do.full.join <- colnames(.data)
-    
+
     .data <- do.data %>%
       dplyr::full_join(other.data, by = do.full.join) %>%
       dplyr::arrange(ResultIdentifier)
-    
+
     rm(do.units, do.list, do.data, other.data, do.full.join)
   }
-  
+
   # Remove complex biological data. Un-comment after new WQX 3.0 Profiles are released. May not be needed if implemented via WQP UI/services.
   # .data$TADA.BiologicalIntentName = toupper(.data$BiologicalIntentName)
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
-  
+
   # run TADA_ConvertSpecialChars function
   print("TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.")
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
   .data <- TADA_ConvertSpecialChars(.data, "DetectionQuantitationLimitMeasure.MeasureValue")
-  
+
   # include only in TADA_SimpleCensoredMethods
   # # Identify detection limit data
   # print("TADA_Autoclean: identifying and copying detection limit data to result value if blank.")
   # .data <- TADA_IDCensoredData(.data)
-  
+
   # change latitude and longitude measures to class numeric
   print("TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.")
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
-  
+
   # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
   # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
   # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
@@ -275,7 +274,7 @@ TADA_AutoClean <- function(.data) {
   # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(join2$VerticalAccuracyMeasure.MeasureValue)
   # join2$WellDepthMeasure.MeasureValue <- as.double(join2$WellDepthMeasure.MeasureValue)
   # join2$WellHoleDepthMeasure.MeasureValue <- as.double(join2$WellHoleDepthMeasure.MeasureValue)
-  
+
   # Automatically convert USGS only unit "meters" to "m"
   print("TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.")
   .data$TADA.ResultMeasure.MeasureUnitCode[.data$TADA.ResultMeasure.MeasureUnitCode == "meters"] <- "m"
@@ -283,40 +282,40 @@ TADA_AutoClean <- function(.data) {
   .data$ActivityTopDepthHeightMeasure.MeasureUnitCode[.data$ActivityTopDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ActivityBottomDepthHeightMeasure.MeasureUnitCode[.data$ActivityBottomDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
   .data$ResultDepthHeightMeasure.MeasureUnitCode[.data$ResultDepthHeightMeasure.MeasureUnitCode == "meters"] <- "m"
-  
+
   # Substitute updated characteristic name for deprecated names
   print("TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.")
   .data <- TADA_SubstituteDeprecatedChars(.data)
-  
+
   # Implement unit harmonization
   print("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(.data, transform = TRUE, ref = "tada"))
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
-  
+
   # create comparable data identifier column
   print("TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.")
   .data <- TADA_CreateComparableID(.data)
-  
+
   print("NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')")
-  
+
   .data <- TADA_OrderCols(.data)
-  
+
   return(.data)
 }
 
 #' Run key flagging functions
 #'
-#' This is a shortcut function to run all of the most important flagging 
-#' functions on a TADA dataset. See ?function documentation for 
-#' TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, 
+#' This is a shortcut function to run all of the most important flagging
+#' functions on a TADA dataset. See ?function documentation for
+#' TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities,
 #' TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 #'
 #' @param .data A TADA dataframe.
 #' @param clean Boolean. Determines whether to keep the suspect rows (or not).
 #' Defaults to TRUE.
 #'
-#' @return A TADA dataframe with the following flagging columns: 
-#' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag, 
+#' @return A TADA dataframe with the following flagging columns:
+#' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag,
 #' TADA.MeasureQualifierCode.Flag and TADA.ActivityType.Flag.
 #'
 #' @export
@@ -341,6 +340,6 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = TRUE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE)
     .data <- TADA_FlagMeasureQualifierCode(.data, clean = FALSE)
   }
-  
+
   return(.data)
 }

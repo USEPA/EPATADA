@@ -32,6 +32,7 @@ data(Data_Nutrients_UT)
 fieldCountUT <- TADA_FieldCounts(Data_Nutrients_UT)
 # Count table of most fields in Data_Nutrients_UT, filtered to only
 # AMMONIA results.
-fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT, 
-display = "most", characteristicName = "AMMONIA")
+fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT,
+  display = "most", characteristicName = "AMMONIA"
+)
 }

@@ -27,7 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   eval = F
 )
 ```
@@ -1051,14 +1051,13 @@ we review values from the *SampleCollectionMethod.MethodName* field for
 Dissolved Oxygen (DO) results.
 
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-
 # # Create subset of DO data
-  DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
-# 
+DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
+#
 # # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
- DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
-# 
- DO_SCM_Pie
+DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
+#
+DO_SCM_Pie
 
 # Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
