@@ -801,18 +801,20 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, UsePar
 #' for the current Assessment cycle. Users will decide to "Include" or "Exclude" 
 #' a MonitoringLocation in the "IncludeOrExclude" column. for an AU.
 #'
-#' @param .data A TADA dataframe with TADA_GetATTAINS() geospatial function ran.
+#' @param .data A TADA data frame with TADA_GetATTAINS() geospatial function ran.
 #'
 #' @param AU Character argument. Users can specify which AU they are interested in
 #' defining WQS criteria for. If this argument is left as NULL, then all unique AU
 #' records will be displayed in this ref file for users to define.
+#' 
+#' @param AURef A data frame matching Monitoring Location sites to Assessment Units.
 #'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
 #' @export
 #'
 
-TADA_CreateAURef <- function(.data, AURef = NULL, AU = NULL, excel = TRUE, overwrite = FALSE, returnSites = c("all", "matched-only")){
+TADA_CreateAURef <- function(.data, AURef = NULL, AU = NULL, excel = TRUE, overwrite = FALSE){
   
   # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")

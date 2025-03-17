@@ -293,13 +293,13 @@ under the column 'use_name', and for inputting additional rows as needed
 if the parameter applies to multiples uses.
 
 In the example below, we can see "PH" was not a prior ATTAINS parameter
-name for MDE_EASP (see ATTAINS.FlagUseName column in NCTC_ParamUseRef).
+name for MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef).
 If desired, a user can manually assign this parameter to any applicable
 uses (disclaimer: this is for demonstration purposes only and does not
 reflect MDE_EASP's process).
 
 ```{r}
-NCTC_ParamUseRef <- TADA_CreateUseParamRef(
+NCTC_UseParamRef <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
@@ -307,14 +307,14 @@ NCTC_ParamUseRef <- TADA_CreateUseParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(NCTC_ParamUseRef)
+TADA_TableExport(NCTC_UseParamRef)
 ```
 
 Users may also choose to include the EPA304a recommended water quality
 criteria within the function input "org_names". This option utilizes the
 EPA304a.PollutantName column created in TADA_CreateParamRef(). If a user
 includes additional organizations beyond "MDE_EASP" and "EPA304a", like
-in the example NCTC_ParamUseRef2 below, it will not generate rows for
+in the example NCTC_UseParamRef2 below, it will not generate rows for
 the parameter and use combinations for those additional orgs ("21VASWCB"
 (Virginia), "21PA"(Pennsylvania), WVDEP (West Virginia)) because only
 MDE_EASP (Maryland) was defined in TADA_CreateParamRef() for paramRef =
@@ -323,7 +323,7 @@ must first fill out the TADA_CreateParamRef() for all organizations of
 interest.
 
 ```{r}
-NCTC_ParamUseRef2 <- TADA_CreateUseParamRef(
+NCTC_UseParamRef2 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
   paramRef = NCTC_ParamRef_Final,
@@ -331,7 +331,7 @@ NCTC_ParamUseRef2 <- TADA_CreateUseParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(NCTC_ParamUseRef2)
+TADA_TableExport(NCTC_UseParamRef2)
 ```
 
 Instead, users should create a parameter and use reference table,
@@ -344,13 +344,13 @@ Users may choose to voluntarily share their reference tables for their
 organization with the TADA Team so that others can use it in the future.
 
 ```{r}
-NCTC_ParamUseRef3 <- TADA_CreateUseParamRef(
+NCTC_UseParamRef3 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("EPA304a", "MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
   excel = FALSE
 )
-TADA_TableExport(NCTC_ParamUseRef3)
+TADA_TableExport(NCTC_UseParamRef3)
 ```
 
 In this example, we designate that the ATTAINS.ParameterName "PH" is
@@ -373,26 +373,26 @@ add_data <- data.frame(
     "Seasonal Migratory Fish Spawning and Nursery Subcategory"
 ))
 
-# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with paramUseRef = ParamUseRef as an argument.
-ParamUseRef <- NCTC_ParamUseRef3 %>%
+# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
+UseParamRef <- NCTC_UseParamRef3 %>%
   dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
   dplyr::select(-c(use_name.x, use_name.y))
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
-TADA_TableExport(ParamUseRef)
+TADA_TableExport(UseParamRef)
 
 # PH will now reflect the changes
-NCTC_ParamUseRef_Final <- TADA_CreateUseParamRef(
+NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
   Data_NCTC,
-  paramUseRef = ParamUseRef, # Edits were made to paramUseRef, updates flag column
-  org_id = c("EPA304a", "MDE_EASP"),
   paramRef = NCTC_ParamRef_Final,
+  UseParamRef = UseParamRef, # Edits were made to UseParamRef, updates flag column
+  org_id = c("EPA304a", "MDE_EASP"),
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(NCTC_ParamUseRef_Final)
+TADA_TableExport(NCTC_UseParamRef_Final)
 ```
 
 # Next steps
