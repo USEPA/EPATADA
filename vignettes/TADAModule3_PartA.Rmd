@@ -27,7 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   eval = F
 )
 ```
@@ -216,7 +216,7 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"), # Maryland
-  excel = FALSE 
+  excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -266,7 +266,7 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
   paramRef = ParamRef,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  #excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 TADA_TableExport(NCTC_ParamRef_Final)
 ```
@@ -366,12 +366,13 @@ of how a user can edit the table in the R environment.
 
 ```{r paged.print=TRUE}
 add_data <- data.frame(
-  "organization_identifier" = "MDE_EASP", 
-  "ATTAINS.ParameterName" = rep("PH", 3), 
+  "organization_identifier" = "MDE_EASP",
+  "ATTAINS.ParameterName" = rep("PH", 3),
   "use_name" = c(
     "Aquatic Life and Wildlife", "Water Contact Sports",
     "Seasonal Migratory Fish Spawning and Nursery Subcategory"
-))
+  )
+)
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with paramUseRef = ParamUseRef as an argument.
 ParamUseRef <- NCTC_ParamUseRef3 %>%

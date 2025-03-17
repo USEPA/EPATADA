@@ -26,10 +26,12 @@ data(Data_Nutrients_UT)
 # Create a list of parameters in the dataset and the number of records of
 # each parameter:
 TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
-# If there are more than 12 categories to display, any remaining categories, 
+# If there are more than 12 categories to display, any remaining categories,
 # the ones that have the smallest number of results,
 # are combined into an "ALL OTHERS" category.
-TADA_FieldValuesPie(Data_Nutrients_UT, field = 
-"TADA.ComparableDataIdentifier")
+TADA_FieldValuesPie(Data_Nutrients_UT,
+  field =
+    "TADA.ComparableDataIdentifier"
+)
 
 }

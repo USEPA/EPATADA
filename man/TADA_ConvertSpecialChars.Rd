@@ -38,14 +38,16 @@ the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
 NAME DataTypes.Flag".
 }
 \examples{
-HandleSpecialChars_ResultMeasureValue <- 
-TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
+HandleSpecialChars_ResultMeasureValue <-
+  TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$
-TADA.ResultMeasureValueDataTypes.Flag)
+  TADA.ResultMeasureValueDataTypes.Flag)
 
-HandleSpecialChars_DetLimMeasureValue <- 
-TADA_ConvertSpecialChars(Data_Nutrients_UT, 
-"TADA.DetectionQuantitationLimitMeasure.MeasureValue")
+HandleSpecialChars_DetLimMeasureValue <-
+  TADA_ConvertSpecialChars(
+    Data_Nutrients_UT,
+    "TADA.DetectionQuantitationLimitMeasure.MeasureValue"
+  )
 unique(HandleSpecialChars_DetLimMeasureValue$
-TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
+  TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 }

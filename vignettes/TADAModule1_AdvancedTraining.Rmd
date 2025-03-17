@@ -27,7 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   eval = F
 )
 ```
@@ -89,8 +89,8 @@ using the `remotes` package. Copy and paste the code below into your R
 or RStudio console to download and install.
 
 ```{r install_remotes, results = 'hide', eval = F}
-if(!"remotes"%in%installed.packages()){
-install.packages("remotes")
+if (!"remotes" %in% installed.packages()) {
+  install.packages("remotes")
 }
 
 library(remotes)
@@ -140,8 +140,8 @@ use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
 ```{r setup, eval = F, results = 'hide'}
-if(!"tidyverse"%in%installed.packages()){
-install.packages("tidyverse")
+if (!"tidyverse" %in% installed.packages()) {
+  install.packages("tidyverse")
 }
 
 library(tidyverse)

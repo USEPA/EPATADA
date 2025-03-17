@@ -62,22 +62,23 @@ unit = "m".
 data(Data_Nutrients_UT)
 
 # Convert all depth units to meters and review unit harmonization:
-# "ActivityDepthHeightMeasure.MeasureUnitCode" and 
+# "ActivityDepthHeightMeasure.MeasureUnitCode" and
 # "ActivityDepthHeightMeasure.MeasureValue"
-# are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and 
+# are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and
 # "TADA.ActivityDepthHeightMeasure.MeasureValue"
 DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
 
 # Convert all depth units to feet:
 DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Data_Nutrients_UT, unit = "ft")
 
-# Do not convert any depth units, but address depth unit synonyms, add 
+# Do not convert any depth units, but address depth unit synonyms, add
 # TADA depth columns (copies),
-# Add columns with target units and conversion factors for each depth 
+# Add columns with target units and conversion factors for each depth
 # measure unit:
-DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT, 
-transform = FALSE)
-# Compare columns before and after transformation to see example 
+DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT,
+  transform = FALSE
+)
+# Compare columns before and after transformation to see example
 # transformation from "meters" to "m"
 unique(DepthUnitsNotConverted$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 unique(DepthUnitsNotConverted$ActivityDepthHeightMeasure.MeasureUnitCode)

@@ -23,8 +23,8 @@
 #' aoi_sf cannot be used with tribal_area_type. If countrycode, countycode, huc,
 #' siteid, or statecode are used with aoi_sf or tribal_area_type they will be ignored
 #' under the assumption that the sf object or tribal location are the intended
-#' area of interest. 
-#' 
+#' area of interest.
+#'
 #' aoi_sf is only designed to work with polygon shapefiles.
 #'
 #' Users can reference the \href{https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads}{WQX domain tables}
@@ -44,7 +44,7 @@
 #' @param startDate Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param endDate End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
 #' @param aoi_sf An sf object to use for a query area of interest. If using a local shapefile,
-#'        sf::read_sf can be used to read in a user provided shapefile. This will only 
+#'        sf::read_sf can be used to read in a user provided shapefile. This will only
 #'        work for polygons.
 #' @param countrycode Code that identifies a country or ocean (e.g. countrycode = "CA" for Canada,
 #'        countrycode = "OA" for Atlantic Ocean).
@@ -1381,7 +1381,7 @@ make_groups <- function(x, maxrecs) {
 #' @param time_col time column
 #' @param tz_col time zone column
 #' @param tz time zone
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
@@ -1410,22 +1410,24 @@ make_groups <- function(x, maxrecs) {
 #'   tz_col = "ActivityStartTime.TimeZoneCode",
 #'   tz = "UTC"
 #' )
-#' 
+#'
 #' # Re-run TADA_CheckRequiredFields, no longer returns error message
 #' TADA_CheckRequiredFields(TADAProfile1)
 #' }
-#' 
-TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz){
+#'
+TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz) {
   offsetLibrary <- data.frame(
     offset = c(5, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 10, 0, 0, 0, 0),
-    code = c("EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT",
-             "AKST", "AKDT", "HAST", "HST", "UTC", "", NA, "GMT")
+    code = c(
+      "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT",
+      "AKST", "AKDT", "HAST", "HST", "UTC", "", NA, "GMT"
+    )
   )
-  
+
   # Difference in behavior between NWIS and WQP
   offsetLibrary$offset[is.na(offsetLibrary$code)] <- NA
   original_order <- names(.data)
-  
+
   .data <- merge(
     x = .data,
     y = offsetLibrary,
@@ -1433,21 +1435,21 @@ TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz){
     by.y = "code",
     all.x = TRUE
   )
-  
+
   .data$dateTime <- paste(.data[[date_col]], .data[[time_col]])
   .data$dateTime <- lubridate::fast_strptime(
     .data$dateTime,
     "%Y-%m-%d %H:%M:%S"
   ) + 60 * 60 * .data$offset
-  
+
   attr(.data$dateTime, "tzone") <- tz
-  
+
   .data[[date_col]] <- suppressWarnings(as.Date(lubridate::parse_date_time(.data[[date_col]], c("Ymd", "mdY"))))
-  
+
   .data <- .data[, c(original_order, "offset", "dateTime")]
-  
+
   names(.data)[names(.data) == "offset"] <- paste0(tz_col, "_offset")
   names(.data)[names(.data) == "dateTime"] <- paste0(date_col, "Time")
-  
+
   return(.data)
 }

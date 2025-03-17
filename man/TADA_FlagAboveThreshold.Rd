@@ -61,15 +61,21 @@ data(Data_NCTCShepherdstown_HUC12)
 
 # Remove data that is above the upper WQX threshold from dataframe:
 WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
-Data_NCTCShepherdstown_HUC12, clean = TRUE)
+  Data_NCTCShepherdstown_HUC12,
+  clean = TRUE
+)
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
 # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
-Data_NCTCShepherdstown_HUC12, clean = FALSE)
+  Data_NCTCShepherdstown_HUC12,
+  clean = FALSE
+)
 
 # Show only data flagged as above the upper WQX threshold:
 WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
-Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+  Data_NCTCShepherdstown_HUC12,
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }
