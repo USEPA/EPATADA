@@ -131,12 +131,24 @@ test_that("range flag functions work", {
 
 test_that("QC results are not flagged as Continuous", {
   cont_QC <- TADA_RandomTestingData(choose_random_state = TRUE) %>%
-    TADA_FlagContinuousData() %>%
+    TADA_FlagContinuousData() 
+  
+  cont_QC_filt <- cont_QC %>%
     dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
+  
+  cont_QC_disc <- cont_QC %>%
+    dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
 
-  expect_true(!(unique(cont_QC$TADA.ActivityType.Flag)) %in% c(
+  if(nrow(cont_QC_filt) > 0) {
+  
+  expect_true(!(unique(cont_QC_filt$TADA.ActivityType.Flag)) %in% c(
     "QC_duplicate", "QC_calibration",
     "QC_replicate", "QC_blank",
     "QC_other"
   ))
+  }
+  
+  if(nrow(cont_QC_filt) == 0) {
+    expect_true(nrow(cont_QC_disc) > 0)
+  }
 })
