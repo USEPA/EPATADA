@@ -68,7 +68,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-03-14</h4>
+            <h4 data-toc-skip class="date">2025-03-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3_PartA.Rmd" class="external-link"><code>vignettes/TADAModule3_PartA.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3_PartA.Rmd</code></div>
@@ -221,7 +221,7 @@ should contact the ATTAINS team (attains@epa.gov) for assistance.</p>
 <span><span class="va">NCTC_ParamRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>, <span class="co"># Maryland</span></span>
-<span>  excel <span class="op">=</span> <span class="cn">FALSE</span> </span>
+<span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="co"># uncomment excel = TRUE, overwrite = TRUE to run the excel file</span></span>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
@@ -267,7 +267,7 @@ an ATTAINS parameter name.</p>
 <span>  paramRef <span class="op">=</span> <span class="va">ParamRef</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="co"># uncomment excel = TRUE, overwrite = TRUE to run the excel file</span></span>
-<span>  <span class="co">#excel = TRUE, overwrite = TRUE</span></span>
+<span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_Final</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -355,12 +355,13 @@ ATTAINS assessments. If no excel file is generated, this is an example
 workflow of how a user can edit the table in the R environment.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">add_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  <span class="st">"organization_identifier"</span> <span class="op">=</span> <span class="st">"MDE_EASP"</span>, </span>
-<span>  <span class="st">"ATTAINS.ParameterName"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"PH"</span>, <span class="fl">3</span><span class="op">)</span>, </span>
+<span>  <span class="st">"organization_identifier"</span> <span class="op">=</span> <span class="st">"MDE_EASP"</span>,</span>
+<span>  <span class="st">"ATTAINS.ParameterName"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"PH"</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  <span class="st">"use_name"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"Aquatic Life and Wildlife"</span>, <span class="st">"Water Contact Sports"</span>,</span>
 <span>    <span class="st">"Seasonal Migratory Fish Spawning and Nursery Subcategory"</span></span>
-<span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with paramUseRef = ParamUseRef as an argument.</span></span>
 <span><span class="va">ParamUseRef</span> <span class="op">&lt;-</span> <span class="va">NCTC_ParamUseRef3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>

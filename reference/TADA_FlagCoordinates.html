@@ -154,31 +154,36 @@ clean_imprecise = FALSE, and flaggedonly = FALSE.</p>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data with Suspect coordinates in new column</span></span></span>
 <span class="r-in"><span><span class="co"># titled "TADA.SuspectCoordinates.Flag"</span></span></span>
 <span class="r-in"><span><span class="co"># Return ONLY the flagged data:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectCoord_flags_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectCoord_flags_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data with coordinates outside the USA, but keep flagged data with</span></span></span>
 <span class="r-in"><span><span class="co"># imprecise coordinates:</span></span></span>
-<span class="r-in"><span><span class="va">OutsideUSACoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">OutsideUSACoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Change the sign of coordinates flagged as outside the USA and keep all</span></span></span>
 <span class="r-in"><span><span class="co"># flagged data:</span></span></span>
-<span class="r-in"><span><span class="va">OutsideUSACoord_changed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>clean_outsideUSA <span class="op">=</span> <span class="st">"change sign"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">OutsideUSACoord_changed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean_outsideUSA <span class="op">=</span> <span class="st">"change sign"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove data with imprecise coordinates, but keep flagged data with </span></span></span>
+<span class="r-in"><span><span class="co"># Remove data with imprecise coordinates, but keep flagged data with</span></span></span>
 <span class="r-in"><span><span class="co"># coordinates outside the USA;</span></span></span>
 <span class="r-in"><span><span class="co"># imprecise data may have less than 3 significant figures to the right</span></span></span>
 <span class="r-in"><span><span class="co"># of the decimal point:</span></span></span>
-<span class="r-in"><span><span class="va">ImpreciseCoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ImpreciseCoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove data with imprecise coordinates or coordinates outside the USA </span></span></span>
+<span class="r-in"><span><span class="co"># Remove data with imprecise coordinates or coordinates outside the USA</span></span></span>
 <span class="r-in"><span><span class="co"># from the dataframe:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectCoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span>, clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectCoord_removed</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagCoordinates</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  clean_outsideUSA <span class="op">=</span> <span class="st">"remove"</span>, clean_imprecise <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

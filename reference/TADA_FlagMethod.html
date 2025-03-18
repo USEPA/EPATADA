@@ -112,20 +112,23 @@ The WQX team plans to review and update these new combinations quarterly.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Remove Suspect characteristic-analytical method combinations from </span></span></span>
+<span class="r-in"><span><span class="co"># Remove Suspect characteristic-analytical method combinations from</span></span></span>
 <span class="r-in"><span><span class="co"># dataframe:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
-<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Flag, but do not remove, Suspect characteristic-analytical method </span></span></span>
+<span class="r-in"><span><span class="co"># Flag, but do not remove, Suspect characteristic-analytical method</span></span></span>
 <span class="r-in"><span><span class="co"># combinations</span></span></span>
 <span class="r-in"><span><span class="co"># in new column titled "TADA.AnalyticalMethod.Flag":</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
-<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only Suspect characteristic-analytical method combinations:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>, </span></span>
-<span class="r-in"><span>clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

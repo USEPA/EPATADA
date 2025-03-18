@@ -138,16 +138,18 @@ those with speciation in units.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Do not convert result values and units, but add four new columns titled</span></span></span>
-<span class="r-in"><span><span class="co"># "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", </span></span></span>
-<span class="r-in"><span><span class="co"># "TADA.Target.ResultMeasure.MeasureUnitCode", and </span></span></span>
+<span class="r-in"><span><span class="co"># "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",</span></span></span>
+<span class="r-in"><span><span class="co"># "TADA.Target.ResultMeasure.MeasureUnitCode", and</span></span></span>
 <span class="r-in"><span><span class="co"># "TADA.SpeciationUnitConversion":</span></span></span>
-<span class="r-in"><span><span class="va">ResultUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>transform <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ResultUnitsNotConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  transform <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks)."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Convert values and units for results and detection limits:</span></span></span>
-<span class="r-in"><span><span class="va">ResultUnitsConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>transform <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ResultUnitsConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  transform <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -44,7 +44,7 @@ unique value count."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Unique Field Values Table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/R/Filtering.R" class="external-link"><code>R/Filtering.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/R/autoFilter.R" class="external-link"><code>R/autoFilter.R</code></a></small>
       <div class="d-none name"><code>TADA_FieldCounts.Rd</code></div>
     </div>
 
@@ -92,8 +92,9 @@ unique value count.</p>
 <span class="r-in"><span><span class="va">fieldCountUT</span> <span class="op">&lt;-</span> <span class="fu">TADA_FieldCounts</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Count table of most fields in Data_Nutrients_UT, filtered to only</span></span></span>
 <span class="r-in"><span><span class="co"># AMMONIA results.</span></span></span>
-<span class="r-in"><span><span class="va">fieldCountUTAmmonia</span> <span class="op">&lt;-</span> <span class="fu">TADA_FieldCounts</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>display <span class="op">=</span> <span class="st">"most"</span>, characteristicName <span class="op">=</span> <span class="st">"AMMONIA"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fieldCountUTAmmonia</span> <span class="op">&lt;-</span> <span class="fu">TADA_FieldCounts</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>  display <span class="op">=</span> <span class="st">"most"</span>, characteristicName <span class="op">=</span> <span class="st">"AMMONIA"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

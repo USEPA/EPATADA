@@ -64,14 +64,13 @@
 </h2>
 <p><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg"></a></p>
 <p><a href="https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg"></a></p>
-<p>Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a> users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the <a href="https://github.com/USEPA/TADAShiny" class="external-link">TADA R Shiny application</a>. We encourage you to read this package’s <a href="https://usepa.github.io/EPATADA/LICENSE.html">LICENSE</a> and <a href="https://usepa.github.io/EPATADA/index.html">README</a> files (you are here).</p>
+<p>Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other <a href="https://www.waterqualitydata.us/" class="external-link">Water Quality Portal (WQP)</a> users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of R Shiny applications such as <a href="https://github.com/USEPA/TADAShiny" class="external-link">TADAShiny</a>.</p>
 <ul>
 <li>
 <p>How to use TADA:</p>
 <ul>
 <li><p><a href="https://usepa.github.io/EPATADA/reference/index.html">Function Reference</a></p></li>
-<li><p>Example Workflow 1: <a href="https://usepa.github.io/EPATADA/articles/TADAModule1.html">Water Quality Portal Data Discovery and Cleaning</a> (Beginner)</p></li>
-<li><p>Example Workflow 2: <a href="https://usepa.github.io/EPATADA/articles/TADATrainingShepherdstown.html">2023 Shepherdstown Training</a> (Advanced)</p></li>
+<li><p>See Articles Tab <a href="https://usepa.github.io/EPATADA/">Here</a> for Example Workflows</p></li>
 </ul>
 </li>
 <li>
@@ -84,7 +83,7 @@
 <li><p><a href="https://www.epa.gov/waterdata/TADA" class="external-link">More about the TADA Project</a></p></li>
 </ul>
 <div class="float">
-<img src="articles/images/Poster.png" alt="TADA poster created for the 2025 National Water Quality Monitoring Conference"><div class="figcaption"><em>TADA poster created for the 2025 National Water Quality Monitoring Conference</em></div>
+<img src="reference/figures/Poster.png" alt="TADA poster created for the 2025 National Water Quality Monitoring Conference"><div class="figcaption">TADA poster created for the 2025 National Water Quality Monitoring Conference</div>
 </div>
 </div>
 <div class="section level2">
@@ -94,7 +93,7 @@
 <p>```{r} if(!“remotes”%in%installed.packages()){ install.packages(“remotes”) }</p>
 <p>remotes::install_github(“USEPA/EPATADA”, ref = “develop”, dependencies = TRUE, force = TRUE)</p>
 <pre><code>
-The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues and to make sure you have the most up to data version (web version is on a slightly lagged update schedule). Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
@@ -128,7 +127,7 @@ TADAShiny::run_app()</code></pre>
 <li><p>Download the program by clicking the appropriate link for your system, and click through the installer windows on your computer, accepting all defaults.</p></li>
 <li><p>Next, go to the following link to download RStudio: <a href="https://posit.co/download/rstudio-desktop/" class="external-link uri">https://posit.co/download/rstudio-desktop/</a>, scroll down a little, and click download RStudio.</p></li>
 </ol>
-<p><img src="reference/figures/Install3-01.png"></p>
+<p><img src="reference/figures/Install3.png"></p>
 <ol start="3" style="list-style-type: decimal">
 <li>Again, download the installer, click through the prompts, and accept the defaults.</li>
 </ol>

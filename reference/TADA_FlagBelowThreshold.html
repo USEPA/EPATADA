@@ -124,16 +124,22 @@ the flag column will be deleted and regenerated.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove data that is below the lower WQX threshold from the dataframe:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagBelowThreshold</span><span class="op">(</span></span></span>
-<span class="r-in"><span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is below the lower WQX threshold in</span></span></span>
 <span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueBelowLowerThreshold.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagBelowThreshold</span><span class="op">(</span></span></span>
-<span class="r-in"><span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only data that is below the lower WQX threshold:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flagsonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagBelowThreshold</span><span class="op">(</span></span></span>
-<span class="r-in"><span><span class="va">Data_NCTCShepherdstown_HUC12</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_NCTCShepherdstown_HUC12</span>,</span></span>
+<span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

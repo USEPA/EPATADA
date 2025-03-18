@@ -121,18 +121,21 @@ information.</p>
 <span class="r-in"><span><span class="co"># and in instances where the measurement is non-detect, set the result value</span></span></span>
 <span class="r-in"><span><span class="co"># to half of the detection limit value. For over-detect measurements, retain</span></span></span>
 <span class="r-in"><span><span class="co"># the detection limit value as the result value as-is.</span></span></span>
-<span class="r-in"><span><span class="va">Data_Nutrients_UT_CensoredFlag</span> <span class="op">&lt;-</span> </span></span>
-<span class="r-in"><span><span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>, </span></span>
-<span class="r-in"><span>nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Data_Nutrients_UT_CensoredFlag</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>    nd_method <span class="op">=</span> <span class="st">"multiplier"</span>,</span></span>
+<span class="r-in"><span>    nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Check for agreement between detection condition and detection limit type, </span></span></span>
+<span class="r-in"><span><span class="co"># Check for agreement between detection condition and detection limit type,</span></span></span>
 <span class="r-in"><span><span class="co"># and in instances where the measurement is non-detect, set the result value</span></span></span>
 <span class="r-in"><span><span class="co"># to a random value between 0 and the detection limit value. For over-detect</span></span></span>
 <span class="r-in"><span><span class="co"># measurements, retain the detection limit value as the result value as-is.</span></span></span>
-<span class="r-in"><span><span class="va">Data_Nutrients_UT_CensoredFlag</span> <span class="op">&lt;-</span> </span></span>
-<span class="r-in"><span><span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span>nd_method <span class="op">=</span> <span class="st">"randombelowlimit"</span>, nd_multiplier <span class="op">=</span> <span class="st">"null"</span>,</span></span>
-<span class="r-in"><span>od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">Data_Nutrients_UT_CensoredFlag</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu">TADA_SimpleCensoredMethods</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>    nd_method <span class="op">=</span> <span class="st">"randombelowlimit"</span>, nd_multiplier <span class="op">=</span> <span class="st">"null"</span>,</span></span>
+<span class="r-in"><span>    od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

@@ -68,7 +68,7 @@
       <h1>TADA: Assessment Unit Use Case Demo</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-03-14</h4>
+            <h4 data-toc-skip class="date">2025-03-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAAssessmentUnitUseCase.Rmd" class="external-link"><code>vignettes/TADAAssessmentUnitUseCase.Rmd</code></a></small>
       <div class="d-none name"><code>TADAAssessmentUnitUseCase.Rmd</code></div>
@@ -133,8 +133,10 @@ instructions.)</p>
 <p>We’ll also record the start time for our analysis, beginning after
 loading packages.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dplyr"</span>, <span class="st">"yaml"</span>, <span class="st">"lwgeom"</span>, <span class="st">"sf"</span>, <span class="st">"lubridate"</span>,</span>
-<span>                      <span class="st">"knitr"</span>, <span class="st">"DT"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"dplyr"</span>, <span class="st">"yaml"</span>, <span class="st">"lwgeom"</span>, <span class="st">"sf"</span>, <span class="st">"lubridate"</span>,</span>
+<span>  <span class="st">"knitr"</span>, <span class="st">"DT"</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">new.packages</span> <span class="op">&lt;-</span> <span class="va">list.of.packages</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">list.of.packages</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/installed.packages.html" class="external-link">installed.packages</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span>, <span class="st">"Package"</span><span class="op">]</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="va">new.packages</span><span class="op">)</span></span>

@@ -68,7 +68,7 @@
       <h1>TADA Module 1: Training for Beginner R Users</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-03-14</h4>
+            <h4 data-toc-skip class="date">2025-03-18</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1_BeginnerTraining.Rmd" class="external-link"><code>vignettes/TADAModule1_BeginnerTraining.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule1_BeginnerTraining.Rmd</code></div>
@@ -900,12 +900,12 @@ review a column of interest. In this example we review values from the
 (DO) results.</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # Create subset of DO data</span></span>
-<span>  <span class="va">DO_R5ProfileClean8</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
-<span><span class="co"># </span></span>
+<span><span class="va">DO_R5ProfileClean8</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
+<span><span class="co">#</span></span>
 <span><span class="co"># # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)</span></span>
-<span> <span class="va">DO_SCM_Pie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span><span class="va">R5ProfileClean8</span>, field <span class="op">=</span> <span class="st">"SampleCollectionMethod.MethodName"</span>, characteristicName <span class="op">=</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
-<span><span class="co"># </span></span>
-<span> <span class="va">DO_SCM_Pie</span></span>
+<span><span class="va">DO_SCM_Pie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span><span class="va">R5ProfileClean8</span>, field <span class="op">=</span> <span class="st">"SampleCollectionMethod.MethodName"</span>, characteristicName <span class="op">=</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
+<span><span class="co">#</span></span>
+<span><span class="va">DO_SCM_Pie</span></span>
 <span></span>
 <span><span class="co"># Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)</span></span>
 <span><span class="va">FieldValuesTable_DO_scm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span><span class="va">R5ProfileClean8</span>, field <span class="op">=</span> <span class="st">"SampleCollectionMethod.MethodName"</span>, characteristicName <span class="op">=</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span></code></pre></div>

@@ -114,17 +114,19 @@ data contained within the column of interest, including "Numeric",
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">HandleSpecialChars_ResultMeasureValue</span> <span class="op">&lt;-</span> </span></span>
-<span class="r-in"><span><span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="st">"ResultMeasureValue"</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">HandleSpecialChars_ResultMeasureValue</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, <span class="st">"ResultMeasureValue"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">HandleSpecialChars_ResultMeasureValue</span><span class="op">$</span></span></span>
-<span class="r-in"><span><span class="va">TADA.ResultMeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">TADA.ResultMeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NA - Not Available" "Numeric"            "Text"              </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">HandleSpecialChars_DetLimMeasureValue</span> <span class="op">&lt;-</span> </span></span>
-<span class="r-in"><span><span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, </span></span>
-<span class="r-in"><span><span class="st">"TADA.DetectionQuantitationLimitMeasure.MeasureValue"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">HandleSpecialChars_DetLimMeasureValue</span> <span class="op">&lt;-</span></span></span>
+<span class="r-in"><span>  <span class="fu">TADA_ConvertSpecialChars</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span>    <span class="st">"TADA.DetectionQuantitationLimitMeasure.MeasureValue"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">HandleSpecialChars_DetLimMeasureValue</span><span class="op">$</span></span></span>
-<span class="r-in"><span><span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Numeric"            "NA - Not Available"</span>
 </code></pre></div>
     </div>
