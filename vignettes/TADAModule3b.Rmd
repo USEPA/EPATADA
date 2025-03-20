@@ -140,12 +140,12 @@ grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 TADA_TableExport(ParamRef)
 
-NCTC_ParamRef2 <- TADA_CreateParamRef(
+NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = ParamRef,
-  # excel = FALSE,
-  excel = TRUE, overwrite = TRUE
+  excel = FALSE,
+  # excel = TRUE, overwrite = TRUE
 )
 
 add_data <- data.frame("organization_identifier" = "MDE_EASP" ,"ATTAINS.ParameterName" = rep("PH",3), "use_name" = c("Aquatic Life and Wildlife", "Water Contact Sports",

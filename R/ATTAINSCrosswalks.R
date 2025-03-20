@@ -684,7 +684,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, excel = T
 
   # Pulls in all domain values of parameter names in ATTAINS.
   ATTAINS_param_all <- utils::read.csv(
-    system.file("extdata", "ATTAINSUseParamEntityRef.csv", package = "EPATADA")
+    system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")
   )
 
   ATTAINS_param <- ATTAINS_param_all %>%
