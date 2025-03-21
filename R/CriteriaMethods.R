@@ -13,7 +13,7 @@
 #' Criteria Search Tool (CST). Users should validate this final output if a user has 
 #' decided to include the EPA304a standards. User will need to determine if any
 #' additional adjustments are needed. For example, does the crosswalk between the EPA304A.PollutantName
-#' and TADA.ComparableDataIdentifier seem valid for your organization's method? Is your organizaton
+#' and TADA.ComparableDataIdentifier seem valid for your organization's method? Is your organization
 #' only interested in providing the EPA304a recommended standards for certain seasons
 #' (Fall, Summer, Spring, Winter) etc.
 #' 

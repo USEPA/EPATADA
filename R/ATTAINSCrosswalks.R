@@ -1827,6 +1827,30 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
   # rm(use_assessments, use_attainments, use_parameters)
   #
   
+  
+  rATTAINS::assessment_units(assessment_unit_identifer = "MS05TB")
+  ## GRABBING WATER TYPE:
+  
+  # Use ATTAINS API to grab, for each assessment unit, its WaterType.
+  # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
+  all_units <- unique(catchment_features$assessmentunitidentifier)
+  chunks <- split_vector(all_units, chunk_size = 200)
+  water_types <- vector("list", length = length(chunks))
+  
+  for (i in 1:length(chunks)) {
+    dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+      httr::content(., as = "text", encoding = "UTF-8") %>%
+      jsonlite::fromJSON(.)
+    
+    water_types[[i]] <- dat[["items"]] %>%
+      tidyr::unnest("assessmentUnits") %>%
+      tidyr::unnest("waterTypes") %>%
+      dplyr::select(
+        assessmentUnitIdentifier,
+        waterTypeCode
+      )
+  }
+  
   CreateUseAURef <- use_attainments %>%
     dplyr::select(
       organization_identifier, assessment_unit_identifier, 
@@ -1845,6 +1869,13 @@ TADA_CreateUseAURef <- function(.data, AUtoMLRef = NULL, org_id = NULL, excel = 
       IncludeOrExclude
       ) %>%
     dplyr::distinct() 
+  
+  AU_ID <- CreateUseAURef$ATTAINS.assessmentunitidentifier
+  
+  for(i in 1:length(AUID)){
+    rATTAINS::assessment_units(assessment_unit_identifer = AU_ID[i])
+    WaterTypeAU <- bind_rows(rATTAINS::assessment_units(assessment_unit_identifer = AU_ID[i]))
+  }
   
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
