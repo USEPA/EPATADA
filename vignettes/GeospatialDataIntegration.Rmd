@@ -146,16 +146,16 @@ in the WQP for this HUC 12 in Wisconsin for the last 5 years.
 WATERSHED: City of Green Bay-Fox River (040302040405)
 
 ```{r getdata}
-# # Uncomment to query the WQP
-# GreenBay_FoxRiver <- TADA_DataRetrieval(
-#   statecode = "WI",
-#   startDate = "2015-01-01",
-#   endDate = "2024-12-30",
-#   huc = c("040302040405"),
-#   applyautoclean = TRUE
-# )
+# Uncomment to query the WQP
+GreenBay_FoxRiver <- TADA_DataRetrieval(
+  statecode = "WI",
+  startDate = "2015-01-01",
+  endDate = "2024-12-30",
+  huc = c("040302040405"),
+  applyautoclean = TRUE
+)
 
-GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
+# GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
 ```
 
 **Wrangle**
@@ -417,10 +417,15 @@ There's much much more where that came from. See the pkgdown sites for
 [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
 ## Accessing watershed information for sites
+We can access watershed information for each unique site location, getting both the landscape data for local catchment or the full upstream watershed for each particular site using [StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
 
 ### Discover what StreamCat metrics we might want to use
 
-More to come here...
+```{r}
+metrics <- sc_get_params(param='name')
+print(paste0('A selection of available StreamCat metrics include: ',paste(metrics[1:10],collapse = ', ')))
+```
+
 
 ### Discover land cover of waterhsheds for sites
 
