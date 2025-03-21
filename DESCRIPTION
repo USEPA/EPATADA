@@ -98,7 +98,8 @@ Suggests:
     tigris,
     yaml
 Remotes:
-    DOI-USGS/dataRetrieval@develop
+    DOI-USGS/dataRetrieval@develop,
+    USEPA/StreamCatTools
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
