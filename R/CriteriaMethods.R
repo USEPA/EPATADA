@@ -9,7 +9,7 @@
 #' if there are separate standards for acute versus chronic, or for rivers versus estuary,
 #' different seasons, then a user will need to create additional rows to reflect this.
 #' 
-#' Efforts have been to pull in the EPA304a recommended standards automatically from the
+#' Efforts have been made to pull in the EPA304a recommended standards automatically from the
 #' Criteria Search Tool (CST). Users should validate this final output if a user has 
 #' decided to include the EPA304a standards. User will need to determine if any
 #' additional adjustments are needed. For example, does the crosswalk between the EPA304A.PollutantName
