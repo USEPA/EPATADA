@@ -6,7 +6,8 @@
 \usage{
 TADA_CreateUseAURef(
   .data,
-  AUtoMLRef = NULL,
+  AURef = NULL,
+  UseParamRef = NULL,
   org_id = NULL,
   excel = TRUE,
   overwrite = FALSE

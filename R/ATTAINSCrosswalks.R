@@ -1217,7 +1217,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
   .data <- as.data.frame(.data)
 
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS.
-  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSUseParamEntityRef.csv", package = "EPATADA"))
+  ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
 
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
     paramRef <- paramRef %>%
