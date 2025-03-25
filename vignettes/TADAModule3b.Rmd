@@ -197,7 +197,10 @@ determine the number of individual excursions for each based on the
 defined magnitudes.
 
 ```{r}
-NCTC_UseAURef <- TADA_CreateUseAURef(Data_NCTC, AUtoMLRef = NCTC_AURef, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
+SitesAURef <- TADA_GetATTAINS(Data_NCTC)
+SitesAURef <- SitesAURef$TADA_with_ATTAINS
+
+NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(Data_NCTC, SitesAURef = SitesAURef, useParamRef =  NCTC_UseParamRef_Final, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
 
 
 NCTC_Excursions <- TADA_MagnitudeSummary(

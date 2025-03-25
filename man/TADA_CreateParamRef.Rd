@@ -9,6 +9,7 @@ TADA_CreateParamRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
+  crosswalk = c("ATTAINS", "CST"),
   excel = TRUE,
   overwrite = FALSE
 )
