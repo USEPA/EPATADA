@@ -359,3 +359,84 @@ TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
 
 Enter `?TADA_ViewATTAINS` into the console to review another example of
 this function in use and additional information.
+
+# USGS National Water Information System (NWIS) Functions
+
+TADA also provides functions to access continuous daily USGS National Water 
+Information System (NWIS) data. These functions allow you to query and retrieve
+continuous daily-value data from USGS water monitoring locations.
+
+### `TADA_listNWIS()`
+
+This function retrieves available data from USGS National Water
+Information System (NWIS) based on different queries: an area of interest
+(i.e., an {sf} object), states, or specific sites.
+
+The function returns a spatial {sf} object containing site information
+and available parameters. If no data is found, it returns an empty sf
+object with the appropriate column structure.
+
+#### Using `TADA_listNWIS()`
+
+Let's retrieve information about available NWIS data for specific USGS
+monitoring sites:
+
+```{r}
+# Example: Query by specific site numbers
+site_nums <- c("11530500", "11532500")  # Two sites in Northern California
+sites_info <- TADA_listNWIS(sites = site_nums)
+View(sites_info)
+```
+
+We can also query NWIS sites by state:
+
+```{r, eval=FALSE}
+# Example: Query by state (showing code but not evaluating to limit runtime)
+ri_sites <- TADA_listNWIS(states = "RI")
+```
+
+### `TADA_getNWIS()`
+
+This function retrieves and tidy-formats daily values from NWIS. It
+interfaces with the USGS National Water Information System to retrieve
+daily values (DV) water data. Like `TADA_listNWIS()`, users can
+query data based on an area of interest (i.e., an {sf} object), states,
+or specific sites.
+
+
+Additionally, users specify relevant parameter codes and a date range.
+
+#### Using `TADA_getNWIS()`
+
+Let's retrieve discharge data (parameter code 00060) for the sites we
+queried above:
+
+```{r}
+# Example: Retrieve discharge data for specific sites
+discharge_data <- TADA_getNWIS(
+  sites = site_nums,
+  parameter_codes = "00060",  # Discharge in cubic feet per second
+  start_date = "2022-01-01", 
+  end_date = "2022-12-31"
+)
+```
+
+```{r}
+# Let's visualize the discharge data
+if(nrow(discharge_data) > 0) {
+  discharge_plot <- discharge_data %>%
+    dplyr::mutate(NWIS.date = as.Date(NWIS.date),
+                 NWIS.value = as.numeric(NWIS.value)) %>%
+    ggplot2::ggplot(ggplot2::aes(x = NWIS.date, y = NWIS.value, color = NWIS.site_no)) +
+    ggplot2::geom_line() +
+    ggplot2::labs(
+      title = "Daily Discharge at Selected USGS Sites",
+      x = "Date",
+      y = "Discharge (cubic feet per second)",
+      color = "Site Number"
+    ) +
+    ggplot2::theme_minimal()
+  
+  print(discharge_plot)
+}
+```
