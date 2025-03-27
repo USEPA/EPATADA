@@ -373,37 +373,69 @@ Information System (NWIS) based on different queries: an area of interest
 (i.e., an {sf} object), states, or specific sites.
 
 The function returns a spatial {sf} object containing site information
-and available parameters. If no data is found, it returns an empty sf
+and available parameters. If no data is found, it returns an empty {sf}
 object with the appropriate column structure.
 
 #### Using `TADA_listNWIS()`
 
-Let's retrieve information about available NWIS data for specific USGS
-monitoring sites:
-
-```{r}
-# Example: Query by specific site numbers
-site_nums <- c("11530500", "11532500")  # Two sites in Northern California
-sites_info <- TADA_listNWIS(sites = site_nums)
-View(sites_info)
-```
-
-We can also query NWIS sites by state:
+Let's retrieve information about available NWIS data by a state, then visualize
+that information:
 
 ```{r, eval=FALSE}
 # Example: Query by state 
 ri_sites <- TADA_listNWIS(states = "RI")
+
+ri_summary <- ri_sites %>%
+  dplyr::group_by(site_no) %>%
+  dplyr::summarize(parameters = paste(unique(parameter), collapse = ";  "),
+                   parameter_codes = paste(unique(parameter_code), collapse = ";  "))
+
+leaflet::leaflet() %>%
+  leaflet::addProviderTiles("Esri.WorldTopoMap",
+    group = "World topo",
+    options = leaflet::providerTileOptions(
+      updateWhenZooming = FALSE,
+      updateWhenIdle = TRUE
+    )
+  ) %>%
+  leaflet::clearShapes() %>%
+  leaflet.extras::addResetMapButton() %>%
+  leaflet::addLegend(
+    position = "bottomright",
+    colors = "black",
+    labels = "NWIS Monitoring Location(s)",
+    opacity = 1
+  ) %>%
+  leaflet::addCircleMarkers(
+    data = ri_summary,
+    color = "grey", fillColor = "black",
+    fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
+    popup = paste0(
+      "Site Number: ",
+      ri_summary$site_no,
+      "<br> Parameters: ",
+      ri_summary$parameters,
+      "<br> Parameter codess: ",
+      ri_summary$parameter_codes
+    )
+  )
 ```
 
-We can also query NWIS sites by a user-supplied {sf} object:
+We can also query by specific USGS monitoring sites:
+
 ```{r}
-# Example: Query by state 
-ok_tribal_sites <- sf::st_read("inst/extdata/OKTribe.shp")
-
-ok_tribal_nwsi <- TADA_listNWIS(aoi_sf = ok_tribal_sites)
+site_nums <- c("11530500", "11532500")  # Two sites in Northern California
+sites_info <- TADA_listNWIS(sites = site_nums)
 ```
 
+Lastly, can query NWIS sites by a user-supplied {sf} objects:
 
+```{r}
+cherokee_sf <- sf::st_read("inst/extdata/OKTribe.shp") %>%
+  dplyr::filter(NAME == "Cherokee")
+
+cherokee_nwis <- TADA_listNWIS(aoi_sf = cherokee_sf)
+```
 
 ### `TADA_getNWIS()`
 
@@ -413,28 +445,26 @@ daily values (DV) water data. Like `TADA_listNWIS()`, users can
 query data based on an area of interest (i.e., an {sf} object), states,
 or specific sites.
 
+Additionally, users must specify the parameter codes they want to download
+and a date range. A list of all available parameters can be found at: https://help.waterdata.usgs.gov/parameter_cd?group_cd=%
 
-Additionally, users specify relevant parameter codes and a date range.
 
 #### Using `TADA_getNWIS()`
 
-Let's retrieve discharge data (parameter code 00060) for the sites we
-queried above:
+Let's retrieve discharge data (parameter code 00060) being collected in the {sf} 
+object above for January 2022:
 
 ```{r}
-# Example: Retrieve discharge data for specific sites
+# Example: Retrieve discharge data within a specified area of interest:
 discharge_data <- TADA_getNWIS(
-  sites = site_nums,
+  aoi_sf = cherokee_sf,
   parameter_codes = "00060",  # Discharge in cubic feet per second
   start_date = "2022-01-01", 
-  end_date = "2022-12-31"
+  end_date = "2022-01-31"
 )
-```
 
-```{r}
 # Let's visualize the discharge data
-if(nrow(discharge_data) > 0) {
-  discharge_plot <- discharge_data %>%
+discharge_data %>%
     dplyr::mutate(NWIS.date = as.Date(NWIS.date),
                  NWIS.value = as.numeric(NWIS.value)) %>%
     ggplot2::ggplot(ggplot2::aes(x = NWIS.date, y = NWIS.value, color = NWIS.site_no)) +
@@ -446,7 +476,4 @@ if(nrow(discharge_data) > 0) {
       color = "Site Number"
     ) +
     ggplot2::theme_minimal()
-  
-  print(discharge_plot)
-}
 ```

@@ -308,7 +308,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #' @param states A character vector of two-letter state abbreviations (e.g., `"CA"`, `"NY"`).
 #' @param sites A character vector of USGS site numbers.
 #' @param parameter_codes A character vector of NWIS parameter codes to filter for (e.g., `"00060"` for discharge). Parameter codes and
-#' names can be found athttps://help.waterdata.usgs.gov/parameter_cd?group_cd=%
+#' names can be found at https://help.waterdata.usgs.gov/parameter_cd?group_cd=%
 #' @param start_date A character string representing the start date for data retrieval in `"YYYY-MM-DD"` format.
 #' @param end_date A character string representing the end date for data retrieval in `"YYYY-MM-DD"` format.
 #'
