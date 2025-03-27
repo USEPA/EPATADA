@@ -44,15 +44,14 @@
 #' }
 #'
 TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
-  
-  if (sum(c(aoi_sf, states, sites) == "null") != 2 & sum(c(aoi_sf, states, sites) == "null") != 3) {
+  if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
         "Multiple data-querying arguments (`aoi_sf`, `states`, `sites`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(c(aoi_sf, states, sites) == "null") == 3) {
+  } else if (sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
     stop(
       paste0(
         "No data-querying argument (`aoi_sf`, `states`, `sites`) has been provided. ",
@@ -336,14 +335,14 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #' 
 TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", parameter_codes, start_date, end_date){
   
-  if (sum(c(aoi_sf, states, sites) == "null") != 2 & sum(c(aoi_sf, states, sites) == "null") != 3) {
+  if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
         "Multiple data-querying arguments (`aoi_sf`, `states`, `sites`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(c(aoi_sf, states, sites) == "null") == 3) {
+  } else if (sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
     stop(
       paste0(
         "No data-querying argument (`aoi_sf`, `states`, `sites`) has been provided. ",

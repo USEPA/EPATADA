@@ -391,9 +391,19 @@ View(sites_info)
 We can also query NWIS sites by state:
 
 ```{r, eval=FALSE}
-# Example: Query by state (showing code but not evaluating to limit runtime)
+# Example: Query by state 
 ri_sites <- TADA_listNWIS(states = "RI")
 ```
+
+We can also query NWIS sites by a user-supplied {sf} object:
+```{r}
+# Example: Query by state 
+ok_tribal_sites <- sf::st_read("inst/extdata/OKTribe.shp")
+
+ok_tribal_nwsi <- TADA_listNWIS(aoi_sf = ok_tribal_sites)
+```
+
+
 
 ### `TADA_getNWIS()`
 
