@@ -6,6 +6,9 @@
 \usage{
 TADA_CreateSpatialRef(
   .data,
+  sitesAURef = NULL,
+  useParamRef = NULL,
+  waterUseParamRef = NULL,
   spatialRef = NULL,
   excel = TRUE,
   overwrite = FALSE
