@@ -81,14 +81,14 @@ test_that("No NA's in independent flag columns", {
 # test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
 #   testdat <- TADA_RandomTestingData()
 #   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-# 
+#
 #   testdat1 <- testdat %>%
 #     dplyr::select(TADA.NearbySiteGroup) %>%
 #     dplyr::distinct() %>%
 #     dplyr::pull() %>%
 #     as.numeric() %>%
 #     sort()
-# 
+#
 #   testdat2 <- testdat %>%
 #     dplyr::select(TADA.MultipleOrgDupGroupID) %>%
 #     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
@@ -96,9 +96,9 @@ test_that("No NA's in independent flag columns", {
 #     dplyr::pull() %>%
 #     as.numeric() %>%
 #     sort()
-# 
-#   expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0)) 
-# 
+#
+#   expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
+#
 #   expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
 # })
 
@@ -106,7 +106,7 @@ test_that("No NA's in independent flag columns", {
 # test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
 #   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
 #   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-# 
+#
 #   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
 #   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
 #   expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
@@ -131,10 +131,24 @@ test_that("range flag functions work", {
 
 test_that("QC results are not flagged as Continuous", {
   cont_QC <- TADA_RandomTestingData(choose_random_state = TRUE) %>%
-    TADA_FlagContinuousData() %>%
+    TADA_FlagContinuousData() 
+  
+  cont_QC_filt <- cont_QC %>%
     dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
   
-  expect_true(!(unique(cont_QC$TADA.ActivityType.Flag)) %in% c("QC_duplicate", "QC_calibration",
-                                                             "QC_replicate", "QC_blank",
-                                                             "QC_other"))
+  cont_QC_disc <- cont_QC %>%
+    dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
+
+  if(nrow(cont_QC_filt) > 0) {
+  
+  expect_true(!(unique(cont_QC_filt$TADA.ActivityType.Flag)) %in% c(
+    "QC_duplicate", "QC_calibration",
+    "QC_replicate", "QC_blank",
+    "QC_other"
+  ))
+  }
+  
+  if(nrow(cont_QC_filt) == 0) {
+    expect_true(nrow(cont_QC_disc) > 0)
+  }
 })

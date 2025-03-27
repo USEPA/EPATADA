@@ -4,15 +4,13 @@
 
 [![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
 
-Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of the [TADA R Shiny application](https://github.com/USEPA/TADAShiny). We encourage you to read this package's [LICENSE](https://usepa.github.io/EPATADA/LICENSE.html) and [README](https://usepa.github.io/EPATADA/index.html) files (you are here).
+Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and any other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of R Shiny applications such as [TADAShiny](https://github.com/USEPA/TADAShiny).
 
 -   How to use TADA:
 
     -   [Function Reference](https://usepa.github.io/EPATADA/reference/index.html)
 
-    -   Example Workflow 1: [Water Quality Portal Data Discovery and Cleaning](https://usepa.github.io/EPATADA/articles/TADAModule1.html) (Beginner)
-
-    -   Example Workflow 2: [2023 Shepherdstown Training](https://usepa.github.io/EPATADA/articles/TADATrainingShepherdstown.html) (Advanced)
+    -   See Articles Tab [Here](https://usepa.github.io/EPATADA/) for Example Workflows
 
 -   [How to Contribute](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 
@@ -22,7 +20,7 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
-![*TADA poster created for the 2025 National Water Quality Monitoring Conference*](vignettes/images/Poster.png)
+![TADA poster created for the 2025 National Water Quality Monitoring Conference](man/figures/Poster.png)
 
 ## Installation
 
@@ -36,7 +34,7 @@ install.packages("remotes")
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
 ```
 
-The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues and to make sure you have the most up to data version (web version is on a slightly lagged update schedule). Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
@@ -71,7 +69,7 @@ In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the U.S. Env
 
 4.  Next, go to the following link to download RStudio: <https://posit.co/download/rstudio-desktop/>, scroll down a little, and click download RStudio.
 
-![](man/figures/Install3-01.png)
+![](man/figures/Install3.png)
 
 3.  Again, download the installer, click through the prompts, and accept the defaults.
 

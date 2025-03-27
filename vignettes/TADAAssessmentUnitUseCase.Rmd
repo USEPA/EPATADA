@@ -105,8 +105,10 @@ We'll also record the start time for our analysis, beginning after
 loading packages.
 
 ```{r library, results = 'hide'}
-list.of.packages <- c("dplyr", "yaml", "lwgeom", "sf", "lubridate",
-                      "knitr", "DT")
+list.of.packages <- c(
+  "dplyr", "yaml", "lwgeom", "sf", "lubridate",
+  "knitr", "DT"
+)
 new.packages <- list.of.packages[!(list.of.packages %in%
   installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)

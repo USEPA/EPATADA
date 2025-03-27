@@ -181,14 +181,14 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' Pair Results for Numeric Criteria Calculation (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function pairs TADA results with results from specified characteristics from the same
-#' TADA.MonitoringLocation within a user-specified time window to facilitate the calculation of 
-#' numeric criteria. The columns created by TADA_AutoClean are required to run this function. If 
+#' TADA.MonitoringLocation within a user-specified time window to facilitate the calculation of
+#' numeric criteria. The columns created by TADA_AutoClean are required to run this function. If
 #' they are not present in the data frame, the function will stop and print an error message.
 #'
 #' Users can provide a pairing reference file (can be created using TADA_CreatePairRef) to specify
 #' which combinations of TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnit,
 #' TADA.MethodSpeciationName, and TADA.ResultSampleFractionText should be used for hardness, pH,
-#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all 
+#' temperature, salinity, chloride or other user-defined groups. If no ref is specified, all
 #' possible combinations for hardness, pH, temperature, salinity and chloride will be used. It is
 #' highly recommended that users perform all unit conversion and synonym harmonization before using
 #' TADA_PairForCriteriaCalc.
@@ -204,7 +204,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #' in the pairing ref.
 #' @export
 #'
-#' @examples 
+#' @examples
 #' \dontrun{
 #' AL_df <- TADA_DataRetrieval(
 #'   startDate = "2010-11-30",
@@ -215,7 +215,7 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 #'
 #' AL_PairRef <- TADA_PairForCriteriaCalc(AL_df)
 #' }
-#' 
+#'
 TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   # check to see if user-supplied ref is a df
   if (!is.character(ref)) {

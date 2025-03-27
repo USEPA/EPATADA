@@ -56,36 +56,40 @@ The WQX team plans to review and update these new combinations quarterly.
 # Load example dataset:
 data(Data_Nutrients_UT)
 
-# Remove data with Suspect characteristic-method speciation combinations 
+# Remove data with Suspect characteristic-method speciation combinations
 # from dataframe,
-# but retain "NonStandardized" combinations flagged in new column 
+# but retain "NonStandardized" combinations flagged in new column
 # 'TADA.MethodSpeciation.Flag':
 SuspectSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT)
 
-# Remove data with "NonStandardized" characteristic-method speciation 
+# Remove data with "NonStandardized" characteristic-method speciation
 # combinations
-# from dataframe but retain Suspect combinations flagged in new column 
+# from dataframe but retain Suspect combinations flagged in new column
 # 'TADA.MethodSpeciation.Flag':
-NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, 
-clean = "nonstandardized_only")
+NonstandardSpeciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT,
+  clean = "nonstandardized_only"
+)
 
-# Remove both "Suspect" and "NonStandardized" characteristic-method 
+# Remove both "Suspect" and "NonStandardized" characteristic-method
 # speciation combinations
 # from dataframe:
 Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 
-# Flag, but do not remove, data with "Suspect" or "NonStandardized" 
+# Flag, but do not remove, data with "Suspect" or "NonStandardized"
 # characteristic-method speciation
 # combinations in new column titled "TADA.MethodSpeciation.Flag":
-SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT, 
-clean = "none")
+SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT,
+  clean = "none"
+)
 
 # Show only Suspect characteristic-method speciation combinations:
-SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, 
-clean = "nonstandardized_only", flaggedonly = TRUE)
+SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT,
+  clean = "nonstandardized_only", flaggedonly = TRUE
+)
 
 # Show only "NonStandardized" characteristic-method speciation combinations:
-NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT, 
-clean = "suspect_only", flaggedonly = TRUE)
+NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT,
+  clean = "suspect_only", flaggedonly = TRUE
+)
 
 }

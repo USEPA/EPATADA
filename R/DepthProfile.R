@@ -28,7 +28,7 @@
 #' TADA.MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 #' When dailyagg == "min" or when dailyagg == "max", the min or max
 #' value in each group of results (as determined by the depth category) will
-#' be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and 
+#' be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and
 #' TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag will
 #' be added to describe aggregation.
 #'
@@ -89,7 +89,7 @@
 #'   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 #' )
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2, 
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2,
                                    dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -690,7 +690,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #'   depthcat = FALSE
 #' )
 #' }
-#' 
+#'
 TADA_DepthProfilePlot <- function(.data,
                                   groups = NULL,
                                   location = NULL,

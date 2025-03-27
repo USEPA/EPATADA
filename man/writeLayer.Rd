@@ -18,7 +18,7 @@ writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
 }
 \examples{
 \dontrun{
-# Get the Oklahoma Tribal Statistical Areas feature layer and write 
+# Get the Oklahoma Tribal Statistical Areas feature layer and write
 # local file to inst/extdata/OKTribe.shp
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")

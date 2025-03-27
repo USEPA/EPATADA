@@ -55,35 +55,41 @@ attachment at the activity level.
 }
 \examples{
 \dontrun{
-all_data <- TADA_DataRetrieval(project = c("Continuous LC1", 
-"MA_Continuous", "Anchorage Bacteria 20-21"), ask = FALSE)
+all_data <- TADA_DataRetrieval(project = c(
+  "Continuous LC1",
+  "MA_Continuous", "Anchorage Bacteria 20-21"
+), ask = FALSE)
 
 # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
 
-# Show only rows flagged as continuous data (note that all results are 
+# Show only rows flagged as continuous data (note that all results are
 # flagged in the example)
-all_data_flaggedonly <- TADA_FlagContinuousData(all_data, 
-clean = FALSE, flaggedonly = TRUE)
+all_data_flaggedonly <- TADA_FlagContinuousData(all_data,
+  clean = FALSE, flaggedonly = TRUE
+)
 
-# Remove continuous data in dataframe (note that this dataframe will 
+# Remove continuous data in dataframe (note that this dataframe will
 # have 0 results because all are flagged in the example)
 all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 
 data(Data_Nutrients_UT)
 
 # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
-Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT, 
-clean = FALSE)
+Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT,
+  clean = FALSE
+)
 unique(Data_Nutrients_UT_flags$TADA.ContinuousData.Flag)
 
 # Show only rows flagged as continuous data
 Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT,
-clean = FALSE, flaggedonly = TRUE)
+  clean = FALSE, flaggedonly = TRUE
+)
 
 # Remove continuous data in dataframe
-Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT, 
-clean = TRUE)
+Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT,
+  clean = TRUE
+)
 unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
 }
 

@@ -46,8 +46,10 @@ TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 # Create multiple boxplots with additional grouping columns and view the first
 # plot in list. In this example, we will group data in the input dataframe
 # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
-Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = 
-c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
+Boxplots_TPbyOrg <- TADA_Boxplot(df,
+  id_cols =
+    c("TADA.ComparableDataIdentifier", "OrganizationIdentifier")
+)
 # This example generates 2 box plots.
 Boxplots_TPbyOrg[[1]]
 Boxplots_TPbyOrg[[2]]
@@ -58,8 +60,9 @@ Boxplots_TPbyOrg[[2]]
 # (e.g. stream, reservoir, canal, etc.)
 # Load example dataframe:
 data(Data_Nutrients_UT)
-Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, 
-id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
+  id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+)
 # This example generates 32 box plots.
 Boxplot_output[[2]]
 Boxplot_output[[25]]

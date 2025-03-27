@@ -13,10 +13,12 @@ ActivityStartDateTime
 ActivityTopDepthHeightMeasure
 ActivityType
 ActivityTypeCode
+ActivityTypeCode's
 ActivityTypeCodes
 AggregateMeasurements
 AnalysisDataFilter
 AnalyticalMethod
+Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
@@ -56,8 +58,8 @@ CountyCode
 CreateComparableID
 CreatePairRef
 CreateParamRef
-CreateParamUseRef
 CreateUnitRef
+CreateUseParamRef
 DOI
 DataFrame
 DataQuality
@@ -76,6 +78,7 @@ EASP's
 ECHO's
 EMEF
 FONDULAC
+Farmington
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -99,15 +102,19 @@ FlagSpeciation
 FlagUseName
 FractionAssumptions
 FullPhysChem
+Geospatial
 GetATTAINS
 GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
 Github
+HMW
 HUC
 HUCS
+HUCs
 HarmonizeSynonyms
 HiRes
+HorizontalCoordinateReferenceSystemDatumName
 Hydrography
 HydrologicCondition
 HydrologicEvent
@@ -137,6 +144,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MeetsStandard
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -148,6 +156,7 @@ MethodSpeciationName
 MonitoringDataLinkText
 MonitoringLocation
 MonitoringLocationIdentifier
+MonitoringLocationIdentifiers
 MonitoringLocationName
 MonitoringLocationTypeName
 MonitoringLocations
@@ -205,6 +214,7 @@ QAQC
 QAQC'd
 QAQCCharacteristicValidation
 QC'ing
+QCing
 README
 REDLAKE
 RMarkdown
@@ -230,7 +240,6 @@ ResultMeasureQualifier
 ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
-ResultMeasureValues
 ResultParticleSizeBasisText
 ResultSampleFractionText
 ResultSelectedMultipleOrgs
@@ -251,7 +260,6 @@ SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
 SampleTissueAnatomyName
-Shepherdstown
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
@@ -274,6 +282,7 @@ TADAPackageDemo
 TADAPriorityCharUnitRef
 TADAProfile
 TADAShiny
+TMDL
 TargetUnit
 Tesuque
 TribalOptions
@@ -302,7 +311,6 @@ WQXCharacteristicRef
 WQXDetectionQuantitationLimitTypeRef
 WQXMeasureQualifierCodeRef
 WQXMonitoringLocationTypeName
-WQXRefTables
 WQXResultDetectionConditionRef
 WQXResultUnitConversion
 WQXUnitConversionFactor
@@ -310,6 +318,9 @@ WQXVal
 WQXcharValRef
 WQXunitRef
 WVDEP
+WaterSciCon
+Waterbody
+WaterbodyReport
 WellDepthMeasure
 WellHoleDepthMeasure
 Wikimedia
@@ -327,6 +338,7 @@ assessmentunitidentifier
 autoclean
 autocleaned
 bbox
+bnd
 bottomvalue
 bycategory
 cdx
@@ -354,9 +366,9 @@ dplyr
 du
 eXchange
 ecc
+ecoregions
 endDate
 endDateHi
-english
 epa
 extdata
 fabec
@@ -364,8 +376,10 @@ fetchATTAINS
 fetchNHD
 flaggedonly
 flowlines
+geeksforgeeks
 geopub
 geospatial
+geospatially
 getFeatureLayer
 getLayer
 getPopup
@@ -374,7 +388,6 @@ ggplot
 github
 gitignore
 helpdesk
-http
 https
 huc
 hucs
@@ -430,7 +443,6 @@ startDate
 startDateHi
 startDateLo
 statecode
-sthda
 surfacevalue
 sysdata
 tada

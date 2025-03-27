@@ -74,6 +74,7 @@ TADA.LatitudeMeasure) were determined.
 }
 \examples{
 GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
-GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT, 
-dist_buffer = 10)
+GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
+  dist_buffer = 10
+)
 }
