@@ -415,7 +415,7 @@ leaflet::leaflet() %>%
       ri_summary$site_no,
       "<br> Parameters: ",
       ri_summary$parameters,
-      "<br> Parameter codess: ",
+      "<br> Parameter codes: ",
       ri_summary$parameter_codes
     )
   )
