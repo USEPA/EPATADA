@@ -312,7 +312,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       water_types <- vector("list", length = length(chunks))
 
       for (i in 1:length(chunks)) {
-        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", gsub(" ","%20", paste(chunks[[i]], collapse = ",")))) %>%
+        dat <- httr::GET(URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
           httr::content(., as = "text", encoding = "UTF-8") %>%
           jsonlite::fromJSON(.)
 

@@ -1927,7 +1927,7 @@ TADA_CreateWaterUseParamRef <- function(.data, SitesAURef = NULL, useParamRef = 
   #     )
   # }
 
-  OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = "MTDEQ", api_key = testkey))
+  OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = "WYDEQ", api_key = testkey))
   
   OrgID_assessments <- dplyr::filter(OrgID_assessments, assessmentUnitId %in% unique(SitesAURef$ATTAINS.assessmentunitidentifier))
   # water_types2 <- as.data.frame(dplyr::bind_rows(water_types))
