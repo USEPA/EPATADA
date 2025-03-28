@@ -306,13 +306,14 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       ## GRABBING WATER TYPE:
 
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
-      # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
+      # Query the API in "chunks" so it doesn't break. Sweet spot is ~200: 
+      # Note: 3/28/25 changed chunk_size = 50 as some AU id are long. -KW
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      chunks <- split_vector(all_units, chunk_size = 200)
+      chunks <- split_vector(all_units, chunk_size = 50)
       water_types <- vector("list", length = length(chunks))
 
       for (i in 1:length(chunks)) {
-        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+        dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
           httr::content(., as = "text", encoding = "UTF-8") %>%
           jsonlite::fromJSON(.)
 
@@ -402,11 +403,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
       # Query the API in "chunks" so it doesn't break:
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      chunks <- split_vector(all_units, chunk_size = 200)
+      chunks <- split_vector(all_units, chunk_size = 50)
       water_types <- vector("list", length = length(chunks))
 
       for (i in 1:length(chunks)) {
-        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+        dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
           httr::content(., as = "text", encoding = "UTF-8") %>%
           jsonlite::fromJSON(.)
 
