@@ -181,7 +181,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
   } else if (any(unlist(sites) != "null")){
     
     # Check and split 'sites' into chunks if necessary
-    # {dataRetrieval} crashes if site list is too big:
+    # {dataRetrieval} is limited by site list length:
     site_chunks <- if (length(sites) > 35000) {
       split(sites, ceiling(seq_along(sites) / 35000))
     } else {
