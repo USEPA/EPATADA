@@ -130,14 +130,14 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' @examples
 #' \dontrun{
-#' tada_data <- TADA_DataRetrieval(
-#'   startDate = "1990-01-01",
-#'   endDate = "1995-12-31",
-#'   characteristicName = "pH",
-#'   statecode = "NV",
-#'   applyautoclean = TRUE,
-#'   ask = FALSE
-#' )
+# tada_data <- TADA_DataRetrieval(
+#   startDate = "1990-01-01",
+#   endDate = "1995-12-31",
+#   characteristicName = "pH",
+#   statecode = "NV",
+#   applyautoclean = TRUE,
+#   ask = FALSE
+# )
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
@@ -308,11 +308,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
       # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      chunks <- split_vector(all_units, chunk_size = 200)
+      chunks <- split_vector(all_units, chunk_size = 100)
       water_types <- vector("list", length = length(chunks))
 
       for (i in 1:length(chunks)) {
-        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", gsub(" ","%20", paste(chunks[[i]], collapse = ",")))) %>%
           httr::content(., as = "text", encoding = "UTF-8") %>%
           jsonlite::fromJSON(.)
 
@@ -402,11 +402,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
       # Query the API in "chunks" so it doesn't break:
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      chunks <- split_vector(all_units, chunk_size = 200)
+      chunks <- split_vector(all_units, chunk_size = 50)
       water_types <- vector("list", length = length(chunks))
 
       for (i in 1:length(chunks)) {
-        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+        dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", gsub(" ","%20", paste(chunks[[i]], collapse = ",")))) %>%
           httr::content(., as = "text", encoding = "UTF-8") %>%
           jsonlite::fromJSON(.)
 
