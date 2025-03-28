@@ -336,7 +336,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #' }
 #' 
 TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", parameter_codes, start_date, end_date){
-  
+  # Confirm only a single argument has been provided
   if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
