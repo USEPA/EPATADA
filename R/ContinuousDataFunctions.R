@@ -324,7 +324,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #'
 #' @examples
 #' \dontrun{
-#' #' # Example 1: Query by area of interest
+#' # Example 1: Query by area of interest
 #' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>% dplyr::filter(NAME == "Navajo Nation")
 #' sites_aoi_sf <- TADA_getNWIS(aoi_sf = navajo_sf, parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31")
 #'
