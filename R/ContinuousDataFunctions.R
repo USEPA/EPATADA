@@ -3,7 +3,7 @@
 #' List available USGS daily NWIS data
 #' 
 #' @description
-#' Retrieves available data from USGS National Water Information System (NWIS) based on 
+#' Retrieves available metadata from USGS National Water Information System (NWIS) based on 
 #' different spatial queries: area of interest (AOI), specific sites, or state boundaries.
 #' Returns a spatial {sf} object containing site information and available parameters.
 #' If no data is found, returns an empty sf object with appropriate column structure.
