@@ -5,10 +5,12 @@
 #' @description
 #' Retrieves available metadata from USGS National Water Information System (NWIS) based on 
 #' different spatial queries: area of interest (AOI), specific sites, or state boundaries.
-#' Returns a spatial {sf} object containing site information and available parameters.
+#' Returns a spatial sf object containing site information and available parameters.
 #' If no data is found, returns an empty sf object with appropriate column structure.
 #'
-#' @param aoi_sf An sf object defining the area of interest.
+#' @param aoi_sf An sf object defining the area of interest. All individual sf 
+#' features (or "rows" in the sf data frame) must be under 118,078 square miles 
+#' (roughly the area of Nevada).
 #' @param states Character vector of two-letter state codes (e.g., c("CA", "OR")). 
 #' @param sites Character vector of USGS site numbers. 
 #'
@@ -28,6 +30,7 @@
 #'
 #' @details Only one of the query arguments (`aoi_sf`, `states`, or `sites`) 
 #' should be provided. The function will stop if none or more than one are provided.
+#' Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 #' 
 #' @examples
 #' \dontrun{
@@ -40,11 +43,11 @@
 #' sites_specific <- TADA_listNWIS(sites = site_nums)
 #'
 #' # Example 3: Query by state
-#' sites_state <- TADA_listNWIS(states = "CA")
+#' sites_state <- TADA_listNWIS(states = c("CT", "RI"))
 #' }
 #'
-TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
-# Confirm only a single argument has been provided
+TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
+  # Confirm only a single argument has been provided
   if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
@@ -70,7 +73,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
         site_name = character(),
         site_type = character(),
         site_type_cd = character(),
-        data_type= character(),
+        data_type = character(),
         data_type_cd = character(),
         parameter = character(),
         parameter_code = character(),
@@ -117,47 +120,91 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
   }
   
   # Grab NWIS by an area of interest:
-  if ((unlist(aoi_sf)[1] != "null")){
+  if ((unlist(aoi_sf)[1] != "null")) {
+    
+    og_epsg <- sf::st_crs(aoi_sf)$epsg
+    
+    if (sf::st_crs(aoi_sf)$epsg != 4269) {
+      aoi_sf <- aoi_sf %>%
+        sf::st_transform(4269)
+    }
+    
+    # Validate AOI features - stop if any bounding box exceeds 118,078 square miles
+    validate_aoi_size <- function(aoi_sf) {
+      # Get square mile conversion factor for the projection
+      # 2.58999e+6 converts square meters to square miles
+      sq_m_to_sq_miles <- 1/2.58999e+6
+      max_area_sq_miles <- 118078
+      
+      # Process each feature in the sf object
+      aoi_with_area <- aoi_sf %>%
+        dplyr::mutate(
+          bbox_area_sq_miles = purrr::map_dbl(1:dplyr::n(), function(i) {
+            # Get bounding box
+            bbox <- sf::st_bbox(aoi_sf[i, ])
+            
+            # Convert bbox to polygon
+            bbox_polygon <- sf::st_as_sfc(bbox, crs = sf::st_crs(aoi_sf))
+            
+            # Calculate area in square miles
+            area_sq_miles <- sf::st_area(bbox_polygon) * sq_m_to_sq_miles
+            
+            return(as.numeric(area_sq_miles))
+          })
+        )
+      
+      # Check if any area exceeds maximum and stop if too large
+      if (any(aoi_with_area$bbox_area_sq_miles > max_area_sq_miles)) {
+        stop("At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`.")
+      }
+      
+      return(aoi_with_area)
+    }
+    
+    aoi_sf <- validate_aoi_size(aoi_sf)
     
     gage_sites <- vector("list", length = nrow(aoi_sf))
     
-    for (i in 1:nrow(aoi_sf)){
-      
-      bbox <- sf::st_bbox(aoi_sf[i,]) %>%
-        as.vector() %>%
-        round(., digits = 7) %>% 
-        paste(collapse = ",")
-      
-      gage_sites[[i]] <- tryCatch(
-        {
-          suppressMessages(dataRetrieval::whatNWISdata(bBox = bbox, service = "dv"))
-        },
-        error = function(e) {
-          stop("At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`.")
-        }
-      )
-    }
+    suppressMessages({suppressWarnings({
+      for (i in 1:nrow(aoi_sf)) {
+        
+        bbox <- sf::st_bbox(aoi_sf[i, ]) %>%
+          as.vector() %>%
+          round(., digits = 7)
+        
+        gage_sites[[i]] <- tryCatch(
+          {
+            dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv") %>%
+              dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+          },
+          error = function(e) {
+            # Get error message as character string
+            err_msg <- as.character(e$message)
+            
+            # Check for HTTP 404 in the error message
+            if (grepl("404", err_msg)) {
+              
+            } else {
+              # For any other error, stop with server error message
+              stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+              
+            }})
+        
+      }
+    })})
     
     gage_sites <- dplyr::bind_rows(gage_sites) 
     
     if (nrow(gage_sites) == 0) {
-      message("No daily USGS-NWIS data in selected query.")
+      message("No daily USGS-NWIS data in specified query.")
       return(empty_sf())
     }
     
     gage_sites <- gage_sites %>%
-      sf::st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs = 4269) # USGS supplies crs 4326 always
-    
-    # Make sure returned USGS object is in the same CRS as what the user-supplied AOI is in:
-    if(sf::st_crs(aoi_sf) != sf::st_crs(gage_sites)){
-      
-      print(paste0("The `aoi_sf` is in CRS = ", sf::st_crs(aoi_sf)$epsg, ". Returning NWIS sites in the same CRS."))
-      gage_sites <- sf::st_transform(gage_sites, sf::st_crs(aoi_sf))
-      
-    }
+      sf::st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs = 4269) 
     
     aoi_inventory <- gage_sites %>%
-      .[aoi_sf,] %>%
+      .[aoi_sf, ] %>%
       dplyr::left_join(pcodes(), by = "parm_cd") %>%
       dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
       dplyr::mutate(data_type = "Daily") %>%
@@ -175,59 +222,31 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
       # remove any dupes if they exist (precautionary - they shouldn't!)
       dplyr::distinct(., .keep_all = TRUE)
     
+    # Make sure returned USGS object is in the same CRS as what the user-supplied AOI is in:
+    if (as.numeric(og_epsg) != 4269) {
+      message(paste0("The `aoi_sf` is in CRS = ", og_epsg, ". Returning NWIS sites in the same CRS."))
+      aoi_inventory <- sf::st_transform(aoi_inventory, sf::st_crs(og_epsg))
+    }
+    
     return(aoi_inventory)
     
     # Grab NWIS by vector of sites:
-  } else if (any(unlist(sites) != "null")){
+  } else if (any(unlist(sites) != "null")) {
     
     # Check and split 'sites' into chunks if necessary
     # {dataRetrieval} is limited by site list length:
-    site_chunks <- if (length(sites) > 35000) {
-      split(sites, ceiling(seq_along(sites) / 35000))
+    site_chunks <- if (length(sites) > 1000) {
+      message("Your query will return many results and will take some time to process.")
+      split(sites, ceiling(seq_along(sites) / 1000))
     } else {
       list(sites)
     }
     
-    # Map over the chunks to retrieve and process NWIS data
-    site_list_inventory <- purrr::map_dfr(site_chunks, function(chunk) {
-      result <- tryCatch({
-        data <- dataRetrieval::whatNWISdata(siteNumber = chunk, service = "dv")
-        
-        # If no data, return empty data frame
-        if (nrow(data) == 0) {
-          return(empty_sf()) 
-        }
-        
-        data %>%
-          sf::st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs = 4269) %>%
-          dplyr::left_join(pcodes(), by = "parm_cd") %>%
-          dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
-          dplyr::mutate(data_type = "Daily") %>%
-          dplyr::select(site_no,
-                        site_name = station_nm,
-                        site_type,
-                        site_type_cd = site_tp_cd,
-                        data_type,
-                        data_type_cd,
-                        parameter = parameter_name_description,
-                        parameter_code = parm_cd,
-                        n_obs = count_nu,
-                        begin_date,
-                        end_date)
-      }, error = function(e) {
-        message("No daily USGS-NWIS data in selected query.") 
-        return(empty_sf())  # Return an empty df to keep processing
-      })
-      
-      return(result)
-    }) %>%
-      # Remove any duplicates if they exist (precautionary - they shouldn't!)
-      dplyr::distinct(., .keep_all = TRUE)
-    
-    return(site_list_inventory)
-    
     # Grab NWIS sites by state code: 
-  } else  if (any(unlist(states) != "null")){
+  } else if (any(unlist(states) != "null")) {
+    
+    # ensure proper capitalization
+    states <- toupper(states)
     
     valid_states <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
                       "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
@@ -242,61 +261,98 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
     
     sites <- vector("list", length = length(states))
     
-    for(i in 1:length(states)){
-      sites[[i]] <- dataRetrieval::whatNWISsites(stateCd = states[i])
-    }
+    suppressWarnings({suppressMessages({
+      for (i in 1:length(states)) {
+        tryCatch({
+          sites[[i]] <- dataRetrieval::whatNWISsites(stateCd = states[i]) %>%
+            dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+        }, error = function(e) {
+          # Get error message as character string
+          err_msg <- as.character(e$message)
+          
+          # Check for HTTP 404 in the error message
+          if (grepl("404", err_msg)) {
+            
+          } else {
+            # For any other error, stop with server error message
+            stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+          }})
+      }
+    })})
     
     sites <- sites %>% dplyr::bind_rows() %>% dplyr::distinct() %>% .$site_no
     
     # Check and split 'sites' into chunks if necessary
-    site_chunks <- if (length(sites) > 35000) {
-      split(sites, ceiling(seq_along(sites) / 35000))
+    site_chunks <- if (length(sites) > 1000) {
+      message("Your query will return many results and will take some time to process.")
+      split(sites, ceiling(seq_along(sites) / 1000))
     } else {
       list(sites)
     }
     
-    # Map over the chunks to retrieve and process NWIS data
-    state_list_inventory <- purrr::map_dfr(site_chunks, function(chunk) {
-      result <- tryCatch({
-        data <- dataRetrieval::whatNWISdata(siteNumber = chunk, service = "dv")
-        
-        # If no data, return empty data frame
-        if (nrow(data) == 0) {
-          return(empty_sf()) 
-        }
-        
-        data %>%
-          sf::st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs = 4269) %>%
-          dplyr::left_join(pcodes(), by = "parm_cd") %>%
-          dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
-          dplyr::mutate(data_type = "Daily") %>%
-          dplyr::select(site_no,
-                        site_name = station_nm,
-                        site_type,
-                        site_type_cd = site_tp_cd,
-                        data_type,
-                        data_type_cd,
-                        parameter = parameter_name_description,
-                        parameter_code = parm_cd,
-                        n_obs = count_nu,
-                        begin_date,
-                        end_date)
-      }, error = function(e) {
-        message("No daily USGS-NWIS data in selected query.") 
-        return(empty_sf())  # Return an empty df to keep processing
-      })
-      
-      return(result)
-    }) %>%
-      # Remove any duplicates if they exist (precautionary - they shouldn't!)
-      dplyr::distinct(., .keep_all = TRUE)
-    
-    
-    return(state_list_inventory)
-    
-  } 
+  }
   
-}
+  # Map over the chunks to retrieve and process NWIS data
+  
+  inventory <- vector("list", length = length(site_chunks))
+  
+  for (i in 1:length(site_chunks)) {
+    
+    suppressWarnings({suppressMessages({
+      inventory[[i]] <- tryCatch({
+        data <- dataRetrieval::whatNWISdata(siteNumber = site_chunks[[i]], service = "dv") %>%
+          dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+      }, error = function(e) {
+        # Get error message as character string
+        err_msg <- as.character(e$message)
+        
+        # Check for HTTP 404 in the error message
+        if (grepl("404", err_msg)) {
+          empty_sf()
+        } else {
+          # For any other error, stop with server error message
+          stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+        }})
+      
+    })})
+    
+  }
+  
+  inventory <- dplyr::bind_rows(inventory)
+  
+  # If no data, return empty data frame
+  if (nrow(inventory) == 0) {
+    return(empty_sf()) 
+  }
+  
+  inventory <- inventory %>%
+    sf::st_as_sf(coords = c('dec_long_va', 'dec_lat_va'), crs = 4269) %>%
+    dplyr::left_join(pcodes(), by = "parm_cd") %>%
+    dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
+    dplyr::mutate(data_type = "Daily") %>%
+    dplyr::select(site_no,
+                  site_name = station_nm,
+                  site_type,
+                  site_type_cd = site_tp_cd,
+                  data_type,
+                  data_type_cd,
+                  parameter = parameter_name_description,
+                  parameter_code = parm_cd,
+                  n_obs = count_nu,
+                  begin_date,
+                  end_date) %>%
+    # Remove any duplicates if they exist (precautionary - they shouldn't!)
+    dplyr::distinct(., .keep_all = TRUE)
+  
+  
+  # If no data, return empty data frame
+  if (nrow(inventory) == 0) {
+    message("No daily USGS-NWIS data in specified query.")
+    return(empty_sf()) 
+  }
+  return(inventory)
+} 
+
 
 #' Retrieve and tidy daily values from NWIS
 #'
@@ -306,7 +362,9 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #' (AOI), a vector of state abbreviations, or a vector of specific site numbers, along 
 #' with relevant parameter codes and a date range.
 #'
-#' @param aoi_sf An `sf` object specifying the area of interest.
+#' @param aoi_sf An sf object defining the area of interest. All individual sf 
+#' features (or "rows" in the sf data frame) must be under 118,078 square miles 
+#' (roughly the area of Nevada).
 #' @param states A character vector of two-letter state abbreviations (e.g., `"CA"`, `"NY"`).
 #' @param sites A character vector of USGS site numbers.
 #' @param parameter_codes A character vector of NWIS parameter codes to filter for (e.g., `"00060"` for discharge). Parameter codes and
@@ -319,14 +377,15 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #'
 #' @details Only one of the query arguments (`aoi_sf`, `states`, or `sites`) 
 #' should be provided. The function will stop if none or more than one are provided.
+#' Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 #' 
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' # Example 1: Query by area of interest
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>% dplyr::filter(NAME == "Navajo Nation")
-#' sites_aoi_sf <- TADA_getNWIS(aoi_sf = navajo_sf, parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31")
+#' locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>% dplyr::filter(NAME %in% c("Spokane", "Navajo Nation"))
+#' sites_aoi_sf <- TADA_getNWIS(aoi_sf = locs_sf, parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31")
 #'
 #' # Example 2: Query by specific site numbers
 #' sites_specific <- TADA_getNWIS(sites = c("11530500", "11532500"), parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-12-31")
@@ -335,7 +394,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null"){
 #' nwis_data <- TADA_getNWIS(states = c("RI", "CO"), parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-02")
 #' }
 #' 
-TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", parameter_codes, start_date, end_date){
+TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", parameter_codes, start_date, end_date) {
   # Confirm only a single argument has been provided
   if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
@@ -357,25 +416,119 @@ TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", param
   end <- end_date
   
   # Grab NWIS by an area of interest:
-  if ((unlist(aoi_sf)[1] != "null")){
+  # For large areas, this is quite slow.
+  
+  if ((unlist(aoi_sf)[1] != "null")) {
+    # Validate AOI features - stop if any bounding box exceeds 118,078 square miles
+    validate_aoi_size <- function(aoi_sf) {
+      # Get square mile conversion factor for the projection
+      # 2.58999e+6 converts square meters to square miles
+      sq_m_to_sq_miles <- 1/2.58999e+6
+      max_area_sq_miles <- 118078
+      
+      # Process each feature in the sf object
+      aoi_with_area <- aoi_sf %>%
+        dplyr::mutate(
+          bbox_area_sq_miles = purrr::map_dbl(1:dplyr::n(), function(i) {
+            # Get bounding box
+            bbox <- sf::st_bbox(aoi_sf[i, ])
+            
+            # Convert bbox to polygon
+            bbox_polygon <- sf::st_as_sfc(bbox, crs = sf::st_crs(aoi_sf))
+            
+            # Calculate area in square miles
+            area_sq_miles <- sf::st_area(bbox_polygon) * sq_m_to_sq_miles
+            
+            return(as.numeric(area_sq_miles))
+          })
+        )
+      
+      # Check if any area exceeds maximum and stop if too large
+      if (any(aoi_with_area$bbox_area_sq_miles > max_area_sq_miles)) {
+        stop("At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`.")
+      }
+      
+      return(aoi_with_area)
+    }
     
-    list <- TADA_listNWIS(aoi_sf = aoi_sf) %>%
-      dplyr::filter(parameter_code %in% parameter_codes,
-                    lubridate::ymd(begin_date) <= lubridate::ymd(start_date),
-                    lubridate::ymd(end_date) >= lubridate::ymd(end))
+    aoi_sf <- validate_aoi_size(aoi_sf)
     
-  } else if ((unlist(states)[1] != "null")){
+    sites <- vector("list", length = nrow(aoi_sf))
     
-    list <- TADA_listNWIS(states = states) %>%
-      dplyr::filter(parameter_code %in% parameter_codes,
-                    lubridate::ymd(begin_date) <= lubridate::ymd(start_date),
-                    lubridate::ymd(end_date) >= lubridate::ymd(end))
-  } else if ((unlist(sites)[1] != "null")){
+    suppressMessages({suppressWarnings({
+      for (i in 1:nrow(aoi_sf)) {
+        
+        bbox <- sf::st_bbox(aoi_sf[i, ]) %>%
+          as.vector() %>%
+          round(., digits = 7)
+        
+        sites[[i]] <- tryCatch(
+          {
+            dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
+              dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+          },
+          error = function(e) {
+            # Get error message as character string
+            err_msg <- as.character(e$message)
+            
+            # Check for HTTP 404 in the error message
+            if (grepl("404", err_msg)) {
+              
+            } else {
+              # For any other error, stop with server error message
+              stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+            }})
+        
+      }
+    })})
     
-    list <- TADA_listNWIS(sites = sites) %>%
-      dplyr::filter(parameter_code %in% parameter_codes,
-                    lubridate::ymd(begin_date) <= lubridate::ymd(start_date),
-                    lubridate::ymd(end_date) >= lubridate::ymd(end))
+    list <- dplyr::bind_rows(sites) 
+    
+    # Grab NWIS by states:
+  } else if ((unlist(states)[1] != "null")) {
+    
+    # ensure proper capitalization
+    states <- toupper(states)
+    
+    valid_states <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+                      "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                      "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                      "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                      "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+                      "PR")
+    
+    if (!any(states %in% valid_states)) {
+      stop("Valid state abbreviation not provided. Please use state abbreviations.")
+    }
+    
+    sites <- vector("list", length = length(states))
+    
+    suppressWarnings({suppressMessages({
+      for (i in 1:length(states)) {
+        
+        tryCatch({
+          sites[[i]] <- dataRetrieval::whatNWISdata(stateCd = states[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
+            dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+        }, error = function(e) {
+          # Get error message as character string
+          err_msg <- as.character(e$message)
+          
+          # Check for HTTP 404 in the error message
+          if (grepl("404", err_msg)) {
+            
+          } else {
+            # For any other error, stop with server error message
+            stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+          }})
+      }
+    })})
+    
+    list <- sites %>% dplyr::bind_rows() %>% dplyr::distinct() 
+    
+  } else if ((unlist(sites)[1] != "null")) {
+    
+    list <- tibble::tibble(site_no = sites)
+    
   }
   
   # Check if list is empty after filtering
@@ -386,13 +539,59 @@ TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", param
                 start_date, " to ", end_date, "."))
   }
   
-  full_data <- dataRetrieval::readNWISdv(siteNumbers = list$site_no, 
-                                         parameterCd = parameter_codes, 
-                                         startDate = start_date,
-                                         endDate = end) %>%
-    dataRetrieval::renameNWISColumns() %>%
-    data.table::data.table() %>%
-    dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+  # Check if we need to split the sites into chunks
+  site_chunks <- if (length(list$site_no) > 1000) {
+    message("Your query contains many sites and will take some time to process.")
+    split(list$site_no, ceiling(seq_along(list$site_no) / 1000))
+  } else {
+    list(list$site_no)
+  }
+  
+  # Map over the chunks to retrieve and process NWIS data
+  full_data <- {
+    
+    purrr::map_dfr(site_chunks, function(chunk) {
+      
+      # Process chunk with error handling
+      result <- tryCatch({
+        suppressMessages({suppressWarnings({
+          data <- dataRetrieval::readNWISdv(siteNumbers = chunk, 
+                                            parameterCd = parameter_codes, 
+                                            startDate = start_date,
+                                            endDate = end_date) 
+          
+          if (nrow(data) > 0) {
+            data <- data %>%
+              dataRetrieval::renameNWISColumns() %>%
+              data.table::data.table() %>%
+              dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+          }
+          
+          return(data)
+        })})
+      }, error = function(e) {
+        # Get error message as character string
+        err_msg <- as.character(e$message)
+        
+        # Check for HTTP 404 in the error message
+        if (grepl("404", err_msg)) {
+          # Return empty data frame with appropriate structure
+          return(data.frame())
+        } else {
+          # For any other error, stop with server error message
+          stop(paste0("Something went wrong: ", err_msg, 
+                      " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+        }
+      })
+      
+      return(result)
+    })
+  }
+  
+  # If no data found across all chunks, inform user
+  if (nrow(full_data) == 0) {
+    message("No daily USGS-NWIS data found for the specified parameters and date range.")
+  }
   
   # Check if full_data is empty
   if (nrow(full_data) == 0) {

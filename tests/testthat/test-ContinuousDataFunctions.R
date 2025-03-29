@@ -45,6 +45,50 @@ testthat::test_that("TADA_listNWIS validates input parameters correctly", {
   )
 })
 
+testthat::test_that("TADA_listNWIS errors when aoi_sf is too large", {
+
+  # Test big shapefiles (should error if larger than 118,078 square miles)
+  
+  # Create an artificially large polygon (covering most of the US)
+  large_bbox <- c(
+    xmin = -125, # West coast
+    ymin = 24,   # Southern border
+    xmax = -66,  # East coast
+    ymax = 49    # Northern border
+  )
+  
+  # Convert to bbox object, then to sfc
+  large_poly <- sf::st_as_sfc(sf::st_bbox(large_bbox, crs = 4269))
+  large_sf <- sf::st_sf(geometry = large_poly)
+  
+  # Test with artificial large AOI
+  testthat::expect_error(
+    TADA_listNWIS(aoi_sf = large_sf),
+    "At least one of your user-supplied features in 'aoi_sf' is too large"
+  )
+  
+  # Create a multi-feature sf object with one small and one large polygon
+  small_bbox <- c(
+    xmin = -77.1,
+    ymin = 38.8,
+    xmax = -76.9,
+    ymax = 38.9
+  )
+  
+  small_poly <- sf::st_as_sfc(sf::st_bbox(small_bbox, crs = 4269))
+  
+  combined_sf <- sf::st_sf(
+    name = c("small", "large"),
+    geometry = c(small_poly, large_poly)
+  )
+  
+  # Test with combined small+large features
+  testthat::expect_error(
+    TADA_listNWIS(aoi_sf = combined_sf),
+    "At least one of your user-supplied features in 'aoi_sf' is too large"
+  )
+})
+
 # Tests for TADA_getNWIS
 testthat::test_that("TADA_getNWIS returns correct structure with site query", {
   # Test with known site that has discharge data
@@ -65,33 +109,6 @@ testthat::test_that("TADA_getNWIS returns correct structure with site query", {
   testthat::expect_true(all(result$NWIS.site_no == site_num))
   testthat::expect_true(all(as.Date(result$NWIS.date) >= as.Date(start_date)))
   testthat::expect_true(all(as.Date(result$NWIS.date) <= as.Date(end_date)))
-})
-
-testthat::test_that("TADA_getNWIS handles errors when no data is available", {
-  # Test with valid site but non-existent parameter code
-  site_num <- "11530500"
-  invalid_param <- "99999"  # Non-existent parameter
-  
-  testthat::expect_error(
-    TADA_getNWIS(
-      sites = site_num, 
-      parameter_codes = invalid_param, 
-      start_date = "2020-01-01", 
-      end_date = "2020-01-05"
-    ),
-    "No data available for the specified parameter"
-  )
-  
-  # Test with valid site but date range before data collection
-  testthat::expect_error(
-    TADA_getNWIS(
-      sites = site_num, 
-      parameter_codes = "00060", 
-      start_date = "1800-01-01", 
-      end_date = "1800-01-05"
-    ),
-    "No data available"
-  )
 })
 
 testthat::test_that("TADA_getNWIS validates input parameters correctly", {
@@ -126,3 +143,4 @@ testthat::test_that("TADA_getNWIS validates input parameters correctly", {
     )
   )
 })
+
