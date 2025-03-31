@@ -152,7 +152,8 @@ GreenBay_FoxRiver <- TADA_DataRetrieval(
   startDate = "2015-01-01",
   endDate = "2024-12-30",
   huc = c("040302040405"),
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 
 # GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
@@ -164,33 +165,60 @@ Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
 our water quality analysis and area of interest.
 
+**Autoclean**
+
+In the default arguments for TADA_DataRetrieval, applyautoclean = TRUE.
+This runs TADA_AutoClean on the newly retrieved data frame.
+TADA_AutoClean is a powerful function which performs a variety of tasks
+including: (1) creating new "TADA" prefixed columns and and capitalizing
+their contents to reduce case sensitivity issues, (2) converts special
+characters in value columns, (3) converts latitude and longitude values
+to numeric, (4) replaces "meters" with "m", (5) replaces deprecated
+characteristic names with current WQX names, (6) harmonizes result and
+detection limit units to WQX, TADA or user supplied target units, (7)
+converts depths to meters, and (8) creates the column TADA.ComparableID
+by concatenating characteristic name, result sample fraction, method
+speciation, and result measure unit.
+
 **Flag and remove duplicate results from a single organization**
 
+We can identify data records uploaded by the same organization with the
+same date, time, monitoring location, activity type, characteristic
+name, fraction, taxonomic name, depth columns, and result value and
+flags them as potential duplicates. The data user must determine if the
+data records are unique or represent overlap that could cause issues in
+analysis. For this example, we will retain only results flagged as
+"Unique".
+
 ```{r single-org-dups}
+# find duplicate results submitted by single org
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
 
+# retain unique flagged results
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-**Autoclean**
+**Censored results**
 
-```{r autoclean}
-GreenBay_FoxRiver <- TADA_AutoClean(GreenBay_FoxRiver)
-```
-
-**Handle censored results**
+TADA provides some simple methods for dealing with censored results,
+such as using multiplying the detection limit by a user supplied value
+or leaving the result as is.
 
 ```{r censored}
+# substitude nondetects with 0.5 detection limit, leave overdetects as is
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
 **Flag and remove duplicates from multiple organizations**
 
-Two organizations sometimes submit the same exact data to WQP.
+Two organizations sometimes submit the same exact data to WQP. Filtering
+out these duplicates can prevent issues in analysis.
 
 ```{r multi-org-dups, eval = F}
+# find potential dups multiple orgs
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 
+# filter out 
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
@@ -417,7 +445,11 @@ There's much much more where that came from. See the pkgdown sites for
 [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
 ## Accessing watershed information for sites
-We can access watershed information for each unique site location, getting both the landscape data for local catchment or the full upstream watershed for each particular site using [StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
+
+We can access watershed information for each unique site location,
+getting both the landscape data for local catchment or the full upstream
+watershed for each particular site using
+[StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
 
 ### Discover what StreamCat metrics we might want to use
 
@@ -425,7 +457,6 @@ We can access watershed information for each unique site location, getting both 
 metrics <- sc_get_params(param='name')
 print(paste0('A selection of available StreamCat metrics include: ',paste(metrics[1:10],collapse = ', ')))
 ```
-
 
 ### Discover land cover of waterhsheds for sites
 
