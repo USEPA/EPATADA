@@ -51,22 +51,22 @@ tada_data <- TADA_DataRetrieval(
 # note: these example ATTAINS data retrieval queries below may take a
 # long time (10+ minutes) to run
 
-tada_attains <- TADA_GetATTAINS(tada_data,
+TADA_ATTAINS <- TADA_GetATTAINS(tada_data,
   fill_catchments = FALSE,
   return_sf = FALSE
 )
 
-tada_attains_sf <- TADA_GetATTAINS(tada_data,
+TADA_ATTAINS_sf <- TADA_GetATTAINS(tada_data,
   fill_catchments = FALSE,
   return_sf = TRUE
 )
 
-tada_attains_filled <- TADA_GetATTAINS(tada_data,
+TADA_ATTAINS_filled <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
   resolution = "Hi", return_sf = FALSE
 )
 
-tada_attains_filled_sf <- TADA_GetATTAINS(tada_data,
+TADA_ATTAINS_filled_sf <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
   resolution = "Hi", return_sf = TRUE
 )
