@@ -211,10 +211,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     # together.
 
     repeat {
-      query <- urltools::param_set(baseurls, key = "geometry", value = sf_bbox) %>%
+      query <- urltools::param_set(baseurls[1], key = "geometry", value = sf_bbox) %>%
         urltools::param_set(key = "inSR", value = our_epsg) %>%
-        # Total of 2000 features at a time...
-        urltools::param_set(key = "resultRecordCount", value = 2000) %>%
+        # Total of 1000 features at a time... # Modified from 2000 to 1000 KW 3/31/2025
+        urltools::param_set(key = "resultRecordCount", value = 1000) %>% # Modifed value = 2000 to value = 1000 as HTTP status was '500 Internal Server Error' was occurring. 3/31/25 KW
         # ... starting at the "offset":
         urltools::param_set(key = "resultOffset", value = offset) %>%
         urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
@@ -235,7 +235,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       features <- suppressMessages(suppressWarnings({
         tryCatch(
           {
-            geojsonsf::geojson_sf(query)
+            geojsonsf::geojson_sf(url(query))
           },
           error = function(e) {
             NULL
@@ -249,8 +249,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       }
 
       all_features <- c(all_features, list(features))
-      # once done, change offset by 2000 features:
-      offset <- offset + 2000
+      # once done, change offset by 1000 features: # Modified from 2000 to 1000 KW 3/31/2025
+      offset <- offset + 1000
 
       if (offset == 4000) {
 
