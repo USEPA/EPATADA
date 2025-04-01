@@ -888,8 +888,8 @@ TADA_DataRetrieval <- function(startDate = "null",
       
       results.DR <- suppressMessages(
         dataRetrieval::readWQPdata(WQPquery,
-          service = "resultWQX3",
-          dataProfile = "resultPhysChem",
+          service = "ResultWQX3",
+          dataProfile = "basicPhysChem", #dataProfile = "resultPhysChem", # I believe dataProfile must be "basicPhysChem" with WQX3.0? -KW
           ignore_attributes = TRUE
         )
       )
