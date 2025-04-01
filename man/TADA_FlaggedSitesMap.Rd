@@ -7,13 +7,13 @@
 TADA_FlaggedSitesMap(.data)
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP, where
-each row represents a unique data record. Data frame must include the columns
+\item{.data}{TADA dataframe containing the data downloaded from the WQP, where
+each row represents a unique data record. Dataframe must include the columns
 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 and 'TADA.LongitudeMeasure' to run this function.}
 }
 \value{
-A leaflet map that shows all sites in the data frame that contain
+A leaflet map that shows all sites in the dataframe that contain
 flagged data in the form of:
 \enumerate{
 \item imprecise coordinates - latitudes and/or longitudes that contain fewer
@@ -28,7 +28,7 @@ Create Flagged Sites Map
 }
 \examples{
 \dontrun{
-# Load example data frame:
+# Load example dataframe:
 data(Data_Nutrients_UT)
 data(Data_NCTCShepherdstown_HUC12)
 data(Data_6Tribes_5y_Harmonized)

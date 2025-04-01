@@ -29,8 +29,8 @@ For example, the groups could be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_N
 These groups will be specific to your data frame. The TADA_IDDepthProfiles can be
 used to identify available groups.}
 
-\item{location}{A single MonitoringLocationIdentifier to plot the depth profile.
-A MonitoringLocationIdentifier must be entered or an error will be returned and
+\item{location}{A single TADA.MonitoringLocationIdentifier to plot the depth profile.
+A TADA.MonitoringLocationIdentifier must be entered or an error will be returned and
 no depth profile will be created.}
 
 \item{activity_date}{The date the depth profile results were collected.}
@@ -52,29 +52,37 @@ depth units should be used for the plot. Default is "m".}
 }
 \value{
 A depth profile plot displaying up to three parameters for a single
-MonitoringLocationIdentifier. Displaying depth categories is optional with the
+TADA.MonitoringLocationIdentifier. Displaying depth categories is optional with the
 depthcat argument.
 }
 \description{
 Create A Three-Characteristic Depth Profile
 }
 \examples{
-# Load example data frame:
+\dontrun{
+# Load example dataframe:
 data(Data_6Tribes_5y_Harmonized)
-# Create a depth profile figure with three parameters for a single monitoring location and date
+# Create a depth profile figure with three parameters for a single
+# monitoring location and date
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
-  groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA", "DEPTH, SECCHI DISK DEPTH_NA_NA_M"),
+  groups = c(
+    "TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS",
+    "DEPTH, SECCHI DISK DEPTH_NA_NA_M"
+  ),
   location = "REDLAKE_WQX-ANKE",
   activity_date = "2018-10-04"
 )
 
 # Load example data frame:
 data(Data_6Tribes_5y_Harmonized)
-# Create a depth profile figure with two parameters for a single monitoring location and date without displaying depth categories
+# Create a depth profile figure with two parameters for a single monitoring
+# location and date without displaying depth categories
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
   groups = c("CONDUCTIVITY_NA_NA_US/CM", "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"),
   location = "REDLAKE_WQX-JOHN",
   activity_date = "2018-07-31",
   depthcat = FALSE
 )
+}
+
 }

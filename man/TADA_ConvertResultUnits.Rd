@@ -9,10 +9,10 @@ TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE)
 \arguments{
 \item{.data}{TADA dataframe}
 
-\item{ref}{Optional character argument in which a user can specify a data frame
-by name. Data frame must contain the columns CharacteristicName, Unit, and TargetUnit.
-TADA_CreateUnitRef() can be used to help create this data frame. There are two
-options that do not require the user to supply a data frame, "tada" and "wqx".
+\item{ref}{Optional character argument in which a user can specify a dataframe
+by name. Dataframe must contain the columns CharacteristicName, Unit, and TargetUnit.
+TADA_CreateUnitRef() can be used to help create this dataframe. There are two
+options that do not require the user to supply a dataframe, "tada" and "wqx".
 When ref = "wqx" all unit conversion will be based on the WQX unit reference
 which applies targets at the unit level.
 When ref = "tada" all unit conversion will be based on TADA priority characteristic
@@ -73,10 +73,16 @@ those with speciation in units.
 data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
-# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient", "TADA.Target.ResultMeasure.MeasureUnitCode", and "TADA.SpeciationUnitConversion":
-ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = FALSE)
+# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
+# "TADA.Target.ResultMeasure.MeasureUnitCode", and
+# "TADA.SpeciationUnitConversion":
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
+  transform = FALSE
+)
 
 # Convert values and units for results and detection limits:
-ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT, transform = TRUE)
+ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
+  transform = TRUE
+)
 
 }

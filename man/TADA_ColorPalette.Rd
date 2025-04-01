@@ -27,5 +27,4 @@ are added to the TADA package.
 TestColorPalette <- TADA_ColorPalette()
 TestColorPalettePairings <- TADA_ColorPalette(col_pair = TRUE)
 TestColorPalettePairings
-
 }

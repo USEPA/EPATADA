@@ -33,7 +33,7 @@ combinations are removed. Default is clean = TRUE. When flaggedonly = TRUE, only
 Suspect characteristic-fraction combinations are returned. Default is flaggedonly = FALSE.
 }
 \details{
-#' The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+The “Not Reviewed” value within "TADA.SampleFraction.Flag" means
 that the EPA WQX team has not yet reviewed the combinations
 (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 The WQX team plans to review and update these new combinations quarterly.
@@ -45,11 +45,14 @@ data(Data_Nutrients_UT)
 # Remove data with Suspect characteristic-fraction combinations:
 SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
 
-# Flag, but do not remove, data with Suspect characteristic-fraction combinations
+# Flag, but do not remove, data with Suspect characteristic-fraction
+# combinations
 # in new column titled "TADA.SampleFraction.Flag":
 SuspectFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
 
 # Show only Suspect characteristic-fraction combinations:
-SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE, flaggedonly = TRUE)
+SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT,
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }

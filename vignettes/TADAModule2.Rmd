@@ -155,7 +155,8 @@ TADA_dataframe <- TADA_DataRetrieval(
   endDate = "2020-12-31",
   characteristicName = "pH",
   countycode = "US:08:069",
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  ask = FALSE
 )
 ```
 
@@ -269,7 +270,7 @@ observations stored in a list along with the TADA dataframe.
 
 Now, let's select specific columns from the `TADA_with_ATTAINS`
 dataframe, and create a new dataframe with ONLY the unique combinations
-of WQP MonitoringLocationIdentifier's and ATTAINS Assessment Unit
+of WQP MonitoringLocationIdentifiers and ATTAINS Assessment Unit
 Identifiers.
 
 ```{r}

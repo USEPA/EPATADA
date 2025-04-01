@@ -1,6 +1,6 @@
 #' Data_Nutrients_UT
 #'
-#' A data frame containing Ammonia, Nitrate, and Nitrogen data from Utah:
+#' A dataframe containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'
 #' Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -9,10 +9,10 @@
 #' applyautoclean = TRUE)
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_Nutrients_UT
 #' @usage data(Data_Nutrients_UT)
-#' @format A data frame with 14592 rows and 152 variables
+#' @format A dataframe with 14592 rows and 152 variables
 NULL
 
 #' Data_6Tribes_5y
@@ -37,24 +37,24 @@ NULL
 #' 6) The Chickasaw Nation
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_6Tribes_5y
 #' @usage data(Data_6Tribes_5y)
-#' @format A data frame with 134050 rows and 149 variables
+#' @format A dataframe with 134050 rows and 149 variables
 NULL
 
 #' Data_6Tribes_5y_Harmonized
 #'
-#' A data frame containing data from tribal organizations
+#' A dataframe containing data from tribal organizations
 #' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
 #' TADA Module 1 vignette
 #' (see: https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_6Tribes_5y_Harmonized
 #' @usage data(Data_6Tribes_5y_Harmonized)
-#' @format A data frame with 117124 rows and 166 variables
+#' @format A dataframe with 117124 rows and 166 variables
 NULL
 
 #' Data_NCTCShepherdstown_HUC12
@@ -77,10 +77,10 @@ NULL
 #' )
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_NCTCShepherdstown_HUC12
 #' @usage data(Data_NCTCShepherdstown_HUC12)
-#' @format A data frame with 39236 rows and 151 variables
+#' @format A dataframe with 39236 rows and 151 variables
 NULL
 
 #' Data_R5_TADAPackageDemo
@@ -103,8 +103,21 @@ NULL
 #' )
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_R5_TADAPackageDemo
 #' @usage data(Data_R5_TADAPackageDemo)
-#' @format A data frame with 6569 rows and 123 variables
+#' @format A dataframe with 6569 rows and 123 variables
+NULL
+
+#' Data_HUC8_02070004_Mod1Output
+#'
+#' See Module 1 Workflow.R script in vignettes folder
+#' This is the final data after running a recommended module 1 workflow.
+#' It can be used as a starting point for Modules 2 or 3.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_HUC8_02070004_Mod1Output
+#' @usage data(Data_HUC8_02070004_Mod1Output)
+#' @format A data frame with 84 rows and 161 variables
 NULL

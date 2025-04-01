@@ -45,7 +45,9 @@ suppressWarnings(
         "https://www.itecmembers.org/attains/",
         # if included will get 500 response because this is an incomplete URL
         # additional query information is pasted in as part of geospatial functions
-        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier="
+        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
+        # page loads but does not return a response code (NA)
+        "http://cran.us.r-project.org"
       ))
 
     # retrieve http response headers from url list
@@ -55,7 +57,7 @@ suppressWarnings(
     # extract response code from first line of header response
     response_code <- sapply(headers, "[[", 1)
 
-    # create data frame of urls and response codes
+    # create dataframe of urls and response codes
     df <- data.frame(urls, response_code)
 
     # filter for any response codes that are not successful or redirect responses
@@ -68,7 +70,9 @@ suppressWarnings(
     n <- nrow(df_false)
 
     # print url and response code for failures
-    print(df_false)
+    if (n > 0) {
+      print(df_false)
+    }
 
     # verify that there are zero urls with failing response codes
     testthat::expect_equal(n, 0)

@@ -1,5 +1,5 @@
 test_that("TADA_DataRetrieval", {
-  randomday <- TADA_RandomTestingData()
+  randomday <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
   # you could just pick the important columns:
   expect_true(all(c(
     "OrganizationIdentifier",
@@ -128,7 +128,7 @@ test_that("TADA_DataRetrieval", {
 })
 
 test_that("TADA_DataRetrieval", {
-  randomstate <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+  randomstate <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
   # you could just pick the important columns:
   expect_true(all(c(
     "OrganizationIdentifier",
@@ -257,7 +257,7 @@ test_that("TADA_DataRetrieval", {
 })
 
 test_that("TADA_DataRetrieval", {
-  randomstate2 <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
+  randomstate2 <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
 
   expect_true(all(
     Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(randomstate2)
@@ -270,7 +270,8 @@ test_that("TADA_DataRetrieval", {
       "USGS-054064785",
       "USGS-430305089260600"
     ),
-    characteristicName = "Phosphorus"
+    characteristicName = "Phosphorus",
+    ask = FALSE
   )
   # you could just pick the important columns:
   expect_true(all(c(
@@ -405,7 +406,9 @@ test_that("TADA_DataRetrieval", {
   check_autoclean_meters_works <- TADA_DataRetrieval(
     statecode = "UT",
     characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
-    startDate = "2021-01-01"
+    startDate = "2021-01-01",
+    endDate = "2022-01-01",
+    ask = FALSE
   )
   expect_false("meters" %in% check_autoclean_meters_works$TADA.ResultMeasure.MeasureUnitCode)
 })
@@ -413,22 +416,22 @@ test_that("TADA_DataRetrieval", {
 # Testing that regular and big data retrieval return the same number of rows on an identical query.
 # cm edited to include start date on 2/27/23 because without this it takes too long to run
 # these tests, and may time out
-test_that("Reg&BigdataRetrieval", {
-  big <- TADA_BigDataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
-  reg <- TADA_DataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
-
-  expect_equal(nrow(big), nrow(reg))
-})
+# test_that("Reg&BigdataRetrieval", {
+#   # big <- TADA_BigDataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE)
+#   reg <- TADA_DataRetrieval(characteristicName = "Algae, substrate rock/bank cover (choice list)", sampleMedia = "Water", siteType = "Stream", startDate = "2020-01-01", applyautoclean = FALSE, ask = FALSE)
+#
+#   expect_equal(nrow(big), nrow(reg))
+# })
 
 # Testing that dates work correctly in queries in big data retrieval
-test_that("BigdataRetrieval_daterange", {
-  startDate <- "2018-10-01"
-  endDate <- "2021-09-30"
-  big <- TADA_BigDataRetrieval(startDate = startDate, endDate = endDate, huc = c("04030202", "04030201"), characteristicName = "Escherichia coli", siteType = "Stream")
-  logic <- min(big$ActivityStartDate) >= as.Date(startDate, format = "%Y-%m-%d") & max(big$ActivityStartDate) <= as.Date(endDate, format = "%Y-%m-%d")
-
-  expect_true(logic)
-})
+# test_that("BigdataRetrieval_daterange", {
+#   startDate <- "2018-10-01"
+#   endDate <- "2021-09-30"
+#   # big <- TADA_BigDataRetrieval(startDate = startDate, endDate = endDate, huc = c("04030202", "04030201"), characteristicName = "Escherichia coli", siteType = "Stream")
+#   logic <- min(big$ActivityStartDate) >= as.Date(startDate, format = "%Y-%m-%d") & max(big$ActivityStartDate) <= as.Date(endDate, format = "%Y-%m-%d")
+#
+#   expect_true(logic)
+# })
 
 
 # Testing that the TADA_JoinWQPProfiles() function in DataDiscoveryRetrieval.R

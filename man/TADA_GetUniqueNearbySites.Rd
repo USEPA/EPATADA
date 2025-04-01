@@ -10,12 +10,13 @@ TADA_GetUniqueNearbySites(.data)
 \item{.data}{TADA dataframe}
 }
 \value{
-New dataframe with unique values for MonitoringLocationIdentifier,
-TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure
+New dataframe with unique combinations of original and TADA MonitoringLocationIdentifier,
+LongitudeMeasure, LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName.
 }
 \description{
 This function takes a TADA dataset that contains grouped nearby monitoring stations
 and returns a unique dataset of the original MonitoringLocationIdentifier, the grouped
-TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, and TADA.LatitudeMeasure,
-filtered for only those stations that have a nearby station.
+TADA.MonitoringLocationIdentifier, as well as the original and TADA-prefixed LongitudeMeasure,
+LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName, filtered for only those
+stations that have a nearby station.
 }

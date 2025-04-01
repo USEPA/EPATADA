@@ -33,5 +33,4 @@ lmap <- leaflet::leaflet() \%>\%
 lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 lmap
 }
-
 }

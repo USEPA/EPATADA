@@ -29,14 +29,14 @@ The time_difference can be as large as the user would like, but parent-replicate
 identified if they were collected on the same date.}
 }
 \value{
-This function adds one column to the original data frame: 'TADA.ReplicateSampleID'.
+This function adds one column to the original dataframe: 'TADA.ReplicateSampleID'.
 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample
 if a parent sample match is identified. Both the replicate sample and the parent sample
 will have the same 'ResultIdentifier' code in this column, marking them as a pair.
 If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
-column but does not have an associated parent sample in the data frame, the 'TADA.ReplicateSampleID'
+column but does not have an associated parent sample in the dataframe, the 'TADA.ReplicateSampleID'
 column will contain the flag 'Orphan'. If more than one parent or replicate sample is identified
-in the data frame, the 'TADA.ReplicateSampleID' column for all samples will contain the
+in the dataframe, the 'TADA.ReplicateSampleID' column for all samples will contain the
 'ResultIdentifier' value from one of the replicate samples marking them as a grouping.
 }
 \description{

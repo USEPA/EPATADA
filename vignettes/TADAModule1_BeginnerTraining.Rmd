@@ -27,7 +27,8 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  eval = F
 )
 ```
 
@@ -84,6 +85,15 @@ console).
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r install_TADA_developer, eval = F, include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "prerelease",
   dependencies = TRUE
 )
 
@@ -379,16 +389,17 @@ your program's goals and methods, you might want to further filter the
 monitoring location types in the data set.
 
 ```{r MonitoringLocations, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "MonitoringLocationTypeName")
+MonLocTypNam_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 MonLocTypNam_Pie
 ```
 
 **Question 4: How many unique Monitoring Location Types
-(MonitoringLocationTypeName) are present? Which is the most common?**
+(TADA.MonitoringLocationTypeName) are present? Which is the most
+common?**
 
 ```{r question4}
-FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "MonitoringLocationTypeName")
+FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "TADA.MonitoringLocationTypeName")
 
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
 
@@ -401,7 +412,7 @@ the mlt_most_common[1] subset of results.
 
 ```{r MonitoringLocationsMostCommon}
 R5Profile <- R5Profile %>%
-  dplyr::filter(MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
+  dplyr::filter(TADA.MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
 ```
 
 Next we can review station locations and summary information using the
@@ -427,7 +438,7 @@ information and examples.
 ## Summarize by Characteristic
 
 **TADA_SummarizeColumn** summarizes the data set based on a user
-specified column and returns a data frame displaying the number of sites
+specified column and returns a dataframe displaying the number of sites
 and number of records for each unique value in the specified column.
 This example uses *TADA.CharacteristicName*.
 
@@ -529,7 +540,7 @@ Quality Portal (WQP). Let's start by looking at the submitting
 organizations for this data set and their relative contributions.
 
 ```{r Organizations}
-# Create data frame with result counts by organization
+# Create dataframe with result counts by organization
 FieldValues_Orgs <- TADA_FieldValuesTable(R5ProfileClean3, field = "OrganizationFormalName")
 ```
 
@@ -555,20 +566,18 @@ by entering the following into the console:
 -   **?TADA_FindPotentialDuplicatesMultipleOrgs**
 -   **?TADA_FindPotentialDuplicatesSingleOrg**
 
-```{r FindPotentialDuplicates}
-# Flag potential duplicates from multiple organizations
-R5ProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(R5ProfileClean3,
-  dist_buffer = 100,
-  org_hierarchy = "none"
-)
+Flag potential duplicates from a single organization:
 
-# Flag potential duplicates from a single organization
+```{r TADA_FindPotentialDuplicatesSingleOrg}
 R5ProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(R5ProfileClean3)
+```
 
-# Remove multiple and single org duplicates (random selection of single result)
+Remove flagged duplicates from a single organization (random selection
+of single result):
+
+```{r FindPotentialDuplicates}
 R5ProfileClean4 <- R5ProfileClean3 %>%
   dplyr::filter(
-    TADA.ResultSelectedMultipleOrgs == "Y",
     TADA.SingleOrgDup.Flag == "Unique"
   )
 ```
@@ -595,7 +604,7 @@ To start, review the list of common fields used for filtering, and the
 number of unique values in each field using the **TADA_FieldCounts**
 function.
 
-This function returns counts for you the entire data frame for each of
+This function returns counts for you the entire dataframe for each of
 the following fields (if populated, columns that are populated only with
 NA's are not included in the output):
 
@@ -950,9 +959,9 @@ To start, review the list of parameters in the dataframe using the
 **TADA_FieldValuesTable** function.
 
 ```{r TADA_FieldValuesTable_chars, results = 'hide'}
-Char_Pie <- FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
+Char_Table <- FieldValuesTable_Chars <- TADA_FieldValuesTable(R5ProfileClean8, field = "TADA.CharacteristicName")
 
-Char_Pie
+Char_Table
 ```
 
 Next, we can revisit the **TADA_FieldCounts** function at the
@@ -1023,6 +1032,8 @@ included within each of the following fields:
 
 ```{r TADA_FieldCounts_char}
 R5_FieldCounts_Chars <- TADA_FieldCounts(R5ProfileClean8, display = "most", characteristicName = "DISSOLVED OXYGEN (DO)")
+
+R5_FieldCounts_Chars
 ```
 
 Selecting a parameter generates the list above, which is subset by the
@@ -1040,15 +1051,19 @@ we review values from the *SampleCollectionMethod.MethodName* field for
 Dissolved Oxygen (DO) results.
 
 ```{r DO_Method, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-# C Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
+# # Create subset of DO data
+DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
+#
+# # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
-
+#
 DO_SCM_Pie
 
 # Create table for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 FieldValuesTable_DO_scm <- TADA_FieldValuesTable(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")
 ```
 
+\
 Generate a scatterplot with two characteristics.
 
 ```{r review_identifiers}
@@ -1070,7 +1085,7 @@ unit, speciation, and fraction combination) using **TADA_Histogram** and
 plots if their input dataset has more than one unique comparable data
 group.
 
-First, filter the data frame to include only "DISSOLVED OXYGEN
+First, filter the dataframe to include only "DISSOLVED OXYGEN
 (DO)\_NA_NA_MG/L"
 
 ```{r filter_dataframe}
@@ -1094,7 +1109,7 @@ Generate interactive box plot.
 TADA_Boxplot(R5ProfileCleanDO, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
-Generate a new data frame with only the daily max dissolved oxygen
+Generate a new dataframe with only the daily max dissolved oxygen
 values.
 
 ```{r DO_filtered}
@@ -1121,7 +1136,7 @@ Now we can review the "TADA" prefixed columns we have added to the data
 set. If we are satisfied with the conversions, filtering, flagging, etc.
 and the resulting "TADA" columns, we can use the **TADA_RetainRequired**
 function to remove any columns that are not required or used as filters
-in the TADA workflow. This reduces the size of the data frame.
+in the TADA workflow. This reduces the size of the dataframe.
 
 ```{r retainrequired}
 R5ProfileClean9 <- TADA_RetainRequired(R5ProfileClean8)

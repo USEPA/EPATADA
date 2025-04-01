@@ -7,7 +7,7 @@
 TADA_GetSynonymRef(.data)
 }
 \arguments{
-\item{.data}{TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.}
+\item{.data}{TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.}
 }
 \value{
 Synonym Reference Table unique to the input dataframe
