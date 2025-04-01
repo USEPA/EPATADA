@@ -264,7 +264,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 
   # Function used to grab assessment unit "WaterType".
   # Sweet spot chunk size wise is 200:
-  split_vector <- function(vector, chunk_size = 200) {
+  split_vector <- function(vector, chunk_size = 50) {
     # Number of chunks needed
     num_chunks <- ceiling(length(vector) / chunk_size)
 
