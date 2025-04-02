@@ -1329,7 +1329,7 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
   
         # if there are intersecting ATTAINS, fill_catchments = TRUE, and if return_sf = FALSE, return just the dfs:
         if (return_sf == FALSE) {
-          TADA_ATTAINS[[i]][[i]] <- list(
+          TADA_ATTAINS[[i]] <- list(
             "TADA_with_ATTAINS" = TADA_with_ATTAINS,
             "TADA_without_ATTAINS" = TADA_without_ATTAINS
           )
