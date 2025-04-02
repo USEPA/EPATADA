@@ -2,12 +2,12 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateWaterUseParamRef}
 \alias{TADA_CreateWaterUseParamRef}
-\title{Assessment Unit and Use Name Crosswalk}
+\title{Apply Unique Spatial Criteria to a Water Type, Use Name, and Parameter Name Combination}
 \usage{
 TADA_CreateWaterUseParamRef(
   .data,
-  SitesAURef = NULL,
   useParamRef = NULL,
+  useAURef = NULL,
   org_id = NULL,
   excel = TRUE,
   overwrite = FALSE
@@ -24,18 +24,28 @@ records will be displayed in this ref file for users to define.}
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 }
 \description{
-This function will pull in all prior use names associated with an organization identifier
-from prior ATTAINS cycles. If a user has included the EPA304a recommended standards
-for assessment summaries, then
+This is a helper function to TADA_CreateSpatialRef and is meant to
+help users with specifying any unique spatial criteria to a
+water type, use name, and parameter name combination. This will require users
+to have provided a sitesAURef argument created from TADA_CreateUseAURef to run.
 }
 \details{
-for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
-ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
-when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
+This function will assume all use names for an existing AU in prior assessment cycles
+are being done for an organization's assessment. It will filter down the useParam list to
+only valid use names done in prior assessment cycle for an AU. It will assume any parameter and
+use name defined in useParamRef are being assessed - ie we only join useParamRef and useAURef by
+use name.
 
 Users are expected to modify this AU ref file with the appropriate AU and
 MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
 for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
 within an AU if desired. This can be used if a MoniotringLocation would still like to be
 crosswalk to the AU but may only be applicable for certain parameters.
+}
+\seealso{
+\code{\link[=TADA_CreateUseParamRef]{TADA_CreateUseParamRef()}}
+
+\code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
+
+\code{\link[=TADA_CreateSpatialRef]{TADA_CreateSpatialRef()}}
 }

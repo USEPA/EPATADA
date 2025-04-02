@@ -178,16 +178,17 @@ associated methods for each parameter and use combination that they have
 defined.
 
 ```{r}
-NCTC_magnitude <- TADA_DefineMagnitude(
+NCTC_magnitude_Final <- TADA_DefineMagnitude(
   Data_NCTC, 
   paramRef = NCTC_ParamRef_Final, 
   UseParamRef = NCTC_UseParamRef_Final, 
   AURef = NCTC_SpatialRef, 
-  excel = TRUE, overwrite = TRUE
+  excel=FALSE,
+  #excel = TRUE, overwrite = TRUE
   )
 # If user makes update in excel file
 downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
+# NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
 ```
 
 # Summarize Magnitude Excursions
@@ -197,17 +198,30 @@ determine the number of individual excursions for each based on the
 defined magnitudes.
 
 ```{r}
-SitesAURef <- TADA_GetATTAINS(Data_NCTC)
-SitesAURef <- SitesAURef$TADA_with_ATTAINS
+GetATTAINSRef <- TADA_GetATTAINS(Data_NCTC)
+SitesAURef <- GetATTAINSRef$TADA_with_ATTAINS
 
-NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(Data_NCTC, SitesAURef = SitesAURef, useParamRef =  NCTC_UseParamRef_Final, org_id = "MDE_EASP", excel = TRUE, overwrite = TRUE)
+NCTC_UseAURef_Final <- TADA_CreateUseAURef(
+  Data_NCTC, 
+  SitesAURef = SitesAURef, 
+  org_id = "MDE_EASP", 
+  excel = FALSE
+  ) #TRUE, overwrite = TRUE)
+
+NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
+  Data_NCTC, 
+  useAURef = NCTC_UseAURef_Final,
+  useParamRef = NCTC_UseParamRef_Final, 
+  org_id = "MDE_EASP", 
+  excel = FALSE
+  ) #TRUE, overwrite = TRUE)
 
 
 NCTC_Excursions <- TADA_MagnitudeSummary(
   Data_NCTC,
   #UseAURef = NCTC_UseAURef,
   StandardsRef = NCTC_magnitude_Final,
-  overwrite = TRUE
+  overwrite = FALSE
 )
 
 NCTC_Excursions2 <- TADA_MagnitudeSummary(
