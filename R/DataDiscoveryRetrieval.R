@@ -531,41 +531,47 @@ TADA_DataRetrieval <- function(startDate = "null",
         # Empty
         TADAprofile.clean <- results.DR
       } else {
-        # Get site metadata
-        sites.DR <- clipped_sites_sf %>%
-          dplyr::as_tibble() %>%
-          dplyr::select(-geometry)
-
-        # Get project metadata
-        quiet_projects.DR <- quiet_readWQPdata(
-          siteid = clipped_site_ids,
-          WQPquery,
-          ignore_attributes = TRUE,
-          service = "Project"
-        )
-
-        if (is.null(quiet_projects.DR$result)) {
-          stop_message <- quiet_projects.DR$messages %>%
-            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
-            paste("\n", ., collapse = "") %>%
-            paste("The WQP request returned a NULL with the following message(s): \n",
-              .,
-              collapse = "\n"
-            )
-
-          stop(stop_message)
-        }
-
-        projects.DR <- quiet_projects.DR$result
-
-        # Join results, sites, projects
-        TADAprofile <- TADA_JoinWQPProfiles(
-          FullPhysChem = results.DR,
-          Sites = sites.DR,
-          Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        
+        TADAprofile <- results.DR # 
+        
+        # ADD RENAME COLUMN FUNCTION to go from beta back to legacy
+        TADAprofile <- TADA_RenameColumns(TADAprofile)
+        
+        # # Get site metadata
+        # sites.DR <- clipped_sites_sf %>%
+        #   dplyr::as_tibble() %>%
+        #   dplyr::select(-geometry)
+        # 
+        # # Get project metadata
+        # quiet_projects.DR <- quiet_readWQPdata(
+        #   siteid = clipped_site_ids,
+        #   WQPquery,
+        #   ignore_attributes = TRUE,
+        #   service = "Project"
+        # )
+        # 
+        # if (is.null(quiet_projects.DR$result)) {
+        #   stop_message <- quiet_projects.DR$messages %>%
+        #     grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        #     paste("\n", ., collapse = "") %>%
+        #     paste("The WQP request returned a NULL with the following message(s): \n",
+        #       .,
+        #       collapse = "\n"
+        #     )
+        # 
+        #   stop(stop_message)
+        # }
+        # 
+        # projects.DR <- quiet_projects.DR$result
+        # 
+        # # Join results, sites, projects
+        # TADAprofile <- TADA_JoinWQPProfiles(
+        #   FullPhysChem = results.DR,
+        #   Sites = sites.DR,
+        #   Projects = projects.DR
+        # ) %>% dplyr::mutate(
+        #   dplyr::across(tidyselect::everything(), as.character)
+        # )
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
@@ -827,54 +833,59 @@ TADA_DataRetrieval <- function(startDate = "null",
       rm(query_avail)
       gc()
 
-      # Get site metadata
-      quiet_sites.DR <- quiet_whatWQPsites(siteid = unique(results.DR$MonitoringLocationIdentifier))
-
-      if (is.null(quiet_sites.DR$result)) {
-        stop_message <- quiet_sites.DR$messages %>%
-          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
-          paste("\n", ., collapse = "") %>%
-          paste("The WQP request returned a NULL with the following message(s): \n",
-            .,
-            collapse = "\n"
-          )
-
-        stop(stop_message)
-      }
-
-      sites.DR <- quiet_sites.DR$result
-
-      # Get project metadata
-      quiet_projects.DR <- quiet_readWQPdata(
-        siteid = unique(results.DR$MonitoringLocationIdentifier),
-        WQPquery,
-        ignore_attributes = TRUE,
-        service = "Project"
-      )
-
-      if (is.null(quiet_projects.DR$result)) {
-        stop_message <- quiet_projects.DR$messages %>%
-          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
-          paste("\n", ., collapse = "") %>%
-          paste("The WQP request returned a NULL with the following message(s): \n",
-            .,
-            collapse = "\n"
-          )
-
-        stop(stop_message)
-      }
-
-      projects.DR <- quiet_projects.DR$result
-
-      # Join results, sites, projects
-      TADAprofile <- TADA_JoinWQPProfiles(
-        FullPhysChem = results.DR,
-        Sites = sites.DR,
-        Projects = projects.DR
-      ) %>% dplyr::mutate(
-        dplyr::across(tidyselect::everything(), as.character)
-      )
-
+      # # Get site metadata
+      # quiet_sites.DR <- quiet_whatWQPsites(siteid = unique(results.DR$MonitoringLocationIdentifier))
+      # 
+      # if (is.null(quiet_sites.DR$result)) {
+      #   stop_message <- quiet_sites.DR$messages %>%
+      #     grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+      #     paste("\n", ., collapse = "") %>%
+      #     paste("The WQP request returned a NULL with the following message(s): \n",
+      #       .,
+      #       collapse = "\n"
+      #     )
+      # 
+      #   stop(stop_message)
+      # }
+      # 
+      # sites.DR <- quiet_sites.DR$result
+      # 
+      # # Get project metadata
+      # quiet_projects.DR <- quiet_readWQPdata(
+      #   siteid = unique(results.DR$MonitoringLocationIdentifier),
+      #   WQPquery,
+      #   ignore_attributes = TRUE,
+      #   service = "Project"
+      # )
+      # 
+      # if (is.null(quiet_projects.DR$result)) {
+      #   stop_message <- quiet_projects.DR$messages %>%
+      #     grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+      #     paste("\n", ., collapse = "") %>%
+      #     paste("The WQP request returned a NULL with the following message(s): \n",
+      #       .,
+      #       collapse = "\n"
+      #     )
+      # 
+      #   stop(stop_message)
+      # }
+      # 
+      # projects.DR <- quiet_projects.DR$result
+      # 
+      # # Join results, sites, projects
+      # TADAprofile <- TADA_JoinWQPProfiles(
+      #   FullPhysChem = results.DR,
+      #   Sites = sites.DR,
+      #   Projects = projects.DR
+      # ) %>% dplyr::mutate(
+      #   dplyr::across(tidyselect::everything(), as.character)
+      # )
+      # JUST NEED RESULTS PROFILE w/ beta service
+      TADAprofile <- results.DR
+      
+      # ADD RENAME COLUMN FUNCTION to go from beta back to legacy
+      TADAprofile <- TADA_RenameColumns(TADAprofile)
+      
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
         print("Data successfully downloaded. Running TADA_AutoClean function.")
@@ -1159,7 +1170,8 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
         dataRetrieval::readWQPdata(
           siteid = small_site_chunk,
           WQPquery,
-          dataProfile = "resultPhysChem",
+          service = "ResultWQX3",
+          dataProfile = "fullPhysChem", #"resultPhysChem",
           ignore_attributes = TRUE
         )
       ) %>%
@@ -1202,7 +1214,8 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
         dataRetrieval::readWQPdata(
           siteid = bsitesvec[i],
           WQPquery,
-          dataProfile = "resultPhysChem",
+          service = "ResultWQX3",
+          dataProfile = "fullPhysChem", #"resultPhysChem",
           ignore_attributes = TRUE
         )
       ) %>%

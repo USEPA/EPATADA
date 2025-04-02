@@ -45,10 +45,33 @@ result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
 names(result.tada)
 
 ## Generate random dataset to test
-result.tada.rand <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = TRUE, autoclean = FALSE)
-# Getting Error in `httr2::req_perform()`:
+result.tada.rand <- TADA_RandomTestingData(number_of_days = 4, choose_random_state = TRUE, autoclean = FALSE)
+# Sometimes returns Error in `httr2::req_perform()`:
 #! Failed to perform HTTP request.
 #Caused by error in `curl::curl_fetch_memory()`:
+#! Transferred a partial file [www.waterqualitydata.us]: transfer closed with outstanding read data remaining
+
+##################
+## TESTING OTHER QUERIES
+result.tada2 <- TADA_DataRetrieval(organization = c("CNENVSER"),# "REDLAKE_WQX","SFNOES_WQX","PUEBLO_POJOAQUE","FONDULAC_WQX","PUEBLOOFTESUQUE", "CNENVSER"
+                                   startDate = "2018-01-01", 
+                                   endDate = "2019-01-01", 
+                                   applyautoclean = FALSE)
+
+# Seems to time out when call using TADAModule1.Rmd
+# SFNOES_WQX - runs n = 3779
+# PUEBLOOFTESUQUE - runs n = 3334
+# CNENVSER - runs n = 913
+# Times out with REDLAKE_WQX,PUEBLO_POJOAQUE,"FONDULAC_WQX"  
+
+TADA_dataframe <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2020-12-31",
+  characteristicName = "pH",
+  countycode = "US:08:069",
+  applyautoclean = FALSE)
+
+
 
 
 
