@@ -590,7 +590,8 @@ TADA_DataRetrieval <- function(startDate = "null",
         dataRetrieval::readWQPdata(
           siteid = clipped_site_ids,
           WQPquery,
-          dataProfile = "resultPhysChem",
+          service = "ResultWQX3", # CALLING WQP3.0 SERVICE
+          dataProfile = "fullPhysChem", # changing from resultPhysChem
           ignore_attributes = TRUE
         )
       )
@@ -605,41 +606,46 @@ TADA_DataRetrieval <- function(startDate = "null",
         )
         TADAprofile.clean <- results.DR
       } else {
-        # Get site metadata
-        sites.DR <- clipped_sites_sf %>%
-          dplyr::as_tibble() %>%
-          dplyr::select(-geometry)
-
-        # Get project metadata
-        quiet_projects.DR <- quiet_readWQPdata(
-          siteid = clipped_site_ids,
-          WQPquery,
-          ignore_attributes = TRUE,
-          service = "Project"
-        )
-
-        if (is.null(quiet_projects.DR$result)) {
-          stop_message <- quiet_projects.DR$messages %>%
-            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
-            paste("\n", ., collapse = "") %>%
-            paste("The WQP request returned a NULL with the following message(s): \n",
-              .,
-              collapse = "\n"
-            )
-
-          stop(stop_message)
-        }
-
-        projects.DR <- quiet_projects.DR$result
-
-        # Join results, sites, projects
-        TADAprofile <- TADA_JoinWQPProfiles(
-          FullPhysChem = results.DR,
-          Sites = sites.DR,
-          Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        TADAprofile <- results.DR # 
+        # ADD RENAME COLUMN FUNCTION - CHANGE TO LEGACY NAMES
+        TADAprofile <- TADA_RenameColumns(TADAprofile)
+       
+        # COMMENTING OUT TO TEST BETA - don't need to call 3 profiles anymore
+        #  # Get site metadata
+        # sites.DR <- clipped_sites_sf %>%
+        #   dplyr::as_tibble() %>%
+        #   dplyr::select(-geometry)
+        # 
+        # # Get project metadata
+        # quiet_projects.DR <- quiet_readWQPdata(
+        #   siteid = clipped_site_ids,
+        #   WQPquery,
+        #   ignore_attributes = TRUE,
+        #   service = "Project"
+        # )
+        # 
+        # if (is.null(quiet_projects.DR$result)) {
+        #   stop_message <- quiet_projects.DR$messages %>%
+        #     grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        #     paste("\n", ., collapse = "") %>%
+        #     paste("The WQP request returned a NULL with the following message(s): \n",
+        #       .,
+        #       collapse = "\n"
+        #     )
+        # 
+        #   stop(stop_message)
+        # }
+        # 
+        # projects.DR <- quiet_projects.DR$result
+        # 
+        # # Join results, sites, projects
+        # TADAprofile <- TADA_JoinWQPProfiles(
+        #   FullPhysChem = results.DR,
+        #   Sites = sites.DR,
+        #   Projects = projects.DR
+        # ) %>% dplyr::mutate(
+        #   dplyr::across(tidyselect::everything(), as.character)
+        # )
 
         # Run TADA_AutoClean function
         if (applyautoclean == TRUE) {
@@ -889,7 +895,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       results.DR <- suppressMessages(
         dataRetrieval::readWQPdata(WQPquery,
           service = "ResultWQX3",
-          dataProfile = "basicPhysChem", #dataProfile = "resultPhysChem", # I believe dataProfile must be "basicPhysChem" with WQX3.0? -KW
+          dataProfile = "fullPhysChem", #dataProfile = "resultPhysChem", # I believe dataProfile must be "basicPhysChem" with WQX3.0? -KW
           ignore_attributes = TRUE
         )
       )
@@ -897,24 +903,29 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
         print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
-        TADAprofile.clean <- results.DR
+        TADAprofile.clean <- results.DR 
       } else {
-        sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
-
-        projects.DR <- suppressMessages(
-          dataRetrieval::readWQPdata(WQPquery,
-            ignore_attributes = TRUE,
-            service = "Project"
-          )
-        )
-
-        TADAprofile <- TADA_JoinWQPProfiles(
-          FullPhysChem = results.DR,
-          Sites = sites.DR,
-          Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        TADAprofile <- results.DR # JUST NEED RESULTS PROFILE in beta - will contain site and project information
+        
+        #ADD RENAME COLUMN to change from beta back to legacy column names
+        TADAprofile <- TADA_RenameColumns(TADAprofile)
+        
+        # sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
+        # 
+        # projects.DR <- suppressMessages(
+        #   dataRetrieval::readWQPdata(WQPquery,
+        #     ignore_attributes = TRUE,
+        #     service = "Project"
+        #   )
+        # )
+        # 
+        # TADAprofile <- TADA_JoinWQPProfiles(
+        #   FullPhysChem = results.DR,
+        #   Sites = sites.DR,
+        #   Projects = projects.DR
+        # ) %>% dplyr::mutate(
+        #   dplyr::across(tidyselect::everything(), as.character)
+        # )
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
