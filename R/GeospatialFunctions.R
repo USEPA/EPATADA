@@ -1069,7 +1069,9 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
         )
         # If ATTAINS objects not requested, then just return the dataframe:
       } else {
-        TADA_ATTAINS[[i]] <- no_WQP_data
+        TADA_ATTAINS[[i]] <- list(
+          "TADA_with_ATTAINS" = no_WQP_data
+          )
       }
     }
   
@@ -1164,7 +1166,9 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
         } else {
           # If there are no intersecting ATTAINS catchments, fill_catchments = FALSE, and
           # return_sf = FALSE, just return the empty TADA_with_ATTAINS df.
-          TADA_ATTAINS[[i]] <- no_ATTAINS_data
+          TADA_ATTAINS[[i]] <- list(
+            "TADA_with_ATTAINS" = no_ATTAINS_data
+            )
         }
       } else if (fill_catchments == TRUE) {
         # "Downloading NHD data to fill in missing ATTAINS features. Depending on the number of observations and their spatial extent, this might take a while...
@@ -1215,68 +1219,71 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
         # If there are intersecting ATTAINS catchments, fill_catchments = FALSE, and return_sf = FALSE, return just the
         #  TADA_with_ATTAINS df
         if (return_sf == FALSE) {
-          TADA_with_ATTAINS
+          TADA_ATTAINS[[i]] <- list(
+            "TADA_with_ATTAINS" = TADA_with_ATTAINS
+          )
         }
         # ... otherwise return_sf = TRUE, and therefore must grab ATTAINS features, too:
-  
-        # CATCHMENT FEATURES
-        # use original catchment pull, but return column names to original
-        ATTAINS_catchments <- nearby_catchments
-        colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
-        # due to the rename, must re-set geometry column:
-        sf::st_geometry(ATTAINS_catchments) <- "geometry"
-  
-        # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
-        ATTAINS_points <- NULL
-        try(
-          ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
-            # subset to only ATTAINS point features in the same NHD HR catchments as WQP observations
-            .[nearby_catchments, ] %>%
-            # make sure no duplicate features exist
-            dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-          silent = TRUE
-        )
-        if (is.null(ATTAINS_points) || nrow(ATTAINS_points) == 0) {
+        # Note: Added if(return_sf == TRUE) to explicitly run this portion only if TRUE. If false, we can skip this chunk to save runtime - KW 4/3/2025
+        if (return_sf == TRUE) {
+          # CATCHMENT FEATURES
+          # use original catchment pull, but return column names to original
+          ATTAINS_catchments <- nearby_catchments
+          colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
+          # due to the rename, must re-set geometry column:
+          sf::st_geometry(ATTAINS_catchments) <- "geometry"
+    
+          # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
           ATTAINS_points <- NULL
-        }
-  
-        # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
-        ATTAINS_lines <- NULL
-        try(
-          ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
-            # subset to only ATTAINS line features in the same NHD HR catchments as WQP observations
-            .[nearby_catchments, ] %>%
-            # make sure no duplicate line features exist
-            dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-          silent = TRUE
-        )
-        if (is.null(ATTAINS_lines) || nrow(ATTAINS_lines) == 0) {
+          try(
+            ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
+              # subset to only ATTAINS point features in the same NHD HR catchments as WQP observations
+              .[nearby_catchments, ] %>%
+              # make sure no duplicate features exist
+              dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+            silent = TRUE
+          )
+          if (is.null(ATTAINS_points) || nrow(ATTAINS_points) == 0) {
+            ATTAINS_points <- NULL
+          }
+    
+          # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
           ATTAINS_lines <- NULL
-        }
-  
-        # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
-        ATTAINS_polygons <- NULL
-        try(
-          ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
-            # subset to only ATTAINS polygon features in the same NHD HR catchments as WQP observations
-            .[nearby_catchments, ] %>%
-            # make sure no duplicate polygon features exist
-            dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
-          silent = TRUE
-        )
-        if (is.null(ATTAINS_polygons) || nrow(ATTAINS_polygons) == 0) {
+          try(
+            ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
+              # subset to only ATTAINS line features in the same NHD HR catchments as WQP observations
+              .[nearby_catchments, ] %>%
+              # make sure no duplicate line features exist
+              dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+            silent = TRUE
+          )
+          if (is.null(ATTAINS_lines) || nrow(ATTAINS_lines) == 0) {
+            ATTAINS_lines <- NULL
+          }
+    
+          # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
           ATTAINS_polygons <- NULL
+          try(
+            ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
+              # subset to only ATTAINS polygon features in the same NHD HR catchments as WQP observations
+              .[nearby_catchments, ] %>%
+              # make sure no duplicate polygon features exist
+              dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
+            silent = TRUE
+          )
+          if (is.null(ATTAINS_polygons) || nrow(ATTAINS_polygons) == 0) {
+            ATTAINS_polygons <- NULL
+          }
+          # If there are ATTAINS catchments, fill_catchments = FALSE, and return_sf = TRUE:
+          TADA_ATTAINS[[i]] <- list(
+            "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+            "ATTAINS_catchments" = ATTAINS_catchments,
+            "ATTAINS_points" = ATTAINS_points,
+            "ATTAINS_lines" = ATTAINS_lines,
+            "ATTAINS_polygons" = ATTAINS_polygons
+          )
         }
       }))
-      # If there are ATTAINS catchments, fill_catchments = FALSE, and return_sf = TRUE:
-      TADA_ATTAINS[[i]] <- list(
-        "TADA_with_ATTAINS" = TADA_with_ATTAINS,
-        "ATTAINS_catchments" = ATTAINS_catchments,
-        "ATTAINS_points" = ATTAINS_points,
-        "ATTAINS_lines" = ATTAINS_lines,
-        "ATTAINS_polygons" = ATTAINS_polygons
-      )
-  
       # If there IS at least some ATTAINS data, and fill_catchments = TRUE...
     } else if (!is.null(nearby_catchments) & fill_catchments == TRUE) {
       # ... link WQP features to the ATTAINS catchment feature(s) they land in:
@@ -1398,12 +1405,19 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
     } # else {stop("Some combination of arguments is impossible.")}
   }
   
-  TADA_ATTAINS <- lapply(
-    purrr::map(
-      purrr::transpose(TADA_ATTAINS), 
-      rbind), 
-    dplyr::bind_rows
-    )
+  # TADA_ATTAINS <- lapply(
+  #   purrr::map(
+  #     purrr::transpose(TADA_ATTAINS),
+  #     rbind
+  #     ),
+  #   dplyr::bind_rows
+  #   )
+  
+  if(return_sf == FALSE){
+    TADA_ATTAINS <- TADA_ATTAINS$TADA_with_ATTAINS %>% 
+      dplyr::select(-index) %>%
+      dplyr::distinct()
+  }
   
   # remove intermediate variable
   rm(data_split)
