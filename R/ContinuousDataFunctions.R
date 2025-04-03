@@ -133,7 +133,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
     validate_aoi_size <- function(aoi_sf) {
       # Get square mile conversion factor for the projection
       # 2.58999e+6 converts square meters to square miles
-      sq_m_to_sq_miles <- 1/2.58999e+6
+      sq_m_to_sq_miles <- 1 / 2.58999e+6
       max_area_sq_miles <- 118078
       
       # Process each feature in the sf object
