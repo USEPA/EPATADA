@@ -1315,6 +1315,7 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
             NHD.catchmentareasqkm = numeric()
           )
   
+          TADA_without_ATTAINS <- NULL # If we are returning an empty data frame, can this be NULL? If empty dataframe is needed, this line can be edited/removed.- KW
           nhd_catchments <- NULL
         } else {
           stop('Please select between "Med" or "Hi" for your NHD resolution.')
