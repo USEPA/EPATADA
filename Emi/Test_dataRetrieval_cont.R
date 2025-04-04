@@ -89,6 +89,15 @@ results.DR <- dataRetrieval::readWQPdata(WQPquery,
                                         dataProfile = "fullPhysChem",
                                         ignore_attributes = TRUE)
 
+names(results.DR)
+
+WQPquery2 <- list(organization = "CNENVSER",
+                  startDate = "2018-01-01", 
+                  endDate = "2019-01-01")
+result.DR2 <- dataRetrieval::readWQPdata(WQPquery2,
+                                          service = "ResultWQX3",
+                                          dataProfile = "fullPhysChem",
+                                          ignore_attributes = T)
 
 # check if any results are available
 if ((nrow(results.DR) > 0) == FALSE) {
@@ -139,6 +148,161 @@ test <- left_join(dr_col, wqxnames_rev, by = "FieldName3.0") |>
 
 
  
+######################
+## Updated crosswalk table (temporary)
+## 4/3/25
+wqxcrswlk <- readr::read_csv("C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp.csv")
+
+# WQX2.0 LEGACY ELEMENTS
+# Vector of FieldName3.0 with FieldName2.0 n = 274 variables
+wqxcrswlk_legacy <- wqxcrswlk |> 
+  filter(!is.na(WqxV2.FieldName))
+# Vector of beta names in dataRetrieval output that have a match
+wqx3_legacy <- wqxcrswlk_legacy$FieldName3.0
+
+# dataRetrieval Output(Legacy) n = 132 elements
+result.tada.legacy <- result.tada |> 
+  select(any_of(wqx3_legacy))
+
+#######################
+## ADD COLUMNS TO CROSSWALK TABLE INDICATING WHETHER VARIABLE IS IN WQX2 and WQX3
+wqxcrswlk_mod <- wqxcrswlk |> 
+  mutate(in_DR3.0 = ifelse(FieldName3.0 %in% names(result.tada), "Y","N")) |> 
+  mutate(in_DR2.0 = ifelse(FieldName3.0 %in% names(result.tada.legacy), "Y",
+                           ifelse(is.na(WqxV2.FieldName) & FieldName3.0 %in% names(result.tada),"N", NA)))
+
+############
+## WRITE MODIFIED CROSSWALK TABLE
+write_csv(wqxcrswlk_mod, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_modified.csv")
+
+## EXPLORE MANUAL MODIFICATIONS TO CROSSWALK TABLE TO ACCOMODATE TADA OUTPUT
+# Vector of FieldName3.0 with NO 2.0 equivalent
+wqxcrswlk_new <- wqxcrswlk |> 
+  mutate(legacy_status = case_when(
+    is.na(WqxV2.FieldName) ~ "NotServed",
+    TRUE ~ WqxV2.FieldName
+  )) |> 
+  filter(legacy_status == "NotServed") |>
+  select(FieldName3.0, WqxV2.FieldName, Definition, legacy_status)
+wqx3_notserved <- wqxcrswlk_new$FieldName3.0
+
+# Vector of FieldName3.0 with comment for legacy field n = 35 variables w/comments
+wqxcrswlk_comment <- wqxcrswlk |> 
+  filter(WqxV2.FieldName == "see Comment field") |>
+  select(FieldName3.0, WqxV2.FieldName, Definition)
+wqx3_comment <- wqxcrswlk_comment$FieldName3.0
+
+# Vector of FieldName3.0 with FieldName2.0 n = 274 variables
+# Subset crosswalk table based on matches with dataRetrieval output by FieldName3.0
+wqxcrswlk_legacy <- wqxcrswlk |> 
+  #filter(!WqxV2.FieldName == "see Comment field") |> 
+  filter(!is.na(WqxV2.FieldName))
+# Vector of beta names in dataRetrieval output that have a match
+wqx3_legacy <- wqxcrswlk_legacy$FieldName3.0
 
 
 
+# dataRetrieval output from WQX3 that did not have a legacy name (45 variables)
+#  Changed TADA_DataRetrieval to not rename columns - so will see beta names now
+result.tada.new <- result.tada |> 
+  select(any_of(wqx3_notserved))
+
+# dataRetrieval output with comment for legacy 3 n = 35
+results.DR.comment <- results.DR |> 
+  select(any_of(wqx3_comment))
+
+
+  
+
+##################
+## MODIFY Crosswalk table changing See comment to useful names - relevant to dataRetrieval and TADA
+wqxcrswlk_mod <- wqxcrswlk |> 
+  mutate(WqxV2.FieldName = case_when(
+    FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+    FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+    FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+    FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+    FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+    FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+    FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+    FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+    FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+    TRUE ~ WqxV2.FieldName
+  ))
+  
+
+#######################
+# MODIFY CROSSWALK TABLE FOR RENAME FXN
+# Remove NAs from crosswalk table 
+wqxcrswlk_mod2 <- wqxcrswlk_mod |> 
+  filter(!is.na(WqxV2.FieldName))
+
+# Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+beta_names = wqxcrswlk_mod2$FieldName3.0
+legacy_names = wqxcrswlk_mod2$WqxV2.FieldName
+
+if (length(beta_names) != length(legacy_names)) {
+  stop("`old names` and `new names` must be the same length", call. = FALSE)
+}
+
+###############
+## Rename columns from USGS dataRetrieval pull
+# There is a bug with data.table::setnames - it modifies inputs (even original file) - does not save a copy but modifies directly
+# https://www.canallc.com/post/pitfalls-with-using-the-data-table-package
+
+###############
+## RENAME COLUMNS FROM BETA BACK TO LEGACY
+#https://stackoverflow.com/questions/29380447/using-data-tablesetnames-when-some-column-names-might-not-be-present 
+df <- results.DR |> 
+  rename(any_of(setNames(beta_names,
+                         legacy_names))) 
+
+#####################
+# Replace special characters in column names
+
+# Only apply to subset of columns that were beta that had legacy names
+## CREATE VECTOR OF COLUMN NAMES IN dataRetrieval # 183 columns
+results.DR.cols <- names(results.DR)
+
+# Subset crosswalk table based on matches with dataRetrieval output by FieldName3.0
+wqxcrswlk_legacy <- wqxcrswlk |> 
+  filter(FieldName3.0 %in% results.DR.cols) |> 
+  filter(!WqxV2.FieldName == "see Comment field") |> 
+  filter(!is.na(WqxV2.FieldName))
+# Vector of legacy names in dataRetrieval output that have a match
+cols_wqx2_legacy <- wqxcrswlk_legacy$WqxV2.FieldName
+
+## Replace special characters
+df <- df |> 
+  rename_with(~ stringr::str_replace_all(., c('_' = '\\.', '/' = '\\.')), 
+              .cols = all_of(cols_wqx2_legacy)) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
+names(df)
+
+
+
+#########
+# Function to rename columns - modeled after data.table::setnames
+# https://stackoverflow.com/questions/73390056/how-do-i-rename-columns-in-tidyverse-with-vectors-of-names
+# rename_old_new = function(data, old, new, skip_absent = FALSE) {
+#   if(skip_absent) {
+#     rename(data, any_of(setNames(old, new)))
+#   } else {
+#     rename(data, all_of(setNames(old, new)))
+#   }
+# }
+# 
+# test <- rename_old_new(results.DR, beta_names, legacy_names, skip_absent = T)
+# names(test)
+
+
+# Get index of where 'see Comment field' occurs as columns in df
+df_comment_index <- which(names(df) == "see Comment field")
+
+# Select columns in df that with legacy names as see comment
+DR_comment <- results.DR|> 
+  select(all_of(df_comment_index))
+
+
+
+# Show which fields are newly served in the dataRetrieval fxn
+# Show which fields have a comment and see if can populate with something useful for TADA

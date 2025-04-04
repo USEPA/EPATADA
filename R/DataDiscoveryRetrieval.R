@@ -535,7 +535,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         TADAprofile <- results.DR # 
         
         # ADD RENAME COLUMN FUNCTION to go from beta back to legacy
-        TADAprofile <- TADA_RenameColumns(TADAprofile)
+        #TADAprofile <- TADA_RenameColumns(TADAprofile)
         
         # # Get site metadata
         # sites.DR <- clipped_sites_sf %>%
@@ -613,8 +613,9 @@ TADA_DataRetrieval <- function(startDate = "null",
         TADAprofile.clean <- results.DR
       } else {
         TADAprofile <- results.DR # 
+        
         # ADD RENAME COLUMN FUNCTION - CHANGE TO LEGACY NAMES
-        TADAprofile <- TADA_RenameColumns(TADAprofile)
+        #TADAprofile <- TADA_RenameColumns(TADAprofile)
        
         # COMMENTING OUT TO TEST BETA - don't need to call 3 profiles anymore
         #  # Get site metadata
@@ -884,7 +885,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       TADAprofile <- results.DR
       
       # ADD RENAME COLUMN FUNCTION to go from beta back to legacy
-      TADAprofile <- TADA_RenameColumns(TADAprofile)
+      #TADAprofile <- TADA_RenameColumns(TADAprofile)
       
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
@@ -919,7 +920,7 @@ TADA_DataRetrieval <- function(startDate = "null",
         TADAprofile <- results.DR # JUST NEED RESULTS PROFILE in beta - will contain site and project information
         
         #ADD RENAME COLUMN to change from beta back to legacy column names
-        TADAprofile <- TADA_RenameColumns(TADAprofile)
+        #TADAprofile <- TADA_RenameColumns(TADAprofile)
         
         # sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
         # 
