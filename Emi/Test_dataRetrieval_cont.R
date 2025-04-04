@@ -23,6 +23,19 @@ library(tidyverse)
 library(data.table)
 
 ##############
+## dataRetrieval reverting back to using Post
+remotes::install_github("DOI-USGS/dataRetrieval", ref = "develop", dependencies = TRUE, force = TRUE)
+library(dataRetrieval)
+
+# Trying the develop branch to see if the error (partial file transfer closed with outsanding read data remaining)
+#  is caused by switch from Post to Get
+# I don't think so...I think it's using the 3.0 service vs. 2.0
+#  I can pull small sets of data using the 3.0 service
+#  but larger datasets get the error message
+# When i change to the 2.0 service (default), it's able to pull data (ex. CNENVSER)
+
+
+##############
 ## STEPS
 ## 1) Run DataDiscoveryRetrieval function
 #     DataDiscoveryRetrieval.R was revised to use the beta 3.0 WQP data retrieval
@@ -55,7 +68,7 @@ result.tada.rand <- TADA_RandomTestingData(number_of_days = 4, choose_random_sta
 ## TESTING OTHER QUERIES
 result.tada2 <- TADA_DataRetrieval(organization = c("CNENVSER"),# "REDLAKE_WQX","SFNOES_WQX","PUEBLO_POJOAQUE","FONDULAC_WQX","PUEBLOOFTESUQUE", "CNENVSER"
                                    startDate = "2018-01-01", 
-                                   endDate = "2019-01-01", 
+                                   endDate = "2018-01-31", 
                                    applyautoclean = FALSE)
 
 # Seems to time out when call using TADAModule1.Rmd
@@ -84,27 +97,27 @@ WQPquery <- list(siteid = "USGS-04024315",
                  
 )
 
-results.DR <- dataRetrieval::readWQPdata(WQPquery,
+result.DR <- dataRetrieval::readWQPdata(WQPquery,
                                         service = "ResultWQX3",
                                         dataProfile = "fullPhysChem",
                                         ignore_attributes = TRUE)
 
-names(results.DR)
+names(result.DR)
 
 WQPquery2 <- list(organization = "CNENVSER",
                   startDate = "2018-01-01", 
-                  endDate = "2019-01-01")
+                  endDate = "2018-01-31")
 result.DR2 <- dataRetrieval::readWQPdata(WQPquery2,
                                           service = "ResultWQX3",
                                           dataProfile = "fullPhysChem",
                                           ignore_attributes = T)
 
 # check if any results are available
-if ((nrow(results.DR) > 0) == FALSE) {
+if ((nrow(result.DR) > 0) == FALSE) {
   print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
-  TADAprofile.clean <- results.DR
+  TADAprofile.clean <- result.DR
 } else {
-  TADAprofile <- results.DR
+  TADAprofile <- result.DR
   
   # add new functionality here to change names back to old names
   TADAprofile <- TADA_RenameColumns(TADAprofile)
@@ -208,7 +221,7 @@ result.tada.new <- result.tada |>
   select(any_of(wqx3_notserved))
 
 # dataRetrieval output with comment for legacy 3 n = 35
-results.DR.comment <- results.DR |> 
+result.DR.comment <- result.DR |> 
   select(any_of(wqx3_comment))
 
 
@@ -253,7 +266,7 @@ if (length(beta_names) != length(legacy_names)) {
 ###############
 ## RENAME COLUMNS FROM BETA BACK TO LEGACY
 #https://stackoverflow.com/questions/29380447/using-data-tablesetnames-when-some-column-names-might-not-be-present 
-df <- results.DR |> 
+df <- result.DR |> 
   rename(any_of(setNames(beta_names,
                          legacy_names))) 
 
@@ -262,11 +275,11 @@ df <- results.DR |>
 
 # Only apply to subset of columns that were beta that had legacy names
 ## CREATE VECTOR OF COLUMN NAMES IN dataRetrieval # 183 columns
-results.DR.cols <- names(results.DR)
+result.DR.cols <- names(result.DR)
 
 # Subset crosswalk table based on matches with dataRetrieval output by FieldName3.0
 wqxcrswlk_legacy <- wqxcrswlk |> 
-  filter(FieldName3.0 %in% results.DR.cols) |> 
+  filter(FieldName3.0 %in% result.DR.cols) |> 
   filter(!WqxV2.FieldName == "see Comment field") |> 
   filter(!is.na(WqxV2.FieldName))
 # Vector of legacy names in dataRetrieval output that have a match
@@ -291,7 +304,7 @@ names(df)
 #   }
 # }
 # 
-# test <- rename_old_new(results.DR, beta_names, legacy_names, skip_absent = T)
+# test <- rename_old_new(result.DR, beta_names, legacy_names, skip_absent = T)
 # names(test)
 
 
@@ -299,7 +312,7 @@ names(df)
 df_comment_index <- which(names(df) == "see Comment field")
 
 # Select columns in df that with legacy names as see comment
-DR_comment <- results.DR|> 
+DR_comment <- result.DR|> 
   select(all_of(df_comment_index))
 
 
