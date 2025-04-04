@@ -1414,6 +1414,11 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
     dplyr::bind_rows
     )
   
+  for (i in 1:length(TADA_ATTAINS)){
+    if (length(TADA_ATTAINS[[i]]) == 0 ){
+      TADA_ATTAINS[[i]] <- pairlist(NULL)
+    }}
+  
   if(return_sf == FALSE){
     TADA_ATTAINS <- TADA_ATTAINS$TADA_with_ATTAINS %>% 
       dplyr::select(-index) %>%
