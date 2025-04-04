@@ -1406,13 +1406,13 @@ TADA_GetATTAINS <- function(.data, fill_catchments = FALSE, resolution = "Hi", r
     } # else {stop("Some combination of arguments is impossible.")}
   }
   
-  # TADA_ATTAINS <- lapply(
-  #   purrr::map(
-  #     purrr::transpose(TADA_ATTAINS),
-  #     rbind
-  #     ),
-  #   dplyr::bind_rows
-  #   )
+  TADA_ATTAINS <- lapply(
+    purrr::map(
+      purrr::transpose(TADA_ATTAINS),
+      rbind
+      ),
+    dplyr::bind_rows
+    )
   
   if(return_sf == FALSE){
     TADA_ATTAINS <- TADA_ATTAINS$TADA_with_ATTAINS %>% 
