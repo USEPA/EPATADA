@@ -1545,14 +1545,15 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
 
 
 
-#' Match Monitoring Location Sites to Assessment Units and Apply Unique Site Criteria
+#' Apply Unique Site Criteria to Monitoring Location Sites or Assessment Units 
 #'
 #' This function will pull in all unique MonitoringLocationName, MonitoringLocationType, 
 #' and MonitoringLocationIdentifier from the TADA dataframe. Users are not required
 #' to provide a crosswalk between WQP Monitoring locations and Assessment units 
 #' if they are only interested in summarizing assessments on a monitoring location level.
 #' 
-#' Users should utilize TADA Module 2 tools to assist in their monitoring location
+#' If users are interested in summarizing water quality data results by Assessment Units,
+#' users should utilize TADA Module 2 tools to assist in their monitoring location
 #' to assessment unit crosswalk prior to this step. 
 #' Users can choose to submit a TADA dataframe that contains
 #' the concatenated columns from TADA_GetATTAINS and will utilize the crosswalk of
@@ -1581,48 +1582,24 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL,
 #' @export
 #'
 
-TADA_CreateSpatialRef <- function(.data, sitesAURef = NULL, useParamRef = NULL, waterUseParamRef = NULL, 
+TADA_CreateSpatialRef <- function(.data, sitesAURef = NULL, waterUseParamRef = NULL, useParamRef = NULL, 
                                   spatialRef = NULL, excel = TRUE, overwrite = FALSE){
+  # Creates the data frame.
+  CreateSpatialRef <- data.frame(NULL)
   
   # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  # testing out different downloads_path as an argument is needed.
-  if(!is.null(downloads_path)){
-    downloads_path <- downloads_path
-  }
   
-  # This allows a user to provide the mod 2 function TADA_GetATTAINS() as the .data data frame. In this case,
-  # the ML to AU crosswalk will be generated from TADA_GetATTAINS(). 
+  # This allows a user to provide the mod 2 function TADA_GetATTAINS() as the .data data frame. 
+  # In this case, the ML to AU crosswalk is generated from TADA_GetATTAINS(). 
   if(!is.data.frame(.data)){
     if (!any(c(
       "TADA_with_ATTAINS", "ATTAINS_catchments", "ATTAINS_points", "ATTAINS_lines", "ATTAINS_polygons"
     ) %in% names(.data))) {
       stop("Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`")
     }
-    
-    .data <- .data[["TADA_with_ATTAINS"]]
-    .data <- as.data.frame(.data)
+    # .data <- .data[["TADA_with_ATTAINS"]]
   }
-  
-  
-  # Filters by AU if desired, otherwise creates a dataframe of all unique AU in the TADA dataframe pull
-  CreateSpatialRef <- .data %>%
-    dplyr::select(tidyr::any_of(c(
-      "ATTAINS.assessmentunitname","ATTAINS.assessmentunitidentifier",
-      "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", 
-      "ATTAINS.waterTypeCode", "LongitudeMeasure", "LatitudeMeasure"
-    ))
-    ) %>%
-    as.data.frame() %>%
-    sf::st_drop_geometry() %>%
-    dplyr::distinct(.keep_all = FALSE) %>%
-    dplyr::mutate(IncludeOrExclude = "Include") %>%
-    dplyr::mutate(ExcludeStationReason = NA) %>% # Users can customize this for "warm waters", "only trout based waters" etc.
-    dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
-    dplyr::arrange(
-      #ATTAINS.assessmentunitname,	ATTAINS.assessmentunitidentifier,
-      MonitoringLocationIdentifier
-    )
   
   # If a user provides their own ML to AU crosswalk, the final crosswalk table will reflect this output
   # check to see if user-supplied parameter-use ref is a df with appropriate columns and is filled out.
@@ -1655,23 +1632,50 @@ TADA_CreateSpatialRef <- function(.data, sitesAURef = NULL, useParamRef = NULL, 
         )
       }
     }
-    
     CreateSpatialRef <- spatialRef
   }
   
-  if (!is.null(waterUseParamRef) & !is.null(sitesAURef)) {
-    # rExpertQuery API key
-    testkey = "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
-    
-    OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = "MTDEQ", api_key = testkey))
-    
-    OrgID_assessments <- dplyr::filter(OrgID_assessments, assessmentUnitId %in% unique(SitesAURef$ATTAINS.assessmentunitidentifier))
-    
-    CreateSpatialRef <- waterUseParamRef %>%
-      dplyr::left_join(OrgID_assessments, by = c("ATTAINS.ParameterName" = ))
+  # Runs if a user does NOT provide a waterUseParamRef, checks if ML to AU was provided.
+  # This code chunk will return an empty column for 'ApplyUniqueSpatialCriteria'
+  if (is.null(waterUseParamRef)) {
+    # Runs TADA_CreateWaterUseParamRef if a user has supplied a sitesAURef. 
+    if (!is.null(sitesAURef)) {
+      waterUseParamRef <- TADA_CreateWaterUseParamRef(.data, useParamRef = useParamRef, useAURef = useAURef, org_id = org_id)
+    }
+    # Otherwise, if there are no AU (no sitesAURef provided), no need to run helper functions.
+    # If there are no AU and no waterUseParamRef provided, this will return the Spatial Ref Table on a monitoring sites level.
+    CreateSpatialRef <- CreateSpatialRef %>%
+      dplyr::mutate(ATTAINS.assessmentunitname = NA) %>%
+      dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
+      dplyr::mutate(ATTAINS.waterTypeCode = NA) %>%
+      dplyr::select(tidyr::any_of(c(
+        "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname", 
+        "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName", 
+        "ATTAINS.waterTypeCode", "LongitudeMeasure", "LatitudeMeasure",
+        "IncludeOrExclude", "ExcludeStationReason", "ApplyUniqueSpatialCriteria"
+      ))
+      )
   }
   
-  if(!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)){
+  # If a user DOES provide a waterUseParamRef, this will create the final Spatial Table on an AU level
+  if (!is.null(waterUseParamRef) & !is.null(sitesAURef)) {
+    # Pulls in UseAURef
+    print("A sitesAURef was provided, running TADA_CreateUseAURef to pull in all prior use names ")
+    useAURef = TADA_CreateUseAURef(.data, SitesAURef = SitesAURef, org_id = org_id, excel = excel, overwrite = overwrite)
+    
+    # Joins the two crosswalk tables
+    CreateSpatialRef <- waterUseParamRef_Final %>%
+      dplyr::right_join(useAURef, by = c("organization_identifier", "waterType", "use_name")) %>% 
+      dplyr::right_join(SitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname")) %>%
+      dplyr::select(
+        organization_identifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, 
+        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName, 
+        ATTAINS.ParameterName, use_name, waterType, ApplyUniqueSpatialCriteria
+        ) %>%
+      dplyr::distinct()
+  }
+  
+  if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
     print(paste0(
       "No Monitoring Location to Assessment Unit crosswalk provided. ",
       "Consider providing this crosswalk if you would like to summarize assessments on an Assessment Unit level."
@@ -2079,11 +2083,11 @@ TADA_CreateUseAURef <- function(.data, SitesAURef = NULL,
     ) %>%
     dplyr::select(
       organization_identifier = ATTAINS.organizationid, ATTAINS.assessmentunitidentifier, 
-      ATTAINS.assessmentunitname, useName, waterType, TADA.AssessmentUnitStatus
+      ATTAINS.assessmentunitname, use_name = useName, waterType, TADA.AssessmentUnitStatus
     ) %>%
     dplyr::filter(organization_identifier %in% org_id) %>%
     dplyr::distinct() %>%
-    dplyr::arrange(ATTAINS.assessmentunitidentifier, useName)
+    dplyr::arrange(ATTAINS.assessmentunitidentifier, use_name)
   
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)

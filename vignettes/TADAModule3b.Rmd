@@ -171,27 +171,7 @@ NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
 NCTC_SpatialRef <- TADA_CreateSpatialRef(Data_NCTC, excel = TRUE, overwrite = TRUE)
 ```
 
-# Defining Criteria - Magnitude Methodology
-
-Next, users will use the reference tables in order to define the
-associated methods for each parameter and use combination that they have
-defined.
-
-```{r}
-NCTC_magnitude_Final <- TADA_DefineMagnitude(
-  Data_NCTC, 
-  paramRef = NCTC_ParamRef_Final, 
-  UseParamRef = NCTC_UseParamRef_Final, 
-  AURef = NCTC_SpatialRef, 
-  excel=FALSE,
-  #excel = TRUE, overwrite = TRUE
-  )
-# If user makes update in excel file
-downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-# NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
-```
-
-# Summarize Magnitude Excursions
+# Create and Define Spatial Reference Tables
 
 Based on the parameter and use methodology for assessment, we will
 determine the number of individual excursions for each based on the
@@ -230,4 +210,24 @@ NCTC_Excursions2 <- TADA_MagnitudeSummary(
   StandardsRef = NCTC_magnitude_Final,
   overwrite = TRUE
 )
+```
+
+# Defining Criteria - Magnitude Methodology
+
+Next, users will use the reference tables in order to define the
+associated methods for each parameter and use combination that they have
+defined.
+
+```{r}
+NCTC_magnitude_Final <- TADA_DefineMagnitude(
+  Data_NCTC, 
+  paramRef = NCTC_ParamRef_Final, 
+  UseParamRef = NCTC_UseParamRef_Final, 
+  AURef = NCTC_SpatialRef, 
+  excel=FALSE,
+  #excel = TRUE, overwrite = TRUE
+  )
+# If user makes update in excel file
+downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+# NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
 ```
