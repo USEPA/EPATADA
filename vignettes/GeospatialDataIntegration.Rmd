@@ -101,7 +101,9 @@ library(remotes)
 ```
 
 Next, install and load EPATADA using the remotes package. All other
-dependencies for this workflow will be downloaded automatically.
+dependencies for this workflow will be downloaded automatically. We will
+also need to install StreamCatTools for some steps later in the
+workflow.
 
 ```{r devsetup, include = F, eval = T}
 remotes::install_github("USEPA/EPATADA", 
@@ -116,7 +118,16 @@ remotes::install_github("USEPA/EPATADA",
                         ref = "develop",
                         dependencies = TRUE,
                         force = TRUE)
+
+remotes::install_github("USEPA/StreamCatTools", 
+                        ref = "master",
+                        dependencies = TRUE,
+                        force = TRUE)
+
 library(EPATADA)
+library(StreamCatTools)
+
+
 ```
 
 It's go time! Let's time our process.
