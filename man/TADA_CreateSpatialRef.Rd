@@ -2,14 +2,15 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateSpatialRef}
 \alias{TADA_CreateSpatialRef}
-\title{Match Monitoring Location Sites to Assessment Units and Apply Unique Site Criteria}
+\title{Apply Unique Site Criteria to Monitoring Location Sites or Assessment Units}
 \usage{
 TADA_CreateSpatialRef(
   .data,
-  sitesAURef = NULL,
-  useParamRef = NULL,
+  org_id = NULL,
   waterUseParamRef = NULL,
-  spatialRef = NULL,
+  useAURef = NULL,
+  useParamRef = NULL,
+  sitesAURef = NULL,
   excel = TRUE,
   overwrite = FALSE
 )
@@ -17,11 +18,11 @@ TADA_CreateSpatialRef(
 \arguments{
 \item{.data}{A TADA data frame with TADA_GetATTAINS() geospatial function ran.}
 
-\item{spatialRef}{A data frame matching Monitoring Location sites to Assessment Units.}
-
 \item{AU}{Character argument. Users can specify which AU they are interested in
 defining WQS criteria for. If this argument is left as NULL, then all unique AU
 records will be displayed in this ref file for users to define.}
+
+\item{spatialRef}{A data frame matching Monitoring Location sites to Assessment Units.}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
@@ -33,7 +34,8 @@ to provide a crosswalk between WQP Monitoring locations and Assessment units
 if they are only interested in summarizing assessments on a monitoring location level.
 }
 \details{
-Users should utilize TADA Module 2 tools to assist in their monitoring location
+If users are interested in summarizing water quality data results by Assessment Units,
+users should utilize TADA Module 2 tools to assist in their monitoring location
 to assessment unit crosswalk prior to this step.
 Users can choose to submit a TADA dataframe that contains
 the concatenated columns from TADA_GetATTAINS and will utilize the crosswalk of
