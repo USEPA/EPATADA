@@ -1,5 +1,5 @@
 ---
-title: "TADA Module 3b: Defining Criteria (Magnitude Only) and Summarizing Individual Excursions"
+title: "TADA Module 3b: Defining Site-Specific Criteria and Spatial Crosswalk Table"
 format: html
 editor: visual
 author: "TADA Team"
@@ -211,6 +211,8 @@ NCTC_SpatialRef_ML <- TADA_CreateSpatialRef(
   excel = FALSE,
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(NCTC_SpatialRef_ML)
 ```
 
 We can apply any unique spatial criteria on a monitoring location sites level. This view allows us to determine whether there are certain sites that needs a unique site-specific criteria, certain water types, or certain combination of characteristics that have site-specific criteria. Let's go through an example of how a user may modify this table.
@@ -221,6 +223,8 @@ add_data_spatial_ML <- data.frame(MonitoringLocationTypeName = c(rep("Stream", 4
 NCTC_SpatialRef_ML_Final <- dplyr::left_join(NCTC_SpatialRef_ML, add_data_spatial_ML, by = c("MonitoringLocationTypeName", "ATTAINS.ParameterName")) %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
+
+TADA_TableExport(NCTC_SpatialRef_ML_Final)
 ```
 
 ### 'TADA_CreateSpatialRef()' on an Assessment Unit Level
@@ -232,6 +236,8 @@ First, we will got through an example of how you can utilize the results directl
 ```{r}
 GetATTAINSRef <- TADA_GetATTAINS(Data_NCTC, return_sf = FALSE)
 sitesAURef <- GetATTAINSRef
+
+TADA_TableExport(sitesAURef)
 ```
 
 In this example, we demonstrate what your output table will look like in TADA_CreateSpatialRef() if you decide to not run the two helper functions: TADA_CreateUseAURef() and TADA_CreateWaterUseParamRef().
@@ -249,6 +255,8 @@ NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(NCTC_SpatialRef_No_Helper)
 ```
 
 Now, lets run through an example with the helper functions. We must run these helper functions in order. First, we will run TADA_CreateUseAURef(). This will use the rExpertQuery data query pull of ATTAINS national extracts to pull in prior use_names associated with your assessment units. This helper function is helpful in cases in which a user has new AU or modified AU that are not found in prior ATTAINS cycles. In this case, it is important that users define these use names associated with those AUs as TADA will be unable to tell what use names are appropriate and will require your review.
@@ -279,6 +287,8 @@ add_new_AU <- sf::st_as_sf(x = add_new_AU, coords = c("lon", "lat"), crs = 4326)
 
 
 NCTC_UseAURef_Final <- rbind(NCTC_UseAURef, add_new_AU)
+
+TADA_TableExport(NCTC_UseAURef_Final)
 ```
 
 Now we will run TADA_CreateWaterUseParamRef(). This requires the output from TADA_CreateUseAURef() as an argument input.
@@ -298,6 +308,8 @@ add_data_WaterUse <- data.frame(waterType = c(rep("STREAM/CREEK/RIVER", 4)), ATT
 NCTC_WaterUseParamRef_Final <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName")) %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
+
+TADA_TableExport(NCTC_WaterUseParamRef_Final)
 ```
 
 Now that we have done our step by step review, we will use our two helper functions to create our spatial ref table on an AU level. We will review the table to make any final updates as we feel is needed. Let's filter our flags by only "Pass" as we have determined these additional WQP sites fall outside of our spatial area of interest.
@@ -316,6 +328,8 @@ NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
 )
 
 NCTC_SpatialRef_AU_Final <- dplyr::filter(NCTC_SpatialRef_AU, Flag.AssessmentNote == "Pass")
+
+TADA_TableExport(NCTC_SpatialRef_AU_Final)
 ```
 
 As another case if a user is interested, if a user has only filled out TADA_CreateUseAURef() and want to skip running TADA_CreateWaterUseParamRef, what will our Spatial Ref table look like? In this scenario, we will assume user does not need to modify the TADA_CreateWaterUseParamRef() and run it in TADA_CreateSpatialRef().
@@ -331,6 +345,8 @@ NCTC_SpatialRef_AU_No_WaterUseParam <- TADA_CreateSpatialRef(
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(NCTC_SpatialRef_AU_No_WaterUseParam)
 ```
 
 # Defining Criteria - Magnitude Methodology
