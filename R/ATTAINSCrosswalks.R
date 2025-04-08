@@ -1709,7 +1709,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     if (is.null(useAURef)) {
       # Pulls in UseAURef
       print("A sitesAURef was provided, but no UseAURef was provided. Running TADA_CreateUseAURef to pull in all prior use names for your AU.")
-      useAURef <- TADA_CreateUseAURef(.data, SitesAURef = SitesAURef, org_id = org_id, excel = FALSE)
+      useAURef <- TADA_CreateUseAURef(.data, sitesAURef = sitesAURef, org_id = org_id, excel = FALSE)
     }
 
     if (is.null(waterUseParamRef)) {
@@ -1720,7 +1720,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     # Joins the crosswalk tables for CreateSpatialRef
     CreateSpatialRef <- waterUseParamRef %>%
       dplyr::right_join(useAURef, by = c("organization_identifier", "waterType", "use_name")) %>%
-      dplyr::full_join(SitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname")) %>%
+      dplyr::full_join(sitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname")) %>%
       dplyr::mutate(
         Flag.AssessmentNote =
           dplyr::case_when(
@@ -2113,7 +2113,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
 #'
 #' @param .data A TADA data frame with TADA_GetATTAINS() geospatial function ran.
 #'
-#' @param SitesAURef A data frame with the column "MonitoringLocationIdentifier",
+#' @param sitesAURef A data frame with the column "MonitoringLocationIdentifier",
 #' "ATTAINS.organizationid" and "ATTAINS.assessmentunitidentifier"
 #'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.

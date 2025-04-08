@@ -15,6 +15,20 @@
 #' @format A dataframe with 14592 rows and 152 variables
 NULL
 
+#' Data_Nutrients_UT_GetATTAINS
+#'
+#' A dataframe containing Ammonia, Nitrate, and Nitrogen data from Utah
+#' with TADA_GetATTAINS ran:
+#'
+#' Data_Nutrients_UT_GetATTAINS <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE)
+#'
+#' @docType data
+#' @keywords dataframe
+#' @name Data_Nutrients_UT_GetATTAINS
+#' @usage data(Data_Nutrients_UT)
+#' @format A dataframe with 14674 rows and 188 variables
+NULL
+
 #' Data_6Tribes_5y
 #'
 #' Original pull:
