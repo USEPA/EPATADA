@@ -25,7 +25,7 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_Nutrients_UT_GetATTAINS
-#' @usage data(Data_Nutrients_UT)
+#' @usage data(Data_Nutrients_UT_GetATTAINS)
 #' @format A dataframe with 14674 rows and 188 variables
 NULL
 

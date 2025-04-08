@@ -45,7 +45,10 @@ TADA_UpdateExampleData <- function() {
   Data_Nutrients_UT_GetATTAINS <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE)
   print("Data_Nutrients_UT_GetATTAINS:")
   print(dim(Data_Nutrients_UT_GetATTAINS))
-  usethis::use_data(Data_Nutrients_UT_GetATTAINS, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
+  usethis::use_data(Data_Nutrients_UT_GetATTAINS,
+    internal = FALSE, overwrite = TRUE,
+    compress = "xz", version = 3, ascii = FALSE
+    )
   rm(Data_Nutrients_UT_GetATTAINS)
   
   # Generate Data_6Tribes_5y.rda
