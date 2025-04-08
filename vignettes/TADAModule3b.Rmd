@@ -225,10 +225,12 @@ NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
 
 Now, lets run through an example with the helper functions. We must run these helper functions in order. First, we will run TADA_CreateUseAURef(). This will use the rExpertQuery data query pull of ATTAINS national extracts to pull in prior use_names associated with your assessment units. This helper function is helpful in cases in which a user has new AU or modified AU that are not found in prior ATTAINS cycles. In this case, it is important that users define these use names associated with those AUs as TADA will be unable to tell what use names are appropriate and will require your review.
 
-We note that all AU will contain a match as the AUs came directly from TADA_GetATTAINS(). But lets add on a few rows to demonstrate cases of new AUs. Note: A user may also choose to perform adding new ML to AU as part of the sitesAURef, but they would still need to specify new AU and use names during this step.
+We note that all AU will contain a match as the AUs came directly from TADA_GetATTAINS(). 
+
+Note: Will run examples with edits to ML to AU later.
 
 ```{r}
-NCTC_UseAURef <- TADA_CreateUseAURef(
+NCTC_UseAURef_Final <- TADA_CreateUseAURef(
   Data_NCTC, 
   SitesAURef = SitesAURef, 
   org_id = "WVDEP", 
@@ -236,37 +238,23 @@ NCTC_UseAURef <- TADA_CreateUseAURef(
   #TRUE, overwrite = TRUE
   )
 
-add_AU_df <- data.frame(
-  organization_identifier = c("WVDEP", "WVDEP"),
-  ATTAINS.assessmentunitidentifier = c("NEW_WV_AU1", "NEW_WV_AU1"), 
-  ATTAINS.assessmentunitname = c("Example1", "Example1"),
-  use_name = c("Public Water Supply", "Warm Water Fishery"),
-  waterType = c("STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER"),
-  Existing = c("New", "New"),
-  geometry = c()
-)
+# In development: adding example of new AU
 
-NCTC_UseAURef_Final <- dplyr::left_join(NCTC_UseAURef, add_AU_df, by = c(-"geometry"))
+# add_AU_df <- data.frame(
+#   organization_identifier = c("WVDEP", "WVDEP"),
+#   ATTAINS.assessmentunitidentifier = c("NEW_WV_AU1", "NEW_WV_AU1"), 
+#   ATTAINS.assessmentunitname = c("Example1", "Example1"),
+#   use_name = c("Public Water Supply", "Warm Water Fishery"),
+#   waterType = c("STREAM/CREEK/RIVER", "STREAM/CREEK/RIVER"),
+#   Existing = c("New", "New"),
+#   geometry = c()
+# )
+# 
+# NCTC_UseAURef_Final <- dplyr::left_join(NCTC_UseAURef, add_AU_df, by = c(-"geometry"))
 ```
 
+Now we will run TADA_CreateWaterUseParamRef()
 ```{r}
-NCTC_SpatialRef2 <- TADA_CreateSpatialRef(
-  Data_NCTC, 
-  org_id = "WVDEP",
-  sitesAURef = SitesAURef,
-  #useAURef = NCTC_UseAURef,
-  useParamRef = NCTC_UseParamRef_Final,
-  #waterUseParamRef = NCTC_WaterUseParamRef_Final,
-  excel = TRUE, overwrite = TRUE
-  )
-
-NCTC_UseAURef_Final <- TADA_CreateUseAURef(
-  Data_NCTC, 
-  SitesAURef = SitesAURef, 
-  org_id = "WVDEP", 
-  excel = FALSE
-  ) #TRUE, overwrite = TRUE)
-
 NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   Data_NCTC, 
   useAURef = NCTC_UseAURef_Final,
@@ -274,21 +262,33 @@ NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   org_id = "WVDEP", 
   excel = FALSE
   ) #TRUE, overwrite = TRUE)
+```
 
+```{r}
+NCTC_SpatialRef2 <- TADA_CreateSpatialRef(
+  Data_NCTC, 
+  org_id = "WVDEP",
+  sitesAURef = SitesAURef,
+  useAURef = NCTC_UseAURef,
+  useParamRef = NCTC_UseParamRef_Final,
+  waterUseParamRef = NCTC_WaterUseParamRef_Final,
+  excel = FALSE
+  # excel = TRUE, overwrite = TRUE
+  )
 
-NCTC_Excursions <- TADA_MagnitudeSummary(
-  Data_NCTC,
-  #UseAURef = NCTC_UseAURef,
-  StandardsRef = NCTC_magnitude_Final,
-  overwrite = FALSE
-)
-
-NCTC_Excursions2 <- TADA_MagnitudeSummary(
-  Data_NCTC,
-  UseAURef = NCTC_UseAURef,
-  StandardsRef = NCTC_magnitude_Final,
-  overwrite = TRUE
-)
+# NCTC_Excursions <- TADA_MagnitudeSummary(
+#   Data_NCTC,
+#   #UseAURef = NCTC_UseAURef,
+#   StandardsRef = NCTC_magnitude_Final,
+#   overwrite = FALSE
+# )
+# 
+# NCTC_Excursions2 <- TADA_MagnitudeSummary(
+#   Data_NCTC,
+#   UseAURef = NCTC_UseAURef,
+#   StandardsRef = NCTC_magnitude_Final,
+#   overwrite = TRUE
+# )
 ```
 
 # Defining Criteria - Magnitude Methodology
