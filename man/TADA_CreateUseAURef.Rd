@@ -13,24 +13,29 @@ TADA_CreateUseAURef(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe with TADA_GetATTAINS() geospatial function ran.}
+\item{.data}{A TADA data frame with TADA_GetATTAINS() geospatial function ran.}
 
-\item{AU}{Character argument. Users can specify which AU they are interested in
-defining WQS criteria for. If this argument is left as NULL, then all unique AU
-records will be displayed in this ref file for users to define.}
+\item{SitesAURef}{A data frame with the column "MonitoringLocationIdentifier",
+"ATTAINS.organizationid" and "ATTAINS.assessmentunitidentifier"}
 }
 \value{
-A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
+A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
 }
 \description{
 This function will pull in all prior use names associated with an organization identifier
-from prior ATTAINS cycles. If a user has included the EPA304a recommended standards
-for assessment summaries, then
+assessment units from prior ATTAINS cycles.
 }
 \details{
-for AU(s) from a TADA dataframe with ATTAINS data. This function requires users to have already
-ran TADA_GetATTAINS(). Users are able to specify which AU(S) to pull in from this ref file
-when creating the final CriteriaRef file to be compatible with an organization's WQS assessments.
+Note that any new or modified AU information must be provided from the user's end if
+they decide to incorporate this in their summaries as we
+cannot query use names from AU that are not shown in ATTAINS yet.
+NOTE: Future development looks to allow users to submit their own
+AU shapefiles into TADA module 2 functions to allow for
+matching ML to these new/modified sites.
+
+This function requires users to provide a crosswalk between ML and AU.
+The output from TADA_GetATTAINS(.data, return_sf = FALSE) can be used directly
+as the sitesAURef argument input in this function.
 
 Users are expected to modify this AU ref file with the appropriate AU and
 MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
