@@ -51,3 +51,26 @@ MonitoringLocationName, MonitoringLocationType, and MonitoringLocationId crosswa
 for the current Assessment cycle. Users will decide to "Include" or "Exclude"
 a MonitoringLocation in the "IncludeOrExclude" column. for an AU.
 }
+\examples{
+# First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
+paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+paramRef_UT3 <- TADA_CreateParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+)
+
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_CreateUseParamRef():
+UseParamRef_UT <- TADA_CreateUseParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+)
+
+# Now, run TADA_CreateSpatialRef()
+
+}

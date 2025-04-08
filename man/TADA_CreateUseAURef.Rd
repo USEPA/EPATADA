@@ -6,7 +6,7 @@
 \usage{
 TADA_CreateUseAURef(
   .data,
-  SitesAURef = NULL,
+  sitesAURef = NULL,
   org_id = NULL,
   excel = TRUE,
   overwrite = FALSE
@@ -42,4 +42,19 @@ MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
 for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
 within an AU if desired. This can be used if a MoniotringLocation would still like to be
 crosswalk to the AU but may only be applicable for certain parameters.
+}
+\examples{
+# First, we will generate our ML to AU crosswalk. See Module 2 for more information
+# preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
+# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT) 
+UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+
+# Now, run TADA_CreateSpatialRef()
+UseAURef_UT <- TADA_CreateUseAURef(
+   Data_Nutrients_UT,
+   org_id = c("UTAHDWQ"),
+   sitesAURef = UT_AU_ML,
+   excel = FALSE
+ )
+
 }

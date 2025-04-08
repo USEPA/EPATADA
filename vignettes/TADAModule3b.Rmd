@@ -231,7 +231,7 @@ First, we will got through an example of how you can utilize the results directl
 
 ```{r}
 GetATTAINSRef <- TADA_GetATTAINS(Data_NCTC, return_sf = FALSE)
-SitesAURef <- GetATTAINSRef
+sitesAURef <- GetATTAINSRef
 ```
 
 In this example, we demonstrate what your output table will look like in TADA_CreateSpatialRef() if you decide to not run the two helper functions: TADA_CreateUseAURef() and TADA_CreateWaterUseParamRef().
@@ -242,7 +242,7 @@ These helper functions are not required, but will help to further review your ML
 NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
   Data_NCTC,
   org_id = "WVDEP",
-  sitesAURef = SitesAURef,
+  sitesAURef = sitesAURef,
   useParamRef = NCTC_UseParamRef_Final,
   # useAURef = NCTC_UseAURef,
   # waterUseParamRef = NCTC_WaterUseParamRef_Final,
@@ -258,7 +258,7 @@ We will add examples with new AU and use names example.
 ```{r}
 NCTC_UseAURef <- TADA_CreateUseAURef(
   Data_NCTC,
-  SitesAURef = SitesAURef,
+  sitesAURef = sitesAURef,
   org_id = "WVDEP",
   excel = FALSE
   # TRUE, overwrite = TRUE
@@ -307,7 +307,7 @@ Now that we have done our step by step review, we will use our two helper functi
 NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
   Data_NCTC,
   org_id = "WVDEP",
-  sitesAURef = SitesAURef,
+  sitesAURef = sitesAURef,
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
   waterUseParamRef = NCTC_WaterUseParamRef_Final,
@@ -324,7 +324,7 @@ As another case if a user is interested, if a user has only filled out TADA_Crea
 NCTC_SpatialRef_AU_No_WaterUseParam <- TADA_CreateSpatialRef(
   Data_NCTC,
   org_id = "WVDEP",
-  sitesAURef = SitesAURef,
+  sitesAURef = sitesAURef,
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
   # waterUseParamRef = NCTC_WaterUseParamRef_Final,

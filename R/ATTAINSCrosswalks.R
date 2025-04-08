@@ -1863,6 +1863,47 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
 #' @seealso [TADA_CreateSpatialRef()]
 #'
 #' @export
+#' 
+#' @examples
+#' # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
+#' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+#'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+#'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+#'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+#' ))
+#' paramRef_UT3 <- TADA_CreateParamRef(
+#'   Data_Nutrients_UT,
+#'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+#' )
+#'
+#' # Next, enter the crosswalk generated above as the paramRef function input
+#' # for TADA_CreateUseParamRef():
+#' UseParamRef_UT <- TADA_CreateUseParamRef(
+#'   Data_Nutrients_UT,
+#'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+#' )
+#' 
+#' # preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
+#' # UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
+#' UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+#' 
+#' # Now, run TADA_CreateUseAURef()
+#' UseAURef_UT <- TADA_CreateUseAURef(
+#'    Data_Nutrients_UT,
+#'    org_id = c("UTAHDWQ"),
+#'    sitesAURef = UT_AU_ML,
+#'    excel = FALSE
+#'  )
+#' 
+#' # Now, run TADA_CreateSpatialRef()
+#' WaterUseParamRef_UT <- TADA_CreateWaterUseParamRef(
+#'    Data_Nutrients_UT,
+#'   org_id = c("UTAHDWQ"),
+#'   useAURef = UseAURef_UT, 
+#'    useParamRef = UseParamRef_UT,
+#'    excel = FALSE
+#'  )
 #'
 
 TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NULL,
@@ -2078,9 +2119,23 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
 #'
 #' @export
-#'
+#' 
+#' @examples
+#' # First, we will generate our ML to AU crosswalk. See Module 2 for more information
+#' # preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
+#' # UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
+#' UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+#' 
+#' # Now, run TADA_CreateUseAURef()
+#' UseAURef_UT <- TADA_CreateUseAURef(
+#'    Data_Nutrients_UT,
+#'    org_id = c("UTAHDWQ"),
+#'    sitesAURef = UT_AU_ML,
+#'    excel = FALSE
+#'  )
+#' 
 
-TADA_CreateUseAURef <- function(.data, SitesAURef = NULL,
+TADA_CreateUseAURef <- function(.data, sitesAURef = NULL,
                                 org_id = NULL, excel = TRUE, overwrite = FALSE) {
   # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -2091,25 +2146,25 @@ TADA_CreateUseAURef <- function(.data, SitesAURef = NULL,
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
 
-  # check to see if user-supplied SitesAURef is a df with appropriate columns and is filled out.
-  if (!is.null(SitesAURef) & !is.character(SitesAURef)) {
-    if (!is.data.frame(SitesAURef)) {
+  # check to see if user-supplied sitesAURef is a df with appropriate columns and is filled out.
+  if (!is.null(sitesAURef) & !is.character(sitesAURef)) {
+    if (!is.data.frame(sitesAURef)) {
       stop(paste0(
-        "TADA_CreateUseAURef: 'SitesAURef' must be a data frame with these 3 columns:",
+        "TADA_CreateUseAURef: 'sitesAURef' must be a data frame with these 3 columns:",
         "MonitoringLocationIdentifier, ATTAINS.organizationid and ATTAINS.assessmentunitidentifier"
       ))
     }
 
-    if (is.data.frame(SitesAURef)) {
+    if (is.data.frame(sitesAURef)) {
       col.names <- c(
         "MonitoringLocationIdentifier", "OrganizationIdentifier", "ATTAINS.assessmentunitidentifier"
       )
 
-      ref.names <- names(SitesAURef)
+      ref.names <- names(sitesAURef)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop(paste0(
-          "TADA_CreateUseAURef: 'SitesAURef' must be a data frame with these 3 columns:",
+          "TADA_CreateUseAURef: 'sitesAURef' must be a data frame with these 3 columns:",
           "MonitoringLocationIdentifier, OrganizationIdentifier and ATTAINS.assessmentunitidentifier"
         ))
       }
@@ -2149,9 +2204,9 @@ TADA_CreateUseAURef <- function(.data, SitesAURef = NULL,
 
   OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = org_id, api_key = testkey))
 
-  OrgID_assessments <- dplyr::filter(OrgID_assessments, assessmentUnitId %in% unique(SitesAURef$ATTAINS.assessmentunitidentifier))
+  OrgID_assessments <- dplyr::filter(OrgID_assessments, assessmentUnitId %in% unique(sitesAURef$ATTAINS.assessmentunitidentifier))
 
-  CreateUseAURef <- SitesAURef %>%
+  CreateUseAURef <- sitesAURef %>%
     dplyr::left_join(
       OrgID_assessments,
       by = c(
