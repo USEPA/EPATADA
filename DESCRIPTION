@@ -99,7 +99,7 @@ Suggests:
     tigris,
     yaml
 Remotes:
-    DOI-USGS/dataRetrieval@develop
+    DOI-USGS/dataRetrieval@develop,
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
