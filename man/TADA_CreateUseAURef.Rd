@@ -15,7 +15,7 @@ TADA_CreateUseAURef(
 \arguments{
 \item{.data}{A TADA data frame with TADA_GetATTAINS() geospatial function ran.}
 
-\item{SitesAURef}{A data frame with the column "MonitoringLocationIdentifier",
+\item{sitesAURef}{A data frame with the column "MonitoringLocationIdentifier",
 "ATTAINS.organizationid" and "ATTAINS.assessmentunitidentifier"}
 }
 \value{
@@ -46,10 +46,10 @@ crosswalk to the AU but may only be applicable for certain parameters.
 \examples{
 # First, we will generate our ML to AU crosswalk. See Module 2 for more information
 # preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
-# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT) 
+# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
 UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
 
-# Now, run TADA_CreateSpatialRef()
+# Now, run TADA_CreateUseAURef()
 UseAURef_UT <- TADA_CreateUseAURef(
    Data_Nutrients_UT,
    org_id = c("UTAHDWQ"),

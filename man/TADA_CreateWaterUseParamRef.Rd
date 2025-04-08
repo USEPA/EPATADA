@@ -42,6 +42,48 @@ for the current Assessment cycle. Users can decide to "Include or Exclude" a Mon
 within an AU if desired. This can be used if a MoniotringLocation would still like to be
 crosswalk to the AU but may only be applicable for certain parameters.
 }
+\examples{
+# First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
+paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+paramRef_UT3 <- TADA_CreateParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+)
+
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_CreateUseParamRef():
+UseParamRef_UT <- TADA_CreateUseParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+)
+
+# preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
+# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
+UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+
+# Now, run TADA_CreateUseAURef()
+UseAURef_UT <- TADA_CreateUseAURef(
+   Data_Nutrients_UT,
+   org_id = c("UTAHDWQ"),
+   sitesAURef = UT_AU_ML,
+   excel = FALSE
+ )
+
+# Now, run TADA_CreateSpatialRef()
+WaterUseParamRef_UT <- TADA_CreateWaterUseParamRef(
+   Data_Nutrients_UT,
+  org_id = c("UTAHDWQ"),
+  useAURef = UseAURef_UT, 
+   useParamRef = UseParamRef_UT,
+   excel = FALSE
+ )
+
+}
 \seealso{
 \code{\link[=TADA_CreateUseParamRef]{TADA_CreateUseParamRef()}}
 
