@@ -78,7 +78,8 @@ Imports:
     openxlsx,
     rATTAINS,
     DT,
-    dataRetrieval
+    dataRetrieval,
+    dbscan
 Depends: 
     R (>= 3.5.0)
 Suggests:
