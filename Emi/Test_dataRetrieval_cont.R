@@ -319,3 +319,15 @@ DR_comment <- result.DR|>
 
 # Show which fields are newly served in the dataRetrieval fxn
 # Show which fields have a comment and see if can populate with something useful for TADA
+
+##########################
+## R SHINY - from TADA Module doc
+# download TADA Shiny repository
+remotes::install_github("USEPA/TADAShiny",
+                        ref = "develop",
+                        dependencies = TRUE
+)
+
+# launch the app locally.
+TADAShiny::run_app()
+
