@@ -23,9 +23,14 @@ library(tidyverse)
 library(data.table)
 
 ##############
-## dataRetrieval reverting back to using Post
+## USGS BRANCH of dataRetrieval reverting back to using Post
 remotes::install_github("DOI-USGS/dataRetrieval", ref = "develop", dependencies = TRUE, force = TRUE)
 library(dataRetrieval)
+
+# Check which branch is being used - "RemoteRef"
+# https://stackoverflow.com/questions/60982775/r-check-which-branch-of-a-package-was-installed-with-install-git?newreg=13421ec963844a839c360fc7ddcb6272
+packageDescription('dataRetrieval')
+################
 
 # Trying the develop branch to see if the error (partial file transfer closed with outsanding read data remaining)
 #  is caused by switch from Post to Get
@@ -55,7 +60,9 @@ result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
                                   applyautoclean = FALSE)
 #Error: 'curl_parse_url' is not an exported object from 'namespace:curl'
 
-names(result.tada)
+tada3.0_names <- names(result.tada)
+
+write_csv(tada3.0_names, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/tada3.0_names.csv")
 
 ## Generate random dataset to test
 result.tada.rand <- TADA_RandomTestingData(number_of_days = 4, choose_random_state = TRUE, autoclean = FALSE)
@@ -98,7 +105,7 @@ WQPquery <- list(siteid = "USGS-04024315",
 )
 
 result.DR <- dataRetrieval::readWQPdata(WQPquery,
-                                        service = "ResultWQX3",
+                                        service = "Result", # WQX3 option "ResultWQX3",
                                         dataProfile = "fullPhysChem",
                                         ignore_attributes = TRUE)
 

@@ -11,7 +11,7 @@ library(dataRetrieval) #dataRetrieval 2.7.18  OLD dataRetrieval 2.7.17.9000 #Ext
 library(devtools)
 load_all()
 library(tidyverse)
-library(dataRetrieval) # dataRetrieval 2.7.18
+
 
 # remotes::install_github("DOI-USGS/dataRetrieval", ref = "develop", dependencies = TRUE,
 # force = TRUE)

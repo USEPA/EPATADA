@@ -43,6 +43,7 @@ wqxcrswlk_mod3 <- wqxcrswlk_mod2 |>
 
 ###############
 # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+##  These need to line up and be equal length
 beta_names = wqxcrswlk_mod3$FieldName3.0
 legacy_names = wqxcrswlk_mod3$WqxV2.FieldName
 
