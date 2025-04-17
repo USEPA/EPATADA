@@ -58,6 +58,9 @@ result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
                                   #endDate = "1978-12-31",
                                   characteristicName = "Temperature, water",
                                   applyautoclean = FALSE)
+#Error in `httr2::req_perform()`:
+#! HTTP 504 Gateway Timeout.
+
 #Error: 'curl_parse_url' is not an exported object from 'namespace:curl'
 
 tada3.0_names <- names(result.tada)
