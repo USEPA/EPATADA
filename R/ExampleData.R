@@ -145,7 +145,7 @@ NULL
 #'
 #' @docType data
 #' @keywords data frame
-#' @name Data_WV_Mod1_Output
-#' @usage data(Data_WV_Mod1_Output)
+#' @name Data_WV_Mod1_Output_GetATTAINS
+#' @usage data(Data_WV_Mod1_Output_GetATTAINS)
 #' @format A list of data frame with 84 rows and 161 variables
 NULL
