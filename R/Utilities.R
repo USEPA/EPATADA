@@ -107,7 +107,9 @@ utils::globalVariables(c(
   "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
   "organization_identifier.y", "parameter", "use_name", "use_name.y",
   "MONITORING_DATA_LINK_TEXT", "PARCEL_NO", "TRIBE_NAME", "everything",
-  "resultCount", "tribal_area", "txtProgressBar"
+  "resultCount", "tribal_area", "txtProgressBar",  "ApplyUniqueSpatialCriteria", "assessmentUnitId",
+  "ATTAINS.assessmentunitname", "ATTAINS.organizationid", 
+  "ATTAINS.waterTypeCode Flag.AssessmentNote", "TADA.AssessmentUnitStatus"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
