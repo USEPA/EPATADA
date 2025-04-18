@@ -2143,8 +2143,8 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL,
   # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
-  # rExpertQuery API key
-  testkey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
+  # rExpertQuery API key for TADA
+  tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
 
   # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
   ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
@@ -2205,7 +2205,7 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL,
     ))
   }
 
-  OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = org_id, api_key = testkey))
+  OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = org_id, api_key = tadakey))
 
   OrgID_assessments <- dplyr::filter(OrgID_assessments, assessmentUnitId %in% unique(sitesAURef$ATTAINS.assessmentunitidentifier))
 
