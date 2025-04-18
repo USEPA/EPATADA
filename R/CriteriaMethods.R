@@ -25,7 +25,7 @@
 #' @export
 #'
 #' @examples
-#' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
+#' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
 # TADA_DefineMagnitude <- function(.data, ref = "TADA", paramRef = NULL, UseParamRef = NULL, AURef = NULL, excel = TRUE, overwrite = FALSE) {
@@ -229,7 +229,7 @@
 #' @export
 #'
 #' @examples
-#' Data_Nutrients_UT_ATTAINS <- load("data.Rda")
+#' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
 # TADA_MagnitudeSummary <- function(.data, StandardsRef = NULL, UseAURef = NULL, overwrite = FALSE) {
