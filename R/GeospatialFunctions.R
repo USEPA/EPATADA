@@ -358,7 +358,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         
         areas <- unique(points$cluster) %>%
           purrr::map_dfr(~bbox_area(df = points, clust = .))
-        
+        # Returns TRUE/FALSE
         any(as.numeric(areas$value) > min_area)
       }
       
