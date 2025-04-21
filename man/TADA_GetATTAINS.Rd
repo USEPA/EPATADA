@@ -6,6 +6,7 @@
 \usage{
 TADA_GetATTAINS(
   .data,
+  return_nearest = FALSE,
   fill_catchments = FALSE,
   resolution = "Hi",
   return_sf = TRUE
@@ -13,6 +14,8 @@ TADA_GetATTAINS(
 }
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
+
+\item{return_nearest}{If a WQP observation falls within more than one AU, return ONLY the nearest AU.}
 
 \item{fill_catchments}{Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.}
 
@@ -31,7 +34,7 @@ TADAModule2.Rmd for an example workflow. Note that approximately 80\% of state s
 \details{
 The ATTAINS snapshot of NHDPlus HR catchments is not available for areas that do not have existing Assessment Units in ATTAINS. For these areas where there are WQP sites, but no existing ATTAINS assessment units, a user can choose to associate the WQP sites with NHDPlus catchments available from the USGS nhdplusTools package (USGS snapshot) using the optional function param 'fill_catchments'. In theory, if desired by the user, these high res catchments could be created as new assessment unit polygons in ATTAINS (that process is outside of TADA).
 
-Adds one new column to input dataframe, 'index', which identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
+`ResultIdentifier' identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
 
 If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities.
 
@@ -41,34 +44,38 @@ Please review the output of this function carefully, especially waterbody inters
 \dontrun{
 tada_data <- TADA_DataRetrieval(
   startDate = "2018-05-01",
-  endDate = "2018-07-31",
+  endDate = "2018-05-05",
   characteristicName = "pH",
-  statecode = "IL",
+  statecode = "VA",
   applyautoclean = TRUE,
   ask = FALSE
 )
 
-# note: these example ATTAINS data retrieval queries below may take a
-# long time (10+ minutes) to run
-
+# note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run
 tada_attains <- TADA_GetATTAINS(tada_data,
   fill_catchments = FALSE,
-  return_sf = FALSE
+  return_sf = FALSE,
+  return_nearest = FALSE,
 )
 
 tada_attains_sf <- TADA_GetATTAINS(tada_data,
   fill_catchments = FALSE,
-  return_sf = TRUE
+  return_sf = TRUE,
+  return_nearest = TRUE
 )
 
 tada_attains_filled <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
-  resolution = "Hi", return_sf = FALSE
+  resolution = "Hi", 
+  return_sf = FALSE,
+  return_nearest = TRUE
 )
 
 tada_attains_filled_sf <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
-  resolution = "Hi", return_sf = TRUE
+  resolution = "Hi", 
+  return_sf = TRUE,
+  return_neares = TRUE
 )
 }
 }

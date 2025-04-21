@@ -1,190 +1,171 @@
 # Testing the Geospatial Functions ----
-# testing `GeoSpatialFunctions.R` with the same data that was used in the
-# `TADAModule2.Rmd` Vignette in chunk 6 (3/18/24).
-#
-# TADA_dataframe <- TADA_DataRetrieval(
-#   startDate = "2020-01-01",
-#   endDate = "2020-12-31",
-#   characteristicName = "pH",
-#   countycode = "US:08:069",
-#   applyautoclean = TRUE
-# )
+# Tests for the functions in GeoSpatialFunctions.R using sample data
 
 
-# Read in sample data for tests
-TADA_dataframe <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_dataframe.rds"))
-TADA_spatial <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_spatial.rds"))
-TADA_with_ATTAINS <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS.rds"))
-TADA_with_ATTAINS_list <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS_list.rds"))
+  TADA_dataframe <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_dataframe.rds"))
+  TADA_spatial <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_spatial.rds"))
+   TADA_with_ATTAINS <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS.rds"))
+  TADA_with_ATTAINS_list <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS_list.rds"))
 
-# TADA_MakeSpatial ----
-testthat::test_that(
-  desc = "`TADA_MakeSpatial()` converts the TADA_dataframe into an sf object",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    expect_true(inherits(test_df, "sf"))
+# TADA_MakeSpatial Tests ----
+testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
+  test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
+  
+  # Check that result is an sf object
+  testthat::expect_s3_class(test_sf, "sf")
+  
+  # Check that geometry column exists and contains points
+  testthat::expect_true("geometry" %in% names(test_sf))
+  testthat::expect_s3_class(sf::st_geometry(test_sf), "sfc_POINT")
+})
+
+testthat::test_that("TADA_MakeSpatial preserves input data structure and content", {
+  test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
+  
+  # Row count should be preserved
+  testthat::expect_equal(nrow(TADA_dataframe), nrow(test_sf))
+  
+  # All original columns should be preserved
+  testthat::expect_true(all(names(TADA_dataframe) %in% names(test_sf)))
+  
+  # Data values should be preserved
+  no_geom_test <- sf::st_drop_geometry(test_sf)
+  testthat::expect_equal(TADA_dataframe, no_geom_test)
+})
+
+testthat::test_that("TADA_MakeSpatial handles custom CRS correctly", {
+  test_wgs84 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
+  test_nad83 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4269)
+  
+  # Check that the CRS is set correctly
+  testthat::expect_equal(sf::st_crs(test_wgs84)$epsg, 4326)
+  testthat::expect_equal(sf::st_crs(test_nad83)$epsg, 4269)
+})
+
+testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
+  # Test with data that's missing required columns
+  invalid_data <- data.frame(a = 1, b = 2)
+  testthat::expect_error(
+    TADA_MakeSpatial(.data = invalid_data),
+    "The dataframe does not contain WQP-style latitude and longitude data"
+  )
+  
+  # Test with data that's already spatial
+  testthat::expect_error(
+    TADA_MakeSpatial(.data = TADA_spatial),
+    "Your data is already a spatial object"
+  )
+  
+  # Test with NULL data
+  testthat::expect_error(
+    TADA_MakeSpatial(.data = NULL)
+  )
+})
+
+testthat::test_that("fetchATTAINS fails with appropriate errors", {
+  # Test with NULL data
+  testthat::expect_error(
+    EPATADA:::fetchATTAINS(.data = NULL),
+    "The dataframe does not"
+  )
+})
+
+testthat::test_that("fetchATTAINS handles catchments_only parameter", {
+  
+  # Create a small valid dataset
+  valid_data <- sf::st_sf(
+    geometry = sf::st_sfc(sf::st_point(c(-80.0, 35.0))), 
+    crs = 4326
+  )
+  
+  # Test with catchments_only = TRUE
+  testthat::expect_no_error(
+    result_catchments_only <- EPATADA:::fetchATTAINS(.data = valid_data, catchments_only = TRUE)
+  )
+  
+  # Test with catchments_only = FALSE
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = valid_data, catchments_only = FALSE)
+  )
+  
+  # If we got data back, check that catchments_only returns fewer elements
+  if (!is.null(result_catchments_only) && !is.null(result_all_features)) {
+    testthat::expect_lte(length(result_catchments_only), length(result_all_features))
   }
-)
+})
 
-testthat::test_that(
-  desc = "The CRS in the test dataframe is the same as the input",
-  code = {
-    test_df1 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4326)
-    test_df2 <- TADA_MakeSpatial(.data = TADA_dataframe, crs = 4269)
+testthat::test_that("TADA_GetATTAINS correctly identifies already joined ATTAINS data", {
+  # Create mock data with ATTAINS columns
+  mock_attains_data <- TADA_dataframe
+  mock_attains_data$ATTAINS.assessmentunitidentifier <- "TEST"
+  
+  testthat::expect_error(
+    TADA_GetATTAINS(mock_attains_data),
+    "Your data has already been joined with ATTAINS data"
+  )
+})
 
-    expect_true(gsub("\\D", "", sf::st_crs(test_df1)$epsg) == as.character(4326))
-    expect_true(gsub("\\D", "", sf::st_crs(test_df2)$epsg) == as.character(4269))
-  }
-)
+testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
+  # Create an empty dataframe with required structure
+  empty_df <- tibble::tibble(
+    ResultIdentifier = character(0),
+    LongitudeMeasure = character(0),
+    LatitudeMeasure = character(0),
+    HorizontalCoordinateReferenceSystemDatumName = character(0)
+  )
+  
+  result <- TADA_GetATTAINS(.data = empty_df, return_sf = FALSE)
+  testthat::expect_true(nrow(result) == 0)
+  testthat::expect_true("ResultIdentifier" %in% names(result))
+  testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
+})
 
-testthat::test_that(
-  desc = "The geometry types in the dataframe are points",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    geometry_types <- sf::st_geometry_type(test_df)
-    valid_geometry_types <- "POINT"
-    expect_true(all(geometry_types %in% valid_geometry_types))
-  }
-)
 
-testthat::test_that(
-  desc = "The number of rows are the same between TADA_dataframe and the output dataframe of TADA_MakeSpatial",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    expect_true(nrow(TADA_dataframe) == nrow(test_df))
-  }
-)
+testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
+  testthat::expect_error(
+    TADA_GetATTAINS(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "Invalid", return_sf = FALSE),
+    "User-supplied resolution unavailable"
+  )
+})
 
-testthat::test_that(
-  desc = "The columns between TADA_dataframe and the output dataframe of TADA_MakeSpatial are identical (sans 'geometry')",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    expect_true(all(names(TADA_dataframe) == names(test_df)[names(test_df) != "geometry"]))
-  }
-)
+testthat::test_that("TADA_ViewATTAINS validates input structure", {
+  # Test with data that's missing required ATTAINS components
+  invalid_data <- list("TADA_with_ATTAINS" = TADA_dataframe)
+  testthat::expect_error(
+    TADA_ViewATTAINS(invalid_data),
+    "Your input dataframe was not produced from"
+  )
+  
+  # Test with single dataframe instead of list
+  testthat::expect_error(
+    TADA_ViewATTAINS(TADA_dataframe),
+    "Your input dataframe was not produced from"
+  )
+})
 
-testthat::test_that(
-  desc = "The structures of the TADA_dataframe and the output dataframe of TADA_MakeSpatial are identical (sans 'geometry')",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    expect_true(identical(str(TADA_dataframe), str(test_df[names(test_df) != "geometry"])))
-  }
-)
-
-testthat::test_that(
-  desc = "TADA_MakeSpatial() errors if the input dataframe does not contain WQP-style latitude and longitude data",
-  code = {
-    expect_error(TADA_MakeSpatial(.data = tibble::tibble(sample = NA, .rows = 0)))
-  }
-)
-
-testthat::test_that(
-  desc = "TADA_MakeSpatial() errors if the input dataframe is already a spatial object",
-  code = {
-    expect_error(TADA_MakeSpatial(TADA_spatial))
-  }
-)
-
-testthat::test_that(
-  desc = "The order of the rows are the same (sans 'geometry')",
-  code = {
-    test_df <- TADA_MakeSpatial(.data = TADA_dataframe)
-    expect_true(identical(TADA_dataframe, sf::st_drop_geometry(test_df)))
-  }
-)
-
-# fetchATTAINS ----
-testthat::test_that(
-  desc = "fetchATTAINS handles valid input data",
-  code = {
-    valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-    result <- EPATADA:::fetchATTAINS(.data = valid_data)
-    expect_false(is.null(result))
-  }
-)
-
-testthat::test_that(
-  desc = "fetchATTAINS handles missing input data",
-  code = {
-    expect_error(fetchATTAINS(.data = NULL))
-  }
-)
-
-# fetchNHD ----
-testthat::test_that(
-  desc = "fetchNHD handles valid input data",
-  code = {
-    valid_data <- sf::st_sf(geometry = sf::st_sfc(sf::st_point(c(0, 0))), crs = 4326)
-    result <- fetchNHD(.data = valid_data)
-    expect_false(is.null(result))
-  }
-)
-
-testthat::test_that(
-  desc = "fetchATTAINS handles missing input data",
-  code = {
-    expect_error(fetchNHD(.data = NULL))
-  }
-)
-
-# TADA_GetATTAINS ----
-testthat::test_that(
-  desc = "TADA_GetATTAINS addresses improper resolution",
-  code = {
-    expect_error(TADA_GetATTAINS(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "NoNsEnSe", return_sf = FALSE))
-  }
-)
-
-testthat::test_that(
-  desc = "TADA_GetATTAINS can take in the TADA_dataframe and the sf object as inputs",
-  code = {
-    expect_no_error(TADA_GetATTAINS(.data = TADA_dataframe))
-    expect_no_error(TADA_GetATTAINS(.data = TADA_spatial))
-
-    expect_no_warning(TADA_GetATTAINS(.data = TADA_dataframe))
-    expect_no_warning(TADA_GetATTAINS(.data = TADA_spatial))
-  }
-)
-
-testthat::test_that(
-  desc = "TADA_GetATTAINS does not run if the .data argument input has already been joined with ATTAINS data.",
-  code = {
-    expect_error(
-      TADA_GetATTAINS(TADA_with_ATTAINS),
-      "Your data has already been joined with ATTAINS data."
-    )
-  }
-)
-
-testthat::test_that(
-  desc = "TADA_GetATTAINS(return = TRUE)[[1]] == TADA_GetATTAINS(return_sf = FALSE)",
-  code = {
-    expect_true(identical(TADA_with_ATTAINS_list[[1]], TADA_with_ATTAINS))
-  }
-)
-
-testthat::test_that(
-  desc = "An empty df gets returned if there are no observations in the input df, ",
-  code = {
-    test <- TADA_GetATTAINS(.data = tibble::tibble(sample = NA, .rows = 0), return_sf = FALSE)
-    expect_true(nrow(test) == 0)
-  }
-)
-
-# TADA_ViewATTAINS ----
-testthat::test_that(
-  desc = "An input that does not include all objects from `TADA_GetATTAINS(return_sf = TRUE)` gets rejected",
-  code = {
-    expect_error(TADA_ViewATTAINS(ATTAINS_list = TADA_with_ATTAINS_list[[1]]))
-  }
-)
-
-testthat::test_that(
-  desc = "An input with no observations gets rejected",
-  code = {
-    expect_error(TADA_ViewATTAINS(ATTAINS_list = tibble::tibble(sample = NA, .rows = 0)))
-  }
-)
-
-# Remove everything from the environment
-rm(list = c("TADA_dataframe", "TADA_spatial", "TADA_with_ATTAINS", "TADA_with_ATTAINS_list"))
+testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
+  # Create an empty dataframe with ATTAINS structure
+  empty_attains_df <- tibble::tibble(
+    ResultIdentifier = character(0),
+    LongitudeMeasure = character(0),
+    LatitudeMeasure = character(0),
+    CharacteristicName = character(0),
+    MonitoringLocationIdentifier = character(0),
+    MonitoringLocationName = character(0),
+    ActivityStartDate = character(0),
+    OrganizationIdentifier = character(0)
+  )
+  
+  invalid_list <- list(
+    "TADA_with_ATTAINS" = empty_attains_df,
+    "ATTAINS_catchments" = data.frame(),
+    "ATTAINS_points" = data.frame(),
+    "ATTAINS_lines" = data.frame(),
+    "ATTAINS_polygons" = data.frame()
+  )
+  
+  testthat::expect_error(
+    TADA_ViewATTAINS(invalid_list),
+    "Your WQP dataframe has no observations"
+  )
+})

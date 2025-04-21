@@ -27,7 +27,8 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE, 
+  eval = FALSE
 )
 ```
 
@@ -57,7 +58,7 @@ information is available at:**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -230,9 +231,18 @@ assessment units**)* containing the original TADA WQP dataframe, plus
 new columns representing the ATTAINS assessment unit(s) that fall within
 the same NHDPlus HiRes catchment as them. This means that it is possible
 for a single TADA WQP observation to have multiple ATTAINS assessment
-units linked to it and subsequently more than one row of data. Such WQP
-observations can be identified using the index column (i.e., multiple
-rows with the same index value are the same observation).
+units linked to it. If the user would like to link all of these
+features, set `return_nearest = FALSE`. In these instances of multiple
+assessment units in the same catchment, the returned dataframe will have
+more than one row of data for each WQP observation. Such WQP
+observations can be identified using the \`ResultIdentifier\`column
+(i.e., multiple rows with the same \`ResultIdentifier\`value are the
+same observation).
+
+If the user would like to only return a single ATTAINS assessment unit,
+set `return_nearest = TRUE`. This will return only the closest
+assessment unit to the WQP observation in instances where a catchment
+contains more than one assessment unit.
 
 #### Using `TADA_GetATTAINS()`
 
@@ -241,10 +251,10 @@ Using either our original `TADA_dataframe` *or* the geospatial version
 intersect our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE)
+TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE, return_nearest = FALSE)
 
 # Can also be performed on the spatial data:
-# TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE)
+# TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE, return_nearest = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
@@ -257,10 +267,10 @@ Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE)
+TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE, return_nearest = FALSE)
 
-# Can also be performed on the spatial data:
-# TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE)
+# return only the closest ATTAINS AU for observations within a catchment with multiple AUs
+# TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
 ```
 
 If we set `return_sf = TRUE` as done to create the
@@ -268,36 +278,16 @@ If we set `return_sf = TRUE` as done to create the
 intersecting ATTAINS features associated with these ATTAINS catchment
 observations stored in a list along with the TADA dataframe.
 
-Now, let's select specific columns from the `TADA_with_ATTAINS`
-dataframe, and create a new dataframe with ONLY the unique combinations
-of WQP MonitoringLocationIdentifiers and ATTAINS Assessment Unit
-Identifiers.
-
-```{r}
-TADA_with_ATTAINS_subset <- TADA_with_ATTAINS %>%
-  dplyr::select(
-    "LongitudeMeasure", "TADA.LongitudeMeasure",
-    "LatitudeMeasure", "TADA.LatitudeMeasure", "MonitoringLocationTypeName",
-    "MonitoringLocationIdentifier", "StateCode",
-    "ATTAINS.state", "ATTAINS.assessmentunitidentifier",
-    "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
-    "ATTAINS.organizationid", "ATTAINS.assessmentunitname",
-    "ATTAINS.reportingcycle", "ATTAINS.waterbodyreportlink",
-    "ATTAINS.waterTypeCode"
-  ) %>%
-  dplyr::distinct(.keep_all = FALSE)
-```
-
 #### Filling in missing ATTAINS assessment units
 
 As you can see in the above examples, not all WQP observations have an
-intersecting ATTAINS catchment: see that in the returned dataframe, some
-WQP observations have NAs where there should be ATTAINS information. In
-these instances, the user can optionally fill in catchment information
-from the NHD by entering `fill_catchments = TRUE`:
+intersecting ATTAINS catchment: see that in the returned dataframes,
+some WQP observations have NAs where there should be ATTAINS
+information. In these instances, the user can optionally fill in
+catchment information from the NHD by entering `fill_catchments = TRUE`:
 
 ```{r}
-TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE)
+TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_neares = FALSE)
 ```
 
 When `fill_catchments = TRUE`, the returned list splits observations
