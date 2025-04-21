@@ -694,7 +694,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       nhd_hr <- arcgislayers::arc_open(nhd_plus_hr_url)
       
       # list the layers of the nhdhr object
-      # arcgislayers::list_items(nhd_hr)
       
       # select the layer by id from the items list called above (10 is HR catchments)
       nhd_hr_catchments <- arcgislayers::get_layer(nhd_hr, 10)
