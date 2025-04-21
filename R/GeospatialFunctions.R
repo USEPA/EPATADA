@@ -1344,6 +1344,10 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
       
     }
     
+    # Grab each ATTAINS features' distance away from their associated WQP observations. 
+    # A value of 0 indicates that the WQP observation is either exactly atop an ATTAINS
+    # point of line feature, or within an ATTAINS polygon feature.
+    
     find_distances <- function(resultid){
       
       sub_tada <- TADA_with_ATTAINS %>%
@@ -1381,6 +1385,8 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
       dplyr::left_join(., distances_table, by = c("ResultIdentifier", "ATTAINS.assessmentunitidentifier")) %>%
       dplyr::distinct()
     
+    # If return_nearest is TRUE, only keep the nearest ATTAINS feature to the WQP observation.
+    # Otherwise, return all ATTAINS features associated with the same catchment as the WQP observation.
     if(return_nearest == TRUE){
       message("Selecting nearest ATTAINS feature for each WQP observation.")
       message("Use `return_nearest = FALSE` to return all features within WQP catchments.")
