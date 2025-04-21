@@ -460,7 +460,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     
     # if any didn't get "clustered"....
     final_cluster_list <- points_sf %>% dplyr::filter(!geometry %in% init$geometry) %>%
-      # tack them on to our df and give them a unique "cluster name
+      # tack them on to our df and give them a unique "cluster name"
       tibble::rowid_to_column(var = "cluster") %>%
       dplyr::mutate(cluster = as.character(cluster)) %>%
       dplyr::bind_rows(init)
