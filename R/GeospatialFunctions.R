@@ -1366,6 +1366,8 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
       
       # Calculate distances
       try(distances <- subset %>%
+            # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
+            # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
             purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., dplyr::distinct(sub_tada, geometry))))) %>%
             dplyr::bind_rows() %>%
             sf::st_drop_geometry() %>%
