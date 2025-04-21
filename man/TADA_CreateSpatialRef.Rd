@@ -16,16 +16,56 @@ TADA_CreateSpatialRef(
 )
 }
 \arguments{
-\item{.data}{A TADA data frame with TADA_GetATTAINS() geospatial function ran.}
+\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
+processing, harmonization, filtering, and handling of censored data functions
+prior to running this function.}
 
-\item{AU}{Character argument. Users can specify which AU they are interested in
-defining WQS criteria for. If this argument is left as NULL, then all unique AU
-records will be displayed in this ref file for users to define.}
+\item{org_id}{The ATTAINS organization identifier must be supplied by the
+user. A list of organization identifiers can be found by downloading
+the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+organization identifiers are listed in the "OrgName" tab.
+The "code" column contains the organization identifiers that
+should be used for this param. If a user does not provide an org_id argument,
+the function attempts to identify which organization identifier(s) to include
+based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{spatialRef}{A data frame matching Monitoring Location sites to Assessment Units.}
+\item{waterUseParamRef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of any unique spatial criteria applied to
+a water body, use, or parameter and by any combinations if needed. Users will
+need to ensure this crosswalk contains the appropriate column names in order to
+run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
+
+\item{useAURef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with an assessment unit.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
+
+\item{useParamRef}{A required data frame which contains a completed crosswalk of
+organization specific use_name(s) for each ATTAINS.ParameterName.
+Users will need to ensure this crosswalk contains the appropriate column
+names in order to  run the function. Users who have previously completed
+this crosswalk table can re-use it and review this output for accuracy.}
+
+\item{sitesAURef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit. Users will need to ensure this crosswalk contains the
+appropriate column names in order to run the function.
+See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
+
+\item{excel}{A Boolean value that returns an excel spreadsheet if
+excel = TRUE. This spreadsheet is created in the user's downloads folder path.
+If you have any trouble locating the file, please type the following into
+your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
+The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+the cells in which users should input information.}
+
+\item{overwrite}{A Boolean value that ensures the function will not overwrite
+the user supplied crosswalk entered into this function via the paramRef
+function input. This helps prevent users from overwriting their progress.}
 }
 \value{
-A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
+A data frame with any unique spatial descriptions defined for
 }
 \description{
 This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
@@ -73,4 +113,11 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 
 # Now, run TADA_CreateSpatialRef()
 
+}
+\seealso{
+\code{\link[=TADA_CreateUseParamRef]{TADA_CreateUseParamRef()}}
+
+\code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
+
+\code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}}
 }

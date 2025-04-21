@@ -9,15 +9,14 @@ TADA_CreateParamRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  crosswalk = c("ATTAINS", "CST"),
   excel = TRUE,
   overwrite = FALSE
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. We recommend running all desired data
-cleaning, processing, harmonization, filtering, QAQC, and handling of
-censored data prior to running TADA_CreateParamRef.}
+\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
+processing, harmonization, filtering, and handling of censored data functions
+prior to running this function.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading

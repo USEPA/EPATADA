@@ -12,9 +12,9 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{TADA Module 3: Associating WQP Characteristics with Applicable ATTAINS Parameters and Uses}
+  %\VignetteIndexEntry{TADA Module 3: Define site-specific conditons on either an assessment unit level or monitoring location sites level for spatial analysis.}
   %\VignetteEngine{knitr::rmarkdown}
-description: The first of multiple vignettes (under development) showcasing TADA Module 3 functions and a recommended workflow.
+description: The second of multiple vignettes (under development) showcasing TADA Module 3 functions and a recommended workflow.
 editor_options:
   chunk_output_type: console
   markdown:

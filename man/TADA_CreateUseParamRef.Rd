@@ -16,7 +16,7 @@ TADA_CreateUseParamRef(
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
 processing, harmonization, filtering, and handling of censored data functions
-prior to running TADA_CreateParamRef.}
+prior to running this function.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
@@ -49,18 +49,7 @@ excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
 your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
 The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
-the cells in which users should input information. Users may need to insert
-additional rows if:
-\enumerate{
-\item ATTAINS.ParameterName(s) correspond with multiple TADA.ComparableDataIdentifier(s)
-Example: An org uses "ALUMINUM" for all aluminum related parameter causes,
-but this ATTAINS.parameter name may crosswalk to "ALUMINUM_TOTAL_NA_UG/L"
-for one designated use and "ALUMINUM_DISSOLVED_NA_UG/L" for another; or
-\item TADA.ComparableDataIdentifier(s) are matched with multiple
-ATTAINS.ParameterNames. Example: An org uses both "pH, HIGH" and "pH, LOW"
-as ATTAINS.ParameterNames, both crosswalk to the
-TADA.ComparableDataIdentifier "PH_NA_NA_STD UNITS".
-}}
+the cells in which users should input information.}
 
 \item{overwrite}{A Boolean value that ensures the function will not overwrite
 the user supplied crosswalk entered into this function via the paramRef
