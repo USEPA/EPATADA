@@ -15,7 +15,7 @@ TADA_GetATTAINS(
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf equivalent made by \code{TADA_MakeSpatial()}.}
 
-\item{return_nearest}{If a WQP observation falls within more than one AU, return ONLY the nearest AU.}
+\item{return_nearest}{If a WQP observation falls within more than one AU, return ONLY the nearest AU (return_nearest = TRUE), or all AUs (return_nearest = FALSE).}
 
 \item{fill_catchments}{Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.}
 
@@ -25,7 +25,8 @@ TADA_GetATTAINS(
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
-Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations.
+Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations. For each WQP point, the distance to all ATTAINS features within the same catchment is
+calculated. A TADA.DistanceAway.Meters value of 0 indicates that the WQP observation is directly on the associated ATTAINS point or line feature, or located inside the associated ATTAINS polygon.
 }
 \description{
 Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via \code{TADA_DataRetrieval()}. This function returns the objects that can be mapped in \code{TADA_ViewATTAINS()}. Check out the
