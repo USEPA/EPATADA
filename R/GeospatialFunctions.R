@@ -202,7 +202,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     # empty list to store all features in
     all_features <- list()
     
-    # The ATTAINS API has a limit of 2000 features that can be pulled in at once.
+    # The ATTAINS API has a limit of 1000 features that can be pulled in at once.
     # Therefore, we must split the call into manageable "chunks" using a moving
     # window of what features to pull in, then munging all the separate API calls
     # together.
@@ -210,8 +210,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     repeat {
       query <- urltools::param_set(baseurls, key = "geometry", value = sf_bbox) %>%
         urltools::param_set(key = "inSR", value = our_epsg) %>%
-        # Total of 2000 features at a time...
-        urltools::param_set(key = "resultRecordCount", value = 2000) %>%
+        # Total of 1000 features at a time...
+        urltools::param_set(key = "resultRecordCount", value = 1000) %>%
         # ... starting at the "offset":
         urltools::param_set(key = "resultOffset", value = offset) %>%
         urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
@@ -232,7 +232,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       features <- suppressMessages(suppressWarnings({
         tryCatch(
           {
-            geojsonsf::geojson_sf(query)
+            geojsonsf::geojson_sf(url(query))
           },
           error = function(e) {
             NULL
@@ -246,8 +246,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       }
       
       all_features <- c(all_features, list(features))
-      # once done, change offset by 2000 features:
-      offset <- offset + 2000
+      # once done, change offset by 1000 features:
+      offset <- offset + 1000
       
     }
     
@@ -259,9 +259,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
   # function to download ATTAINS features API based on their name
   fetch_au <- function(baseurls, assessment_unit_ids) {
     
-    # Split the assessment_unit_ids into chunks of 2000
-    # API cannot handle more than 2000 features 
-    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / 2000))
+    # Split the assessment_unit_ids into chunks of 1000
+    # API cannot handle more than 1000 features 
+    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / 1000))
     
     # Query API for a chunk of assessment unit IDs
     fetch_chunk <- function(id_chunk) {
@@ -289,8 +289,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
   }
   
   # function used to grab assessment unit "WaterType".
-  # (sweet spot chunk size wise is 200):
-  grab_waterbody_type <- function(au_list, chunk_size = 200) {
+  # (sweet spot chunk size wise is 50):
+  grab_waterbody_type <- function(au_list, chunk_size = 50) {
     # Number of chunks needed
     num_chunks <- ceiling(length(au_list) / chunk_size)
     
@@ -300,7 +300,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     water_types <- vector("list", length = length(chunks))
     
     for (i in 1:length(chunks)) {
-      dat <- httr::GET(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ","))) %>%
+      dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
         httr::content(., as = "text", encoding = "UTF-8") %>%
         jsonlite::fromJSON(.)
       
@@ -496,9 +496,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       message("There are no ATTAINS features associated with your WQP observations.")
     } else {
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
-      # Query the API in "chunks" so it doesn't break. Sweet spot is ~200:
+      # Query the API in "chunks" so it doesn't break. sweet spot is ~50:
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 200)
+      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
       try(catchment_features <- dplyr::left_join(catchment_features, water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")))
     }
     
@@ -567,7 +567,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       # Use ATTAINS API to grab, for each assessment unit, its WaterType.
       # Query the API in "chunks" so it doesn't break:
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 200)
+      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
       try(catchment_features <- dplyr::left_join(catchment_features, water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")), silent = TRUE)
     }
     
@@ -1329,15 +1329,15 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
   
   if (!is.null(nearby_catchments)) {
     
-    suppressMessages(suppressWarnings({
+    suppressMessages({suppressWarnings({
       # ... link WQP features to the ATTAINS catchment feature(s) they land in:
       TADA_with_ATTAINS <- TADA_DataRetrieval_data %>%
         # left = TRUE to preserve all observations (with or without ATTAINS features):
         sf::st_join(., nearby_catchments, left = TRUE)
-    }))
+    })})
     
-    if(TADA_with_ATTAINS %>% dplyr::group_by(ResultIdentifier) %>% dplyr::summarize(count = dplyr::n()) %>%
-       dplyr::filter(count > 1) %>% nrow() > 0 & return_nearest == FALSE) {
+    if(suppressMessages({suppressWarnings({TADA_with_ATTAINS %>% data.table::data.table() %>% dplyr::group_by(ResultIdentifier) %>% dplyr::summarize(count = dplyr::n()) %>%
+        dplyr::filter(count > 1) %>% nrow() > 0})}) & return_nearest == FALSE) {
       
       message("WARNINIG! Some of your WQP observations fall within a catchment that has more than one ATTAINS feature in it.")
       message("For these, duplicate rows have been created, one for each ATTAINS feature. Use `ResultIdentifier` to track these instances.")
@@ -1349,10 +1349,12 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
     # A value of 0 indicates that the WQP observation is either exactly atop an ATTAINS
     # point of line feature, or within an ATTAINS polygon feature.
     
-    find_distances <- function(resultid){
+    find_distances <- function(location){
       
       sub_tada <- TADA_with_ATTAINS %>%
-        dplyr::filter(ResultIdentifier == resultid) 
+        dplyr::filter(as.character(geometry) == location) 
+      
+      distance <- sub_tada[1,]
       
       subset <- attains_features[-1] %>%
         purrr::map(~tryCatch(
@@ -1361,32 +1363,43 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
           warning = function(w) data.frame()
         )) %>%
         purrr::keep(~ !is.null(.)) %>%
-        purrr::keep(~ nrow(.) > 0) 
+        purrr::keep(~ nrow(.) > 0)
       
-      distances <- NULL
+      result <- NULL
       
       # Calculate distances
       try(distances <- subset %>%
             # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
             # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
-            purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., dplyr::distinct(sub_tada, geometry))))) %>%
+            purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
             dplyr::bind_rows() %>%
             sf::st_drop_geometry() %>%
             dplyr::select(ATTAINS.assessmentunitidentifier = assessmentunitidentifier,
                           TADA.DistanceAway.Meters) %>%
-            dplyr::distinct() %>%
-            dplyr::mutate(ResultIdentifier = resultid), silent = TRUE)
+            dplyr::distinct(), silent = TRUE)
       
-      return(distances)
+      try(result <- sub_tada %>%
+            data.table::data.table() %>%
+            dplyr::select(ResultIdentifier, ATTAINS.assessmentunitidentifier) %>%
+            dplyr::left_join(., distances, by = "ATTAINS.assessmentunitidentifier") %>%
+            sf::st_drop_geometry() %>%
+            # for AUs with multiple features, only assess the one closest:
+            dplyr::group_by(ResultIdentifier, ATTAINS.assessmentunitidentifier) %>%
+            dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
+            dplyr::ungroup(), silent = TRUE)
+      
+      return(result)
       
     }
     
-    distances_table <- unique(TADA_with_ATTAINS$ResultIdentifier) %>%
-      purrr::map_dfr(~find_distances(resultid = .))
+    distances_table <- as.character(unique(TADA_with_ATTAINS$geometry)) %>%
+      purrr::map_dfr(~find_distances(location = .))
     
     TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+      data.table::data.table() %>%
       dplyr::left_join(., distances_table, by = c("ResultIdentifier", "ATTAINS.assessmentunitidentifier")) %>%
-      dplyr::distinct()
+      dplyr::distinct() %>%
+      sf::st_as_sf()
     
     # If return_nearest is TRUE, only keep the nearest ATTAINS feature to the WQP observation.
     # Otherwise, return all ATTAINS features associated with the same catchment as the WQP observation.
