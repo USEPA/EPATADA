@@ -48,14 +48,20 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 \examples{
 \dontrun{
 # Example 1: Query by area of interest
-locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\% dplyr::filter(NAME \%in\% c("Spokane", "Navajo Nation"))
-sites_aoi_sf <- TADA_getNWIS(aoi_sf = locs_sf, parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31")
+locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\% 
+dplyr::filter(NAME \%in\% c("Spokane", "Navajo Nation"))
+sites_aoi_sf <- TADA_getNWIS(aoi_sf = locs_sf, parameter_codes = 
+c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31")
 
 # Example 2: Query by specific site numbers
-sites_specific <- TADA_getNWIS(sites = c("11530500", "11532500"), parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-12-31")
+sites_specific <- TADA_getNWIS(sites = c("11530500", "11532500"), 
+parameter_codes = c("00060", "00010"), start_date = "2020-01-01", 
+end_date = "2020-12-31")
 
 # Example 3: Query by states
-nwis_data <- TADA_getNWIS(states = c("RI", "CO"), parameter_codes = c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-02")
+nwis_data <- TADA_getNWIS(states = c("RI", "CO"), 
+parameter_codes = c("00060", "00010"), start_date = "2020-01-01", 
+end_date = "2020-01-02")
 }
 
 }

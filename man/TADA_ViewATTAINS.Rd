@@ -33,7 +33,8 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-attains_data <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, return_nearest = TRUE, resolution = "hi", return_sf = TRUE)
+attains_data <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, 
+return_nearest = TRUE, resolution = "hi", return_sf = TRUE)
 
 TADA_ViewATTAINS(attains_data)
 }
