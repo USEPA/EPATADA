@@ -1,5 +1,7 @@
 ANDs
+AOI
 ATTAINSOrgIDsRef
+AUs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
 ActivityDate
@@ -61,6 +63,7 @@ CreateParamRef
 CreateUnitRef
 CreateUseParamRef
 DOI
+DV
 DataFrame
 DataQuality
 DataRetrieval
@@ -72,6 +75,7 @@ DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
 DetectionQuantitationLimitTypeName
+DistanceAway
 DomainValues
 EASP
 EASP's
@@ -341,6 +345,7 @@ bbox
 bnd
 bottomvalue
 bycategory
+cd
 cdx
 characteristicName
 characteristicType
@@ -382,6 +387,7 @@ geospatial
 geospatially
 getFeatureLayer
 getLayer
+getNWIS
 getPopup
 getenv
 ggplot
@@ -396,6 +402,7 @@ importWQP
 interoperable
 io
 lessthan
+listNWIS
 magrittr
 manys
 mapviewer
@@ -452,6 +459,7 @@ tigris
 un
 uncomment
 uncommenting
+uri
 useR
 usepa
 usgs

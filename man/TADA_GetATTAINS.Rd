@@ -67,14 +67,14 @@ tada_attains_sf <- TADA_GetATTAINS(tada_data,
 
 tada_attains_filled <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
-  resolution = "Hi", 
+  resolution = "Hi",
   return_sf = FALSE,
   return_nearest = TRUE
 )
 
 tada_attains_filled_sf <- TADA_GetATTAINS(tada_data,
   fill_catchments = TRUE,
-  resolution = "Hi", 
+  resolution = "Hi",
   return_sf = TRUE,
   return_neares = TRUE
 )

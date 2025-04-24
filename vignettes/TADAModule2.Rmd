@@ -27,7 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   eval = FALSE
 )
 ```
@@ -376,13 +376,15 @@ Let's retrieve information about available NWIS data by a state, then
 visualize that information:
 
 ```{r}
-# Example: Query by state 
+# Example: Query by state
 ri_sites <- TADA_listNWIS(states = "RI")
 
 ri_summary <- ri_sites %>%
   dplyr::group_by(site_no) %>%
-  dplyr::summarize(parameters = paste(unique(parameter), collapse = ";  "),
-                   parameter_codes = paste(unique(parameter_code), collapse = ";  "))
+  dplyr::summarize(
+    parameters = paste(unique(parameter), collapse = ";  "),
+    parameter_codes = paste(unique(parameter_code), collapse = ";  ")
+  )
 
 leaflet::leaflet() %>%
   leaflet::addProviderTiles("Esri.WorldTopoMap",
@@ -418,7 +420,7 @@ leaflet::leaflet() %>%
 We can also query by specific USGS monitoring sites:
 
 ```{r}
-site_nums <- c("11530500", "11532500")  # Two sites in Northern California
+site_nums <- c("11530500", "11532500") # Two sites in Northern California
 sites_info <- TADA_listNWIS(sites = site_nums)
 ```
 
@@ -456,23 +458,25 @@ January 2022:
 ```{r}
 # Example: Retrieve water temperature data within a specified area of interest:
 temperature_data <- TADA_getNWIS(
-  aoi_sf = cherokee_sf, #could also use argumens `states` or `sites`
-  parameter_codes = "00010",  # water temperature in Celsius
-  start_date = "2022-01-01", 
+  aoi_sf = cherokee_sf, # could also use argumens `states` or `sites`
+  parameter_codes = "00010", # water temperature in Celsius
+  start_date = "2022-01-01",
   end_date = "2022-01-31"
 )
 
 # Let's visualize the discharge data
 temperature_data %>%
-    dplyr::mutate(NWIS.date = as.Date(NWIS.date),
-                 NWIS.value = as.numeric(NWIS.value)) %>%
-    ggplot2::ggplot(ggplot2::aes(x = NWIS.date, y = NWIS.value, color = NWIS.site_no)) +
-    ggplot2::geom_line() +
-    ggplot2::labs(
-      title = "Daily Water Temperature at Selected USGS Sites",
-      x = "Date",
-      y = "Water Temperature (Celsius)",
-      color = "Site Number"
-    ) +
-    ggplot2::theme_minimal()
+  dplyr::mutate(
+    NWIS.date = as.Date(NWIS.date),
+    NWIS.value = as.numeric(NWIS.value)
+  ) %>%
+  ggplot2::ggplot(ggplot2::aes(x = NWIS.date, y = NWIS.value, color = NWIS.site_no)) +
+  ggplot2::geom_line() +
+  ggplot2::labs(
+    title = "Daily Water Temperature at Selected USGS Sites",
+    x = "Date",
+    y = "Water Temperature (Celsius)",
+    color = "Site Number"
+  ) +
+  ggplot2::theme_minimal()
 ```

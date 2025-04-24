@@ -46,8 +46,8 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 \examples{
 \dontrun{
 # Example 1: Query by area of interest
-navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\% 
-dplyr::filter(NAME == "Navajo Nation")
+navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\%
+  dplyr::filter(NAME == "Navajo Nation")
 sites_aoi_sf <- TADA_listNWIS(aoi_sf = navajo_sf)
 
 # Example 2: Query by specific site numbers
