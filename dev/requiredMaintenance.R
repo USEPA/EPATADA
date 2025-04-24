@@ -223,15 +223,6 @@ TADA_UpdateExampleData <- function() {
 
 ###########################################################
 
-# Run styler to style code
-# https://style.tidyverse.org/
-# See: https://styler.r-lib.org/reference/style_pkg.html
-# Run the following with defaults
-library(styler)
-style_pkg()
-
-###########################################################
-
 # spell check
 library(spelling)
 spelling::spell_check_package(
@@ -241,6 +232,15 @@ spelling::spell_check_package(
 # run to update spelling word list
 spelling::get_wordlist()
 spelling::update_wordlist()
+
+###########################################################
+
+# Run styler to style code
+# https://style.tidyverse.org/
+# See: https://styler.r-lib.org/reference/style_pkg.html
+# Run the following with defaults
+library(styler)
+style_pkg()
 
 ###########################################################
 
