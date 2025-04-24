@@ -642,7 +642,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 #'   ask = FALSE
 #' )
 #'
-#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", features = c("catchments", "waterbodies", "flowlines"))
+#' nhd_data <- fetchNHD(.data = tada_data, resolution = "Hi", 
+#' features = c("catchments", "waterbodies", "flowlines"))
 #' }
 fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
   
@@ -1569,7 +1570,8 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
 #'   ask = FALSE
 #' )
 #'
-#' attains_data <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, return_nearest = TRUE, resolution = "hi", return_sf = TRUE)
+#' attains_data <- TADA_GetATTAINS(tada_data, fill_catchments = TRUE, 
+#' return_nearest = TRUE, resolution = "hi", return_sf = TRUE)
 #'
 #' TADA_ViewATTAINS(attains_data)
 #' }

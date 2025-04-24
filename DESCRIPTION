@@ -97,7 +97,9 @@ Suggests:
     spelling,
     htmltools,
     tigris,
-    yaml
+    yaml,
+    janitor,
+    rvest
 Remotes:
     DOI-USGS/dataRetrieval@develop
 VignetteBuilder: knitr, rmarkdown
