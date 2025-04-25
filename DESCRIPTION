@@ -79,7 +79,8 @@ Imports:
     rATTAINS,
     DT,
     dataRetrieval,
-    dbscan
+    dbscan,
+    janitor,
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -98,7 +99,6 @@ Suggests:
     htmltools,
     tigris,
     yaml,
-    janitor,
     rvest
 Remotes:
     DOI-USGS/dataRetrieval@develop
