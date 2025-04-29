@@ -136,9 +136,7 @@ Data_NCTC <- Data_HUC8_02070004_Mod1Output
 
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
-  org_id = c("WVDEP"), # WV
-  excel = FALSE
-  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  org_id = c("WVDEP"), 
   # excel = TRUE, overwrite = TRUE
 )
 
@@ -152,15 +150,13 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("WVDEP"),
   paramRef = ParamRef,
-  excel = FALSE,
-  # excel = TRUE, overwrite = TRUE
+  excel = TRUE, overwrite = TRUE
 )
 # Now, run TADA_CreateUseParamRef once you have completed filling out your paramRef from TADA_CreateParamRef.
 NCTC_UseParamRef <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("WVDEP"),
   paramRef = NCTC_ParamRef_Final,
-  excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
 
@@ -170,7 +166,7 @@ add_data <- data.frame("organization_identifier" = "WVDEP", "ATTAINS.ParameterNa
 ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
-UseParamRef_Edit <- NCTC_UseParamRef %>%
+UseParamRef_Modified <- NCTC_UseParamRef %>%
   dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
   dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
   dplyr::select(-c(use_name.x, use_name.y))
@@ -178,11 +174,10 @@ UseParamRef_Edit <- NCTC_UseParamRef %>%
 # NITROGEN, TOTAL will now reflect the changes
 NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
   Data_NCTC,
-  useParamRef = UseParamRef_Edit, # Edits were made to UseParamRef, updates flag column
-  org_id = c("WVDEP"),
   paramRef = NCTC_ParamRef_Final,
-  excel = FALSE
-  # excel = TRUE, overwrite = TRUE
+  useParamRef = UseParamRef_Modified, # Edits were made to UseParamRef, updates flag column
+  org_id = c("WVDEP"),
+  excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -199,9 +194,9 @@ data analysis is shown below.
 TADA_CreateParamRef requires a crosswalk between ATTAINS parameter names
 and WQP characteristic names/TADA comparable data identifiers.
 
-(images/FlowChartMLModule3.jpg)
+![Monitoring Location Summary](images/FlowChartMLModule3.jpg)
 
-(images/FlowChartAUModule3.jpg)
+![Assessment Unit Level Summary](images/FlowChartAUModule3.jpg)
 
 Additional resources:
 
@@ -210,7 +205,7 @@ Additional resources:
     -   ?TADA_CreateParamRef
     -   ?TADA_CreateUseParamRef
     -   ?TADA_CreateSpatialRef
-        -   TADA_CreateUseAURef
+        -   ?TADA_CreateUseAURef
         -   ?TADA_CreateUseWaterParamRef
 
 ### 'TADA_CreateSpatialRef()' on a ML sites Level
@@ -233,7 +228,6 @@ NCTC_SpatialRef_ML <- TADA_CreateSpatialRef(
   Data_NCTC,
   org_id = "WVDEP",
   useParamRef = NCTC_UseParamRef_Final,
-  excel = FALSE,
   # excel = TRUE, overwrite = TRUE
 )
 
@@ -322,8 +316,7 @@ NCTC_UseAURef <- TADA_CreateUseAURef(
   Data_NCTC,
   sitesAURef = sitesAURef,
   org_id = "WVDEP",
-  excel = FALSE
-  # excel = TRUE, overwrite = TRUE
+  excel = TRUE, overwrite = TRUE
 )
 
 add_new_AU <- data.frame(
@@ -332,15 +325,25 @@ add_new_AU <- data.frame(
   ATTAINS.assessmentunitidentifier = c(rep("NEW_WV_AU1", 2), rep("NEW_WV_AU1", 2)),
   ATTAINS.assessmentunitname = c(rep("EXAMPLE_WV_AU1", 2), rep("EXAMPLE_WV_AU1", 2)),
   use_name = c(rep("Public Water Supply", 3), "Warm Water Fishery"),
-  lon = c(rep(-78.20000, 2), rep(-78.10000, 2)),
-  lat = c(rep(39.64000, 2), rep(39.65000, 2)),
+  # lon = c(rep(-78.20000, 2), rep(-78.10000, 2)),
+  # lat = c(rep(39.64000, 2), rep(39.65000, 2)),
   TADA.AssessmentUnitStatus = c(rep("New", 4))
 )
 
-add_new_AU <- sf::st_as_sf(x = add_new_AU, coords = c("lon", "lat"), crs = 4326)
+# add_new_AU <- sf::st_as_sf(x = add_new_AU, coords = c("lon", "lat"), crs = 4326)
 
 
-NCTC_UseAURef_Final <- rbind(NCTC_UseAURef, add_new_AU)
+NCTC_UseAURef_Modified <- dplyr::bind_rows(NCTC_UseAURef, add_new_AU)
+
+
+# The functions are meant to be reusable and flag accordingly to show any changes that may have occurred since your last Assessment cycle. To re-use your useAURef = NCTC_UseAURef_Modified you must provide the sitesAURef.
+NCTC_UseAURef_Final <- TADA_CreateUseAURef(
+  Data_NCTC,
+  sitesAURef = sitesAURef,
+  useAURef = NCTC_UseAURef_Modified, # validates your table
+  org_id = "WVDEP",
+  excel = TRUE, overwrite = TRUE
+)
 
 TADA_TableExport(NCTC_UseAURef_Final)
 ```
@@ -354,7 +357,6 @@ NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
   org_id = "WVDEP",
-  #excel = FALSE
   excel = TRUE, overwrite = TRUE
 )
 
@@ -364,11 +366,20 @@ add_data_WaterUse <- data.frame(
   ApplyUniqueSpatialCriteria = c("Trout-based", "Non Trout-based", "Warm-Water", "Cold-water")
   )
 
-NCTC_WaterUseParamRef_Final <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName")) %>%
+NCTC_WaterUseParamRef_Final <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
 
 TADA_TableExport(NCTC_WaterUseParamRef_Final)
+
+# NCTC_WaterUseParamRef_Final2 <- TADA_CreateWaterUseParamRef(
+#   Data_NCTC,
+#   useAURef = NCTC_UseAURef_Final,
+#   useParamRef = NCTC_UseParamRef_Final,
+#   waterUseParamRef = NCTC_WaterUseParamRef_Final, #validates the entries of your completed table
+#   org_id = "WVDEP",
+#   excel = TRUE, overwrite = TRUE
+# )
 ```
 
 Now that we have done our step by step review, we will use our two
@@ -385,7 +396,6 @@ NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
   waterUseParamRef = NCTC_WaterUseParamRef_Final,
-  # excel = FALSE
   excel = TRUE, overwrite = TRUE
 )
 

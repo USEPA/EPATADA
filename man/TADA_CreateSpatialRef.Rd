@@ -11,7 +11,7 @@ TADA_CreateSpatialRef(
   useAURef = NULL,
   useParamRef = NULL,
   sitesAURef = NULL,
-  excel = TRUE,
+  excel = FALSE,
   overwrite = FALSE
 )
 }

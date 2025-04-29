@@ -7,8 +7,9 @@
 TADA_CreateUseAURef(
   .data,
   sitesAURef = NULL,
+  useAURef = NULL,
   org_id = NULL,
-  excel = TRUE,
+  excel = FALSE,
   overwrite = FALSE
 )
 }
@@ -72,9 +73,8 @@ crosswalk to the AU but may only be applicable for certain parameters.
 \examples{
 # First, we will generate our ML to AU crosswalk. See Module 2 for more information
 # Preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
-# Note: Running into issues with loading example data, running TADA_GetATTAINS directly for now.
-UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
-# UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
+UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
 
 # Now, run TADA_CreateUseAURef()
 UseAURef_UT <- TADA_CreateUseAURef(
