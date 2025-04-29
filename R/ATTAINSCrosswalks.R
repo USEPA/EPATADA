@@ -583,6 +583,23 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #'
 TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswalk = c("ATTAINS", "CST"),
                                 excel = TRUE, overwrite = FALSE) {
+  # overwrite argument should only be used when creating an excel file.
+  if (excel == FALSE && overwrite == TRUE) {
+    stop(paste0(
+      "argument input excel = FALSE and overwrite = TRUE is an invalid combination.",
+      "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE"
+    ))
+  }
+  
+  org.ref <- TADA_GetATTAINSOrgIDsRef()
+  
+  if (!org_id %in% org.ref$code) {
+    print(paste0(
+      "TADA_CreateParamRef: ",
+      "The organization identifier entered by user is not found in ATTAINS."
+    ))
+  }
+  
   # check to see if user-supplied parameter ref is a df with appropriate columns
   if (!is.null(paramRef) & !is.character(paramRef)) {
     if (!is.data.frame(paramRef)) {
@@ -611,8 +628,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswa
     }
   }
 
-  .data <- as.data.frame(.data)
-
   # If users don't provide TADA.ComparableDataIdentifier in their paramRef input,
   # crosswalk using TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
@@ -632,20 +647,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswa
   # if a user provides an org_id argument, it must be a character vector.
   if (!is.character(org_id) & !is.null(org_id)) {
     stop("TADA.CreateParamRef: org_id must be a character vector or left as NULL")
-  }
-
-  # if user doesn't provide an org_id argument, the function extracts the unique
-  # org_id from TADA_GetATTAINS(). Users will need to have ran TADA_GetATTAINS()
-  # for this option to be allowed. Selection of org_id will filter the ATTAINS
-  # domain list for parameter and use name by org_id.
-  if (is.null(org_id)) {
-    TADA_CheckColumns(.data, "ATTAINS.organizationname")
-    print(paste0(
-      "TADA.CreateParamRef: No organization identifier(s) provided.",
-      "Attempting to pull in organization identifiers found in the TADA data frame.",
-      "Users are required to run TADA_GetATTAINS if an org_id argument input is not provided."
-    ))
-    org_id <- unique(stats::na.omit(.data[, "ATTAINS.organizationname"]))
   }
 
   org_id <- as.list(org_id)
@@ -818,8 +819,12 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswa
 
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    sV <- wb$worksheets[[2]]$sheetViews
-    wb$worksheets[[2]]$sheetViews <- set_zoom(90)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
+    
     # Format header and bodystyle
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
@@ -1816,8 +1821,11 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     openxlsx::setColWidths(wb, "CreateSpatialRef", cols = 8:ncol(CreateSpatialRef), widths = "auto")
     # set zoom size
     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-    sV <- wb$worksheets[[5]]$sheetViews
-    wb$worksheets[[5]]$sheetViews <- set_zoom(90)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
 
     # writes CreateSpatialRef dataframe
     openxlsx::writeData(wb, "CreateSpatialRef", startCol = 1, x = CreateSpatialRef, headerStyle = header_st)
@@ -2216,9 +2224,8 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
 #' @examples
 #' # First, we will generate our ML to AU crosswalk. See Module 2 for more information
 #' # Preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
-#' # Note: Running into issues with loading example data, running TADA_GetATTAINS directly for now.
-#' UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
-#' # UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+#' # UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE) 
+#' UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
 #' 
 #' # Now, run TADA_CreateUseAURef()
 #' UseAURef_UT <- TADA_CreateUseAURef(
@@ -2320,6 +2327,7 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL,
       ATTAINS.assessmentunitname, use_name = useName, waterType, TADA.AssessmentUnitStatus
     ) %>%
     dplyr::filter(organization_identifier %in% org_id) %>%
+    sf::st_drop_geometry() %>%
     dplyr::distinct() %>%
     dplyr::arrange(ATTAINS.assessmentunitidentifier, use_name)
 
