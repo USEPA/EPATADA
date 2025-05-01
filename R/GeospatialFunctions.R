@@ -1118,27 +1118,83 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
 #' TADA_GetATTAINS
 #'
-#' Link catchment-based ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features - points, lines, and polygons) to Water Quality Portal observations, often imported via `TADA_DataRetrieval()`. This function returns the objects that can be mapped in `TADA_ViewATTAINS()`. Check out the
-#' TADAModule2.Rmd for an example workflow. Note that approximately 80% of state submitted assessment units in ATTAINS were developed based on high res NHDPlus, so we are using that as the default.
+#' Link catchment-based ATTAINS assessment unit data 
+#' (EPA snapshot of NHDPlus HR catchments associated with entity submitted 
+#' assessment unit features - points, lines, and polygons) to Water Quality 
+#' Portal observations, often imported via `TADA_DataRetrieval()`. This 
+#' function returns the objects that can be mapped in `TADA_ViewATTAINS()`. 
+#' Check out the TADAModule2.Rmd for an example workflow. Note that 
+#' approximately 80% of state submitted assessment units in ATTAINS were 
+#' developed based on high res NHDPlus, so we are using that as the default.
 #'
-#' The ATTAINS snapshot of NHDPlus HR catchments is not available for areas that do not have existing Assessment Units in ATTAINS. For these areas where there are WQP sites, but no existing ATTAINS assessment units, a user can choose to associate the WQP sites with NHDPlus catchments available from the USGS nhdplusTools package (USGS snapshot) using the optional function param 'fill_catchments'. In theory, if desired by the user, these high res catchments could be created as new assessment unit polygons in ATTAINS (that process is outside of TADA).
+#' The ATTAINS snapshot of NHDPlus HR catchments is not available for areas 
+#' that do not have existing Assessment Units in ATTAINS. For these areas where
+#' there are WQP sites, but no existing ATTAINS assessment units, a user can
+#' choose to associate the WQP sites with NHDPlus catchments available from
+#' the USGS nhdplusTools package (please be aware that USGS and EPA ATTAINS 
+#' snapshots of the NHDPlus catchments may vary) using the optional function 
+#' param 'fill_catchments'.  If desired by the user, the HR
+#' catchments could be created as new assessment unit polygons in ATTAINS 
+#' (that process is outside of TADA).
 #'
-#' `ResultIdentifier' identifies rows that are the same observation but are linked to multiple ATTAINS assessment units. It is possible for a single TADA WQP observation to have multiple ATTAINS assessment units linked to it and subsequently more than one row of data.
+#' `ResultIdentifier' identifies rows that are the same observation but are 
+#' linked to multiple ATTAINS assessment units. It is possible for a single 
+#' TADA WQP observation to have multiple ATTAINS assessment units linked to 
+#' it and subsequently more than one row of data.
 #'
-#' If TADA_MakeSpatial has not yet been run, this function runs it which also adds another new column to the input dataframe, 'geometry', which allows for mapping and additional geospatial capabilities.
+#' If TADA_MakeSpatial has not yet been run, this function runs it which also
+#' adds another new column to the input dataframe, 'geometry', which allows 
+#' for mapping and additional geospatial capabilities.
 #'
-#' Please review the output of this function carefully, especially waterbody intersections and lake/ocean coasts where imprecise WQP monitoring location coordinates can be problematic. Note that many WQP locations will not fall within the bounds of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks are strongly encouraged. WQP monitoring location metadata may also be helpful for matching waterbody names with ATTAINS waterbody names instead of relying solely on the geospatial location (lat/long).
+#' Please review the output of this function carefully, especially waterbody 
+#' intersections (tributaries), lake/ocean coasts, and other areas with 
+#' complex hydrology where imprecise WQP monitoring location coordinates can 
+#' be problematic. Note that many WQP locations will not fall within the bounds 
+#' of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks 
+#' are strongly encouraged. WQP monitoring location metadata may also be helpful 
+#' for matching waterbody  names with ATTAINS waterbody names instead of relying 
+#' solely on the geospatial location (lat/long).
+#' 
+#' All monitoring location and assessment unit associations, especially for 
+#' tributary and other areas with complex hydrology, should be closely reviewed.
 #'
-#' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf equivalent made by `TADA_MakeSpatial()`.
-#' @param return_nearest If a WQP observation falls within more than one AU, return ONLY the nearest AU (return_nearest = TRUE), or all AUs (return_nearest = FALSE).
-#' @param fill_catchments Whether the user would like to return NHD catchments for WQP observations not associated with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, the returned list splits observations into two dataframes: WQP observations with ATTAINS catchment data, and WQP observations without ATTAINS catchment data. Defaults to FALSE.
-#' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med" catchments or NHDPlus HiRes "Hi" catchments. Default is NHDPlus HiRes ("Hi") because at approximately 80% of state submitted assessment units in ATTAINS were developed based on NHDPlus HiRes.
-#' @param return_sf Whether to return the ATTAINS associated catchments, lines, points, and polygon shapefile objects along with the data frame(s). TRUE (yes, return list) or FALSE (no, do not return). All shapefile features are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, the function will additionally return the raw catchment features associated with the observations in TADA_without_ATTAINS in a new shapefile called without_ATTAINS_catchments. Defaults to TRUE.
+#' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf 
+#' equivalent made by `TADA_MakeSpatial()`.
+#' @param return_nearest If a WQP observation falls within more than one AU, 
+#' return ONLY the nearest AU (return_nearest = TRUE), or all AUs 
+#' (return_nearest = FALSE).
+#' @param fill_catchments Whether the user would like to return NHD catchments
+#' (USGS snapshot of NHDPlus V2) for WQP observations not associated with an 
+#' ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE, 
+#' the returned list splits observations into two dataframes: WQP observations 
+#' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP 
+#' observations without ATTAINS catchment data. Defaults to FALSE.
+#' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med"
+#' catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes 
+#' ("Hi") because at approximately 80% of state submitted assessment units in 
+#' ATTAINS were developed based on NHDPlus V2 HiRes.
+#' @param return_sf Whether to return the ATTAINS associated catchments, lines, 
+#' points, and polygon shapefile objects along with the data frame(s). 
+#' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features 
+#' are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE, 
+#' the function will additionally return the raw catchment features associated 
+#' with the observations in TADA_without_ATTAINS in a new shapefile called 
+#' without_ATTAINS_catchments. Defaults to TRUE.
 #'
-#' @return A modified `TADA_DataRetrieval()` dataframe or list with additional columns associated with the ATTAINS assessment unit data, and, if fill_catchments = TRUE, an additional dataframe of the observations without intersecting ATTAINS features.
-#' Moreover, if return_sf = TRUE, this function will additionally return the raw ATTAINS and catchment shapefile features associated with those observations. For each WQP point, the distance to all ATTAINS features within the same catchment is
-#' calculated. A TADA.DistanceAway.Meters value of 0 indicates that the WQP observation is directly on the associated ATTAINS point or line feature, or located inside the associated ATTAINS polygon.
-#'
+#' @return A modified `TADA_DataRetrieval()` dataframe or list with additional 
+#' columns associated with the ATTAINS assessment unit data, and, if 
+#' fill_catchments = TRUE, an additional dataframe of the observations without 
+#' intersecting ATTAINS features.
+#' Moreover, if return_sf = TRUE, this function will additionally return the 
+#' raw ATTAINS and catchment shapefile features associated with those 
+#' observations. 
+#' 
+#' This function calculates and reports the distance, 'TADA.DistanceAway.Meters', 
+#' between each WQP observation and intersecting ATTAINS features within its 
+#' catchment. A TADA.DistanceAway.Meters value of 0 indicates that the WQP 
+#' observation is directly on the associated  ATTAINS point or line feature, 
+#' or located inside the associated ATTAINS polygon.
+#' 
 #' @seealso [TADA_DataRetrieval()]
 #' @seealso [TADA_MakeSpatial()]
 #' @seealso [TADA_ViewATTAINS()]
@@ -1156,7 +1212,8 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   ask = FALSE
 #' )
 #'
-#' # note: these example ATTAINS data retrieval queries below may take a long time (10+ minutes) to run
+#' # note: these example ATTAINS data retrieval queries below may take a long 
+#' # time (10+ minutes) to run
 #' tada_attains <- TADA_GetATTAINS(tada_data,
 #'   fill_catchments = FALSE,
 #'   return_sf = FALSE,
@@ -1180,7 +1237,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   fill_catchments = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = TRUE,
-#'   return_neares = TRUE
+#'   return_nearest = TRUE
 #' )
 #' }
 TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FALSE, resolution = "Hi", return_sf = TRUE) {
@@ -1371,7 +1428,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
           nrow() > 0
       })
     }) & return_nearest == FALSE) {
-      message("WARNINIG! Some of your WQP observations fall within a catchment that has more than one ATTAINS feature in it.")
+      message("WARNING! Some of your WQP observations fall within a catchment that has more than one ATTAINS feature in it.")
       message("For these, duplicate rows have been created, one for each ATTAINS feature. Use `ResultIdentifier` to track these instances.")
       message("If you would like to instead only return the nearest ATTAINS feature, use `return_nearest = TRUE.")
     }

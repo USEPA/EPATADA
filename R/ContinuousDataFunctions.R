@@ -355,8 +355,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", sites = "null") {
     ) %>%
     # Remove any duplicates if they exist (precautionary - they shouldn't!)
     dplyr::distinct(., .keep_all = TRUE)
-
-
+  
   # If no data, return empty data frame
   if (nrow(inventory) == 0) {
     message("No daily USGS-NWIS data in specified query.")

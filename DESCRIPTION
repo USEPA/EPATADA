@@ -99,7 +99,8 @@ Suggests:
     htmltools,
     tigris,
     yaml,
-    rvest
+    rvest,
+    remotes
 Remotes:
     DOI-USGS/dataRetrieval@develop
 VignetteBuilder: knitr, rmarkdown
