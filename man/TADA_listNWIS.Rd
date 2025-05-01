@@ -4,14 +4,14 @@
 \alias{TADA_listNWIS}
 \title{TADA_listNWIS}
 \usage{
-TADA_listNWIS(aoi_sf = "null", states = "null", sites = "null")
+TADA_listNWIS(aoi_sf = "null", statecode = "null", sites = "null")
 }
 \arguments{
 \item{aoi_sf}{An sf object defining the area of interest. All individual sf
 features (or "rows" in the sf data frame) must be under 118,078 square miles
 (roughly the area of Nevada).}
 
-\item{states}{Character vector of two-letter state codes (e.g., c("CA", "OR")).}
+\item{statecode}{Character vector of two-letter state codes (e.g., c("CA", "OR")).}
 
 \item{sites}{Character vector of USGS site numbers.}
 }
@@ -39,7 +39,7 @@ If no data is found, returns an empty sf object with appropriate column structur
 \details{
 List available USGS daily NWIS data
 
-Only one of the query arguments (\code{aoi_sf}, \code{states}, or \code{sites})
+Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{sites})
 should be provided. The function will stop if none or more than one are provided.
 Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 }
@@ -55,7 +55,7 @@ site_nums <- c("11530500", "11532500")
 sites_specific <- TADA_listNWIS(sites = site_nums)
 
 # Example 3: Query by state
-sites_state <- TADA_listNWIS(states = c("CT", "RI"))
+sites_state <- TADA_listNWIS(statecode = c("CT", "RI"))
 }
 
 }

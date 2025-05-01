@@ -377,7 +377,7 @@ visualize that information:
 
 ```{r}
 # Example: Query by state
-ri_sites <- TADA_listNWIS(states = "RI")
+ri_sites <- TADA_listNWIS(statecode = "RI")
 
 ri_summary <- ri_sites %>%
   dplyr::group_by(site_no) %>%
@@ -438,7 +438,7 @@ cherokee_nwis <- TADA_listNWIS(aoi_sf = cherokee_sf)
 This function retrieves and tidy-formats daily values from NWIS. It
 interfaces with the USGS National Water Information System to retrieve
 daily value (DV) water data. Like `TADA_listNWIS()`, users can query
-data based on an area of interest (i.e., an sf object), states, or
+data based on an area of interest (i.e., an sf object), statecode, or
 specific sites.
 
 Additionally, users must specify the parameter codes they want to
@@ -458,7 +458,7 @@ January 2022:
 ```{r}
 # Example: Retrieve water temperature data within a specified area of interest:
 temperature_data <- TADA_getNWIS(
-  aoi_sf = cherokee_sf, # could also use argumens `states` or `sites`
+  aoi_sf = cherokee_sf, # could also use argumens `statecode` or `sites`
   parameter_codes = "00010", # water temperature in Celsius
   start_date = "2022-01-01",
   end_date = "2022-01-31"

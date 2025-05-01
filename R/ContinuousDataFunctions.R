@@ -11,7 +11,7 @@
 #' @param aoi_sf An sf object defining the area of interest. All individual sf
 #' features (or "rows" in the sf data frame) must be under 118,078 square miles
 #' (roughly the area of Nevada).
-#' @param states Character vector of two-letter state codes (e.g., c("CA", "OR")).
+#' @param statecode Character vector of two-letter state codes (e.g., c("CA", "OR")).
 #' @param sites Character vector of USGS site numbers.
 #'
 #' @return An sf object containing NWIS site information including:
@@ -28,7 +28,7 @@
 #'   }
 #'   Returns an empty sf object with the same structure if no data is found.
 #'
-#' @details Only one of the query arguments (`aoi_sf`, `states`, or `sites`)
+#' @details Only one of the query arguments (`aoi_sf`, `statecode`, or `sites`)
 #' should be provided. The function will stop if none or more than one are provided.
 #' Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 #'
@@ -44,22 +44,22 @@
 #' sites_specific <- TADA_listNWIS(sites = site_nums)
 #'
 #' # Example 3: Query by state
-#' sites_state <- TADA_listNWIS(states = c("CT", "RI"))
+#' sites_state <- TADA_listNWIS(statecode = c("CT", "RI"))
 #' }
 #'
-TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
+TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", sites = "null") {
   # Confirm only a single argument has been provided
-  if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
+  if (!sum(purrr::map_lgl(list(aoi_sf, statecode[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
-        "Multiple data-querying arguments (`aoi_sf`, `states`, `sites`) have been provided. ",
+        "Multiple data-querying arguments (`aoi_sf`, `statecode`, `sites`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
+  } else if (sum(purrr::map_lgl(list(aoi_sf, statecode[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
     stop(
       paste0(
-        "No data-querying argument (`aoi_sf`, `states`, `sites`) has been provided. ",
+        "No data-querying argument (`aoi_sf`, `statecode`, `sites`) has been provided. ",
         "Please select from one of these query options."
       )
     )
@@ -242,31 +242,31 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
     }
 
     # Grab NWIS sites by state code:
-  } else if (any(unlist(states) != "null")) {
+  } else if (any(unlist(statecode) != "null")) {
     # ensure proper capitalization
-    states <- toupper(states)
+    statecode <- toupper(statecode)
 
-    valid_states <- c(
+    valid_statecode <- c(
       "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
       "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
       "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
       "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
       "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-      "PR"
+      "PR", "VI", "MP", "GU", "AS"
     )
 
-    if (!any(states %in% valid_states)) {
+    if (!any(statecode %in% valid_statecode)) {
       stop("Valid state abbreviation not provided. Please use state abbreviations.")
     }
 
-    sites <- vector("list", length = length(states))
+    sites <- vector("list", length = length(statecode))
 
     suppressWarnings({
       suppressMessages({
-        for (i in 1:length(states)) {
+        for (i in 1:length(statecode)) {
           tryCatch(
             {
-              sites[[i]] <- dataRetrieval::whatNWISsites(stateCd = states[i]) %>%
+              sites[[i]] <- dataRetrieval::whatNWISsites(stateCd = statecode[i]) %>%
                 dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
             },
             error = function(e) {
@@ -377,7 +377,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
 #' @param aoi_sf An sf object defining the area of interest. All individual sf
 #' features (or "rows" in the sf data frame) must be under 118,078 square miles
 #' (roughly the area of Nevada).
-#' @param states A character vector of two-letter state abbreviations (e.g., `"CA"`, `"NY"`).
+#' @param statecode A character vector of two-letter state abbreviations (e.g., `"CA"`, `"NY"`).
 #' @param sites A character vector of USGS site numbers.
 #' @param parameter_codes A character vector of NWIS parameter codes to filter for (e.g., `"00060"` for discharge). Parameter codes and
 #' names can be found at https://help.waterdata.usgs.gov/parameter_cd?group_cd=%
@@ -387,7 +387,7 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
 #' @return A tidy `data.frame` containing daily values for each site, date, and parameter,
 #' including a corresponding status code for each measurement.
 #'
-#' @details Only one of the query arguments (`aoi_sf`, `states`, or `sites`)
+#' @details Only one of the query arguments (`aoi_sf`, `statecode`, or `sites`)
 #' should be provided. The function will stop if none or more than one are provided.
 #' Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 #'
@@ -410,27 +410,27 @@ TADA_listNWIS <- function(aoi_sf = "null", states = "null", sites = "null") {
 #'   end_date = "2020-12-31"
 #' )
 #'
-#' # Example 3: Query by states
+#' # Example 3: Query by statecode
 #' nwis_data <- TADA_getNWIS(
-#'   states = c("RI", "CO"),
+#'   statecode = c("RI", "CO"),
 #'   parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
 #'   end_date = "2020-01-02"
 #' )
 #' }
 #'
-TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", parameter_codes, start_date, end_date) {
+TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", sites = "null", parameter_codes, start_date, end_date) {
   # Confirm only a single argument has been provided
-  if (!sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
+  if (!sum(purrr::map_lgl(list(aoi_sf, statecode[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
       paste0(
-        "Multiple data-querying arguments (`aoi_sf`, `states`, `sites`) have been provided. ",
+        "Multiple data-querying arguments (`aoi_sf`, `statecode`, `sites`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(purrr::map_lgl(list(aoi_sf, states[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
+  } else if (sum(purrr::map_lgl(list(aoi_sf, statecode[1], sites[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
     stop(
       paste0(
-        "No data-querying argument (`aoi_sf`, `states`, `sites`) has been provided. ",
+        "No data-querying argument (`aoi_sf`, `statecode`, `sites`) has been provided. ",
         "Please select from one of these query options."
       )
     )
@@ -511,11 +511,11 @@ TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", param
     list <- dplyr::bind_rows(sites)
 
     # Grab NWIS by states:
-  } else if ((unlist(states)[1] != "null")) {
+  } else if ((unlist(statecode)[1] != "null")) {
     # ensure proper capitalization
-    states <- toupper(states)
+    statecode <- toupper(statecode)
 
-    valid_states <- c(
+    valid_statecode <- c(
       "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
       "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
       "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
@@ -524,18 +524,18 @@ TADA_getNWIS <- function(aoi_sf = "null", states = "null", sites = "null", param
       "PR"
     )
 
-    if (!any(states %in% valid_states)) {
+    if (!any(statecode %in% valid_statecode)) {
       stop("Valid state abbreviation not provided. Please use state abbreviations.")
     }
 
-    sites <- vector("list", length = length(states))
+    sites <- vector("list", length = length(statecode))
 
     suppressWarnings({
       suppressMessages({
-        for (i in 1:length(states)) {
+        for (i in 1:length(statecode)) {
           tryCatch(
             {
-              sites[[i]] <- dataRetrieval::whatNWISdata(stateCd = states[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
+              sites[[i]] <- dataRetrieval::whatNWISdata(stateCd = statecode[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
                 dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
             },
             error = function(e) {

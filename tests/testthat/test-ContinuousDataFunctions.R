@@ -30,7 +30,7 @@ testthat::test_that("TADA_listNWIS returns empty sf with correct structure when 
 testthat::test_that("TADA_listNWIS validates input parameters correctly", {
   # Test with multiple query types
   testthat::expect_error(
-    TADA_listNWIS(sites = c("11530500"), states = "CA"),
+    TADA_listNWIS(sites = c("11530500"), statecode = "CA"),
     "Multiple data-querying arguments"
   )
 
@@ -42,7 +42,7 @@ testthat::test_that("TADA_listNWIS validates input parameters correctly", {
 
   # Test invalid state code
   testthat::expect_error(
-    TADA_listNWIS(states = "ZZ"),
+    TADA_listNWIS(statecode = "ZZ"),
     "Valid state abbreviation not provided"
   )
 })
@@ -117,7 +117,7 @@ testthat::test_that("TADA_getNWIS validates input parameters correctly", {
   testthat::expect_error(
     TADA_getNWIS(
       sites = "11530500",
-      states = "CA",
+      statecode = "CA",
       parameter_codes = "00060",
       start_date = "2020-01-01",
       end_date = "2020-01-05"

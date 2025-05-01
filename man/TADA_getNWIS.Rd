@@ -6,7 +6,7 @@
 \usage{
 TADA_getNWIS(
   aoi_sf = "null",
-  states = "null",
+  statecode = "null",
   sites = "null",
   parameter_codes,
   start_date,
@@ -18,7 +18,7 @@ TADA_getNWIS(
 features (or "rows" in the sf data frame) must be under 118,078 square miles
 (roughly the area of Nevada).}
 
-\item{states}{A character vector of two-letter state abbreviations (e.g., \code{"CA"}, \code{"NY"}).}
+\item{statecode}{A character vector of two-letter state abbreviations (e.g., \code{"CA"}, \code{"NY"}).}
 
 \item{sites}{A character vector of USGS site numbers.}
 
@@ -41,7 +41,7 @@ Data from Agencies) framework. Users can query data based on a spatial area of i
 with relevant parameter codes and a date range.
 }
 \details{
-Only one of the query arguments (\code{aoi_sf}, \code{states}, or \code{sites})
+Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{sites})
 should be provided. The function will stop if none or more than one are provided.
 Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 }
@@ -62,9 +62,9 @@ sites_specific <- TADA_getNWIS(
   end_date = "2020-12-31"
 )
 
-# Example 3: Query by states
+# Example 3: Query by statecode
 nwis_data <- TADA_getNWIS(
-  states = c("RI", "CO"),
+  statecode = c("RI", "CO"),
   parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
   end_date = "2020-01-02"
 )
