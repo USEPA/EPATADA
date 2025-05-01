@@ -8,6 +8,7 @@ TADA_CreateWaterUseParamRef(
   .data,
   useParamRef = NULL,
   useAURef = NULL,
+  waterUseParamRef = NULL,
   org_id = NULL,
   excel = FALSE,
   overwrite = FALSE

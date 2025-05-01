@@ -9,6 +9,7 @@ TADA_CreateUseParamRef(
   org_id = NULL,
   paramRef = NULL,
   useParamRef = NULL,
+  auto_assign = TRUE,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -43,6 +44,11 @@ organization specific use_name(s) for each ATTAINS.ParameterName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
+
+\item{auto_assign}{A boolean value. If TRUE, this will assign all unique
+use names to an ATTAINS.ParameterName that has not been defined by your
+organization from ATTAINS. If FALSE, the values will be left blank and
+will need you to manually assign use names as needed.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.

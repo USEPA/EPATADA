@@ -241,11 +241,25 @@ certain combination of characteristics that have site-specific criteria.
 Let's go through an example of how a user may modify this table.
 
 ```{r}
-add_data_spatial_ML <- data.frame(MonitoringLocationTypeName = c(rep("Stream", 4)), ATTAINS.ParameterName = c(rep("PH", 4)), ApplyUniqueSpatialCriteria = c("Trout-based", "Non Trout-based", "Warm-Water", "Cold-water"))
+add_data_spatial_ML <- data.frame(
+  MonitoringLocationTypeName = c(rep("Stream", 4)), 
+  ATTAINS.ParameterName = c(rep("PH", 4)),
+  ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
+  )
 
-NCTC_SpatialRef_ML_Final <- dplyr::left_join(NCTC_SpatialRef_ML, add_data_spatial_ML, by = c("MonitoringLocationTypeName", "ATTAINS.ParameterName")) %>%
+NCTC_SpatialRef_ML_Modified <- dplyr::left_join(
+  NCTC_SpatialRef_ML, add_data_spatial_ML, 
+  by = c("MonitoringLocationTypeName", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
+
+NCTC_SpatialRef_ML_Final <- TADA_CreateSpatialRef(
+  Data_NCTC,
+  org_id = "WVDEP",
+  useParamRef = NCTC_UseParamRef_Final,
+  spatialRef = NCTC_SpatialRef_ML_Modified
+  # excel = TRUE, overwrite = TRUE
+)
 
 TADA_TableExport(NCTC_SpatialRef_ML_Final)
 ```
@@ -333,10 +347,12 @@ add_new_AU <- data.frame(
 # add_new_AU <- sf::st_as_sf(x = add_new_AU, coords = c("lon", "lat"), crs = 4326)
 
 
-NCTC_UseAURef_Modified <- dplyr::bind_rows(NCTC_UseAURef, add_new_AU)
+NCTC_UseAURef_Modified <- NCTC_UseAURef %>%
+  dplyr::bind_rows(add_new_AU) %>% 
+  dplyr::filter(!ATTAINS.assessmentunitidentifier %in% "WV-PL-20_03")
 
 
-# The functions are meant to be reusable and flag accordingly to show any changes that may have occurred since your last Assessment cycle. To re-use your useAURef = NCTC_UseAURef_Modified you must provide the sitesAURef.
+# The functions are meant to be reusable and flag any rows accordingly to show any changes that may have occurred since your last Assessment cycle. To re-use your useAURef = NCTC_UseAURef_Modified you must provide the sitesAURef.
 NCTC_UseAURef_Final <- TADA_CreateUseAURef(
   Data_NCTC,
   sitesAURef = sitesAURef,
@@ -363,23 +379,28 @@ NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(
 add_data_WaterUse <- data.frame(
   waterType = c(rep("STREAM/CREEK/RIVER", 4)),
   ATTAINS.ParameterName = c(rep("PH", 4)),
-  ApplyUniqueSpatialCriteria = c("Trout-based", "Non Trout-based", "Warm-Water", "Cold-water")
+  ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
   )
 
-NCTC_WaterUseParamRef_Final <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+NCTC_WaterUseParamRef_Modified <- NCTC_WaterUseParamRef %>% 
+  tidyr::uncount(2) %>%
+  dplyr::mutate(ApplyUniqueSpatialCriteria = rep(c("Y","N"), times =21))
+  
+
+NCTC_WaterUseParamRef_Modified <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
 
-TADA_TableExport(NCTC_WaterUseParamRef_Final)
+TADA_TableExport(NCTC_WaterUseParamRef_Modified)
 
-# NCTC_WaterUseParamRef_Final2 <- TADA_CreateWaterUseParamRef(
-#   Data_NCTC,
-#   useAURef = NCTC_UseAURef_Final,
-#   useParamRef = NCTC_UseParamRef_Final,
-#   waterUseParamRef = NCTC_WaterUseParamRef_Final, #validates the entries of your completed table
-#   org_id = "WVDEP",
-#   excel = TRUE, overwrite = TRUE
-# )
+NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
+  Data_NCTC,
+  useAURef = NCTC_UseAURef_Final,
+  useParamRef = NCTC_UseParamRef_Final,
+  waterUseParamRef = NCTC_WaterUseParamRef_Modified, #validates the entries of your completed table
+  org_id = "WVDEP",
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 Now that we have done our step by step review, we will use our two

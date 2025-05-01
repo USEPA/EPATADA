@@ -11,6 +11,7 @@ TADA_CreateSpatialRef(
   useAURef = NULL,
   useParamRef = NULL,
   sitesAURef = NULL,
+  spatialRef = NULL,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -36,7 +37,7 @@ a water body, use, or parameter and by any combinations if needed. Users will
 need to ensure this crosswalk contains the appropriate column names in order to
 run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
 
-\item{useAURef}{An option data frame input. If provided, this data frame
+\item{useAURef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with an assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
@@ -47,7 +48,7 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
-\item{sitesAURef}{An option data frame input. If provided, this data frame
+\item{sitesAURef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
