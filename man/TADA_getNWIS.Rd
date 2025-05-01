@@ -9,6 +9,7 @@ TADA_getNWIS(
   statecode = "null",
   siteid = "null",
   parameter_codes,
+  stat_codes = "00003",
   start_date,
   end_date
 )
@@ -25,6 +26,9 @@ features (or "rows" in the sf data frame) must be under 118,078 square miles
 \item{parameter_codes}{A character vector of NWIS parameter codes to filter for (e.g., \code{"00060"} for discharge). Parameter codes and
 names can be found at https://help.waterdata.usgs.gov/parameter_cd?group_cd=\%}
 
+\item{stat_codes}{A character vector of statistical types (e.g, the daily mean, the daily maximum, etc.) to return. Statistical code
+names can be found at https://help.waterdata.usgs.gov/stat_code. Default is mean ("00003").}
+
 \item{start_date}{A character string representing the start date for data retrieval in \code{"YYYY-MM-DD"} format.}
 
 \item{end_date}{A character string representing the end date for data retrieval in \code{"YYYY-MM-DD"} format.}
@@ -38,7 +42,7 @@ This function interfaces with the USGS National Water Information System (NWIS) 
 retrieve daily values (DV) water quality data using the TADA (Tools for Automated
 Data Analysis) framework. Users can query data based on a spatial area of interest
 (AOI), a vector of state abbreviations, or a vector of specific site ids, along
-with relevant USGS parameter codes and a date range.
+with relevant USGS parameter codes, statistics to return, and a date range.
 }
 \details{
 Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{siteid})
@@ -51,21 +55,27 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\%
   dplyr::filter(NAME \%in\% c("Spokane", "Navajo Nation"))
 sites_aoi_sf <- TADA_getNWIS(
-  aoi_sf = locs_sf, parameter_codes =
-    c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31"
+  aoi_sf = locs_sf,
+   parameter_codes =
+    c("00060", "00010"), 
+    start_date = "2020-01-01", 
+    end_date = "2020-01-31"
 )
 
 # Example 2: Query by specific site numbers
 sites_specific <- TADA_getNWIS(
   siteid = c("11530500", "11532500"),
-  parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
+  parameter_codes = c("00060", "00010"), 
+  start_date = "2020-01-01",
   end_date = "2020-12-31"
 )
 
 # Example 3: Query by statecode
 nwis_data <- TADA_getNWIS(
   statecode = c("RI", "CO"),
-  parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
+  stat_codes = c("00003", "00001"),
+  parameter_codes = c("00060", "00010"), 
+  start_date = "2020-01-01",
   end_date = "2020-01-02"
 )
 }

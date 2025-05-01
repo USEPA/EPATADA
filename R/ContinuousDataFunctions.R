@@ -76,6 +76,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
         site_type_cd = character(),
         data_type = character(),
         data_type_cd = character(),
+        stat_type = character(),
+        stat_cd = character(),
         parameter = character(),
         parameter_code = character(),
         n_obs = character(),
@@ -118,6 +120,23 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     return(nwis_table)
   }
 
+  # Daily stats info grabber:
+  
+  stats_table <- function() {
+    
+    site_url <- "https://help.waterdata.usgs.gov/stat_code"
+    
+    table <- rvest::read_html(site_url) %>%
+      rvest::html_nodes("table") %>%
+      rvest::html_table() %>%
+      .[[1]] %>%
+      dplyr::mutate(stat_cd = sprintf("%05d", `Statistic Type Code`)) %>%
+      dplyr::select(stat_cd, stat_type = `Statistic Type Description`)
+    
+    return(table)
+    
+  }
+  
   # Grab NWIS by an area of interest:
   if ((unlist(aoi_sf)[1] != "null")) {
     og_epsg <- sf::st_crs(aoi_sf)$epsg
@@ -206,6 +225,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       .[aoi_sf, ] %>%
       dplyr::left_join(pcodes(), by = "parm_cd") %>%
       dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
+      dplyr::left_join(., stats_table(), by = "stat_cd") %>%
       dplyr::mutate(data_type = "Daily") %>%
       dplyr::select(site_no,
         site_name = station_nm,
@@ -213,6 +233,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
         site_type_cd = site_tp_cd,
         data_type,
         data_type_cd,
+        stat_type,
+        stat_cd,
         parameter = parameter_name_description,
         parameter_code = parm_cd,
         n_obs = count_nu,
@@ -340,6 +362,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269) %>%
     dplyr::left_join(pcodes(), by = "parm_cd") %>%
     dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
+    dplyr::left_join(., stats_table(), by = "stat_cd") %>%
     dplyr::mutate(data_type = "Daily") %>%
     dplyr::select(site_no,
       site_name = station_nm,
@@ -347,6 +370,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       site_type_cd = site_tp_cd,
       data_type,
       data_type_cd,
+      stat_type,
+      stat_cd,
       parameter = parameter_name_description,
       parameter_code = parm_cd,
       n_obs = count_nu,
@@ -371,7 +396,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' retrieve daily values (DV) water quality data using the TADA (Tools for Automated 
 #' Data Analysis) framework. Users can query data based on a spatial area of interest
 #' (AOI), a vector of state abbreviations, or a vector of specific site ids, along
-#' with relevant USGS parameter codes and a date range.
+#' with relevant USGS parameter codes, statistics to return, and a date range.
 #'
 #' @param aoi_sf An sf object defining the area of interest. All individual sf
 #' features (or "rows" in the sf data frame) must be under 118,078 square miles
@@ -380,6 +405,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' @param siteid A character vector of USGS site numbers.
 #' @param parameter_codes A character vector of NWIS parameter codes to filter for (e.g., `"00060"` for discharge). Parameter codes and
 #' names can be found at https://help.waterdata.usgs.gov/parameter_cd?group_cd=%
+#' @param stat_codes A character vector of statistical types (e.g, the daily mean, the daily maximum, etc.) to return. Statistical code
+#' names can be found at https://help.waterdata.usgs.gov/stat_code. Default is mean ("00003").
 #' @param start_date A character string representing the start date for data retrieval in `"YYYY-MM-DD"` format.
 #' @param end_date A character string representing the end date for data retrieval in `"YYYY-MM-DD"` format.
 #'
@@ -398,26 +425,32 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
 #'   dplyr::filter(NAME %in% c("Spokane", "Navajo Nation"))
 #' sites_aoi_sf <- TADA_getNWIS(
-#'   aoi_sf = locs_sf, parameter_codes =
-#'     c("00060", "00010"), start_date = "2020-01-01", end_date = "2020-01-31"
+#'   aoi_sf = locs_sf,
+#'    parameter_codes =
+#'     c("00060", "00010"), 
+#'     start_date = "2020-01-01", 
+#'     end_date = "2020-01-31"
 #' )
 #'
 #' # Example 2: Query by specific site numbers
 #' sites_specific <- TADA_getNWIS(
 #'   siteid = c("11530500", "11532500"),
-#'   parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
+#'   parameter_codes = c("00060", "00010"), 
+#'   start_date = "2020-01-01",
 #'   end_date = "2020-12-31"
 #' )
 #'
 #' # Example 3: Query by statecode
 #' nwis_data <- TADA_getNWIS(
 #'   statecode = c("RI", "CO"),
-#'   parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
+#'   stat_codes = c("00003", "00001"),
+#'   parameter_codes = c("00060", "00010"), 
+#'   start_date = "2020-01-01",
 #'   end_date = "2020-01-02"
 #' )
 #' }
 #'
-TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", parameter_codes, start_date, end_date) {
+TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", parameter_codes, stat_codes = "00003", start_date, end_date) {
   # Confirm only a single argument has been provided
   if (!sum(purrr::map_lgl(list(aoi_sf, statecode[1], siteid[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
     stop(
@@ -487,7 +520,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
           siteid[[i]] <- tryCatch(
             {
-              dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
+              dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes, statCd = stat_codes) %>%
                 dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
             },
             error = function(e) {
@@ -499,7 +532,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
               } else {
                 # For any other error, stop with server error message
-                stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+                stop(paste0("Something went wrong: ", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
               }
             }
           )
@@ -520,7 +553,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
       "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
       "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-      "PR"
+      "PR", "VI", "MP", "GU", "AS"
     )
 
     if (!any(statecode %in% valid_statecode)) {
@@ -534,7 +567,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
         for (i in 1:length(statecode)) {
           tryCatch(
             {
-              siteid[[i]] <- dataRetrieval::whatNWISdata(stateCd = statecode[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes) %>%
+              siteid[[i]] <- dataRetrieval::whatNWISdata(stateCd = statecode[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes, statCd = stat_codes) %>%
                 dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
             },
             error = function(e) {
@@ -566,6 +599,8 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
     stop(paste0(
       "No data available for the specified parameter(s) ",
       paste(parameter_codes, collapse = ", "),
+      " and/or statistic(s) ",
+      paste(stat_codes, collapse = ", "),
       " at these sites during the time frame ",
       start_date, " to ", end_date, "."
     ))
@@ -591,7 +626,8 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
                 siteNumbers = chunk,
                 parameterCd = parameter_codes,
                 startDate = start_date,
-                endDate = end_date
+                endDate = end_date,
+                statCd = stat_codes
               )
 
               if (nrow(data) > 0) {
@@ -635,8 +671,10 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
   # Check if full_data is empty
   if (nrow(full_data) == 0) {
     stop(paste0(
-      "Query returned no data for the specified parameter(s) ",
+      "Query returned no data for specified parameter(s) ",
       paste(parameter_codes, collapse = ", "),
+      " and/or statistic(s) ",
+      paste(stat_codes, collapse = ", "),
       " at these sites during the time frame ",
       start_date, " to ", end_date, "."
     ))
@@ -648,6 +686,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       names_to = "NWIS.parameter",
       values_to = "NWIS.value"
     ) %>%
+    dplyr::mutate(NWIS.parameter = ifelse(!grepl("_", NWIS.parameter), paste0(NWIS.parameter, "_mean"), NWIS.parameter)) %>%
     dplyr::select(NWIS.site_no = site_no, NWIS.date = Date, NWIS.parameter, NWIS.value)
 
   status <- full_data %>%
@@ -663,7 +702,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
   # Check if final data is empty after removing NA values
   if (nrow(tidied) == 0) {
-    stop("All retrieved data contained NA values. No valid data available for the specified parameters and time frame.")
+    stop("All retrieved data contained NA values. No valid data available for the specified parameters and/or stats and time frame.")
   }
 
   return(tidied)

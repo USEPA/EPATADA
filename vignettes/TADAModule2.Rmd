@@ -441,25 +441,28 @@ daily value (DV) water data. Like `TADA_listNWIS()`, users can query
 data based on an area of interest (i.e., an sf object), statecode, or
 specific sites.
 
-Additionally, users must specify the parameter codes they want to
-download and a date range. A list of all available parameters can be
-found at:
+Additionally, users must specify the parameter codes and statstics they
+want to download and a date range. A list of all available parameters
+can be found at:
 [https://help.waterdata.usgs.gov/parameter_cd?group_cd=%](https://help.waterdata.usgs.gov/parameter_cd?group_cd=%){.uri}
+and a list of all statistics codes can be found at:
+<https://help.waterdata.usgs.gov/stat_code>
 
 #### Using `TADA_getNWIS()`
 
 With TADA_getNWIS(), users can retrieve time series data available from
 USGS sites by specifying the desired locations (using site identifiers,
 spatial feature (sf) objects, or states - similar to `TADA_listNWIS()`),
-parameter codes, and a time period. Let's retrieve water temperature
-data (parameter code 00010) being collected in the sf object above for
-January 2022:
+parameter codes, statistics codes, and a time period. Let's retrieve
+water temperature data (parameter code 00010) being collected in the sf
+object above for January 2022:
 
 ```{r}
 # Example: Retrieve water temperature data within a specified area of interest:
 temperature_data <- TADA_getNWIS(
   aoi_sf = cherokee_sf, # could also use argumens `statecode` or `siteid`
   parameter_codes = "00010", # water temperature in Celsius
+  stat_codes = "00003", # mean daily value
   start_date = "2022-01-01",
   end_date = "2022-01-31"
 )
