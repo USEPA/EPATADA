@@ -454,8 +454,8 @@ With TADA_getNWIS(), users can retrieve time series data available from
 USGS sites by specifying the desired locations (using site identifiers,
 spatial feature (sf) objects, or states - similar to `TADA_listNWIS()`),
 parameter codes, statistics codes, and a time period. Let's retrieve
-water temperature data (parameter code 00010) being collected in the sf
-object above for January 2022:
+mean (stat code 00003) water temperature data (parameter code 00010)
+being collected in the sf object above for January 2022:
 
 ```{r}
 # Example: Retrieve water temperature data within a specified area of interest:
