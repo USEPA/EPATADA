@@ -7,7 +7,7 @@
 TADA_getNWIS(
   aoi_sf = "null",
   statecode = "null",
-  sites = "null",
+  siteid = "null",
   parameter_codes,
   start_date,
   end_date
@@ -20,7 +20,7 @@ features (or "rows" in the sf data frame) must be under 118,078 square miles
 
 \item{statecode}{A character vector of two-letter state abbreviations (e.g., \code{"CA"}, \code{"NY"}).}
 
-\item{sites}{A character vector of USGS site numbers.}
+\item{siteid}{A character vector of USGS site numbers.}
 
 \item{parameter_codes}{A character vector of NWIS parameter codes to filter for (e.g., \code{"00060"} for discharge). Parameter codes and
 names can be found at https://help.waterdata.usgs.gov/parameter_cd?group_cd=\%}
@@ -35,13 +35,13 @@ including a corresponding status code for each measurement.
 }
 \description{
 This function interfaces with the USGS National Water Information System (NWIS) to
-retrieve daily values (DV) water quality data using the TADA (Tools for Analysis of
-Data from Agencies) framework. Users can query data based on a spatial area of interest
-(AOI), a vector of state abbreviations, or a vector of specific site numbers, along
-with relevant parameter codes and a date range.
+retrieve daily values (DV) water quality data using the TADA (Tools for Automated
+Data Analysis) framework. Users can query data based on a spatial area of interest
+(AOI), a vector of state abbreviations, or a vector of specific site ids, along
+with relevant USGS parameter codes and a date range.
 }
 \details{
-Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{sites})
+Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{siteid})
 should be provided. The function will stop if none or more than one are provided.
 Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
 }
@@ -57,7 +57,7 @@ sites_aoi_sf <- TADA_getNWIS(
 
 # Example 2: Query by specific site numbers
 sites_specific <- TADA_getNWIS(
-  sites = c("11530500", "11532500"),
+  siteid = c("11530500", "11532500"),
   parameter_codes = c("00060", "00010"), start_date = "2020-01-01",
   end_date = "2020-12-31"
 )

@@ -93,9 +93,6 @@ of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks
 are strongly encouraged. WQP monitoring location metadata may also be helpful
 for matching waterbody  names with ATTAINS waterbody names instead of relying
 solely on the geospatial location (lat/long).
-
-All monitoring location and assessment unit associations, especially for
-tributary and other areas with complex hydrology, should be closely reviewed.
 }
 \examples{
 \dontrun{

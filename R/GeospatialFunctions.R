@@ -1154,9 +1154,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' are strongly encouraged. WQP monitoring location metadata may also be helpful 
 #' for matching waterbody  names with ATTAINS waterbody names instead of relying 
 #' solely on the geospatial location (lat/long).
-#' 
-#' All monitoring location and assessment unit associations, especially for 
-#' tributary and other areas with complex hydrology, should be closely reviewed.
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf 
 #' equivalent made by `TADA_MakeSpatial()`.

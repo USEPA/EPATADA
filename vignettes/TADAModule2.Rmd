@@ -421,7 +421,7 @@ We can also query by specific USGS monitoring sites:
 
 ```{r}
 site_nums <- c("11530500", "11532500") # Two sites in Northern California
-sites_info <- TADA_listNWIS(sites = site_nums)
+sites_info <- TADA_listNWIS(siteid = site_nums)
 ```
 
 Lastly, can query NWIS sites by a user-supplied sf object:
@@ -458,7 +458,7 @@ January 2022:
 ```{r}
 # Example: Retrieve water temperature data within a specified area of interest:
 temperature_data <- TADA_getNWIS(
-  aoi_sf = cherokee_sf, # could also use argumens `statecode` or `sites`
+  aoi_sf = cherokee_sf, # could also use argumens `statecode` or `siteid`
   parameter_codes = "00010", # water temperature in Celsius
   start_date = "2022-01-01",
   end_date = "2022-01-31"
