@@ -1371,10 +1371,9 @@ make_groups <- function(x, maxrecs) {
 #' Create ActivityStartDateTime column
 #'
 #' Copy of internal dataRetrieval create_dateTime function 3/7/2025
-#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L223
+#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R (line 223)
 #' offsetLibrary is a dataframe saved in sysdata.rda
-#' You can see where and how it gets called here:
-#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L160
+#' You can see where and how it gets called on line 160.
 #'
 #' @param .data TADA dataframe
 #' @param date_col date column
