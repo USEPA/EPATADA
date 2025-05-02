@@ -19,9 +19,9 @@ TADA_CreateDateTime(.data, date_col, time_col, tz_col, tz)
 }
 \description{
 Copy of internal dataRetrieval create_dateTime function 3/7/2025
-https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R (line 223)
+See  USGS dataRetrieval importWQP.R file (line 223)
 offsetLibrary is a dataframe saved in sysdata.rda
-You can see where and how it gets called on line 160.
+You can see where and how it gets called on line 160
 }
 \examples{
 \dontrun{
