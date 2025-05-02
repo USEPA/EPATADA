@@ -234,6 +234,20 @@ NCTC_SpatialRef_ML <- TADA_CreateSpatialRef(
 TADA_TableExport(NCTC_SpatialRef_ML)
 ```
 
+View the map and make decisions about your spatial area of interest
+
+```{r}
+TADA_OverviewMap(Data_NCTC)
+
+NCTC_SpatialRef_ML2 <- dplyr::mutate(
+  NCTC_SpatialRef_ML, IncludeOrExclude = dplyr::case_when(
+    MonitoringLocationIdentifier %in% c(
+      "USGS-01613030", "WVDEP_WQX-18323", "WVDEP_WQX-5621", "WVDEP_WQX-18305", "USGS-01614000"
+      ) ~ "Include",
+           TRUE ~ "Exclude" 
+    ))
+```
+
 We can apply any unique spatial criteria on a monitoring location sites
 level. This view allows us to determine whether there are certain sites
 that needs a unique site-specific criteria, certain water types, or
@@ -248,7 +262,7 @@ add_data_spatial_ML <- data.frame(
   )
 
 NCTC_SpatialRef_ML_Modified <- dplyr::left_join(
-  NCTC_SpatialRef_ML, add_data_spatial_ML, 
+  NCTC_SpatialRef_ML2, add_data_spatial_ML, 
   by = c("MonitoringLocationTypeName", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
@@ -323,7 +337,12 @@ cycles. In this case, it is important that users define these use names
 associated with those AUs as TADA will be unable to tell what use names
 are appropriate and will require your review.
 
-We will add examples with new AU and use names example.
+We can add new AU and use names example here during this step of the
+process if your sitesAURef does not already include this information.
+Note: If your sitesAURef does not already contain these new AUs, users
+can consider use of TADA_GetATTAINS or other TADA functions to help with
+this assignment to new AUs if they do not already have this crosswalk in
+place (more discussion on this can be found in TADA module 2 vignette)
 
 ```{r}
 NCTC_UseAURef <- TADA_CreateUseAURef(
@@ -381,25 +400,17 @@ add_data_WaterUse <- data.frame(
   ATTAINS.ParameterName = c(rep("PH", 4)),
   ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
   )
-
-NCTC_WaterUseParamRef_Modified <- NCTC_WaterUseParamRef %>% 
-  tidyr::uncount(2) %>%
-  dplyr::mutate(ApplyUniqueSpatialCriteria = rep(c("Y","N"), times =21))
   
 
-NCTC_WaterUseParamRef_Modified <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-  dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
-  dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
-
-TADA_TableExport(NCTC_WaterUseParamRef_Modified)
+NCTC_WaterUseParamRef_Modified <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>% dplyr::filter(!use_name %in% "Water Supply Industrial, Water Transport, Cooling and Power")
 
 NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   Data_NCTC,
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
-  waterUseParamRef = NCTC_WaterUseParamRef, #validates the entries of your completed table
+  waterUseParamRef = NCTC_WaterUseParamRef_Modified, #validates the entries of your completed table
   org_id = "WVDEP",
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 

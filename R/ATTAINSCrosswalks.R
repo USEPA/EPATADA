@@ -1842,10 +1842,10 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
                            "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
                            "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
                            "ATTAINS.ParameterName", "use_name", "ATTAINS.waterTypeCode",
-                           "LongitudeMeasure", "LatitudeMeasure", "IncludeOrExclude", "ApplyUniqueSpatialCriteria"
+                           "LongitudeMeasure", "LatitudeMeasure" #, "IncludeOrExclude", "ApplyUniqueSpatialCriteria"
                          )) %>%
       dplyr::mutate(Flag.AssessmentNote = 
-          "Suspect: This spatial row has not been defined from your provided spatial reference."
+          "Suspect: The spatial criteria for this row was REMOVED from your provided spatial reference."
       ) %>%
       dplyr::mutate(IncludeOrExclude = "Exclude")
       
@@ -1890,6 +1890,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
         ATTAINS.ParameterName, use_name, ATTAINS.waterTypeCode,
         LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
+      dplyr::arrange(match(IncludeOrExclude, c("Include"))) %>%
       dplyr::distinct()
   }
   
@@ -2234,10 +2235,12 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
                            "use_name", "waterType", "IncludeOrExclude", "TADA.FlagAssessment"
                          )) %>%
       dplyr::mutate(TADA.FlagAssessment = dplyr::case_when(
-        (!ATTAINS.ParameterName %in% waterUseParamRef$ATTAINS.ParameterName & !use_name %in% waterUseParamRef$use_name) & 
-        (!use_name %in% waterUseParamRef$use_name & !waterType %in% useAURef$waterType) ~ 
-          "Suspect: This parameter, use_name, and waterType combination was found in your useParamRef and useAURef, but not defined in your waterUseParamRef"
-        ))
+        (!ATTAINS.ParameterName %in% CreateWaterUseParamRef$ATTAINS.ParameterName & 
+            !use_name %in% CreateWaterUseParamRef$use_name &
+            !waterType %in% CreateWaterUseParamRef$waterType) ~
+          "Suspect: Exclude from assessment. This parameter, use_name, and waterType combination is not defined in your waterUseParamRef"
+        )) %>%
+      dplyr::mutate(IncludeOrExclude ="Exclude")
     
     CreateWaterUseParamRef <- Flag1 %>%
       dplyr::full_join(waterUseParamRef, by = 
@@ -2246,12 +2249,14 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
                          )) %>%
       dplyr::mutate(
         TADA.FlagAssessment =
-          dplyr::if_else(
-            is.na(waterType) & organization_identifier != "EPA304a",
-            "Suspect: This parameter and use was not listed as a prior cause for any of your Assessment Units of interest", "Pass"
+          dplyr::case_when(
+            is.na(waterType) & organization_identifier != "EPA304a" ~
+            "Suspect: This parameter and use was not listed as a prior cause for any of your Assessment Units of interest", 
+            .default = as.character(TADA.FlagAssessment)
           )
       ) %>%
-      dplyr::arrange(waterType, use_name)
+      dplyr::arrange(match(IncludeOrExclude, c("Include")), waterType, use_name) %>%
+      dplyr::distinct()
   }
   
   if (excel == TRUE) {
@@ -2489,6 +2494,7 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, filte
   # User provides their own useAURef that has been filled out.
   if(!is.null(useAURef)){
     
+    # What rows did the user have in their useAURef that was not found in the most recent ATTAINS data system?
     Flag1 <- CreateUseAURef %>%
       dplyr::anti_join(useAURef, by = 
                          c(
@@ -2497,7 +2503,12 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, filte
                        )) %>%
       dplyr::mutate(TADA.AssessmentUnitStatus = dplyr::case_when(
         !ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "New",
-        ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "Suspect: This AU is not found in your useAURef"
+        ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ 
+          "Suspect: Excluding from Assessment. This AU is not found in your useAURef"
+      )) %>% 
+      dplyr::mutate(IncludeOrExclude = dplyr::case_when(
+        ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ 
+          "Exclude"
       ))
 
     CreateUseAURef <- Flag1 %>%
@@ -2509,7 +2520,9 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, filte
       dplyr::mutate(TADA.AssessmentUnitStatus = dplyr::case_when(
         !ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "New",
         TRUE ~ TADA.AssessmentUnitStatus
-      ))
+      )) %>%
+      dplyr::arrange(match(IncludeOrExclude, c("Include")), waterType, use_name) %>%
+      dplyr::distinct()
   }
   
   if (excel == TRUE) {
