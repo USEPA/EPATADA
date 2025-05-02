@@ -1,20 +1,20 @@
 # Tests for TADA_listNWIS
-testthat::test_that("TADA_listNWIS returns correct structure when querying by sites", {
+testthat::test_that("TADA_listNWIS returns correct structure when querying by siteid", {
   # Test with known site numbers
   site_nums <- c("11530500", "11532500")
-  sites_result <- TADA_listNWIS(sites = site_nums)
+  siteid_result <- TADA_listNWIS(siteid = site_nums)
 
   # Check basic structure and content
-  testthat::expect_s3_class(sites_result, "sf")
-  testthat::expect_true("site_no" %in% colnames(sites_result))
-  testthat::expect_true("parameter" %in% colnames(sites_result))
-  testthat::expect_true(all(sites_result$site_no %in% site_nums))
+  testthat::expect_s3_class(siteid_result, "sf")
+  testthat::expect_true("site_no" %in% colnames(siteid_result))
+  testthat::expect_true("parameter" %in% colnames(siteid_result))
+  testthat::expect_true(all(siteid_result$site_no %in% site_nums))
 })
 
 testthat::test_that("TADA_listNWIS returns empty sf with correct structure when no data found", {
   # Test with non-existent site
   nonexistent_site <- "99999999"
-  result <- TADA_listNWIS(sites = nonexistent_site)
+  result <- TADA_listNWIS(siteid = nonexistent_site)
 
   # Check structure of empty return
   testthat::expect_s3_class(result, "sf")
@@ -30,7 +30,7 @@ testthat::test_that("TADA_listNWIS returns empty sf with correct structure when 
 testthat::test_that("TADA_listNWIS validates input parameters correctly", {
   # Test with multiple query types
   testthat::expect_error(
-    TADA_listNWIS(sites = c("11530500"), statecode = "CA"),
+    TADA_listNWIS(siteid = c("11530500"), statecode = "CA"),
     "Multiple data-querying arguments"
   )
 
@@ -98,7 +98,7 @@ testthat::test_that("TADA_getNWIS returns correct structure with site query", {
   end_date <- "2020-01-05"
 
   result <- TADA_getNWIS(
-    sites = site_num,
+    siteid = site_num,
     parameter_codes = "00060",
     start_date = start_date,
     end_date = end_date
@@ -116,7 +116,7 @@ testthat::test_that("TADA_getNWIS validates input parameters correctly", {
   # Test with multiple query types
   testthat::expect_error(
     TADA_getNWIS(
-      sites = "11530500",
+      siteid = "11530500",
       statecode = "CA",
       parameter_codes = "00060",
       start_date = "2020-01-01",
@@ -138,7 +138,7 @@ testthat::test_that("TADA_getNWIS validates input parameters correctly", {
   # Test with missing required parameters
   testthat::expect_error(
     TADA_getNWIS(
-      sites = "11530500",
+      siteid = "11530500",
       start_date = "2020-01-01",
       end_date = "2020-01-05"
     )
