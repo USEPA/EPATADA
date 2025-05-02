@@ -1747,12 +1747,13 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
       dplyr::mutate(ATTAINS.waterTypeCode = NA) %>%
       dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
       dplyr::mutate(Flag.AssessmentNote = "Pass") %>%
       dplyr::select(
         organization_identifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname,
         MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
         ATTAINS.ParameterName, use_name, ATTAINS.waterTypeCode,
-        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, ApplyUniqueSpatialCriteria
+        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
       dplyr::distinct()
   }
@@ -1772,28 +1773,41 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       waterUseParamRef <- TADA_CreateWaterUseParamRef(.data, useParamRef = useParamRef, useAURef = useAURef, org_id = org_id, excel = FALSE)
     }
 
+    # Only keep rows that have include
+    useAURef <-  useAURef %>%
+      dplyr::filter(IncludeOrExclude == "Include") %>%
+      dplyr::select(-IncludeOrExclude)
+    
+    waterUseParamRef <-  waterUseParamRef %>%
+      dplyr::filter(IncludeOrExclude == "Include") %>%
+      dplyr::select(-IncludeOrExclude)
+    
     # Joins the crosswalk tables for CreateSpatialRef
     CreateSpatialRef <- waterUseParamRef %>%
-      dplyr::right_join(useAURef, by = c("organization_identifier", "waterType", "use_name")) %>%
-      dplyr::full_join(sitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname")) %>%
+      dplyr::right_join(useAURef, by = c("organization_identifier", "use_name")) %>%
+      dplyr::left_join(sitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname")) %>%
       dplyr::mutate(
         Flag.AssessmentNote =
           dplyr::case_when(
-            organization_identifier != "EPA304a" & is.na(ATTAINS.assessmentunitidentifier) & !is.na(MonitoringLocationIdentifier) ~
-              "Suspect: No ML assigned to this AU. You did not define a crosswalk for this ML to AU.",
-            organization_identifier == "EPA304a" & !is.na(ATTAINS.assessmentunitidentifier) & !is.na(MonitoringLocationIdentifier) ~
-              "Pass: This is an EPA304a standard, but was not assigned to an AU/ML/WaterType classfication.",
+            # commented out. Check & review these logic:
+            # organization_identifier != "EPA304a" & !is.na(ATTAINS.assessmentunitidentifier) & is.na(MonitoringLocationIdentifier) ~
+            #   "Suspect: No ML assigned to this AU. You did not define a crosswalk for this ML to AU.",
+            # organization_identifier == "EPA304a" & !is.na(ATTAINS.assessmentunitidentifier) & !is.na(MonitoringLocationIdentifier) ~
+            #   "Pass: This is an EPA304a standard, but was not assigned to an AU/ML/WaterType classfication.",
             is.na(organization_identifier) & !is.na(ATTAINS.assessmentunitidentifier) & !is.na(MonitoringLocationIdentifier) ~
-              "Suspect: No organization identifier provided for this AU/ML/WaterType. This row may not be relevant for assessment",
-            TRUE ~ "Pass"
+               "Suspect: No organization identifier provided for this AU/ML/WaterType. This row may not be relevant for assessment",
+            is.na(MonitoringLocationIdentifier) ~
+              "Suspect: No monitoring location identifier(s) assigned to this Assessment Unit.",
+            .default = "Pass"
           )
       ) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
       dplyr::select(
         organization_identifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname,
         MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
-        ATTAINS.ParameterName, use_name,
-        ATTAINS.waterTypeCode = waterType,
-        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, ApplyUniqueSpatialCriteria
+        ATTAINS.ParameterName, use_name, ATTAINS.waterTypeCode,
+        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
       dplyr::distinct()
   }
@@ -1828,11 +1842,13 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
                            "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
                            "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
                            "ATTAINS.ParameterName", "use_name", "ATTAINS.waterTypeCode",
-                           "LongitudeMeasure", "LatitudeMeasure", "ApplyUniqueSpatialCriteria"
+                           "LongitudeMeasure", "LatitudeMeasure", "IncludeOrExclude", "ApplyUniqueSpatialCriteria"
                          )) %>%
       dplyr::mutate(Flag.AssessmentNote = 
           "Suspect: This spatial row has not been defined from your provided spatial reference."
-      )
+      ) %>%
+      dplyr::mutate(IncludeOrExclude = "Exclude")
+      
     # identifies if a user has ADDED on any spatial rows. 
     Flag2 <- spatialRef %>%
       dplyr::anti_join(CreateSpatialRef, by = 
@@ -1840,11 +1856,11 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
                            "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
                            "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
                            "ATTAINS.ParameterName", "use_name", "ATTAINS.waterTypeCode",
-                           "LongitudeMeasure", "LatitudeMeasure", "ApplyUniqueSpatialCriteria"
+                           "LongitudeMeasure", "LatitudeMeasure", "IncludeOrExclude", "ApplyUniqueSpatialCriteria"
                            )) %>%
       dplyr::mutate(Flag.AssessmentNote = 
           "Pass: The spatial criteria for this row was ADDED from your spatial reference"
-      )
+      ) 
     
     CreateSpatialRef <- CreateSpatialRef %>%
       dplyr::select(-ApplyUniqueSpatialCriteria) %>%
@@ -1852,7 +1868,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
                          c(
                            "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
                            "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
-                           "ATTAINS.ParameterName", "use_name", "ATTAINS.waterTypeCode",
+                           "ATTAINS.ParameterName", "use_name", "IncludeOrExclude", "ATTAINS.waterTypeCode",
                            "LongitudeMeasure", "LatitudeMeasure"
                          )
                        ) %>%
@@ -1860,14 +1876,21 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
                          c(
                            "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
                            "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName",
-                           "ATTAINS.ParameterName", "use_name", "ATTAINS.waterTypeCode",
+                           "ATTAINS.ParameterName", "use_name", "IncludeOrExclude", "ATTAINS.waterTypeCode",
                            "LongitudeMeasure", "LatitudeMeasure"
                          )
                        ) %>%
       dplyr::mutate(Flag.AssessmentNote = dplyr::coalesce(Flag.AssessmentNote, Flag.AssessmentNote.x, Flag.AssessmentNote.y)) %>%
       dplyr::select(-c(Flag.AssessmentNote.x, Flag.AssessmentNote.y)) %>%
       dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
-      dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
+      dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
+      dplyr::select(
+        organization_identifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname,
+        MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
+        ATTAINS.ParameterName, use_name, ATTAINS.waterTypeCode,
+        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
+      ) %>%
+      dplyr::distinct()
   }
   
   # Only run if user wants to create an excel guided spreadsheet.
@@ -1917,7 +1940,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     # Conditional Formatting
     openxlsx::conditionalFormatting(
       wb, "CreateSpatialRef",
-      cols = 9, rows = 2:(nrow(CreateSpatialRef) + 1),
+      cols = 13, rows = 2:(nrow(CreateSpatialRef) + 1),
       type = "contains", 
       rule = "Include", 
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
@@ -1925,7 +1948,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     
     openxlsx::conditionalFormatting(
       wb, "CreateSpatialRef",
-      cols = 9, rows = 2:(nrow(CreateSpatialRef) + 1),
+      cols = 13, rows = 2:(nrow(CreateSpatialRef) + 1),
       type = "contains", 
       rule = "Exclude", 
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
@@ -2185,7 +2208,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
     ) %>%
     dplyr::bind_cols(
       data.frame(
-        ApplyUniqueSpatialCriteria = as.character(NA)
+        IncludeOrExclude = as.character("Include")
       )
     ) %>%
     dplyr::distinct() %>%
@@ -2200,14 +2223,15 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
     ) %>%
     dplyr::arrange(waterType, use_name)
 
-  # User provides their own waterUseParamRef that has been filled out.
+  # User provides their own waterUseParamRef that has been filled out and wants to re-use this crosswalk table.
   if(!is.null(waterUseParamRef)){
     
     # identifies if a user has provided a row combinations that is potentially not relevant to their assessments.
+    # i.e. a user has included a parameter, use_name, and waterType combination that is not found in prior ATTAINS assessment cycles.
     Flag1 <- CreateWaterUseParamRef %>%
       dplyr::anti_join(waterUseParamRef, by = 
                          c("organization_identifier", "ATTAINS.ParameterName",
-                           "use_name", "waterType", "ApplyUniqueSpatialCriteria", "TADA.FlagAssessment"
+                           "use_name", "waterType", "IncludeOrExclude", "TADA.FlagAssessment"
                          )) %>%
       dplyr::mutate(TADA.FlagAssessment = dplyr::case_when(
         (!ATTAINS.ParameterName %in% waterUseParamRef$ATTAINS.ParameterName & !use_name %in% waterUseParamRef$use_name) & 
@@ -2218,7 +2242,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
     CreateWaterUseParamRef <- Flag1 %>%
       dplyr::full_join(waterUseParamRef, by = 
                          c("organization_identifier", "ATTAINS.ParameterName",
-                           "use_name", "waterType", "ApplyUniqueSpatialCriteria", "TADA.FlagAssessment"
+                           "use_name", "waterType", "IncludeOrExclude", "TADA.FlagAssessment"
                          )) %>%
       dplyr::mutate(
         TADA.FlagAssessment =
@@ -2369,7 +2393,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
 #'  )
 #' 
 
-TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL,
+TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, filterAU = NULL,
                                 org_id = NULL, excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
@@ -2448,9 +2472,14 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL,
           ATTAINS.assessmentunitidentifier %in% unique(OrgID_assessments$assessmentUnitId), "Existing", "New"
         )
     ) %>%
+    dplyr::bind_cols(
+      data.frame(
+        IncludeOrExclude = as.character("Include")
+      )
+    ) %>%
     dplyr::select(
-      organization_identifier = ATTAINS.organizationid, ATTAINS.assessmentunitidentifier,
-      ATTAINS.assessmentunitname, use_name = useName, waterType, TADA.AssessmentUnitStatus,
+      organization_identifier = ATTAINS.organizationid, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, 
+      use_name = useName, waterType, TADA.AssessmentUnitStatus, IncludeOrExclude
     ) %>%
     dplyr::filter(organization_identifier %in% org_id) %>%
     sf::st_drop_geometry() %>%
@@ -2463,19 +2492,19 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL,
     Flag1 <- CreateUseAURef %>%
       dplyr::anti_join(useAURef, by = 
                          c(
-                           "organization_identifier", "ATTAINS.assessmentunitidentifier",
-                           "ATTAINS.assessmentunitname", "use_name", "waterType", "TADA.AssessmentUnitStatus"
+                           "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname", 
+                           "use_name", "waterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
                        )) %>%
       dplyr::mutate(TADA.AssessmentUnitStatus = dplyr::case_when(
         !ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "New",
-        ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "Dropped/Excluded"
+        ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "Suspect: This AU is not found in your useAURef"
       ))
 
     CreateUseAURef <- Flag1 %>%
       dplyr::full_join(useAURef, by = 
                          c(
-                           "organization_identifier", "ATTAINS.assessmentunitidentifier",
-                           "ATTAINS.assessmentunitname", "use_name", "waterType", "TADA.AssessmentUnitStatus"
+                           "organization_identifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname", 
+                           "use_name", "waterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
                          )) %>%
       dplyr::mutate(TADA.AssessmentUnitStatus = dplyr::case_when(
         !ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "New",
@@ -2532,6 +2561,17 @@ TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL,
       type = "contains", rule = "Dropped/Existing", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # using yellow to indicate modified cell
 
+    openxlsx::conditionalFormatting(
+      wb, "CreateUseAURef",
+      cols = 7, rows = 2:(nrow(CreateUseAURef) + 1),
+      type = "contains", rule = "Include", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
+    ) # default values or indicates good to go cells.
+    openxlsx::conditionalFormatting(
+      wb, "CreateUseAURef",
+      cols = 7, rows = 2:(nrow(CreateUseAURef) + 1),
+      type = "contains", rule = "Exclude", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    ) # using yellow to indicate modified cell
+    
     if (overwrite == TRUE) {
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
     }

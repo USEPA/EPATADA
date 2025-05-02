@@ -341,7 +341,8 @@ add_new_AU <- data.frame(
   use_name = c(rep("Public Water Supply", 3), "Warm Water Fishery"),
   # lon = c(rep(-78.20000, 2), rep(-78.10000, 2)),
   # lat = c(rep(39.64000, 2), rep(39.65000, 2)),
-  TADA.AssessmentUnitStatus = c(rep("New", 4))
+  TADA.AssessmentUnitStatus = c(rep("New", 4)),
+  IncludeOrExclude = c(rep("Include", 4))
 )
 
 # add_new_AU <- sf::st_as_sf(x = add_new_AU, coords = c("lon", "lat"), crs = 4326)
@@ -372,8 +373,7 @@ NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(
   Data_NCTC,
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
-  org_id = "WVDEP",
-  excel = TRUE, overwrite = TRUE
+  org_id = "WVDEP"
 )
 
 add_data_WaterUse <- data.frame(
@@ -397,7 +397,7 @@ NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   Data_NCTC,
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
-  waterUseParamRef = NCTC_WaterUseParamRef_Modified, #validates the entries of your completed table
+  waterUseParamRef = NCTC_WaterUseParamRef, #validates the entries of your completed table
   org_id = "WVDEP",
   excel = TRUE, overwrite = TRUE
 )
