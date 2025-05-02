@@ -73,8 +73,8 @@ sites_specific <- TADA_getNWIS(
 # Example 3: Query by statecode
 nwis_data <- TADA_getNWIS(
   statecode = c("RI", "CO"),
-  stat_codes = c("00003", "00001"),
-  parameter_codes = c("00060", "00010"), 
+  stat_codes = c("00001"),
+  parameter_codes = c("00010"), 
   start_date = "2020-01-01",
   end_date = "2020-01-02"
 )

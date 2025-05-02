@@ -16,17 +16,23 @@ features (or "rows" in the sf data frame) must be under 118,078 square miles
 \item{siteid}{Character vector of USGS site numbers.}
 }
 \value{
-An sf object containing NWIS continuous monitoring site information including:
+An sf object containing NWIS continuous monitoring site summary
+information including:
 \itemize{
 \item site_no: USGS site identification number
 \item site_name: Station name
-\item data_type: Type of data available (e.g., "Daily", "Water Quality")
 \item site_type: Description of the site type
+\item site_type_cd: Site type code
+\item data_type: Type of data available (e.g., "Daily", "Water Quality")
+\item data_type_cd: Code identifying type of data/service (e.g. "dv" = Daily Values)
+\item stat_type: Statistic type
+\item stat_cd: Statistic code
+\item parameter: Parameter name and description
+\item parameter_code: Parameter code
 \item n_obs: Number of observations
 \item begin_date: Start date of data collection
 \item end_date: End date of data collection
-\item parameter: Parameter name and description
-\item code: Parameter code
+\item geometry
 }
 Returns an empty sf object with the same structure if no data is found.
 }

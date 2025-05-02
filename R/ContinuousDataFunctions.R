@@ -15,17 +15,24 @@
 #' @param statecode Character vector of two-letter state codes (e.g., c("CA", "OR")).
 #' @param siteid Character vector of USGS site numbers.
 #'
-#' @return An sf object containing NWIS continuous monitoring site information including:
+#' @return An sf object containing NWIS continuous monitoring site summary 
+#' information including:
 #'   \itemize{
 #'     \item site_no: USGS site identification number
 #'     \item site_name: Station name
-#'     \item data_type: Type of data available (e.g., "Daily", "Water Quality")
 #'     \item site_type: Description of the site type
+#'     \item site_type_cd: Site type code
+#'     \item data_type: Type of data available (e.g., "Daily", "Water Quality")
+#'     \item data_type_cd: Code identifying type of data/service (e.g. "dv" = Daily Values)
+#'     \item stat_type: Statistic type
+#'     \item stat_cd: Statistic code
+#'     \item parameter: Parameter name and description
+#'     \item parameter_code: Parameter code
 #'     \item n_obs: Number of observations
 #'     \item begin_date: Start date of data collection
 #'     \item end_date: End date of data collection
-#'     \item parameter: Parameter name and description
-#'     \item code: Parameter code
+#'     \item geometry
+
 #'   }
 #'   Returns an empty sf object with the same structure if no data is found.
 #'
@@ -444,8 +451,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' # Example 3: Query by statecode
 #' nwis_data <- TADA_getNWIS(
 #'   statecode = c("RI", "CO"),
-#'   stat_codes = c("00003", "00001"),
-#'   parameter_codes = c("00060", "00010"), 
+#'   stat_codes = c("00001"),
+#'   parameter_codes = c("00010"), 
 #'   start_date = "2020-01-01",
 #'   end_date = "2020-01-02"
 #' )
