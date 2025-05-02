@@ -16,7 +16,7 @@ features (or "rows" in the sf data frame) must be under 118,078 square miles
 \item{siteid}{Character vector of USGS site numbers.}
 }
 \value{
-An sf object containing NWIS site information including:
+An sf object containing NWIS continuous monitoring site information including:
 \itemize{
 \item site_no: USGS site identification number
 \item site_name: Station name
@@ -33,11 +33,12 @@ Returns an empty sf object with the same structure if no data is found.
 \description{
 Retrieves available metadata from USGS National Water Information System (NWIS) based on
 different spatial queries: area of interest (AOI), specific sites, or state boundaries.
-Returns a spatial sf object containing site information and available parameters.
+Returns a spatial sf object containing continuous monitoring site information and
+available parameters and statistics.
 If no data is found, returns an empty sf object with appropriate column structure.
 }
 \details{
-List available USGS daily NWIS data
+List USGS continuous monitoring sites with available daily statistics
 
 Only one of the query arguments (\code{aoi_sf}, \code{statecode}, or \code{siteid})
 should be provided. The function will stop if none or more than one are provided.
