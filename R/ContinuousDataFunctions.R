@@ -1,11 +1,12 @@
 #' TADA_listNWIS
 #'
-#' List available USGS daily NWIS data
+#' List USGS continuous monitoring sites with available daily statistics
 #'
 #' @description
 #' Retrieves available metadata from USGS National Water Information System (NWIS) based on
 #' different spatial queries: area of interest (AOI), specific sites, or state boundaries.
-#' Returns a spatial sf object containing site information and available parameters.
+#' Returns a spatial sf object containing continuous monitoring site information and 
+#' available parameters and statistics.
 #' If no data is found, returns an empty sf object with appropriate column structure.
 #'
 #' @param aoi_sf An sf object defining the area of interest. All individual sf
@@ -14,7 +15,7 @@
 #' @param statecode Character vector of two-letter state codes (e.g., c("CA", "OR")).
 #' @param siteid Character vector of USGS site numbers.
 #'
-#' @return An sf object containing NWIS site information including:
+#' @return An sf object containing NWIS continuous monitoring site information including:
 #'   \itemize{
 #'     \item site_no: USGS site identification number
 #'     \item site_name: Station name
