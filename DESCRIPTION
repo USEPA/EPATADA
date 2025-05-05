@@ -84,6 +84,7 @@ Imports:
 Depends: 
     R (>= 3.5.0)
 Suggests:
+    StreamCatTools, 
     lwgeom,
     RColorBrewer,
     rmarkdown,
