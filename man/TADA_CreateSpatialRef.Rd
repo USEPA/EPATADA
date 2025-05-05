@@ -54,6 +54,10 @@ with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
 See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
 
+\item{spatialRef}{An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit.}
+
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into

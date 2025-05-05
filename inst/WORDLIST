@@ -57,7 +57,7 @@ ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
 CountyCode
-CreareUseParamRef
+CreateAURef
 CreateComparableID
 CreatePairRef
 CreateParamRef
@@ -66,6 +66,7 @@ CreateSpatialRef
 CreateUnitRef
 CreateUseAURef
 CreateUseParamRef
+CreateUseWaterParamRef
 CreateWaterUseParamRef
 DOI
 DataFrame
@@ -86,7 +87,6 @@ ECHO's
 EMEF
 FONDULAC
 Farmington
-Fianlly
 FieldCounts
 FieldValuesPie
 FieldValuesTable
@@ -316,7 +316,6 @@ ViewATTAINS
 WGS
 WQC
 WQP
-WQS
 WQX
 WQX's
 WQXActivityTypeRef
@@ -350,7 +349,6 @@ asNO
 assessmentunitidentifier
 autoclean
 autocleaned
-autopopulated
 bbox
 bnd
 bottomvalue
@@ -426,7 +424,6 @@ np
 nresults
 od
 offsetLibrary
-organizationid
 orgs
 ousideUSA
 outsideUSA

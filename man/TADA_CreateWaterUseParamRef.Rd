@@ -30,6 +30,12 @@ should contain a completed crosswalk of use names associated with an assessment 
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
 
+\item{waterUseParamRef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of any unique spatial criteria applied to
+a water body, use, or parameter and by any combinations if needed. Users will
+need to ensure this crosswalk contains the appropriate column names in order to
+run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
+
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:

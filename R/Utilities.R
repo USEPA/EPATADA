@@ -107,8 +107,8 @@ utils::globalVariables(c(
   "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
   "organization_identifier.y", "parameter", "use_name", "use_name.y",
   "MONITORING_DATA_LINK_TEXT", "PARCEL_NO", "TRIBE_NAME", "everything",
-  "resultCount", "tribal_area", "txtProgressBar",  "ApplyUniqueSpatialCriteria", "assessmentUnitId",
-  "ATTAINS.assessmentunitname", "ATTAINS.organizationid", 
+  "resultCount", "tribal_area", "txtProgressBar", "ApplyUniqueSpatialCriteria", "assessmentUnitId",
+  "ATTAINS.assessmentunitname", "ATTAINS.organizationid",
   "ATTAINS.waterTypeCode, Flag.AssessmentNote", "useName", "waterType", "TADA.AssessmentUnitStatus"
 ))
 

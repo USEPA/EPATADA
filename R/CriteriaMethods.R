@@ -28,7 +28,7 @@
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL, 
+TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
                                  excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -36,10 +36,9 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(spatialRef) & !is.character(spatialRef)) {
     if (!is.data.frame(spatialRef)) {
-      stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns: 
-        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria, 
-        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName"
-           )
+      stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
     }
 
     if (is.data.frame(spatialRef)) {
@@ -56,31 +55,30 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
       ref.names <- names(spatialRef)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns: 
-        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria, 
-        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName"
-             )
+        stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
       }
     }
   }
 
-  # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh 
+  # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-  metal_list <- data.frame(ATTAINS.ParameterName = c("ARSENIC", "ZINC") ) %>% 
+  metal_list <- data.frame(ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
     cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
     dplyr::arrange(ATTAINS.ParameterName)
-  
+
   DefineMagnitude <- spatialRef %>%
     dplyr::select(
-      "ATTAINS.ParameterName", "organization_identifier", "use_name", 
+      "ATTAINS.ParameterName", "organization_identifier", "use_name",
       "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
-      ) %>%
-    #dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
+    ) %>%
+    # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
         AcuteChronic = as.character(NA), SaltFresh = as.character(NA),
-        BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA), 
+        BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
         MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
         MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA)
       )
@@ -101,7 +99,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
   #   dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
   #   dplyr::mutate(organization_identifier = "EPA304a")
-  # 
+  #
   # if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
   #   DefineMagnitude <- DefineMagnitude %>%
   #     dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
@@ -130,7 +128,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   #     dplyr::distinct() %>%
   #     dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
   # }
-  # 
+  #
   # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
   # # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
   # MagnitudeValue <- paramRef %>%
@@ -251,151 +249,128 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
 # TADA_MagnitudeSummary <- function(.data, StandardsRef = NULL, UseAURef = NULL, overwrite = FALSE) {
-#   # Attempt to pull in the ref files from the default Downloads location.
-#   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-# 
-#   if (is.null(StandardsRef)) {
-#     StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
-#   }
-# 
-#   # check to see if user-supplied standards ref is a df with appropriate columns and filled out.
-#   if (!is.null(StandardsRef) & !is.character(StandardsRef)) {
-#     if (!is.data.frame(StandardsRef)) {
-#       stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#       ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
-#     }
-# 
-#     if (is.data.frame(StandardsRef)) {
-#       col.names <- c(
-#         "organization_identifier", "ATTAINS.ParameterName", "use_name"
-#       )
-# 
-#       ref.names <- names(StandardsRef)
-# 
-#       if (length(setdiff(col.names, ref.names)) > 0) {
-#         stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#         ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
-#       }
-#     }
-#   }
-# 
-#   wb <- openxlsx::loadWorkbook(wb, downloads_path)
-# 
-#   tryCatch(
-#     {
-#       openxlsx::addWorksheet(wb, "MagnitudeExcursions")
-#     },
-#     error = function(e) {
-#       openxlsx::removeWorksheet(wb, "MagnitudeExcursions")
-#       openxlsx::addWorksheet(wb, "MagnitudeExcursions")
-#     }
-#   )
-# 
-#   # Format column header
-#   header_st <- openxlsx::createStyle(textDecoration = "Bold")
-# 
-#   # Reference tables (required)
-#   ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-#   UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef")
-#   AURef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAURef")
-# 
-#   # Contains all AU ref columns such as Site-specific names and User defined exclusions to be joined in the TADA dataframe.
-#   temp_AU <- .data %>%
-#     dplyr::right_join(AURef, by = c(
-#       "MonitoringLocationIdentifier", "MonitoringLocationName",
-#       "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName"
-#     ), relationship = "many-to-many")
-# 
-# 
-# 
-#   # Magnitude Excursion Summary
-#   TADA_MagnitudeExcursions <- StandardsRef %>%
-#     dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
-#     dplyr::mutate(dplyr::across(
-#       c(
-#         ATTAINS.waterTypeCode,
-#         MonitoringLocationTypeName,
-#         AcuteChronic, SaltFresh, Season, EquationBased,
-#         ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
-#       ), as.factor
-#     )) %>%
-#     dplyr::left_join(temp_AU, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
-#     dplyr::distinct() %>%
-#     dplyr::mutate(across(MagnitudeValueLower, as.numeric)) %>%
-#     dplyr::group_by(.[, c(
-#       "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName",
-#       "organization_identifier", "use_name",
-#       "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier",
-#       "MonitoringLocationTypeName.y", "ATTAINS.waterTypeCode.y", "AcuteChronic", "SaltFresh",
-#       "BegAssessDate", "EndAssessDate",
-#       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria.y",
-#       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
-#     )]) %>%
-#     dplyr::summarise(
-#       n_MonitoringLocationID = length(unique(MonitoringLocationIdentifier)),
-#       n_discrete = sum(!is.na(TADA.ResultMeasureValue)),
-#       n_exceedance = sum(TADA.ResultMeasureValue < MagnitudeValueLower, na.rm = TRUE) + sum(TADA.ResultMeasureValue > MagnitudeValueUpper, na.rm = TRUE),
-#       .groups = "drop"
-#     )
-# 
-#   if (!is.null(UseAURef)) {
-#     # If a user provides UseAURef and UseParamRef, this creates a Use name to AU and Parameter crosswalk. This helps filter down the summary list further.
-#     UseParamAU <- UseAURef %>%
-#       dplyr::right_join(UseParamRef, by = c("use_name", "organization_identifier"), relationship = "many-to-many") %>%
-#       dplyr::filter(!(!organization_identifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
-#       dplyr::select(
-#         organization_identifier, ATTAINS.assessmentunitidentifier,
-#         ATTAINS.assessmentunitname, TADA.ComparableDataIdentifier,
-#         EPA304A.PollutantName, ATTAINS.ParameterName, use_name
-#       )
-# 
-#     UseParamAU2 <- UseParamAU %>%
-#       dplyr::group_by(ATTAINS.ParameterName, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname) %>%
-#       dplyr::summarize(.groups = "keep") %>%
-#       dplyr::mutate(organization_identifier = "EPA304a") %>%
-#       stats::na.omit() %>%
-#       dplyr::full_join(UseParamAU, by = c("organization_identifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-#       dplyr::mutate(
-#         ATTAINS.assessmentunitidentifier = dplyr::coalesce(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y),
-#         ATTAINS.assessmentunitname = dplyr::coalesce(ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)
-#       ) %>%
-#       dplyr::select(-c(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y, ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)) %>%
-#       dplyr::distinct()
-# 
-#     TADA_MagnitudeExcursions <- TADA_MagnitudeExcursions %>%
-#       dplyr::right_join(UseParamAU2)
-#   }
-#   # set zoom size
-#   set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-#   sV <- wb$worksheets[[8]]$sheetViews
-#   wb$worksheets[[8]]$sheetViews <- set_zoom(90)
-#   # Format header and bodystyle
-#   header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#   bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
-# 
-#   # Write column names in the excel spreadsheet under the tab [DefineStandards]
-#   # writeData(wb, "DefineStandards", startCol = 1, x = par, headerStyle = header_st)
-#   # Export DefineStandards dataframe into the excel spreadsheet tab
-#   openxlsx::writeData(wb, "MagnitudeExcursions", startCol = 1, x = TADA_MagnitudeExcursions, headerStyle = header_st)
-# 
-#   # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
-#   if (!is.null(downloads_path)) {
-#     # saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
-#     downloads_path <- downloads_path
-#   }
-# 
-#   if (overwrite == TRUE) {
-#     openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-#   }
-# 
-#   if (overwrite == FALSE) {
-#     warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
-#     openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-#   }
-# 
-#   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
-# 
-#   MagnitudeExcursions <- openxlsx::read.xlsx(downloads_path, sheet = "MagnitudeExcursions")
-# 
-#   return(MagnitudeExcursions)
+#' #  # Attempt to pull in the ref files from the default Downloads location.
+#' #  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+#' #  if (is.null(StandardsRef)) {
+#' #    StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
+#' #  }
+#' #  # check to see if user-supplied standards ref is a df with appropriate columns and filled out.
+#' #  if (!is.null(StandardsRef) & !is.character(StandardsRef)) {
+#' #    if (!is.data.frame(StandardsRef)) {
+#' #      stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
+#' #      ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
+#' #    }
+#' #    if (is.data.frame(StandardsRef)) {
+#' #      col.names <- c(
+#' #        "organization_identifier", "ATTAINS.ParameterName", "use_name"
+#' #      )
+#' #      ref.names <- names(StandardsRef)
+#' #      if (length(setdiff(col.names, ref.names)) > 0) {
+#' #        stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
+#' #        ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
+#' #      }
+#' #    }
+#' #  }
+#' #  wb <- openxlsx::loadWorkbook(wb, downloads_path)
+#' #  tryCatch(
+#' #    {
+#' #      openxlsx::addWorksheet(wb, "MagnitudeExcursions")
+#' #    },
+#' #    error = function(e) {
+#' #      openxlsx::removeWorksheet(wb, "MagnitudeExcursions")
+#' #      openxlsx::addWorksheet(wb, "MagnitudeExcursions")
+#' #    }
+#' #  )
+#' #  # Format column header
+#' #  header_st <- openxlsx::createStyle(textDecoration = "Bold")
+#' #  # Reference tables (required)
+#' #  ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
+#' #  UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef")
+#' #  AURef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAURef")
+#' #  # Contains all AU ref columns such as Site-specific names and User defined exclusions to be joined in the TADA dataframe.
+#' #  temp_AU <- .data %>%
+#' #    dplyr::right_join(AURef, by = c(
+#' #      "MonitoringLocationIdentifier", "MonitoringLocationName",
+#' #      "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName"
+#' #    ), relationship = "many-to-many")
+#' #  # Magnitude Excursion Summary
+#' #  TADA_MagnitudeExcursions <- StandardsRef %>%
+#' #    dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
+#' #    dplyr::mutate(dplyr::across(
+#' #      c(
+#' #        ATTAINS.waterTypeCode,
+#' #        MonitoringLocationTypeName,
+#' #        AcuteChronic, SaltFresh, Season, EquationBased,
+#' #        ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
+#' #      ), as.factor
+#' #    )) %>%
+#' #    dplyr::left_join(temp_AU, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+#' #    dplyr::distinct() %>%
+#' #    dplyr::mutate(across(MagnitudeValueLower, as.numeric)) %>%
+#' #    dplyr::group_by(.[, c(
+#' #      "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName",
+#' #      "organization_identifier", "use_name",
+#' #      "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier",
+#' #      "MonitoringLocationTypeName.y", "ATTAINS.waterTypeCode.y", "AcuteChronic", "SaltFresh",
+#' #      "BegAssessDate", "EndAssessDate",
+#' #      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria.y",
+#' #      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+#' #    )]) %>%
+#' #    dplyr::summarise(
+#' #      n_MonitoringLocationID = length(unique(MonitoringLocationIdentifier)),
+#' #      n_discrete = sum(!is.na(TADA.ResultMeasureValue)),
+#' #      n_exceedance = sum(TADA.ResultMeasureValue < MagnitudeValueLower, na.rm = TRUE) + sum(TADA.ResultMeasureValue > MagnitudeValueUpper, na.rm = TRUE),
+#' #      .groups = "drop"
+#' #    )
+#' #  if (!is.null(UseAURef)) {
+#' #    # If a user provides UseAURef and UseParamRef, this creates a Use name to AU and Parameter crosswalk. This helps filter down the summary list further.
+#' #    UseParamAU <- UseAURef %>%
+#' #      dplyr::right_join(UseParamRef, by = c("use_name", "organization_identifier"), relationship = "many-to-many") %>%
+#' #      dplyr::filter(!(!organization_identifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
+#' #      dplyr::select(
+#' #        organization_identifier, ATTAINS.assessmentunitidentifier,
+#' #        ATTAINS.assessmentunitname, TADA.ComparableDataIdentifier,
+#' #        EPA304A.PollutantName, ATTAINS.ParameterName, use_name
+#' #      )
+#' #    UseParamAU2 <- UseParamAU %>%
+#' #      dplyr::group_by(ATTAINS.ParameterName, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname) %>%
+#' #      dplyr::summarize(.groups = "keep") %>%
+#' #      dplyr::mutate(organization_identifier = "EPA304a") %>%
+#' #      stats::na.omit() %>%
+#' #      dplyr::full_join(UseParamAU, by = c("organization_identifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+#' #      dplyr::mutate(
+#' #        ATTAINS.assessmentunitidentifier = dplyr::coalesce(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y),
+#' #        ATTAINS.assessmentunitname = dplyr::coalesce(ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)
+#' #      ) %>%
+#' #      dplyr::select(-c(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y, ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)) %>%
+#' #      dplyr::distinct()
+#' #    TADA_MagnitudeExcursions <- TADA_MagnitudeExcursions %>%
+#' #      dplyr::right_join(UseParamAU2)
+#' #  }
+#' #  # set zoom size
+#' #  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+#' #  sV <- wb$worksheets[[8]]$sheetViews
+#' #  wb$worksheets[[8]]$sheetViews <- set_zoom(90)
+#' #  # Format header and bodystyle
+#' #  header_st <- openxlsx::createStyle(textDecoration = "Bold")
+#' #  bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
+#' #  # Write column names in the excel spreadsheet under the tab [DefineStandards]
+#' #  # writeData(wb, "DefineStandards", startCol = 1, x = par, headerStyle = header_st)
+#' #  # Export DefineStandards dataframe into the excel spreadsheet tab
+#' #  openxlsx::writeData(wb, "MagnitudeExcursions", startCol = 1, x = TADA_MagnitudeExcursions, headerStyle = header_st)
+#' #  # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
+#' #  if (!is.null(downloads_path)) {
+#' #    # saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
+#' #    downloads_path <- downloads_path
+#' #  }
+#' #  if (overwrite == TRUE) {
+#' #    openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+#' #  }
+#' #  if (overwrite == FALSE) {
+#' #    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+#' #    openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+#' #  }
+#' #  cat("File saved to:", gsub("/", "\\", downloads_path), "\n")
+#' #  MagnitudeExcursions <- openxlsx::read.xlsx(downloads_path, sheet = "MagnitudeExcursions")
+#' #  return(MagnitudeExcursions)
 # }

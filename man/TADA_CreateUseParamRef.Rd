@@ -9,7 +9,7 @@ TADA_CreateUseParamRef(
   org_id = NULL,
   paramRef = NULL,
   useParamRef = NULL,
-  auto_assign = TRUE,
+  auto_assign = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -45,7 +45,8 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
-\item{auto_assign}{A boolean value. If TRUE, this will assign all unique
+\item{auto_assign}{NOTE: this has not been developed, will this be helpful?
+A boolean value. If TRUE, this will assign all unique
 use names to an ATTAINS.ParameterName that has not been defined by your
 organization from ATTAINS. If FALSE, the values will be left blank and
 will need you to manually assign use names as needed.}

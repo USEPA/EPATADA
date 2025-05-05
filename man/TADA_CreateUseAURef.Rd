@@ -25,6 +25,11 @@ with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
 See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
 
+\item{useAURef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with an assessment unit.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
+
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:
