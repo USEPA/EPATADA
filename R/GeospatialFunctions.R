@@ -129,16 +129,6 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' @examples
 #' \dontrun{
-<<<<<<< HEAD
-# tada_data <- TADA_DataRetrieval(
-#   startDate = "1990-01-01",
-#   endDate = "1995-12-31",
-#   characteristicName = "pH",
-#   statecode = "NV",
-#   applyautoclean = TRUE,
-#   ask = FALSE
-# )
-=======
 #' tada_data <- TADA_DataRetrieval(
 #'   startDate = "1990-01-01",
 #'   endDate = "1990-12-30",
@@ -147,7 +137,6 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
->>>>>>> develop
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
