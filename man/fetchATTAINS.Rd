@@ -24,6 +24,17 @@ produced from a set of TADA spatial features.
 }
 \examples{
 \dontrun{
+<<<<<<< HEAD
+=======
+tada_data <- TADA_DataRetrieval(
+  startDate = "1990-01-01",
+  endDate = "1990-12-30",
+  characteristicName = "pH",
+  statecode = "NV",
+  applyautoclean = TRUE,
+  ask = FALSE
+)
+>>>>>>> develop
 
 nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 }

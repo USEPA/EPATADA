@@ -79,7 +79,9 @@ Imports:
     rATTAINS,
     rExpertQuery,
     DT,
-    dataRetrieval
+    dataRetrieval,
+    dbscan,
+    janitor,
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -97,7 +99,9 @@ Suggests:
     spelling,
     htmltools,
     tigris,
-    yaml
+    yaml,
+    rvest,
+    remotes
 Remotes:
     DOI-USGS/dataRetrieval@develop,
     USEPA/rExpertQuery@develop
