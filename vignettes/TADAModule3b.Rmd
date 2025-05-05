@@ -150,7 +150,7 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("WVDEP"),
   paramRef = ParamRef,
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 # Now, run TADA_CreateUseParamRef once you have completed filling out your paramRef from TADA_CreateParamRef.
 NCTC_UseParamRef <- TADA_CreateUseParamRef(
@@ -177,7 +177,7 @@ NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
   paramRef = NCTC_ParamRef_Final,
   useParamRef = UseParamRef_Modified, # Edits were made to UseParamRef, updates flag column
   org_id = c("WVDEP"),
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -245,7 +245,7 @@ NCTC_SpatialRef_ML2 <- dplyr::mutate(
     MonitoringLocationIdentifier %in% c(
       "USGS-01613030", "WVDEP_WQX-18323", "WVDEP_WQX-5621", "WVDEP_WQX-18305", "USGS-01614000"
     ) ~ "Include",
-    TRUE ~ "Exclde"
+    TRUE ~ "Exclude"
   )
 )
 ```
@@ -352,7 +352,7 @@ NCTC_UseAURef <- TADA_CreateUseAURef(
   Data_NCTC,
   sitesAURef = sitesAURef,
   org_id = "WVDEP",
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 
 add_new_AU <- data.frame(
@@ -381,7 +381,7 @@ NCTC_UseAURef_Final <- TADA_CreateUseAURef(
   sitesAURef = sitesAURef,
   useAURef = NCTC_UseAURef_Modified, # validates your table
   org_id = "WVDEP",
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(NCTC_UseAURef_Final)
@@ -431,7 +431,7 @@ NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
   useAURef = NCTC_UseAURef_Final,
   useParamRef = NCTC_UseParamRef_Final,
   waterUseParamRef = NCTC_WaterUseParamRef_Final,
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 
 NCTC_SpatialRef_AU_Final <- dplyr::filter(NCTC_SpatialRef_AU, Flag.AssessmentNote == "Pass")
