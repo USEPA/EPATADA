@@ -69,7 +69,6 @@ CreateUseAURef
 CreateUseParamRef
 CreateUseWaterParamRef
 CreateWaterUseParamRef
-DOI
 DV
 DataFrame
 DataQuality
@@ -380,6 +379,7 @@ devtools
 df
 dplyr
 du
+dv
 eXchange
 ecc
 ecoregions
@@ -464,6 +464,7 @@ startDate
 startDateHi
 startDateLo
 statecode
+statstics
 surfacevalue
 sysdata
 tada
@@ -473,13 +474,10 @@ tigris
 un
 uncomment
 uncommenting
-<<<<<<< HEAD
+uri
 useAURef
 useParam
 useParamRef
-=======
-uri
->>>>>>> develop
 useR
 usepa
 usgs

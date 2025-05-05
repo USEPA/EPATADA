@@ -48,9 +48,9 @@ TADA_UpdateExampleData <- function() {
   usethis::use_data(Data_Nutrients_UT_GetATTAINS,
     internal = FALSE, overwrite = TRUE,
     compress = "xz", version = 3, ascii = FALSE
-    )
+  )
   rm(Data_Nutrients_UT_GetATTAINS)
-  
+
   # Generate Data_6Tribes_5y.rda
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(

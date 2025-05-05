@@ -105,20 +105,20 @@ UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
 
 # Now, run TADA_CreateUseAURef()
 UseAURef_UT <- TADA_CreateUseAURef(
-   Data_Nutrients_UT,
-   org_id = c("UTAHDWQ"),
-   sitesAURef = UT_AU_ML,
-   excel = FALSE
- )
+  Data_Nutrients_UT,
+  org_id = c("UTAHDWQ"),
+  sitesAURef = UT_AU_ML,
+  excel = FALSE
+)
 
 # Now, run TADA_CreateSpatialRef()
 WaterUseParamRef_UT <- TADA_CreateWaterUseParamRef(
-   Data_Nutrients_UT,
+  Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  useAURef = UseAURef_UT, 
-   useParamRef = UseParamRef_UT,
-   excel = FALSE
- )
+  useAURef = UseAURef_UT,
+  useParamRef = UseParamRef_UT,
+  excel = FALSE
+)
 
 }
 \seealso{
