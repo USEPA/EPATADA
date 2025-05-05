@@ -126,8 +126,6 @@ remotes::install_github("USEPA/StreamCatTools",
 
 library(EPATADA)
 library(StreamCatTools)
-
-
 ```
 
 It's go time! Let's time our process.
@@ -241,8 +239,11 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
 GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
-# Topic for discussion: Would users like results with NA units to be dealt with in TADA_AutoFilter or in the TADA_ConvertResultUnits()? These have not yet been addressed.
+```
 
+Check to make sure there are no more NA's in TADA.ResultMeasureValue.
+
+```{r recheck}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
@@ -282,8 +283,7 @@ GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TA
 DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
 ```
 
-**Filter to focus on frequently monitored characteristics in example
-data**
+Filter to focus on frequently monitored characteristics in example data
 
 ```{r subset}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
@@ -320,14 +320,24 @@ TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.Comp
 
 **Generate map**
 
-```{r map}
+```{r TADA Overview Map}
 TADA_OverviewMap(GreenBay_FoxRiver_Subset)
+```
 
+**Clean up coordinate issues**
+
+```{r Coordinate issues}
+# Change coordinate sign if appropriate
 GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
-# CM note for TADA team discussion: Should results with NA lat/long be addressed within TADA_FlagCoordinates? For example, this df has NA lons from USGS that must be addressed before TADA_MakeSpatial can be run... 
-# sum(is.na(GreenBay_FoxRiver$LongitudeMeasure))
+# This df has NA lons from USGS that must be addressed before TADA_MakeSpatial can be run... 
+sum(is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure))
+
+# Remove rows with NA lons from df
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver_Subset[!is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure),]
+
+# Recheck
+sum(is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure))
 ```
 
 # Geospatial data integration
@@ -341,8 +351,7 @@ sf object.
 GreenBay_FoxRiver_sf = TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
 ```
 
-Then create a unique identifier based on shared lat long values and
-filter to just the 25 unique locations.
+Then create a unique identifier based on shared lat long values and filter to just the 25 unique locations.
 
 ```{r}
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
@@ -465,11 +474,11 @@ watershed for each particular site using
 ### Discover what StreamCat metrics we might want to use
 
 ```{r}
-metrics <- sc_get_params(param='name')
+metrics <- StreamCatTools::sc_get_params(param = 'metric_names')
 print(paste0('A selection of available StreamCat metrics include: ',paste(metrics[1:10],collapse = ', ')))
 ```
 
-### Discover land cover of waterhsheds for sites
+### Discover land cover of watersheds for sites
 
 We'll pull in all the NLCD categories at the local catchment level for
 each location
@@ -487,8 +496,8 @@ GB_FR_Urb
 ### Visualize urbanization for local catchment for each location
 
 ```{r}
-ggplot2::ggplot(GB_FR_Urb, aes(x=Pct_Urbanized)) + 
-  geom_density()
+ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x=Pct_Urbanized)) + 
+  ggplot2::geom_density()
 ```
 
 ### Pull in data for modeling using `StreamCatTools`
@@ -497,10 +506,10 @@ Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
 
 ```{r}
-ws_data <- sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
+ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
-# Example Use Case 1: Building Statistical Models
+# Building Statistical Models
 
 ## Spatial Dependence
 
@@ -532,10 +541,6 @@ ws_data <- sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=
     (flow-connected, flow-unconnected)
 -   `SSN2` is an updated version of `SSN` (`SSN` has been archived)
 -   Learn more at <https://usepa.github.io/SSN2/>
-
-# Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part A
-
-TADA_MakeSpatial(), TADA_GetATTAINS(), TADA_ViewATTAINS()
 
 ## TADA Module 2: Geospatial Functions
 
@@ -583,7 +588,7 @@ quality data is the WQP.
 -   Water Quality Portal Monitoring Locations
     -   These are points
 
-## TADA_GetATTAINS()
+## TADA_GetATTAINS() Part A
 
 -   Automates matching of WQP monitoring locations with ATTAINS
     assessment units that fall within (intersect) the same NHDPlus
@@ -596,11 +601,9 @@ quality data is the WQP.
 
 ```{r}
 WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+
+TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```
-
-## TADA_ViewATTAINS()
-
--   Allows for viewing the
 
 ## Challenges with Automated Approach
 
@@ -617,16 +620,14 @@ WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchment
 
 Finally, some waterbodies have data available in the WQP or from other
 sources, but there are no existing Assessment Units in ATTAINS for them.
-In the next section, we will share a way to create AU's using NHDPlus
-high resolution catchments.
 
-# Example Use Case 2: Clean Water Act (CWA) Section 303(d) Assessments Part B
+# TADA_GetATTAINS() Part B
 
-nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(), TADA_ViewATTAINS()
+See: nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(), TADA_ViewATTAINS()
 
 ## Creating new AUs to assess additional areas (leveraging USGS's nhdplusTools and TADA geospatial functions)
 
-TADA has included a way to do this using TADA_GetATTAINS()
+TADA has included a way to explore this using TADA_GetATTAINS()
 fill_catchments function input. This is included for exploratory
 purposes only. In theory, states and tribal nations could use the high
 res catchments as new assessment unit polygons to assess additional
@@ -649,18 +650,12 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ```{r}
-# # need to troubleshoot why this is not working
-# WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+
+TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ```
 
-# Visualizing Water Quality Issues
-
--   Placeholder: Now that we have data assigned to watershed/waterbodies
-    (Assessment Units). Let's showcase how to visualize water quality
-    issues for a few characteristics of interest on a map and in figures
-    using available packages.
-
-# Conclusion
+# The end!
 
 ```{r}
 end.time <- Sys.time()
