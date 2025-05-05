@@ -244,7 +244,7 @@ NCTC_SpatialRef_ML2 <- dplyr::mutate(
     MonitoringLocationIdentifier %in% c(
       "USGS-01613030", "WVDEP_WQX-18323", "WVDEP_WQX-5621", "WVDEP_WQX-18305", "USGS-01614000"
       ) ~ "Include",
-           TRUE ~ "Exclude" 
+           TRUE ~ "Exclde" 
     ))
 ```
 
@@ -395,14 +395,14 @@ NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(
   org_id = "WVDEP"
 )
 
-add_data_WaterUse <- data.frame(
-  waterType = c(rep("STREAM/CREEK/RIVER", 4)),
-  ATTAINS.ParameterName = c(rep("PH", 4)),
-  ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
-  )
+# add_data_WaterUse <- data.frame(
+#   waterType = c(rep("STREAM/CREEK/RIVER", 4)),
+#   ATTAINS.ParameterName = c(rep("PH", 4)),
+#   ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
+#   )
   
 
-NCTC_WaterUseParamRef_Modified <- dplyr::left_join(NCTC_WaterUseParamRef, add_data_WaterUse, by = c("waterType", "ATTAINS.ParameterName"), relationship = "many-to-many") %>% dplyr::filter(!use_name %in% "Water Supply Industrial, Water Transport, Cooling and Power")
+NCTC_WaterUseParamRef_Modified <- dplyr::filter(NCTC_WaterUseParamRef,!use_name %in% "Water Supply Industrial, Water Transport, Cooling and Power")
 
 NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   Data_NCTC,

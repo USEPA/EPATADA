@@ -2224,7 +2224,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
     ) %>%
     dplyr::arrange(waterType, use_name)
 
-  # User provides their own waterUseParamRef that has been filled out and wants to re-use this crosswalk table.
+  # User provides their own waterUseParamRef that has been filled out and wants to re-use/re-run flagging of their crosswalk table.
   if(!is.null(waterUseParamRef)){
     
     # identifies if a user has provided a row combinations that is potentially not relevant to their assessments.
