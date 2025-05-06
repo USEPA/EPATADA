@@ -1,21 +1,23 @@
-#' Define Magnitude Standards
+#' Define Criteria and Methodology
 #'
 #' Users will need to provide the completed reference tables from
-#' TADA_CreateUseParamRef() and TADA_CreateAURef() as the two argument inputs.
-#' This will generate a template for users to fill out and define the Magnitude values
-#' associated with an ATTAINS Parameter name and use name.For each Magnitude value,
+#' TADA_CreateSpatialRef(). This will generate a template for users to fill out 
+#' and define either the full Criteria or magnitude only values associated with 
+#' an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
 #' users will need to ensure they properly define any additional methods that will
-#' correctly reflect their assessment standards for that parameter and use. For example,
-#' if there are separate standards for acute versus chronic, or for rivers versus estuary,
-#' different seasons, then a user will need to create additional rows to reflect this.
+#' correctly reflect their assessment standards for that parameter and use. 
+#' For example, if there are separate standards for acute versus chronic, 
+#' rivers versus estuary, different seasons, etc. then a user will need to create 
+#' additional rows to reflect this.
 #'
-#' Efforts have been made to pull in the EPA304a recommended standards automatically from the
-#' Criteria Search Tool (CST). Users should validate this final output if a user has
-#' decided to include the EPA304a standards. User will need to determine if any
-#' additional adjustments are needed. For example, does the crosswalk between the EPA304A.PollutantName
-#' and TADA.ComparableDataIdentifier seem valid for your organization's method? Is your organization
-#' only interested in providing the EPA304a recommended standards for certain seasons
-#' (Fall, Summer, Spring, Winter) etc.
+#' Efforts have been made to pull in the EPA304a recommended standards 
+#' automatically from the Criteria Search Tool (CST). Users should validate this 
+#' final output if a user has decided to include the EPA304a standards. 
+#' User will need to determine if any additional adjustments are needed. 
+#' For example, does the crosswalk between the EPA304A.PollutantName
+#' and TADA.ComparableDataIdentifier seem valid for your organization's method? 
+#' Is your organization only interested in providing the EPA304a recommended 
+#' standards for certain seasons (Fall, Summer, Spring, Winter) etc.
 #'
 #' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
 #' processing, harmonization and filtering functions prior to this step.
@@ -64,7 +66,8 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-  metal_list <- data.frame(ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
+  metal_list <- data.frame(
+    ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
     cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
     dplyr::arrange(ATTAINS.ParameterName)

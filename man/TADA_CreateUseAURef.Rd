@@ -8,7 +8,6 @@ TADA_CreateUseAURef(
   .data,
   sitesAURef = NULL,
   useAURef = NULL,
-  filterAU = NULL,
   org_id = NULL,
   excel = FALSE,
   overwrite = FALSE
