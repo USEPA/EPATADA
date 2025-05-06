@@ -2423,7 +2423,7 @@ TADA_CreateWaterUseParamRef <- function(.data, useParamRef = NULL, useAURef = NU
 #'   excel = FALSE
 #' )
 #'
-TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, filterAU = NULL,
+TADA_CreateUseAURef <- function(.data, sitesAURef = NULL, useAURef = NULL, 
                                 org_id = NULL, excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
