@@ -765,19 +765,62 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswa
   }
 
   if (!is.null(paramRef)) {
-    Flag1 <- paramRef %>%
-      dplyr::mutate(ATTAINS.ParameterName = dplyr::if_else(
-        is.na(ATTAINS.ParameterName), "No parameter match for TADA.ComparableDataIdentifier", ATTAINS.ParameterName
-      )) %>%
+    # Identifies rows that are missing from your paramRef - i.e. new WQP Charactersitics that need a crosswalk.
+    Flag1 <- CreateParamRef %>%
       dplyr::anti_join(
-        ATTAINS_param_all,
-        by = c("ATTAINS.ParameterName" = "parameter", "organization_identifier")
+        paramRef,
+        by =
+          c(
+            "TADA.ComparableDataIdentifier", "organization_identifier", "EPA304A.PollutantName",
+             "ATTAINS.ParameterName" # ATTAINS.FlagParameterName)
+      )) %>%
+      dplyr::mutate(
+        ATTAINS.FlagParameterName = dplyr::case_when(
+        ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
+          "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+        !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~
+          "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
+        !ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier %in% organization_identifier, "parameter"] ~
+          "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
+        ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier %in% organization_identifier, "parameter"] ~
+          "Parameter name is listed as a prior cause in ATTAINS for this organization"
+      ))
+    
+    CreateParamRef <- Flag1 %>%
+      dplyr::full_join(
+        paramRef,
+        by =
+          c(
+            "TADA.ComparableDataIdentifier", "organization_identifier", "EPA304A.PollutantName",
+            "ATTAINS.ParameterName", "ATTAINS.FlagParameterName"
+            )
       ) %>%
-      dplyr::select(
-        TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
-        ATTAINS.ParameterName, ATTAINS.FlagParameterName
-        ) %>%
-      dplyr::distinct() 
+      dplyr::mutate(
+        ATTAINS.FlagParameterName = dplyr::case_when(
+          ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
+            "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+          !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~
+            "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
+          ATTAINS.ParameterName %in% ATTAINS_param_all$parameter & !ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier %in% organization_identifier, "parameter"] ~
+            "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
+          ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier %in% organization_identifier, "parameter"] ~
+            "Parameter name is listed as a prior cause in ATTAINS for this organization"
+        )) %>%
+      dplyr::distinct()
+    
+    # Flag1 <- paramRef %>%
+    #   dplyr::mutate(ATTAINS.ParameterName = dplyr::if_else(
+    #     is.na(ATTAINS.ParameterName), "No parameter match for TADA.ComparableDataIdentifier", ATTAINS.ParameterName
+    #   )) %>%
+    #   dplyr::anti_join(
+    #     CreateParamRef,
+    #     by = c("ATTAINS.ParameterName" = "parameter", "organization_identifier")
+    #   ) %>%
+    #   dplyr::select(
+    #     TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
+    #     ATTAINS.ParameterName, ATTAINS.FlagParameterName
+    #     ) %>%
+    #   dplyr::distinct() 
       # dplyr::mutate(ATTAINS.FlagParameterName1 = dplyr::case_when(
       #   ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
       #     "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
@@ -787,21 +830,21 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, # crosswa
       #     "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
       # ))
 
-    CreateParamRef <- CreateParamRef %>%
-      dplyr::left_join(Flag1, c("TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "organization_identifier")) %>%
-      dplyr::select(
-        TADA.ComparableDataIdentifier, organization_identifier,
-        EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.FlagParameterName
-      ) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(ATTAINS.FlagParameterName = dplyr::case_when(
-        ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
-          "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
-        !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~
-          "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
-        !ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier == organization_identifier, "parameter"] ~
-          "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
-      ))
+    # CreateParamRef <- CreateParamRef %>%
+    #   dplyr::full_join(Flag1, by = c("TADA.ComparableDataIdentifier")) %>%
+    #   dplyr::select(
+    #     TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
+    #     ATTAINS.ParameterName, ATTAINS.FlagParameterName
+    #   ) %>%
+    #   dplyr::distinct() %>%
+    #   dplyr::mutate(ATTAINS.FlagParameterName = dplyr::case_when(
+    #     ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
+    #       "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+    #     !ATTAINS.ParameterName %in% ATTAINS_param_all$parameter ~
+    #       "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List",
+    #     !ATTAINS.ParameterName %in% ATTAINS_param_all[ATTAINS_param_all$organization_identifier %in% organization_identifier, "parameter"] ~
+    #       "Parameter name is listed as a prior cause in ATTAINS, but not for this organization"
+    #   ))
 
     # remove intermediate object Flag1
     rm(Flag1)
