@@ -80,10 +80,11 @@ Imports:
     DT,
     dataRetrieval,
     dbscan,
-    janitor,
+    janitor
 Depends: 
     R (>= 3.5.0)
 Suggests:
+    StreamCatTools, 
     lwgeom,
     RColorBrewer,
     rmarkdown,
@@ -102,7 +103,8 @@ Suggests:
     rvest,
     remotes
 Remotes:
-    DOI-USGS/dataRetrieval@develop
+    DOI-USGS/dataRetrieval@develop,
+    USEPA/StreamCatTools@master
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
