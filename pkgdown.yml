@@ -3,6 +3,7 @@ pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
+  GeospatialDataIntegration: GeospatialDataIntegration.html
   TADAAssessmentUnitUseCase: TADAAssessmentUnitUseCase.html
   TADAModule1_AdvancedTraining: TADAModule1_AdvancedTraining.html
   TADAModule1_BeginnerTraining: TADAModule1_BeginnerTraining.html
@@ -11,7 +12,7 @@ articles:
   TADAModule3_PartA: TADAModule3_PartA.html
   TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
   WQXValidationService: WQXValidationService.html
-last_built: 2025-05-02T20:48Z
+last_built: 2025-05-07T15:00Z
 urls:
   reference: usepa.github.io/EPATADA/reference
   article: usepa.github.io/EPATADA/articles
