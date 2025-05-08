@@ -85,6 +85,7 @@ Depends:
     R (>= 3.5.0)
 Suggests:
     StreamCatTools, 
+    hydroloom,
     lwgeom,
     RColorBrewer,
     rmarkdown,
