@@ -589,7 +589,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
 #'   dist_buffer = 10
 #' )
-TADA_FindNearbySites <- function(.data, dist_buffer = 0.5,
+TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                  nhd_res = "Hi",
                                  org_hierarchy = "none",
                                  meta_select = "random") {
@@ -747,17 +747,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 0.5,
   
   # remove intermediate objects
   rm(catch.groups, near.dfs, unique.mls)
-
-    # create df of grouped sites, including all activity start dates for the sites
-   add.activity <- new.ids %>%
-      dplyr::full_join(.data, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
-      dplyr::select(TADA.MonitoringLocationName,
-        TADA.MonitoringLocationIdentifier.New, TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName, ActivityStartDate, OrganizationIdentifier
-      ) %>%
-      dplyr::distinct() %>%
-     sf::st_drop_geometry()
 
     # create a df of unique grouped sites, do not include any activity start dates
     grouped.no.dates <- new.ids %>%
@@ -1053,11 +1042,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 0.5,
       TADA_OrderCols()
 
     # remove intermediate objects
-    rm(select.meta, ml.crosswalk)
+    rm(select.meta, ml.crosswalk, group.sites, new.ids)
 
     # add flag for any ungrouped sites and order columns correctly
     .data <- TADA_OrderCols(.data) %>%
-      dplyr::mutate(TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySites.Flag),
+      dplyr::mutate(TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySiteGroup),
         "No nearby sites detected using input buffer distance.",
         TADA.NearbySites.Flag
       ))
@@ -1065,7 +1054,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 0.5,
     # return TADA df with added columns for tracking
     return(.data)
   }
-}
+
 
 
 #' Get grouped monitoring stations that are near each other
