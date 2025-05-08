@@ -108,19 +108,30 @@ WQPquery <- list(siteid = "USGS-04024315",
 )
 
 result.DR <- dataRetrieval::readWQPdata(WQPquery,
-                                        service = "Result", # WQX3 option "ResultWQX3",
+                                        service = "ResultWQX3", # WQX3 option "ResultWQX3",
                                         dataProfile = "fullPhysChem",
                                         ignore_attributes = TRUE)
 
 names(result.DR)
 
+# NOT WORKING - there's a glitch with WQP beta - data product service calling WQX data
+#  USGS data seems to work alright though...
 WQPquery2 <- list(organization = "CNENVSER",
                   startDate = "2018-01-01", 
                   endDate = "2018-01-31")
 result.DR2 <- dataRetrieval::readWQPdata(WQPquery2,
-                                          service = "ResultWQX3",
+                                          service = "Result", # beta "ResultWQX3"
                                           dataProfile = "fullPhysChem",
                                           ignore_attributes = T)
+
+#################
+## WRITE dataRetrieval output
+# Beta (3.0)
+write_csv(result.DR, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.dr.beta.csv")
+
+# Production (legacy) (2.0)
+write_csv(result.DR2, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.dr.legacy.csv")
+
 
 # check if any results are available
 if ((nrow(result.DR) > 0) == FALSE) {
