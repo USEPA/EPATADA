@@ -1810,9 +1810,6 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       ) %>%
       dplyr::distinct()
   }
-  
-  # remove intermediate variable
-  rm(ATTAINS.waterTypeCode)
 
   # If a user DOES provide a sitesAURef, this will create the Spatial Table on an AU level
   if (!is.null(sitesAURef)) {
@@ -1865,6 +1862,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
         ATTAINS.ParameterName, use_name, ATTAINS.waterTypeCode,
         LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
+      dplyr::filter(MonitoringLocationIdentifier %in% .data$MonitoringLocationIdentifier) %>%
       dplyr::distinct()
   }
 

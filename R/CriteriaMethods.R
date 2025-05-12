@@ -30,213 +30,216 @@
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-# TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
-#                                  excel = TRUE, overwrite = FALSE) {
-#   # Excel ref files to be stored in the Downloads folder location.
-#   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-# 
-#   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
-#   if (!is.null(spatialRef) & !is.character(spatialRef)) {
-#     if (!is.data.frame(spatialRef)) {
-#       stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
-#         ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
-#         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
-#     }
-# 
-#     if (is.data.frame(spatialRef)) {
-#       col.names <- c(
-#         "ATTAINS.ParameterName",
-#         "use_name",
-#         "organization_identifier",
-#         "ApplyUniqueSpatialCriteria",
-#         "ATTAINS.waterTypeCode",
-#         "ATTAINS.assessmentunitidentifier",
-#         "MonitoringLocationTypeName"
-#       )
-# 
-#       ref.names <- names(spatialRef)
-# 
-#       if (length(setdiff(col.names, ref.names)) > 0) {
-#         stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
-#         ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
-#         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
-#       }
-#     }
-#   }
-# 
-#   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
-#   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-#   metal_list <- data.frame(
-#     ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
-#     cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
-#     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
-#     dplyr::arrange(ATTAINS.ParameterName)
-# 
-#   DefineMagnitude <- spatialRef %>%
-#     dplyr::select(
-#       "ATTAINS.ParameterName", "organization_identifier", "use_name",
-#       "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
-#     ) %>%
-#     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
-#     dplyr::bind_cols(
-#       data.frame(
-#         AcuteChronic = as.character(NA), SaltFresh = as.character(NA),
-#         BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
-#         MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
-#         MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA)
-#       )
-#     ) %>%
-#     dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-#     dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
-#     dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
-#     dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
-#     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
-#     dplyr::distinct() %>%
-#     dplyr::select(
-#       "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
-#       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
-#       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
-#       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
-#     )
-# 
-#   # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-#   #   dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
-#   #   dplyr::mutate(organization_identifier = "EPA304a")
-#   #
-#   # if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
-#   #   DefineMagnitude <- DefineMagnitude %>%
-#   #     dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
-#   #     dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
-#   #     dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
-#   #     dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
-#   #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
-#   #       ""
-#   #     )) %>%
-#   #     dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
-#   #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
-#   #       CRITERION_VALUE
-#   #     )) %>%
-#   #     dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
-#   #     dplyr::mutate(dplyr::across(
-#   #       c(
-#   #         ATTAINS.waterTypeCode,
-#   #         MonitoringLocationTypeName,
-#   #         AcuteChronic, SaltFresh, Season, EquationBased,
-#   #         ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
-#   #       ), as.factor
-#   #     )) %>%
-#   #     dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
-#   #     dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
-#   #     dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
-#   #     dplyr::distinct() %>%
-#   #     dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
-#   # }
-#   #
-#   # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
-#   # # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
-#   # MagnitudeValue <- paramRef %>%
-#   #   dplyr::left_join(
-#   #     (dplyr::select(.data, "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode") %>%
-#   #       dplyr::distinct() %>%
-#   #       tidyr::drop_na(TADA.ResultMeasure.MeasureUnitCode)
-#   #     ),
-#   #     by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many"
-#   #   ) %>%
-#   #   dplyr::select(ATTAINS.ParameterName, TADA.ResultMeasure.MeasureUnitCode) %>%
-#   #   dplyr::distinct() %>%
-#   #   dplyr::right_join(DefineMagnitude, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-#   #   dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
-#   #   dplyr::rename(MagnitudeUnit = TADA.ResultMeasure.MeasureUnitCode)
-# 
-#   if (excel == TRUE) {
-#     wb <- openxlsx::loadWorkbook(wb, downloads_path)
-#     tryCatch(
-#       {
-#         openxlsx::addWorksheet(wb, "DefineMagnitude")
-#       },
-#       error = function(e) {
-#         openxlsx::removeWorksheet(wb, "DefineMagnitude")
-#         openxlsx::addWorksheet(wb, "DefineMagnitude")
-#       }
-#     )
-# 
-#     # Format column header
-#     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#     # set zoom size
-#     set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-#     sV <- wb$worksheets[[7]]$sheetViews
-#     wb$worksheets[[7]]$sheetViews <- set_zoom(90)
-# 
-#     columns <- c(
-#       "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
-#       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
-#       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
-#       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
-#     )
-# 
-#     # Format column header
-#     header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#     # Format Column widths
-#     openxlsx::setColWidths(wb, "DefineMagnitude", cols = 1:ncol(DefineMagnitude), widths = "auto")
-#     openxlsx::setColWidths(wb, sheet = "DefineMagnitude", cols = 1:5, widths = 20)
-# 
-#     # Write column names in the excel spreadsheet under the tab [DefineMagnitude]
-#     # writeData(wb, "DefineMagnitude", startCol = 1, x = par, headerStyle = header_st)
-#     # Export DefineMagnitude dataframe into the excel spreadsheet tab
-#     openxlsx::writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
-#     # writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = MagnitudeValue)
-# 
-#     openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
-# 
-#     openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(ATTAINS.waterTypeCode = c(unique(AURef$ATTAINS.waterTypeCode), "All", "NA"))) # ATTAINS.waterTypeCode
-#     openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
-#     openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
-# 
-#     openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) # Season
-# 
-#     openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(AURef$ApplyUniqueSpatialCriteria), "NA"))) # ApplyUniqueSpatialCriteria
-#     openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
-# 
-#     openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
-# 
-#     # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-#     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
-# 
-#     # Conditional Formatting
-#     openxlsx::freezePane(wb, "DefineMagnitude", firstActiveRow = 2, firstActiveCol = 6)
-#     openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-#       cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
-#       type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-#     ) # default values or indicates good to go cells.
-#     openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-#       cols = 5:18, rows = 2:(nrow(DefineMagnitude) + 1),
-#       type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-#     ) # modified cells.
-# 
-#     # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
-#     if (overwrite == TRUE) {
-#       openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-#     }
-# 
-#     if (overwrite == FALSE) {
-#       warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
-#       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-#     }
-# 
-#     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
-#   }
-# 
-#   return(DefineMagnitude)
-# }
-# 
-# 
+TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
+                                 excel = TRUE, overwrite = FALSE) {
+  # Excel ref files to be stored in the Downloads folder location.
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+
+  # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
+  if (!is.null(spatialRef) & !is.character(spatialRef)) {
+    if (!is.data.frame(spatialRef)) {
+      stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
+    }
+
+    if (is.data.frame(spatialRef)) {
+      col.names <- c(
+        "ATTAINS.ParameterName",
+        "use_name",
+        "organization_identifier",
+        "ApplyUniqueSpatialCriteria",
+        "ATTAINS.waterTypeCode",
+        "ATTAINS.assessmentunitidentifier",
+        "MonitoringLocationTypeName"
+      )
+
+      ref.names <- names(spatialRef)
+
+      if (length(setdiff(col.names, ref.names)) > 0) {
+        stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
+      }
+    }
+  }
+
+  # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
+  # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
+  metal_list <- data.frame(
+    ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
+    cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
+    cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
+    dplyr::arrange(ATTAINS.ParameterName)
+
+  DefineMagnitude <- spatialRef %>%
+    dplyr::select(
+      "ATTAINS.ParameterName", "organization_identifier", "use_name",
+      "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
+    ) %>%
+    # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
+    dplyr::bind_cols(
+      data.frame(
+        AcuteChronic = as.character(NA), SaltFresh = as.character(NA),
+        BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
+        MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
+        MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA)
+      )
+    ) %>%
+    dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+    dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
+    dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
+    dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
+    dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
+    dplyr::distinct() %>%
+    dplyr::select(
+      "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
+      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
+      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+    )
+
+  # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+  #   dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
+  #   dplyr::mutate(organization_identifier = "EPA304a")
+  #
+  # if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
+  #   DefineMagnitude <- DefineMagnitude %>%
+  #     dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
+  #     dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
+  #     dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
+  #     dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
+  #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
+  #       ""
+  #     )) %>%
+  #     dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
+  #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
+  #       CRITERION_VALUE
+  #     )) %>%
+  #     dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
+  #     dplyr::mutate(dplyr::across(
+  #       c(
+  #         ATTAINS.waterTypeCode,
+  #         MonitoringLocationTypeName,
+  #         AcuteChronic, SaltFresh, Season, EquationBased,
+  #         ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
+  #       ), as.factor
+  #     )) %>%
+  #     dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
+  #     dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
+  #     dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
+  #     dplyr::distinct() %>%
+  #     dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
+  # }
+  #
+  # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
+  # # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
+  # MagnitudeValue <- paramRef %>%
+  #   dplyr::left_join(
+  #     (dplyr::select(.data, "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode") %>%
+  #       dplyr::distinct() %>%
+  #       tidyr::drop_na(TADA.ResultMeasure.MeasureUnitCode)
+  #     ),
+  #     by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many"
+  #   ) %>%
+  #   dplyr::select(ATTAINS.ParameterName, TADA.ResultMeasure.MeasureUnitCode) %>%
+  #   dplyr::distinct() %>%
+  #   dplyr::right_join(DefineMagnitude, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+  #   dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
+  #   dplyr::rename(MagnitudeUnit = TADA.ResultMeasure.MeasureUnitCode)
+
+  if (excel == TRUE) {
+    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    tryCatch(
+      {
+        openxlsx::addWorksheet(wb, "DefineMagnitude")
+      },
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "DefineMagnitude")
+        openxlsx::addWorksheet(wb, "DefineMagnitude")
+      }
+    )
+
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    # set zoom size
+    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
+
+    columns <- c(
+      "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
+      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
+      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+    )
+
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    # Format Column widths
+    openxlsx::setColWidths(wb, "DefineMagnitude", cols = 1:ncol(DefineMagnitude), widths = "auto")
+    openxlsx::setColWidths(wb, sheet = "DefineMagnitude", cols = 1:5, widths = 20)
+
+    # Write column names in the excel spreadsheet under the tab [DefineMagnitude]
+    # writeData(wb, "DefineMagnitude", startCol = 1, x = par, headerStyle = header_st)
+    # Export DefineMagnitude dataframe into the excel spreadsheet tab
+    openxlsx::writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
+    # writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = MagnitudeValue)
+
+    openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
+
+    openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(ATTAINS.waterTypeCode = c(unique(spatialRef$ATTAINS.waterTypeCode), "All", "NA"))) # ATTAINS.waterTypeCode
+    openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
+    openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
+
+    openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) # Season
+
+    openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA"))) # ApplyUniqueSpatialCriteria
+    openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
+
+    openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
+
+    # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
+
+    # Conditional Formatting
+    openxlsx::freezePane(wb, "DefineMagnitude", firstActiveRow = 2, firstActiveCol = 6)
+    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
+      cols = 5:16, rows = 2:(nrow(DefineMagnitude) + 1),
+      type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    ) # default values or indicates good to go cells.
+    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
+      cols = 5:16, rows = 2:(nrow(DefineMagnitude) + 1),
+      type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    ) # modified cells.
+
+    # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
+    if (overwrite == TRUE) {
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    }
+
+    if (overwrite == FALSE) {
+      warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+    }
+
+    cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+  }
+
+  return(DefineMagnitude)
+}
+
+
 
 #' Magnitude Summary
 #'
