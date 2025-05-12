@@ -112,7 +112,7 @@ utils::globalVariables(c(
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
   "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.assessmentunitname", 
   "ATTAINS.organizationid", "ATTAINS.waterTypeCode", "useName", "waterType", 
-  "TADA.AssessmentUnitStatus", "TADA.FlagAssessment"
+  "TADA.AssessmentUnitStatus", "TADA.FlagAssessment",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va", 
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date", 
