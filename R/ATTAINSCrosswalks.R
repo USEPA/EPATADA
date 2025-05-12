@@ -1704,13 +1704,13 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' )
 #'
 #' # Now, run TADA_CreateSpatialRef()
-# SpatialRef_UT <- TADA_CreateSpatialRef(
-#    Data_Nutrients_UT,
-#    org_id = c("UTAHDWQ"),
-#    waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
-#    useParamRef = UseParamRef_UT,
-#    excel = FALSE
-#  )
+#' SpatialRef_UT <- TADA_CreateSpatialRef(
+#'   Data_Nutrients_UT,
+#'    org_id = c("UTAHDWQ"),
+#'    waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+#'    useParamRef = UseParamRef_UT,
+#'    excel = FALSE
+#' )
 #'
 TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL, useAURef = NULL, useParamRef = NULL,
                                   sitesAURef = NULL, spatialRef = NULL, excel = FALSE, overwrite = FALSE) {
@@ -2012,13 +2012,13 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
     openxlsx::conditionalFormatting(
       wb, "CreateSpatialRef",
-      cols = 10:11, rows = 2:(nrow(CreateSpatialRef) + 1),
+      cols = 13, rows = 2:(nrow(CreateSpatialRef) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
     ) # green is default values or indicates good to go cells.
     openxlsx::conditionalFormatting(
       wb, "CreateSpatialRef",
-      cols = 10:11, rows = 2:(nrow(CreateSpatialRef) + 1),
+      cols = 13, rows = 2:(nrow(CreateSpatialRef) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # using yellow to indicate modified cell
@@ -2143,7 +2143,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
 #'   excel = FALSE
 #' )
 #'
-#' # Now, run TADA_CreateSpatialRef()
+#' # Now, run TADA_CreateWaterUseParamRef()
 #' WaterUseParamRef_UT <- TADA_CreateWaterUseParamRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),

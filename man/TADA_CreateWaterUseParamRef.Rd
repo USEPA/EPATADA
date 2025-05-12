@@ -111,7 +111,7 @@ UseAURef_UT <- TADA_CreateUseAURef(
   excel = FALSE
 )
 
-# Now, run TADA_CreateSpatialRef()
+# Now, run TADA_CreateWaterUseParamRef()
 WaterUseParamRef_UT <- TADA_CreateWaterUseParamRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),

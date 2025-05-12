@@ -15,6 +15,21 @@ TADA_DefineMagnitude(
 \arguments{
 \item{.data}{A TADA dataframe. Users should run the appropriate data cleaning,
 processing, harmonization and filtering functions prior to this step.}
+
+\item{spatialRef}{An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit.}
+
+\item{excel}{A Boolean value that returns an excel spreadsheet if
+excel = TRUE. This spreadsheet is created in the user's downloads folder path.
+If you have any trouble locating the file, please type the following into
+your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
+The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+the cells in which users should input information.}
+
+\item{overwrite}{A Boolean value that ensures the function will not overwrite
+the user supplied crosswalk entered into this function via the paramRef
+function input. This helps prevent users from overwriting their progress.}
 }
 \value{
 A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
@@ -41,7 +56,37 @@ Is your organization only interested in providing the EPA304a recommended
 standards for certain seasons (Fall, Summer, Spring, Winter) etc.
 }
 \examples{
-Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
-Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
+# First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
+paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+paramRef_UT3 <- TADA_CreateParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+)
+
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_CreateUseParamRef():
+UseParamRef_UT <- TADA_CreateUseParamRef(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+)
+
+# Now, run TADA_CreateSpatialRef()
+SpatialRef_UT <- TADA_CreateSpatialRef(
+  Data_Nutrients_UT,
+   org_id = c("UTAHDWQ"),
+   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+   useParamRef = UseParamRef_UT,
+   excel = FALSE
+)
+
+DefineMagnitude_UT <- TADA_DefineMagnitude(
+  Data_Nutrients_UT,
+  spatialRef = SpatialRef_UT,
+  excel = FALSE)
 
 }
