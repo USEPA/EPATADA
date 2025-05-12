@@ -86,6 +86,10 @@ df2 <- df |>
               .cols = all_of(cols_wqx2_legacy)) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
 names(df2)
 
+#############
+## READ Crosswalk table - modified
+wqxcrswlk_legacy <- read_csv("C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_toshare.csv")
+
 ###########################
 ## TESTING OUT FUNCTION WITH MODIFIED CROSSWALK TABLE
 
@@ -147,6 +151,9 @@ result.DR2 <- dataRetrieval::readWQPdata(WQPquery2,
                                          ignore_attributes = T)
 
 test2 <- TADA_RenameColumns(result.DR2, wqxcrswlk_legacy)
+
+## WRITE TADA OUTPUT WITH RENAMED FUNCTION
+write_csv(test2, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.tada.beta.rename.csv")
 
 
 # Rename columns missing from crosswalk table

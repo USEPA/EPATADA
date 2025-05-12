@@ -66,7 +66,8 @@ result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
 
 tada3.0_names <- names(result.tada)
 
-write_csv(tada3.0_names, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/tada3.0_names.csv")
+# Write TADA output using dataRetrieval (3.0) call
+write_csv(result.tada, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.tada.beta.csv")
 
 ## Generate random dataset to test
 result.tada.rand <- TADA_RandomTestingData(number_of_days = 4, choose_random_state = TRUE, autoclean = FALSE)
