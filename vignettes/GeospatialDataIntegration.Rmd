@@ -128,6 +128,8 @@ library(EPATADA)
 library(StreamCatTools)
 ```
 
+# Start timer!
+
 It's go time! Let's time our process.
 
 ```{r startime}
@@ -137,12 +139,16 @@ start.time <- Sys.time()
 
 # WQP data discovery and cleaning
 
+## EPATADA R Package
+
 This is an abbreviated introduction to key TADA Module 1 WQP Data
 Discovery and Cleaning functions. Additional functions and a more
 detailed example workflow is available
 [here](https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 
-**Retrieve data from the WQP**
+### Module 1: Retrieve, wrangle, filter, flag, harmonize
+
+#### Retrieve and autoclean
 
 In this example, we will first use EPA's How's My Waterway (HMW)
 application to find an applicable Hydrologic Unit Code (HUC) for our
@@ -168,14 +174,6 @@ GreenBay_FoxRiver <- TADA_DataRetrieval(
 # GreenBay_FoxRiver <- NMCWorkshopData::GreenBay_FoxRiver
 ```
 
-**Wrangle**
-
-Now, let's use EPATADA functions to review, visualize, and whittle the
-returned WQP data down to include only results that are applicable to
-our water quality analysis and area of interest.
-
-**Autoclean**
-
 In the default arguments for TADA_DataRetrieval, applyautoclean = TRUE.
 This runs TADA_AutoClean on the newly retrieved data frame.
 TADA_AutoClean is a powerful function which performs a variety of tasks
@@ -189,7 +187,11 @@ converts depths to meters, and (8) creates the column TADA.ComparableID
 by concatenating characteristic name, result sample fraction, method
 speciation, and result measure unit.
 
-**Flag and remove duplicate results from a single organization**
+Now, let's use EPATADA functions to review, visualize, and whittle the
+returned WQP data down to include only results that are applicable to
+our water quality analysis and area of interest.
+
+#### **Duplicates from a single organization**
 
 We can identify data records uploaded by the same organization with the
 same date, time, monitoring location, activity type, characteristic
@@ -207,7 +209,7 @@ GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesSingleOrg(GreenBay_FoxRiver)
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-**Censored results**
+#### **Nondetects**
 
 TADA provides some simple methods for dealing with censored results,
 such as using multiplying the detection limit by a user supplied value
@@ -218,7 +220,7 @@ or leaving the result as is.
 GreenBay_FoxRiver <- TADA_SimpleCensoredMethods(GreenBay_FoxRiver, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 ```
 
-**Flag and remove duplicates from multiple organizations**
+#### **Duplicates from multiple organizations**
 
 Two organizations sometimes submit the same exact data to WQP. Filtering
 out these duplicates can prevent issues in analysis.
@@ -231,7 +233,9 @@ GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
-**Filter out any remaining irrelevant data, NA's and empty columns**
+#### **Quality and other issues**
+
+Filter out any remaining irrelevant data, NA's and empty columns.
 
 ```{r autofilter}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -249,13 +253,13 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 ```
 
-**Flag and remove QAQC samples and suspect results**
+Flag or remove QAQC samples and suspect results.
 
 ```{r flag}
 GreenBay_FoxRiver <- TADA_RunKeyFlagFunctions(GreenBay_FoxRiver, clean = TRUE)
 ```
 
-**Flag results above and below threshold, but do not remove them**
+Flag results above and below threshold, but do not remove them
 
 ```{r thresholds}
 GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
@@ -263,19 +267,21 @@ GreenBay_FoxRiver <- TADA_FlagAboveThreshold(GreenBay_FoxRiver, clean = FALSE, f
 GreenBay_FoxRiver <- TADA_FlagBelowThreshold(GreenBay_FoxRiver, clean = FALSE, flaggedonly = FALSE)
 ```
 
-**Harmonize synonyms across characteristic, fraction, and speciation**
+#### **Harmonize synonyms across characteristic, fraction, and speciation**
 
 ```{r harmonize}
 GreenBay_FoxRiver <- TADA_HarmonizeSynonyms(GreenBay_FoxRiver)
 ```
 
-**Calculate Total N and Total P from various species and fractions**
+#### **Calculate Total N and Total P from various species and fractions**
 
 ```{r TN-TP}
 GreenBay_FoxRiver <- TADA_CalculateTotalNP(GreenBay_FoxRiver, daily_agg = "max")
 ```
 
-**Review unique characteristic, fraction, and species combinations**
+#### Review and filter
+
+Review unique characteristic, fraction, and species combinations
 
 ```{r table}
 GreenBay_FoxRiver_Counts <- TADA_FieldValuesTable(GreenBay_FoxRiver, field = "TADA.ComparableDataIdentifier")
@@ -295,16 +301,16 @@ GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
       "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
 ```
 
-**Review organizations for subset**
+Review organizations for subset
 
 ```{r org-review}
 # Create pie of results by organization
 TADA_FieldValuesPie(GreenBay_FoxRiver_Subset, field = "OrganizationFormalName")
 ```
 
-# Exploratory visualizations
+### Exploratory visualizations
 
-**Generate stats table**
+Generate stats table
 
 ```{r stats}
 GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
@@ -312,19 +318,19 @@ GreenBay_FoxRiver_Subset_Stats <- TADA_Stats(GreenBay_FoxRiver_Subset)
 DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 ```
 
-**Generate scatterplot**
+Generate scatterplot
 
 ```{r scatterplot}
 TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
-**Generate map**
+Generate map
 
 ```{r TADA Overview Map}
 TADA_OverviewMap(GreenBay_FoxRiver_Subset)
 ```
 
-**Clean up coordinate issues**
+#### **Coordinate issues**
 
 ```{r Coordinate issues}
 # Change coordinate sign if appropriate
@@ -342,16 +348,20 @@ sum(is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure))
 
 # Geospatial data integration
 
+Next, we will show how to integrate additional geospatial data with the
+"clean" dataset we just created from the WQP.
+
 ## Make spatial
 
-Leverage TADA_MakeSpatial to transform a WQP dataframe into a geospatial
-sf object.
+First, leverage TADA_MakeSpatial to transform a WQP dataframe into a
+geospatial sf object.
 
 ```{r}
 GreenBay_FoxRiver_sf = TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
 ```
 
-Then create a unique identifier based on shared lat long values and filter to just the 25 unique locations.
+Then create a unique identifier based on shared lat long values and
+filter to just the 25 unique locations.
 
 ```{r}
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
@@ -406,7 +416,7 @@ sapply(nhdplus_data, nrow)
 sapply(nhdplus_data, names)
 ```
 
-## Addressing sites to the network
+### Addressing sites to the network
 
 There are two forms of hydrographic addresses: catchment indexing and
 linear referencing. The former is established with a point in polygon
@@ -435,7 +445,7 @@ GreenBay_FoxRiver_sf_locs <- dplyr::bind_cols(GreenBay_FoxRiver_sf_locs, linear_
 
 We can take this one step further by indexing points to waterbodies! The
 return here tells us what waterbody our locations are near or within.
-For on-network waterbodies, it will also include the outlet flowling for
+For on-network waterbodies, it will also include the outlet flowline for
 each waterbody.
 
 ```{r}
@@ -464,21 +474,23 @@ There's much much more where that came from. See the pkgdown sites for
 [nhdplusTools](https://doi-usgs.github.io/nhdplusTools/) and
 [hydroloom](https://doi-usgs.github.io/hydroloom/index.html) for more!
 
-## Accessing watershed information for sites
+## [StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
+
+### Accessing watershed information for sites
 
 We can access watershed information for each unique site location,
 getting both the landscape data for local catchment or the full upstream
 watershed for each particular site using
 [StreamCatTools](https://usepa.github.io/StreamCatTools/index.html)
 
-### Discover what StreamCat metrics we might want to use
+**Discover what StreamCat metrics we might want to use**
 
 ```{r}
 metrics <- StreamCatTools::sc_get_params(param = 'metric_names')
 print(paste0('A selection of available StreamCat metrics include: ',paste(metrics[1:10],collapse = ', ')))
 ```
 
-### Discover land cover of watersheds for sites
+**Discover land cover of watersheds for sites**
 
 We'll pull in all the NLCD categories at the local catchment level for
 each location
@@ -493,14 +505,14 @@ GB_FR_Urb <- GB_FR_NLCD |>
 GB_FR_Urb
 ```
 
-### Visualize urbanization for local catchment for each location
+**Visualize urbanization for local catchment for each location**
 
 ```{r}
 ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x=Pct_Urbanized)) + 
   ggplot2::geom_density()
 ```
 
-### Pull in data for modeling using `StreamCatTools`
+### **Pull in data for modeling**
 
 Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
@@ -509,9 +521,13 @@ in a modeling exercise as spatial covariates
 ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
-# Building Statistical Models
+# Building statistical models
 
-## Spatial Dependence
+The following information is not integrated into the coding exercise,
+but provides information on two additional EPA R packages that can be
+leveraged to build statistical models.
+
+**Spatial Dependence**
 
 -   For spatial data, nearby observations tend to be more similar than
     distant observations
@@ -525,7 +541,7 @@ ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi=
     -   More realistic characterization of ecological drivers
     -   More precise predictions at unobserved locations
 
-## The `spmodel` R package
+## `spmodel`
 
 -   The `spmodel` R package makes spatial models accessible via
     straightforward extensions to common modeling functions like `lm()`
@@ -533,7 +549,7 @@ ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi=
 -   Spatial dependence is based on Euclidean (straight-line) distance
 -   Learn more at <https://usepa.github.io/spmodel/>
 
-## The `SSN2` R package
+## `SSN2`
 
 -   Like `spmodel`, `SSN2` extends common modeling functions like `lm()`
     and `glm()`
@@ -542,57 +558,55 @@ ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi=
 -   `SSN2` is an updated version of `SSN` (`SSN` has been archived)
 -   Learn more at <https://usepa.github.io/SSN2/>
 
-## TADA Module 2: Geospatial Functions
+# CWA use case
+
+## EPATADA R Package
+
+### Module 2: Geospatial Functions
 
 Additional functions and a more detailed example workflow is available
 here: <https://usepa.github.io/EPATADA/articles/TADAModule2.html>
 
-## CWA Assessment Process
+**CWA Use Case**
 
-We do not have time to cover the full process today. Let's focus on
-geospatial aspects!
-
-[Integrated Reporting Memoranda under CWA Sections 303(d), 305(b) and
+We do not have time to cover the full CWA assessment process today.
+Let's focus on geospatial aspects! For more information about CWA
+assessments, see: [Integrated Reporting Memoranda under CWA Sections
+303(d), 305(b) and
 314](https://www.epa.gov/tmdl/Integrated%20Reporting%20Guidance%20under%20CWA%20Sections%20303%28d%29%2C%20305%28b%29%20and%20314).
 
-## What are Assessment Units?
+**What are Assessment Units?**
 
-Geospatial areas for analysis. Let's assign data to those units!
+Assessment units are the geospatial areas used for spatial analyses of
+water quality data. CWA assessment determinations are made by assessment
+unit, meaning the entire assessment unit is assessed as either meeting
+or not meeting water quality standards (i.e., thresholds or criteria)
+for assigned uses.
 
-CWA assessment determinations are made by assessment unit, meaning the
-entire assessment unit is assessed as either meeting or not meeting
-water quality standards (i.e., thresholds or criteria) for all
-designated uses.
-
-## How are assessment units delineated?
+**How are assessment units delineated?**
 
 Assessment units are typically delineated by using watershed-oriented
 collections of stream reaches, often broken down by physical features
 like waterfalls, bridge crossings, or changes in land use, to analyze
 water quality impairments within a specific area, ensuring data
-homogeneity and spatial clarity within the assessment unit.
-
--   Existing Assessment Units are available from ATTAINS geospatial
-    services
-
-## Associating ATTAINS Assessment Units with WQP Monitoring Locations
+homogeneity and spatial clarity within the assessment unit. Existing
+state and tribal Assessment Units are available from ATTAINS geospatial
+services.
 
 One of the first steps in the CWA assessment process is to define
 Assessment Units and associate data with them. A major source for water
 quality data is the WQP.
-
-## Associating ATTAINS Assessment Units with WQP Monitoring Locations
 
 -   Assessment Units: state or tribal waterbody geospatial features
     -   These may be lines, areas or points
 -   Water Quality Portal Monitoring Locations
     -   These are points
 
-## TADA_GetATTAINS() Part A
+#### **Matching WQP monitoring locations with ATTAINS assessment units**
 
--   Automates matching of WQP monitoring locations with ATTAINS
-    assessment units that fall within (intersect) the same NHDPlus
-    catchment
+-   TADA_GetATTAINS() automates matching of WQP monitoring locations
+    with ATTAINS assessment units that fall within (intersect) the same
+    NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default
     because 80% of state submitted assessment units in ATTAINS were
@@ -605,7 +619,7 @@ WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchment
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```
 
-## Challenges with Automated Approach
+**Challenges with Automated Approach**
 
 -   Certain NHDPlus high res catchments overlap multiple ATTAINS
     assessment units (state submitted hydrography) which means the sites
@@ -616,32 +630,27 @@ TADA_ViewATTAINS(WQP_with_ATTAINSonly)
     instead of relying solely on the lat/long and geospatial/mapping
     information. Users must manually review associations for accuracy.
 
-## Using all available data from the WQP
+#### Analyzing areas outside of ATTAINS assessment unit areas
 
-Finally, some waterbodies have data available in the WQP or from other
-sources, but there are no existing Assessment Units in ATTAINS for them.
+*See: nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(),
+TADA_ViewATTAINS()*
 
-# TADA_GetATTAINS() Part B
-
-See: nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(), TADA_ViewATTAINS()
-
-## Creating new AUs to assess additional areas (leveraging USGS's nhdplusTools and TADA geospatial functions)
-
-TADA has included a way to explore this using TADA_GetATTAINS()
-fill_catchments function input. This is included for exploratory
-purposes only. In theory, states and tribal nations could use the high
-res catchments as new assessment unit polygons to assess additional
-areas where there is WQP data but no Assessment Unit yet in ATTAINS, but
-that process is outside of TADA.
-
-## Creating new AUs to assess additional areas
+Some waterbodies have data available in the WQP or from other sources,
+but there are no existing Assessment Units in ATTAINS for them. If you
+are interested in analyzing WQP data available in areas that fall
+outside of the ATTAINS assessment unit areas (using all available data
+from the WQP), TADA has included a way to explore this using
+TADA_GetATTAINS() fill_catchments function input (leveraging USGS's
+nhdplusTools and TADA geospatial functions). This is included for
+exploratory purposes only. In theory, states and tribal nations could
+use the high res catchments as new assessment unit polygons to assess
+additional areas where there is WQP data but no Assessment Unit yet in
+ATTAINS, but that process is outside of TADA.
 
 For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature
 (neither ATTAINS NHDPlus high res catchment snap shot or state submitted
 points/lines/polys), there is nothing to use from ATTAINS because these
 are areas where there is WQP data but no ATTAINS Assessment Unit yet.
-
-## Creating new AUs to assess additional areas
 
 For these, we implemented a solution using NHDPlusTools to pull in
 either NHDPlus high res or med res catchments (user can choose, but high
@@ -655,7 +664,7 @@ WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset,
 TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ```
 
-# The end!
+# Stop timer!
 
 ```{r}
 end.time <- Sys.time()

@@ -111,7 +111,9 @@ utils::globalVariables(c(
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va", 
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description", 
-  "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm"
+  "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
+  "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date", 
+  "parm_cd", "site_no", "stat_cd", "stat_type"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
