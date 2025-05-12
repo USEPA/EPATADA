@@ -21,6 +21,7 @@ library(devtools)
 load_all()
 library(tidyverse)
 library(data.table)
+library(readr)
 
 ##############
 ## USGS BRANCH of dataRetrieval reverting back to using Post
