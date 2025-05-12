@@ -111,7 +111,7 @@ WQPquery <- list(siteid = "USGS-04024315",
 
 result.DR <- dataRetrieval::readWQPdata(WQPquery,
                                         service = "ResultWQX3", # WQX3 option "ResultWQX3",
-                                        dataProfile = "fullPhysChem",
+                                        dataProfile = "fullPhysChem", #"fullPhysChem", "basicPhysChem", "narrow"
                                         ignore_attributes = TRUE)
 
 names(result.DR)
