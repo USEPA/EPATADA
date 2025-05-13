@@ -125,7 +125,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
-        AcuteChronic = as.character(NA), SaltFresh = as.character(NA),
+        AcuteChronic = as.character(NA), SaltFresh = as.character(NA), WaterDepth = as.numeric(NA),
         BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
         MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
         MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA)
@@ -139,43 +139,43 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     dplyr::distinct() %>%
     dplyr::select(
       "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
-      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
+      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "WaterDepth", "BegAssessDate", "EndAssessDate",
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
     )
+  
+  CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+    dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
+    dplyr::mutate(organization_identifier = "EPA304a")
 
-  # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-  #   dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
-  #   dplyr::mutate(organization_identifier = "EPA304a")
-  #
-  # if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
-  #   DefineMagnitude <- DefineMagnitude %>%
-  #     dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
-  #     dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
-  #     dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
-  #     dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
-  #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
-  #       ""
-  #     )) %>%
-  #     dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
-  #       stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
-  #       CRITERION_VALUE
-  #     )) %>%
-  #     dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
-  #     dplyr::mutate(dplyr::across(
-  #       c(
-  #         ATTAINS.waterTypeCode,
-  #         MonitoringLocationTypeName,
-  #         AcuteChronic, SaltFresh, Season, EquationBased,
-  #         ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
-  #       ), as.factor
-  #     )) %>%
-  #     dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
-  #     dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
-  #     dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
-  #     dplyr::distinct() %>%
-  #     dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
-  # }
+  if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
+    DefineMagnitude <- DefineMagnitude %>%
+      dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
+      dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
+      dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
+      dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
+        stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
+        ""
+      )) %>%
+      dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
+        stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
+        CRITERION_VALUE
+      )) %>%
+      dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
+      dplyr::mutate(dplyr::across(
+        c(
+          ATTAINS.waterTypeCode,
+          MonitoringLocationTypeName,
+          AcuteChronic, SaltFresh, Season, EquationBased,
+          ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
+        ), as.factor
+      )) %>%
+      dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
+      dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
+      dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
+  }
   #
   # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
   # # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
