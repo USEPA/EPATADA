@@ -75,39 +75,63 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #'
 
 TADA_GetATTAINSParamUseOrgRef <- function() {
-  # # If there is a cached table available return it
-  # if (!is.null(ATTAINSParamUseOrgRef_Cached)) {
-  #   return(ATTAINSParamUseOrgRef_Cached)
-  # }
-  #
-  # # Try to download up-to-date raw data
-  #
-  # raw.data <- tryCatch(
-  #   {
-  #     # reads rATTAINS domain value
-  #     org_id <- rATTAINS::domain_values("OrgName")[[3]]
-  #     all.data <- list()
-  #
-  #     for(i in 1:length(org_id)){
-  #       all.data[[i]] <- rATTAINS::assessments(organization_id = org_id[i])[[2]]
-  #     }
-  #
-  #     all.data2 <- dplyr::bind_rows(all.data, .id = "column_label")
-  #   },
-  #   error = function(err) {
-  #     NULL
-  #   }
-  # )
+  # If there is a cached table available return it
+  if (!is.null(ATTAINSParamUseOrgRef_Cached)) {
+    return(ATTAINSParamUseOrgRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch(
+    {
+      # reads rATTAINS domain value
+      org_id <- rATTAINS::domain_values("OrgName")[[3]]
+      all.data <- list()
+
+      for(i in 1:length(org_id)){
+        skip_to_next <- FALSE
+        
+        tryCatch(
+        all.data[[i]] <- rExpertQuery::EQ_Assessments(
+          org_id = org_id[i], 
+          api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+          )[,c(5,6,4,17,29)]
+        , error = function(e) {skip_to_next <<- TRUE})
+  
+      if(skip_to_next) { next } 
+      }
+
+      all.data2 <- lapply(
+        all.data, 
+        function(x) if (!is.null(x)) 
+          x <- x %>%
+          dplyr::distinct() %>% 
+          dplyr::mutate_at(dplyr::vars(organizationId), as.character) 
+        else NULL)
+      
+      all.data3 <- all.data2 %>%
+        dplyr::bind_rows(.id = "column_label") %>%
+        dplyr::select(
+          ATTAINS.OrganizationIdentifier = organizationId,
+          ATTAINS.OrganizationName = organizationName,
+          ATTAINS.OrganizationType = organizationType,
+          ATTAINS.ParameterName = parameterName,
+          ATTAINS.UseName = useName
+        )
+    },
+    error = function(err) {
+      NULL
+    }
+  )
   #
   # # remove intermediate variables
   # rm(org_id, all.data, all.data2)
   #
-  # # If the download failed fall back to internal data (and report it)
-  # if (is.null(raw.data)) {
-  #   message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
-  #   message("Falling back to (possibly outdated) internal file.")
-  #   return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
-  # }
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
+  }
   #
   # # Creates and formats the ATTAINSParamUseOrg ref table containing parameters by use name for each org
   # use_attainments <- raw.data %>% tidyr::unnest(c(use_attainments), names_sep = ".")
@@ -121,8 +145,6 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # # remove intermediate variables
   # rm(use_attainments, use_parameters)
   #
-
-  ATTAINSParamUseOrgRef <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
 
   # Save updated table in cache
   ATTAINSParamUseOrgRef_Cached <- ATTAINSParamUseOrgRef

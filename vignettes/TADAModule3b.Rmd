@@ -160,16 +160,16 @@ NCTC_UseParamRef <- TADA_CreateUseParamRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-add_data <- data.frame("organization_identifier" = "WVDEP", "ATTAINS.ParameterName" = rep("NITROGEN, TOTAL", 3), "use_name" = c(
+add_data <- data.frame("ATTAINS.OrganizationIdentifier" = "WVDEP", "ATTAINS.ParameterName" = rep("NITROGEN, TOTAL", 3), "ATTAINS.UseName" = c(
   "Agriculture and Wildlife", "Water Contact Recreation: Recreation",
   "Warm Water Fishery"
 ))
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
 UseParamRef_Modified <- NCTC_UseParamRef %>%
-  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
-  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
-  dplyr::select(-c(use_name.x, use_name.y))
+  dplyr::left_join(add_data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y))
 
 # NITROGEN, TOTAL will now reflect the changes
 NCTC_UseParamRef_Final <- TADA_CreateUseParamRef(
@@ -312,8 +312,8 @@ observations from other states (MD, PA, VA). These observations are
 flagged in the column Flag.AssessmentNote. It is up to the user to
 decide if these are relevant to their assessments, and if not, they
 should remove these rows. This column will also help to identify other
-cases such as no ML to AU matches, no use_names associated with your AUs
-and more! (Still in development)
+cases such as no ML to AU matches, no ATTAINS.UseNames associated with
+your AUs and more! (Still in development)
 
 ```{r}
 NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
@@ -356,11 +356,11 @@ NCTC_UseAURef <- TADA_CreateUseAURef(
 )
 
 add_new_AU <- data.frame(
-  organization_identifier = c(rep("WVDEP", 4)),
+  ATTAINS.OrganizationIdentifier = c(rep("WVDEP", 4)),
   waterType = c(rep("RIVER", 4)),
   ATTAINS.assessmentunitidentifier = c(rep("NEW_WV_AU1", 2), rep("NEW_WV_AU1", 2)),
   ATTAINS.assessmentunitname = c(rep("EXAMPLE_WV_AU1", 2), rep("EXAMPLE_WV_AU1", 2)),
-  use_name = c(rep("Public Water Supply", 3), "Warm Water Fishery"),
+  ATTAINS.UseName = c(rep("Public Water Supply", 3), "Warm Water Fishery"),
   # lon = c(rep(-78.20000, 2), rep(-78.10000, 2)),
   # lat = c(rep(39.64000, 2), rep(39.65000, 2)),
   TADA.AssessmentUnitStatus = c(rep("New", 4)),
@@ -405,7 +405,7 @@ NCTC_WaterUseParamRef <- TADA_CreateWaterUseParamRef(
 #   )
 
 
-NCTC_WaterUseParamRef_Modified <- dplyr::filter(NCTC_WaterUseParamRef, !use_name %in% "Water Supply Industrial, Water Transport, Cooling and Power")
+NCTC_WaterUseParamRef_Modified <- dplyr::filter(NCTC_WaterUseParamRef, !ATTAINS.UseName %in% "Water Supply Industrial, Water Transport, Cooling and Power")
 
 NCTC_WaterUseParamRef_Final <- TADA_CreateWaterUseParamRef(
   Data_NCTC,

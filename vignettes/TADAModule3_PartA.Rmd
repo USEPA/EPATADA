@@ -234,8 +234,8 @@ TADA_CreateParamRef using the modified parameter reference table as the
 input for "paramRef". This will update the ATTAINS.FlagParameterName
 column in the parameter reference table (see NCTC_ParamRef2 in example
 below). This column provides information about whether or not the
-organization specified in the "organization_identifier" column has
-listed this parameter as a cause in prior assessment cycles. It also
+organization specified in the "ATTAINS.OrganizationIdentifier" column
+has listed this parameter as a cause in prior assessment cycles. It also
 flags rows where the TADA.ComparableDataIdentifier as not been assigned
 an ATTAINS parameter name.
 
@@ -256,7 +256,7 @@ an ATTAINS parameter name.
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
   grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
-  TADA.ComparableDataIdentifier == "ZINC_TOTAL_NA_UG/L" ~ "ZINC",
+  TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 
@@ -273,24 +273,24 @@ TADA_TableExport(NCTC_ParamRef_Final)
 
 # TADA_CreateUseParamRef() Basics
 
-Our first example will pull in all prior ATTAINS uses (use_names) and
-parameter names (ATTAINS.ParameterName) specific to the specified
+Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames)
+and parameter names (ATTAINS.ParameterName) specific to the specified
 ATTAINS organization (defined by the org_names function argument for
 TADA_CreateUseParamRef), which in this case is "MDE_EASP" (Maryland).
-Users will review the output and choose which use_name's are applicable
-to their analysis. The default functionality is to "Include" all ATTAINS
-use_names (see the "IncludeOrExclude" column). Later in the data
-analysis process, users will be asked to define criteria and
+Users will review the output and choose which ATTAINS.UseName's are
+applicable to their analysis. The default functionality is to "Include"
+all ATTAINS use_names (see the "IncludeOrExclude" column). Later in the
+data analysis process, users will be asked to define criteria and
 methodologies that is applicable to each ATTAINS use_name and parameter
-name labeled as "Include". If a use_name is not applicable, users should
-choose "Exclude" for that ATTAINS parameter name and use name.
+name labeled as "Include". If a ATTAINS.UseName is not applicable, users
+should choose "Exclude" for that ATTAINS parameter name and use name.
 
 For any ATTAINS parameter name(s) that have not been used by this
 organization in prior assessment cycles, there will be no prior use
 names associated with them. In this case, users will be responsible for
-manually assigning the appropriate use_name applicable to their org
-under the column 'use_name', and for inputting additional rows as needed
-if the parameter applies to multiples uses.
+manually assigning the appropriate ATTAINS.UseName applicable to their
+org under the column 'ATTAINS.UseName', and for inputting additional
+rows as needed if the parameter applies to multiples uses.
 
 In the example below, we can see "PH" was not a prior ATTAINS parameter
 name for MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef).
@@ -310,23 +310,41 @@ NCTC_UseParamRef <- TADA_CreateUseParamRef(
 TADA_TableExport(NCTC_UseParamRef)
 ```
 
-Users may also choose to include the EPA304a recommended water quality
-criteria within the function input "org_names". This option utilizes the
-EPA304a.PollutantName column created in TADA_CreateParamRef(). If a user
-includes additional organizations beyond "MDE_EASP" and "EPA304a", like
-in the example NCTC_UseParamRef2 below, it will not generate rows for
-the parameter and use combinations for those additional orgs ("21VASWCB"
-(Virginia), "21PA"(Pennsylvania), WVDEP (West Virginia)) because only
-MDE_EASP (Maryland) was defined in TADA_CreateParamRef() for paramRef =
-ParamRef. If you would like to include other organizations here, you
-must first fill out the TADA_CreateParamRef() for all organizations of
-interest.
+If a user includes wants to include additional organizations beyond
+"MDE_EASP" , they will need to have defined those organizations in
+TADA_CreateParamRef with the org_id argument input. We will create
+another example paramRef from TADA_CreateParamRef that would allow us to
+pull in this information for more than one organization.
 
 ```{r}
+# create TADA parameter reference table for specified organization
+NCTC_ParamRef2 <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
+  excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+
+ParamRef2 <- dplyr::mutate(NCTC_ParamRef2, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
+  TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
+))
+
+NCTC_ParamRef2_Final <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"),
+  paramRef = ParamRef2,
+  excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+
 NCTC_UseParamRef2 <- TADA_CreateUseParamRef(
   Data_NCTC,
-  org_id = c("EPA304a", "MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = NCTC_ParamRef_Final,
+  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
+  paramRef = NCTC_ParamRef2_Final,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -356,19 +374,19 @@ TADA_TableExport(NCTC_UseParamRef3)
 In this example, we designate that the ATTAINS.ParameterName "PH" is
 equivalent to the TADA.ComparableDataIdentifier 'PH_NA_NA_STD UNITS',
 which was not used in prior ATTAINS assessment cycles for **Maryland**.
-This results in the 'use_name' column returning a blank value for
+This results in the 'ATTAINS.UseName' column returning a blank value for
 ATTAINS.ParameterName "PH". Therefore, we need to specify the
-use_name(s) that we would like to associate with "PH" for this
+ATTAINS.UseName(s) that we would like to associate with "PH" for this
 organization. In excel, there will be a drop down list of organization
-("MDE_EASP") specific use_names that were used in prior ATTAINS
+("MDE_EASP") specific ATTAINS.UseNames that were used in prior ATTAINS
 assessments. If no excel file is generated, this is an example workflow
 of how a user can edit the table in the R environment.
 
 ```{r paged.print=TRUE}
 add_data <- data.frame(
-  "organization_identifier" = "MDE_EASP",
+  "ATTAINS.OrganizationIdentifier" = "MDE_EASP",
   "ATTAINS.ParameterName" = rep("PH", 3),
-  "use_name" = c(
+  "ATTAINS.UseName" = c(
     "Aquatic Life and Wildlife", "Water Contact Sports",
     "Seasonal Migratory Fish Spawning and Nursery Subcategory"
   )
@@ -376,9 +394,9 @@ add_data <- data.frame(
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = UseParamRef as an argument.
 UseParamRef <- NCTC_UseParamRef3 %>%
-  dplyr::left_join(add_data, by = c("organization_identifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
-  dplyr::mutate(use_name = dplyr::coalesce(use_name.x, use_name.y)) %>%
-  dplyr::select(-c(use_name.x, use_name.y))
+  dplyr::left_join(add_data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y))
 
 # User now has a saved dataframe which can be used to reflect any updates of Parameter-use ref in the future.
 TADA_TableExport(UseParamRef)

@@ -51,7 +51,7 @@ function input. This helps prevent users from overwriting their progress.}
 }
 \value{
 A excel file or data frame which contains the columns:
-TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
+TADA.ComparableDataIdentifier, organization_identifier,
 ATTAINS.ParameterName, and ATTAINS.FlagParameterName. Users will need to
 complete the crosswalk between ATTAINS.ParameterName and
 TADA.ComparableDataIdentifier.
@@ -83,9 +83,8 @@ crosswalk can provide it as an input to this function. The user-supplied
 crosswalk (dataframe entered into paramRef function input) must contain the
 two required columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 In addition, users who are interested in performing analyses for more than
-one organization (multiple states or tribes, or a single state/tribe and
-EPA 304a criteria) also need to include an additional column name:
-'organization_identifier'. This ensures that the crosswalk between
+one organization (multiple states and/or tribes) also need to include an additional column name:
+'ATTAINS.OrganizationIdentifier'. This ensures that the crosswalk between
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName are specific and
 accurate for each organization. If a crosswalk has already been created in the
 past and is entered into this function as a starting point, then any
@@ -95,6 +94,9 @@ TADA.ComparableDataIdentifiers from the new input data frame will be added
 to the crosswalk. Users can then focus on matching only the new
 TADA.ComparableDataIdentifiers with applicable ATTAINS parameter names.
 
+Future development efforts may allow users to pull in magnitude values
+for an ATTAINS parameter through the Criteria Search Tool depending on a
+users quality control and review of these metrics.
 The EPA TADA team created a draft crosswalk between characteristic
 names (TADA.ComparableDataIdentifier) and EPA 304A pollutant names
 (sourced from the Criteria Search Tool:

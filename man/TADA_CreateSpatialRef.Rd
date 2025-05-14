@@ -49,7 +49,7 @@ Users will need to ensure this crosswalk contains the appropriate column names i
 order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
 
 \item{useParamRef}{A required data frame which contains a completed crosswalk of
-organization specific use_name(s) for each ATTAINS.ParameterName.
+organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
