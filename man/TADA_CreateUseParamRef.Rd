@@ -137,14 +137,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-# Users can include the EPA304a criteria by itself or in addition to their org(s)
 UseParamRef_UT2 <- TADA_CreateUseParamRef(
-  Data_Nutrients_UT,
-  paramRef = paramRef_UT3,
-  org_id = c("EPA304a", "UTAHDWQ"), excel = FALSE
-)
-
-UseParamRef_UT3 <- TADA_CreateUseParamRef(
   Data_Nutrients_UT,
   paramRef = paramRef_UT3,
   org_id = c("EPA304a"), excel = FALSE

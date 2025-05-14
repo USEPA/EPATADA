@@ -12,6 +12,12 @@ TADA_CreateSpatialRef(
   useParamRef = NULL,
   sitesAURef = NULL,
   spatialRef = NULL,
+  applyUniqueSpatial = NULL,
+  applyWater = NULL,
+  applyParam = NULL,
+  applyUse = NULL,
+  applyAU = NULL,
+  applyML = NULL,
   excel = FALSE,
   overwrite = FALSE
 )
