@@ -665,6 +665,78 @@ TADA_FlaggedSitesMap <- function(.data) {
   return(map)
 }
 
+#' Create Nearby Sites Map
+#'
+#' @param .data TADA dataframe containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Dataframe must include the columns
+#' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+#' and 'TADA.LongitudeMeasure' to run this function.
+#'
+#' @return A leaflet map that shows all sites in the dataframe that contain
+#' flagged data in the form of near other sites - groups of sites that are spatially located within
+#'    a threshold distance (defaulting to 100 m) from each other and within the same catchment.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataframe:
+#' data(Data_Nutrients_UT)
+#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_6Tribes_5y_Harmonized)
+#'
+#' # Create maps:
+#' TADA_FlaggedSitesMap(Data_Nutrients_UT)
+#' TADA_FlaggedSitesMap(Data_NCTCShepherdstown_HUC12)
+#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' }
+#'
+TADA_NearbySitesMap <- function(.data) {
+  
+  req.cols <- c("TADA.NearbySites.Flag", "TADA.NearbySiteGroup")
+  TADA_CheckColumns(.data, req.cols)
+  
+  stop("TADA_NearbySitesMap: user must run TADA_FindNearbySites on the TADA dataframe first.")
+  
+  nearby <- TADA_GetUniqueNearbySites(.data) %>%
+    dplyr::mutate(LatitudeMeasure = as.numeric(LatitudeMeasure),
+                  LongitudeMeasure = as.numeric(LongitudeMeasure))
+  
+  TADA.NearbySiteGroup <- .data %>%
+    dplyr::select(TADA.NearbySiteGroup) %>%
+      dplyr::distinct() %>%
+      dplyr::filter(!is.na(TADA.NearbySiteGroup)) %>%
+    dplyr::pull()
+    
+   Color <- rainbow(as.numeric(length(TADA.NearbySiteGroup)))
+    
+   check <- data.frame(TADA.NearbySiteGroup, Color)
+  
+  nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#FFFFFF", markerColor = rainbow(as.numeric(length(TADA.NearbySiteGroup))))
+  
+  map <- leaflet::leaflet() %>%
+    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
+    leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
+  if (nrow(nearby) > 0) {
+    map <- map %>% leaflet::addAwesomeMarkers(~LongitudeMeasure,
+                                              ~LatitudeMeasure,
+                                              icon = nearbyIcon,
+                                              # label = ~as.character(TADA.MonitoringLocationIdentifier),
+                                              popup = paste0(
+                                                "Nearby Group Name: ", nearby$TADA.MonitoringLocationIdentifier,
+                                                "<br> Site ID: ", nearby$MonitoringLocationIdentifier,
+                                                "<br> Site Name: ", nearby$MonitoringLocationName,
+                                                "<br> Latitude: ", nearby$TADA.LatitudeMeasure,
+                                                "<br> Longitude: ", nearby$TADA.LongitudeMeasure
+                                              ),
+                                              data = nearby
+    )
+  }
+  
+  return(map)
+}
+
+
 #' Field Values Pie Chart
 #'
 #' Function creates a ggplot2 pie chart showing the relative proportions of values in a given field in a TADA dataset.

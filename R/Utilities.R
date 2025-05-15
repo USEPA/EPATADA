@@ -1005,7 +1005,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     }
 
     # remove intermediate objects
-    rm(grouped.no.dates, grouped.sites, org.meta.filter, org.string, meta.string)
+    rm(grouped.no.dates, org.meta.filter, org.string, meta.string)
 
     # remove site group from crosswalk
     ml.crosswalk <- new.ids %>%
