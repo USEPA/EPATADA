@@ -113,7 +113,7 @@ utils::globalVariables(c(
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description", 
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date", 
-  "parm_cd", "site_no", "stat_cd", "stat_type"
+  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", "nearby", "rainbow"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -591,7 +591,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' @export
 #'
 #' @examples
-#' GroupNearbySites_100m <- TADA_FindNeaFrbySites(Data_Nutrients_UT)
+#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
 #'   dist_buffer = 10
 #' )

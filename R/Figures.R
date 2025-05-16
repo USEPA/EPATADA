@@ -605,7 +605,6 @@ TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
   outsideusa <- invalid[invalid$TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
-  print(colnames(nearby))
 
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
@@ -683,7 +682,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
                   TADA.LongitudeMeasure, OrganizationIdentifier, TADA.NearbySiteGroup) %>%
     dplyr::distinct() 
     
-  icon.colors <- rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup)))) 
+  icon.colors <- grDevices::rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup)))) 
 
   pal <- leaflet::colorFactor(palette = icon.colors,
                      domain = .data$TADA.NearbySiteGroup)
