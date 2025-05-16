@@ -1,4 +1,72 @@
 # Used to store cached ATTAINSOrgIDsRef Reference Table
+ATTAINSParameterWQPCharRef_Cached <- NULL
+
+#' ATTAINS Parameter and WQP Characteristic Exact Match Reference Table
+#'
+#' Function downloads and returns the newest available crosswalk of exact 
+#' matches between ATTAINS.ParameterName and TADA.CharacteristicName.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return Updated sysdata.rda with updated ATTAINSParameterWQPCharRef object
+#'
+#' @export
+
+TADA_GetATTAINSParameterWQPCharRef <- function() {
+  # If there is a cached table available return it
+  if (!is.null(ATTAINSParameterWQPCharRef_Cached)) {
+    return(ATTAINSParameterWQPCharRef_Cached)
+  }
+  
+  # Try to download up-to-date raw data
+  
+  raw.data <- tryCatch(
+    {
+      # get data from ATTAINS
+      attainsParamRef <- rATTAINS::domain_values(domain_name = "ParameterName")[,"name"]
+      
+      WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
+      
+      WQXCharRef$CharacteristicName <- toupper(WQXCharRef$CharacteristicName)
+      
+      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
+      
+      attainsWQXRef <- WQXCharRef %>%
+        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
+        dplyr::distinct()
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest ATTAINS Organization Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA")))
+  }
+  
+  ATTAINSParameterWQPCharRef <- raw.data %>%
+    dplyr::distinct()
+  
+  # Save updated table in cache
+  ATTAINSParameterWQPCharRef_Cached <- ATTAINSParameterWQPCharRef
+  
+  ATTAINSParameterWQPCharRef
+}
+
+# Update  ATTAINS Organization Identifier Reference Table
+# (for internal use only)
+
+TADA_UpdateATTAINSParameterWQPCharRef <- function() {
+  utils::write.csv(TADA_GetATTAINSParameterWQPCharRef(), file = "inst/extdata/ATTAINSParameterWQPCharRef.csv", row.names = FALSE)
+}
+
+
+
+# Used to store cached ATTAINSOrgIDsRef Reference Table
 ATTAINSOrgIDsRef_Cached <- NULL
 
 #' ATTAINS Organization Identifier Reference Table

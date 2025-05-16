@@ -344,7 +344,7 @@ NCTC_ParamRef2_Final <- TADA_CreateParamRef(
 NCTC_UseParamRef2 <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = NCTC_ParamRef2_Final,
+  paramRef = NCTC_ParamRef2_Final, auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
