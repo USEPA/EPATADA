@@ -183,13 +183,24 @@ TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 ```
 
 As the ATTAINS Parameter Names are more general than the TADA Comparable
-Data Identifiers, it is not possible at this time to automate the
-crosswalk. TADA_CreateParamRef() creates a template which includes all
+Data Identifiers, we recommend users to manually provide the crosswalk or to 
+provide a pre-filled crosswalk with the correct column names 
+("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName"). However, 
+TADA_CreateParamRef() includes an argument input 'fillBy' to assist users in doing 
+an exact match between TADA Characteristic Names to ATTAINS Parameter Name. 
+There are roughly 598/1180 unique ATTAINS Parameter Names that have an exact match. 
+**It is important to note that even with these exact matches, there are additional 
+complexities related to the fraction, speciation and units that may be unique to 
+your organization. For example, some organizations may consider any of Nitrate/Nitrite,
+Ammonia as "Nitrogen" as the ATTAINS.ParameterName and may not care for the speciation
+in their assessment needs. 
+
+Let's go through a few examples.
+
+TADA_CreateParamRef() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and provides a
 blank column, "ATTAINS.ParameterName" for users to input the
-corresponding ATTAINS parameter name. The function automatically pairs
-the EPA 304(a) pollutant name with the TADA.ComparableDataIdentifier for
-some priority characteristics.
+corresponding ATTAINS parameter name. 
 
 Setting "excel = TRUE" in TADA_CreateParamRef causes the function to
 automatically create an Excel spreadsheet of the reference table for
@@ -211,12 +222,19 @@ names from the entire ATTAINS domain list. If there is not a suitable
 ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
 should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
+For our first example, let's start of with a single organization. In this
+example TADA data frame, this spatial area consists of WQP data from several 
+different states. We will specify Maryland "MDE_EASP" as our ATTAINS organization
+identifier of interest. By default, fillBy = "None" which will not populate
+any entries for the ATTAINS.ParameterName column, and users will need to manually fill 
+this crosswalk out.
+
 ```{r}
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef <- TADA_CreateParamRef(
   Data_NCTC,
-  org_id = c("MDE_EASP"), # Maryland
-  excel = FALSE
+  org_id = c("MDE_EASP"), 
+  fillBy = "None" 
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -225,8 +243,43 @@ NCTC_ParamRef <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef)
 ```
 
-Once the parameter reference table has been reviewed and modified, it
-can be saved and reused for analysis of future TADA data frames.
+Now, let's go through an example in which users auto-populate the crosswalk
+with exact matches. We will use fillBy = 'All' to indicate we will use exact
+matches regardless of if your organization has used this "ATTAINS.ParameterName"
+domain value in the past. i.e. Your organization is fine with using an ATTAINS
+Parameter Name that has been submitted to ATTAINS outside of your organization.
+
+```{r}
+# create TADA parameter reference table for specified organization
+NCTC_ParamRef2 <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"), 
+  fillBy = "All" 
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+
+# export TADA parameter reference table as csv
+TADA_TableExport(NCTC_ParamRef2)
+```
+
+We can also use fillBy = 'Org' to indicate we will use exact
+matches ONLY if your organization has used this "ATTAINS.ParameterName"
+domain value in the past. 
+
+```{r}
+# create TADA parameter reference table for specified organization
+NCTC_ParamRef3 <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"), 
+  fillBy = "Org" 
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+
+# export TADA parameter reference table as csv
+TADA_TableExport(NCTC_ParamRef2)
+```
 
 The code chunk below demonstrates how the parameter reference table can
 be modified in R. Once modifications are complete, we can re-run
@@ -255,11 +308,25 @@ an ATTAINS parameter name.
 #   )
 
 ParamRef <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
-  grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
+  grepl("PH", TADA.ComparableDataIdentifier) ~ "PH, HIGH",
   TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
 ))
 
+NCTC_ParamRef_Manual <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"),
+  paramRef = ParamRef
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+TADA_TableExport(NCTC_ParamRef_Final)
+```
+
+We can also use the output of NCTC_ParamRef2 or NCTC_ParamRef3 as a
+paramRef argument input in TADA_CreateParamRef().
+
+```{r}
 NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
@@ -270,6 +337,38 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
 )
 TADA_TableExport(NCTC_ParamRef_Final)
 ```
+
+Your 'paramRef' is prioritized over the 'fillBy' argument inputs. However,
+fillBy will fill in any remaining blanks that you have not filled in. For
+example, this 'paramRef' argument input that was provided matched Nitrate to 
+'NITROGEN, TOTAL' rather than 'NITRATE', thus even if you specified 'fillBy = 'All',
+this crosswalk will prioritize 'NITROGEN, TOTAL' as the ATTAINS.ParameterName.
+However, by specifying fillBy = 'All' for any values that have not been crosswalk,
+TADA_CreateParamRef() will fill those if there is an exact match, in the example
+below, no crosswalk in your ParamRef2 was provided, so NCTC_ParamRef_Manual2 will
+crosswalk the TADA Characteristic name to 'PH' as the exact match for ATTAINS parameter 
+name.
+
+```{r}
+ParamRef2 <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
+  # grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
+  TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
+))
+
+NCTC_ParamRef_Manual2 <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"),
+  paramRef = ParamRef2,
+  fillBy = "All"
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+TADA_TableExport(NCTC_ParamRef_Final)
+```
+
+Once the parameter reference table has been reviewed and modified, it
+can be saved and reused for analysis of future TADA data frames.
 
 # TADA_CreateUseParamRef() Basics
 
