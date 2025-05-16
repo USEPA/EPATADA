@@ -591,7 +591,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' @export
 #'
 #' @examples
-#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
+#' GroupNearbySites_100m <- TADA_FindNeaFrbySites(Data_Nutrients_UT)
 #' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
 #'   dist_buffer = 10
 #' )
