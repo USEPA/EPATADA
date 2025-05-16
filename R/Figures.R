@@ -585,8 +585,6 @@ TADA_OverviewMap <- function(.data) {
 #' 1) imprecise coordinates - latitudes and/or longitudes that contain fewer
 #'    then 3 decimal places.
 #' 2) outside USA - coordinates that fall outside the bounds of the USA.
-#' 3) near other sites - groups of sites that are spatially located within
-#'    a threshold distance (defaulting to 100 m) from each other.
 #'
 #' @export
 #'
