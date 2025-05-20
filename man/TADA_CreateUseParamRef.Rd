@@ -122,6 +122,11 @@ paramRef_UT3 <- TADA_CreateParamRef(
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
 
+paramRef_UT4 <- TADA_CreateParamRef(
+  Data_Nutrients_UT,
+  org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
+)
+
 # Next, enter the crosswalk generated above as the paramRef function input
 # for TADA_CreateUseParamRef():
 UseParamRef_UT <- TADA_CreateUseParamRef(

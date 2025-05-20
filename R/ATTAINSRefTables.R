@@ -34,6 +34,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
       
       attainsWQXRef <- WQXCharRef %>%
         dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
+        dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
         dplyr::distinct()
     },
     error = function(err) {

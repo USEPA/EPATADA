@@ -735,6 +735,9 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     ))
     ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
     
+    ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef%>%
+      dplyr::filter(CharacteristicName %in% ATTAINS_param_all$ATTAINS.ParameterName)
+    
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
       dplyr::select(
@@ -742,7 +745,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
         ATTAINS.ParameterName #, EPA304A.PollutantName
       ) %>%
       dplyr::left_join(ATTAINSParameterWQPCharRef, by = c("TADA.CharacteristicName" = "CharacteristicName")) %>% 
-      dplyr::mutate(ATTAINS.ParameterName = TADA.CharacteristicName) %>%
+      dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName #, EPA304A.PollutantName
@@ -762,8 +765,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       dplyr::mutate(
         Flag.ParameterInput = dplyr::if_else(
           !is.na(ATTAINS.ParameterName),
-          "Default. This crosswalk was provided through an exact match fillBy = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-          "Default. No Crosswalk was provided and no exact matches were found."
+          "This crosswalk was provided through an exact match fillBy = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+          "No Crosswalk was provided and no exact matches were found."
       )) %>%
       dplyr::distinct()
   }
@@ -786,7 +789,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
         ATTAINS.ParameterName #, EPA304A.PollutantName
       ) %>%
       dplyr::left_join(ATTAINSParameterWQPCharRef, by = c("TADA.CharacteristicName" = "CharacteristicName")) %>% 
-      dplyr::mutate(ATTAINS.ParameterName = TADA.CharacteristicName) %>%
+      dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName #, EPA304A.PollutantName
@@ -812,8 +815,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       dplyr::mutate(
         Flag.ParameterInput = dplyr::if_else(
           !is.na(ATTAINS.ParameterName),
-          "Default. This crosswalk was provided through an exact match fillBy = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-          "Default. No Crosswalk was provided and no exact matches were found for this organization."
+          "This crosswalk was provided through an exact match fillBy = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+          "No Crosswalk was provided and no exact matches were found for this organization."
         )) %>%
       dplyr::distinct()
   }
@@ -1145,6 +1148,11 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
 #' paramRef_UT3 <- TADA_CreateParamRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+#' )
+#' 
+#' paramRef_UT4 <- TADA_CreateParamRef(
+#'   Data_Nutrients_UT,
+#'   org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
 #' )
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
@@ -1933,20 +1941,18 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
     if(sum(lapply(df,length) > 0) > 0){
     df2 <- data.frame(
       "ApplyUniqueSpatialCriteria" = applyUniqueSpatial, 
-      expand.grid(list(applyUniqueSpatial, "ATTAINS.assessmentunitidentifier" = if(is.null(applyToAU))  rep(NA, n) else applyToAU))[2],
-      expand.grid(list(applyUniqueSpatial, "MonitoringLocationIdentifier" = applyToML))[2], 
-      "ATTAINS.ParameterName" = ifelse(is.null(applyToParam), rep(NA, n), applyToParam),
-      "ATTAINS.UseName" = ifelse(is.null(applyToUse), rep(NA, n), applyToUse),
-      "ATTAINS.waterTypeCode" = ifelse(is.null(applyToWater), rep(NA, n), applyToWater)
+      expand.grid(list(applyUniqueSpatial, "ATTAINS.assessmentunitidentifier" = if(is.null(applyToAU))  NA else applyToAU))[2],
+      expand.grid(list(applyUniqueSpatial, "MonitoringLocationIdentifier" = if(is.null(applyToML))  NA else applyToML))[2], 
+      expand.grid(list(applyUniqueSpatial, "ATTAINS.ParameterName" = if(is.null(applyToParam))  NA else applyToParam))[2],
+      expand.grid(list(applyUniqueSpatial, "ATTAINS.UseName" = if(is.null(applyToUse))  NA else applyToUse))[2],
+      expand.grid(list(applyUniqueSpatial, "ATTAINS.waterTypeCode" = if(is.null(applyToWater))  NA else applyToWater))[2]
     )
-    
-    df_final <- expand.grid(applyUniqueSpatial, df2)  
       
     }
     
-    result <- Reduce(function(x, y) dplyr::full_join(x, y, by = "Var1"), df2)
+    # result <- Reduce(function(x, y) dplyr::full_join(x, y, by = "Var1"), df2)
     
-    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef)
+    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef, df2, by = -c("ApplyUniqueSpatialCriteria"))
   }
   
   if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
