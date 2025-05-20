@@ -1763,9 +1763,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'
 TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL, useAURef = NULL, useParamRef = NULL,
                                   sitesAURef = NULL, spatialRef = NULL, 
-                                  applyUniqueSpatial = NULL, applyWater = NULL, 
-                                  applyParam = NULL, applyUse = NULL, 
-                                  applyAU = NULL, applyML = NULL,
+                                  applyUniqueSpatial = NULL, applyToWater = NULL, 
+                                  applyToParam = NULL, applyToUse = NULL, 
+                                  applyToAU = NULL, applyToML = NULL,
                                   excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
@@ -1856,7 +1856,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       dplyr::mutate(ATTAINS.waterTypeCode = NA) %>%
       dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
       dplyr::mutate(IncludeOrExclude = "Include") %>%
-      dplyr::mutate(Flag.AssessmentNote = "Pass") %>%
+      dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
       dplyr::select(
         ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname,
         MonitoringLocationIdentifier, MonitoringLocationName, MonitoringLocationTypeName,
@@ -1906,7 +1906,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
               "Suspect: No organization identifier provided for this AU/ML/WaterType. This row may not be relevant for assessment",
             is.na(MonitoringLocationIdentifier) ~
               "Suspect: No monitoring location identifier(s) assigned to this Assessment Unit.",
-            .default = "Pass"
+            .default = "Default: No spatial criteria applied."
           )
       ) %>%
       dplyr::mutate(IncludeOrExclude = "Include") %>%
@@ -1921,6 +1921,34 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       dplyr::distinct()
   }
 
+  if(!is.null(applyUniqueSpatial)){
+    df <- list(applyToWater, applyToParam, applyToUse, applyToAU, applyToML)
+    
+    n <- max(lengths(df))
+    
+    if(sum(lapply(df,length) > 0) == 0){
+      stop("You have specificed an 'applyUniqueSpatial' Criteria vector but did not apply this to any columns. Please specified where you would like to apply these unique spatial criteria.")
+    }
+    
+    if(sum(lapply(df,length) > 0) > 0){
+    df2 <- data.frame(
+      "ApplyUniqueSpatialCriteria" = applyUniqueSpatial, 
+      expand.grid(list(applyUniqueSpatial, "ATTAINS.assessmentunitidentifier" = if(is.null(applyToAU))  rep(NA, n) else applyToAU))[2],
+      expand.grid(list(applyUniqueSpatial, "MonitoringLocationIdentifier" = applyToML))[2], 
+      "ATTAINS.ParameterName" = ifelse(is.null(applyToParam), rep(NA, n), applyToParam),
+      "ATTAINS.UseName" = ifelse(is.null(applyToUse), rep(NA, n), applyToUse),
+      "ATTAINS.waterTypeCode" = ifelse(is.null(applyToWater), rep(NA, n), applyToWater)
+    )
+    
+    df_final <- expand.grid(applyUniqueSpatial, df2)  
+      
+    }
+    
+    result <- Reduce(function(x, y) dplyr::full_join(x, y, by = "Var1"), df2)
+    
+    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef)
+  }
+  
   if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
     print(paste0(
       "No Monitoring Location to Assessment Unit crosswalk provided. ",
@@ -1962,7 +1990,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       ) %>%
       dplyr::mutate(
         Flag.AssessmentNote =
-          "Pass: The spatial criteria for this row was ADDED from your spatial reference"
+          "The spatial criteria for this row was ADDED from your spatial reference"
       )
 
     CreateSpatialRef <- CreateSpatialRef %>%
