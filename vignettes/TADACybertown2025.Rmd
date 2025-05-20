@@ -1,0 +1,132 @@
+---
+title: 'Beginner R user: introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data'
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, eval = F)
+```
+
+## Install and load
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing the *EPATADA* R package because it is only
+available on GitHub.
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes", repos = "http://cran.us.r-project.org")
+library(remotes)
+```
+
+Next, install (or update) and load the *EPATADA* R package using the
+*remotes* R package. Additional dependency R packages that are used
+within *EPATADA* will be downloaded automatically. You may be prompted
+in the console to update dependency packages that have more recent
+versions available. If you see this prompt, it is recommended to update
+all of them (enter 1 into the console). Our team is actively developing
+*EPATADA*, therefore we highly recommend that you update the package
+(and all of its dependencies) each time you use it.
+
+```{r install_EPATADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+```
+
+```{r install_EPATADA_dev, eval = T, include = F}
+remotes::install_github("USEPA/EPATADA", ref = "cybertown2025", dependencies = TRUE
+)
+```
+
+## Record start time
+
+```{r}
+start.time <- Sys.time()
+```
+
+## Retrieve and filter
+
+Use HMW to find a watershed of interest:
+<https://mywaterway.epa.gov/community/Shepherdstown,%20WV,%20USA/identified-issues>
+
+```{r TADA_DataRetrieval}
+bbox <- c(-77.9947, 39.3086, -86.6135, 39.6164)
+tada8 <- TADA_DataRetrieval(bBox = bbox)
+ 
+WQP_Shepherdstown <- TADA_DataRetrieval(
+  startDate = "2019-01-01",
+  endDate = "2024-12-31",
+  bBox = bbox,
+  # huc = c("0207000411"),
+  applyautoclean = TRUE,
+  ask = FALSE)
+```
+
+```{r TADA_GetATTAINS}
+ATTAINS_Shepherdstown <- TADA_GetATTAINS(WQP_Shepherdstown)
+```
+
+## Map
+
+```{r TADA_ViewATTAINS}
+# View catchments and assessment units on map
+
+ATTAINS_map <- TADA_ViewATTAINS(ATTAINS_Shepherdstown)
+
+ATTAINS_map
+```
+
+What characteristics are available?
+
+```{r fieldValues_actmedia}
+# Create pie chart for CharacteristicName
+CharName_Pie <- TADA_FieldValuesPie(WQP_Shepherdstown, field = "TADA.CharacteristicName")
+
+CharName_Pie
+```
+
+How many results are available for each characteristic?
+
+```{r}
+# Create table with count for each TADA.CharacteristicName
+CharName_FieldValues <- TADA_FieldValuesTable(WQP_Shepherdstown, field = "TADA.CharacteristicName")
+
+CharName_FieldValues
+```
+
+Are there any synonyms?
+
+```{r}
+WQP_Shepherdstown_harmonized = TADA_HarmonizeSynonyms(WQP_Shepherdstown)
+```
+
+Filter: let's focus on a few characteristics of interest.
+
+```{r}
+# Select characteristics of interest
+WQP_Shepherdstown_subset <- WQP_Shepherdstown %>%
+  dplyr::filter(TADA.CharacteristicName == c("PH", # 6.5-8.5 but dependent on application
+                                             "SPECIFIC CONDUCTANCE", # 250000 µg/l Human Health (Human Health • Water + Organism)
+                                             "IRON", # 1000 µg/l Aquatic Life, Freshwater, Chronic OR 300 µg/l Organoleptic
+                                             "CHLORIDE", # 860000 µg/l (Aquatic Life • Freshwater • Acute) OR 230000 µg/l (Aquatic Life • Freshwater • Chronic)
+                                             "FECAL COLIFORM",
+                                             "ESCHERICHIA COLI"
+                                             ))
+```
+
+## Clean
+
+## Analyze
+
+## Visualize
+
+## Record end time
+
+```{r analysis time}
+end.time <- Sys.time()
+
+end.time - start.time
+```
