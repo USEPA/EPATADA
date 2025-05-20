@@ -287,7 +287,7 @@ information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering `fill_catchments = TRUE`:
 
 ```{r}
-TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_neares = FALSE)
+TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_nearest = FALSE)
 ```
 
 When `fill_catchments = TRUE`, the returned list splits observations
