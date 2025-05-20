@@ -132,7 +132,10 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
       "TADA.MethodSpeciationName",
       "TADA.ResultSampleFractionText",
       "TADA.ComparableDataIdentifier",
-      "TADA.MonitoringLocationTypeName"
+      "TADA.MonitoringLocationTypeName",
+      "AssemblageSampledName",
+      "BiologicalIntentName",
+      "TADA.ActivityType.Flag"
     )
   }
   if (display == "all") {
