@@ -112,6 +112,33 @@ from within a single organization or from within multiple organizations
 (such as when two or more organizations monitor the same location and
 may submit duplicate results).
 
+If you would like to prioritize results from one organization over
+another, this can be done using the org_hierarchy argument in
+`TADA_FindPotentialDuplicatesMultipleOrgs`.
+
+```{r}
+# find duplicates from single org
+WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesSingleOrg(
+  WQP_Shepherdstown_clean)
+
+# find duplicates across multiple orgs
+WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  WQP_Shepherdstown_clean, 
+  org_hierarchy = "21VASWCB"
+)
+```
+Let's review the duplicates: 
+```{r}
+review_dups <- WQP_Shepherdstown_clean %>%
+  dplyr::select(MonitoringLocationName, TADA.MonitoringLocationIdentifier, TADA.MultipleOrgDuplicate, TADA.MultipleOrgDupGroupID, TADA.ResultSelectedMultipleOrgs, TADA.SingleOrgDupGroupID, TADA.SingleOrgDup.Flag, TADA.ComparableDataIdentifier, ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.MonitoringLocationName, TADA.NearbySites.Flag, TADA.NearbySiteGroup, OrganizationIdentifier) %>%
+  dplyr::distinct()
+```
+
+Remove intermediate variable in R by using 'rm()'
+```{r}
+rm(review_dups)
+```
+
 We will select to keep only unique samples from
 `TADA_FindPotentialDuplicatesSingleOrg` by filtering for
 TADA.SingleOrgDup.Flag equals "Unique". Then we will search for
@@ -120,22 +147,13 @@ potential duplicates from multiple orgs with
 only one value per potential duplicate by filtering for
 TADA.ResultSelectedMultipleOrgs equals "Y".
 
-If you would like to prioritize results from one organization over
-another, this can be done using the org_hierarchy argument in
-`TADA_FindPotentialDuplicatesMultipleOrgs`.
-
 ```{r}
-WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesSingleOrg(
-  WQP_Shepherdstown_clean)
 WQP_Shepherdstown_clean <- dplyr::filter(WQP_Shepherdstown_clean, TADA.SingleOrgDup.Flag == "Unique")
 
-# WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(
-#   WQP_Shepherdstown_clean
-# )
-# WQP_Shepherdstown_clean <- dplyr::filter(
-#   WQP_Shepherdstown_clean,
-#   TADA.ResultSelectedMultipleOrgs == "Y"
-# )
+WQP_Shepherdstown_clean <- dplyr::filter(
+  WQP_Shepherdstown_clean,
+  TADA.ResultSelectedMultipleOrgs == "Y"
+)
 ```
 
 Censored data are measurements for which the true value is not known,
@@ -180,8 +198,14 @@ conflict <- WQP_Shepherdstown_clean %>%
   dplyr::select(c("DetectionQuantitationLimitTypeName", "ResultDetectionConditionText", "TADA.CensoredData.Flag"))
 
 # remove row with conflicting information
-WQP_Shepherdstown_clean_2 <- WQP_Shepherdstown_clean %>%
+WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean %>%
   dplyr::filter(TADA.CensoredData.Flag != "Conflict between Condition and Limit")
+
+```
+
+Remove intermediate variable in R by using 'rm()'
+```{r}
+rm(conflict)
 ```
 
 `TADA_AutoFilter` removes rows where the result value is not numeric to prepare a dataframe for quantitative analyses. Specifically, this function removes rows with "Text" and "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. In addition, this function removes results with QA/QC ActivityTypeCode's. This function also removes any columns not required for TADA workflow where all values are equal to NA.
@@ -199,7 +223,7 @@ WQP_Shepherdstown_clean <- TADA_RunKeyFlagFunctions(
 )
 ```
 
-We will also filter the data to remove any remaining NAs.
+Let's filter the data to remove any remaining NAs.
 
 ```{r}
 WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$TADA.ResultMeasure.MeasureUnitCode),]
@@ -224,9 +248,12 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 compid_table <- TADA_FieldValuesTable(WQP_Shepherdstown_clean, field = "TADA.ComparableDataIdentifier")
 
-compid_1 <- unique(WQP_Shepherdstown_clean$ComparableDataIdentifier)
-
 DT::datatable(compid_table, fillContainer = TRUE)
+```
+
+Remove intermediate variable in R by using 'rm()'
+```{r}
+rm(compid_table)
 ```
 
 As we scroll through the table, we can see that there are some repeated
