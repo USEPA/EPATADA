@@ -183,24 +183,25 @@ TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
 ```
 
 As the ATTAINS Parameter Names are more general than the TADA Comparable
-Data Identifiers, we recommend users to manually provide the crosswalk or to 
-provide a pre-filled crosswalk with the correct column names 
-("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName"). However, 
-TADA_CreateParamRef() includes an argument input 'fillBy' to assist users in doing 
-an exact match between TADA Characteristic Names to ATTAINS Parameter Name. 
-There are roughly 598/1180 unique ATTAINS Parameter Names that have an exact match. 
-**It is important to note that even with these exact matches, there are additional 
-complexities related to the fraction, speciation and units that may be unique to 
-your organization. For example, some organizations may consider any of Nitrate/Nitrite,
-Ammonia as "Nitrogen" as the ATTAINS.ParameterName and may not care for the speciation
-in their assessment needs. 
+Data Identifiers, we recommend users to manually provide the crosswalk
+or to provide a pre-filled crosswalk with the correct column names
+("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName"). However,
+TADA_CreateParamRef() includes an argument input 'fillBy' to assist
+users in doing an exact match between TADA Characteristic Names to
+ATTAINS Parameter Name. There are roughly 598/1180 unique ATTAINS
+Parameter Names that have an exact match. \*\*It is important to note
+that even with these exact matches, there are additional complexities
+related to the fraction, speciation and units that may be unique to your
+organization. For example, some organizations may consider any of
+Nitrate/Nitrite, Ammonia as "Nitrogen" as the ATTAINS.ParameterName and
+may not care for the speciation in their assessment needs.
 
 Let's go through a few examples.
 
 TADA_CreateParamRef() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and provides a
 blank column, "ATTAINS.ParameterName" for users to input the
-corresponding ATTAINS parameter name. 
+corresponding ATTAINS parameter name.
 
 Setting "excel = TRUE" in TADA_CreateParamRef causes the function to
 automatically create an Excel spreadsheet of the reference table for
@@ -222,12 +223,12 @@ names from the entire ATTAINS domain list. If there is not a suitable
 ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
 should contact the ATTAINS team (attains\@epa.gov) for assistance.
 
-For our first example, let's start of with a single organization. In this
-example TADA data frame, this spatial area consists of WQP data from several 
-different states. We will specify Maryland "MDE_EASP" as our ATTAINS organization
-identifier of interest. By default, fillBy = "None" which will not populate
-any entries for the ATTAINS.ParameterName column, and users will need to manually fill 
-this crosswalk out.
+For our first example, let's start of with a single organization. In
+this example TADA data frame, this spatial area consists of WQP data
+from several different states. We will specify Maryland "MDE_EASP" as
+our ATTAINS organization identifier of interest. By default, fillBy =
+"None" which will not populate any entries for the ATTAINS.ParameterName
+column, and users will need to manually fill this crosswalk out.
 
 ```{r}
 # create TADA parameter reference table for specified organization
@@ -243,11 +244,12 @@ NCTC_ParamRef <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef)
 ```
 
-Now, let's go through an example in which users auto-populate the crosswalk
-with exact matches. We will use fillBy = 'All' to indicate we will use exact
-matches regardless of if your organization has used this "ATTAINS.ParameterName"
-domain value in the past. i.e. Your organization is fine with using an ATTAINS
-Parameter Name that has been submitted to ATTAINS outside of your organization.
+Now, let's go through an example in which users auto-populate the
+crosswalk with exact matches. We will use fillBy = 'All' to indicate we
+will use exact matches regardless of if your organization has used this
+"ATTAINS.ParameterName" domain value in the past. i.e. Your organization
+is fine with using an ATTAINS Parameter Name that has been submitted to
+ATTAINS outside of your organization.
 
 ```{r}
 # create TADA parameter reference table for specified organization
@@ -263,9 +265,9 @@ NCTC_ParamRef2 <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef2)
 ```
 
-We can also use fillBy = 'Org' to indicate we will use exact
-matches ONLY if your organization has used this "ATTAINS.ParameterName"
-domain value in the past. 
+We can also use fillBy = 'Org' to indicate we will use exact matches
+ONLY if your organization has used this "ATTAINS.ParameterName" domain
+value in the past.
 
 ```{r}
 # create TADA parameter reference table for specified organization
@@ -337,16 +339,17 @@ NCTC_ParamRef4 <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_Final)
 ```
 
-Your 'paramRef' is prioritized over the 'fillBy' argument inputs. However,
-fillBy will fill in any remaining blanks that you have not filled in. For
-example, this 'paramRef' argument input that was provided matched 'Nitrate' to 
-'NITROGEN, TOTAL' rather than 'NITRATE', thus even if you specified 'fillBy = 'All',
-this crosswalk will prioritize 'NITROGEN, TOTAL' as the ATTAINS.ParameterName.
-However, by specifying fillBy = 'All' for any values that have not been crosswalk,
-TADA_CreateParamRef() will fill those if there is an exact match, in the example
-below, no crosswalk of pH in your ParamRef2 was provided, so NCTC_ParamRef_Manual2 will
-crosswalk the TADA Characteristic name to 'PH' as the exact match for ATTAINS parameter 
-name.
+Your 'paramRef' is prioritized over the 'fillBy' argument inputs.
+However, fillBy will fill in any remaining blanks that you have not
+filled in. For example, this 'paramRef' argument input that was provided
+matched 'Nitrate' to 'NITROGEN, TOTAL' rather than 'NITRATE', thus even
+if you specified 'fillBy = 'All', this crosswalk will prioritize
+'NITROGEN, TOTAL' as the ATTAINS.ParameterName. However, by specifying
+fillBy = 'All' for any values that have not been crosswalk,
+TADA_CreateParamRef() will fill those if there is an exact match, in the
+example below, no crosswalk of pH in your ParamRef2 was provided, so
+NCTC_ParamRef_Manual2 will crosswalk the TADA Characteristic name to
+'PH' as the exact match for ATTAINS parameter name.
 
 ```{r}
 ParamRef2 <- dplyr::mutate(NCTC_ParamRef, ATTAINS.ParameterName = dplyr::case_when(
@@ -378,27 +381,28 @@ TADA_CreateUseParamRef), which in this case is "MDE_EASP" (Maryland).
 Users will review the output and choose which ATTAINS.UseName's are
 applicable to their analysis. The default functionality is to "Include"
 all ATTAINS use_names (see the "IncludeOrExclude" column) that has an
-ATTAINS.UseName associated with it. Later in the
-data analysis process, users will be asked to define criteria and
-methodologies that is applicable to each ATTAINS use_name and parameter
-name labeled as "Include". If a ATTAINS.UseName is not applicable, users
-should choose "Exclude" for that ATTAINS parameter name and use name.
+ATTAINS.UseName associated with it. Later in the data analysis process,
+users will be asked to define criteria and methodologies that is
+applicable to each ATTAINS use_name and parameter name labeled as
+"Include". If a ATTAINS.UseName is not applicable, users should choose
+"Exclude" for that ATTAINS parameter name and use name.
 
 For any ATTAINS parameter name(s) that have not been used by an
 organization in prior assessment cycles, there will be no prior use
 names associated with them. In this case, users will be responsible for
 manually assigning the appropriate ATTAINS.UseName applicable to their
 org under the column 'ATTAINS.UseName', and for inputting additional
-rows as needed if the parameter applies to multiples uses. Users can also 
-choose to 'auto_assign' all unique ATTAINS.UseName by ATTAINS.OrganizatioName 
-to any ATTAINS.ParameterName missing a use name associated with it.
+rows as needed if the parameter applies to multiples uses. Users can
+also choose to 'auto_assign' all unique ATTAINS.UseName by
+ATTAINS.OrganizatioName to any ATTAINS.ParameterName missing a use name
+associated with it.
 
-In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were the
-ATTAINS.ParameterNames done in prior assessment cycles for MDE_EASP 
-(see ATTAINS.FlagUseName column in NCTC_UseParamRef).
-If desired, a user can manually assign this parameter to any applicable
-uses (disclaimer: this is for demonstration purposes only and does not
-reflect MDE_EASP's process).
+In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were
+the ATTAINS.ParameterNames done in prior assessment cycles for MDE_EASP
+(see ATTAINS.FlagUseName column in NCTC_UseParamRef). If desired, a user
+can manually assign this parameter to any applicable uses (disclaimer:
+this is for demonstration purposes only and does not reflect MDE_EASP's
+process).
 
 ```{r}
 NCTC_UseParamRef <- TADA_CreateUseParamRef(
@@ -426,7 +430,6 @@ NCTC_UseParamRef2 <- TADA_CreateUseParamRef(
 )
 TADA_TableExport(NCTC_UseParamRef)
 ```
-
 
 If a user includes wants to include additional organizations beyond
 "MDE_EASP" , they will need to have defined those organizations in

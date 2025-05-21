@@ -84,15 +84,15 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   if (!is.null(spatialRef) & !is.character(spatialRef)) {
     if (!is.data.frame(spatialRef)) {
       stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
-        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
     }
 
     if (is.data.frame(spatialRef)) {
       col.names <- c(
         "ATTAINS.ParameterName",
-        "use_name",
-        "organization_identifier",
+        "ATTAINS.UseName",
+        "ATTAINS.OrganizationIdentifier",
         "ApplyUniqueSpatialCriteria",
         "ATTAINS.waterTypeCode",
         "ATTAINS.assessmentunitidentifier",
@@ -103,7 +103,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
-        ATTAINS.ParameterName, use_name, organization_identifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
       }
     }
@@ -119,9 +119,14 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 
   DefineMagnitude <- spatialRef %>%
     dplyr::select(
-      "ATTAINS.ParameterName", "organization_identifier", "use_name",
+      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
       "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
     ) %>%
+    dplyr::mutate(MonitoringLocationTypeName = dplyr::if_else( # Only include if a unique spatial criteria is applied for 
+      is.na(ApplyUniqueSpatialCriteria), 
+      as.character(NA),
+      MonitoringLocationTypeName
+    )) %>%
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
@@ -138,19 +143,19 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::distinct() %>%
     dplyr::select(
-      "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
+      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "WaterDepth", "BegAssessDate", "EndAssessDate",
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
     )
   
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-    dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
-    dplyr::mutate(organization_identifier = "EPA304a")
+    dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
+    dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
 
-  if ("EPA304a" %in% DefineMagnitude$organization_identifier) {
+  if ("EPA304a" %in% DefineMagnitude$ATTAINS.OrganizationIdentifier) {
     DefineMagnitude <- DefineMagnitude %>%
-      dplyr::left_join(CST_param, c("EPA304A.PollutantName", "use_name", "organization_identifier"), relationship = "many-to-many") %>%
+      dplyr::left_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
       dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
       dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
@@ -174,7 +179,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
       dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
       dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
       dplyr::distinct() %>%
-      dplyr::arrange(organization_identifier != "EPA304a", organization_identifier)
+      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
   }
   #
   # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
@@ -216,7 +221,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     }
 
     columns <- c(
-      "ATTAINS.ParameterName", "organization_identifier", "use_name", "MonitoringLocationTypeName",
+      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
@@ -309,16 +314,16 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 #' #  if (!is.null(StandardsRef) & !is.character(StandardsRef)) {
 #' #    if (!is.data.frame(StandardsRef)) {
 #' #      stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#' #      ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
+#' #      ATTAINS.ParameterName,	ATTAINS.OrganizationIdentifier,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
 #' #    }
 #' #    if (is.data.frame(StandardsRef)) {
 #' #      col.names <- c(
-#' #        "organization_identifier", "ATTAINS.ParameterName", "use_name"
+#' #        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName"
 #' #      )
 #' #      ref.names <- names(StandardsRef)
 #' #      if (length(setdiff(col.names, ref.names)) > 0) {
 #' #        stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#' #        ATTAINS.ParameterName,	organization_identifier,	use_name, StandardValue,	StandardUnit,	StandardLimit")
+#' #        ATTAINS.ParameterName,	ATTAINS.OrganizationIdentifier,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
 #' #      }
 #' #    }
 #' #  }
@@ -360,7 +365,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 #' #    dplyr::mutate(across(MagnitudeValueLower, as.numeric)) %>%
 #' #    dplyr::group_by(.[, c(
 #' #      "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName",
-#' #      "organization_identifier", "use_name",
+#' #      "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
 #' #      "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier",
 #' #      "MonitoringLocationTypeName.y", "ATTAINS.waterTypeCode.y", "AcuteChronic", "SaltFresh",
 #' #      "BegAssessDate", "EndAssessDate",
@@ -376,19 +381,19 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 #' #  if (!is.null(UseAURef)) {
 #' #    # If a user provides UseAURef and UseParamRef, this creates a Use name to AU and Parameter crosswalk. This helps filter down the summary list further.
 #' #    UseParamAU <- UseAURef %>%
-#' #      dplyr::right_join(UseParamRef, by = c("use_name", "organization_identifier"), relationship = "many-to-many") %>%
-#' #      dplyr::filter(!(!organization_identifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
+#' #      dplyr::right_join(UseParamRef, by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
+#' #      dplyr::filter(!(!ATTAINS.OrganizationIdentifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
 #' #      dplyr::select(
-#' #        organization_identifier, ATTAINS.assessmentunitidentifier,
+#' #        ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
 #' #        ATTAINS.assessmentunitname, TADA.ComparableDataIdentifier,
-#' #        EPA304A.PollutantName, ATTAINS.ParameterName, use_name
+#' #        EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.UseName
 #' #      )
 #' #    UseParamAU2 <- UseParamAU %>%
 #' #      dplyr::group_by(ATTAINS.ParameterName, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname) %>%
 #' #      dplyr::summarize(.groups = "keep") %>%
-#' #      dplyr::mutate(organization_identifier = "EPA304a") %>%
+#' #      dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
 #' #      stats::na.omit() %>%
-#' #      dplyr::full_join(UseParamAU, by = c("organization_identifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+#' #      dplyr::full_join(UseParamAU, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
 #' #      dplyr::mutate(
 #' #        ATTAINS.assessmentunitidentifier = dplyr::coalesce(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y),
 #' #        ATTAINS.assessmentunitname = dplyr::coalesce(ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)

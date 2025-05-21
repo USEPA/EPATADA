@@ -736,7 +736,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
     
     ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef%>%
-      dplyr::filter(CharacteristicName %in% ATTAINS_param_all$ATTAINS.ParameterName)
+      dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName)
     
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
@@ -780,7 +780,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
     
     ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef%>%
-      dplyr::filter(CharacteristicName %in% ATTAINS_param$ATTAINS.ParameterName)
+      dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName)
     
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
@@ -1950,9 +1950,10 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       
     }
     
-    # result <- Reduce(function(x, y) dplyr::full_join(x, y, by = "Var1"), df2)
-    
-    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef, df2, by = -c("ApplyUniqueSpatialCriteria"))
+    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef, df2, by = c(
+      "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier", "ATTAINS.ParameterName",
+      "ATTAINS.UseName", "ATTAINS.waterTypeCode"
+      ))
   }
   
   if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
