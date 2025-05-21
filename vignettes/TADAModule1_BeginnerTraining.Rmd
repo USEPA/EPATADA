@@ -93,7 +93,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, eval = F, include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "prerelease",
+  ref = "594-tada_insertbreak-bug-report",
   dependencies = TRUE
 )
 

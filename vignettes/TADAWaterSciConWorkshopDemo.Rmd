@@ -66,6 +66,20 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
+```{r install_TADA, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA_developer, include = FALSE}
+remotes::install_github("USEPA/EPATADA",
+  ref = "594-tada_insertbreak-bug-report",
+  dependencies = TRUE
+)
+```
+
 ```{r library, results = 'hide'}
 # Load required packages
 library(EPATADA)
