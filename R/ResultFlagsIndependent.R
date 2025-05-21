@@ -1311,7 +1311,8 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
                                                      org_hierarchy = "none") {
   # from those datapoints, determine which are in adjacent sites
   if (!"TADA.NearbySites.Flag" %in% names(.data)) {
-    .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer)
+    .data <- TADA_FindNearbySites(.data, dist_buffer = dist_buffer,
+                                  org_hierarchy = org_hierarchy)
   }
 
   dupsites <- unique(.data[, c(
