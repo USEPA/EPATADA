@@ -408,74 +408,40 @@ Subset_TADAwithATTAINS_selectAUs = TADA_RetainRequired(Subset_TADAwithATTAINS_se
 
 ## Exploratory visualizations
 
-```{r TADA_GetATTAINS}
-# ATTAINS_Shepherdstown <- TADA_GetATTAINS(WQP_Shepherdstown_subset_AUs, return_sf = TRUE, return_nearest = TRUE)
-
-```
-
 ```{r TADA_ViewATTAINS}
+# not working
+
 # # View catchments and assessment units on map
 # 
-# ATTAINS_map <- TADA_ViewATTAINS(WQP_Shepherdstown_subset_AUs)
+# ATTAINS_map <- TADA_ViewATTAINS(Subset_TADAwithATTAINS_selectAUs)
 # 
 # ATTAINS_map
 ```
 
-review unique identifiers
+Review unique TADA.ComparableDataIdentifier's
 
 ```{r}
-unique(WQP_Shepherdstown_subset_AUs$TADA.ComparableDataIdentifier)
+# throws error, why?
+# compid_table_2 <- TADA_FieldValuesTable(Subset_TADAwithATTAINS_selectAUs, field = "TADA.ComparableDataIdentifier")
+# 
+# DT::datatable(compid_table_2, fillContainer = TRUE)
 
+unique(Subset_TADAwithATTAINS_selectAUs$TADA.ComparableDataIdentifier)
+
+#these need more harmonization...
 ```
-
 Generate stats table
 
 ```{r stats}
-WQP_Shepherdstown_stats <- TADA_Stats(WQP_Shepherdstown_subset_AUs)
+WQP_Shepherdstown_stats <- TADA_Stats(Subset_TADAwithATTAINS_selectAUs)
+
+# thought we already removed remaining NAs, why are there more now?
 ```
 
 Generate scatterplot
 
 ```{r scatterplot}
-TADA_TwoCharacteristicScatterplot(WQP_Shepherdstown_subset_AUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C", "CHLORIDE_TOTAL_NA_UG/L"))
-```
-
-```{r ph analysis and visualization}
-# comparison to standard for ph
-pH_Standard <- WQP_Shepherdstown_subset_AUs %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS") %>%
-  dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue >= 6.5 & TADA.ResultMeasureValue <= 9, "Yes", "No"))
-
-
-# subset of pH data with fewer rows
-pH_Table <- pH_Standard %>%
-  dplyr::select(
-    MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
-    MeetsStandard
-  )
-
-DT::datatable(pH_Table, fillContainer = TRUE)
-
-# pH scatterplot
-pH_Scatter <- TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
-  plotly::add_lines(
-    y = 6.5,
-    x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
-    inherit = FALSE,
-    showlegend = FALSE,
-    line = list(color = "red"),
-    hoverinfo = "none"
-  ) %>%
-  plotly::add_lines(
-    y = 8.5,
-    x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
-    inherit = FALSE,
-    showlegend = FALSE,
-    line = list(color = "red"),
-    hoverinfo = "none"
-  )
-
-pH_Scatter
+TADA_TwoCharacteristicScatterplot(Subset_TADAwithATTAINS_selectAUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
 ```
 
 SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C
@@ -497,7 +463,7 @@ Organoleptic
 
 ```{r Iron analysis and visualization}
 # comparison to standard for iron
-Iron_Standard <- WQP_Shepherdstown_subset_AUs %>%
+Iron_Standard <- Subset_TADAwithATTAINS_selectAUs %>%
   dplyr::filter(TADA.ComparableDataIdentifier == "IRON_TOTAL_NA_UG/L") %>%
   dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue <= 300, "Yes", "No"))
 
@@ -536,48 +502,26 @@ Iron_Scatter
 ```{r boxplot and histogram}
 # filter dataframe to comparable data identifier of interest
 
-Nitrogen_data <- dplyr::filter(Filtered_data, TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L")
+Iron_data <- dplyr::filter(Subset_TADAwithATTAINS_selectAUs, TADA.ComparableDataIdentifier == c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
 
 # generate a histogram
-Nitrogen_Histogram <- TADA_Histogram(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
+Iron_Histogram <- TADA_Histogram(Iron_data, id_cols = "TADA.CharacteristicName")
 
 # view histogram
-Nitrogen_Histogram
+Iron_Histogram
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-Nitrogen_Boxplot <- TADA_Boxplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
+Iron_Boxplot <- TADA_Boxplot(Iron_data, id_cols = "TADA.CharacteristicName")
 
 
-Nitrogen_Boxplot
+Iron_Boxplot
 ```
 
-Filtering the results of `TADA_Stats` for only "TOTAL NITROGEN, MIXED
-FORMS_TOTAL RECOVERABLE_NA_MG/L" and selecting a smaller subset of
-columns or creating a single characteristic scatterplot may also provide
-useful information.
-
-```{r stats and scatterplot}
-# create table with nitrogen stats
-Nitrogen_stats <- Filtered_data_stats %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L") %>%
-  dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
-
-DT::datatable(Nitrogen_stats, fillContainer = TRUE)
-
-# create nitrogen scatterplot
-Nitrogen_Scatterplot <- TADA_Scatterplot(Nitrogen_data, id_cols = "TADA.ComparableDataIdentifier")
-
-Nitrogen_Scatterplot
-```
-
-Generate a new dataframe with only the daily max dissolved oxygen
-values.
-
-```{r DO_filtered}
-R5ProfileCleanDO_dailymax <- TADA_AggregateMeasurements(R5ProfileCleanDO,
+```{r TADA_AggregateMeasurements}
+TADA_AggregateMeasurements(x,
   agg_fun = c("max"),
   clean = TRUE
 )
@@ -588,8 +532,8 @@ specific site on a single date. There are a few functions that can help
 with this. First we can use `TADA_FlagDepthCategory` to place results
 into various depth categories (surface, middle, and bottom).
 
-```{r depth category}
-dataset_depth <- TADA_FlagDepthCategory(dataset_cens)
+```{r TADA_FlagDepthCategory}
+x <- TADA_FlagDepthCategory(x)
 ```
 
 We can also use another function, `TADA_IDDepthProfiles` to identify
@@ -600,8 +544,8 @@ is 2, but this can be changed by the user. We will specify a larger
 value, 5, so that any depth profiles identified will have results from
 at least 5 different depths.
 
-```{r id depth profile}
-depth_profile_id <- TADA_IDDepthProfiles(dataset_depth, nvalue = 5)
+```{r TADA_IDDepthProfiles}
+x <- TADA_IDDepthProfiles(x, nvalue = 5)
 ```
 
 **Question 11: How can TADA_IDDepthProfiles() help users use
@@ -612,14 +556,12 @@ characteristics against depth. In this example, we will look at pH,
 secchi depth, and pH.
 
 ```{r depth plot}
-TADA_DepthProfilePlot(dataset_cens,
+TADA_DepthProfilePlot(x,
   groups = c(
-    "TEMPERATURE, WATER_NA_NA_DEG C",
-    "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
-    "PH_NA_NA_NONE"
+    "x"
   ),
-  location = "REDLAKE_WQX-ANKE",
-  activity_date = "2018-10-04",
+  location = "x",
+  activity_date = "x",
   depthcat = TRUE,
   surfacevalue = 2,
   bottomvalue = 2,
@@ -631,9 +573,9 @@ Show next step of crosswalking results to prepare for ATTAINS submission
 
 ```{r}
 # create TADA parameter reference table for specified organization
-NCTC_ParamRef <- TADA_CreateParamRef(
-  Data_NCTC,
-  org_id = c("MDE_EASP"), # Maryland
+x <- TADA_CreateParamRef(
+  x,
+  org_id = c("x"), 
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE

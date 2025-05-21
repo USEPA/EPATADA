@@ -220,10 +220,10 @@ extra.cols <- c(
   "AnalysisStartDate",
   "ResultDetectionQuantitationLimitUrl",
   "LabSamplePreparationUrl",
-  "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
-  "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
-  "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
-  "ActivityEndTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/21/24
+  "timeZoneStart", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "timeZoneEnd", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "ActivityStartTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/7/24
+  "ActivityEndTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/21/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
