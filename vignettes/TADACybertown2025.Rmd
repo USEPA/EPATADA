@@ -185,8 +185,7 @@ WQP_Shepherdstown_clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
-Address conflicting detection condition and detection limit type
-information:
+Address conflicting detection condition and detection limit type information:
 
 ```{r}
 # review unique flags
@@ -197,10 +196,12 @@ conflict <- WQP_Shepherdstown_clean %>%
   dplyr::filter(TADA.CensoredData.Flag == "Conflict between Condition and Limit") %>%
   dplyr::select(c("DetectionQuantitationLimitTypeName", "ResultDetectionConditionText", "TADA.CensoredData.Flag"))
 
-# remove row with conflicting information
+```
+
+Remove row with conflicting information:
+```{r}
 WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean %>%
   dplyr::filter(TADA.CensoredData.Flag != "Conflict between Condition and Limit")
-
 ```
 
 Remove intermediate variable in R by using 'rm()'
@@ -248,6 +249,8 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 compid_table <- TADA_FieldValuesTable(WQP_Shepherdstown_clean, field = "TADA.ComparableDataIdentifier")
 
+compid_before = unique(WQP_Shepherdstown_clean$TADA.ComparableDataIdentifier)
+
 DT::datatable(compid_table, fillContainer = TRUE)
 ```
 
@@ -270,9 +273,13 @@ WQP_Shepherdstown_clean <- TADA_HarmonizeSynonyms(WQP_Shepherdstown_clean)
 How many unique TADA.ComparableDataIdentifier's do we have now? We reduced it by over 25!
 
 ```{r}
-compid_2 <- unique(WQP_Shepherdstown_clean$ComparableDataIdentifier)
+compid_after = unique(WQP_Shepherdstown_clean$TADA.ComparableDataIdentifier)
+```
 
-compid_1 - compid_2
+
+```{r}
+rm(compid_before)
+rm(compid_after)
 ```
 
 `TADA_CalculateTotalNP` uses the [Nutrient Aggregation
@@ -299,7 +306,7 @@ WQP_Shepherdstown_clean <- TADA_CalculateTotalNP(WQP_Shepherdstown_clean, daily_
 
 ```
 
-What characteristics are available?
+What characteristics are available now?
 
 ```{r fieldValues_actmedia}
 # Create pie chart for CharacteristicName
@@ -330,52 +337,73 @@ We can also create a table with some basic information about the
 Monitoring Locations in Assessment Units of interest and a pie chart to
 display the relative number of results contributed by each organization.
 
+-   TADA_GetATTAINS() automates matching of WQP monitoring locations
+    with ATTAINS assessment units that fall within (intersect) the same
+    NHDPlus catchment
+    ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
+-   The function uses high resolution NHDPlus catchments by default
+    because 80% of state submitted assessment units in ATTAINS were
+    developed based on high res NHD; users can select med-res if
+    applicable to their use case
+
 ```{r Data Retrieval - Geospatial}
-WQP_Shepherdstown_subset <- TADA_GetATTAINS(
+WQP_Shepherdstown_subset_spatial <- TADA_GetATTAINS(
   WQP_Shepherdstown_subset, 
   fill_catchments = FALSE,
-  return_sf = FALSE, 
+  return_sf = TRUE, 
   return_nearest = TRUE)
+
+# pull TADA df with ATTAINS info added out of the list
+Subset_TADAwithATTAINS <- WQP_Shepherdstown_subset_spatial$TADA_with_ATTAINS
 ```
 
 Create table of monitoring location identifiers and AUs
 
 ```{r}
-ML_AU_crosswalk <- WQP_Shepherdstown_subset %>%
+ML_AU_crosswalk <- Subset_TADAwithATTAINS %>%
   dplyr::select(MonitoringLocationName, TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
   dplyr::distinct()
+```
+
+Review unique assessment unit names
+
+```{r}
+unique(Subset_TADAwithATTAINS$ATTAINS.assessmentunitname)
 ```
 
 Filter data for specified assessment unit
 
 ```{r}
-unique(WQP_Shepherdstown_subset$ATTAINS.assessmentunitname)
+Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS %>%
+  dplyr::filter(
+    ATTAINS.assessmentunitname == "Shenandoah River"|
+      ATTAINS.assessmentunitname == "Rattlesnake Run")
+```
 
-WQP_Shepherdstown_subset_AUs <- WQP_Shepherdstown_subset %>%
-  dplyr::filter(ATTAINS.assessmentunitname == "Shenandoah River"| ATTAINS.assessmentunitname == "Rattlesnake Run")
-
-unique(WQP_Shepherdstown_subset_AUs$ATTAINS.assessmentunitidentifier)
+Review unique Assessments Units
+```{r}
+unique(Subset_TADAwithATTAINS_selectAUs$ATTAINS.assessmentunitidentifier)
 ```
 
 ## Generate maps
 
 ```{r TADA Overview Map}
-TADA_OverviewMap(WQP_Shepherdstown_subset_AUs)
+TADA_OverviewMap(Subset_TADAwithATTAINS_selectAUs)
 ```
 
 Check coordinates
 
 ```{r}
-WQP_Shepherdstown_subset_AUs = TADA_FlagCoordinates(WQP_Shepherdstown_subset_AUs, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+Subset_TADAwithATTAINS_selectAUs = TADA_FlagCoordinates(Subset_TADAwithATTAINS_selectAUs, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
-WQP_Shepherdstown_subset_AUs <- WQP_Shepherdstown_subset_AUs[!is.na(WQP_Shepherdstown_subset_AUs$LongitudeMeasure),]
-WQP_Shepherdstown_subset_AUs <- WQP_Shepherdstown_subset_AUs[!is.na(WQP_Shepherdstown_subset_AUs$LatitudeMeasure),]
+Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS_selectAUs[!is.na(Subset_TADAwithATTAINS_selectAUs$LongitudeMeasure),]
+Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS_selectAUs[!is.na(Subset_TADAwithATTAINS_selectAUs$LatitudeMeasure),]
 ```
 
-Remove extra cols
+`TADA_RetainRequired` removes all duplicate columns where TADA has created a new column with a TADA prefix. It retains all TADA prefixed columns as well as other original fields that are either required by other TADA functions or are commonly used filters. 
 
 ```{r}
-WQP_Shepherdstown_subset_AUs = TADA_RetainRequired(WQP_Shepherdstown_subset_AUs)
+Subset_TADAwithATTAINS_selectAUs = TADA_RetainRequired(Subset_TADAwithATTAINS_selectAUs)
 ```
 
 ## Exploratory visualizations
