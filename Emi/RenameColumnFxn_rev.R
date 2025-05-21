@@ -38,8 +38,8 @@ wqxcrswlk_mod2 <- wqxcrswlk_mod |>
   ))
 
 # Remove NAs from crosswalk table 
-wqxcrswlk_mod3 <- wqxcrswlk_mod2 |> 
-  filter(!is.na(WqxV2.FieldName))
+# wqxcrswlk_mod3 <- wqxcrswlk_mod2 |> 
+#   filter(!is.na(WqxV2.FieldName))
 
 ###############
 # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
@@ -72,7 +72,7 @@ df <- result.DR |>
 drp_fields <- c("ActivityMediaSubdivisionName","SampleAquifer")
 
 wqxcrswlk_legacy <- wqxcrswlk_mod3 |> 
-  filter(in_DR2.0 == "Y") |> 
+  #filter(in_DR2.0 == "Y") |> 
   filter(!WqxV2.FieldName %in% drp_fields)
 
 ## WRITE MODIFIED CROSSWALK TABLE

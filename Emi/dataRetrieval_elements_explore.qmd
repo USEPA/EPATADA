@@ -105,8 +105,10 @@ write_csv(all_red, "C:/Users/efergus/OneDrive - Environmental Protection Agency 
 
 ```
 
-## Fields not returned in the beta data profile call
-Fields from the legacy (readWQPdata - 'resultPhysChem' profile) that may not have an exact match with fields returned in the beta (readWQPdata - 'fullPhysChem' profile). Note - we may need to update the crosswalk table to catch some of these that have equivalent beta versions but may not have been mapped properly. 
+## Fields not returned in the beta full data profile call
+
+Fields from the legacy (readWQPdata - 'resultPhysChem' profile) that may not have an exact match with fields returned in the beta (readWQPdata - 'fullPhysChem' profile). Note - we may need to update the crosswalk table to catch some of these that have equivalent beta versions but may not have been mapped properly.
+
 ```{r}
 #| echo: false
 
@@ -117,21 +119,26 @@ knitr::kable(basic_only)
 
 
 ```
+'Result_DetectionCondition' is in the crosswalk table but dataRetrieval (beta) returns fullPhysChem profile as 'Result_ResultDetectionCondition'
 
 ## Fields in beta (full) but not in basic (legacy)
-Fields in the beta ('fullPhysChem' profile) that may not have a legacy match in the crosswalk table because there wre one-to-many matches (as noted by 'see Comment field'. Or beta fields that are missing from the crosswalk table in general. 
+
+Fields in the beta ('fullPhysChem' profile) that may not have a legacy match in the crosswalk table because there are one-to-many matches (as noted by 'see Comment field'. Or beta fields that are missing from the crosswalk table in general.
+
 ```{r}
 #| echo: false
 full_only <- all_red |> 
   filter(is.na(basic)) |> 
   filter(wqx2 == "see Comment field"|
-           is.na(wqx3))
+           is.na(wqx2))
 
 knitr::kable(full_only)
 ```
 
 ## Fields that may need to be updated in the crosswalk table
+
 wqx fields represent the crosswalk table and DR fields represent the dataRetrieval output
+
 ```{r}
 #| echo: false
 

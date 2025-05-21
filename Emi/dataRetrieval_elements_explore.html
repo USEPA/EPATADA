@@ -79,14 +79,6 @@ ul.task-list li input[type="checkbox"] {
 <section id="usgs-dataretrieval-elements" class="level2">
 <h2 class="anchored" data-anchor-id="usgs-dataretrieval-elements">USGS dataRetrieval Elements</h2>
 <p>Comparing what fields (elements) are returned with <code>dataRetrieval::readWQPdata</code> <code>dataProfile</code> calls (see <code>readWQPdata</code> help for options for both Legacy and WQX3).</p>
-<div class="cell">
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'lubridate' was built under R version 4.4.2</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'knitr' was built under R version 4.4.2</code></pre>
-</div>
-</div>
 </section>
 <section id="example-readwqpdata-query" class="level2">
 <h2 class="anchored" data-anchor-id="example-readwqpdata-query">Example readWQPdata query</h2>
@@ -94,10 +86,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="join-legacy-and-beta-field-elements-using-crosswalk-table" class="level2">
 <h2 class="anchored" data-anchor-id="join-legacy-and-beta-field-elements-using-crosswalk-table">Join Legacy and Beta field elements using crosswalk table</h2>
-<p>Read in WQX crosswalk table to join the basic (legacy) and full (beta) field elements together to compare.</p>
+<p>Read in WQX crosswalk table to join the basic (legacy) and full (beta) field elements together to compare. Had to modify the crosswalk table to replace special characters in the legacy column (WqxV2.FieldName) so that they will match fields returned in dataRetrieval. For example, ‘ActivityStartTime/Time’ in crosswalk table vs ‘ActivityStartTime.Time’ from dataRetrieval.</p>
 </section>
-<section id="fields-not-returned-in-the-beta-data-profile-call" class="level2">
-<h2 class="anchored" data-anchor-id="fields-not-returned-in-the-beta-data-profile-call">Fields not returned in the beta data profile call</h2>
+<section id="fields-not-returned-in-the-beta-full-data-profile-call" class="level2">
+<h2 class="anchored" data-anchor-id="fields-not-returned-in-the-beta-full-data-profile-call">Fields not returned in the beta full data profile call</h2>
+<p>Fields from the legacy (readWQPdata - ‘resultPhysChem’ profile) that may not have an exact match with fields returned in the beta (readWQPdata - ‘fullPhysChem’ profile). Note - we may need to update the crosswalk table to catch some of these that have equivalent beta versions but may not have been mapped properly.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -219,15 +212,15 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="fields-in-beta-full-but-not-in-basic-legacy" class="level2">
 <h2 class="anchored" data-anchor-id="fields-in-beta-full-but-not-in-basic-legacy">Fields in beta (full) but not in basic (legacy)</h2>
-<p>That may be one-to-many in the crosswalk table or maybe have different names in the dataRetrieval output compared to the crosswalk table.</p>
+<p>Fields in the beta (‘fullPhysChem’ profile) that may not have a legacy match in the crosswalk table because there are one-to-many matches (as noted by ‘see Comment field’. Or beta fields that are missing from the crosswalk table in general.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
 <colgroup>
-<col style="width: 38%">
-<col style="width: 18%">
-<col style="width: 6%">
-<col style="width: 38%">
+<col style="width: 39%">
+<col style="width: 15%">
+<col style="width: 5%">
+<col style="width: 39%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -239,46 +232,286 @@ ul.task-list li input[type="checkbox"] {
 </thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: left;">Location_CountryName</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_CountryName</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Location_CountyName</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_CountyName</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Location_HUCTwelveDigitCode</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_HUCTwelveDigitCode</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Location_TribalLandIndicator</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_TribalLandIndicator</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Location_TribalLand</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_TribalLand</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Location_LatitudeStandardized</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_LatitudeStandardized</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Location_LongitudeStandardized</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_LongitudeStandardized</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Location_HorzCoordStandardizedDatum</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Location_HorzCoordStandardizedDatum</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ProjectAttachment_FileName</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ProjectAttachment_FileName</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ProjectAttachment_FileType</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ProjectAttachment_FileType</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">AlternateLocation_IdentifierCount</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">AlternateLocation_IdentifierCount</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Activity_ActivityIdentifierUserSupplied</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Activity_ActivityIdentifierUserSupplied</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ActivityLocation_SourceMapScale</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityLocation_SourceMapScale</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ActivityLocation_LatitudeStandardized</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityLocation_LatitudeStandardized</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ActivityLocation_LongitudeStandardized</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityLocation_LongitudeStandardized</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ActivityLocation_HorzCoordStandardizedDatum</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityLocation_HorzCoordStandardizedDatum</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ActivityLocation_Description</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityLocation_Description</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">SampleCollectionMethod_Description</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">SampleCollectionMethod_Description</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">SamplePrepMethod_Description</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">SamplePrepMethod_Description</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;">SamplePrepMethod_ContainerLabel</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">SamplePrepMethod_ContainerLabel</td>
+</tr>
 <tr class="odd">
+<td style="text-align: left;">ActivityAttachment_FileName</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityAttachment_FileName</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ActivityAttachment_FileType</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ActivityAttachment_FileType</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_DataLoggerLine</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_DataLoggerLine</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Result_CharacteristicUserSupplied</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_CharacteristicUserSupplied</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_CASNumber</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_CASNumber</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultBiological_TaxonUserSupplied</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultBiological_TaxonUserSupplied</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ResultBiological_TaxonUserSuppliedReference</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultBiological_TaxonUserSuppliedReference</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultBiological_GroupSummaryCount</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultBiological_GroupSummaryCount</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ResultDepthHeight_SamplingPointType</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultDepthHeight_SamplingPointType</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultDepthHeight_SamplingPointPlaceInSeries</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultDepthHeight_SamplingPointPlaceInSeries</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ResultDepthHeight_SamplingPointComment</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultDepthHeight_SamplingPointComment</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultDepthHeight_RecordIdentifierUserSupplied</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultDepthHeight_RecordIdentifierUserSupplied</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_StatisticalNValue</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_StatisticalNValue</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">DataQuality_PrecisionValue</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">DataQuality_PrecisionValue</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">DataQuality_ConfidenceIntervalValue</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">DataQuality_ConfidenceIntervalValue</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">DataQuality_UpperConfidenceLimitValue</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">DataQuality_UpperConfidenceLimitValue</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DataQuality_LowerConfidenceLimitValue</td>
+<td style="text-align: left;">see Comment field</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DataQuality_LowerConfidenceLimitValue</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">DataQuality_LowerConfidenceLimitValue</td>
-<td style="text-align: left;">see Comment field</td>
+<td style="text-align: left;">DetectionLimit_CommentA</td>
 <td style="text-align: left;">NA</td>
-<td style="text-align: left;">DataQuality_LowerConfidenceLimitValue</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DetectionLimit_CommentA</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">DetectionLimit_TypeB</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DetectionLimit_TypeB</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DetectionLimit_MeasureB</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DetectionLimit_MeasureB</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">DetectionLimit_MeasureUnitB</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DetectionLimit_MeasureUnitB</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">DetectionLimit_CommentB</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">DetectionLimit_CommentB</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LabInfo_LabSampleSplitRatio</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">LabInfo_LabSampleSplitRatio</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">ResultAnalyticalMethod_Description</td>
 <td style="text-align: left;">see Comment field</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">ResultAnalyticalMethod_Description</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_ComparableMethodIdentifier</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_ComparableMethodIdentifier</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Result_ComparableMethodIdentifierContext</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_ComparableMethodIdentifierContext</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_ComparableMethodModification</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_ComparableMethodModification</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">LabSamplePrepMethod_Description</td>
@@ -287,40 +520,132 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">LabSamplePrepMethod_Description</td>
 </tr>
 <tr class="odd">
+<td style="text-align: left;">ResultAttachment_FileName</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultAttachment_FileName</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultAttachment_FileType</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">ResultAttachment_FileType</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Result_CharacteristicComparable</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_CharacteristicComparable</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Result_CharacteristicGroup</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Result_CharacteristicGroup</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">LastChangeDate</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">LastChangeDate</td>
+</tr>
+<tr class="even">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">Result_ResultDetectionCondition</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">GroupSummaryWeight_Measure</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">GroupSummaryWeight_MeasureUnit</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">DataQuality_ResultComment</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">Activity_StartTimeZone_offset</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">Activity_StartDateTime</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="fields-that-may-need-to-be-updated-in-the-crosswalk-table" class="level2">
+<h2 class="anchored" data-anchor-id="fields-that-may-need-to-be-updated-in-the-crosswalk-table">Fields that may need to be updated in the crosswalk table</h2>
+<p>wqx fields represent the crosswalk table and DR fields represent the dataRetrieval output</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 23%">
+<col style="width: 20%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">wqx3</th>
+<th style="text-align: left;">wqx2</th>
+<th style="text-align: left;">DR3</th>
+<th style="text-align: left;">DR2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Result_DetectionCondition</td>
+<td style="text-align: left;">ResultDetectionConditionText</td>
+<td style="text-align: left;">Result_ResultDetectionCondition</td>
+<td style="text-align: left;">ResultDetectionConditionText</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Activity_StartDateTime</td>
+<td style="text-align: left;">ActivityStartDateTime</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">Activity_StartTimeZone_offset</td>
+<td style="text-align: left;">ActivityStartTime.TimeZoneCode_offset</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ResultBiological_GroupSummaryWeightMeasure</td>
+<td style="text-align: left;">GroupSummaryCountWeight/MeasureValue</td>
+<td style="text-align: left;">GroupSummaryWeight_Measure</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ResultBiological_GroupSummaryWeightMeasureUnit</td>
+<td style="text-align: left;">GroupSummaryCountWeight/MeasureUnitCode</td>
+<td style="text-align: left;">GroupSummaryWeight_MeasureUnit</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">SampleCollectionMethod_Description</td>
+<td style="text-align: left;">see_Comment</td>
+<td style="text-align: left;">SampleCollectionMethod_Description</td>
+<td style="text-align: left;">SampleCollectionMethod.MethodDescriptionText</td>
 </tr>
 </tbody>
 </table>
