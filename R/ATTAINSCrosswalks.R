@@ -527,6 +527,17 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' one organization (multiple states or tribes, or a single state/tribe and
 #' EPA 304a criteria) also need to include an additional column name:
 #' 'organization_identifier'.
+#' 
+#' @param fillBy A string value of "None", "All", or "Org". Default is "All".
+#' If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
+#' currently based on and exact match of WQP CharacteristicName with 
+#' ATTAINS ParameterName along with a few manual review). If "Org" then this
+#' only provide the TADA logic match if your ATTAINS organization has included that
+#' ATTAINS ParameterName in the past. If not, this will be left blank for your
+#' organization to specify. "None" will result in an empty ATTAINS.ParameterName 
+#' column. Users will be required to fill this out on their own completely or
+#' through a prior paramRef crosswalk. See paramRef argument input above for more
+#' information.
 #'
 #' @return A excel file or data frame which contains the columns:
 #' TADA.ComparableDataIdentifier, organization_identifier,
@@ -1770,11 +1781,12 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' )
 #'
 TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL, useAURef = NULL, useParamRef = NULL,
-                                  sitesAURef = NULL, spatialRef = NULL, 
-                                  applyUniqueSpatial = NULL, applyToWater = NULL, 
-                                  applyToParam = NULL, applyToUse = NULL, 
-                                  applyToAU = NULL, applyToML = NULL,
-                                  excel = FALSE, overwrite = FALSE) {
+                                  sitesAURef = NULL, spatialRef = NULL 
+                                  # applyUniqueSpatial = NULL, applyToWater = NULL, 
+                                  # applyToParam = NULL, applyToUse = NULL, 
+                                  # applyToAU = NULL, applyToML = NULL,
+                                  # excel = FALSE, overwrite = FALSE
+                                  ) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
     stop(paste0(
