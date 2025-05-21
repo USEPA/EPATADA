@@ -183,8 +183,7 @@ characters in value columns, (3) converts latitude and longitude values
 to numeric, (4) replaces "meters" with "m", (5) replaces deprecated
 characteristic names with current WQX names, (6) harmonizes result and
 detection limit units to WQX, TADA or user supplied target units, (7)
-converts depths to meters, and (8) creates the column TADA.ComparableID
-by concatenating characteristic name, result sample fraction, method
+converts depths to meters, and (8) creates the column TADA.ComparableDataIdentifier by concatenating characteristic name, result sample fraction, method
 speciation, and result measure unit.
 
 Now, let's use EPATADA functions to review, visualize, and whittle the
@@ -212,7 +211,7 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == 
 #### **Nondetects**
 
 TADA provides some simple methods for dealing with censored results,
-such as using multiplying the detection limit by a user supplied value
+such as multiplying the detection limit by a user supplied value
 or leaving the result as is.
 
 ```{r censored}

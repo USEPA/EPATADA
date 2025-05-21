@@ -47,9 +47,31 @@ remotes::install_github("USEPA/EPATADA", ref = "cybertown2025", dependencies = T
 start.time <- Sys.time()
 ```
 
-## Retrieve
+## Retrieve and autoclean
 
-Query the WQP using a bounding box (lat/long extent). 
+Query the WQP using a bounding box (lat/long extent), start date, and
+end date. TADA_AutoClean is a powerful function that runs as part of
+TADA_DataRetrieval when applyautoclean = TRUE. It performs a variety of
+tasks including:
+
+1.  creating new "TADA" prefixed columns and and capitalizing their
+    contents to reduce case sensitivity issues,
+
+2.  converts special characters in value columns,
+
+3.  converts latitude and longitude values to numeric,
+
+4.  replaces "meters" with "m",
+
+5.  replaces deprecated characteristic names with current WQX names,
+
+6.  harmonizes result and detection limit units,
+
+7.  converts depths to meters, and
+
+8.  creates the column TADA.ComparableDataIdentifier by concatenating
+    characteristic name, result sample fraction, method speciation, and
+    result measure unit.
 
 ```{r TADA_DataRetrieval}
 WQP_Shepherdstown_raw <- TADA_DataRetrieval(
@@ -62,6 +84,19 @@ WQP_Shepherdstown_raw <- TADA_DataRetrieval(
 
 ## Filter and clean
 
+Now, let's use EPATADA functions to review, visualize, and whittle the
+returned WQP data down to include only results that are applicable to
+our water quality analysis and area of interest.
+
+The **TADA_AnalysisDataFilter** function can assist in identifying and
+filtering surface water, groundwater, and sediment results. If you set
+clean = FALSE, this function will categorize and flag (but not remove)
+rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the
+default functionality (clean = TRUE) is to include surface water,
+exclude groundwater and sediment, and return only the results that are
+applicable for Clean Water Act analyses. This is shown in the active
+example below.
+
 ```{r}
 WQP_Shepherdstown_clean <- TADA_AnalysisDataFilter(
   WQP_Shepherdstown_raw,
@@ -72,27 +107,28 @@ WQP_Shepherdstown_clean <- TADA_AnalysisDataFilter(
 )
 ```
 
-Find and remove duplicates
+Next, let's check if the dataset contains potential duplicate results
+from within a single organization or from within multiple organizations
+(such as when two or more organizations monitor the same location and
+may submit duplicate results).
+
+We will select to keep only unique samples from
+`TADA_FindPotentialDuplicatesSingleOrg` by filtering for
+TADA.SingleOrgDup.Flag equals "Unique". Then we will search for
+potential duplicates from multiple orgs with
+`TADA_FindPotentialDuplicatesMultipleOrgs` and filter only to retain
+only one value per potential duplicate by filtering for
+TADA.ResultSelectedMultipleOrgs equals "Y".
+
+If you would like to prioritize results from one organization over
+another, this can be done using the org_hierarchy argument in
+`TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r}
 WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesSingleOrg(
   WQP_Shepherdstown_clean)
 WQP_Shepherdstown_clean <- dplyr::filter(WQP_Shepherdstown_clean, TADA.SingleOrgDup.Flag == "Unique")
-```
 
-Censored data substitutions 
-```{r}
-WQP_Shepherdstown_clean <- TADA_SimpleCensoredMethods(
-  WQP_Shepherdstown_clean,
-  nd_method = "multiplier",
-  nd_multiplier = 0.5,
-  od_method = "as-is",
-  od_multiplier = "null"
-)
-```
-addressing conflicting detection condition and detection limit type information
-
-```{r}
 # WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(
 #   WQP_Shepherdstown_clean
 # )
@@ -102,9 +138,59 @@ addressing conflicting detection condition and detection limit type information
 # )
 ```
 
+Censored data are measurements for which the true value is not known,
+but we can estimate the value based on lower or upper detection
+conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
+and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
+from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
+*TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
+using the `TADA_AutoClean` function.
+
+The TADA package currently has functions that summarize censored data
+incidence in the dataset and perform simple substitutions of censored
+data values, including x times the detection limit and random selection
+of a value between 0 and the detection limit. The user may specify the
+methods used for non-detects and over-detects separately in the input to
+the `TADA_SimpleCensoredMethods` function. The next step we take in this
+example is to perform simple conversions to the censored data in the
+dataset: we keep over-detects as is (no conversion made) and convert
+non-detect values to 0.5 times the detection limit (half the detection
+limit).
+
+```{r}
+WQP_Shepherdstown_clean <- TADA_SimpleCensoredMethods(
+  WQP_Shepherdstown_clean,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+)
+```
+
+Address conflicting detection condition and detection limit type
+information:
+
+```{r}
+# review unique flags
+unique(WQP_Shepherdstown_clean$TADA.CensoredData.Flag)
+
+# review row with conflicting information
+conflict <- WQP_Shepherdstown_clean %>%
+  dplyr::filter(TADA.CensoredData.Flag == "Conflict between Condition and Limit") %>%
+  dplyr::select(c("DetectionQuantitationLimitTypeName", "ResultDetectionConditionText", "TADA.CensoredData.Flag"))
+
+# remove row with conflicting information
+WQP_Shepherdstown_clean_2 <- WQP_Shepherdstown_clean %>%
+  dplyr::filter(TADA.CensoredData.Flag != "Conflict between Condition and Limit")
+```
+
+`TADA_AutoFilter` removes rows where the result value is not numeric to prepare a dataframe for quantitative analyses. Specifically, this function removes rows with "Text" and "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. In addition, this function removes results with QA/QC ActivityTypeCode's. This function also removes any columns not required for TADA workflow where all values are equal to NA.
+
 ```{r}
 WQP_Shepherdstown_clean <- TADA_AutoFilter(WQP_Shepherdstown_clean)
 ```
+
+This is a shortcut function to run important TADA flagging functions. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 
 ```{r}
 WQP_Shepherdstown_clean <- TADA_RunKeyFlagFunctions(
@@ -113,26 +199,74 @@ WQP_Shepherdstown_clean <- TADA_RunKeyFlagFunctions(
 )
 ```
 
-address na results
+We will also filter the data to remove any remaining NAs.
+
 ```{r}
 WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$TADA.ResultMeasure.MeasureUnitCode),]
 ```
 
-flag above and below thresholds
-```{r}
-WQP_Shepherdstown_clean <- TADA_FlagAboveThreshold(WQP_Shepherdstown_clean, clean = TRUE, flaggedonly = FALSE)
-```
+Another set of TADA flagging functions, `TADA_FlagAboveThreshold` and
+`TADA_FlagBelowThreshold`, can be used to check results against national lower and upper thresholds. As in the previous examples, we will set clean = TRUE for these functions to remove results that fall outside the national thresholds.
 
 ```{r}
+WQP_Shepherdstown_clean <- TADA_FlagAboveThreshold(WQP_Shepherdstown_clean, clean = TRUE, flaggedonly = FALSE)
+
 WQP_Shepherdstown_clean <- TADA_FlagBelowThreshold(WQP_Shepherdstown_clean, clean = TRUE, flaggedonly = FALSE)
 ```
 
-Harmonize synonyms
+Let's take a look at all
+unique values in the TADA.ComparableDataIdentifier column and see how
+how many results are associated with each. TADA.ComparableDataIdentifier
+concatenates TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+
+```{r TADA_FieldValuesTable}
+# use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
+compid_table <- TADA_FieldValuesTable(WQP_Shepherdstown_clean, field = "TADA.ComparableDataIdentifier")
+
+compid_1 <- unique(WQP_Shepherdstown_clean$ComparableDataIdentifier)
+
+DT::datatable(compid_table, fillContainer = TRUE)
+```
+
+As we scroll through the table, we can see that there are some repeated
+characteristic names. It may be possible that some of these are synonyms
+which can be automatically harmonized using `TADA_HarmonizeSynonyms` so their results
+can be directly compared.
+
+Let's give it a try.
+
 ```{r}
 WQP_Shepherdstown_clean <- TADA_HarmonizeSynonyms(WQP_Shepherdstown_clean)
 ```
 
-calculate TN and TP
+How many unique TADA.ComparableDataIdentifier's do we have now? We reduced it by over 25!
+
+```{r}
+compid_2 <- unique(WQP_Shepherdstown_clean$ComparableDataIdentifier)
+
+compid_1 - compid_2
+```
+
+`TADA_CalculateTotalNP` uses the [Nutrient Aggregation
+logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+to add together specific subspecies to obtain a total. TADA adds one
+more equation to the mix: total particulate nitrogen + total dissolved
+nitrogen. The function uses as many subspecies as possible to calculate
+a total for each given site, date, and depth group, but it will estimate
+total nitrogen with whatever subspecies are present. This function
+creates NEW total nutrient measurements (total nitrogen unfiltered as N
+and total phosphorus unfiltered as P) and adds them to the dataframe.
+
+Users can use the default summation worksheet (see
+`TADA_GetNutrientSummationRef`) or customize it to suit their needs. The
+function also requires a daily aggregation value, either minimum,
+maximum, or mean. The default is 'max', which means that if multiple
+measurements of the same subspecies-fraction-speciation-unit occur on
+the same day at the same site and depth, the function will pick the
+maximum value to use in summation calculations. In this example, we will
+use the default summation worksheet to obtain total nitrogen.
+
 ```{r}
 WQP_Shepherdstown_clean <- TADA_CalculateTotalNP(WQP_Shepherdstown_clean, daily_agg = "max")
 
@@ -158,15 +292,16 @@ WQP_Shepherdstown_subset <- WQP_Shepherdstown_clean %>%
 
 Now that we've associated geospatial data from **ATTAINS** with the
 **WQP** data, we can filter the data set to retain only results that
-were collected in specified Assessment Units. We can also generate a
-new table to give us some information about the individual monitoring
+were collected in specified Assessment Units. We can also generate a new
+table to give us some information about the individual monitoring
 locations within the assessment units. After this filter step is
 complete, we can remove the "ATTAINS." prefixed columns to reduce the
 size of the data set, as we won't need them for the remaining steps in
 this example.
 
 We can also create a table with some basic information about the
-Monitoring Locations in Assessment Units of interest and a pie chart to display the relative number of results contributed by each organization.
+Monitoring Locations in Assessment Units of interest and a pie chart to
+display the relative number of results contributed by each organization.
 
 ```{r Data Retrieval - Geospatial}
 WQP_Shepherdstown_subset <- TADA_GetATTAINS(
@@ -177,14 +312,15 @@ WQP_Shepherdstown_subset <- TADA_GetATTAINS(
 ```
 
 Create table of monitoring location identifiers and AUs
+
 ```{r}
 ML_AU_crosswalk <- WQP_Shepherdstown_subset %>%
   dplyr::select(MonitoringLocationName, TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
   dplyr::distinct()
 ```
 
-
 Filter data for specified assessment unit
+
 ```{r}
 unique(WQP_Shepherdstown_subset$ATTAINS.assessmentunitname)
 
@@ -201,6 +337,7 @@ TADA_OverviewMap(WQP_Shepherdstown_subset_AUs)
 ```
 
 Check coordinates
+
 ```{r}
 WQP_Shepherdstown_subset_AUs = TADA_FlagCoordinates(WQP_Shepherdstown_subset_AUs, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
@@ -209,6 +346,7 @@ WQP_Shepherdstown_subset_AUs <- WQP_Shepherdstown_subset_AUs[!is.na(WQP_Shepherd
 ```
 
 Remove extra cols
+
 ```{r}
 WQP_Shepherdstown_subset_AUs = TADA_RetainRequired(WQP_Shepherdstown_subset_AUs)
 ```
@@ -229,10 +367,12 @@ WQP_Shepherdstown_subset_AUs = TADA_RetainRequired(WQP_Shepherdstown_subset_AUs)
 ```
 
 review unique identifiers
+
 ```{r}
 unique(WQP_Shepherdstown_subset_AUs$TADA.ComparableDataIdentifier)
 
 ```
+
 Generate stats table
 
 ```{r stats}
@@ -284,7 +424,6 @@ pH_Scatter
 ```
 
 SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C
-
 
 "PH", \# 6.5-8.5 but dependent on application
 
@@ -433,6 +572,21 @@ TADA_DepthProfilePlot(dataset_cens,
 )
 ```
 
+Show next step of crosswalking results to prepare for ATTAINS submission
+
+```{r}
+# create TADA parameter reference table for specified organization
+NCTC_ParamRef <- TADA_CreateParamRef(
+  Data_NCTC,
+  org_id = c("MDE_EASP"), # Maryland
+  excel = FALSE
+  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+
+TADA_CreateUseParamRef()
+```
+
 ## Record end time
 
 ```{r analysis time}
@@ -440,3 +594,10 @@ end.time <- Sys.time()
 
 end.time - start.time
 ```
+
+Reproducible and Documented
+
+This workflow is reproducible and the decisions at each step are well
+documented. This means that it is easy to go back and review every step,
+understand the decisions that were made, make changes as necessary, and
+run it again.
