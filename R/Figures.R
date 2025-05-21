@@ -585,8 +585,6 @@ TADA_OverviewMap <- function(.data) {
 #' 1) imprecise coordinates - latitudes and/or longitudes that contain fewer
 #'    then 3 decimal places.
 #' 2) outside USA - coordinates that fall outside the bounds of the USA.
-#' 3) near other sites - groups of sites that are spatially located within
-#'    a threshold distance (defaulting to 100 m) from each other.
 #'
 #' @export
 #'
@@ -607,13 +605,9 @@ TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
   outsideusa <- invalid[invalid$TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
-  nearby <- TADA_FindNearbySites(.data)
-  print(colnames(nearby))
-  nearby <- TADA_GetUniqueNearbySites(nearby)
 
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
-  nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
   map <- leaflet::leaflet() %>%
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
@@ -646,24 +640,92 @@ TADA_FlaggedSitesMap <- function(.data) {
       data = lowres
     )
   }
-  if (nrow(nearby) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
-      icon = nearbyIcon,
-      # label = ~as.character(TADA.MonitoringLocationIdentifier),
-      popup = paste0(
-        "Nearby Group Name: ", nearby$TADA.MonitoringLocationIdentifier,
-        "<br> Site ID: ", nearby$MonitoringLocationIdentifier,
-        "<br> Site Name: ", nearby$MonitoringLocationName,
-        "<br> Latitude: ", nearby$TADA.LatitudeMeasure,
-        "<br> Longitude: ", nearby$TADA.LongitudeMeasure
-      ),
-      data = nearby
-    )
-  }
-
   return(map)
 }
+
+#' Create Nearby Sites Map
+#'
+#' @param .data TADA dataframe after running TADA.FindNearbySites.
+#' @param dist_buffer Distance in m to show a radius around each site marker.
+#' 
+#'
+#' @return A leaflet map that shows all sites in the dataframe that contain
+#' flagged data in the form of near other sites - groups of sites that are spatially located within
+#'    a threshold distance (defaulting to 100 m) from each other and within the same catchment.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataframe:
+#' data(Data_Nutrients_UT)
+#'
+#'
+#' # Create maps:
+#' TADA_FlaggedSitesMap(Data_Nutrients_UT)
+#' TADA_FlaggedSitesMap(Data_NCTCShepherdstown_HUC12)
+#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' }
+#'
+TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
+  
+  if(c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
+    .data <- TADA_FindNearbySites(.data)
+  }
+
+  .data <- .data %>%
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) %>%
+    dplyr::mutate(LatitudeMeasure = as.numeric(LatitudeMeasure),
+                  LongitudeMeasure = as.numeric(LongitudeMeasure)) %>%
+    dplyr::select(LongitudeMeasure, LatitudeMeasure, TADA.MonitoringLocationIdentifier,
+                  MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure,
+                  TADA.LongitudeMeasure, OrganizationIdentifier, TADA.NearbySiteGroup) %>%
+    dplyr::distinct() 
+    
+  icon.colors <- grDevices::rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup)))) 
+
+  pal <- leaflet::colorFactor(palette = icon.colors,
+                     domain = .data$TADA.NearbySiteGroup)
+     
+  map <- leaflet::leaflet(.data) %>%
+    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
+    leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
+  if (nrow(.data) > 0) {
+    map <- map %>% leaflet::addCircleMarkers(~LongitudeMeasure,
+                                              ~LatitudeMeasure,
+                                              color = ~pal(TADA.NearbySiteGroup),
+                                              opacity = 1, 
+                                              fillColor = ~pal(TADA.NearbySiteGroup),
+                                              fillOpacity = 1,
+                                              radius = ifelse(dist_buffer > 200, 
+                                                              dist_buffer/10, 
+                                                              20),
+                                              weight = 1,
+                                              # label = ~as.character(TADA.MonitoringLocationIdentifier),
+                                              popup = paste0(
+                                                "Nearby Group Name: ", .data$TADA.MonitoringLocationIdentifier,
+                                                "<br> Nearby Site Group: ", .data$TADA.NearbySiteGroup,
+                                                "<br> Site ID: ", .data$MonitoringLocationIdentifier,
+                                                "<br> Site Name: ", .data$MonitoringLocationName,
+                                                "<br> Latitude: ", .data$LatitudeMeasure,
+                                                "<br> Longitude: ", .data$LongitudeMeasure
+                                              ),
+                                              data = .data,
+                                       clusterOptions = leaflet::markerClusterOptions(),
+    ) %>%
+      leaflet::addCircles(~LongitudeMeasure,
+                          ~LatitudeMeasure,
+                          color = ~pal(TADA.NearbySiteGroup),
+                          opacity = 0.1, 
+                          fillColor = ~pal(TADA.NearbySiteGroup),
+                          fillOpacity = 0.1,
+                          radius = dist_buffer,
+                          weight = 1)
+  }
+  
+  return(map)
+}
+
 
 #' Field Values Pie Chart
 #'
