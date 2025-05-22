@@ -86,10 +86,9 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, include = FALSE}
 remotes::install_github("USEPA/EPATADA",
-  ref = "prerelease",
+  ref = "594-tada_insertbreak-bug-report",
   dependencies = TRUE
 )
-
 library(EPATADA)
 ```
 
@@ -316,8 +315,9 @@ earlydate <- min(Analysis_data$ActivityStartDate)
 latedate <- max(Analysis_data$ActivityStartDate)
 ```
 
-This allows us to easily review how many monitoring locations, organizations, 
-and results are in the dataframe for the selected time period.
+This allows us to easily review how many monitoring locations,
+organizations, and results are in the dataframe for the selected time
+period.
 
 ## Water Chemistry Data Preparation and QC
 
