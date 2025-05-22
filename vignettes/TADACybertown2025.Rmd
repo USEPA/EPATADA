@@ -78,6 +78,7 @@ WQP_Shepherdstown_raw <- TADA_DataRetrieval(
   startDate = "2019-01-01",
   endDate = "2024-12-31",
   bBox = c(-78.2241,38.9185,-77.1041,39.7487),
+  characteristicName = c("Iron"),
   applyautoclean = TRUE,
   ask = FALSE)
 ```
@@ -104,6 +105,21 @@ WQP_Shepherdstown_clean <- TADA_AnalysisDataFilter(
   ground_water = FALSE,
   sediment = FALSE
 )
+```
+
+## Generate overview map
+
+```{r TADA Overview Map}
+TADA_OverviewMap(WQP_Shepherdstown_clean)
+```
+
+Check coordinates
+
+```{r}
+WQP_Shepherdstown_clean = TADA_FlagCoordinates(WQP_Shepherdstown_clean, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+
+WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$LongitudeMeasure),]
+WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$LatitudeMeasure),]
 ```
 
 Next, let's check if the dataset contains potential duplicate results
@@ -250,12 +266,6 @@ WQP_Shepherdstown_clean <- TADA_RunKeyFlagFunctions(
 )
 ```
 
-Let's filter the data to remove any remaining NAs.
-
-```{r}
-WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$TADA.ResultMeasure.MeasureUnitCode),]
-```
-
 Another set of TADA flagging functions, `TADA_FlagAboveThreshold` and
 `TADA_FlagBelowThreshold`, can be used to check results against national
 lower and upper thresholds. As in the previous examples, we will set
@@ -349,7 +359,9 @@ Let's filter the data and focus on a few characteristics of interest.
 # Select characteristics of interest
 WQP_Shepherdstown_subset <- WQP_Shepherdstown_clean %>%
   dplyr::filter(TADA.CharacteristicName %in% c(
-    "PH", "SPECIFIC CONDUCTANCE", "IRON", "CHLORIDE", "FECAL COLIFORM", "ESCHERICHIA COLI", "TOTAL NITROGEN"))
+    "IRON", 
+    "CHLORIDE", 
+    "SPECIFIC CONDUCTANCE"))
 ```
 
 ## Monitoring Location Filter and Review
@@ -376,8 +388,16 @@ WQP_Shepherdstown_subset_spatial <- TADA_GetATTAINS(
   return_sf = TRUE, 
   return_nearest = TRUE)
 
-# pull TADA df with ATTAINS info added out of the list
+# get TADA df with ATTAINS info added from list
 Subset_TADAwithATTAINS <- WQP_Shepherdstown_subset_spatial$TADA_with_ATTAINS
+```
+
+View catchments and assessment units on map
+
+```{r TADA_ViewATTAINS}
+ATTAINS_map <- TADA_ViewATTAINS(WQP_Shepherdstown_subset_spatial)
+
+ATTAINS_map
 ```
 
 Create table of monitoring location identifiers and AUs.
@@ -386,32 +406,10 @@ Create table of monitoring location identifiers and AUs.
 ML_AU_crosswalk <- Subset_TADAwithATTAINS %>%
   dplyr::select(MonitoringLocationName, TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
   dplyr::distinct()
-```
-
-Review unique assessment unit names.
-
-```{r}
-unique(Subset_TADAwithATTAINS$ATTAINS.assessmentunitname)
-```
-
-Filter data for specified assessment unit.
-
-```{r}
-Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS %>%
-  dplyr::filter(
-    ATTAINS.assessmentunitname == "Shenandoah River"|
-      ATTAINS.assessmentunitname == "Rattlesnake Run")
-```
-
-Review unique Assessments Units.
-
-```{r}
-unique(Subset_TADAwithATTAINS_selectAUs$ATTAINS.assessmentunitidentifier)
-```
+``
 
 ## Generate maps
 
-```{r TADA Overview Map}
 TADA_OverviewMap(Subset_TADAwithATTAINS_selectAUs)
 ```
 
@@ -434,16 +432,6 @@ Subset_TADAwithATTAINS_selectAUs = TADA_RetainRequired(Subset_TADAwithATTAINS_se
 ```
 
 ## Exploratory visualizations
-
-```{r TADA_ViewATTAINS}
-# not working
-
-# # View catchments and assessment units on map
-# 
-# ATTAINS_map <- TADA_ViewATTAINS(Subset_TADAwithATTAINS_selectAUs)
-# 
-# ATTAINS_map
-```
 
 Review unique TADA.ComparableDataIdentifier's
 
@@ -472,22 +460,10 @@ Generate scatterplot
 TADA_TwoCharacteristicScatterplot(Subset_TADAwithATTAINS_selectAUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
 ```
 
-SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C
-
-"PH", \# 6.5-8.5 but dependent on application
-
-"SPECIFIC CONDUCTANCE", \# 250000 µg/l Human Health (Human Health •
-Water + Organism)
-
-"IRON", \# 1000 µg/l Aquatic Life, Freshwater, Chronic OR 300 µg/l
-Organoleptic
-
-"CHLORIDE", \# 860000 µg/l (Aquatic Life • Freshwater • Acute) OR 230000
-µg/l (Aquatic Life • Freshwater • Chronic)
-
-"FECAL COLIFORM",
-
-"ESCHERICHIA COLI" ))
+Let's check if any IRON results are above 300 µg/l. That is the EPA 304A
+recommended maximum criteria magnitude for IRON to support the
+Organoleptic use. It is 1000 µg/l for Aquatic Life, Freshwater, Chronic
+use.
 
 ```{r Iron analysis and visualization}
 # comparison to standard for iron
@@ -548,8 +524,17 @@ Iron_Boxplot <- TADA_Boxplot(Iron_data, id_cols = "TADA.CharacteristicName")
 Iron_Boxplot
 ```
 
+Now, let's look at the specific conductance data.
+
+```{r SC_scatterplot}
+TADA_TwoCharacteristicScatterplot(Subset_TADAwithATTAINS_selectAUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
+```
+
 ```{r TADA_AggregateMeasurements}
-TADA_AggregateMeasurements(x,
+Subset_SC <- Subset_TADAwithATTAINS %>%
+  dplyr::filter(TADA.CharacteristicName == "SPECIFIC CONDUCTANCE")
+
+TADA_AggregateMeasurements(Subset_SC,
   agg_fun = c("max"),
   clean = TRUE
 )
