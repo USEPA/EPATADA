@@ -364,10 +364,7 @@
 "CMCPD","Cape May County Planning Department","STORET"
 "USACOEND","US Army Corps of Engineers, Nashville District","STORET"
 "WETLAB","Western Environmental Testing Laboratory (Tribal)","STORET"
-<<<<<<< HEAD
-"CPRW","Coalition for the Poudre River Watershed","STORET"
-=======
->>>>>>> develop
+"CHEROKEE","Cherokee Nation (Oklahoma)","STORET"
 "TLINGIT-HAIDA","Central Council of the Tlingit & Haida Indian Tribes of Alaska (Tribal)","STORET"
 "GILLIAM_SWCD","Gilliam Soil and Water Conservation District","STORET"
 "NISQUALLY","Nisqually Indian Tribe (Tribal)","STORET"
@@ -437,10 +434,7 @@
 "USIOUX_WQX","Upper Sioux Community (Tribal)","STORET"
 "SRMTWRP_WQX","Saint Regis Mohawk Tribe (Tribal)","STORET"
 "BERRY","Berry Petroleum Company","STORET"
-<<<<<<< HEAD
-=======
 "HEDINENV_WQX","Hedin Environmental","STORET"
->>>>>>> develop
 "OISC_WQX","Office of Indiana State Chemist","STORET"
 "21FLCOSP_WQX","City of St Petersburg","STORET"
 "MOORETOWNEPO","Mooretown Rancheria (Tribal)","STORET"
@@ -507,8 +501,8 @@
 "SFEI","San Francisco Estuary Institute","STORET"
 "GROUNDWORKDENVER","Groundwork Denver","STORET"
 "R10PORTLANDHARBOR","EPA Region 10 Superfund Portland Harbor Site","STORET"
-"AWRC","Arkansas Water Resources Center","STORET"
 "21FLSCWK_WQX","SUNCOAST WATER KEEPERS","STORET"
+"AWRC","Arkansas Water Resources Center","STORET"
 "HI301H_WQX","City and county of Honolulu","STORET"
 "EQUILIBRIUM","Equilibrium","STORET"
 "POLSWATER_WQX","Pueblo of Laguna","STORET"
@@ -542,13 +536,9 @@
 "CCSR","Cohasset Center for Student Coastal Research","STORET"
 "YAKAMA_WQX","Confederated Tribes and Bands of the Yakama Nation (Tribal)","STORET"
 "USEPA_REGION8","USEPA Region 8","STORET"
-<<<<<<< HEAD
-"PICURIS_PUEBLO","Picuris Pueblo (Tribal)","STORET"
-=======
 "CORNELLSCALE","Cornell University Adirondack Fisheries Research Program","STORET"
->>>>>>> develop
 "LCWCD_WQX","Lincoln Soil and Water Conservation District (Volunteer)*","STORET"
-"AUSABLECENTER.","Ausable Freshwater Center","STORET"
+"AUSABLECENTER","Ausable Freshwater Center","STORET"
 "CHNEPCHP_WQX","Charlotte Harbor National Estuaries Program (Florida)","STORET"
 "PR_BEACH_WQX","PUERTO RICO ENVIRONMENTAL QUALITY BOARD (BEACH)","STORET"
 "MDE_WQPR","Water Quality Protection and Restoration Program","STORET"
@@ -575,11 +565,7 @@
 "HEMPSTEAD_BAY_WQMP","Hempstead Bay Water Quality Monitoring Program","STORET"
 "BATTELLE_NFTDR_WQX","Battelle","STORET"
 "21FLLCHD_WQX","Lee County Hyacinth Control District (Florida)","STORET"
-<<<<<<< HEAD
-"MIAMITRIBEOFOKLAHOMA","Miami Water Quality Monitoring Program","STORET"
-=======
 "TDECWPC_WQX","Tennessee Department Of Environment And Conservation","STORET"
->>>>>>> develop
 "LFWS","Lake Fork Watershed Stakeholders (Colorado) (Volunteer)","STORET"
 "WARMSPRINGS09","Confederated Tribes of the Warm Springs Reservation of Oregon (Tribal)","STORET"
 "CSHH","Coalition to Save Hempstead Harbor","STORET"
@@ -617,11 +603,8 @@
 "KS_GEOWATER_CTR","U.S. Geological Survey: Kansas Water Science Center","STORET"
 "21NEB001_WQX","Nebraska Department of Environment and Energy","STORET"
 "WTGHA","Wompanoag Tribe of Gay Head Aquinnah (Tribal)","STORET"
-<<<<<<< HEAD
-=======
 "PICURIS_PUEBLO","Picuris Pueblo (Tribal)","STORET"
 "MIAMITRIBEOFOKLAHOMA","Miami Water Quality Monitoring Program","STORET"
->>>>>>> develop
 "NJCSO","NJCSO Group","STORET"
 "HIEPO_WQX","Hawaii Environmental Planning Office","STORET"
 "21NJBCH","NJDEP","STORET"
@@ -691,7 +674,6 @@
 "21FLEECO_WQX","Lee County","STORET"
 "SOU_WQX","Southern Oregon University","STORET"
 "CENAB","US Army Corps of Engineers, Baltimore District","STORET"
-"TOMWC","Tip of the Mitt Watershed Council (Volunteer)*","STORET"
 "TRINIDADRANCHERIAEPA","Cher-Ae Heights Indian Community of the Trinidad Rancheria (Tribal)","STORET"
 "KWMNDATA_WQX","Keystone Watershed Montioring Network (Pennsylvania) (Volunteer)*","STORET"
 "WATERLDF_WQX","Lac du Flambeau Band of Lake Superior Chippewa Indians of the Lac du Flambeau Reservation of Wisconsin (Tribal)","STORET"
@@ -721,8 +703,6 @@
 "NWRSFWS_WQX","National Wildlife Refuge System, Fish and Wildlife Service","STORET"
 "USBR","Utah Branch of United States Beau of Reclamation","STORET"
 "21FLCONS_WQX","The Conservancy of Southwest Florida","STORET"
-"MOOREINSTITUTEPLASTICPOLLUTION_WQX","Moore Institute for Plastic Pollution Research","STORET"
-"NVC_WQX","Native Village of Council (Tribal)","STORET"
 "QVIR","Quartz Valley Indian Community of the Quartz Valley Reservation of California (Tribal)","STORET"
 "SCCRK","South Carolina Congaree RiverKeeper (Volunteer)","STORET"
 "CWLT_WQX","Cahto Tribe of the Laytonville Rancheria (Tribal)","STORET"
@@ -732,7 +712,7 @@
 "SBWA1","South Branch Watershed Association (Volunteer)","STORET"
 "HDRINC_WQX","HDR Incorporated","STORET"
 "CHATTAHOOCHEERIVERKEEPER","Chattahoochee Riverkeeper (CRK) (Volunteer)*","STORET"
-"STORLVD_WQX","Lac Vieux Desert Band of Lake Superior Chippewa (Tribal)","STORET"
+"STORLVD_WQX","Lac Vieux Desert Band of Lake Superior Chippewa","STORET"
 "NARS_WQX","EPA National Aquatic Resources Survey (NARS)","STORET"
 "USFSWHITEMT","USFS White Mountain National Forest","STORET"
 "RIVERSUNLIMITED","Rivers Unlimited","STORET"
@@ -759,13 +739,9 @@
 "MEIYINWUSUNYPLATTSBURGH","State University of New York at Plattsburgh","STORET"
 "0800597_WQX","Ogden Railyard (US EPA Region 8)","STORET"
 "21NCCOALITIONS","NC DWQ Monitoring Coalition Program","STORET"
-<<<<<<< HEAD
-"KINGCOENVIROLAB","King County Environmental Laboratory","STORET"
-=======
 "RHA","Raritan Headwaters Association (Volunteer)","STORET"
 "TOMWC","Tip of the Mitt Watershed Council (Volunteer)*","STORET"
 "MOOREINSTITUTEPLASTICPOLLUTION_WQX","Moore Institute for Plastic Pollution Research","STORET"
->>>>>>> develop
 "GRIC_WQX","Gila River Indian Community of the Gila River Indian Reservation, Arizona (Tribal)","STORET"
 "GARNA","Greater Arkansas River Nature Association (GARNA)","STORET"
 "SHOSHONE_BANNOCK","TRIBE (Tribal)","STORET"
@@ -801,11 +777,7 @@
 "MYRWA","Mystic River Watershed Association (Massachusetts)","STORET"
 "WAYNE_STATE_UNIVERSITY","WAYNE STATE UNIVERSITY","STORET"
 "WEARTH_WQX","Minnesota Chippewa Tribe, Minnesota (White Earth Band) (Tribal)","STORET"
-<<<<<<< HEAD
-"21NCMONITORING","NCDENR-DWR","STORET"
-=======
->>>>>>> develop
-"ALS","Americal Littoral Society (Volunteer)*","STORET"
+"ALS_WQX","Americal Littoral Society (Volunteer)*","STORET"
 "CORIVWCH_WQX","Colorado River Watch","STORET"
 "ASEPA_WQX","American Samoan EPA","STORET"
 "MNPCA_AGW","Minnesota Pollution Control Agency - Ambient Groundwater","STORET"
@@ -838,10 +810,7 @@
 "21FLECUA_WQX","EMERALD COAST UTLITIES AUTHORITY","STORET"
 "GBNERR","Great Bay National Estuarine Research Reserve (Volunteer)*","STORET"
 "MHA_WQX","Three Affiliated Tribes of the Fort Berthold Reservation, North Dakota (Tribal)","STORET"
-<<<<<<< HEAD
-=======
 "KINGCOENVIROLAB","King County Environmental Laboratory","STORET"
->>>>>>> develop
 "21NC03WQ","North Carolina Dept of Environmental Quality NCDEQ-DWR WQX","STORET"
 "21FLKISS_WQX","CITY OF KISSIMMEE","STORET"
 "NJDEP_BEARS","NJDEP Bur of Environmental Analysis Restoration & Standards","STORET"
@@ -872,10 +841,7 @@
 "21FLCOT_WQX","City of Tallahassee Stormwater","STORET"
 "SAGIN01_WQX","Saginaw Chippewa Indian Tribe of Michigan (Tribal)","STORET"
 "LCBP","Lake Champlain Basin Program","STORET"
-<<<<<<< HEAD
-=======
 "21NCMONITORING","NCDENR-DWR","STORET"
->>>>>>> develop
 "WSG","Washington Sea Grant","STORET"
 "11NPSWRD_WQX","National Park Service Water Resources Division","STORET"
 "21FLFLAT_WQX","FLATWOODS CONSULTING GROUP","STORET"
@@ -909,7 +875,6 @@
 "SYCEO_WQX","Santa Ynez Band of Chumash Indians","STORET"
 "1111REG1_WQX","USEPA, Region I","STORET"
 "WI_MMSD","Milwaukee Metropolitan Sewerage District","STORET"
-"CTA_WQX","Craig Tribal Association (Tribal)","STORET"
 "R10BOOMSNUB","EPA Region 10 Boomsnub Superfund Site Data 1987-2013","STORET"
 "SANFELIPE_WQX","San Felipe Pueblo","STORET"
 "16582","Chickaloon Native Village (Tribal)","STORET"
@@ -982,6 +947,7 @@
 "LSFOBLM","Little Snake Field Office, BLM (Volunteer)","STORET"
 "UTOGM_WQX","Utah Division of Oil, Gas, and Mining","STORET"
 "RM11E_SUPRIFS","River Mile 11 East (RM11E) Supplemental Remedial Investigation/Feasibility Study, Portland Harbor Superfund Site, OR","STORET"
+"CTA_WQX","Craig Tribal Association (Tribal)","STORET"
 "CABAZWQ32","Cabazon Band of Mission Indians, California (Tribal)","STORET"
 "21TXBCH","Texas General Land Office","STORET"
 "COASTALAMERICAFOUNDATION","Coastal America Foundation","STORET"
@@ -1013,12 +979,8 @@
 "QTEO_WQX","Quapaw Tribe of Indians, Oklahoma (Tribal)","STORET"
 "AKDECSPAR","Alaska Department of Environmental Conservation, SpillPrevention and Response","STORET"
 "U_NH01","UNIVERSITY OF NEW HAMPSHIRE","STORET"
-<<<<<<< HEAD
-"EPAREG6_WQX","US EPA Region 6","STORET"
-"LSFOBLM","Little Snake Field Office, BLM (Volunteer)","STORET"
-=======
->>>>>>> develop
 "LAKELAND_WQX","City of Lakeland, Lakeland Florida","STORET"
+"NVC_WQX","Native Village of Council (Tribal)","STORET"
 "BILLIONOYSTERPROJECT","Billion Oyster Project","STORET"
 "MENOM_WQX","MENOMINEE INDIAN TRIBE OF WISCONSIN (Wisconson)","STORET"
 "AZDEQ_WPD","AZDEQ_WPD","STORET"
@@ -1052,10 +1014,7 @@
 "SWFMDDEP_WQX","Southwest Florida Water Management District (FLDEP)","STORET"
 "WATERQUALITYPORTAL","Water Quality Portal","STORET"
 "21FLGBO1_WQX","National Health and Environmental Effect Research-NHEERL(FL)","STORET"
-<<<<<<< HEAD
-=======
 "FOB","Friends of the Bay","STORET"
->>>>>>> develop
 "21FLSARA_WQX","Sarasota County Environmental Services","STORET"
 "LONGTOM_WC","Long Tom Watershed Council","STORET"
 "11TOX09_WQX","U. S. EPA Region 9 (Monitoring and Assessment Office)","STORET"
@@ -1092,10 +1051,6 @@
 "21FLPOLK_WQX","Polk County Natural Resources Division","STORET"
 "OARS","OARS - For the Assabet Sudbury & Concord Rivers (Volunteer)","STORET"
 "ELP12345","Engineering and Land Planning Associates","STORET"
-<<<<<<< HEAD
-"FOB","Friends of the Bay","STORET"
-=======
->>>>>>> develop
 "NJDEP_AMERICORPS","NJDEP Americorps Program","STORET"
 "1CTDPHBM","Connecticut Department of Public Health","STORET"
 "CRITFC_WQX","Nez Perce Tribe of Idaho (Tribal)","STORET"
@@ -1164,6 +1119,7 @@
 "NJDEP_BSWP","NJDEP Bureau of Surface Water Permitting","STORET"
 "0801417_WQX","Red Mountain Pass Zinc (US EPA Region 8)","STORET"
 "EBR_WQX","City of Baton Rouge and Parish of East Baton Rouge","STORET"
+"CPRW","Coalition for the Poudre River Watershed","STORET"
 "MRWA","Musconetcong River Watershed Association (Volunteer)*","STORET"
 "SUMMITLAKETRIBE","Summit Lake Paiute Tribe (Tribal)","STORET"
 "MONT_DEQ_WQX","MONT_DEQ_WQX - Montana DEQ - Pre-1999 Data","STORET"
@@ -1194,8 +1150,6 @@
 "COOSWA","Coos Watershed Association","STORET"
 "INSY_ENVIROMENTAL","Iipay Nation of Santa Isabel","STORET"
 "USFSPRESCOTT","USDA - US Forest Service - Prescott National Forest ","STORET"
-"LEVELOCK","Levelock Village (Tribal)","STORET"
-"DELACIB","Delaware Center for the Inland Bays","STORET"
 "MRRI-NJSEA","MEADOWLANDS RESEARCH & RESTORATION INSTITUTE (MRRI)","STORET"
 "21FLGW_WQX","FL Dept. of Environmental Protection","STORET"
 "SONOMAWATER_WQX","Sonoma Water","STORET"
@@ -1227,8 +1181,9 @@
 "CCSCD","Camden County Soil Conservation District","STORET"
 "CC","Crowder College, Neosho, Mo.","STORET"
 "SHOSHONE_BANNOCK_WQX","Shoshone-Bannock Tribes of the Fort Hall Reservation (Tribal)","STORET"
-"SELDOVIA","Seldovia Village Tribe (Tribal)","STORET"
 "SRBCI","Santa Rosa Band of Cahuilla Indians (Tribal)","STORET"
+"LEVELOCK","Levelock Village (Tribal)","STORET"
+"DELACIB","Delaware Center for the Inland Bays","STORET"
 "ISDA_WQX","Idaho State Department Of Agriculture","STORET"
 "21FLSUW_WQX","Suwannee River Water Management District","STORET"
 "21FLWET_WQX","FDEP WATERSHED EVALUATION AND TMDL SECTION","STORET"
@@ -1265,6 +1220,7 @@
 "COLO319","Colorado 319 organizations","STORET"
 "WSDA_WQX","Washington State Department of Agriculture, Dairy Nutrient Management Program","STORET"
 "MLBO_DNR_WQX","Mille Lacs Band of Ojibwe DNR/Environment","STORET"
+"PUEBLOISLETA","Pueblo of Isleta, New Mexico","STORET"
 "RCE WRP","Rutgers Cooparative Extension Water Resource Program (Volunteer)","STORET"
 "21FLKTNC_WQX","The Nature Conservancy of the Florida Keys","STORET"
 "ST_CROIX_WQX","St. Croix Chippewa Indians of Wisconsin (Tribal)","STORET"
@@ -1297,7 +1253,6 @@
 "TDECDOE_WQX","Tennessee Department Of Environment And Conservation","STORET"
 "WIDNR_WQX","Wisconsin Department of Natural Resources","STORET"
 "CSC_WQX","CSC (Computer Sciences Corporation)(Virginia)","STORET"
-"STANDARD","Region 8 Superfund:  Standard Mine","STORET"
 "BXA","Bronx River Alliance (Volunteer)","STORET"
 "GNLK01_WQX","Match-e-be-nash-she-wish Band of Pottawatomi Indians of Michigan (Gun Lake)","STORET"
 "MRC","Midlands Rivers Coalition (Volunteer)*","STORET"
@@ -1334,12 +1289,6 @@
 "GROTONTOWNWATERQUALITY_WQX","Town of Groton Public Works Department","STORET"
 "21FLGPC_WQX","Gulf Power Company (Florida)","STORET"
 "WYDEQ_WATERSHED","State of Wyoming Department of Environmental Quality Watershed Program","STORET"
-<<<<<<< HEAD
-"PUEBLOISLETA","Pueblo of Isleta, New Mexico","STORET"
-"TDECWPC_WQX","Tennessee Department Of Environment And Conservation","STORET"
-"UTOGM_WQX","Utah Division of Oil, Gas, and Mining","STORET"
-=======
->>>>>>> develop
 "HBMI_WQX","Houlton Band of Maliseet Indians (Tribal)","STORET"
 "JMU_ISAT_WQX","James Madison University Integrated Science and Technology Department","STORET"
 "NORMANDEAUASSOC","Normandeau Associates Inc. (Volunteer)*","STORET"
@@ -1374,11 +1323,11 @@
 "SUMFS","Stockton University Marine Field Station","STORET"
 "KWO","Kansas Water Office","STORET"
 "HOHTRIBE_WQX","Hoh Tribe","STORET"
-"COCHITIPUEBLO","Pueblo of Cochiti, New Mexico (Tribal)","STORET"
 "TSWQC_WQX","Tri-State Water Quality Council","STORET"
 "11FLKNMS_WQX","Florida Keys National Marine Sanctuary (Florida)","STORET"
 "USACENWP_WQX","U.S. Army Corps of Engineers, Portland District","STORET"
 "1143709","NEW HAMPSHIRE DEPARTMENT OF ENVIRONMENTAL SERVICES","STORET"
+"TECK_AMERICAN","Teck American Incorporated","STORET"
 "NJ_MSU","Montclair State University","STORET"
 "MAMIN_WQX","USEPA (Tribal)","STORET"
 "CLINCHVALLEYSWCD_WQX","Clinch Valley Soil & Water Conservation District","STORET"
@@ -1402,8 +1351,8 @@
 "KIOWA_WQX","Kiowa Indian Tribe of Oklahoma (Tribal)","STORET"
 "PORTGRAHAM","Port Graham Village Council (Tribal)","STORET"
 "DRBC","Delaware River Basin Commission","STORET"
-"MDEDAT01_WQX","Maryland Dept. of  the  Environment Dredging Ambient Data","STORET"
 "21FLGJAX_WQX","GROUNDWORK JACKSONVILLE INC","STORET"
+"MDEDAT01_WQX","Maryland Dept. of  the  Environment Dredging Ambient Data","STORET"
 "BLR_WQX","BLUELAKERANCHERIA_WQX (Tribal)","STORET"
 "21FLSJUD_WQX","ST. JOHNS COUNTY UTILITY DEPARTMENT","STORET"
 "R8MONTWQ","R8MONTWQ - EPA Region 8 Organization","STORET"
@@ -1411,7 +1360,8 @@
 "SKOKDATA_WQX","Skokomish Tribe","STORET"
 "ERWSD","Eagle River Water and Sanitation District","STORET"
 "SQUAXIN","Squaxin Island Tribe (Tribal)","STORET"
-"TECK_AMERICAN","Teck American Incorporated","STORET"
+"EVR","EVR Operations Limited","STORET"
+"COCHITIPUEBLO","Pueblo of Cochiti, New Mexico (Tribal)","STORET"
 "WRWMG","Wallkill River Watershed Management Group (Volunteer)*","STORET"
 "UMR","Univ of Missouri Rolla","STORET"
 "SHOPAITR_WQX","Shoshone-Paiute Tribes of the Duck Valley Reservation, Nevada (Tribal)","STORET"
@@ -1443,12 +1393,7 @@
 "VERMONTANR","VERMONT Agency of Natural Resources","STORET"
 "IDEQ_CDAOFFICE_WQX","Idaho Department Of Environmental Quality","STORET"
 "NIAMLARB1_WQX","OhioEPA","STORET"
-<<<<<<< HEAD
-"CBMI_WQX","Cabazon Band of Mission Indians, California (Tribal)","STORET"
-"ROBINSONRANCHERIAENVIRONMENTAL","Robinson Rancheria (Tribal)","STORET"
-=======
 "CBMI_WQX","Cabazon Band of Cahuilla Indians, California (Tribal)","STORET"
->>>>>>> develop
 "KENAI_WQX","Kenai Watershed Forum","STORET"
 "21WVWQAS_WQX","West Virginia WV Division Of Environmental Protection, Office Of Water Resources","STORET"
 "21SCGW_WQX","SC Dept. of Health Control","STORET"
@@ -1465,8 +1410,8 @@
 "UMC","Univ. of Missouri, Columbia","STORET"
 "TPEO_WQX","Pueblo of Taos, New Mexico (Tribal)","STORET"
 "WRDM18","WaterReporterDataManagement18 (Volunteer)","STORET"
-"CWSC_WQX","Colorado Water Science Center","STORET"
 "WILDFISHCONSERVANCY_WA","Wild Fish Conservancy (Washington)","STORET"
+"CWSC_WQX","Colorado Water Science Center","STORET"
 "MT305B_SECONDARYDATA","Montana 303d/305b Call for Secondary Data","STORET"
 "21FLNWFD_WQX","Northwest  Florida Water Management District","STORET"
 "INSPIRE_WQX","Inspire Environmental, Inc.","STORET"
@@ -1484,6 +1429,7 @@
 "CHRISJCHEN","U.S. Environmental Protection Agency Region 9","STORET"
 "21FLCHDH_WQX","Charlotte County Department of Health","STORET"
 "PGSTNATR_WQX","Port Gamble S'Klallam Tribe (Tribal)","STORET"
+"ROBINSONRANCHERIAENVIRONMENTAL","Robinson Rancheria (Tribal)","STORET"
 "21FLSJWM_WQX","St.  Johns River Water Management District","STORET"
 "LAJOLLA","La Jolla Band of Luiseno Indians, California (Tribal)","STORET"
 "MDE_TMDL","TMDL Technical Development Program","STORET"
@@ -1518,9 +1464,9 @@
 "21FLCOPC_WQX","City of Plant City","STORET"
 "21NYDECA_WQX","New York State Dec Division Of Water","STORET"
 "AKDNRFOR","Alaska Department of Natural Resources, Forestry","STORET"
+"KAWNATON","Kaw Nation of Oklahoma","STORET"
 "21FLALTA_WQX","CITY OF ALTAMONTE SPRINGS","STORET"
 "MIDEWIN","Midewin National Tallgrass Prairie","STORET"
-"21FLCPSL","City of Port St. Lucie (Florida)","STORET"
 "DRMPWQX","Mescalero Apache Tribe DRMP","STORET"
 "ESTO_WQX","Eastern Shawnee Tribe of Oklahoma","STORET"
 "ONEIDA_WQX","Oneida Nation","STORET"
@@ -1619,14 +1565,9 @@
 "21FLGTM","Guana Tolomato Matanzas (GTM) Esturarine (NERR - Florida)","STORET"
 "HANALEI","Hanalei Watershed Study (Region 9) - California","STORET"
 "PR_RIVER","Puerto Rico Environmental Quality Board (Rivers)","STORET"
-"KAWNATON","Kaw Nation of Oklahoma","STORET"
-"CHEROKEE","Cherokee Nation (Oklahoma)","STORET"
 "ALASSWCD","Alaska Soil and Water Conservation District","STORET"
-<<<<<<< HEAD
-=======
 "21FLCPSL","City of Port St. Lucie (Florida)","STORET"
 "STANDARD","Region 8 Superfund:  Standard Mine","STORET"
->>>>>>> develop
 "0801698","Region 8 Superfund: 3700-3800 West 2100 South Solvent Plume","STORET"
 "0801695","Region 8 Superfund: Delta 400 West Plume (Colorado)","STORET"
 "0801812","Region 8 Superfund: Murray Laundry 4200 S State Plume","STORET"

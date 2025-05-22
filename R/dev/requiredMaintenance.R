@@ -4,7 +4,8 @@
 
 # ATTAINSRefTables.R
 TADA_UpdateATTAINSOrgIDsRef()
-TADA_UpdateATTAINSParamUseOrgRef()
+TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
+TADA_UpdateATTAINSParameterWQPCharRef()
 # WQPWQXRefTables.R
 TADA_UpdateWQXCharValRef()
 TADA_UpdateMeasureUnitRef()
@@ -79,7 +80,7 @@ TADA_UpdateExampleData <- function() {
   y <- TADA_FlagMethod(y, clean = TRUE)
   y <- TADA_FlagAboveThreshold(y, clean = TRUE)
   y <- TADA_FlagBelowThreshold(y, clean = TRUE)
-  # y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
+  y <- TADA_FindPotentialDuplicatesMultipleOrgs(y, dist_buffer = 100)
   y <- TADA_FindPotentialDuplicatesSingleOrg(y)
   y <- dplyr::filter(y, !(MeasureQualifierCode %in% c("D", "H", "ICA", "*")))
   y <- TADA_SimpleCensoredMethods(y,
@@ -185,13 +186,13 @@ TADA_UpdateExampleData <- function() {
   )
   # Remove multiple org duplicates
   # OPTIONAL
-  # Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(
-  #   Data_WV
-  # )
-  # Data_WV <- dplyr::filter(
-  #   Data_WV,
-  #   TADA.ResultSelectedMultipleOrgs == "Y"
-  # )
+  Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(
+    Data_WV
+  )
+  Data_WV <- dplyr::filter(
+    Data_WV,
+    TADA.ResultSelectedMultipleOrgs == "Y"
+  )
   # Filter out remaining irrelevant data, NA's and empty cols
   # REQUIRED
   unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)

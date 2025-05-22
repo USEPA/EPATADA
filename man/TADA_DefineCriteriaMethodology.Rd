@@ -78,15 +78,16 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 # Now, run TADA_CreateSpatialRef()
 SpatialRef_UT <- TADA_CreateSpatialRef(
   Data_Nutrients_UT,
-   org_id = c("UTAHDWQ"),
-   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
-   useParamRef = UseParamRef_UT,
-   excel = FALSE
+  org_id = c("UTAHDWQ"),
+  waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+  useParamRef = UseParamRef_UT,
+  excel = FALSE
 )
 
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
   spatialRef = SpatialRef_UT,
-  excel = FALSE)
+  excel = FALSE
+)
 
 }

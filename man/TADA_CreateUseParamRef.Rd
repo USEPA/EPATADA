@@ -134,7 +134,6 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-
 }
 \seealso{
 \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}}

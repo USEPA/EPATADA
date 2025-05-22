@@ -1,22 +1,22 @@
 #' Define Criteria and Methodology
 #'
 #' Users will need to provide the completed reference tables from
-#' TADA_CreateSpatialRef(). This will generate a template for users to fill out 
-#' and define either the full Criteria or magnitude only values associated with 
+#' TADA_CreateSpatialRef(). This will generate a template for users to fill out
+#' and define either the full Criteria or magnitude only values associated with
 #' an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
 #' users will need to ensure they properly define any additional methods that will
-#' correctly reflect their assessment standards for that parameter and use. 
-#' For example, if there are separate standards for acute versus chronic, 
-#' rivers versus estuary, different seasons, etc. then a user will need to create 
+#' correctly reflect their assessment standards for that parameter and use.
+#' For example, if there are separate standards for acute versus chronic,
+#' rivers versus estuary, different seasons, etc. then a user will need to create
 #' additional rows to reflect this.
 #'
-#' Efforts have been made to pull in the EPA304a recommended standards 
-#' automatically from the Criteria Search Tool (CST). Users should validate this 
-#' final output if a user has decided to include the EPA304a standards. 
-#' User will need to determine if any additional adjustments are needed. 
+#' Efforts have been made to pull in the EPA304a recommended standards
+#' automatically from the Criteria Search Tool (CST). Users should validate this
+#' final output if a user has decided to include the EPA304a standards.
+#' User will need to determine if any additional adjustments are needed.
 #' For example, does the crosswalk between the EPA304A.PollutantName
-#' and TADA.ComparableDataIdentifier seem valid for your organization's method? 
-#' Is your organization only interested in providing the EPA304a recommended 
+#' and TADA.ComparableDataIdentifier seem valid for your organization's method?
+#' Is your organization only interested in providing the EPA304a recommended
 #' standards for certain seasons (Fall, Summer, Spring, Winter) etc.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
@@ -32,7 +32,7 @@
 #'
 #' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
 #' processing, harmonization and filtering functions prior to this step.
-#' 
+#'
 #' @param spatialRef An optional data frame which contains the completed spatial
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
@@ -64,19 +64,20 @@
 #' # Now, run TADA_CreateSpatialRef()
 #' SpatialRef_UT <- TADA_CreateSpatialRef(
 #'   Data_Nutrients_UT,
-#'    org_id = c("UTAHDWQ"),
-#'    waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
-#'    useParamRef = UseParamRef_UT,
-#'    excel = FALSE
+#'   org_id = c("UTAHDWQ"),
+#'   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+#'   useParamRef = UseParamRef_UT,
+#'   excel = FALSE
 #' )
-#' 
+#'
 #' DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT,
 #'   spatialRef = SpatialRef_UT,
-#'   excel = FALSE)
+#'   excel = FALSE
+#' )
 #'
 TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NULL,
-                                 excel = TRUE, overwrite = FALSE) {
+                                           excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
@@ -112,7 +113,8 @@ TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NUL
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
   metal_list <- data.frame(
-    ATTAINS.ParameterName = c("ARSENIC", "ZINC")) %>%
+    ATTAINS.ParameterName = c("ARSENIC", "ZINC")
+  ) %>%
     cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
     dplyr::arrange(ATTAINS.ParameterName)
@@ -122,8 +124,8 @@ TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NUL
       "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
       "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
     ) %>%
-    dplyr::mutate(MonitoringLocationTypeName = dplyr::if_else( # Only include if a unique spatial criteria is applied for 
-      is.na(ApplyUniqueSpatialCriteria), 
+    dplyr::mutate(MonitoringLocationTypeName = dplyr::if_else( # Only include if a unique spatial criteria is applied for
+      is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
       MonitoringLocationTypeName
     )) %>%
@@ -148,7 +150,7 @@ TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NUL
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
     )
-  
+
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
     dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
     dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
@@ -426,7 +428,7 @@ TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NUL
 #' #    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
 #' #    openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
 #' #  }
-#' #  cat("File saved to:", gsub("/", "\\", downloads_path), "\n")
+#' #  cat("File saved to:", gsub("/", "\", downloads_path), "\n")
 #' #  MagnitudeExcursions <- openxlsx::read.xlsx(downloads_path, sheet = "MagnitudeExcursions")
 #' #  return(MagnitudeExcursions)
 # }
