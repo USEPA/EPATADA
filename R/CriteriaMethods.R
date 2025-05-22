@@ -70,12 +70,12 @@
 #'    excel = FALSE
 #' )
 #' 
-#' DefineMagnitude_UT <- TADA_DefineMagnitude(
+#' DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT,
 #'   spatialRef = SpatialRef_UT,
 #'   excel = FALSE)
 #'
-TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
+TADA_DefineCriteriaMethodology <- function(.data, ref = "TADA", spatialRef = NULL,
                                  excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -83,7 +83,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(spatialRef) & !is.character(spatialRef)) {
     if (!is.data.frame(spatialRef)) {
-      stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+      stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with seven columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
     }
@@ -102,7 +102,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
       ref.names <- names(spatialRef)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineMagnitude: 'spatialRef' must be a data frame with seven columns:
+        stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with seven columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.waterTypeCode, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
       }
@@ -117,7 +117,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
     dplyr::arrange(ATTAINS.ParameterName)
 
-  DefineMagnitude <- spatialRef %>%
+  DefineCriteriaMethodology <- spatialRef %>%
     dplyr::select(
       "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
       "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
@@ -153,8 +153,8 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
     dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
 
-  if ("EPA304a" %in% DefineMagnitude$ATTAINS.OrganizationIdentifier) {
-    DefineMagnitude <- DefineMagnitude %>%
+  if ("EPA304a" %in% DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier) {
+    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
       dplyr::left_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
       dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
@@ -194,7 +194,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
   #   ) %>%
   #   dplyr::select(ATTAINS.ParameterName, TADA.ResultMeasure.MeasureUnitCode) %>%
   #   dplyr::distinct() %>%
-  #   dplyr::right_join(DefineMagnitude, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+  #   dplyr::right_join(DefineCriteriaMethodology, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
   #   dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
   #   dplyr::rename(MagnitudeUnit = TADA.ResultMeasure.MeasureUnitCode)
 
@@ -202,11 +202,11 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
     tryCatch(
       {
-        openxlsx::addWorksheet(wb, "DefineMagnitude")
+        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
       },
       error = function(e) {
-        openxlsx::removeWorksheet(wb, "DefineMagnitude")
-        openxlsx::addWorksheet(wb, "DefineMagnitude")
+        openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
+        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
       }
     )
 
@@ -230,14 +230,14 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
-    openxlsx::setColWidths(wb, "DefineMagnitude", cols = 1:ncol(DefineMagnitude), widths = "auto")
-    openxlsx::setColWidths(wb, sheet = "DefineMagnitude", cols = 1:5, widths = 20)
+    openxlsx::setColWidths(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), widths = "auto")
+    openxlsx::setColWidths(wb, sheet = "DefineCriteriaMethodology", cols = 1:5, widths = 20)
 
-    # Write column names in the excel spreadsheet under the tab [DefineMagnitude]
-    # writeData(wb, "DefineMagnitude", startCol = 1, x = par, headerStyle = header_st)
-    # Export DefineMagnitude dataframe into the excel spreadsheet tab
-    openxlsx::writeData(wb, "DefineMagnitude", startCol = 1, x = DefineMagnitude, headerStyle = header_st)
-    # writeData(wb, "DefineMagnitude", startCol = 13, startRow = 1, x = MagnitudeValue)
+    # Write column names in the excel spreadsheet under the tab [DefineCriteriaMethodology]
+    # writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = par, headerStyle = header_st)
+    # Export DefineCriteriaMethodology dataframe into the excel spreadsheet tab
+    openxlsx::writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = DefineCriteriaMethodology, headerStyle = header_st)
+    # writeData(wb, "DefineCriteriaMethodology", startCol = 13, startRow = 1, x = MagnitudeValue)
 
     openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
 
@@ -252,24 +252,24 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 
     openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
 
-    # The list of allowable values for each column in excel tab [DefineMagnitude] will be defined by the [Index] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineMagnitude", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
+    # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index] tab
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
 
     # Conditional Formatting
-    openxlsx::freezePane(wb, "DefineMagnitude", firstActiveRow = 2, firstActiveCol = 6)
-    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-      cols = 5:16, rows = 2:(nrow(DefineMagnitude) + 1),
+    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
+    openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
+      cols = 4:17, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
       type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
-    openxlsx::conditionalFormatting(wb, "DefineMagnitude",
-      cols = 5:16, rows = 2:(nrow(DefineMagnitude) + 1),
+    openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
+      cols = 4:17, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
       type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
 
@@ -286,7 +286,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
 
-  return(DefineMagnitude)
+  return(DefineCriteriaMethodology)
 }
 
 
@@ -308,7 +308,7 @@ TADA_DefineMagnitude <- function(.data, ref = "TADA", spatialRef = NULL,
 #' #  # Attempt to pull in the ref files from the default Downloads location.
 #' #  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 #' #  if (is.null(StandardsRef)) {
-#' #    StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
+#' #    StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineCriteriaMethodology")
 #' #  }
 #' #  # check to see if user-supplied standards ref is a df with appropriate columns and filled out.
 #' #  if (!is.null(StandardsRef) & !is.character(StandardsRef)) {

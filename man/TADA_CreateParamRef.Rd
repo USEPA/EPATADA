@@ -40,6 +40,17 @@ one organization (multiple states or tribes, or a single state/tribe and
 EPA 304a criteria) also need to include an additional column name:
 'organization_identifier'.}
 
+\item{fillBy}{A string value of "None", "All", or "Org". Default is "All".
+If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
+currently based on and exact match of WQP CharacteristicName with
+ATTAINS ParameterName along with a few manual review). If "Org" then this
+only provide the TADA logic match if your ATTAINS organization has included that
+ATTAINS ParameterName in the past. If not, this will be left blank for your
+organization to specify. "None" will result in an empty ATTAINS.ParameterName
+column. Users will be required to fill this out on their own completely or
+through a prior paramRef crosswalk. See paramRef argument input above for more
+information.}
+
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If needed, please type the following into your R console:

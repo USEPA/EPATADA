@@ -1873,6 +1873,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
     labs[i] <- paste0(char_string[i], collapse = " ")
     labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
     labs[i] <- gsub("_", " ", labs[i])
+    labs[i] <- gsub("\\s+", " ", labs[i])
     labs <- as.vector(labs)
   }
 

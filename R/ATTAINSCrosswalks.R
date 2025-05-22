@@ -941,7 +941,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     openxlsx::writeData(
       wb, "Index",
       startCol = 2,
-      x = CreateParamRef[,c("ATTAINS.ParameterName", "ATTAINS.FlagParameterName")]
+      x = CreateParamRef[,c("ATTAINS.ParameterName", "Flag.ParameterInput")]
     )
 
     openxlsx::writeData(
@@ -1781,11 +1781,11 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' )
 #'
 TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL, useAURef = NULL, useParamRef = NULL,
-                                  sitesAURef = NULL, spatialRef = NULL 
+                                  sitesAURef = NULL, spatialRef = NULL, 
                                   # applyUniqueSpatial = NULL, applyToWater = NULL, 
                                   # applyToParam = NULL, applyToUse = NULL, 
                                   # applyToAU = NULL, applyToML = NULL,
-                                  # excel = FALSE, overwrite = FALSE
+                                  excel = FALSE, overwrite = FALSE
                                   ) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
@@ -1941,32 +1941,32 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, waterUseParamRef = NULL,
       dplyr::distinct()
   }
 
-  if(!is.null(applyUniqueSpatial)){
-    df <- list(applyToWater, applyToParam, applyToUse, applyToAU, applyToML)
-    
-    n <- max(lengths(df))
-    
-    if(sum(lapply(df,length) > 0) == 0){
-      stop("You have specificed an 'applyUniqueSpatial' Criteria vector but did not apply this to any columns. Please specified where you would like to apply these unique spatial criteria.")
-    }
-    
-    if(sum(lapply(df,length) > 0) > 0){
-    df2 <- data.frame(
-      "ApplyUniqueSpatialCriteria" = applyUniqueSpatial, 
-      expand.grid(list(applyUniqueSpatial, "ATTAINS.assessmentunitidentifier" = if(is.null(applyToAU))  NA else applyToAU))[2],
-      expand.grid(list(applyUniqueSpatial, "MonitoringLocationIdentifier" = if(is.null(applyToML))  NA else applyToML))[2], 
-      expand.grid(list(applyUniqueSpatial, "ATTAINS.ParameterName" = if(is.null(applyToParam))  NA else applyToParam))[2],
-      expand.grid(list(applyUniqueSpatial, "ATTAINS.UseName" = if(is.null(applyToUse))  NA else applyToUse))[2],
-      expand.grid(list(applyUniqueSpatial, "ATTAINS.waterTypeCode" = if(is.null(applyToWater))  NA else applyToWater))[2]
-    )
-      
-    }
-    
-    CreateSpatialRef <- dplyr::left_join(CreateSpatialRef, df2, by = c(
-      "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier", "ATTAINS.ParameterName",
-      "ATTAINS.UseName", "ATTAINS.waterTypeCode"
-      ))
-  }
+  # if(!is.null(applyUniqueSpatial)){
+  #   df <- list(applyToWater, applyToParam, applyToUse, applyToAU, applyToML)
+  #   
+  #   n <- max(lengths(df))
+  #   
+  #   if(sum(lapply(df,length) > 0) == 0){
+  #     stop("You have specificed an 'applyUniqueSpatial' Criteria vector but did not apply this to any columns. Please specified where you would like to apply these unique spatial criteria.")
+  #   }
+  #   
+  #   if(sum(lapply(df,length) > 0) > 0){
+  #   df2 <- data.frame(
+  #     "ApplyUniqueSpatialCriteria" = applyUniqueSpatial, 
+  #     expand.grid(list(applyUniqueSpatial, "ATTAINS.assessmentunitidentifier" = if(is.null(applyToAU))  NA else applyToAU))[2],
+  #     expand.grid(list(applyUniqueSpatial, "MonitoringLocationIdentifier" = if(is.null(applyToML))  NA else applyToML))[2], 
+  #     expand.grid(list(applyUniqueSpatial, "ATTAINS.ParameterName" = if(is.null(applyToParam))  NA else applyToParam))[2],
+  #     expand.grid(list(applyUniqueSpatial, "ATTAINS.UseName" = if(is.null(applyToUse))  NA else applyToUse))[2],
+  #     expand.grid(list(applyUniqueSpatial, "ATTAINS.waterTypeCode" = if(is.null(applyToWater))  NA else applyToWater))[2]
+  #   )
+  #     
+  #   }
+  #   
+  #   CreateSpatialRef <- dplyr::left_join(CreateSpatialRef, df2, by = c(
+  #     "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier", "ATTAINS.ParameterName",
+  #     "ATTAINS.UseName", "ATTAINS.waterTypeCode"
+  #     ))
+  # }
   
   if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
     print(paste0(
