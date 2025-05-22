@@ -89,7 +89,6 @@ remotes::install_github("USEPA/EPATADA",
   ref = "cybertown2025",
   dependencies = TRUE
 )
-
 library(EPATADA)
 ```
 

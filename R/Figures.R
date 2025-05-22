@@ -763,7 +763,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   dat2$Legend <- paste0(dat2$Value, " - ", dat2$Count, " results")
   dat <- dat %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Legend = TADA_InsertBreaks(Legend))
+    dplyr::mutate(Legend = stringr::str_wrap(Legend, width = 50))
 
   # Only apply the all others category if there are greater than 12 categories to display.
   if (dat2$Count != 0) {
@@ -1081,14 +1081,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA_InsertBreaks(
+  title <- stringr::str_wrap(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",
       param2$TADA.CharacteristicName[1],
       " Over Time"
     ),
-    len = 45
+    width = 45
   )
 
   # figure margin
@@ -1432,13 +1432,13 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   all_scatterplots <- list()
 
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
-    title <- TADA_InsertBreaks(
+    title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
         TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
         " Over Time"
       ),
-      len = 45
+      width = 45
     )
 
     # figure margin

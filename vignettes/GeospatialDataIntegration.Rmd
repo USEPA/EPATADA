@@ -105,11 +105,11 @@ dependencies for this workflow will be downloaded automatically. We will
 also need to install StreamCatTools for some steps later in the
 workflow.
 
-```{r devsetup, include = F, eval = T}
-remotes::install_github("USEPA/EPATADA", 
-                        ref = "geospatial-vignette",
-                        dependencies = TRUE,
-                        force = TRUE)
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "594-tada_insertbreak-bug-report",
+  dependencies = TRUE
+)
 library(EPATADA)
 ```
 
