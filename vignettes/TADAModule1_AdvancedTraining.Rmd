@@ -113,7 +113,7 @@ developers/contributors.
 ```{r install_TADA_dev, eval = F, include = F}
 # helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
-  ref = "prerelease",
+  ref = "594-tada_insertbreak-bug-report",
   dependencies = TRUE
 )
 ```
