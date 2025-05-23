@@ -4,6 +4,7 @@ format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
+always_allow_html: true
 output: 
   rmarkdown::html_vignette:
     toc: true
