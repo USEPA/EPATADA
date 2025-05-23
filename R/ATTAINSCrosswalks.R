@@ -975,7 +975,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
         sheet = "CreateParamRef",
         cols = 3, rows = 2:1000,
         type = "list",
-        value = sprintf("'Index'!$E$2:$E$5000"),
+        value = sprintf("'Index'!$E$2:$E$15000"), # please ensure this covers all values in the column E in the Index tab for future development.
         allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
       )
     )
