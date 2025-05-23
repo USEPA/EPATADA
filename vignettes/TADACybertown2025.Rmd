@@ -18,7 +18,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing the *EPATADA* R package because it is only
 available on GitHub.
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r remotes, results = 'hide', eval = F}
 install.packages("remotes", repos = "http://cran.us.r-project.org")
 library(remotes)
 ```
@@ -32,11 +32,11 @@ all of them (enter 1 into the console). Our team is actively developing
 *EPATADA*, therefore we highly recommend that you update the package
 (and all of its dependencies) each time you use it.
 
-```{r install_EPATADA, eval = F, results = 'hide'}
+```{r install, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
 ```
 
-```{r install_EPATADA_dev, eval = T, include = F}
+```{r install_dev, eval = T, include = F}
 remotes::install_github("USEPA/EPATADA", ref = "cybertown2025", dependencies = TRUE
 )
 ```
@@ -73,17 +73,41 @@ tasks, for example:
     characteristic name, result sample fraction, method speciation, and
     result measure unit.
 
+In this example, we will first get an ATTAINS Assessment Unit shapefile
+(only works for polygons for now) from the ATTAINS geospatial services,
+and then we will use that to query WQP using TADA_DataRetrieval and the
+new aoi_sf function input. You can find ATTAINS Assessment Unit ID's
+using EPA's How's My Waterway Application, see [example
+here](https://mywaterway.epa.gov/waterbody-report/CT_DEP01/CT6400-00-1-L5_01/2022).
+
 ```{r TADA_DataRetrieval}
-WQP_Shepherdstown_raw <- TADA_DataRetrieval(
-  startDate = "2019-01-01",
-  endDate = "2024-12-31",
-  bBox = c(-78.2241,38.9185,-77.1041,39.7487),
-  characteristicName = c("Iron"),
+query.params <- list(
+  where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')", 
+  outFields = "*",
+  f = "geojson"
+)
+
+url = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+
+poly.response <- httr::GET(url, query = query.params)
+
+poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
+
+poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
+
+WQP_raw <- TADA_DataRetrieval(
+  aoi_sf = poly.sf,
   applyautoclean = TRUE,
   ask = FALSE)
 ```
 
-## Filter and clean
+Remove intermediate variables in R by using 'rm()'
+
+```{r}
+rm(poly.response, poly.sf, query.params, poly.geojson, url)
+```
+
+## Filter, flag, and clean
 
 Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
@@ -97,29 +121,72 @@ default functionality (clean = TRUE) is to include surface water and
 exclude groundwater and sediment results. This is shown in the example
 below.
 
-```{r}
-WQP_Shepherdstown_clean <- TADA_AnalysisDataFilter(
-  WQP_Shepherdstown_raw,
-  clean = TRUE,
+```{r TADA_AnalysisDataFilter}
+WQP_flag <- TADA_AnalysisDataFilter(
+  WQP_raw,
+  clean = FALSE,
   surface_water = TRUE,
   ground_water = FALSE,
   sediment = FALSE
 )
+
+# Review unique flags
+unique(WQP_flag$TADA.UseForAnalysis.Flag)
+
+# Review flagged rows
+WQP_flag_review <- WQP_flag %>%
+  dplyr::filter(TADA.UseForAnalysis.Flag == "No - NA") %>%
+  dplyr::select(c("TADA.UseForAnalysis.Flag", "ActivityMediaName", "ActivityMediaSubdivisionName", "AquiferName", "LocalAqfrName", "ConstructionDateText", "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode", "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"))
+
+# Keep rows that are NOT flagged as sediment (keep SW and NA)
+WQP_clean <- WQP_flag %>%
+  dplyr::filter(TADA.UseForAnalysis.Flag != "No - SEDIMENT")
 ```
 
 ## Generate overview map
 
-```{r TADA Overview Map}
-TADA_OverviewMap(WQP_Shepherdstown_clean)
+```{r TADA_OverviewMap}
+TADA_OverviewMap(WQP_clean)
 ```
 
-Check coordinates
+Let's take a quick look at all unique values in the
+MonitoringLocationIdentifier column and see how how many results are
+associated with each.
+
+```{r TADA_FieldValuesTable}
+# use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
+sites <- TADA_FieldValuesTable(WQP_clean, field = "MonitoringLocationIdentifier")
+
+DT::datatable(compid_table, fillContainer = TRUE)
+```
+
+Are there sites located within 100 meters of each other?
+
+```{r TADA_FlagCoordinates}
+WQP_clean = TADA_FindNearbySites(WQP_clean)
+
+WQP_flag_review = TADA_NearbySitesMap(WQP_clean)
+
+WQP_flag_review
+```
+
+Now let's review all unique values in the TADA.ComparableDataIdentifier
+column and see how how many results are associated with each.
+TADA.ComparableDataIdentifier concatenates TADA.CharacteristicName,
+TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+TADA.ResultMeasure.MeasureUnitCode.
+
+```{r TADA_FieldValuesTable2}
+# use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
+compid_table <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
+
+DT::datatable(compid_table, fillContainer = TRUE)
+```
+
+Remove intermediate variables in R by using 'rm()'
 
 ```{r}
-WQP_Shepherdstown_clean = TADA_FlagCoordinates(WQP_Shepherdstown_clean, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
-
-WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$LongitudeMeasure),]
-WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean[!is.na(WQP_Shepherdstown_clean$LatitudeMeasure),]
+rm(compid_table, WQP_flag_review)
 ```
 
 Next, let's check if the dataset contains potential duplicate results
@@ -131,27 +198,30 @@ If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
 `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
-```{r}
+```{r duplicates}
 # find duplicates from single org
-WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesSingleOrg(
-  WQP_Shepherdstown_clean)
+WQP_flag <- TADA_FindPotentialDuplicatesSingleOrg(WQP_clean)
+
+# Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
+unique(WQP_flag$OrganizationIdentifier)
+unique(WQP_flag$OrganizationFormalName)
 
 # find duplicates across multiple orgs
-WQP_Shepherdstown_clean <- TADA_FindPotentialDuplicatesMultipleOrgs(
-  WQP_Shepherdstown_clean, 
-  org_hierarchy = "21VASWCB"
+WQP_flag <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  WQP_flag, 
+  org_hierarchy = c("CT_DEP01", "USGS-CT", "CTVOLMON", "NALMS")
 )
 ```
 
 Let's review the duplicates:
 
-```{r}
-review_dups <- WQP_Shepherdstown_clean %>%
+```{r review}
+WQP_flag_review <- WQP_flag %>%
   dplyr::select(MonitoringLocationName, 
                 TADA.MonitoringLocationIdentifier, 
-                TADA.MultipleOrgDuplicate, 
-                TADA.MultipleOrgDupGroupID, 
-                TADA.ResultSelectedMultipleOrgs, 
+                # TADA.MultipleOrgDuplicate, 
+                # TADA.MultipleOrgDupGroupID, 
+                # TADA.ResultSelectedMultipleOrgs, 
                 TADA.SingleOrgDupGroupID, 
                 TADA.SingleOrgDup.Flag, 
                 TADA.ComparableDataIdentifier, 
@@ -161,27 +231,24 @@ review_dups <- WQP_Shepherdstown_clean %>%
                 TADA.NearbySites.Flag, 
                 TADA.NearbySiteGroup, 
                 OrganizationIdentifier) %>%
+  dplyr::filter(TADA.SingleOrgDupGroupID != "Not a duplicate") %>%
   dplyr::distinct()
-```
-
-Remove intermediate variable in R by using 'rm()'
-
-```{r}
-rm(review_dups)
 ```
 
 We will select to keep only unique samples from
 `TADA_FindPotentialDuplicatesSingleOrg` by filtering for
-TADA.SingleOrgDup.Flag equals "Unique". We can now review multiple
-organization duplicates from `TADA_FindPotentialDuplicatesMultipleOrgs`
-and filter only to retain only one value by filtering for
+TADA.SingleOrgDup.Flag equals "Unique".
+
+There are no multiple org duplicates from
+`TADA_FindPotentialDuplicatesMultipleOrgs` in this example, but if there
+were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals "Y".
 
-```{r}
-WQP_Shepherdstown_clean <- dplyr::filter(WQP_Shepherdstown_clean, TADA.SingleOrgDup.Flag == "Unique")
+```{r filter}
+WQP_clean <- dplyr::filter(WQP_flag, TADA.SingleOrgDup.Flag == "Unique")
 
-WQP_Shepherdstown_clean <- dplyr::filter(
-  WQP_Shepherdstown_clean,
+WQP_clean <- dplyr::filter(
+  WQP_flag,
   TADA.ResultSelectedMultipleOrgs == "Y"
 )
 ```
@@ -205,41 +272,22 @@ dataset: we keep over-detects as is (no conversion made) and convert
 non-detect values to 0.5 times the detection limit (half the detection
 limit).
 
-```{r}
-WQP_Shepherdstown_clean <- TADA_SimpleCensoredMethods(
-  WQP_Shepherdstown_clean,
+```{r censored}
+WQP_clean <- TADA_SimpleCensoredMethods(
+  WQP_clean,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
   od_method = "as-is",
   od_multiplier = "null"
 )
 ```
+In the remainder of this workshop, we will work with the clean dataset
+only.
 
-In this example, the metadata is conflicting (detection condition and
-detection limit type do not match) for one result. Let's review this.
-
-```{r}
-# review unique flags
-unique(WQP_Shepherdstown_clean$TADA.CensoredData.Flag)
-
-# review row with conflicting information
-conflict <- WQP_Shepherdstown_clean %>%
-  dplyr::filter(TADA.CensoredData.Flag == "Conflict between Condition and Limit") %>%
-  dplyr::select(c("DetectionQuantitationLimitTypeName", "ResultDetectionConditionText", "TADA.CensoredData.Flag"))
-
-```
-
-Now, since the information is conflicting, we will remove row.
+Remove intermediate variables in R by using 'rm()'
 
 ```{r}
-WQP_Shepherdstown_clean <- WQP_Shepherdstown_clean %>%
-  dplyr::filter(TADA.CensoredData.Flag != "Conflict between Condition and Limit")
-```
-
-Remove intermediate variable in R by using 'rm()'.
-
-```{r}
-rm(conflict)
+rm(WQP_flag, WQP_flag_review, WQP_raw)
 ```
 
 `TADA_AutoFilter` removes rows where the result value is not numeric to
@@ -250,8 +298,8 @@ TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode's. This function also removes any
 columns not required for TADA workflow where all values are equal to NA.
 
-```{r}
-WQP_Shepherdstown_clean <- TADA_AutoFilter(WQP_Shepherdstown_clean)
+```{r autofilter}
+WQP_clean <- TADA_AutoFilter(WQP_clean)
 ```
 
 TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
@@ -259,26 +307,25 @@ flagging functions. See ?function documentation for TADA_FlagResultUnit,
 TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode,
 and TADA_FlagSpeciation for more information.
 
-```{r}
-WQP_Shepherdstown_clean <- TADA_RunKeyFlagFunctions(
-  WQP_Shepherdstown_clean,
+```{r TADA_RunKeyFlagFunctions}
+WQP_clean <- TADA_RunKeyFlagFunctions(
+  WQP_clean,
   clean = TRUE
 )
 ```
 
 Another set of TADA flagging functions, `TADA_FlagAboveThreshold` and
 `TADA_FlagBelowThreshold`, can be used to check results against national
-lower and upper thresholds. As in the previous examples, we will set
-clean = TRUE for these functions to remove results that fall outside the
-national thresholds.
+lower and upper thresholds. For these, we will set
+clean = FALSE and flaggedonly = TRUE so that it returns only flagged results in the review dataframe returned. 
 
-```{r}
-WQP_Shepherdstown_clean <- TADA_FlagAboveThreshold(WQP_Shepherdstown_clean, clean = TRUE, flaggedonly = FALSE)
+```{r thresholds}
+WQP_flag_reviewabove <- TADA_FlagAboveThreshold(WQP_clean, clean = FALSE, flaggedonly = TRUE)
 
-WQP_Shepherdstown_clean <- TADA_FlagBelowThreshold(WQP_Shepherdstown_clean, clean = TRUE, flaggedonly = FALSE)
+WQP_flag_reviewbelow <- TADA_FlagBelowThreshold(WQP_clean, clean = FALSE, flaggedonly = TRUE)
 ```
 
-Let's take a look at all unique values in the
+Let's take another look at all unique values in the
 TADA.ComparableDataIdentifier column and see how how many results are
 associated with each. TADA.ComparableDataIdentifier concatenates
 TADA.CharacteristicName, TADA.ResultSampleFractionText,
@@ -286,82 +333,46 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-compid_table <- TADA_FieldValuesTable(WQP_Shepherdstown_clean, field = "TADA.ComparableDataIdentifier")
+chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
 
-compid_before = unique(WQP_Shepherdstown_clean$TADA.ComparableDataIdentifier)
+chars_before = unique(WQP_clean$TADA.ComparableDataIdentifier)
 
-DT::datatable(compid_table, fillContainer = TRUE)
+DT::datatable(chars, fillContainer = TRUE)
 ```
 
-Remove intermediate variable in R by using 'rm()'.
-
-```{r}
-rm(compid_table)
-```
-
-As we scroll through the table, we can see that there are some repeated
-characteristic names. It may be possible that some of these are synonyms
-which can be automatically harmonized using `TADA_HarmonizeSynonyms` so
-their results can be directly compared.
+Scroll through the table and check to see if there any synonyms. It may
+be possible that some of these can be automatically harmonized using
+`TADA_HarmonizeSynonyms` so their results can be directly compared.
 
 Let's give it a try.
 
 ```{r}
-WQP_Shepherdstown_clean <- TADA_HarmonizeSynonyms(WQP_Shepherdstown_clean)
+WQP_clean <- TADA_HarmonizeSynonyms(WQP_clean)
 ```
 
-How many unique TADA.ComparableDataIdentifier's do we have now? We
-reduced it by over 25!
+How many unique TADA.ComparableDataIdentifier's do we have now? In this
+example, there are none.
 
 ```{r}
-compid_after = unique(WQP_Shepherdstown_clean$TADA.ComparableDataIdentifier)
+chars_after = unique(WQP_clean$TADA.ComparableDataIdentifier)
 ```
 
 ```{r}
-rm(compid_before)
-rm(compid_after)
+rm(chars_before, chars_after, WQP_flag_reviewabove, WQP_flag_reviewbelow)
 ```
 
-`TADA_CalculateTotalNP` uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
-to add together specific subspecies to obtain a total. TADA adds one
-more equation to the mix: total particulate nitrogen + total dissolved
-nitrogen. The function uses as many subspecies as possible to calculate
-a total for each given site, date, and depth group, but it will estimate
-total nitrogen with whatever subspecies are present. This function
-creates NEW total nutrient measurements (total nitrogen unfiltered as N
-and total phosphorus unfiltered as P) and adds them to the dataframe.
-
-Users can use the default summation worksheet (see
-`TADA_GetNutrientSummationRef`) or customize it to suit their needs. The
-function also requires a daily aggregation value, either minimum,
-maximum, or mean. The default is 'max', which means that if multiple
-measurements of the same subspecies-fraction-speciation-unit occur on
-the same day at the same site and depth, the function will pick the
-maximum value to use in summation calculations. In this example, we will
-use the default summation worksheet to obtain total nitrogen.
+Create a pie chart.
 
 ```{r}
-WQP_Shepherdstown_clean <- TADA_CalculateTotalNP(WQP_Shepherdstown_clean, daily_agg = "max")
-
-```
-
-What characteristics are available now?
-
-```{r fieldValues_actmedia}
-# Create pie chart for CharacteristicName
-TADA_FieldValuesPie(WQP_Shepherdstown_clean, field = "TADA.CharacteristicName")
+TADA_FieldValuesPie(WQP_clean, field = "TADA.CharacteristicName")
 ```
 
 Let's filter the data and focus on a few characteristics of interest.
 
 ```{r}
 # Select characteristics of interest
-WQP_Shepherdstown_subset <- WQP_Shepherdstown_clean %>%
-  dplyr::filter(TADA.CharacteristicName %in% c(
-    "IRON", 
-    "CHLORIDE", 
-    "SPECIFIC CONDUCTANCE"))
+WQP_clean_subset <- WQP_clean %>%
+  dplyr::filter(TADA.CharacteristicName %in% "ESCHERICHIA COLI")
 ```
 
 ## Monitoring Location Filter and Review
@@ -382,44 +393,36 @@ locations within the assessment units.
     applicable to their use case
 
 ```{r Data Retrieval - Geospatial}
-WQP_Shepherdstown_subset_spatial <- TADA_GetATTAINS(
-  WQP_Shepherdstown_subset, 
+WQP_clean_subset_spatial <- TADA_GetATTAINS(
+  WQP_clean_subset, 
   fill_catchments = FALSE,
   return_sf = TRUE, 
   return_nearest = TRUE)
 
 # get TADA df with ATTAINS info added from list
-Subset_TADAwithATTAINS <- WQP_Shepherdstown_subset_spatial$TADA_with_ATTAINS
+WQP_clean_subset <- WQP_clean_subset_spatial$TADA_with_ATTAINS
 ```
 
 View catchments and assessment units on map
 
 ```{r TADA_ViewATTAINS}
-ATTAINS_map <- TADA_ViewATTAINS(WQP_Shepherdstown_subset_spatial)
+ATTAINS_map <- TADA_ViewATTAINS(WQP_clean_subset_spatial)
 
 ATTAINS_map
+```
+
+Remove intermediate variables:
+
+```{r}
+rm(ATTAINS_map, WQP_clean)
 ```
 
 Create table of monitoring location identifiers and AUs.
 
 ```{r}
-ML_AU_crosswalk <- Subset_TADAwithATTAINS %>%
+ML_AU_crosswalk <- WQP_clean_subset %>%
   dplyr::select(MonitoringLocationName, TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
   dplyr::distinct()
-``
-
-## Generate maps
-
-TADA_OverviewMap(Subset_TADAwithATTAINS_selectAUs)
-```
-
-Check coordinates
-
-```{r}
-Subset_TADAwithATTAINS_selectAUs = TADA_FlagCoordinates(Subset_TADAwithATTAINS_selectAUs, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
-
-Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS_selectAUs[!is.na(Subset_TADAwithATTAINS_selectAUs$LongitudeMeasure),]
-Subset_TADAwithATTAINS_selectAUs <- Subset_TADAwithATTAINS_selectAUs[!is.na(Subset_TADAwithATTAINS_selectAUs$LatitudeMeasure),]
 ```
 
 `TADA_RetainRequired` removes all duplicate columns where TADA has
@@ -428,7 +431,7 @@ columns as well as other original fields that are either required by
 other TADA functions or are commonly used filters.
 
 ```{r}
-Subset_TADAwithATTAINS_selectAUs = TADA_RetainRequired(Subset_TADAwithATTAINS_selectAUs)
+WQP_clean_subset = TADA_RetainRequired(WQP_clean_subset)
 ```
 
 ## Exploratory visualizations
@@ -436,165 +439,85 @@ Subset_TADAwithATTAINS_selectAUs = TADA_RetainRequired(Subset_TADAwithATTAINS_se
 Review unique TADA.ComparableDataIdentifier's
 
 ```{r}
-# throws error, why?
-# compid_table_2 <- TADA_FieldValuesTable(Subset_TADAwithATTAINS_selectAUs, field = "TADA.ComparableDataIdentifier")
-# 
-# DT::datatable(compid_table_2, fillContainer = TRUE)
-
-unique(Subset_TADAwithATTAINS_selectAUs$TADA.ComparableDataIdentifier)
-
-#these need more harmonization...
+unique(WQP_clean_subset$TADA.ComparableDataIdentifier)
 ```
 
-Generate stats table
+Generate stats table.
 
 ```{r stats}
-WQP_Shepherdstown_stats <- TADA_Stats(Subset_TADAwithATTAINS_selectAUs)
-
-# thought we already removed remaining NAs, why are there more now?
+WQP_clean_subset_stats <- TADA_Stats(WQP_clean_subset)
 ```
 
-Generate scatterplot
+Let's check if any results are above the EPA 304A recommended maximum
+criteria magnitude.
 
-```{r scatterplot}
-TADA_TwoCharacteristicScatterplot(Subset_TADAwithATTAINS_selectAUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
-```
+[![EPA 2012 recreational water quality criteria (RWQC) recommendations
+for protecting human health in all coastal and non-coastal waters
+designated for primary contact recreation use. EPA provides two sets of
+recommended criteria. The RWQC consist of three components: magnitude,
+duration and frequency. The magnitude of the bacterial indicators are
+described by both a geometric mean (GM) and a statistical threshold
+value (STV) for the bacteria samples. The STV approximates the 90th
+percentile of the water quality distribution and is intended to be a
+value that should not be exceeded by more than 10 percent of the samples
+taken. The table summarizes the magnitude component of the
+recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
-Let's check if any IRON results are above 300 µg/l. That is the EPA 304A
-recommended maximum criteria magnitude for IRON to support the
-Organoleptic use. It is 1000 µg/l for Aquatic Life, Freshwater, Chronic
-use.
+<chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
 
-```{r Iron analysis and visualization}
-# comparison to standard for iron
-Iron_Standard <- Subset_TADAwithATTAINS_selectAUs %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "IRON_TOTAL_NA_UG/L") %>%
-  dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue <= 300, "Yes", "No"))
+You can find other state, tribal, and EPA 304A criteria in the Criteria
+Search Tool:
+<https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
 
+We will apply the recommendation 2, STV for ESCHERICHIA COLI of 320
+CFU/100mL.
 
-# subset of iron data with fewer rows
-Iron_Table <- Iron_Standard %>%
+```{r}
+# add column with comparison to criteria mag
+WQP_clean_subset <- WQP_clean_subset %>%
+  dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
+
+# review
+WQP_clean_subset_Review <- WQP_clean_subset %>%
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
-    MeetsStandard
+    meets_criteria_mag
   )
 
-DT::datatable(Iron_Table, fillContainer = TRUE)
+DT::datatable(WQP_clean_subset_Review, fillContainer = TRUE)
+```
 
-# iron scatterplot
-Iron_Scatter <- TADA_Scatterplot(Iron_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
+Generate a scatterplot 
+```{r}
+# scatterplot
+criteria_mag_scatter <- TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") %>%
   plotly::add_lines(
-    y = 600,
-    x = c(min(Iron_Standard$ActivityStartDate), max(Iron_Standard$ActivityStartDate)),
-    inherit = FALSE,
-    showlegend = FALSE,
-    line = list(color = "red"),
-    hoverinfo = "none"
-  ) %>%
-  plotly::add_lines(
-    y = 8.5,
-    x = c(min(Iron_Standard$ActivityStartDate), max(Iron_Standard$ActivityStartDate)),
+    y = 320,
+    x = c(min(WQP_clean_subset$ActivityStartDate), max(WQP_clean_subset$ActivityStartDate)),
     inherit = FALSE,
     showlegend = FALSE,
     line = list(color = "red"),
     hoverinfo = "none"
   )
 
-Iron_Scatter
+criteria_mag_scatter
 ```
 
 ```{r boxplot and histogram}
-# filter dataframe to comparable data identifier of interest
-
-Iron_data <- dplyr::filter(Subset_TADAwithATTAINS_selectAUs, TADA.ComparableDataIdentifier == c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
-
 # generate a histogram
-Iron_Histogram <- TADA_Histogram(Iron_data, id_cols = "TADA.CharacteristicName")
+Histogram <- TADA_Histogram(WQP_clean_subset, id_cols = "TADA.CharacteristicName")
 
 # view histogram
-Iron_Histogram
+Histogram
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-Iron_Boxplot <- TADA_Boxplot(Iron_data, id_cols = "TADA.CharacteristicName")
+Boxplot <- TADA_Boxplot(WQP_clean_subset, id_cols = "TADA.CharacteristicName")
 
 
-Iron_Boxplot
-```
-
-Now, let's look at the specific conductance data.
-
-```{r SC_scatterplot}
-TADA_TwoCharacteristicScatterplot(Subset_TADAwithATTAINS_selectAUs, id_cols = "TADA.ComparableDataIdentifier",  groups = c("IRON_TOTAL_NA_UG/L", "IRON_DISSOLVED_NA_UG/L"))
-```
-
-```{r TADA_AggregateMeasurements}
-Subset_SC <- Subset_TADAwithATTAINS %>%
-  dplyr::filter(TADA.CharacteristicName == "SPECIFIC CONDUCTANCE")
-
-TADA_AggregateMeasurements(Subset_SC,
-  agg_fun = c("max"),
-  clean = TRUE
-)
-```
-
-We can also explore depth profiles for selected characteristics at
-specific site on a single date. There are a few functions that can help
-with this. First we can use `TADA_FlagDepthCategory` to place results
-into various depth categories (surface, middle, and bottom).
-
-```{r TADA_FlagDepthCategory}
-x <- TADA_FlagDepthCategory(x)
-```
-
-We can also use another function, `TADA_IDDepthProfiles` to identify
-location/date/characteristic combinations in the data set that can be
-used for depth profile plots or analysis. The default number of values
-required to identify a location/date/characteristic as a depth profile
-is 2, but this can be changed by the user. We will specify a larger
-value, 5, so that any depth profiles identified will have results from
-at least 5 different depths.
-
-```{r TADA_IDDepthProfiles}
-x <- TADA_IDDepthProfiles(x, nvalue = 5)
-```
-
-**Question 11: How can TADA_IDDepthProfiles() help users use
-TADA_DepthProfilePlot most efficiently?**
-
-Now, we can use `TADA_DepthProfilePlot` to plot up to three
-characteristics against depth. In this example, we will look at pH,
-secchi depth, and pH.
-
-```{r depth plot}
-TADA_DepthProfilePlot(x,
-  groups = c(
-    "x"
-  ),
-  location = "x",
-  activity_date = "x",
-  depthcat = TRUE,
-  surfacevalue = 2,
-  bottomvalue = 2,
-  unit = "m"
-)
-```
-
-Show next step of crosswalking results to prepare for ATTAINS submission
-
-```{r}
-# create TADA parameter reference table for specified organization
-x <- TADA_CreateParamRef(
-  x,
-  org_id = c("x"), 
-  excel = FALSE
-  # uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
-)
-
-TADA_CreateUseParamRef()
+Boxplot
 ```
 
 ## Record end time

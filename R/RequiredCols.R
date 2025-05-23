@@ -35,6 +35,7 @@ require.cols <- c(
   "TADA.MonitoringLocationIdentifier",
   "TADA.NearbySites.Flag", # generated,
   "TADA.NearbySiteGroup", # generated
+  "TADA.DistanceAway.Meters", # generated
   
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
