@@ -220,7 +220,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' that all results not flagged for use in the analysis workflow will be removed
 #' and the TADA.UseForAnalysis.Flag column will not be added.
 #'
-#' It uses MonitoringLocationTypeName, ActivityMediaName, ActivityMediaSubdivisionName, 
+#' It uses MonitoringLocationTypeName, ActivityMediaName, ActivityMediaSubdivisionName,
 #' AquiferName,
 #' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and

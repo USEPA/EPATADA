@@ -4,7 +4,7 @@
 # ordered list of TADA workflow required columns to be retained in dataframe
 require.cols <- c(
   "ResultIdentifier", # required
-  
+
   # Sample/Measurement Type (e.g. QC or Not)
   "ActivityTypeCode", # required
   "TADA.ActivityType.Flag", # generated
@@ -36,7 +36,7 @@ require.cols <- c(
   "TADA.NearbySites.Flag", # generated,
   "TADA.NearbySiteGroup", # generated
   "TADA.DistanceAway.Meters", # generated
-  
+
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
   "TADA.ResultSampleFractionText", # generated/required/replaces original

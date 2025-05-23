@@ -62,8 +62,7 @@ library(EPATADA)
 ```
 
 ```{r install_dev, eval = T, include = F}
-remotes::install_github("USEPA/EPATADA", ref = "cybertown2025", dependencies = TRUE
-)
+remotes::install_github("USEPA/EPATADA", ref = "cybertown2025", dependencies = TRUE)
 library(EPATADA)
 ```
 
@@ -110,12 +109,12 @@ data within the Assessment Unit (our area of interest/AOI).
 
 ```{r TADA_DataRetrieval}
 query.params <- list(
-  where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')", 
+  where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')",
   outFields = "*",
   f = "geojson"
 )
 
-url = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
 
 poly.response <- httr::GET(url, query = query.params)
 
@@ -123,9 +122,14 @@ poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
 
 poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
 
-WQP_raw <- TADA_DataRetrieval(aoi_sf = poly.sf, 
-                              applyautoclean = TRUE,
-                              ask = FALSE)
+WQP_raw <- TADA_DataRetrieval(
+  aoi_sf = poly.sf,
+  applyautoclean = TRUE,
+  ask = FALSE
+)
+
+# # For demo purposes, we pre-downloaded this example data
+# WQP_raw <- cybertown
 ```
 
 Remove intermediate variables in R by using 'rm()'.
@@ -189,7 +193,7 @@ DT::datatable(sites, fillContainer = TRUE)
 Are there sites located within 100 meters of each other?
 
 ```{r TADA_FlagCoordinates}
-WQP_clean = TADA_FindNearbySites(WQP_clean)
+WQP_clean <- TADA_FindNearbySites(WQP_clean)
 
 TADA_NearbySitesMap(WQP_clean)
 ```
@@ -232,7 +236,7 @@ unique(WQP_flag$OrganizationFormalName)
 
 # find duplicates across multiple orgs
 WQP_flag <- TADA_FindPotentialDuplicatesMultipleOrgs(
-  WQP_flag, 
+  WQP_flag,
   org_hierarchy = c("CT_DEP01", "USGS-CT", "CTVOLMON", "NALMS")
 )
 ```
@@ -241,20 +245,22 @@ Let's review the duplicates:
 
 ```{r review}
 WQP_flag_review <- WQP_flag %>%
-  dplyr::select(MonitoringLocationName, 
-                TADA.MonitoringLocationIdentifier, 
-                # TADA.MultipleOrgDuplicate, 
-                # TADA.MultipleOrgDupGroupID, 
-                # TADA.ResultSelectedMultipleOrgs, 
-                TADA.SingleOrgDupGroupID, 
-                TADA.SingleOrgDup.Flag, 
-                TADA.ComparableDataIdentifier, 
-                ResultMeasureValue, 
-                TADA.ResultMeasure.MeasureUnitCode, 
-                TADA.MonitoringLocationName, 
-                TADA.NearbySites.Flag, 
-                TADA.NearbySiteGroup, 
-                OrganizationIdentifier) %>%
+  dplyr::select(
+    MonitoringLocationName,
+    TADA.MonitoringLocationIdentifier,
+    # TADA.MultipleOrgDuplicate,
+    # TADA.MultipleOrgDupGroupID,
+    # TADA.ResultSelectedMultipleOrgs,
+    TADA.SingleOrgDupGroupID,
+    TADA.SingleOrgDup.Flag,
+    TADA.ComparableDataIdentifier,
+    ResultMeasureValue,
+    TADA.ResultMeasure.MeasureUnitCode,
+    TADA.MonitoringLocationName,
+    TADA.NearbySites.Flag,
+    TADA.NearbySiteGroup,
+    OrganizationIdentifier
+  ) %>%
   dplyr::filter(TADA.SingleOrgDupGroupID != "Not a duplicate") %>%
   dplyr::distinct()
 ```
@@ -269,7 +275,7 @@ were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals "Y".
 
 ```{r filter}
-WQP_clean <- WQP_flag %>% 
+WQP_clean <- WQP_flag %>%
   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
@@ -362,7 +368,7 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
 
-chars_before = unique(WQP_clean$TADA.ComparableDataIdentifier)
+chars_before <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 
 DT::datatable(chars, fillContainer = TRUE)
 ```
@@ -381,7 +387,7 @@ How many unique TADA.ComparableDataIdentifier's do we have now? In this
 example, there were no synonyms.
 
 ```{r}
-chars_after = unique(WQP_clean$TADA.ComparableDataIdentifier)
+chars_after <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 ```
 
 Remove intermediate variables.
@@ -431,10 +437,11 @@ locations within the assessment unit(s).
 
 ```{r Data Retrieval - Geospatial}
 WQP_clean_subset_spatial <- TADA_GetATTAINS(
-  WQP_clean_subset, 
+  WQP_clean_subset,
   fill_catchments = FALSE,
-  return_sf = TRUE, 
-  return_nearest = TRUE)
+  return_sf = TRUE,
+  return_nearest = TRUE
+)
 
 # Adds ATTAINS info to df
 WQP_clean_subset <- WQP_clean_subset_spatial$TADA_with_ATTAINS
@@ -474,7 +481,7 @@ columns as well as other original fields that are either required by
 other TADA functions or are commonly used filters.
 
 ```{r}
-WQP_clean_subset = TADA_RetainRequired(WQP_clean_subset)
+WQP_clean_subset <- TADA_RetainRequired(WQP_clean_subset)
 ```
 
 ## Exploratory analysis

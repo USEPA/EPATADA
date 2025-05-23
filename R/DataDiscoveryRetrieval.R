@@ -83,7 +83,7 @@
 #'        See https://www.waterqualitydata.us/Codes/project for options.
 #' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
 #'        "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
-#' @param bBox The latitude and longitude extent. Includes four numbers, e.g. bBox <- c(-xmin, ymin, -xmax, ymax). 
+#' @param bBox The latitude and longitude extent. Includes four numbers, e.g. bBox <- c(-xmin, ymin, -xmax, ymax).
 #' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller
 #'        queries).
 #' @param ask A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before
@@ -166,7 +166,7 @@
 #'   endDate = "2023-12-31",
 #'   ask = FALSE
 #' )
-#' 
+#'
 #' bbox <- c(-86.9736, 34.4883, -86.6135, 34.6562)
 #' tada8 <- TADA_DataRetrieval(bBox = bbox)
 #' }
@@ -317,14 +317,14 @@ TADA_DataRetrieval <- function(startDate = "null",
     } else if (providers != "null") {
       WQPquery <- c(WQPquery, providers = providers)
     }
-    
+
     # bbox
     if (length(bBox) > 1) {
       WQPquery <- c(WQPquery, bBox = list(bBox))
     } else if (bBox != "null") {
       WQPquery <- c(WQPquery, bBox = bBox)
     }
-    
+
     # Organization
     if (length(organization) > 1) {
       WQPquery <- c(WQPquery, organization = list(organization))
@@ -756,7 +756,7 @@ TADA_DataRetrieval <- function(startDate = "null",
     } else if (providers != "null") {
       WQPquery <- c(WQPquery, providers = providers)
     }
-    
+
     # bbox
     if (length(bBox) > 1) {
       WQPquery <- c(WQPquery, bBox = list(bBox))

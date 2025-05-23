@@ -105,7 +105,7 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-# note: these example ATTAINS data retrieval queries below may take a long 
+# note: these example ATTAINS data retrieval queries below may take a long
 # time (10+ minutes) to run
 tada_attains <- TADA_GetATTAINS(tada_data,
   fill_catchments = FALSE,
