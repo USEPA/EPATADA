@@ -457,10 +457,8 @@ designated for primary contact recreation use. EPA provides two sets of
 recommended criteria. The RWQC consist of three components: magnitude,
 duration and frequency. The magnitude of the bacterial indicators are
 described by both a geometric mean (GM) and a statistical threshold
-value (STV) for the bacteria samples. The STV approximates the 90th
-percentile of the water quality distribution and is intended to be a
-value that should not be exceeded by more than 10 percent of the samples
-taken. The table summarizes the magnitude component of the
+value (STV) for the bacteria samples. The waterbody GM should not be greater than the selected GM magnitude in any 30-day interval. The STV approximates the 90th percentile of the water quality distribution and is intended to be a
+value that should not be exceeded by more than 10 percent of the samples in the same 30-day interval. The table summarizes the magnitude component of the
 recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
 <chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
@@ -469,8 +467,7 @@ You can find other state, tribal, and EPA 304A criteria in the Criteria
 Search Tool:
 <https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
 
-We will apply the recommendation 2, STV for ESCHERICHIA COLI of 320
-CFU/100mL.
+We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria magnitude of 320 CFU/100mL).
 
 ```{r}
 # add column with comparison to criteria mag
