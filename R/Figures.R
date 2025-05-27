@@ -647,7 +647,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #' @param .data TADA dataframe after running TADA.FindNearbySites.
 #' @param dist_buffer Distance in m to show a radius around each site marker.
-#' 
+#'
 #'
 #' @return A leaflet map that shows all sites in the dataframe that contain
 #' flagged data in the form of near other sites - groups of sites that are spatially located within
@@ -668,61 +668,69 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' }
 #'
 TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
-  
-  if(c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
+  if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
     .data <- TADA_FindNearbySites(.data)
   }
 
   .data <- .data %>%
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) %>%
-    dplyr::mutate(LatitudeMeasure = as.numeric(LatitudeMeasure),
-                  LongitudeMeasure = as.numeric(LongitudeMeasure)) %>%
-    dplyr::select(LongitudeMeasure, LatitudeMeasure, TADA.MonitoringLocationIdentifier,
-                  MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure,
-                  TADA.LongitudeMeasure, OrganizationIdentifier, TADA.NearbySiteGroup) %>%
-    dplyr::distinct() 
-    
-  icon.colors <- grDevices::rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup)))) 
+    dplyr::mutate(
+      LatitudeMeasure = as.numeric(LatitudeMeasure),
+      LongitudeMeasure = as.numeric(LongitudeMeasure)
+    ) %>%
+    dplyr::select(
+      LongitudeMeasure, LatitudeMeasure, TADA.MonitoringLocationIdentifier,
+      MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure, OrganizationIdentifier, TADA.NearbySiteGroup
+    ) %>%
+    dplyr::distinct()
 
-  pal <- leaflet::colorFactor(palette = icon.colors,
-                     domain = .data$TADA.NearbySiteGroup)
-     
+  icon.colors <- grDevices::rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup))))
+
+  pal <- leaflet::colorFactor(
+    palette = icon.colors,
+    domain = .data$TADA.NearbySiteGroup
+  )
+
   map <- leaflet::leaflet(.data) %>%
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(.data) > 0) {
-    map <- map %>% leaflet::addCircleMarkers(~LongitudeMeasure,
-                                              ~LatitudeMeasure,
-                                              color = ~pal(TADA.NearbySiteGroup),
-                                              opacity = 1, 
-                                              fillColor = ~pal(TADA.NearbySiteGroup),
-                                              fillOpacity = 1,
-                                              radius = ifelse(dist_buffer > 200, 
-                                                              dist_buffer/10, 
-                                                              20),
-                                              weight = 1,
-                                              # label = ~as.character(TADA.MonitoringLocationIdentifier),
-                                              popup = paste0(
-                                                "Nearby Group Name: ", .data$TADA.MonitoringLocationIdentifier,
-                                                "<br> Nearby Site Group: ", .data$TADA.NearbySiteGroup,
-                                                "<br> Site ID: ", .data$MonitoringLocationIdentifier,
-                                                "<br> Site Name: ", .data$MonitoringLocationName,
-                                                "<br> Latitude: ", .data$LatitudeMeasure,
-                                                "<br> Longitude: ", .data$LongitudeMeasure
-                                              ),
-                                              data = .data,
-                                       clusterOptions = leaflet::markerClusterOptions(),
-    ) %>%
+    map <- map %>%
+      leaflet::addCircleMarkers(~LongitudeMeasure,
+        ~LatitudeMeasure,
+        color = ~ pal(TADA.NearbySiteGroup),
+        opacity = 1,
+        fillColor = ~ pal(TADA.NearbySiteGroup),
+        fillOpacity = 1,
+        radius = ifelse(dist_buffer > 200,
+          dist_buffer / 10,
+          20
+        ),
+        weight = 1,
+        # label = ~as.character(TADA.MonitoringLocationIdentifier),
+        popup = paste0(
+          "Nearby Group Name: ", .data$TADA.MonitoringLocationIdentifier,
+          "<br> Nearby Site Group: ", .data$TADA.NearbySiteGroup,
+          "<br> Site ID: ", .data$MonitoringLocationIdentifier,
+          "<br> Site Name: ", .data$MonitoringLocationName,
+          "<br> Latitude: ", .data$LatitudeMeasure,
+          "<br> Longitude: ", .data$LongitudeMeasure
+        ),
+        data = .data,
+        clusterOptions = leaflet::markerClusterOptions(),
+      ) %>%
       leaflet::addCircles(~LongitudeMeasure,
-                          ~LatitudeMeasure,
-                          color = ~pal(TADA.NearbySiteGroup),
-                          opacity = 0.1, 
-                          fillColor = ~pal(TADA.NearbySiteGroup),
-                          fillOpacity = 0.1,
-                          radius = dist_buffer,
-                          weight = 1)
+        ~LatitudeMeasure,
+        color = ~ pal(TADA.NearbySiteGroup),
+        opacity = 0.1,
+        fillColor = ~ pal(TADA.NearbySiteGroup),
+        fillOpacity = 0.1,
+        radius = dist_buffer,
+        weight = 1
+      )
   }
-  
+
   return(map)
 }
 

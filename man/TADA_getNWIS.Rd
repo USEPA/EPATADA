@@ -56,16 +56,16 @@ locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") \%>\%
   dplyr::filter(NAME \%in\% c("Spokane", "Navajo Nation"))
 sites_aoi_sf <- TADA_getNWIS(
   aoi_sf = locs_sf,
-   parameter_codes =
-    c("00060", "00010"), 
-    start_date = "2020-01-01", 
-    end_date = "2020-01-31"
+  parameter_codes =
+    c("00060", "00010"),
+  start_date = "2020-01-01",
+  end_date = "2020-01-31"
 )
 
 # Example 2: Query by specific site numbers
 sites_specific <- TADA_getNWIS(
   siteid = c("11530500", "11532500"),
-  parameter_codes = c("00060", "00010"), 
+  parameter_codes = c("00060", "00010"),
   start_date = "2020-01-01",
   end_date = "2020-12-31"
 )
@@ -74,7 +74,7 @@ sites_specific <- TADA_getNWIS(
 nwis_data <- TADA_getNWIS(
   statecode = c("RI", "CO"),
   stat_codes = c("00001"),
-  parameter_codes = c("00010"), 
+  parameter_codes = c("00010"),
   start_date = "2020-01-01",
   end_date = "2020-01-02"
 )

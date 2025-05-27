@@ -75,7 +75,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, include = FALSE}
 remotes::install_github("USEPA/EPATADA",
-  ref = "594-tada_insertbreak-bug-report",
+  ref = "cybertown2025",
   dependencies = TRUE
 )
 ```
