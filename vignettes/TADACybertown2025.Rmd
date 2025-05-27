@@ -1,9 +1,23 @@
 ---
 title: "TADA Cybertown Workshop June 2025"
+format: html
+editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: word_document
-always_allow_html: true
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Cybertown Workshop June 2025}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
 description: An introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data.
 ---
 
