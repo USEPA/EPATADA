@@ -994,7 +994,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
           '="No ATTAINS.ParameterName match for TADA.ComparableDataIdentifier"),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
           IF(ISNA(MATCH(C', i + 1, ',Index!E:E,0)),
             "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List",
-          IF(ISNA(MATCH(1,(C', i + 1, "=ATTAINSOrgNamesParamRef!B:B)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
+          IF(ISNA(MATCH(1,(C', i + 1, "=ATTAINSOrgNamesParamRef!D:D)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
             "Parameter name is listed as a prior cause in ATTAINS, but not for this organization",
             "Parameter name is listed as a prior cause in ATTAINS for this organization")))'
         )
@@ -1631,9 +1631,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
             "Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",
           IF(ISBLANK(D', i + 1, '),
             "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-          IF(ISNA(MATCH(1,(D', i + 1, "=ATTAINSOrgNamesParamRef!C:C)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
+          IF(ISNA(MATCH(1,(D', i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
             "Use name is not listed as a prior cause in ATTAINS for this organization.",
-          IF(ISNA(MATCH(1,(C', i + 1, "=ATTAINSOrgNamesParamRef!B:B)*(D", i + 1, "=ATTAINSOrgNamesParamRef!C:C)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
+          IF(ISNA(MATCH(1,(C', i + 1, "=ATTAINSOrgNamesParamRef!D:D)*(D", i + 1, "=ATTAINSOrgNamesParamRef!E:E)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
             "Use name is listed as a prior cause in this organization, but not for this parameter name.",
             "Use name is listed as a prior cause in ATTAINS for this organization."))))'
         )
