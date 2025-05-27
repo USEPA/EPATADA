@@ -86,7 +86,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, include = FALSE}
 remotes::install_github("USEPA/EPATADA",
-  ref = "cybertown2025",
+  ref = "develop",
   dependencies = TRUE
 )
 library(EPATADA)
