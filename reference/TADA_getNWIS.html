@@ -29,6 +29,8 @@ with relevant USGS parameter codes, statistics to return, and a date range."></h
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
+    <li><a class="dropdown-item" href="../articles/TADACybertown2025_word.html">TADA Cybertown Workshop June 2025</a></li>
+    <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
@@ -130,16 +132,16 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">NAME</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Spokane"</span>, <span class="st">"Navajo Nation"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sites_aoi_sf</span> <span class="op">&lt;-</span> <span class="fu">TADA_getNWIS</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  aoi_sf <span class="op">=</span> <span class="va">locs_sf</span>,</span></span>
-<span class="r-in"><span>   parameter_codes <span class="op">=</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00060"</span>, <span class="st">"00010"</span><span class="op">)</span>, </span></span>
-<span class="r-in"><span>    start_date <span class="op">=</span> <span class="st">"2020-01-01"</span>, </span></span>
-<span class="r-in"><span>    end_date <span class="op">=</span> <span class="st">"2020-01-31"</span></span></span>
+<span class="r-in"><span>  parameter_codes <span class="op">=</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00060"</span>, <span class="st">"00010"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  start_date <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span></span>
+<span class="r-in"><span>  end_date <span class="op">=</span> <span class="st">"2020-01-31"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Example 2: Query by specific site numbers</span></span></span>
 <span class="r-in"><span><span class="va">sites_specific</span> <span class="op">&lt;-</span> <span class="fu">TADA_getNWIS</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  siteid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"11530500"</span>, <span class="st">"11532500"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  parameter_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00060"</span>, <span class="st">"00010"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  parameter_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00060"</span>, <span class="st">"00010"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  start_date <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span></span>
 <span class="r-in"><span>  end_date <span class="op">=</span> <span class="st">"2020-12-31"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -148,7 +150,7 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 <span class="r-in"><span><span class="va">nwis_data</span> <span class="op">&lt;-</span> <span class="fu">TADA_getNWIS</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  statecode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"RI"</span>, <span class="st">"CO"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  stat_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00001"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  parameter_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00010"</span><span class="op">)</span>, </span></span>
+<span class="r-in"><span>  parameter_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"00010"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  start_date <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span></span>
 <span class="r-in"><span>  end_date <span class="op">=</span> <span class="st">"2020-01-02"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -165,7 +167,7 @@ Moreover, all sf features must be under 118,078 square miles (roughly the area o
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer></div>
