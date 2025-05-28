@@ -494,7 +494,8 @@ unique(WQP_clean_subset$TADA.ComparableDataIdentifier)
 ```
 
 Let's check if any results are above the EPA 304A recommended maximum
-criteria magnitude.
+criteria magnitude (see: [2012 Recreational Water Quality Criteria Fact
+Sheet](https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)).
 
 [![EPA 2012 recreational water quality criteria (RWQC) recommendations
 for protecting human health in all coastal and non-coastal waters
@@ -510,11 +511,9 @@ percent of the samples in the same 30-day interval. The table summarizes
 the magnitude component of the
 recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
-<chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
-
-You can find other state, tribal, and EPA 304A criteria in the Criteria
-Search Tool:
-<https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
+If interested, you can find other state, tribal, and EPA 304A criteria
+in [EPA's Criteria Search
+Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
 
 We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria
 magnitude of 320 CFU/100mL).
