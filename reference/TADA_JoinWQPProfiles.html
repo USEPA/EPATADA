@@ -25,6 +25,7 @@ The FullPhysChem data input is required to run this function."></head><body>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
+    <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
@@ -80,16 +81,48 @@ The FullPhysChem data input is required to run this function.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>TADA-compatible dataframe</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The WQP user interface assists users with constructing a web service query
+URL - for example:
+https://www.waterqualitydata.us/#statecode=US%3A09&amp;characteristicType=Nutrient&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023&amp;mimeType=csv&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Load WQP data</span></span></span>
-<span class="r-in"><span><span class="co"># WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&amp;characteristicType=Nutrient&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023&amp;mimeType=csv&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET</span></span></span>
-<span class="r-in"><span><span class="co"># Use TADA_ReadWQPWebServices to load each profile</span></span></span>
-<span class="r-in"><span><span class="va">stationProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="st">"https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&amp;characteristicType=Nutrient&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023&amp;mimeType=csv&amp;zip=yes&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">physchemProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="st">"https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&amp;characteristicType=Nutrient&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023&amp;mimeType=csv&amp;zip=yes&amp;dataProfile=resultPhysChem&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">projectProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="st">"https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&amp;characteristicType=Nutrient&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023&amp;mimeType=csv&amp;zip=yes&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># construct the WQP web service URL for each profile</span></span></span>
+<span class="r-in"><span><span class="va">baseurl</span> <span class="op">=</span> <span class="st">"https://www.waterqualitydata.us/data/"</span></span></span>
+<span class="r-in"><span><span class="va">profile_station</span> <span class="op">=</span> <span class="st">"Station"</span></span></span>
+<span class="r-in"><span><span class="va">profile_result</span> <span class="op">=</span> <span class="st">"Result"</span></span></span>
+<span class="r-in"><span><span class="va">profile_result_2</span> <span class="op">=</span> <span class="st">"&amp;dataProfile=resultPhysChem"</span></span></span>
+<span class="r-in"><span><span class="va">profile_project</span> <span class="op">=</span> <span class="st">"Project"</span></span></span>
+<span class="r-in"><span><span class="va">filters</span> <span class="op">=</span> <span class="st">"/search?statecode=US%3A09&amp;characteristicType=Nutrient"</span></span></span>
+<span class="r-in"><span><span class="va">dates</span> <span class="op">=</span> <span class="st">"&amp;startDateLo=04-01-2023&amp;startDateHi=11-01-2023"</span></span></span>
+<span class="r-in"><span><span class="va">type</span> <span class="op">=</span> <span class="st">"&amp;mimeType=csv&amp;zip=yes"</span></span></span>
+<span class="r-in"><span><span class="va">providers</span> <span class="op">=</span> <span class="st">"&amp;providers=NWIS&amp;providers=STEWARDS&amp;providers=STORET"</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">stationProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">baseurl</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">profile_station</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">filters</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">dates</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">type</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">providers</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">physchemProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">baseurl</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">profile_result</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">filters</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">dates</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">type</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">profile_result_2</span>,</span></span>
+<span class="r-in"><span>                                                  <span class="va">providers</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">projectProfile</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ReadWQPWebServices.html">TADA_ReadWQPWebServices</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">baseurl</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">profile_project</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">filters</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">dates</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">type</span>,</span></span>
+<span class="r-in"><span>                                                 <span class="va">providers</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Join all three profiles using TADA_JoinWQPProfiles</span></span></span>
 <span class="r-in"><span><span class="va">TADAProfile</span> <span class="op">&lt;-</span> <span class="fu">TADA_JoinWQPProfiles</span><span class="op">(</span></span></span>
