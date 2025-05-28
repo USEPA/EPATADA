@@ -38,7 +38,6 @@
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
@@ -313,7 +312,7 @@ information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering
 <code>fill_catchments = TRUE</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span><span class="va">TADA_dataframe</span>, fill_catchments <span class="op">=</span> <span class="cn">TRUE</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span><span class="va">TADA_dataframe</span>, fill_catchments <span class="op">=</span> <span class="cn">TRUE</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_neares <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When <code>fill_catchments = TRUE</code>, the returned list splits
 observations into two dataframes: WQP observations with ATTAINS
 catchment data, and WQP observations without ATTAINS catchment data.
@@ -463,7 +462,7 @@ interfaces with the USGS National Water Information System to retrieve
 daily value (DV) water data. Like <code><a href="../reference/TADA_listNWIS.html">TADA_listNWIS()</a></code>, users
 can query data based on an area of interest (i.e., an sf object),
 statecode, or specific sites.</p>
-<p>Additionally, users must specify the parameter codes and statistics
+<p>Additionally, users must specify the parameter codes and statstics
 they want to download and a date range. A list of all available
 parameters can be found at: <a href="https://help.waterdata.usgs.gov/parameter_cd?group_cd=%" class="external-link uri">https://help.waterdata.usgs.gov/parameter_cd?group_cd=%</a>
 and a list of all statistics codes can be found at: <a href="https://help.waterdata.usgs.gov/stat_code" class="external-link uri">https://help.waterdata.usgs.gov/stat_code</a></p>

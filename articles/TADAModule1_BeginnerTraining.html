@@ -38,7 +38,6 @@
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
@@ -307,7 +306,7 @@ function will be updated to include fish tissue a filter option.</p>
 <p><strong>Question 3: How many SURFACE WATER results can we retain for
 further analysis</strong></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Select only surface water results for use in analysis</span></span>
+<code class="sourceCode R"><span><span class="co"># Filter to flag only surface water results for use in analysis</span></span>
 <span></span>
 <span><span class="va">n_sur_water</span> <span class="op">&lt;-</span> <span class="va">FieldValues_AnalysisFlag</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Value</span> <span class="op">==</span> <span class="st">"Yes - SURFACE WATER"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
