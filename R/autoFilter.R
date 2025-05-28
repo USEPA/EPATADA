@@ -220,11 +220,10 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' that all results not flagged for use in the analysis workflow will be removed
 #' and the TADA.UseForAnalysis.Flag column will not be added.
 #'
-#' It uses MonitoringLocationTypeName, ActivityMediaName, ActivityMediaSubdivisionName,
-#' AquiferName,
+#' It uses ActivityMediaSubdivisionName, AquiferName,
 #' LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
 #' WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
-#' WellHoleDepthMeasure.MeasureUnitCode to identify samples. Users
+#' WellHoleDepthMeasure.MeasureUnitCode to identify groundwater samples. Users
 #' can select whether sediment, groundwater and/or surface water should be included.
 #' An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
 #' be included in the analysis workflow and why. Setting clean = TRUE, means

@@ -81,8 +81,8 @@ df <- data.frame(urls, response_code)
 # filter for any response codes that are not successful or redirect responses
 df_false <- df %>%
   dplyr::filter(!grepl("200", response_code) &
-    !grepl("301", response_code) &
-    !grepl("302", response_code))
+                  !grepl("301", response_code) &
+                  !grepl("302", response_code))
 
 # Review the output of df_false.
 # More information about http response codes can be found here:
@@ -105,12 +105,10 @@ unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package 
 find.dups <- unit.ref %>%
   dplyr::filter(Type == "CharacteristicUnit") %>%
   dplyr::group_by(Characteristic, Source, Value.Unit) %>%
-  dplyr::mutate(
-    Min_n = length(unique(Minimum)),
-    Max_n = length(unique(Maximum))
-  ) %>%
+  dplyr::mutate(Min_n = length(unique(Minimum)),
+                Max_n = length(unique(Maximum))) %>%
   dplyr::filter(Min_n > 1 |
-    Max_n > 1)
+                  Max_n > 1)
 
 # create download path
 download.path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "WQXcharValRef_multiples.csv")
@@ -147,35 +145,37 @@ readr::write_csv(find.dups, download.path)
 
 # DRAFT function for overnight testing on lots of example data (incomplete)
 
-TADA_OvernightTesting <- function() {
+TADA_OvernightTesting <- function(){
+
   testing_log <- file("testing_log.txt") # File name of output log
 
   sink(testing_log, append = TRUE, type = "output") # Writing console output to log file
   sink(testing_log, append = TRUE, type = "message")
 
-  # cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
+  #cat(readChar(rstudioapi::getSourceEditorContext()$path, # Writing currently opened R script to file
   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
 
-  num_iterations <- 2
+  num_iterations=2
   master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
 
   for (i in 1:num_iterations) {
+
     testing <- TADA_RandomTestingData()
 
     testing2 <- TADA_FlagMeasureQualifierCode(testing)
 
-    # expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "Not Reviewed"))
+    #expect_true(all(testing2$TADA.MeasureQualifierCode.Flag != "Not Reviewed"))
 
-    # print(unique(testing2$TADA_FlagMeasureQualifierCode))
-    # print(unique(testing2$MeasureQualifierCode))
+    #print(unique(testing2$TADA_FlagMeasureQualifierCode))
+    #print(unique(testing2$MeasureQualifierCode))
 
     # load in ResultMeasureQualifier Flag Table
     qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
       dplyr::rename(MeasureQualifierCode = Code) %>%
       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
 
-    codes <- unique(testing2$MeasureQualifierCode)
-    missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
+    codes = unique(testing2$MeasureQualifierCode)
+    missing_codes = codes[!codes %in% qc.ref$MeasureQualifierCode]
 
     missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "Not Reviewed")
 
@@ -184,17 +184,19 @@ TADA_OvernightTesting <- function() {
     master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
 
     View(master_missing_codes_df)
-  }
 
-  master_missing_codes_distinct <- master_missing_codes_df %>% dplyr::distinct()
+    }
+
+  master_missing_codes_distinct = master_missing_codes_df %>% dplyr::distinct()
 
   View(master_missing_codes_distinct)
 
-  master_missing_codes_freq <- as.data.frame(table(master_missing_codes_df))
+  master_missing_codes_freq = as.data.frame(table(master_missing_codes_df))
 
   View(master_missing_codes_freq)
 
   closeAllConnections() # Close connection to log file
 
   return(testing_log)
-}
+
+  }

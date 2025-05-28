@@ -66,20 +66,6 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r install_TADA, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r install_TADA_developer, include = FALSE}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 ```{r library, results = 'hide'}
 # Load required packages
 library(EPATADA)
@@ -90,7 +76,6 @@ library(sf)
 library(lubridate)
 library(knitr)
 library(DT)
-library(stringr)
 
 
 # Record start time
@@ -523,7 +508,7 @@ twochar_scatter <- TADA_TwoCharacteristicScatterplot(
   # remove default plot features that are not applicable for a location comparison
   plotly::layout(
     yaxis2 = list(overlaying = "y", side = "right", title = "", visible = FALSE),
-    title = stringr::str_wrap("SPECIFIC CONDUCTANCE for the San Juan and Animas Rivers Over Time", width = 50)
+    title = TADA_InsertBreaks("SPECIFIC CONDUCTANCE for the San Juan and Animas Rivers Over Time")
   )
 
 # modify plot titles to reflect group/location names

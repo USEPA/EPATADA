@@ -65,7 +65,7 @@ update all of them (enter 1 into the console).
 ```{r install_TADA_dev, include = F}
 # helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "prerelease",
   dependencies = TRUE
 )
 ```
