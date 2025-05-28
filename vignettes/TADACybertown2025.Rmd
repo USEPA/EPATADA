@@ -27,7 +27,9 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## Install
 
-First, install and load the remotes package specifying the repo. This is needed before installing the *EPATADA* R package because it is only available on GitHub.
+First, install and load the remotes package specifying the repo. This is
+needed before installing the *EPATADA* R package because it is only
+available on GitHub.
 
 ```{r remotes, results = 'hide', eval = F}
 install.packages("remotes", repos = "http://cran.us.r-project.org")
@@ -45,7 +47,14 @@ pre[class] {
 }
 ```
 
-Next, install (or update) and load the *EPATADA* R package using the *remotes* R package. Additional dependency R packages that are used within *EPATADA* will be downloaded automatically. You may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console). Our team is actively developing *EPATADA*, therefore we highly recommend that you update the package (and all of its dependencies) each time you use it.
+Next, install (or update) and load the *EPATADA* R package using the
+*remotes* R package. Additional dependency R packages that are used
+within *EPATADA* will be downloaded automatically. You may be prompted
+in the console to update dependency packages that have more recent
+versions available. If you see this prompt, it is recommended to update
+all of them (enter 1 into the console). Our team is actively developing
+*EPATADA*, therefore we highly recommend that you update the package
+(and all of its dependencies) each time you use it.
 
 ```{r install, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
@@ -65,9 +74,12 @@ start.time <- Sys.time()
 
 ## Retrieve
 
-Query the WQP using TADA_DataRetrieval. TADA_AutoClean is a powerful function that runs as part of TADA_DataRetrieval when applyautoclean = TRUE. It performs a variety of tasks, for example:
+Query the WQP using TADA_DataRetrieval. TADA_AutoClean is a powerful
+function that runs as part of TADA_DataRetrieval when applyautoclean =
+TRUE. It performs a variety of tasks, for example:
 
-1.  creating new "TADA" prefixed columns and and capitalizing their contents to reduce case sensitivity issues,
+1.  creating new "TADA" prefixed columns and and capitalizing their
+    contents to reduce case sensitivity issues,
 
 2.  converts special characters in value columns,
 
@@ -81,9 +93,20 @@ Query the WQP using TADA_DataRetrieval. TADA_AutoClean is a powerful function th
 
 7.  converts depths to meters, and
 
-8.  creates the column TADA.ComparableDataIdentifier by concatenating characteristic name, result sample fraction, method speciation, and result measure unit.
+8.  creates the column TADA.ComparableDataIdentifier by concatenating
+    characteristic name, result sample fraction, method speciation, and
+    result measure unit.
 
-In this example, we will first leverage How's My Waterway (HMW) and the ATTAINS geospatial services to find and load an ATTAINS Assessment Unit ID and shapefile (only works for polygons for now). We will query the ATTAINS geospatial services using the Assessment Unit ID found on HMW (see [example here](https://mywaterway.epa.gov/waterbody-report/CT_DEP01/CT6400-00-1-L5_01/2022)). Then we will use the shapefile as our input for the new aoi_sf query option included in TADA_DataRetrieval. This allows us to download WQP data within the Assessment Unit (our area of interest/AOI).
+In this example, we will first leverage EPA's How's My Waterway (HMW)
+application to discover an ATTAINS Assessment Unit of interest ([example
+waterbody
+report](https://mywaterway.epa.gov/waterbody-report/CT_DEP01/CT6400-00-1-L5_01/2022)).
+Then, we will use the Assessment Unit ID to query ATTAINS geospatial
+services for the associated shapefile (polygon area of the Assessment
+Unit). Now we can use this shapefile (only works for polygons for now)
+as our input for the new aoi_sf query option included in
+TADA_DataRetrieval. This allows us to download WQP data within the
+Assessment Unit (our area of interest/AOI).
 
 ```{r TADA_DataRetrieval}
 query.params <- list(
@@ -118,9 +141,16 @@ rm(poly.response, poly.sf, query.params, poly.geojson, url)
 
 ## Flag, clean, and visualize
 
-Now, let's use EPATADA functions to review, visualize, and whittle the returned WQP data down to include only results that are applicable to our water quality analysis and area of interest.
+Now, let's use EPATADA functions to review, visualize, and whittle the
+returned WQP data down to include only results that are applicable to
+our water quality analysis and area of interest.
 
-The **TADA_AnalysisDataFilter** function can assist in identifying and filtering surface water, groundwater, and sediment results. If you set clean = FALSE, this function will categorize and flag (but not remove) rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the default functionality (clean = TRUE) is to include surface water and exclude groundwater and sediment results.
+The **TADA_AnalysisDataFilter** function can assist in identifying and
+filtering surface water, groundwater, and sediment results. If you set
+clean = FALSE, this function will categorize and flag (but not remove)
+rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the
+default functionality (clean = TRUE) is to include surface water and
+exclude groundwater and sediment results.
 
 ```{r TADA_AnalysisDataFilter}
 WQP_flag <- TADA_AnalysisDataFilter(
@@ -150,7 +180,9 @@ Create an overview map.
 TADA_OverviewMap(WQP_clean)
 ```
 
-Let's take a quick look at all unique values in the MonitoringLocationIdentifier column and see how how many results are associated with each.
+Let's take a quick look at all unique values in the
+MonitoringLocationIdentifier column and see how how many results are
+associated with each.
 
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
@@ -167,7 +199,11 @@ WQP_clean <- TADA_FindNearbySites(WQP_clean)
 TADA_NearbySitesMap(WQP_clean)
 ```
 
-Now let's review all unique values in the TADA.ComparableDataIdentifier column and see how how many results are associated with each. TADA.ComparableDataIdentifier concatenates TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+Now let's review all unique values in the TADA.ComparableDataIdentifier
+column and see how how many results are associated with each.
+TADA.ComparableDataIdentifier concatenates TADA.CharacteristicName,
+TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable2}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
@@ -182,9 +218,14 @@ Remove intermediate variables in R by using 'rm()'.
 rm(chars, sites, WQP_flag_review, WQP_flag)
 ```
 
-Next, let's check if the dataset contains potential duplicate results from within a single organization or from within multiple organizations (such as when two or more organizations monitor the same location and may submit duplicate results).
+Next, let's check if the dataset contains potential duplicate results
+from within a single organization or from within multiple organizations
+(such as when two or more organizations monitor the same location and
+may submit duplicate results).
 
-If you would like to prioritize results from one organization over another, this can be done using the org_hierarchy argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
+If you would like to prioritize results from one organization over
+another, this can be done using the org_hierarchy argument in
+`TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r duplicates}
 # find duplicates from single org
@@ -225,9 +266,14 @@ WQP_flag_review <- WQP_flag %>%
   dplyr::distinct()
 ```
 
-We will select to keep only unique samples from `TADA_FindPotentialDuplicatesSingleOrg` by filtering for TADA.SingleOrgDup.Flag equals "Unique".
+We will select to keep only unique samples from
+`TADA_FindPotentialDuplicatesSingleOrg` by filtering for
+TADA.SingleOrgDup.Flag equals "Unique".
 
-There are no multiple org duplicates from `TADA_FindPotentialDuplicatesMultipleOrgs` in this example, but if there were, duplicates can by removed by filtering for TADA.ResultSelectedMultipleOrgs equals "Y".
+There are no multiple org duplicates from
+`TADA_FindPotentialDuplicatesMultipleOrgs` in this example, but if there
+were, duplicates can by removed by filtering for
+TADA.ResultSelectedMultipleOrgs equals "Y".
 
 ```{r filter}
 WQP_clean <- WQP_flag %>%
@@ -235,15 +281,31 @@ WQP_clean <- WQP_flag %>%
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
-Remove intermediate variables in R by using 'rm()'. In the remainder of this workshop, we will work with the clean dataset.
+Remove intermediate variables in R by using 'rm()'. In the remainder of
+this workshop, we will work with the clean dataset.
 
 ```{r}
 rm(WQP_flag, WQP_flag_review)
 ```
 
-Censored data are measurements for which the true value is not known, but we can estimate the value based on known lower or upper detection conditions and limit types. TADA fills missing *TADA.ResultMeasureValue* and *TADA.ResultMeasure.MeasureUnitCode* values with values and units from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and *TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively, using the `TADA_AutoClean` function.
+Censored data are measurements for which the true value is not known,
+but we can estimate the value based on known lower or upper detection
+conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
+and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
+from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
+*TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
+using the `TADA_AutoClean` function.
 
-The TADA package currently has functions that summarize censored data incidence in the dataset and perform simple substitutions of censored data values, including x times the detection limit and random selection of a value between 0 and the detection limit. The user may specify the methods used for non-detects and over-detects separately in the input to the `TADA_SimpleCensoredMethods` function. The next step we take in this example is to perform simple conversions to the censored data in the dataset: we keep over-detects as is (no conversion made) and convert non-detect values to 0.5 times the detection limit (half the detection limit).
+The TADA package currently has functions that summarize censored data
+incidence in the dataset and perform simple substitutions of censored
+data values, including x times the detection limit and random selection
+of a value between 0 and the detection limit. The user may specify the
+methods used for non-detects and over-detects separately in the input to
+the `TADA_SimpleCensoredMethods` function. The next step we take in this
+example is to perform simple conversions to the censored data in the
+dataset: we keep over-detects as is (no conversion made) and convert
+non-detect values to 0.5 times the detection limit (half the detection
+limit).
 
 ```{r censored}
 WQP_clean <- TADA_SimpleCensoredMethods(
@@ -255,13 +317,22 @@ WQP_clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
-`TADA_AutoFilter` removes rows where the result value is not numeric to prepare a dataframe for quantitative analyses. Specifically, this function removes rows with "Text" and "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. In addition, this function removes results with QA/QC ActivityTypeCode's. This function also removes any columns not required for TADA workflow where all values are equal to NA.
+`TADA_AutoFilter` removes rows where the result value is not numeric to
+prepare a dataframe for quantitative analyses. Specifically, this
+function removes rows with "Text" and "NA - Not Available" in the
+TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column. In addition, this function removes
+results with QA/QC ActivityTypeCode's. This function also removes any
+columns not required for TADA workflow where all values are equal to NA.
 
 ```{r autofilter}
 WQP_clean <- TADA_AutoFilter(WQP_clean)
 ```
 
-TADA_RunKeyFlagFunctions is a shortcut function to run important TADA flagging functions. See ?function documentation for TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
+TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
+flagging functions. See ?function documentation for TADA_FlagResultUnit,
+TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode,
+and TADA_FlagSpeciation for more information.
 
 ```{r TADA_RunKeyFlagFunctions}
 WQP_clean <- TADA_RunKeyFlagFunctions(
@@ -270,7 +341,11 @@ WQP_clean <- TADA_RunKeyFlagFunctions(
 )
 ```
 
-Another set of TADA flagging functions, `TADA_FlagAboveThreshold` and `TADA_FlagBelowThreshold`, can be used to check results against national lower and upper thresholds. For these, we will set clean = FALSE and flaggedonly = TRUE so that it returns only flagged results in the review dataframe returned. We will keep these in our "clean" dataframe for now.
+Another set of TADA flagging functions, `TADA_FlagAboveThreshold` and
+`TADA_FlagBelowThreshold`, can be used to check results against national
+lower and upper thresholds. For these, we will set clean = FALSE and
+flaggedonly = TRUE so that it returns only flagged results in the review
+dataframe returned. We will keep these in our "clean" dataframe for now.
 
 ```{r thresholds}
 WQP_flag_reviewabove <- TADA_FlagAboveThreshold(WQP_clean, clean = FALSE, flaggedonly = TRUE)
@@ -284,7 +359,11 @@ Remove intermediate variables.
 rm(WQP_flag_reviewabove, WQP_flag_reviewbelow)
 ```
 
-Let's take another look at all unique values in the TADA.ComparableDataIdentifier column and see how how many results are associated with each. TADA.ComparableDataIdentifier concatenates TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+Let's take another look at all unique values in the
+TADA.ComparableDataIdentifier column and see how how many results are
+associated with each. TADA.ComparableDataIdentifier concatenates
+TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable3}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
@@ -295,7 +374,9 @@ chars_before <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 DT::datatable(chars, fillContainer = TRUE)
 ```
 
-Scroll through the table and check to see if there any synonyms. It may be possible that some of these can be automatically harmonized using `TADA_HarmonizeSynonyms` so their results can be directly compared.
+Scroll through the table and check to see if there any synonyms. It may
+be possible that some of these can be automatically harmonized using
+`TADA_HarmonizeSynonyms` so their results can be directly compared.
 
 Let's give it a try.
 
@@ -303,7 +384,8 @@ Let's give it a try.
 WQP_clean <- TADA_HarmonizeSynonyms(WQP_clean)
 ```
 
-How many unique TADA.ComparableDataIdentifier's do we have now? In this example, there were no synonyms.
+How many unique TADA.ComparableDataIdentifier's do we have now? In this
+example, there were no synonyms.
 
 ```{r}
 chars_after <- unique(WQP_clean$TADA.ComparableDataIdentifier)
@@ -339,10 +421,20 @@ rm(WQP_clean, chars)
 
 ## Integrate ATTAINS and map
 
-In this section, we will associate geospatial data from **ATTAINS** with the **WQP** data, and filter the dataset to retain only results that were collected in specified Assessment Unit(s). We can also generate a new table to give us some information about the individual monitoring locations within the assessment unit(s).
+In this section, we will associate geospatial data from **ATTAINS** with
+the **WQP** data, and filter the dataset to retain only results that
+were collected in specified Assessment Unit(s). We can also generate a
+new table to give us some information about the individual monitoring
+locations within the assessment unit(s).
 
--   TADA_GetATTAINS() automates matching of WQP monitoring locations with ATTAINS assessment units that fall within (intersect) the same NHDPlus catchment ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
--   The function uses high resolution NHDPlus catchments by default because 80% of state submitted assessment units in ATTAINS were developed based on high res NHD; users can select med-res if applicable to their use case
+-   TADA_GetATTAINS() automates matching of WQP monitoring locations
+    with ATTAINS assessment units that fall within (intersect) the same
+    NHDPlus catchment
+    ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
+-   The function uses high resolution NHDPlus catchments by default
+    because 80% of state submitted assessment units in ATTAINS were
+    developed based on high res NHD; users can select med-res if
+    applicable to their use case
 
 ```{r Data Retrieval - Geospatial}
 WQP_clean_subset_spatial <- TADA_GetATTAINS(
@@ -384,7 +476,10 @@ Remove intermediate variables. Let's keep going with WQP_clean_subset.
 rm(ML_AU_crosswalk, WQP_clean_subset_spatial)
 ```
 
-`TADA_RetainRequired` removes all duplicate columns where TADA has created a new column with a TADA prefix. It retains all TADA prefixed columns as well as other original fields that are either required by other TADA functions or are commonly used filters.
+`TADA_RetainRequired` removes all duplicate columns where TADA has
+created a new column with a TADA prefix. It retains all TADA prefixed
+columns as well as other original fields that are either required by
+other TADA functions or are commonly used filters.
 
 ```{r}
 WQP_clean_subset <- TADA_RetainRequired(WQP_clean_subset)
@@ -398,15 +493,31 @@ Review unique TADA.ComparableDataIdentifier's
 unique(WQP_clean_subset$TADA.ComparableDataIdentifier)
 ```
 
-Let's check if any results are above the EPA 304A recommended maximum criteria magnitude.
+Let's check if any results are above the EPA 304A recommended maximum
+criteria magnitude.
 
-[![EPA 2012 recreational water quality criteria (RWQC) recommendations for protecting human health in all coastal and non-coastal waters designated for primary contact recreation use. EPA provides two sets of recommended criteria. The RWQC consist of three components: magnitude, duration and frequency. The magnitude of the bacterial indicators are described by both a geometric mean (GM) and a statistical threshold value (STV) for the bacteria samples. The waterbody GM should not be greater than the selected GM magnitude in any 30-day interval. The STV approximates the 90th percentile of the water quality distribution and is intended to be a value that should not be exceeded by more than 10 percent of the samples in the same 30-day interval. The table summarizes the magnitude component of the recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
+[![EPA 2012 recreational water quality criteria (RWQC) recommendations
+for protecting human health in all coastal and non-coastal waters
+designated for primary contact recreation use. EPA provides two sets of
+recommended criteria. The RWQC consist of three components: magnitude,
+duration and frequency. The magnitude of the bacterial indicators are
+described by both a geometric mean (GM) and a statistical threshold
+value (STV) for the bacteria samples. The waterbody GM should not be
+greater than the selected GM magnitude in any 30-day interval. The STV
+approximates the 90th percentile of the water quality distribution and
+is intended to be a value that should not be exceeded by more than 10
+percent of the samples in the same 30-day interval. The table summarizes
+the magnitude component of the
+recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
 <chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
 
-You can find other state, tribal, and EPA 304A criteria in the Criteria Search Tool: <https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
+You can find other state, tribal, and EPA 304A criteria in the Criteria
+Search Tool:
+<https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
 
-We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria magnitude of 320 CFU/100mL).
+We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria
+magnitude of 320 CFU/100mL).
 
 ```{r}
 # add column with comparison to criteria mag (excursions)
@@ -423,7 +534,8 @@ WQP_clean_subset_review <- WQP_clean_subset %>%
 DT::datatable(WQP_clean_subset_review, fillContainer = TRUE)
 ```
 
-Generate stats table. Review percentiles. Less than 5% of results fall above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
+Generate stats table. Review percentiles. Less than 5% of results fall
+above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
 
 ```{r stats}
 WQP_clean_subset_stats <- WQP_clean_subset %>%
@@ -466,4 +578,7 @@ end.time - start.time
 
 Reproducible and Documented
 
-This workflow is reproducible and the decisions at each step are well documented. This means that it is easy to go back and review every step, understand the decisions that were made, make changes as necessary, and run it again.
+This workflow is reproducible and the decisions at each step are well
+documented. This means that it is easy to go back and review every step,
+understand the decisions that were made, make changes as necessary, and
+run it again.
