@@ -5,7 +5,7 @@
 #' @description
 #' Retrieves available metadata from USGS National Water Information System (NWIS) based on
 #' different spatial queries: area of interest (AOI), specific sites, or state boundaries.
-#' Returns a spatial sf object containing continuous monitoring site information and 
+#' Returns a spatial sf object containing continuous monitoring site information and
 #' available parameters and statistics.
 #' If no data is found, returns an empty sf object with appropriate column structure.
 #'
@@ -15,7 +15,7 @@
 #' @param statecode Character vector of two-letter state codes (e.g., c("CA", "OR")).
 #' @param siteid Character vector of USGS site numbers.
 #'
-#' @return An sf object containing NWIS continuous monitoring site summary 
+#' @return An sf object containing NWIS continuous monitoring site summary
 #' information including:
 #'   \itemize{
 #'     \item site_no: USGS site identification number
@@ -129,22 +129,20 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
   }
 
   # Daily stats info grabber:
-  
+
   stats_table <- function() {
-    
     site_url <- "https://help.waterdata.usgs.gov/stat_code"
-    
+
     table <- rvest::read_html(site_url) %>%
       rvest::html_nodes("table") %>%
       rvest::html_table() %>%
       .[[1]] %>%
       dplyr::mutate(stat_cd = sprintf("%05d", `Statistic Type Code`)) %>%
       dplyr::select(stat_cd, stat_type = `Statistic Type Description`)
-    
+
     return(table)
-    
   }
-  
+
   # Grab NWIS by an area of interest:
   if ((unlist(aoi_sf)[1] != "null")) {
     og_epsg <- sf::st_crs(aoi_sf)$epsg
@@ -388,7 +386,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     ) %>%
     # Remove any duplicates if they exist (precautionary - they shouldn't!)
     dplyr::distinct(., .keep_all = TRUE)
-  
+
   # If no data, return empty data frame
   if (nrow(inventory) == 0) {
     message("No daily USGS-NWIS data in specified query.")
@@ -401,7 +399,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' Retrieve and tidy daily values from NWIS
 #'
 #' This function interfaces with the USGS National Water Information System (NWIS) to
-#' retrieve daily values (DV) water quality data using the TADA (Tools for Automated 
+#' retrieve daily values (DV) water quality data using the TADA (Tools for Automated
 #' Data Analysis) framework. Users can query data based on a spatial area of interest
 #' (AOI), a vector of state abbreviations, or a vector of specific site ids, along
 #' with relevant USGS parameter codes, statistics to return, and a date range.
@@ -434,16 +432,16 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #'   dplyr::filter(NAME %in% c("Spokane", "Navajo Nation"))
 #' sites_aoi_sf <- TADA_getNWIS(
 #'   aoi_sf = locs_sf,
-#'    parameter_codes =
-#'     c("00060", "00010"), 
-#'     start_date = "2020-01-01", 
-#'     end_date = "2020-01-31"
+#'   parameter_codes =
+#'     c("00060", "00010"),
+#'   start_date = "2020-01-01",
+#'   end_date = "2020-01-31"
 #' )
 #'
 #' # Example 2: Query by specific site numbers
 #' sites_specific <- TADA_getNWIS(
 #'   siteid = c("11530500", "11532500"),
-#'   parameter_codes = c("00060", "00010"), 
+#'   parameter_codes = c("00060", "00010"),
 #'   start_date = "2020-01-01",
 #'   end_date = "2020-12-31"
 #' )
@@ -452,7 +450,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' nwis_data <- TADA_getNWIS(
 #'   statecode = c("RI", "CO"),
 #'   stat_codes = c("00001"),
-#'   parameter_codes = c("00010"), 
+#'   parameter_codes = c("00010"),
 #'   start_date = "2020-01-01",
 #'   end_date = "2020-01-02"
 #' )

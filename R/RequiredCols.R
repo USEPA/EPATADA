@@ -3,6 +3,8 @@
 
 # ordered list of TADA workflow required columns to be retained in dataframe
 require.cols <- c(
+  "ResultIdentifier", # required
+
   # Sample/Measurement Type (e.g. QC or Not)
   "ActivityTypeCode", # required
   "TADA.ActivityType.Flag", # generated
@@ -12,6 +14,28 @@ require.cols <- c(
   "ActivityMediaName", # required
   "TADA.ActivityMediaName", # generated/required/replaces original
   "ActivityMediaSubdivisionName", # filter
+
+  # Organization Monitoring Locations
+  "CountryCode",
+  "StateCode",
+  "CountyCode",
+  "MonitoringLocationName", # required
+  "TADA.MonitoringLocationName", # generated
+  "MonitoringLocationTypeName",
+  "TADA.MonitoringLocationTypeName", # generated
+  "MonitoringLocationDescriptionText",
+  "LatitudeMeasure",
+  "TADA.LatitudeMeasure", # generated
+  "LongitudeMeasure",
+  "TADA.LongitudeMeasure", # generated
+  "HorizontalCoordinateReferenceSystemDatumName",
+  "TADA.SuspectCoordinates.Flag", # generated
+  "HUCEightDigitCode",
+  "MonitoringLocationIdentifier", # required
+  "TADA.MonitoringLocationIdentifier",
+  "TADA.NearbySites.Flag", # generated,
+  "TADA.NearbySiteGroup", # generated
+  "TADA.DistanceAway.Meters", # generated
 
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
@@ -145,7 +169,6 @@ require.cols <- c(
   "SamplingDesignTypeCode",
   "LaboratoryName",
   "ResultLaboratoryCommentText",
-  "ResultIdentifier", # required
   "ActivityIdentifier", # required
 
   # Organization (e.g. data submitter)
@@ -165,27 +188,6 @@ require.cols <- c(
   "QAPPApprovedIndicator",
   "QAPPApprovalAgencyName",
   "TADA.QAPPDocAvailable", # generated, based on ProjectFileUrl
-
-  # Organization Monitoring Locations
-  "CountryCode",
-  "StateCode",
-  "CountyCode",
-  "MonitoringLocationName", # required
-  "TADA.MonitoringLocationName", # generated
-  "MonitoringLocationTypeName",
-  "TADA.MonitoringLocationTypeName", # generated
-  "MonitoringLocationDescriptionText",
-  "LatitudeMeasure",
-  "TADA.LatitudeMeasure", # generated
-  "LongitudeMeasure",
-  "TADA.LongitudeMeasure", # generated
-  "HorizontalCoordinateReferenceSystemDatumName",
-  "TADA.SuspectCoordinates.Flag", # generated
-  "HUCEightDigitCode",
-  "MonitoringLocationIdentifier", # required
-  "TADA.MonitoringLocationIdentifier",
-  "TADA.NearbySites.Flag", # generated,
-  "TADA.NearbySiteGroup", # generated
 
   # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater
@@ -219,10 +221,10 @@ extra.cols <- c(
   "AnalysisStartDate",
   "ResultDetectionQuantitationLimitUrl",
   "LabSamplePreparationUrl",
-  "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
-  "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
-  "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
-  "ActivityEndTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/21/24
+  "timeZoneStart", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "timeZoneEnd", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "ActivityStartTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/7/24
+  "ActivityEndTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/21/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",

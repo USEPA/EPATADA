@@ -19,8 +19,6 @@ flagged data in the form of:
 \item imprecise coordinates - latitudes and/or longitudes that contain fewer
 then 3 decimal places.
 \item outside USA - coordinates that fall outside the bounds of the USA.
-\item near other sites - groups of sites that are spatially located within
-a threshold distance (defaulting to 100 m) from each other.
 }
 }
 \description{

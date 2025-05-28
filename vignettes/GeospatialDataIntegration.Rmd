@@ -105,24 +105,26 @@ dependencies for this workflow will be downloaded automatically. We will
 also need to install StreamCatTools for some steps later in the
 workflow.
 
-```{r devsetup, include = F, eval = T}
-remotes::install_github("USEPA/EPATADA", 
-                        ref = "geospatial-vignette",
-                        dependencies = TRUE,
-                        force = TRUE)
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
 library(EPATADA)
 ```
 
 ```{r usersetup, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA", 
-                        ref = "develop",
-                        dependencies = TRUE,
-                        force = TRUE)
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE,
+  force = TRUE
+)
 
-remotes::install_github("USEPA/StreamCatTools", 
-                        ref = "master",
-                        dependencies = TRUE,
-                        force = TRUE)
+remotes::install_github("USEPA/StreamCatTools",
+  ref = "master",
+  dependencies = TRUE,
+  force = TRUE
+)
 
 library(EPATADA)
 library(StreamCatTools)
@@ -183,9 +185,9 @@ characters in value columns, (3) converts latitude and longitude values
 to numeric, (4) replaces "meters" with "m", (5) replaces deprecated
 characteristic names with current WQX names, (6) harmonizes result and
 detection limit units to WQX, TADA or user supplied target units, (7)
-converts depths to meters, and (8) creates the column TADA.ComparableID
-by concatenating characteristic name, result sample fraction, method
-speciation, and result measure unit.
+converts depths to meters, and (8) creates the column
+TADA.ComparableDataIdentifier by concatenating characteristic name,
+result sample fraction, method speciation, and result measure unit.
 
 Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
@@ -212,8 +214,8 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.SingleOrgDup.Flag == 
 #### **Nondetects**
 
 TADA provides some simple methods for dealing with censored results,
-such as using multiplying the detection limit by a user supplied value
-or leaving the result as is.
+such as multiplying the detection limit by a user supplied value or
+leaving the result as is.
 
 ```{r censored}
 # substitude nondetects with 0.5 detection limit, leave overdetects as is
@@ -229,7 +231,7 @@ out these duplicates can prevent issues in analysis.
 # find potential dups multiple orgs
 GreenBay_FoxRiver <- TADA_FindPotentialDuplicatesMultipleOrgs(GreenBay_FoxRiver)
 
-# filter out 
+# filter out
 GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
@@ -294,11 +296,13 @@ Filter to focus on frequently monitored characteristics in example data
 ```{r subset}
 GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
   dplyr::filter(TADA.ComparableDataIdentifier %in%
-      c("SPECIFIC CONDUCTANCE_NA_NA_US/CM", 
-      "PH_NA_NA_NA", 
+    c(
+      "SPECIFIC CONDUCTANCE_NA_NA_US/CM",
+      "PH_NA_NA_NA",
       "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L",
       "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L",
-      "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"))
+      "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
+    ))
 ```
 
 Review organizations for subset
@@ -321,7 +325,7 @@ DT::datatable(GreenBay_FoxRiver_Subset_Stats, fillContainer = TRUE)
 Generate scatterplot
 
 ```{r scatterplot}
-TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier",  groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
+TADA_TwoCharacteristicScatterplot(GreenBay_FoxRiver_Subset, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 ```
 
 Generate map
@@ -334,13 +338,13 @@ TADA_OverviewMap(GreenBay_FoxRiver_Subset)
 
 ```{r Coordinate issues}
 # Change coordinate sign if appropriate
-GreenBay_FoxRiver = TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
+GreenBay_FoxRiver <- TADA_FlagCoordinates(GreenBay_FoxRiver_Subset, clean_outsideUSA = "change sign", clean_imprecise = FALSE)
 
-# This df has NA lons from USGS that must be addressed before TADA_MakeSpatial can be run... 
+# This df has NA lons from USGS that must be addressed before TADA_MakeSpatial can be run...
 sum(is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure))
 
 # Remove rows with NA lons from df
-GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver_Subset[!is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure),]
+GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver_Subset[!is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure), ]
 
 # Recheck
 sum(is.na(GreenBay_FoxRiver_Subset$LongitudeMeasure))
@@ -357,7 +361,7 @@ First, leverage TADA_MakeSpatial to transform a WQP dataframe into a
 geospatial sf object.
 
 ```{r}
-GreenBay_FoxRiver_sf = TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
+GreenBay_FoxRiver_sf <- TADA_MakeSpatial(GreenBay_FoxRiver_Subset)
 ```
 
 Then create a unique identifier based on shared lat long values and
@@ -366,8 +370,8 @@ filter to just the 25 unique locations.
 ```{r}
 GreenBay_FoxRiver_sf$latlon <- paste0(GreenBay_FoxRiver_sf$TADA.LongitudeMeasure, GreenBay_FoxRiver_sf$TADA.LatitudeMeasure)
 
-GreenBay_FoxRiver_sf <- GreenBay_FoxRiver_sf |> 
-  dplyr::group_by(latlon) |> 
+GreenBay_FoxRiver_sf <- GreenBay_FoxRiver_sf |>
+  dplyr::group_by(latlon) |>
   dplyr::mutate(loc_id = dplyr::cur_group_id())
 
 GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
@@ -384,7 +388,7 @@ GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_co
 
 nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
 
-outlet <- dplyr::filter(nhdplus_data$NHDFlowline_Network, hydroseq == min(hydroseq)) 
+outlet <- dplyr::filter(nhdplus_data$NHDFlowline_Network, hydroseq == min(hydroseq))
 
 nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(outlet))
 plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE)
@@ -400,14 +404,16 @@ subsets all of the NHDPlus.
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
-if(FALSE) # don't run this one
-nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
+if (FALSE) { # don't run this one
+  nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
+}
 
 # or we could just get everything in the bbox to be sure we get non-network stuff too!
 nhdplus_data <- nhdplusTools::subset_nhdplus(
-  bbox = sf::st_bbox(all_network$UT_flowlines), 
-  nhdplus_data = "download", 
-  flowline_only = FALSE)
+  bbox = sf::st_bbox(all_network$UT_flowlines),
+  nhdplus_data = "download",
+  flowline_only = FALSE
+)
 
 # see ?nhdplusTools::subset_nhdplus for lots more options!
 
@@ -429,16 +435,20 @@ more!](https://doi-usgs.github.io/hydroloom/articles/hydroloom.html)
 
 ```{r}
 GreenBay_FoxRiver_sf_locs <- sf::st_join(
-  GreenBay_FoxRiver_sf_locs, 
-  hydroloom::st_compatibalize(dplyr::select(nhdplus_data$CatchmentSP, featureid),
-                              GreenBay_FoxRiver_sf_locs))
+  GreenBay_FoxRiver_sf_locs,
+  hydroloom::st_compatibalize(
+    dplyr::select(nhdplus_data$CatchmentSP, featureid),
+    GreenBay_FoxRiver_sf_locs
+  )
+)
 
 # NOTE that featureid and comid are the same!!
 all(GreenBay_FoxRiver_sf_locs$COMID == GreenBay_FoxRiver_sf_locs$featureid)
 
 (linear_references <- hydroloom::index_points_to_lines(
   nhdplus_data$NHDFlowline_Network,
-  GreenBay_FoxRiver_sf_locs))
+  GreenBay_FoxRiver_sf_locs
+))
 
 GreenBay_FoxRiver_sf_locs <- dplyr::bind_cols(GreenBay_FoxRiver_sf_locs, linear_references)
 ```
@@ -449,24 +459,33 @@ For on-network waterbodies, it will also include the outlet flowline for
 each waterbody.
 
 ```{r}
-all_wb <- dplyr::bind_rows(dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
-                           dplyr::select(nhdplus_data$NHDArea, wbid = comid))
+all_wb <- dplyr::bind_rows(
+  dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
+  dplyr::select(nhdplus_data$NHDArea, wbid = comid)
+)
 
 (waterbody_indexes <- hydroloom::index_points_to_waterbodies(
-  sf::st_transform(all_wb, 5070), 
-  GreenBay_FoxRiver_sf_locs, 
-  flines = nhdplus_data$NHDFlowline_Network, 
-  search_radius = units::as_units(1000, "m")))
+  sf::st_transform(all_wb, 5070),
+  GreenBay_FoxRiver_sf_locs,
+  flines = nhdplus_data$NHDFlowline_Network,
+  search_radius = units::as_units(1000, "m")
+))
 ```
 
 ```{r}
-par(mar=c(0,0,0,0))
-nhdplusTools::plot_nhdplus(bbox = sf::st_bbox(GreenBay_FoxRiver_sf), 
-                           cache_data = tempfile(fileext = ".rds"))
-plot(sf::st_transform(all_wb[all_wb$wbid %in% waterbody_indexes$near_wbid,], 
-                      3857),
-     add = TRUE, 
-     col = "darkblue", border = NA)
+par(mar = c(0, 0, 0, 0))
+nhdplusTools::plot_nhdplus(
+  bbox = sf::st_bbox(GreenBay_FoxRiver_sf),
+  cache_data = tempfile(fileext = ".rds")
+)
+plot(
+  sf::st_transform(
+    all_wb[all_wb$wbid %in% waterbody_indexes$near_wbid, ],
+    3857
+  ),
+  add = TRUE,
+  col = "darkblue", border = NA
+)
 plot(sf::st_transform(sf::st_geometry(GreenBay_FoxRiver_sf_locs), 3857), add = TRUE, col = "white")
 ```
 
@@ -486,8 +505,8 @@ watershed for each particular site using
 **Discover what StreamCat metrics we might want to use**
 
 ```{r}
-metrics <- StreamCatTools::sc_get_params(param = 'metric_names')
-print(paste0('A selection of available StreamCat metrics include: ',paste(metrics[1:10],collapse = ', ')))
+metrics <- StreamCatTools::sc_get_params(param = "metric_names")
+print(paste0("A selection of available StreamCat metrics include: ", paste(metrics[1:10], collapse = ", ")))
 ```
 
 **Discover land cover of watersheds for sites**
@@ -496,19 +515,19 @@ We'll pull in all the NLCD categories at the local catchment level for
 each location
 
 ```{r}
-GB_FR_NLCD <- StreamCatTools::sc_nlcd(year='2019', aoi='cat', comid=GreenBay_FoxRiver_sf_locs$COMID)
+GB_FR_NLCD <- StreamCatTools::sc_nlcd(year = "2019", aoi = "cat", comid = GreenBay_FoxRiver_sf_locs$COMID)
 
 
-GB_FR_Urb <- GB_FR_NLCD |> 
-  dplyr::mutate(Pct_Urbanized = pcturbop2019cat+pcturbmd2019cat+pcturblo2019cat+pcturbhi2019cat) |> 
-  dplyr::select(comid,Pct_Urbanized)
+GB_FR_Urb <- GB_FR_NLCD |>
+  dplyr::mutate(Pct_Urbanized = pcturbop2019cat + pcturbmd2019cat + pcturblo2019cat + pcturbhi2019cat) |>
+  dplyr::select(comid, Pct_Urbanized)
 GB_FR_Urb
 ```
 
 **Visualize urbanization for local catchment for each location**
 
 ```{r}
-ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x=Pct_Urbanized)) + 
+ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
   ggplot2::geom_density()
 ```
 
@@ -518,7 +537,7 @@ Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
 
 ```{r}
-ws_data <- StreamCatTools::sc_get_data(metric='fert,nsurp,nani,manure,IWI', aoi='cat,ws', comid=GreenBay_FoxRiver_sf_locs$COMID)
+ws_data <- StreamCatTools::sc_get_data(metric = "fert,nsurp,nani,manure,IWI", aoi = "cat,ws", comid = GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
 # Building statistical models

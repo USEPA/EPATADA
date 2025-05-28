@@ -110,10 +110,10 @@ the `ref` input in `install_github` (see code chunk below). This
 functionality is mainly only useful to TADA package
 developers/contributors.
 
-```{r install_TADA_dev, eval = F, include = F}
+```{r install_TADA_dev, include = F}
 # helps with development (knit and checks), this chunk should not appear on the pkgdown website
 remotes::install_github("USEPA/EPATADA",
-  ref = "prerelease",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
