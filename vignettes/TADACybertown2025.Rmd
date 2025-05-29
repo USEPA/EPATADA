@@ -30,7 +30,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 A vignette is an R Markdown document that provides detailed explanations
 and examples to an R package. This vignette can be created as an html or
 other format using the knit option on the top of the RStudio toolbar.
-Users can also access the vignette on the EPATADA Github page found
+Users can also access this vignette on the EPATADA Github page found
 ([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
 
 ## Install
@@ -132,9 +132,27 @@ poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
 poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
 
 WQP_raw <- TADA_DataRetrieval(
+  startDate = "null",
+  endDate = "null",
   aoi_sf = poly.sf,
-  applyautoclean = TRUE,
-  ask = FALSE
+  countrycode = "null",
+  countycode = "null",
+  huc = "null",
+  siteid = "null",
+  siteType = "null",
+  tribal_area_type = "null",
+  tribe_name_parcel = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
+  organization = "null",
+  project = "null",
+  providers = "null",
+  bBox = "null",
+  maxrecs = 350000,
+  ask = FALSE,
+  applyautoclean = TRUE
 )
 
 # # For demo purposes, we pre-downloaded this example data
@@ -159,17 +177,11 @@ any media type that are not water in our data frame?
 
 ```{r Review and Filter By Media Type}
 # Create table with count for each ActivityMediaName
-FieldValues_ActMedia <- TADA_FieldValuesTable(WQP_raw, field = "ActivityMediaName")
-
-# Identify the number of unique media types
-n_media <- length(unique(FieldValues_ActMedia$Value))
-
-unique_media <- FieldValues_ActMedia %>%
-  dplyr::select(Value) %>%
-  dplyr::mutate(media = paste(Value, collapse = ", ")) %>%
-  dplyr::select(media) %>%
-  unique() %>%
-  stringi::stri_replace_last(fixed = ",", " and")
+TADA_FieldValuesTable(
+  WQP_raw, 
+  field = "ActivityMediaName", 
+  characteristicName = "null"
+  )
 ```
 
 The **TADA_AnalysisDataFilter** function can assist in identifying and
@@ -194,11 +206,6 @@ WQP_flag <- TADA_AnalysisDataFilter(
 # Review unique flags
 unique(WQP_flag$TADA.UseForAnalysis.Flag)
 
-# # Review flagged rows
-# WQP_flag_review <- WQP_flag %>%
-#   dplyr::filter(TADA.UseForAnalysis.Flag == "No - NA") %>%
-#   dplyr::select(c("TADA.UseForAnalysis.Flag", "ActivityMediaName", "ActivityMediaSubdivisionName", "AquiferName", "LocalAqfrName", "ConstructionDateText", "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode", "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"))
-
 # Keep rows that are NOT flagged as sediment (keep SW and NA)
 WQP_clean <- WQP_flag %>%
   dplyr::filter(TADA.UseForAnalysis.Flag != "No - SEDIMENT")
@@ -216,7 +223,11 @@ associated with each.
 
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
-sites <- TADA_FieldValuesTable(WQP_clean, field = "MonitoringLocationIdentifier")
+sites <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "MonitoringLocationIdentifier", 
+  characteristicName = "null"
+  )
 
 DT::datatable(sites, fillContainer = TRUE)
 ```
@@ -243,7 +254,11 @@ TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable2}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
+chars <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "TADA.ComparableDataIdentifier", 
+  characteristicName = "null"
+  )
 
 DT::datatable(chars, fillContainer = TRUE)
 ```
@@ -318,7 +333,7 @@ WQP_clean <- WQP_flag %>%
 ```
 
 Remove intermediate variables in R by using 'rm()'. In the remainder of
-this workshop, we will work with the clean dataset.
+this workshop, we will work with the clean data set.
 
 ```{r}
 rm(WQP_flag, WQP_flag_review)
@@ -403,7 +418,11 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable3}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
+chars <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "TADA.ComparableDataIdentifier",
+  characteristicName = "null"
+  )
 
 chars_before <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 
@@ -436,7 +455,11 @@ rm(chars_before, chars_after)
 Create a pie chart.
 
 ```{r}
-TADA_FieldValuesPie(WQP_clean, field = "TADA.CharacteristicName")
+TADA_FieldValuesPie(
+  WQP_clean, 
+  field = "TADA.CharacteristicName",
+  characteristicName = "null"
+  )
 ```
 
 ## Select characteristic
@@ -459,9 +482,10 @@ rm(WQP_clean, chars)
 
 In this section, we will associate geospatial data from **ATTAINS** with
 the **WQP** data. Our initial WQP data pull was done using a shapefile
-for Assessment Unit CT6400-00-1-L5_01. TADA functions can pull in additional ATTAINS meta data for this assessment unit. We can also generate a new
-table to give us some information about the individual monitoring
-locations within this assessment unit.
+for Assessment Unit CT6400-00-1-L5_01. TADA functions can pull in
+additional ATTAINS meta data for this assessment unit. We can also
+generate a new table to give us some information about the individual
+monitoring locations within this assessment unit.
 
 -   TADA_GetATTAINS() automates matching of WQP monitoring locations
     with ATTAINS assessment units that fall within (intersect) the same
@@ -475,9 +499,10 @@ locations within this assessment unit.
 ```{r Data Retrieval - Geospatial}
 WQP_clean_subset_spatial <- TADA_GetATTAINS(
   WQP_clean_subset,
+  return_nearest = TRUE,
   fill_catchments = FALSE,
-  return_sf = TRUE,
-  return_nearest = TRUE
+  resolution = "Hi",
+  return_sf = TRUE
 )
 
 # Adds ATTAINS info to df
@@ -557,6 +582,7 @@ magnitude of 320 CFU/100mL).
 ```{r}
 # add column with comparison to criteria mag (excursions)
 WQP_clean_subset <- WQP_clean_subset %>%
+  sf::st_drop_geometry() %>%
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
 # review
@@ -574,6 +600,7 @@ above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
 
 ```{r stats}
 WQP_clean_subset_stats <- WQP_clean_subset %>%
+  sf::st_drop_geometry() %>%
   TADA_Stats()
 ```
 
