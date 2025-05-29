@@ -25,6 +25,14 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
+## Accessing vignette
+
+A vignette is an R Markdown document that provides detailed explanations
+and examples to an R package. This vignette can be created as an html or
+other format using the knit option on the top of the RStudio toolbar.
+Users can also access the vignette on the EPATADA Github page found
+([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
+
 ## Install
 
 First, install and load the remotes package specifying the repo. This is
@@ -145,12 +153,34 @@ Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
 our water quality analysis and area of interest.
 
+TADA is primarily designed to accommodate water data from the WQP. Let’s
+see what activity media types are represented in the data set. Are there
+any media type that are not water in our data frame?
+
+```{r Review and Filter By Media Type}
+# Create table with count for each ActivityMediaName
+FieldValues_ActMedia <- TADA_FieldValuesTable(WQP_raw, field = "ActivityMediaName")
+
+# Identify the number of unique media types
+n_media <- length(unique(FieldValues_ActMedia$Value))
+
+unique_media <- FieldValues_ActMedia %>%
+  dplyr::select(Value) %>%
+  dplyr::mutate(media = paste(Value, collapse = ", ")) %>%
+  dplyr::select(media) %>%
+  unique() %>%
+  stringi::stri_replace_last(fixed = ",", " and")
+```
+
 The **TADA_AnalysisDataFilter** function can assist in identifying and
 filtering surface water, groundwater, and sediment results. If you set
 clean = FALSE, this function will categorize and flag (but not remove)
 rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the
 default functionality (clean = TRUE) is to include surface water and
-exclude groundwater and sediment results.
+exclude groundwater and sediment results. For this example, we will
+choose to exclude any results that have been explicitly identified as
+groundwater or sediment if any results were found. Our data set does not
+contain any ground water or sediment results to remove.
 
 ```{r TADA_AnalysisDataFilter}
 WQP_flag <- TADA_AnalysisDataFilter(
@@ -164,10 +194,10 @@ WQP_flag <- TADA_AnalysisDataFilter(
 # Review unique flags
 unique(WQP_flag$TADA.UseForAnalysis.Flag)
 
-# Review flagged rows
-WQP_flag_review <- WQP_flag %>%
-  dplyr::filter(TADA.UseForAnalysis.Flag == "No - NA") %>%
-  dplyr::select(c("TADA.UseForAnalysis.Flag", "ActivityMediaName", "ActivityMediaSubdivisionName", "AquiferName", "LocalAqfrName", "ConstructionDateText", "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode", "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"))
+# # Review flagged rows
+# WQP_flag_review <- WQP_flag %>%
+#   dplyr::filter(TADA.UseForAnalysis.Flag == "No - NA") %>%
+#   dplyr::select(c("TADA.UseForAnalysis.Flag", "ActivityMediaName", "ActivityMediaSubdivisionName", "AquiferName", "LocalAqfrName", "ConstructionDateText", "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode", "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"))
 
 # Keep rows that are NOT flagged as sediment (keep SW and NA)
 WQP_clean <- WQP_flag %>%
@@ -194,7 +224,13 @@ DT::datatable(sites, fillContainer = TRUE)
 Are there sites located within 100 meters of each other?
 
 ```{r TADA_FlagCoordinates}
-WQP_clean <- TADA_FindNearbySites(WQP_clean)
+WQP_clean <- TADA_FindNearbySites(
+  WQP_clean,
+  dist_buffer = 100,
+  nhd_res = "Hi",
+  org_hierarchy = "none",
+  meta_select = "random"
+  )
 
 TADA_NearbySitesMap(WQP_clean)
 ```
@@ -422,10 +458,10 @@ rm(WQP_clean, chars)
 ## Integrate ATTAINS and map
 
 In this section, we will associate geospatial data from **ATTAINS** with
-the **WQP** data, and filter the dataset to retain only results that
-were collected in specified Assessment Unit(s). We can also generate a
-new table to give us some information about the individual monitoring
-locations within the assessment unit(s).
+the **WQP** data. Our initial WQP data pull was done using a shapefile
+for Assessment Unit CT6400-00-1-L5_01. TADA functions can pull in additional ATTAINS meta data for this assessment unit. We can also generate a new
+table to give us some information about the individual monitoring
+locations within this assessment unit.
 
 -   TADA_GetATTAINS() automates matching of WQP monitoring locations
     with ATTAINS assessment units that fall within (intersect) the same
