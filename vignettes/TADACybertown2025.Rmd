@@ -27,10 +27,12 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## Accessing vignette
 
-A vignette is an R Markdown document that provides detailed explanations
-and examples to an R package. This vignette can be created as an html or
-other format using the knit option on the top of the RStudio toolbar.
-Users can also access this vignette on the EPATADA Github page found
+A vignette is a long-form guide to a package often written as a R
+Markdown document, such as this one. It provides detailed explanations
+of functions and showcases an example workflow. This vignette can be
+created as an html document or other format using the knit option on the
+top of the RStudio toolbar. Users can also access this vignette on the
+EPATADA Github page found
 ([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
 
 ## Install
@@ -55,22 +57,22 @@ pre[class] {
 }
 ```
 
-Next, install (or update) and load the *EPATADA* R package using the
-*remotes* R package. Additional dependency R packages that are used
-within *EPATADA* will be downloaded automatically. You may be prompted
-in the console to update dependency packages that have more recent
-versions available. If you see this prompt, it is recommended to update
-all of them (enter 1 into the console). Our team is actively developing
-*EPATADA*, therefore we highly recommend that you update the package
-(and all of its dependencies) each time you use it.
+Next, install (or update) the *EPATADA* R package using the *remotes* R
+package. Additional dependency R packages that are used within *EPATADA*
+will be downloaded automatically. You may be prompted in the console to
+update dependency packages that have more recent versions available. If
+you see this prompt, it is recommended to update all of them (enter 1
+into the console). Our team is actively developing *EPATADA*, therefore
+we highly recommend that you update the package (and all of its
+dependencies) each time you use it.
 
-```{r install, eval = F, results = 'hide'}
+```{r install EPATADA}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
-library(EPATADA)
 ```
 
-```{r install_dev, eval = T, include = F}
-remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+Load the EPATADA R Package.
+
+```{r load EPATADA}
 library(EPATADA)
 ```
 
@@ -576,8 +578,9 @@ If interested, you can find other state, tribal, and EPA 304A criteria
 in [EPA's Criteria Search
 Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
 
-We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria
-magnitude of 320 CFU/100mL).
+Let's check if any individual results exceed 320 CFU/100mL (the
+magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
+COLI).
 
 ```{r}
 # add column with comparison to criteria mag (excursions)
@@ -604,7 +607,7 @@ WQP_clean_subset_stats <- WQP_clean_subset %>%
   TADA_Stats()
 ```
 
-Generate a scatterplot. Only one result value is above the threshold.
+Generate a scatterplot. One result value is above the threshold.
 
 ```{r}
 TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") %>%
