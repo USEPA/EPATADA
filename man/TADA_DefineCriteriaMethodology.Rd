@@ -6,7 +6,6 @@
 \usage{
 TADA_DefineCriteriaMethodology(
   .data,
-  ref = "TADA",
   spatialRef = NULL,
   excel = TRUE,
   overwrite = FALSE
@@ -15,8 +14,6 @@ TADA_DefineCriteriaMethodology(
 \arguments{
 \item{.data}{A TADA dataframe. Users should run the appropriate data cleaning,
 processing, harmonization and filtering functions prior to this step.}
-
-\item{ref}{"TADA"}
 
 \item{spatialRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
@@ -32,6 +29,8 @@ the cells in which users should input information.}
 \item{overwrite}{A Boolean value that ensures the function will not overwrite
 the user supplied crosswalk entered into this function via the paramRef
 function input. This helps prevent users from overwriting their progress.}
+
+\item{ref}{"TADA"}
 }
 \value{
 A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter

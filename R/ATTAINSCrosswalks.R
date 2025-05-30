@@ -1403,7 +1403,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       tidyr::drop_na() %>%
       dplyr::distinct()
 
-    useParamRef <- CreateUseParamRef %>%
+    CreateUseParamRef_temp <- CreateUseParamRef %>%
       dplyr::filter(is.na(ATTAINS.UseName)) %>%
       dplyr::left_join(use.names, by = c("ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
@@ -1412,10 +1412,10 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       # dplyr::select(-c(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) %>%
       dplyr::mutate(IncludeOrExclude = "Include")
 
-    useParamRef <- CreateUseParamRef %>%
+    CreateUseParamRef <- CreateUseParamRef %>%
       # dplyr::select(TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.OrganizationIdentifier) %>%
       dplyr::filter(!is.na(ATTAINS.UseName)) %>%
-      dplyr::full_join(useParamRef, by = c("ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.FlagUseName")) %>%
+      dplyr::full_join(CreateUseParamRef_temp, by = c("ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.FlagUseName")) %>%
       dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
         paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all$ATTAINS.UseName) ~
           "Use name is listed as a prior cause in ATTAINS for this organization",
@@ -1574,7 +1574,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         sheet = "CreateUseParamRef",
         cols = 4, rows = 2:1000,
         type = "list",
-        value = sprintf("'ATTAINSOrgNamesParamRef'!$C$2:$C$50000"),
+        value = sprintf("'ATTAINSOrgNamesParamRef'!$E$2:$E$50000"),
         allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
       )
     )
