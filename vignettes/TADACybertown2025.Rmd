@@ -25,6 +25,16 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
+## Accessing vignette
+
+A [vignette](https://r-pkgs.org/vignettes.html) is a long-form guide to
+a package often written as a R Markdown document, such as this one. It
+provides detailed explanations of functions and showcases an example
+workflow. This vignette can be created as an html document or other
+format using the knit option on the top of the RStudio toolbar. Users
+can also access this vignette on the EPATADA Github page found
+([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
+
 ## Install
 
 First, install and load the remotes package specifying the repo. This is
@@ -47,22 +57,22 @@ pre[class] {
 }
 ```
 
-Next, install (or update) and load the *EPATADA* R package using the
-*remotes* R package. Additional dependency R packages that are used
-within *EPATADA* will be downloaded automatically. You may be prompted
-in the console to update dependency packages that have more recent
-versions available. If you see this prompt, it is recommended to update
-all of them (enter 1 into the console). Our team is actively developing
-*EPATADA*, therefore we highly recommend that you update the package
-(and all of its dependencies) each time you use it.
+Next, install (or update) the *EPATADA* R package using the *remotes* R
+package. Additional dependency R packages that are used within *EPATADA*
+will be downloaded automatically. You may be prompted in the console to
+update dependency packages that have more recent versions available. If
+you see this prompt, it is recommended to update all of them (enter 1
+into the console). Our team is actively developing *EPATADA*, therefore
+we highly recommend that you update the package (and all of its
+dependencies) each time you use it.
 
-```{r install, eval = F, results = 'hide'}
+```{r install EPATADA}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
-library(EPATADA)
 ```
 
-```{r install_dev, eval = T, include = F}
-remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+Load the EPATADA R Package.
+
+```{r load EPATADA}
 library(EPATADA)
 ```
 
@@ -124,9 +134,27 @@ poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
 poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
 
 WQP_raw <- TADA_DataRetrieval(
+  startDate = "null",
+  endDate = "null",
   aoi_sf = poly.sf,
-  applyautoclean = TRUE,
-  ask = FALSE
+  countrycode = "null",
+  countycode = "null",
+  huc = "null",
+  siteid = "null",
+  siteType = "null",
+  tribal_area_type = "null",
+  tribe_name_parcel = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
+  organization = "null",
+  project = "null",
+  providers = "null",
+  bBox = "null",
+  maxrecs = 350000,
+  ask = FALSE,
+  applyautoclean = TRUE
 )
 
 # # For demo purposes, we pre-downloaded this example data
@@ -145,12 +173,28 @@ Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
 our water quality analysis and area of interest.
 
+TADA is primarily designed to accommodate water data from the WQP. Let’s
+see what activity media types are represented in the data set. Are there
+any media type that are not water in our data frame?
+
+```{r Review and Filter By Media Type}
+# Create table with count for each ActivityMediaName
+TADA_FieldValuesTable(
+  WQP_raw, 
+  field = "ActivityMediaName", 
+  characteristicName = "null"
+  )
+```
+
 The **TADA_AnalysisDataFilter** function can assist in identifying and
 filtering surface water, groundwater, and sediment results. If you set
 clean = FALSE, this function will categorize and flag (but not remove)
 rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the
 default functionality (clean = TRUE) is to include surface water and
-exclude groundwater and sediment results.
+exclude groundwater and sediment results. For this example, we will
+choose to exclude any results that have been explicitly identified as
+groundwater or sediment if any results were found. Our data set does not
+contain any ground water or sediment results to remove.
 
 ```{r TADA_AnalysisDataFilter}
 WQP_flag <- TADA_AnalysisDataFilter(
@@ -163,11 +207,6 @@ WQP_flag <- TADA_AnalysisDataFilter(
 
 # Review unique flags
 unique(WQP_flag$TADA.UseForAnalysis.Flag)
-
-# Review flagged rows
-WQP_flag_review <- WQP_flag %>%
-  dplyr::filter(TADA.UseForAnalysis.Flag == "No - NA") %>%
-  dplyr::select(c("TADA.UseForAnalysis.Flag", "ActivityMediaName", "ActivityMediaSubdivisionName", "AquiferName", "LocalAqfrName", "ConstructionDateText", "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode", "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"))
 
 # Keep rows that are NOT flagged as sediment (keep SW and NA)
 WQP_clean <- WQP_flag %>%
@@ -186,7 +225,11 @@ associated with each.
 
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
-sites <- TADA_FieldValuesTable(WQP_clean, field = "MonitoringLocationIdentifier")
+sites <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "MonitoringLocationIdentifier", 
+  characteristicName = "null"
+  )
 
 DT::datatable(sites, fillContainer = TRUE)
 ```
@@ -194,7 +237,13 @@ DT::datatable(sites, fillContainer = TRUE)
 Are there sites located within 100 meters of each other?
 
 ```{r TADA_FlagCoordinates}
-WQP_clean <- TADA_FindNearbySites(WQP_clean)
+WQP_clean <- TADA_FindNearbySites(
+  WQP_clean,
+  dist_buffer = 100,
+  nhd_res = "Hi",
+  org_hierarchy = "none",
+  meta_select = "random"
+  )
 
 TADA_NearbySitesMap(WQP_clean)
 ```
@@ -207,7 +256,11 @@ TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable2}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
+chars <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "TADA.ComparableDataIdentifier", 
+  characteristicName = "null"
+  )
 
 DT::datatable(chars, fillContainer = TRUE)
 ```
@@ -282,7 +335,7 @@ WQP_clean <- WQP_flag %>%
 ```
 
 Remove intermediate variables in R by using 'rm()'. In the remainder of
-this workshop, we will work with the clean dataset.
+this workshop, we will work with the clean data set.
 
 ```{r}
 rm(WQP_flag, WQP_flag_review)
@@ -367,7 +420,11 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 
 ```{r TADA_FieldValuesTable3}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-chars <- TADA_FieldValuesTable(WQP_clean, field = "TADA.ComparableDataIdentifier")
+chars <- TADA_FieldValuesTable(
+  WQP_clean, 
+  field = "TADA.ComparableDataIdentifier",
+  characteristicName = "null"
+  )
 
 chars_before <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 
@@ -400,7 +457,11 @@ rm(chars_before, chars_after)
 Create a pie chart.
 
 ```{r}
-TADA_FieldValuesPie(WQP_clean, field = "TADA.CharacteristicName")
+TADA_FieldValuesPie(
+  WQP_clean, 
+  field = "TADA.CharacteristicName",
+  characteristicName = "null"
+  )
 ```
 
 ## Select characteristic
@@ -422,10 +483,11 @@ rm(WQP_clean, chars)
 ## Integrate ATTAINS and map
 
 In this section, we will associate geospatial data from **ATTAINS** with
-the **WQP** data, and filter the dataset to retain only results that
-were collected in specified Assessment Unit(s). We can also generate a
-new table to give us some information about the individual monitoring
-locations within the assessment unit(s).
+the **WQP** data. Our initial WQP data pull was done using a shapefile
+for Assessment Unit CT6400-00-1-L5_01. TADA functions can pull in
+additional ATTAINS meta data for this assessment unit. We can also
+generate a new table to give us some information about the individual
+monitoring locations within this assessment unit.
 
 -   TADA_GetATTAINS() automates matching of WQP monitoring locations
     with ATTAINS assessment units that fall within (intersect) the same
@@ -439,9 +501,10 @@ locations within the assessment unit(s).
 ```{r Data Retrieval - Geospatial}
 WQP_clean_subset_spatial <- TADA_GetATTAINS(
   WQP_clean_subset,
+  return_nearest = TRUE,
   fill_catchments = FALSE,
-  return_sf = TRUE,
-  return_nearest = TRUE
+  resolution = "Hi",
+  return_sf = TRUE
 )
 
 # Adds ATTAINS info to df
@@ -494,7 +557,8 @@ unique(WQP_clean_subset$TADA.ComparableDataIdentifier)
 ```
 
 Let's check if any results are above the EPA 304A recommended maximum
-criteria magnitude.
+criteria magnitude (see: [2012 Recreational Water Quality Criteria Fact
+Sheet](https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)).
 
 [![EPA 2012 recreational water quality criteria (RWQC) recommendations
 for protecting human health in all coastal and non-coastal waters
@@ -510,18 +574,18 @@ percent of the samples in the same 30-day interval. The table summarizes
 the magnitude component of the
 recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
 
-<chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf>
+If interested, you can find other state, tribal, and EPA 304A criteria
+in [EPA's Criteria Search
+Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
 
-You can find other state, tribal, and EPA 304A criteria in the Criteria
-Search Tool:
-<https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa>
-
-We will apply EPA recommendation 2 for ESCHERICHIA COLI (criteria
-magnitude of 320 CFU/100mL).
+Let's check if any individual results exceed 320 CFU/100mL (the
+magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
+COLI).
 
 ```{r}
 # add column with comparison to criteria mag (excursions)
 WQP_clean_subset <- WQP_clean_subset %>%
+  sf::st_drop_geometry() %>%
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
 # review
@@ -539,10 +603,11 @@ above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
 
 ```{r stats}
 WQP_clean_subset_stats <- WQP_clean_subset %>%
+  sf::st_drop_geometry() %>%
   TADA_Stats()
 ```
 
-Generate a scatterplot. Only one result value is above the threshold.
+Generate a scatterplot. One result value is above the threshold.
 
 ```{r}
 TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") %>%
