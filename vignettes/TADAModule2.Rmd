@@ -81,7 +81,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "594-tada_insertbreak-bug-report",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
@@ -294,7 +294,7 @@ information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering `fill_catchments = TRUE`:
 
 ```{r}
-TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_neares = FALSE)
+TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_nearest = FALSE)
 ```
 
 When `fill_catchments = TRUE`, the returned list splits observations
@@ -448,7 +448,7 @@ daily value (DV) water data. Like `TADA_listNWIS()`, users can query
 data based on an area of interest (i.e., an sf object), statecode, or
 specific sites.
 
-Additionally, users must specify the parameter codes and statstics they
+Additionally, users must specify the parameter codes and statistics they
 want to download and a date range. A list of all available parameters
 can be found at:
 [https://help.waterdata.usgs.gov/parameter_cd?group_cd=%](https://help.waterdata.usgs.gov/parameter_cd?group_cd=%){.uri}

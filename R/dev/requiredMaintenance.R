@@ -260,4 +260,4 @@ devtools::test()
 # devtools::check()
 
 # more robust test for releases (includes broken link check)
-devtools::check(manual = TRUE, remote = TRUE, incoming = TRUE)
+devtools::check(manual = FALSE, remote = TRUE, incoming = TRUE)
