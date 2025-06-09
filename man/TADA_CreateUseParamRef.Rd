@@ -98,7 +98,7 @@ proceed by overriding the data validation by value pasting in Excel.
 Users will be warned in the ATTAINS.FlagUseName column if they choose to
 include an ATTAINS use name that was not listed in prior ATTAINS assessment cycles as:
 'Use name is not listed as a prior cause in ATTAINS for this organization' or
-'Use name is listed as a prior cause in this organization, but not for this parameter name'.
+'Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name'.
 
 Note: Future development work will allow for crosswalking other names from the WQP
 such as using pollutant names from the EPA's Criteria Search Tool (CST):

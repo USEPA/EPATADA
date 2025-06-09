@@ -7,6 +7,7 @@
 TADA_DefineCriteriaMethodology(
   .data,
   spatialRef = NULL,
+  epa304a = FALSE,
   excel = TRUE,
   overwrite = FALSE
 )

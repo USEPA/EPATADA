@@ -78,7 +78,7 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -137,7 +137,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("
         AcuteChronic = as.character(NA), SaltFresh = as.character(NA), WaterDepth = as.numeric(NA),
         BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
         MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
-        MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA)
+        MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA),
+        DurationValue = as.numeric(NA),	DurationUnit = as.character(NA),	FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
+        MinimumSamplingFrequency = as.numeric(NA),	MinimumSampleSize = as.numeric(NA),	MinimumSamplingPeriod = as.numeric(NA),	SamplingDepth = as.numeric(NA)
       )
     ) %>%
     dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
@@ -150,14 +152,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("
       "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "WaterDepth", "BegAssessDate", "EndAssessDate",
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "DurationValue",	"DurationUnit",	"FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      "MinimumSamplingFrequency",	"MinimumSampleSize",	"MinimumSamplingPeriod",	"SamplingDepth"
+      
     )
 
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
     dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
     dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
 
-  if ("EPA304a" %in% DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier) {
+  if (epa304a == TRUE) {
     DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
       dplyr::left_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
@@ -170,13 +175,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("
         stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
         CRITERION_VALUE
       )) %>%
-      dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
+      dplyr::mutate(dplyr::across(
+        c(
+          MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FrequencyCriteriaValue,	
+          MinimumSampleSize, MinimumSamplingPeriod,	SamplingDepth
+          ), as.numeric)) %>%
       dplyr::mutate(dplyr::across(
         c(
           ATTAINS.waterTypeCode,
           MonitoringLocationTypeName,
           AcuteChronic, SaltFresh, Season, EquationBased,
-          ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
+          ApplyUniqueSpatialCriteria # Will depend on the user's crosswalk of ML to this criteria for filtering.
         ), as.factor
       )) %>%
       dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
@@ -228,7 +237,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("
       "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
       "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
       "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "DurationValue",	"DurationUnit",	"FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      "MinimumSamplingFrequency",	"MinimumSampleSize",	"MinimumSamplingPeriod",	"SamplingDepth"
     )
 
     # Format column header
@@ -243,28 +254,28 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, # ref = c("
     openxlsx::writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = DefineCriteriaMethodology, headerStyle = header_st)
     # writeData(wb, "DefineCriteriaMethodology", startCol = 13, startRow = 1, x = MagnitudeValue)
 
-    openxlsx::writeData(wb, "Index", startCol = 9, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
+    openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
 
-    openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(ATTAINS.waterTypeCode = c(unique(spatialRef$ATTAINS.waterTypeCode), "All", "NA"))) # ATTAINS.waterTypeCode
-    openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
-    openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
+    openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(ATTAINS.waterTypeCode = c(unique(spatialRef$ATTAINS.waterTypeCode), "All", "NA"))) # ATTAINS.waterTypeCode
+    openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
+    openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
 
-    openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) # Season
+    openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) # Season
 
-    openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA"))) # ApplyUniqueSpatialCriteria
-    openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
+    openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA"))) # ApplyUniqueSpatialCriteria
+    openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
 
-    openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
+    openxlsx::writeData(wb, "Index", startCol = 17, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
 
     # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$Q$2:$Q$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
 
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
