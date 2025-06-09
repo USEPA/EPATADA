@@ -1354,7 +1354,11 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       is.na(ATTAINS.UseName),
       "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
       "Use name is listed as a prior cause in ATTAINS for this organization."
-    ))
+    )) %>%
+    dplyr::mutate(
+      Flag.UseInput =
+        "Default: no modification was made to this row."
+    )
 
   # If users want the EPA304a criteria. This pulls in the CST reference file.
   # Extracts the associated EPA304a pollutant names and its use_names.
@@ -1417,12 +1421,16 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
       # dplyr::mutate(TADA.ComparableDataIdentifier = dplyr::coalesce(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) %>%
       # dplyr::select(-c(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) %>%
-      dplyr::mutate(IncludeOrExclude = "Include")
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      dplyr::mutate(
+        Flag.UseInput =
+          "This row was MODIFIED by your input(s)."
+      )
 
     CreateUseParamRef <- CreateUseParamRef %>%
       # dplyr::select(TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.OrganizationIdentifier) %>%
       dplyr::filter(!is.na(ATTAINS.UseName)) %>%
-      dplyr::full_join(CreateUseParamRef_temp, by = c("ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.FlagUseName")) %>%
+      dplyr::full_join(CreateUseParamRef_temp, by = c("ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.FlagUseName", "Flag.UseInput")) %>%
       dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
         paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all$ATTAINS.UseName) ~
           "Use name is listed as a prior cause in ATTAINS for this organization.",
@@ -1436,7 +1444,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       dplyr::select(-c(TADA.ComparableDataIdentifier.x, TADA.ComparableDataIdentifier.y)) %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-        IncludeOrExclude, ATTAINS.FlagUseName
+        IncludeOrExclude, ATTAINS.FlagUseName, Flag.UseInput
       ) %>%
       dplyr::arrange(match(IncludeOrExclude, c("Include")), ATTAINS.OrganizationIdentifier, ATTAINS.UseName) %>%
       dplyr::distinct()
