@@ -251,7 +251,8 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' sediment results are identified as not usable for analysis.
 #'
 #' @return If clean = TRUE, returns the dataframe with only the media types
-#' selected as usable (set to TRUE in function input) by the user.
+#' selected as usable (set to TRUE in function input) by the user and media types which could not
+#' be identified (labeled as "OTHER" for user review) are returned.
 #' If clean = FALSE, returns the dataframe and an additional column,
 #' TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
 #' and which results should be included or excluded from assessments based on user input.
@@ -356,19 +357,24 @@ TADA_AnalysisDataFilter <- function(.data,
     print("TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments.")
   }
 
+  # add media flag
+  .data <- .data %>%
+    dplyr::mutate(
+      TADA.Media.Flag = ifelse(TADA.Media.Flag == "" |
+                                 is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag),
+      TADA.UseForAnalysis.Flag = dplyr::case_when(
+        TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
+        TADA.Media.Flag == "OTHER" ~ "No - OTHER",
+        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
+      )
+    )
+      
   if (clean == TRUE) {
     .data <- .data %>%
-      dplyr::mutate(
-        TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
-        TADA.UseForAnalysis.Flag = dplyr::case_when(
-          TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "OTHER" ~ "No - OTHER",
-          !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
-        )
-      ) %>%
-      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
+      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes") |
+                    TADA.Media.Flag == "No - OTHER") %>%
       dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) %>%
       TADA_OrderCols()
 
@@ -379,19 +385,8 @@ TADA_AnalysisDataFilter <- function(.data,
 
   if (clean == FALSE) {
     .data <- .data %>%
-      dplyr::mutate(
-        TADA.Media.Flag = ifelse(TADA.Media.Flag == "", "OTHER", TADA.Media.Flag),
-        TADA.UseForAnalysis.Flag = dplyr::case_when(
-          TADA.Media.Flag == "SEDIMENT" ~ paste(sed.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "SURFACE WATER" ~ paste(sur.water.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "GROUNDWATER" ~ paste(gr.water.flag, " - ", TADA.Media.Flag, sep = ""),
-          TADA.Media.Flag == "OTHER" ~ "No - OTHER",
-          !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
-        )
-      ) %>%
       dplyr::select(-TADA.Media.Flag) %>%
       TADA_OrderCols()
-
 
     print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")
 
