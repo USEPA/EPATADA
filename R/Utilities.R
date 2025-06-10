@@ -1792,6 +1792,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
   return(swatch)
 }
 
+
 #' Remove NAs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
@@ -1835,6 +1836,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
   return(labs)
 }
 
+
 #' Create downloadable table
 #'
 #' This function creates a data table that can be downloaded as a .csv, .xlsx or .pdf.
@@ -1852,7 +1854,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
-    print("No dataframe provided. Please enter a dataframe to return")
+    stop("Input object must be of class 'data.frame'")
   }
 
   data <- DT::datatable(.data,
@@ -1871,4 +1873,35 @@ TADA_TableExport <- function(.data = NULL) {
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
 
   return(data)
+}
+
+
+#' Create a simple CSV file
+#'
+#' This function creates a csv file with the name of the data frame
+#' as the file name under the user's download folder. This function is
+#' intended to produce a csv output for uploads to ATTAINS or WQX.
+#' But can also be used for exporting csv files for general use cases.
+#'
+#' @param .data A data frame
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Returns a csv file of the example Data_Nutrients_UT TADA data frame.
+#' TADA_CreateCSV(Data_Nutrients_UT)
+#' }
+TADA_CreateCSV <- function(.data) {
+  if (!is.data.frame(.data)) {
+    stop("Input object must be of class 'data.frame'")
+  }
+
+  df_name <- deparse(substitute(.data))
+
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
+
+  write.csv(.data, file = downloads_path, row.names = FALSE)
+
+  cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
