@@ -144,7 +144,7 @@ ATTAINS assessment cycles.
 # Example below generates the same output as a dataframe
 paramRef_UT <- TADA_CreateParamRef(
   Data_Nutrients_UT,
-  org_id = "UTAHDWQ", excel = FALSE
+  org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
 )
 # Users can choose to edit the paramRef_UT through the R environment or in
 # the excel spreadsheet. Users should be aware that any updates done only
@@ -165,7 +165,12 @@ paramRef_UT2 <- dplyr::mutate(paramRef_UT,
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
   paramRef = paramRef_UT2,
-  org_id = "UTAHDWQ", excel = FALSE
+  org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
+)
+
+# How does fillBy = "All" compare to paramRef_UT3?
+paramRef_UT4 <- TADA_CreateParamRef(Data_Nutrients_UT,
+  org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
 )
 
 # Example where multiple org_id's are selected
@@ -177,7 +182,7 @@ Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
 paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
   org_id =
-    c("MDE_EASP", "21VASWCB", "21PA"), excel = FALSE
+    c("MDE_EASP", "21VASWCB", "21PA"), fillBy = "All", excel = FALSE
 )
 }
 
