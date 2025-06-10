@@ -27,8 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
-  eval = F
+  message = FALSE
 )
 ```
 
@@ -49,11 +48,22 @@ welcome collaboration with external partners!
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub.
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
 library(remotes)
+```
+
+```{css, include = F}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 300px;
+}
 ```
 
 Next, install and load the EPATADA R Package using the remotes package.
@@ -62,15 +72,14 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA_dev, include = F}
-# helps with development (knit and checks), this chunk should not appear on the pkgdown website
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
 ```
 
-```{r install_TADA, eval = F, results = 'hide'}
+```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -80,7 +89,7 @@ remotes::install_github("USEPA/EPATADA",
 Finally, use the **library()** function to load the EPATADA R Package
 into your R session.
 
-```{r library, results = 'hide'}
+```{r, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -137,7 +146,7 @@ process should be completed by users before utilizing Module 3
 functions. The example TADA data frame used in this vignette
 (Data_HUC8_02070004_Mod1Output) has already been through this process.
 
-```{r}
+```{r Load Example Data Set}
 # import example data set (output of Module 1 Workflow)
 Data_NCTC <- Data_HUC8_02070004_Mod1Output
 ```
@@ -160,7 +169,7 @@ fraction and speciation combinations from the example data frame
 (TADA.ComparableDataIdentifier) and how many results are available for
 each within the example data set (Data_NCTC).
 
-```{r}
+```{r Create Unique Counts}
 # create table with counts of TADA.ComparableDataIdentifiers
 TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 ```
@@ -171,7 +180,7 @@ function from rATTAINS, which provides functions for downloading tidy
 data from the ATTAINS public web services
 (<https://github.com/mps9506/rATTAINS>).
 
-```{r, eval = FALSE, echo = FALSE}
+```{r Access ATTAINS Domain Values}
 # return ATTAINS domain names
 rATTAINS::domain_values()
 
@@ -295,7 +304,7 @@ flags rows where the TADA.ComparableDataIdentifier as not been assigned
 an ATTAINS parameter name.
 
 ```{r}
-# only run the code chunks below if you make edits to the excel file.
+# only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
 
 # downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 # ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
@@ -501,7 +510,7 @@ organization. In excel, there will be a drop down list of organization
 assessments. If no excel file is generated, this is an example workflow
 of how a user can edit the table in the R environment.
 
-```{r paged.print=TRUE}
+```{r}
 add_data <- data.frame(
   "ATTAINS.OrganizationIdentifier" = "MDE_EASP",
   "ATTAINS.ParameterName" = rep("PH", 3),
