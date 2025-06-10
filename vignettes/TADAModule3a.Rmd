@@ -455,7 +455,7 @@ NCTC_ParamRef4 <- TADA_CreateParamRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-ParamRef2 <- dplyr::mutate(NCTC_ParamRef2, ATTAINS.ParameterName = dplyr::case_when(
+ParamRef2 <- dplyr::mutate(NCTC_ParamRef4, ATTAINS.ParameterName = dplyr::case_when(
   grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",
   TADA.ComparableDataIdentifier == "ZINC_DISSOLVED_NA_UG/L" ~ "ZINC",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITROGEN, TOTAL"
