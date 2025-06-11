@@ -819,7 +819,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       ) %>%
       # since fillBy = Org matches only, then we must flag the parameter name, then only keep if it is a match
       dplyr::mutate(ATTAINS.ParameterName = dplyr::if_else(
-        ATTAINS.FlagParameterName == "Parameter name is listed as a prior cause in ATTAINS for this organization",
+        ATTAINS.FlagParameterName == "Parameter name is listed as a prior cause in ATTAINS for this organization.",
         ATTAINS.ParameterName,
         NA
       )) %>%

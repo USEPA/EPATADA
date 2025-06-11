@@ -44,7 +44,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest ATTAINS Organization Reference Table failed!")
+    message("Downloading latest ATTAINS and WQP Char Ref Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA")))
   }
