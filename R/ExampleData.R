@@ -15,20 +15,6 @@
 #' @format A dataframe with 14592 rows and 152 variables
 NULL
 
-#' Data_Nutrients_UT_GetATTAINS
-#'
-#' A dataframe containing Ammonia, Nitrate, and Nitrogen data from Utah
-#' with TADA_GetATTAINS ran:
-#'
-#' Data_Nutrients_UT_GetATTAINS <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE)
-#'
-#' @docType data
-#' @keywords dataframe
-#' @name Data_Nutrients_UT_GetATTAINS
-#' @usage data(Data_Nutrients_UT_GetATTAINS)
-#' @format A dataframe with 14674 rows and 188 variables
-NULL
-
 #' Data_6Tribes_5y
 #'
 #' Original pull:
@@ -134,20 +120,6 @@ NULL
 #' @name Data_HUC8_02070004_Mod1Output
 #' @usage data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
-NULL
-
-#' Data_WV_Mod1_Output_GetATTAINS
-#'
-#' See Module 1 Workflow.R script in vignettes folder
-#' This is the final data after running a recommended module 1 workflow
-#' and running TADA_GetATTAINS on this data frame.
-#' It can be used as a starting point for Modules 2 or 3.
-#'
-#' @docType data
-#' @keywords data frame
-#' @name Data_WV_Mod1_Output_GetATTAINS
-#' @usage data(Data_WV_Mod1_Output_GetATTAINS)
-#' @format A list of data frame with 84 rows and 161 variables
 NULL
 
 #' cybertown

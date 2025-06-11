@@ -22,7 +22,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <- rATTAINS::domain_values(domain_name = "ParameterName")[, "name"]
+      attainsParamRef <- data.frame(rExpertQuery::EQ_DomainValues('param_name')[,"name"])
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
@@ -89,7 +89,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      rATTAINS::domain_values(domain_name = "OrgName")
+      rExpertQuery::EQ_DomainValues('org_id')
     },
     error = function(err) {
       NULL
@@ -144,8 +144,8 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
-      # reads rATTAINS domain value
-      org_id <- rATTAINS::domain_values("OrgName")[[3]]
+      # reads rExpertQuery domain value
+      org_id <- rExpertQuery::EQ_DomainValues('org_id')[[3]]
       all.data <- list()
 
       for (i in 1:length(org_id)) {

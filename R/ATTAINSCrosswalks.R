@@ -53,21 +53,20 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
   if (org_id %in% org.ref$code) {
     rm(org.ref)
 
-    au.info <- rATTAINS::assessment_units(organization_id = org_id)
+    au.info <- rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5")
 
     au.crosswalk <- au.info %>%
-      tidyr::unnest(monitoring_stations) %>%
       dplyr::select(
-        monitoring_location_identifier, monitoring_organization_identifier,
-        assessment_unit_identifier, monitoring_data_link_text
+        monitoringLocationId, monitoringLocationOrgId,
+        assessmentUnitId, monitoringLocationDataLink
       ) %>%
-      dplyr::filter(!is.na(monitoring_location_identifier)) %>%
+      dplyr::filter(!is.na(monitoringLocationId)) %>%
       dplyr::distinct() %>%
       dplyr::rename(
-        ATTAINS.assessmentunitidentifier = assessment_unit_identifier,
-        MonitoringLocationIdentifier = monitoring_location_identifier,
-        OrganizationIdentifier = monitoring_organization_identifier,
-        MonitoringDataLinkText = monitoring_data_link_text
+        ATTAINS.assessmentunitidentifier = assessmentUnitId,
+        MonitoringLocationIdentifier = monitoringLocationId,
+        OrganizationIdentifier = monitoringLocationOrgId,
+        MonitoringDataLinkText = monitoringLocationDataLink
       ) %>%
       # paste org_id in front of MLs from the specified org if they are missing
       # from ATTAINS

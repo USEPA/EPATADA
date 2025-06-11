@@ -106,6 +106,11 @@ utils::globalVariables(c(
   "assessment_unit_identifier", "monitoring_data_link_text", "monitoring_location_identifier",
   "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
   "organization_identifier.y", "parameter", "use_name", "use_name.y",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName.y",
+  "ATTAINS.UseName", "ATTAINS.UseName.x", "ATTAINS.UseName.y",
+  "Flag.ParameterInput", "Flag.UseInput", "TADA.ComparableDataIdentifier.x",
+  "TADA.ComparableDataIdentifier.y", "organizationId", "organizationName",
+  "organizationType", "parameterName",
   "MONITORING_DATA_LINK_TEXT", "PARCEL_NO", "TRIBE_NAME", "everything",
   "resultCount", "tribal_area", "txtProgressBar", "Date", "NWIS.parameter",
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
@@ -1854,7 +1859,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @examples
 #' \dontrun{
 #' # return ATTAINS parameter domain values
-#' TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+#' TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {

@@ -76,7 +76,6 @@ Imports:
     igraph,
     jsonlite, 
     openxlsx,
-    rATTAINS,
     rExpertQuery,
     DT,
     dataRetrieval,

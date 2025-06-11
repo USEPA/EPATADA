@@ -177,19 +177,19 @@ TADA_FieldValuesTable(Data_NCTC, field = "TADA.ComparableDataIdentifier")
 
 We can also review the domain values of parameter names listed as causes
 in prior assessment cycles (for all organizations) in ATTAINS by using a
-function from rATTAINS, which provides functions for downloading tidy
-data from the ATTAINS public web services
-(<https://github.com/mps9506/rATTAINS>).
+function from rExpertQuery, which provides functions for downloading
+tidy data from the ATTAINS public web services
+(<https://github.com/USEPA/rExpertQuery>).
 
 ```{r Access ATTAINS Domain Values}
 # return ATTAINS domain names
-rATTAINS::domain_values()
+rExpertQuery::EQ_DomainValues()
 
 # return ATTAINS parameter domain values
-TADA_TableExport(rATTAINS::domain_values(domain_name = "ParameterName"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
 
 # return ATTAINS organization domain values
-TADA_TableExport(rATTAINS::domain_values(domain_name = "OrgName"))
+TADA_TableExport(rExpertQuery::EQ_DomainValues('org_id'))
 ```
 
 As the ATTAINS Parameter Names are more general than the TADA Comparable
