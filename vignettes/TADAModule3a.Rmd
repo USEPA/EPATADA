@@ -404,7 +404,7 @@ manually assigning the appropriate ATTAINS.UseName applicable to their
 org under the column 'ATTAINS.UseName', and for inputting additional
 rows as needed if the parameter applies to multiples uses. Users can
 also choose to 'auto_assign' all unique ATTAINS.UseName by
-ATTAINS.OrganizatioName to any ATTAINS.ParameterName missing a use name
+ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.
 
 In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were

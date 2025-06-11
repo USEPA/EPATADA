@@ -25,7 +25,6 @@ Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
-AssessmentNote
 AutoClean
 AutoFilter
 Autofilter
@@ -55,7 +54,6 @@ Chilton
 ComparableDataIdentifier
 ComparableDataIdentifier's
 ComparableDataIdentifiers
-ComparableID
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -68,13 +66,8 @@ CountyCode
 CreateComparableID
 CreatePairRef
 CreateParamRef
-CreateSpatial
-CreateSpatialRef
 CreateUnitRef
-CreateUseAURef
 CreateUseParamRef
-CreateUseWaterParamRef
-CreateWaterUseParamRef
 Cybertown
 DV
 DataFrame
@@ -173,14 +166,11 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
-MoniotringLocation
 MonitoringDataLinkText
 MonitoringLocation
-MonitoringLocationId
 MonitoringLocationIdentifier
 MonitoringLocationIdentifiers
 MonitoringLocationName
-MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
@@ -210,11 +200,11 @@ OA
 ORs
 Okabe
 OrgName
-OrganizatioName
 OrganizationFormalName
 OrganizationFormalNames
 OrganizationIdentifier
 OrganizationIdentifiers
+OrganizationName
 OutsideUSA
 OverviewMap
 POJOAQUE
@@ -228,7 +218,6 @@ ParameterName
 ParameterNames
 PartB
 Pojoaque
-PollutantName
 ProjectFileUrl
 ProjectName
 ProviderName
@@ -295,7 +284,6 @@ SampleTissueAnatomyName
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
-SiteAURef
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -310,6 +298,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADACybertown
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -394,8 +383,8 @@ crosswalking
 crs
 csv
 cwa
+cybertown
 dailyagg
-dataProfile
 dataRetrieval
 dateTime
 datetimes
@@ -440,7 +429,6 @@ hydrographic
 hydrography
 hydrologic
 hydroloom
-ie
 importWQP
 interoperable
 io
@@ -477,7 +465,6 @@ pkgdown
 plotly
 pre
 rATTAINS
-rExpertQuery
 randombelowlimit
 rda
 readWQPdata
@@ -490,7 +477,6 @@ secchi
 shp
 siteType
 siteid
-sitesAURef
 sitetype
 speciation
 speciations
@@ -500,7 +486,6 @@ startDate
 startDateHi
 startDateLo
 statecode
-statstics
 surfacevalue
 sysdata
 tada
@@ -513,13 +498,9 @@ un
 uncomment
 uncommenting
 uri
-useAURef
-useParam
-useParamRef
 useR
 usepa
 usgs
-waterUseParamRef
 waterbodies
 waterbody
 waterdata

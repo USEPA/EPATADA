@@ -1,6 +1,7 @@
-#' Create Reference Data Frame to Pair Characteristic Results For Use in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
+#' Create Reference Data Frame to Pair Characteristic Results For Use in 
+#' Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 #'
-#' This function creates a data frame that shows all combinations of TADA.CharacteristicName,
+#' This function creates a data frame that shows all combinations of 
 #' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName,
 #' and TADA.ResultSampleFractionText for commonly paired characteristics (such as pH, temperature,
 #' hardness, salinity, and chloride).

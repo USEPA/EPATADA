@@ -1816,7 +1816,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' @examples
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' data(Data_Nutrients_UT)
+#' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 #' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' unique(UT_Titles)
 TADA_CharStringRemoveNA <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
