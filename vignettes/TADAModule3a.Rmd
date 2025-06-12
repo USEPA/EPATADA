@@ -27,7 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE,
                       message = FALSE,
-                      eval = TRUE
+                      eval = FALSE
                       )
 ```
 
@@ -82,7 +82,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install-current-branch, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "Module-3-TADA_CreateParamRef-and-TADA_CreateUseParamRef-Updates",
+                        ref = "develop",
                         dependencies = TRUE
                         )
 ```
