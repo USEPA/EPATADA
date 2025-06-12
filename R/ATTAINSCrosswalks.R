@@ -1525,6 +1525,12 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
           ATTAINS.UseName %in% ATTAINS_param_all$ATTAINS.UseName ~
           "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name."
       )) %>%
+      dplyr::mutate(Flag.UseInput = dplyr::case_when(
+        is.na(Flag.UseInput) ~
+          "Default: no modification was made to this row.",
+        !is.na(Flag.UseInput) ~
+          Flag.UseInput
+      )) %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
         IncludeOrExclude, ATTAINS.FlagUseName, Flag.UseInput
