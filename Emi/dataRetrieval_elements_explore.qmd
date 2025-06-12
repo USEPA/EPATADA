@@ -1,14 +1,19 @@
 ---
 title: "dataRetrieval_output_elements"
 author: "Emi Fergus"
-date: "5/13/2025"
+date: "6/10/2025"
 format: html
 editor: visual
 ---
 
+## Issue
+There are discrepancies with elements in the crosswalk table and elements returned with USGS's `dataRetrieval`. We will need to update the crosswalk table as a short-term solution because the incorrect schema names will not be updated for awhile most likely.
+
+See .csv file 'result.dr.beta.legacy.profile.csv' to see elements in USGS's crosswalk table compared to elements returned with dataRetrieval.
+
 ## USGS dataRetrieval Elements
 
-Comparing what fields (elements) are returned with `dataRetrieval::readWQPdata` `dataProfile` (see `readWQPdata` help for options for both Legacy and WQX3).
+Comparing fields (elements) returned with `dataRetrieval::readWQPdata` `dataProfile` (see `readWQPdata` help for options for both Legacy and beta WQX3). 'Result' = Legacy; 'ResultWQX3' = WQX3 Beta
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(remotes)
@@ -26,10 +31,11 @@ library(dataRetrieval) # v2.7.18.9002
 
 ```
 
-## Example query 
+# Compare elements from legacy and beta web services
 
-Example query using dataRetrieval::readWQPdata. USGS site (USGS-440504121435800). Comparing query output from the different versions of dataRetieval (legacy2.0 'resultPhysChem' vs beta3.0'fullPhysChem'). 
-Note as of 5/13/2025 the beta version of WQP was only returning USGS data, not WQX data. The Portal team is aware and working on it.
+## Example query
+
+Example query using dataRetrieval::readWQPdata. USGS site (USGS-440504121435800). Comparing query output from the different versions of dataRetieval (legacy2.0 'resultPhysChem' vs beta3.0'fullPhysChem'). Note: Update (6/10/25 - beta services are returning WQX data (not just USGS) OLD 5/13/2025 the beta version of WQP was only returning USGS data, not WQX data. The Portal team is aware and working on it.
 
 ```{r}
 #| echo: false
@@ -41,35 +47,36 @@ WQPquery2 <- list(siteid = "USGS-440504121435800"#, #Middle Green Lake (1980-198
 
 )
 
+
 ################
 # COMPARE OUTPUT FROM resultPhysChem and fullPhysChem
 # LEGACY PORTAL data call (note: 'resultPhysChem' ONLY works with LEGACY)
-result.basic <- dataRetrieval::readWQPdata(WQPquery2,
+result.legacy <- dataRetrieval::readWQPdata(WQPquery2,
                                            service = "Result", # beta "ResultWQX3"
                                            dataProfile = "resultPhysChem", #"fullPhysChem",
                                            ignore_attributes = T)
 
 # BETA PORTAL data call (note different service and dataProfile) (n = 183 fields vs n = 141 with legacy fullPhysChem)
-result.full <- dataRetrieval::readWQPdata(WQPquery2,
+result.beta <- dataRetrieval::readWQPdata(WQPquery2,
                                           service = "ResultWQX3", # beta "ResultWQX3"
                                           dataProfile = "fullPhysChem", #"resultPhysChem", #"fullPhysChem",
                                           ignore_attributes = T)
 # Make column headings a vector
-basic <- as.data.frame(colnames(result.basic)) |> 
-  rename("basic" = 1) |> 
-  mutate(WqxV2.FieldName = basic)
+legacy <- as.data.frame(colnames(result.legacy)) |> 
+  rename("legacy" = 1) |> 
+  mutate(WqxV2.FieldName = legacy)
 
-full <- as.data.frame(colnames(result.full)) |> 
-  rename("full" = 1) |> 
-  mutate(FieldName3.0 = full)
+beta <- as.data.frame(colnames(result.beta)) |> 
+  rename("beta" = 1) |> 
+  mutate(FieldName3.0 = beta)
 
-#knitr::kable(basic)
-#knitr::kable(full)
+#knitr::kable(legacy)
+#knitr::kable(beta)
 ```
 
 ## Join Legacy and Beta field elements using crosswalk table
 
-Read in WQX crosswalk table to join the basic (legacy) and full (beta) field elements together to compare. Had to modify the crosswalk table to replace special characters in the legacy column (WqxV2.FieldName) so that they will match fields returned in dataRetrieval. For example, 'ActivityStartTime/Time' in crosswalk table vs 'ActivityStartTime.Time' from dataRetrieval.
+Read in WQX crosswalk table to join the legacy and beta field elements together to compare. Had to modify the crosswalk table to replace special characters in the legacy column (WqxV2.FieldName) so that they will match fields returned in dataRetrieval. For example, 'ActivityStartTime/Time' in crosswalk table vs 'ActivityStartTime.Time' from dataRetrieval.
 
 ```{r}
 #| echo: false
@@ -87,68 +94,68 @@ wqxcrswlk_mod <- wqxcrswlk |>
          crswlkFieldName2 = WqxV2.FieldName)
 
 
-# Full Join the basic table to the crosswalk table - will return all x rows followed by unmatched y rows (this is true for basic legacy profile e.g., 'LastUpdated' is not in the crosswalk table)
-basic_mod <- wqxcrswlk_mod |> 
-  full_join(basic, join_by(WqxV2.FieldName)) 
+# Full Join the legacy table to the crosswalk table - will return all x rows followed by unmatched y rows (this is true for legacy legacy profile e.g., 'LastUpdated' is not in the crosswalk table)
+legacy_mod <- wqxcrswlk_mod |> 
+  full_join(legacy, join_by(WqxV2.FieldName)) 
 
-# Full join full table to modified crosswalk table
-all_mod <- basic_mod |> 
-  full_join(full, join_by(FieldName3.0)) |> 
-  rename(DR2basic = basic, DR3full = full) |> 
-  select(crswlkFieldName3, crswlkFieldName2, DR2basic, DR3full)
+# Full join beta table to modified crosswalk table
+all_mod <- legacy_mod |> 
+  full_join(beta, join_by(FieldName3.0)) |> 
+  rename(DR2legacy = legacy, DR3beta = beta) |> 
+  select(crswlkFieldName3, crswlkFieldName2, DR2legacy, DR3beta)
 
 # Filter fields returned with readWqpdata profiles (from 385 to 199)
 # https://stackoverflow.com/questions/33520854/filtering-data-frame-based-on-na-on-multiple-columns/69395357
 # all_red <- all_mod |> 
-#   filter_at(vars(basic,full), any_vars(!is.na(.))) 
+#   filter_at(vars(legacy,beta), any_vars(!is.na(.))) 
 
 # WRITE MODIFIED TABLE
-write_csv(all_mod, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.dr.full.basic.profile.csv")
+write_csv(all_mod, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.dr.beta.legacy.profile.csv")
 
 ```
 
 # Comparing elements returned from dataRetrieval versions
 
-## Fields in DR beta (full) but not in DR basic (legacy) or in crosswalk table
+## Fields in DR beta but not in DR legacy or in crosswalk table
 
-These are instances that may need to be manually corrected in the crosswalk table. They are fields returned in the DR beta results version but are not associated with a crosswalk field. 
+These are instances that may need to be manually corrected in the crosswalk table. They are fields returned in the DR beta results version but are not associated with a crosswalk field.
 
 ```{r}
 #| echo: false
-full_only <- all_mod |> 
-  filter(is.na(DR2basic)) |> 
+beta_only <- all_mod |> 
+  filter(is.na(DR2legacy)) |> 
   filter(is.na(crswlkFieldName3)) |> 
   filter(is.na(crswlkFieldName2))
 
-knitr::kable(full_only)
+knitr::kable(beta_only)
 ```
 
-'Result_ResultDetectionCondition' is an old version of the name that did not get updated in the WQP to  'Result_DetectionCondition'. The WQP team won't be able to address this for some time. Lee, Kevin, Hillary, and Emi met and decided in the mean time we will modify the crosswalk table to roll back to this old version of the name to be able to map schema elements between versions. It's easier to make changes to the crosswalk table than to make changes to the WQP schema services.
+'Result_ResultDetectionCondition' is an old version of the name that did not get updated in the WQP to 'Result_DetectionCondition'. The WQP team won't be able to address this for some time. Lee, Kevin, Hillary, and Emi met and decided in the mean time we will modify the crosswalk table to roll back to this old version of the name to be able to map schema elements between versions. It's easier to make changes to the crosswalk table than to make changes to the WQP schema services.
 
-'GroupSummaryWeight_Measure' and 'GroupSummaryWeight_MeasureUnit' should be linked to 'ResultBiological_GroupSummaryWeightMeasure' and 'ResultBiological_GroupSummaryWeightMeasureUnit'(in WQX3.0 crosswalk). 
+'GroupSummaryWeight_Measure' and 'GroupSummaryWeight_MeasureUnit' should be linked to 'ResultBiological_GroupSummaryWeightMeasure' and 'ResultBiological_GroupSummaryWeightMeasureUnit'(in WQX3.0 crosswalk).
 
-'DataQuality_ResultComment' might be linked to 'Result_Comment' (in WQX3.0 crosswalk)? 
+'DataQuality_ResultComment' might be linked to 'Result_Comment' (in WQX3.0 crosswalk)?
 
 'Activity_StartTimeZone_offset' and 'Activity_StartDateTime' are fields USGS creates in WQP and can be ignored.
 
 ## Fields not returned in the DR beta full results profile call but returned in DR legacy AND not in crosswalk
 
-Fields that are not returned in the dataRetrieval beta (readWQPdata - 'fullPhysChem' profile). Many of these issues are because the crosswalk table has 'see Comment Field' for 2.0 elements that did not have a one-to-one match. 
+Fields that are not returned in the dataRetrieval beta (readWQPdata - 'fullPhysChem' profile). Many of these issues are because the crosswalk table has 'see Comment Field' for 2.0 elements that did not have a one-to-one match. They could be manually added to a modified crosswalk table. 
 
 ```{r}
 #| echo: false
 
-basic_only <- all_mod |> 
-  filter(is.na(DR3full) & is.na(crswlkFieldName3) | crswlkFieldName2 == "see Comment field" & !is.na(DR3full))
+legacy_only <- all_mod |> 
+  filter(is.na(DR3beta) & is.na(crswlkFieldName3) | crswlkFieldName2 == "see Comment field" & !is.na(DR3beta))
 
-knitr::kable(basic_only)
+knitr::kable(legacy_only)
 
 
 ```
-Sample Collection Method, Data Quality variables, Result Analytical Method and Lab Sample prep are variables that could be manualy assigned a crosswalk with 2.0schema names if appropriate. Some fields being returned might be due to a recently noticed glitch that the DR 2.0 call may be returning some 3.0 fields...but this needs to be explored more. Ex) BinaryObject elements I think are DR 3.0 not DR 2.0 but being returned with the (readWQPdata - 'resultPhysChem' profile). 
 
-'LastUpdated' is a field that is returned with the WQP summary service - this may also be a glitch to be returned with a results profile call? 'LastUpdated' could be matched with 'LastChangeDate' in the WQP3.0 schema and DR3.0.  
+Sample Collection Method, Data Quality variables, Result Analytical Method and Lab Sample prep are variables that could be manualy assigned a crosswalk with 2.0schema names if appropriate. Some fields being returned might be due to a recently noticed glitch that the DR 2.0 call may be returning some 3.0 fields...but this needs to be explored more. Ex) BinaryObject elements I think are DR 3.0 not DR 2.0 but being returned with the (readWQPdata - 'resultPhysChem' profile).
 
+'LastUpdated' is a field that is returned with the WQP summary service - this may also be a glitch to be returned with a results profile call? 'LastUpdated' could be matched with 'LastChangeDate' in the WQP3.0 schema and DR3.0.
 
 ## Fields that may need to be updated in the crosswalk table
 
@@ -158,10 +165,10 @@ Manually created table with fields that may need to be updated
 #| echo: false
 
 fix <- data.frame(
-  crswlkFieldName3 = c("Result_DetectionCondition",NA, NA, "ResultBiological_GroupSummaryWeightMeasure","ResultBiological_GroupSummaryWeightMeasureUnit","SampleCollectionMethod_Description"),
-  crswlkFieldName2 = c("ResultDetectionConditionText",NA, NA,"GroupSummaryCountWeight/MeasureValue", "GroupSummaryCountWeight/MeasureUnitCode","see_Comment"),
-  DR3 = c("Result_ResultDetectionCondition", "Activity_StartDateTime","Activity_StartTimeZone_offset","GroupSummaryWeight_Measure","GroupSummaryWeight_MeasureUnit","SampleCollectionMethod_Description"),
-  DR2 = c("ResultDetectionConditionText","ActivityStartDateTime","ActivityStartTime.TimeZoneCode_offset",NA, NA,"SampleCollectionMethod.MethodDescriptionText")
+  crswlkFieldName3 = c("Result_DetectionCondition",NA, NA, "ResultBiological_GroupSummaryWeightMeasure","ResultBiological_GroupSummaryWeightMeasureUnit","SampleCollectionMethod_Description","LastChangeDate", NA),
+  crswlkFieldName2 = c("ResultDetectionConditionText",NA, NA,"GroupSummaryCountWeight/MeasureValue", "GroupSummaryCountWeight/MeasureUnitCode","see_Comment", NA, NA),
+  DR3 = c("Result_ResultDetectionCondition", "Activity_StartDateTime","Activity_StartTimeZone_offset","GroupSummaryWeight_Measure","GroupSummaryWeight_MeasureUnit","SampleCollectionMethod_Description", "LastChangeDate", NA),
+  DR2 = c("ResultDetectionConditionText","ActivityStartDateTime","ActivityStartTime.TimeZoneCode_offset",NA, NA,"SampleCollectionMethod.MethodDescriptionText", NA, "LastUpdated")
     
 )
 
@@ -170,12 +177,94 @@ knitr::kable(fix)
 
 ## Crosswalk 2.0 Field Names with many-to-one
 
-
-
 ```{r}
 #| echo: false
 crs2_tochange <- all_mod |> 
   filter(crswlkFieldName2 == "see Comment field")
 
 knitr::kable(crs2_tochange)
+```
+
+# Compare elements in Beta across different data profiles (fullPhysChem, narrow, basic)
+
+
+```{r}
+#| echo: false
+#| message: false
+WQPquery2 <- list(siteid = "USGS-440504121435800"#, #Middle Green Lake (1980-1981)   McKenzie River at Springfield ("USGS-440508122581200")
+                  #startDate = "1975-01-01",
+                  #endDate = "1978-12-31",
+                  #characteristicName = "Temperature, water"
+
+)
+
+
+################
+# COMPARE OUTPUT FROM resultPhysChem and fullPhysChem
+# LEGACY PORTAL data call (note: 'resultPhysChem' ONLY works with LEGACY)
+result.full <- dataRetrieval::readWQPdata(WQPquery2,
+                                           service = "ResultWQX3", # beta "ResultWQX3"
+                                           dataProfile = "fullPhysChem", #"fullPhysChem",
+                                           ignore_attributes = T)
+
+# BETA PORTAL data call (note different service and dataProfile) (n = 183 fields vs n = 141 with legacy fullPhysChem)
+result.basic <- dataRetrieval::readWQPdata(WQPquery2,
+                                          service = "ResultWQX3", # beta "ResultWQX3"
+                                          dataProfile = "basicPhysChem", #"resultPhysChem", #"fullPhysChem",
+                                          ignore_attributes = T)
+# Make column headings a vector
+full <- as.data.frame(colnames(result.full)) |> 
+  rename("full" = 1) |> 
+  mutate(FieldName3.0 = full)
+
+basic<- as.data.frame(colnames(result.basic)) |> 
+  rename("basic" = 1) |> 
+  mutate(FieldName3.0 = basic)
+
+# Full Join the legacy table to the crosswalk table - will return all x rows followed by unmatched y rows (this is true for legacy legacy profile e.g., 'LastUpdated' is not in the crosswalk table)
+full_mod <- wqxcrswlk_mod |> 
+  full_join(full, join_by(FieldName3.0)) 
+
+# Full join beta table to modified crosswalk table
+beta_all_mod <- full_mod |> 
+  full_join(basic, join_by(FieldName3.0)) |> 
+  rename(BetaFull = full, BetaBasic = basic) |> 
+  select(crswlkFieldName3, crswlkFieldName2, BetaFull, BetaBasic)
+
+# Filter fields returned with readWqpdata profiles (from 385 to 199)
+# https://stackoverflow.com/questions/33520854/filtering-data-frame-based-on-na-on-multiple-columns/69395357
+# all_red <- all_mod |> 
+#   filter_at(vars(legacy,beta), any_vars(!is.na(.))) 
+
+# WRITE MODIFIED TABLE
+write_csv(beta_all_mod, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/dataRetrieval_output/result.dr.beta.full.basic.profile.csv")
+
+
+```
+
+
+
+## Other WQP queries using beta services
+```{r, echo=FALSE}
+# USGS-OR n = 144
+WQPquery3 <- list(organization = "CNENVSER",
+                  startDate = "2018-01-01", 
+                  endDate = "2018-01-31")
+result.beta3 <- dataRetrieval::readWQPdata(WQPquery3,
+                                          service = "ResultWQX3", # beta "ResultWQX3"
+                                          dataProfile = "fullPhysChem",
+                                          ignore_attributes = T)
+```
+
+```{r, echo=FALSE}
+# Kootenai - TP n = 304 obs
+WQPquery4 <- list(organization = "KOOTENAI_TRIBE_OF_IDAHO_WQX",
+                  startDate = "2006-04-01", 
+                  endDate = "2006-05-31",
+                  characteristicName = "Total Phosphorus, mixed forms")
+
+result.beta4 <- dataRetrieval::readWQPdata(WQPquery4,
+                                          service = "ResultWQX3", # beta "ResultWQX3"
+                                          dataProfile = "fullPhysChem",
+                                          ignore_attributes = T)
 ```

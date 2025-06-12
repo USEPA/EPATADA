@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Emi Fergus">
-<meta name="dcterms.date" content="2025-05-13">
+<meta name="dcterms.date" content="2025-06-10">
 
 <title>dataRetrieval_output_elements</title>
 <style>
@@ -64,7 +64,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 13, 2025</p>
+      <p class="date">June 10, 2025</p>
     </div>
   </div>
   
@@ -76,22 +76,30 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="issue" class="level2">
+<h2 class="anchored" data-anchor-id="issue">Issue</h2>
+<p>There are discrepancies with elements in the crosswalk table and elements returned with USGS’s <code>dataRetrieval</code>. We will need to update the crosswalk table as a short-term solution because the incorrect schema names will not be updated for awhile most likely.</p>
+<p>See .csv file ‘result.dr.beta.legacy.profile.csv’ to see elements in USGS’s crosswalk table compared to elements returned with dataRetrieval.</p>
+</section>
 <section id="usgs-dataretrieval-elements" class="level2">
 <h2 class="anchored" data-anchor-id="usgs-dataretrieval-elements">USGS dataRetrieval Elements</h2>
-<p>Comparing what fields (elements) are returned with <code>dataRetrieval::readWQPdata</code> <code>dataProfile</code> (see <code>readWQPdata</code> help for options for both Legacy and WQX3).</p>
+<p>Comparing fields (elements) returned with <code>dataRetrieval::readWQPdata</code> <code>dataProfile</code> (see <code>readWQPdata</code> help for options for both Legacy and beta WQX3). ‘Result’ = Legacy; ‘ResultWQX3’ = WQX3 Beta</p>
 </section>
+<section id="compare-elements-from-legacy-and-beta-web-services" class="level1">
+<h1>Compare elements from legacy and beta web services</h1>
 <section id="example-query" class="level2">
 <h2 class="anchored" data-anchor-id="example-query">Example query</h2>
-<p>Example query using dataRetrieval::readWQPdata. USGS site (USGS-440504121435800). Comparing query output from the different versions of dataRetieval (legacy2.0 ‘resultPhysChem’ vs beta3.0’fullPhysChem’). Note as of 5/13/2025 the beta version of WQP was only returning USGS data, not WQX data. The Portal team is aware and working on it.</p>
+<p>Example query using dataRetrieval::readWQPdata. USGS site (USGS-440504121435800). Comparing query output from the different versions of dataRetieval (legacy2.0 ‘resultPhysChem’ vs beta3.0’fullPhysChem’). Note: Update (6/10/25 - beta services are returning WQX data (not just USGS) OLD 5/13/2025 the beta version of WQP was only returning USGS data, not WQX data. The Portal team is aware and working on it.</p>
 </section>
 <section id="join-legacy-and-beta-field-elements-using-crosswalk-table" class="level2">
 <h2 class="anchored" data-anchor-id="join-legacy-and-beta-field-elements-using-crosswalk-table">Join Legacy and Beta field elements using crosswalk table</h2>
-<p>Read in WQX crosswalk table to join the basic (legacy) and full (beta) field elements together to compare. Had to modify the crosswalk table to replace special characters in the legacy column (WqxV2.FieldName) so that they will match fields returned in dataRetrieval. For example, ‘ActivityStartTime/Time’ in crosswalk table vs ‘ActivityStartTime.Time’ from dataRetrieval.</p>
+<p>Read in WQX crosswalk table to join the legacy and beta field elements together to compare. Had to modify the crosswalk table to replace special characters in the legacy column (WqxV2.FieldName) so that they will match fields returned in dataRetrieval. For example, ‘ActivityStartTime/Time’ in crosswalk table vs ‘ActivityStartTime.Time’ from dataRetrieval.</p>
+</section>
 </section>
 <section id="comparing-elements-returned-from-dataretrieval-versions" class="level1">
 <h1>Comparing elements returned from dataRetrieval versions</h1>
-<section id="fields-in-dr-beta-full-but-not-in-dr-basic-legacy-or-in-crosswalk-table" class="level2">
-<h2 class="anchored" data-anchor-id="fields-in-dr-beta-full-but-not-in-dr-basic-legacy-or-in-crosswalk-table">Fields in DR beta (full) but not in DR basic (legacy) or in crosswalk table</h2>
+<section id="fields-in-dr-beta-but-not-in-dr-legacy-or-in-crosswalk-table" class="level2">
+<h2 class="anchored" data-anchor-id="fields-in-dr-beta-but-not-in-dr-legacy-or-in-crosswalk-table">Fields in DR beta but not in DR legacy or in crosswalk table</h2>
 <p>These are instances that may need to be manually corrected in the crosswalk table. They are fields returned in the DR beta results version but are not associated with a crosswalk field.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -99,15 +107,15 @@ ul.task-list li input[type="checkbox"] {
 <colgroup>
 <col style="width: 22%">
 <col style="width: 22%">
-<col style="width: 12%">
+<col style="width: 13%">
 <col style="width: 42%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">crswlkFieldName3</th>
 <th style="text-align: left;">crswlkFieldName2</th>
-<th style="text-align: left;">DR2basic</th>
-<th style="text-align: left;">DR3full</th>
+<th style="text-align: left;">DR2legacy</th>
+<th style="text-align: left;">DR3beta</th>
 </tr>
 </thead>
 <tbody>
@@ -158,7 +166,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="fields-not-returned-in-the-dr-beta-full-results-profile-call-but-returned-in-dr-legacy-and-not-in-crosswalk" class="level2">
 <h2 class="anchored" data-anchor-id="fields-not-returned-in-the-dr-beta-full-results-profile-call-but-returned-in-dr-legacy-and-not-in-crosswalk">Fields not returned in the DR beta full results profile call but returned in DR legacy AND not in crosswalk</h2>
-<p>Fields that are not returned in the dataRetrieval beta (readWQPdata - ‘fullPhysChem’ profile). Many of these issues are because the crosswalk table has ‘see Comment Field’ for 2.0 elements that did not have a one-to-one match.</p>
+<p>Fields that are not returned in the dataRetrieval beta (readWQPdata - ‘fullPhysChem’ profile). Many of these issues are because the crosswalk table has ‘see Comment Field’ for 2.0 elements that did not have a one-to-one match. They could be manually added to a modified crosswalk table.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -172,8 +180,8 @@ ul.task-list li input[type="checkbox"] {
 <tr class="header">
 <th style="text-align: left;">crswlkFieldName3</th>
 <th style="text-align: left;">crswlkFieldName2</th>
-<th style="text-align: left;">DR2basic</th>
-<th style="text-align: left;">DR3full</th>
+<th style="text-align: left;">DR2legacy</th>
+<th style="text-align: left;">DR3beta</th>
 </tr>
 </thead>
 <tbody>
@@ -373,6 +381,18 @@ ul.task-list li input[type="checkbox"] {
 <td style="text-align: left;">SampleCollectionMethod_Description</td>
 <td style="text-align: left;">SampleCollectionMethod.MethodDescriptionText</td>
 </tr>
+<tr class="odd">
+<td style="text-align: left;">LastChangeDate</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">LastChangeDate</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">LastUpdated</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -387,14 +407,14 @@ ul.task-list li input[type="checkbox"] {
 <col style="width: 41%">
 <col style="width: 16%">
 <col style="width: 8%">
-<col style="width: 34%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: left;">crswlkFieldName3</th>
 <th style="text-align: left;">crswlkFieldName2</th>
-<th style="text-align: left;">DR2basic</th>
-<th style="text-align: left;">DR3full</th>
+<th style="text-align: left;">DR2legacy</th>
+<th style="text-align: left;">DR3beta</th>
 </tr>
 </thead>
 <tbody>
@@ -610,6 +630,28 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+</section>
+</section>
+<section id="compare-elements-in-beta-across-different-data-profiles-fullphyschem-narrow-basic" class="level1">
+<h1>Compare elements in Beta across different data profiles (fullPhysChem, narrow, basic)</h1>
+<section id="other-wqp-queries-using-beta-services" class="level2">
+<h2 class="anchored" data-anchor-id="other-wqp-queries-using-beta-services">Other WQP queries using beta services</h2>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>GET: https://www.waterqualitydata.us/wqx3/Result/search?organization=CNENVSER&amp;startDateLo=01-01-2018&amp;startDateHi=01-31-2018&amp;dataProfile=fullPhysChem&amp;mimeType=csv</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WQX3 services are in-development, use with caution.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>GET: https://www.waterqualitydata.us/wqx3/Result/search?organization=KOOTENAI_TRIBE_OF_IDAHO_WQX&amp;startDateLo=04-01-2006&amp;startDateHi=05-31-2006&amp;characteristicName=Total%20Phosphorus%2C%20mixed%20forms&amp;dataProfile=fullPhysChem&amp;mimeType=csv</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WQX3 services are in-development, use with caution.</code></pre>
 </div>
 </div>
 </section>
