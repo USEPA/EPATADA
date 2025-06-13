@@ -1670,6 +1670,14 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
+    
+    # If a user has an ATTAINS.UseName filled out, flag as a yellow cell.
+    openxlsx::conditionalFormatting(
+      wb, "CreateUseParamRef",
+      cols = 4, rows = 1:nrow(CreateUseParamRef) + 1,
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
 
     # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
     openxlsx::conditionalFormatting(
