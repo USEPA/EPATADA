@@ -180,10 +180,10 @@ any media type that are not water in our data frame?
 ```{r Review and Filter By Media Type}
 # Create table with count for each ActivityMediaName
 TADA_FieldValuesTable(
-  WQP_raw, 
-  field = "ActivityMediaName", 
+  WQP_raw,
+  field = "ActivityMediaName",
   characteristicName = "null"
-  )
+)
 ```
 
 The **TADA_AnalysisDataFilter** function can assist in identifying and
@@ -226,10 +226,10 @@ associated with each.
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
-  WQP_clean, 
-  field = "MonitoringLocationIdentifier", 
+  WQP_clean,
+  field = "MonitoringLocationIdentifier",
   characteristicName = "null"
-  )
+)
 
 DT::datatable(sites, fillContainer = TRUE)
 ```
@@ -243,7 +243,7 @@ WQP_clean <- TADA_FindNearbySites(
   nhd_res = "Hi",
   org_hierarchy = "none",
   meta_select = "random"
-  )
+)
 
 TADA_NearbySitesMap(WQP_clean)
 ```
@@ -257,10 +257,10 @@ TADA.ResultMeasure.MeasureUnitCode.
 ```{r TADA_FieldValuesTable2}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 chars <- TADA_FieldValuesTable(
-  WQP_clean, 
-  field = "TADA.ComparableDataIdentifier", 
+  WQP_clean,
+  field = "TADA.ComparableDataIdentifier",
   characteristicName = "null"
-  )
+)
 
 DT::datatable(chars, fillContainer = TRUE)
 ```
@@ -421,10 +421,10 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
 ```{r TADA_FieldValuesTable3}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 chars <- TADA_FieldValuesTable(
-  WQP_clean, 
+  WQP_clean,
   field = "TADA.ComparableDataIdentifier",
   characteristicName = "null"
-  )
+)
 
 chars_before <- unique(WQP_clean$TADA.ComparableDataIdentifier)
 
@@ -458,10 +458,10 @@ Create a pie chart.
 
 ```{r}
 TADA_FieldValuesPie(
-  WQP_clean, 
+  WQP_clean,
   field = "TADA.CharacteristicName",
   characteristicName = "null"
-  )
+)
 ```
 
 ## Select characteristic
