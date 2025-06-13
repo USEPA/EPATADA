@@ -1396,9 +1396,11 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   # required TADA cols for the shiny app to run & for package checks to pass)
   # even if blank
   if (all(Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(join2)) == FALSE) {
-    join2[c("ProjectDescriptionText",
-            "SamplingDesignTypeCode", "QAPPApprovedIndicator", "QAPPApprovalAgencyName",
-            "ProjectFileUrl", "ProjectMonitoringLocationWeightingUrl")] <- NA
+    join2[c(
+      "ProjectDescriptionText",
+      "SamplingDesignTypeCode", "QAPPApprovedIndicator", "QAPPApprovalAgencyName",
+      "ProjectFileUrl", "ProjectMonitoringLocationWeightingUrl"
+    )] <- NA
   }
   return(join2)
 }

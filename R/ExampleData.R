@@ -121,14 +121,3 @@ NULL
 #' @usage data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
 NULL
-
-#' cybertown
-#'
-#' See TADACybertown2025.Rmd in vignettes folder.
-#'
-#' @docType data
-#' @keywords data frame
-#' @name cybertown
-#' @usage data(cybertown)
-#' @format A data frame with 990 rows and 150 variables
-NULL
