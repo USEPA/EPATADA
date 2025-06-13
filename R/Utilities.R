@@ -1876,20 +1876,18 @@ TADA_TableExport <- function(.data = NULL) {
 }
 
 
-#' Create a simple CSV file
+#' Create and download .csv
 #'
-#' This function creates a csv file with the name of the data frame
-#' as the file name under the user's download folder. This function is
-#' intended to produce a csv output for uploads to ATTAINS or WQX.
-#' But can also be used for exporting csv files for general use cases.
+#' This function creates a .csv file and exports it to a user's download folder
+#' with the name of the data frame as the file name.
 #'
-#' @param .data A data frame
+#' @param .data A data frame.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Returns a csv file of the example Data_Nutrients_UT TADA data frame.
+#' # Returns a .csv file of the example Data_Nutrients_UT TADA data frame.
 #' TADA_CreateCSV(Data_Nutrients_UT)
 #' }
 TADA_CreateCSV <- function(.data) {

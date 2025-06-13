@@ -2,21 +2,20 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_CreateCSV}
 \alias{TADA_CreateCSV}
-\title{Create simple CSV file}
+\title{Create and download .csv}
 \usage{
 TADA_CreateCSV(.data)
 }
 \arguments{
-\item{.data}{A data frame}
+\item{.data}{A data frame.}
 }
 \description{
-This function creates a csv file with the name of the data frame
-as the file name under the user's download folder. This function is
-intended to produce a simple csv output for uploads to ATTAINS or WQX.
+This function creates a .csv file and exports it to a user's download folder
+with the name of the data frame as the file name.
 }
 \examples{
 \dontrun{
-# return ATTAINS parameter domain values
-TADA_CreateCSV()
+# Returns a .csv file of the example Data_Nutrients_UT TADA data frame.
+TADA_CreateCSV(Data_Nutrients_UT)
 }
 }
