@@ -66,8 +66,12 @@ into the console). Our team is actively developing *EPATADA*, therefore
 we highly recommend that you update the package (and all of its
 dependencies) each time you use it.
 
-```{r install EPATADA}
+```{r install EPATADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+```
+
+```{r dev install EPATADA, include = F}
+remotes::install_github("USEPA/EPATADA", ref = "596-tada_analysisdatafilter-removes-rows-when-clean-true-if-tadauseforanalysisflag-no---na", dependencies = TRUE)
 ```
 
 Load the EPATADA R Package.
@@ -156,9 +160,6 @@ WQP_raw <- TADA_DataRetrieval(
   ask = FALSE,
   applyautoclean = TRUE
 )
-
-# # For demo purposes, we pre-downloaded this example data
-# WQP_raw <- cybertown
 ```
 
 Remove intermediate variables in R by using 'rm()'.
@@ -208,9 +209,14 @@ WQP_flag <- TADA_AnalysisDataFilter(
 # Review unique flags
 unique(WQP_flag$TADA.UseForAnalysis.Flag)
 
-# Keep rows that are NOT flagged as sediment (keep SW and NA)
-WQP_clean <- WQP_flag %>%
-  dplyr::filter(TADA.UseForAnalysis.Flag != "No - SEDIMENT")
+# Keep only surface water and other (noncategorized) results, not working
+WQP_clean <- TADA_AnalysisDataFilter(
+  WQP_flag,
+  clean = TRUE,
+  surface_water = TRUE,
+  ground_water = FALSE,
+  sediment = FALSE
+)
 ```
 
 Create an overview map.

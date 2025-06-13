@@ -34,7 +34,8 @@ sediment results are identified as not usable for analysis.}
 }
 \value{
 If clean = TRUE, returns the dataframe with only the media types
-selected as usable (set to TRUE in function input) by the user.
+selected as usable (set to TRUE in function input) by the user and media types which could not
+be identified (labeled as "OTHER" for user review) are returned.
 If clean = FALSE, returns the dataframe and an additional column,
 TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
 and which results should be included or excluded from assessments based on user input.
