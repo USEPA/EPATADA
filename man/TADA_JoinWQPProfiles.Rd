@@ -29,11 +29,11 @@ https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&
 \examples{
 \dontrun{
 # construct the WQP web service URL for each profile
-baseurl <- "https://www.waterqualitydata.us/data/"
-profile_station <- "Station"
-profile_result <- "Result"
+baseurl <- "https://www.waterqualitydata.us"
+profile_station <- "/data/Station"
+profile_result <- "/data/Result"
 profile_result_2 <- "&dataProfile=resultPhysChem"
-profile_project <- "Project"
+profile_project <- "/data/Project"
 filters <- "/search?statecode=US\%3A09&characteristicType=Nutrient"
 dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
 type <- "&mimeType=csv&zip=yes"

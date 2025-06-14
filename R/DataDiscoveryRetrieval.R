@@ -1070,11 +1070,11 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #' @examples
 #' \dontrun{
 #' # construct the WQP web service URL for each profile
-#' baseurl <- "https://www.waterqualitydata.us/data/"
-#' profile_station <- "Station"
-#' profile_result <- "Result"
+#' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
 #' profile_result_2 <- "&dataProfile=biological"
-#' profile_project <- "Project"
+#' profile_project <- "/data/Project"
 #' filters <- "/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water"
 #' dates <- "&startDateLo=01-01-2021&startDateHi=02-01-2021"
 #' type <- "&mimeType=csv&zip=yes"
@@ -1291,11 +1291,11 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' @examples
 #' \dontrun{
 #' # construct the WQP web service URL for each profile
-#' baseurl <- "https://www.waterqualitydata.us/data/"
-#' profile_station <- "Station"
-#' profile_result <- "Result"
+#' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
 #' profile_result_2 <- "&dataProfile=resultPhysChem"
-#' profile_project <- "Project"
+#' profile_project <- "/data/Project"
 #' filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
 #' dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
 #' type <- "&mimeType=csv&zip=yes"
