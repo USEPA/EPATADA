@@ -31,7 +31,7 @@ We recommend retrieving data for all the following profiles
 }
 
 After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
-join the three dataframes into a single dataframe.
+join the three data frames into a single data frame.
 
 Note: It may be useful to save the Query URL from the WQP as well as a
 comment within your code. This URL let's you return to the WQP query page

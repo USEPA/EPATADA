@@ -1,7 +1,7 @@
-#' Generate TADA-compatible dataframe from WQP Data
+#' Generate TADA-compatible data frame from WQP Data
 #'
 #' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the
+#' data frame. Note that the inputs (e.g. project, organization, siteType) with the
 #' exceptions of endDate and startDate match the web service call format from the
 #' online WQP GUI. endDate and startDate match the format suggested in USGS's
 #' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
@@ -33,7 +33,7 @@
 #' Alternatively, you can use the WQP services to find areas where data is available in the US:
 #' https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
+#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
@@ -91,7 +91,7 @@
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
 #'        data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 #'
 #' @note
 #' Alaska Native Villages and Virginia Federally Recognized Tribes are point
@@ -535,7 +535,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       if ((nrow(results.DR) > 0) == FALSE) {
         print(
           paste0(
-            "Returning empty results dataframe: ",
+            "Returning empty results data frame: ",
             "Your WQP query returned no results (no data available). ",
             "Try a different query. ",
             "Removing some of your query filters OR broadening your search area may help."
@@ -611,7 +611,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
         paste0(
-          "Returning empty results dataframe: ",
+          "Returning empty results data frame: ",
           "Your WQP query returned no results (no data available). ",
           "Try a different query. ",
           "Removing some of your query filters OR broadening your search area may help."
@@ -916,7 +916,7 @@ TADA_DataRetrieval <- function(startDate = "null",
 
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
-        print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+        print("Returning empty results data frame: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
         TADAprofile.clean <- results.DR
       } else {
         sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
@@ -1044,7 +1044,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #' 3. Site Data Only
 #'
 #' After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
-#' join the three dataframes into a single dataframe.
+#' join the three data frames into a single data frame.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
@@ -1144,7 +1144,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' This is a helper function that takes large WQP (waterqualitydata.us) queries
 #' and splits them up into multiple, smaller queries. By default it pulls data
 #' for up to 300 sites or 250,000 data records at a time and then joins the separate
-#' pulls back together to produce a single TADA compatible dataframe as the output.
+#' pulls back together to produce a single TADA compatible data frame as the output.
 #' Computer memory may limit the size of data frames that your R console will
 #' be able to hold in one session.
 #'
@@ -1153,7 +1153,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' @param maxrecs Maximum number of records to query at once.
 #' @param maxsites Maximum number of sites to query at once.
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsites = 300) {
   # Get total number of results per site and separate out sites with >maxrecs results
   tot_sites <- record_summary %>%
@@ -1275,7 +1275,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' Join WQP Profiles
 #'
 #' After retrieving multiple result and metadata profiles from the WQP, this
-#' function joins those profiles together into one dataframe.
+#' function joins those profiles together into one data frame.
 #' The FullPhysChem data input is required to run this function.
 #'
 #' The WQP user interface assists users with constructing a web service query
@@ -1286,7 +1286,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' @param Sites Sites data profile
 #' @param Projects Projects data profile
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 #'
 #' @export
 #'
@@ -1474,10 +1474,10 @@ make_groups <- function(x, maxrecs) {
 #'
 #' Copy of internal dataRetrieval create_dateTime function 3/7/2025
 #' See  USGS dataRetrieval importWQP.R file (line 223)
-#' offsetLibrary is a dataframe saved in sysdata.rda
+#' offsetLibrary is a data frame saved in sysdata.rda
 #' You can see where and how it gets called on line 160
 #'
-#' @param .data TADA dataframe
+#' @param .data TADA data frame
 #' @param date_col date column
 #' @param time_col time column
 #' @param tz_col time zone column
@@ -1500,7 +1500,7 @@ make_groups <- function(x, maxrecs) {
 #' )
 #'
 #' # Run TADA_CheckRequiredFields, returns error message,
-#' # 'The dataframe does not contain the required fields: ActivityStartDateTime'
+#' # 'The data frame does not contain the required fields: ActivityStartDateTime'
 #' TADA_CheckRequiredFields(TADAProfile)
 #'
 #' # Add missing col

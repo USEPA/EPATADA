@@ -14,11 +14,11 @@ TADA_JoinWQPProfiles(FullPhysChem = "null", Sites = "null", Projects = "null")
 \item{Projects}{Projects data profile}
 }
 \value{
-TADA-compatible dataframe
+TADA-compatible data frame
 }
 \description{
 After retrieving multiple result and metadata profiles from the WQP, this
-function joins those profiles together into one dataframe.
+function joins those profiles together into one data frame.
 The FullPhysChem data input is required to run this function.
 }
 \details{
