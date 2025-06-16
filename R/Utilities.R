@@ -1899,7 +1899,7 @@ TADA_CreateCSV <- function(.data) {
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
 
-  write.csv(.data, file = downloads_path, row.names = FALSE)
+  utils::write.csv(.data, file = downloads_path, row.names = FALSE)
 
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
