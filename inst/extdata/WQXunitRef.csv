@@ -38,6 +38,7 @@
 "Measurement Unit(MeasureUnitCode)",354,"% saturatn*^","DO NOT USE, Concentration Percentage, % saturation ***retired***use %","9/11/2014 12:00:00 AM","%",1,0
 "Measurement Unit(MeasureUnitCode)",41,"% sediment","()Concentration Percentage, % target/clean sed mix which produces response","7/26/2006 10:57:47 AM","% sediment",1,0
 "Measurement Unit(MeasureUnitCode)",363,"% solids","()Concentration Percentage, Percent of solids","1/13/2015 2:11:39 PM","% solids",1,0
+"Measurement Unit(MeasureUnitCode)",478,"%/cm","()Light intensity, Transmittance percentage per centimeter","5/31/2025 12:00:00 AM","%/cm",1,0
 "Measurement Unit(MeasureUnitCode)",420,"(kg/sec)/m","()Kilograms per second per meter","12/4/2023 10:07:35 AM","(kg/sec)/m",1,0
 "Measurement Unit(MeasureUnitCode)",172,"0/00","Concentration Percentage, Parts per thousand","7/26/2006 10:57:47 AM","ug/kg",0.001,0
 "Measurement Unit(MeasureUnitCode)",609,"1000m3/day","()Flow, 1000 cubic metres per day","5/19/2022 1:56:53 PM","1000m3/day",1,0
@@ -108,7 +109,7 @@
 "Measurement Unit(MeasureUnitCode)",300,"NTMU","Turbidity, Nephelometric Turbidity Multibeam Unit","3/3/2011 3:23:24 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",299,"NTRU","Turbidity, Nephelometric Turbidity Ratio Unit","3/3/2011 3:23:24 PM","NTU",1,0
 "Measurement Unit(MeasureUnitCode)",103,"NTU","()Turbidity, Nephelometric Turbidity Units","7/26/2006 10:57:47 AM","NTU",1,0
-"Measurement Unit(MeasureUnitCode)",1,"None","()Quantity, None","7/26/2006 10:57:47 AM","None",1,0
+"Measurement Unit(MeasureUnitCode)",1,"None","()Quantity, None (pH Units)","7/27/2006 12:00:00 AM","None",1,0
 "Measurement Unit(MeasureUnitCode)",95,"Normal","()Quantity, Normal","7/26/2006 10:57:47 AM","Normal",1,0
 "Measurement Unit(MeasureUnitCode)",33,"PCU","()Picklist or Choicelist, Platinum Cobalt Units (color) - American Public Health Association Color Scale, APHA = Pt-Co = Hazen Color","7/26/2006 10:57:47 AM","PCU",1,0
 "Measurement Unit(MeasureUnitCode)",168,"PSS","()Concentration Solution, Practical Salinity Scale","7/26/2006 10:57:47 AM","PSS",1,0
@@ -153,7 +154,7 @@
 "Measurement Unit(MeasureUnitCode)",328,"cfu/gdw","()Concentration Solution, Colony Forming Units per gram dryweight","1/11/2012 3:59:35 PM","cfu/gdw",1,0
 "Measurement Unit(MeasureUnitCode)",361,"cfu/mL","()Concentration Solution, Colony Forming Units per milliliters","12/17/2014 8:01:57 AM","cfu/mL",1,0
 "Measurement Unit(MeasureUnitCode)",135,"cm","Length Distance, Centimeters","7/26/2006 10:57:47 AM","in",0.393700787401575,0
-"Measurement Unit(MeasureUnitCode)",383,"cm-1","Concentration Solution, Inverse centimeters or per centimeters or cm-1","8/26/2024 4:44:00 PM","per in",100,0
+"Measurement Unit(MeasureUnitCode)",383,"cm-1*^*^*^*^","DO NOT USE, retired use per cm Concentration Solution, Inverse centimeters or per centimeters or cm-1","8/27/2024 12:00:00 AM","per m",100,0
 "Measurement Unit(MeasureUnitCode)",191,"cm/sec","Speed Velocity, Centimeters per second","7/26/2006 10:57:47 AM","m/sec",0.01,0
 "Measurement Unit(MeasureUnitCode)",237,"cm2","Area, Square centimeters","7/26/2006 10:57:47 AM","m2",1e-04,0
 "Measurement Unit(MeasureUnitCode)",204,"cm3","Volume, Cubic centimeters","7/26/2006 10:57:47 AM","m3",1e-06,0
@@ -198,7 +199,7 @@
 "Measurement Unit(MeasureUnitCode)",71,"ft-lbs","Energy, foot pounds","7/26/2006 10:57:47 AM","kcal",0.0003238315531757,0
 "Measurement Unit(MeasureUnitCode)",199,"ft/day","Speed Velocity, Feet per day","7/26/2006 10:57:47 AM","m/sec",3.5277777778e-06,0
 "Measurement Unit(MeasureUnitCode)",398,"ft/hr","()Speed Velocity, Feet per hour","12/4/2023 10:07:35 AM","ft/hr",1,0
-"Measurement Unit(MeasureUnitCode)",779,"ft/mile","()Slope, feet per mile","9/13/2022 12:21:58 PM","ft/mile",1,0
+"Measurement Unit(MeasureUnitCode)",779,"ft/mile","pH Units","9/13/2022 12:21:58 PM","ft/mile",1,0
 "Measurement Unit(MeasureUnitCode)",195,"ft/min","Speed Velocity, Feet per minute","7/26/2006 10:57:47 AM","m/sec",0.00508,0
 "Measurement Unit(MeasureUnitCode)",194,"ft/sec","Speed Velocity, Feet per second","7/26/2006 10:57:47 AM","m/sec",0.3048,0
 "Measurement Unit(MeasureUnitCode)",242,"ft2","Area, Square feet","7/26/2006 10:57:47 AM","m2",0.09290304,0
@@ -290,7 +291,7 @@
 "Measurement Unit(MeasureUnitCode)",729,"log10 copies","()Concentration Solution, Log10 copies (If Loga b = x, then a^x=b)","10/3/2022 12:00:00 AM","log10 copies",1,0
 "Measurement Unit(MeasureUnitCode)",106,"lumens","Light Intensity, lumens","7/26/2006 10:57:47 AM","lm/m2",10.763910417,0
 "Measurement Unit(MeasureUnitCode)",137,"m","Length Distance, Meters","8/30/2024 1:46:41 PM","in",39.3701,0
-"Measurement Unit(MeasureUnitCode)",367,"m-1*^*^*^*^*","DO NOT USE, Inverse meters or per meters ***retired***use per m","8/27/2024 12:00:00 AM","per in",1,0
+"Measurement Unit(MeasureUnitCode)",367,"m-1*^*^*^*^*","DO NOT USE, Inverse meters or per meters ***retired***use per m","8/28/2024 12:00:00 AM","per m",1,0
 "Measurement Unit(MeasureUnitCode)",192,"m/sec","()Speed Velocity, Meters per second","7/26/2006 10:57:47 AM","m/sec",1,0
 "Measurement Unit(MeasureUnitCode)",288,"m/y","()Time, Month/year","7/19/2010 3:16:29 PM","m/y",1,0
 "Measurement Unit(MeasureUnitCode)",238,"m2","()Area, Square meters","7/26/2006 10:57:47 AM","m2",1,0
@@ -324,7 +325,7 @@
 "Measurement Unit(MeasureUnitCode)",11,"metric ton","Weight Mass, Metric tons (tonne) or MT","7/26/2006 10:57:47 AM","g",1e+06,0
 "Measurement Unit(MeasureUnitCode)",5,"mg","Weight Mass, milligrams","7/26/2006 10:57:47 AM","g",0.001,0
 "Measurement Unit(MeasureUnitCode)",373,"mg N/l*^*^*^","DO NOT USE, Concentration Solution, mg nitrogen in one liter of water or milligrams per liter Nitrogen  ***retired***use mg/l, speciation= as N, ","7/7/2023 4:59:24 PM","mg/L",1000,0
-"Measurement Unit(MeasureUnitCode)",466,"mg/100g","Concentration Percentage, milligrams per 100 grams","9/26/2024 1:32:30 PM","ug/kg",10000,NA
+"Measurement Unit(MeasureUnitCode)",466,"mg/100g","Concentration Percentage, milligrams per 100 grams","9/26/2024 1:32:30 PM","ug/kg",10000,0
 "Measurement Unit(MeasureUnitCode)",15,"mg/L","()Concentration Solution, milligrams per liter","7/26/2006 10:57:47 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",679,"mg/L/hr","Viscosity, milligrams per liter per hour","8/14/2019 2:36:30 PM","mg/m3/day",41.6666667,0
 "Measurement Unit(MeasureUnitCode)",278,"mg/cm2","Concentration Solution, milligrams per square centimeters","2/12/2010 12:45:10 PM","ug/cm2",1000,0
@@ -390,7 +391,7 @@
 "Measurement Unit(MeasureUnitCode)",17,"ng/m3","Density, Nanograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e-06,0
 "Measurement Unit(MeasureUnitCode)",280,"ng/mL","()Density, Nanograms per milliliter","6/4/2010 10:57:43 AM","ng/mL",1,0
 "Measurement Unit(MeasureUnitCode)",133,"nm","Length Distance, Nanometers","7/26/2006 10:57:47 AM","in",3.93700787e-08,0
-"Measurement Unit(MeasureUnitCode)",289,"nm-1","DO NOT USE, Inverse nanometers or per nanometers ***deprecated***use per nm 19-JUL-10","9/30/2024 9:44:14 AM","per in",25400000,0
+"Measurement Unit(MeasureUnitCode)",289,"nm-1*^*^*^*^","DO NOT USE, Inverse nanometers or per nanometers ***deprecated***use per nm 19-JUL-10","10/1/2024 9:44:14 AM","per nm",1,0
 "Measurement Unit(MeasureUnitCode)",143,"nmi","Length Distance, Nautical miles","7/26/2006 10:57:47 AM","in",72913.38588,0
 "Measurement Unit(MeasureUnitCode)",250,"nmi2","Area, Square nautical miles","7/26/2006 10:57:47 AM","m2",3429904,0
 "Measurement Unit(MeasureUnitCode)",429,"nmol/L","()Concentration Molar, Nanomoles per liter","12/4/2023 10:07:36 AM","nmol/L",1,0
@@ -410,10 +411,11 @@
 "Measurement Unit(MeasureUnitCode)",38,"pCi/m3","Concentration Solution, Picocuries per cubic meter","7/26/2006 10:57:47 AM","pCi/L",0.001,0
 "Measurement Unit(MeasureUnitCode)",155,"pCi/mL","Density, Picocuries per milliliter","7/26/2006 10:57:47 AM","pCi/L",1000,0
 "Measurement Unit(MeasureUnitCode)",739,"pct modern","()Concentration Percentage, Percent modern","4/14/2020 5:49:58 AM","pct modern",1,0
+"Measurement Unit(MeasureUnitCode)",467,"per cm","Concentration Solution, Inverse centimeters or per centimeters or cm-1","6/6/2025 2:04:07 PM","per m",100,0
 "Measurement Unit(MeasureUnitCode)",430,"per day","()Time, Inverse days or per day","12/4/2023 10:07:36 AM","per day",1,0
-"Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter","8/30/2024 12:00:00 AM","per nm",1e+09,0
+"Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter or m-1","8/31/2024 12:00:00 AM","per nm",1e+09,0
 "Measurement Unit(MeasureUnitCode)",357,"per mil","Concentration Percentage, Parts per thousand","2/16/2017 11:05:28 AM","ug/kg",1e+06,0
-"Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers","2/10/2021 12:00:00 AM","per nm",1,0
+"Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers or nm-1","2/11/2021 12:00:00 AM","per nm",1,0
 "Measurement Unit(MeasureUnitCode)",431,"pfu/100L","()Concentration Solution, Plaque Forming Units per 100 liters","12/5/2023 12:00:00 AM","pfu/100mL",1000,0
 "Measurement Unit(MeasureUnitCode)",257,"pfu/100mL","()Concentration Solution, Plaque Forming Units per 100 milliliters","7/26/2006 10:57:47 AM","pfu/100mL",1,0
 "Measurement Unit(MeasureUnitCode)",432,"pfu/L","()Concentration Solution, Plaque Forming Units per liter","12/5/2023 12:00:00 AM","pfu/100mL",10,0
@@ -491,8 +493,8 @@
 "Measurement Unit(MeasureUnitCode)",174,"um3/L","Concentration Percentage, Cubic microns per liter","7/26/2007 10:57:47 AM","mm3/L",1e-09,0
 "Measurement Unit(MeasureUnitCode)",272,"um3/cm2","()Concentration Solution, Cubic microns per square cm","11/24/2009 7:07:30 PM","um3/cm2",1,0
 "Measurement Unit(MeasureUnitCode)",273,"um3/mL","Concentration Percentage, Cubic microns per ml","11/25/2009 7:07:30 PM","ppm",1e-06,0
-"Measurement Unit(MeasureUnitCode)",310,"umho","()Electrical conductance, micro-mhos","1/11/2012 3:59:08 PM","umho",1,0
-"Measurement Unit(MeasureUnitCode)",60,"umho/cm","Electrical conductivity, micro-mhos per centimeter","7/26/2006 10:57:47 AM","uS/cm",1,0
+"Measurement Unit(MeasureUnitCode)",310,"umho","()Electrical conductance, micro-mhos (umhos)","1/12/2012 12:00:00 AM","umho",1,0
+"Measurement Unit(MeasureUnitCode)",60,"umho/cm","Electrical conductivity, micro-mhos (umhos) per centimeter","7/27/2006 12:00:00 AM","uS/cm",1,0
 "Measurement Unit(MeasureUnitCode)",169,"umol","()Weight Mass, Micromoles","7/26/2006 10:57:47 AM","umol",1,0
 "Measurement Unit(MeasureUnitCode)",318,"umol/L","Concentration Molar, Micromoles per liter","1/11/2012 3:59:08 PM","mmol/L",0.001,0
 "Measurement Unit(MeasureUnitCode)",167,"umol/S/m2","()Viscosity, Micromoles per siemen per square meter","7/26/2006 10:57:47 AM","umol/S/m2",1,0
