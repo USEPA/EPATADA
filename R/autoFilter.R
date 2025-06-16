@@ -369,7 +369,7 @@ TADA_AnalysisDataFilter <- function(.data,
     print("TADA_AnalysisDataFilter: Flagging other results to include in assessments.")
   }
   
-  if (sediment == FALSE) {
+  if (other == FALSE) {
     other.flag <- "No"
     
     print("TADA_AnalysisDataFilter: Flagging other results to exclude from assessments.")
