@@ -1,5 +1,7 @@
 ANDs
+AOI
 ATTAINSOrgIDsRef
+AUs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
 ActivityDate
@@ -28,8 +30,12 @@ Autofilter
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
+Blodgett
 CCO
+CFU
 CNENVSER
+COLI
+COMIDs
 CRS
 CSTtoATTAINSParamCrosswalk
 CWA
@@ -45,6 +51,7 @@ CharacteristicNames
 CharacteristicsForDepthProfile
 Chilton
 ComparableDataIdentifier
+ComparableDataIdentifier's
 ComparableDataIdentifiers
 ConsolidatedDepth
 ConstructionDateText
@@ -60,7 +67,8 @@ CreatePairRef
 CreateParamRef
 CreateUnitRef
 CreateUseParamRef
-DOI
+Cybertown
+DV
 DataFrame
 DataQuality
 DataRetrieval
@@ -72,7 +80,9 @@ DetectionQuantitationLimiMeasure
 DetectionQuantitationLimitMeasure
 DetectionQuantitationLimitType
 DetectionQuantitationLimitTypeName
+DistanceAway
 DomainValues
+Dumelle
 EASP
 EASP's
 ECHO's
@@ -116,6 +126,7 @@ HarmonizeSynonyms
 HiRes
 HorizontalCoordinateReferenceSystemDatumName
 Hydrography
+Hydrologic
 HydrologicCondition
 HydrologicEvent
 IDCensoredData
@@ -145,6 +156,7 @@ MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
 MeetsStandard
+Memoranda
 MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
@@ -169,12 +181,16 @@ NCTCShepherdstown
 ND's
 NHD
 NHDPlus
+NHDPlusTools
+NLCD
+NLDI
 NWIS
 NearbySiteGroup
 NearbySites
 NoResultValue
 NoTargetUnit
 NonStandardized
+Nondetects
 Nonpoint
 NutrientSummation
 NutrientSummationEquation
@@ -212,6 +228,7 @@ QAPPAprrovedIndicator
 QAPPDocAvailable
 QAQC
 QAQC'd
+QAQC'ing
 QAQCCharacteristicValidation
 QC'ing
 QCing
@@ -224,6 +241,7 @@ RPD's
 RPDs
 RProj
 RStudio
+RWQC
 Rancherias
 ReplicateSampleID
 Repo
@@ -254,8 +272,11 @@ ResultWeightBasisText
 RetainRequired
 Rmd
 Rtools
+RunKeyFlagFunctions
 SFNOES
+SSN
 STORET
+STV
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -268,6 +289,8 @@ Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
 StateCode
+StreamCat
+StreamCatTools
 StringA
 StringB
 SubstituteDeprecatedChars
@@ -285,6 +308,7 @@ TADAShiny
 TMDL
 TargetUnit
 Tesuque
+Thawley
 TribalOptions
 UG
 USEPA
@@ -337,15 +361,18 @@ asNO
 assessmentunitidentifier
 autoclean
 autocleaned
+bBox
 bbox
 bnd
 bottomvalue
 bycategory
+cd
 cdx
 characteristicName
 characteristicType
 charactersitic
 cleanNA
+comid
 countrycode
 countycode
 cristinamullin
@@ -354,7 +381,6 @@ crs
 csv
 cwa
 dailyagg
-dataProfile
 dataRetrieval
 dateTime
 datetimes
@@ -364,6 +390,7 @@ devtools
 df
 dplyr
 du
+dv
 eXchange
 ecc
 ecoregions
@@ -375,6 +402,7 @@ fabec
 fetchATTAINS
 fetchNHD
 flaggedonly
+flowline
 flowlines
 geeksforgeeks
 geopub
@@ -382,6 +410,7 @@ geospatial
 geospatially
 getFeatureLayer
 getLayer
+getNWIS
 getPopup
 getenv
 ggplot
@@ -391,11 +420,16 @@ helpdesk
 https
 huc
 hucs
+hydrographic
+hydrography
 hydrologic
+hydroloom
 importWQP
 interoperable
 io
 lessthan
+listNWIS
+mL
 magrittr
 manys
 mapviewer
@@ -404,6 +438,7 @@ mimeType
 mlt
 myfileRef
 nd
+nhdplus
 nhdplusTools
 nondetections
 nonstandardized
@@ -421,6 +456,7 @@ pch
 pchIcons
 pcodes
 ph
+pkgdown
 plotly
 pre
 rATTAINS
@@ -439,6 +475,8 @@ siteid
 sitetype
 speciation
 speciations
+spmodel
+spsurvey
 startDate
 startDateHi
 startDateLo
@@ -446,12 +484,15 @@ statecode
 surfacevalue
 sysdata
 tada
+terra
 testthat
 th
 tigris
+tmap
 un
 uncomment
 uncommenting
+uri
 useR
 usepa
 usgs
@@ -467,4 +508,8 @@ wqx
 writeLayer
 www
 xlsx
+xmax
+xmin
+ymax
+ymin
 σ

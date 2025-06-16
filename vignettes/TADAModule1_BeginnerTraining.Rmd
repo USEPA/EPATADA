@@ -93,7 +93,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_developer, eval = F, include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "prerelease",
+  ref = "cybertown2025",
   dependencies = TRUE
 )
 
@@ -321,7 +321,7 @@ FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseFo
 analysis**
 
 ```{r question3}
-# Filter to flag only surface water results for use in analysis
+# Select only surface water results for use in analysis
 
 n_sur_water <- FieldValues_AnalysisFlag %>%
   dplyr::filter(Value == "Yes - SURFACE WATER") %>%

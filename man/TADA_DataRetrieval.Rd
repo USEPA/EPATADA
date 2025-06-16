@@ -22,6 +22,7 @@ TADA_DataRetrieval(
   organization = "null",
   project = "null",
   providers = "null",
+  bBox = "null",
   maxrecs = 350000,
   ask = TRUE,
   applyautoclean = TRUE
@@ -86,6 +87,8 @@ See https://www.waterqualitydata.us/Codes/project for options.}
 
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
 "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
+
+\item{bBox}{The latitude and longitude extent. Includes four numbers, e.g. bBox <- c(-xmin, ymin, -xmax, ymax).}
 
 \item{maxrecs}{Maximum number of records to query at once (i.e., without breaking into smaller
 queries).}
@@ -213,6 +216,9 @@ tada7 <- TADA_DataRetrieval(
   endDate = "2023-12-31",
   ask = FALSE
 )
+
+bbox <- c(-86.9736, 34.4883, -86.6135, 34.6562)
+tada8 <- TADA_DataRetrieval(bBox = bbox)
 }
 
 }
