@@ -9,7 +9,8 @@ TADA_AnalysisDataFilter(
   clean = FALSE,
   surface_water = TRUE,
   ground_water = FALSE,
-  sediment = FALSE
+  sediment = FALSE,
+  other = TRUE
 )
 }
 \arguments{
@@ -25,17 +26,21 @@ results should be flagged or removed in the returned dataframe. Default is
 surface_water = TRUE, surface water results are identified as usable for analysis.}
 
 \item{ground_water}{Boolean argument; specifies whether ground water
-results should be flagged or removed in the returned dataframe. Default is
+results should be flagged or removed in the returned data frame. Default is
 ground_water = FALSE, ground water results are identified as not usable for analysis.}
 
 \item{sediment}{Boolean argument; specifies whether sediment results should
-be flagged or removed in the returned dataframe. Default is sediment = FALSE,
+be flagged or removed in the returned data frame. Default is sediment = FALSE,
 sediment results are identified as not usable for analysis.}
+
+\item{other}{Boolean argument; species whether "other" (uncategorized) results should be flagged
+or removed in the returned data frame. Default is other = TRUE, othe results are retained for
+additional review by user/use in analysis.}
 }
 \value{
-If clean = TRUE, returns the dataframe with only the media types
-selected as usable (set to TRUE in function input) by the user.
-If clean = FALSE, returns the dataframe and an additional column,
+If clean = TRUE, returns the data frame with only the media types
+selected as usable (set to TRUE in function input) by the user are returned.
+If clean = FALSE, returns the data frame and an additional column,
 TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
 and which results should be included or excluded from assessments based on user input.
 }
