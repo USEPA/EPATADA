@@ -680,10 +680,10 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_Nutrients_UT)
 #'
 #' # Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
-#' df <- TADA_FindQCActivities(Data_NCTCShepherdstown_HUC12)
+#' df <- TADA_FindQCActivities(Data_Nutrients_UT)
 #'
 #' # Find pairs for all data flagged as "QC_replicate" in the TADA.ActivityType.Flag column:
 #' df_all_pairs <- TADA_PairReplicates(df)

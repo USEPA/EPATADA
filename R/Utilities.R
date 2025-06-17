@@ -60,7 +60,7 @@ utils::globalVariables(c(
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
-  "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime",
+  "value", "Flag_Column", "ActivityStartDateTime",
   "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
@@ -571,10 +571,21 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' @export
 #'
 #' @examples
-#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
-#' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
+#' \dontrun{
+#' # cleanup lat/long if needed
+#' GroupNearbySites <- TADA_FlagCoordinates(Data_Nutrients_UT,
+#'   clean_outsideUSA = "remove",
+#'   clean_imprecise = TRUE
+#' )
+#' # make sure there are no NA's in lat/long
+#' GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure), ]
+#' GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure), ]
+#' # group sites
+#' GroupNearbySites_100m <- TADA_FindNearbySites(GroupNearbySites)
+#' GroupNearbySites_10m <- TADA_FindNearbySites(GroupNearbySites,
 #'   dist_buffer = 10
 #' )
+#' }
 TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                  nhd_res = "Hi",
                                  org_hierarchy = "none",
@@ -1630,7 +1641,7 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #'
 #' @examples
 #' UniqueCharUnitSpecExample <-
-#'   TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+#'   TADA_UniqueCharUnitSpeciation(Data_Nutrients_UT)
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
@@ -1861,7 +1872,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @examples
 #' \dontrun{
 #' # return ATTAINS parameter domain values
-#' TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
+#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {

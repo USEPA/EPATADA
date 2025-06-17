@@ -33,23 +33,23 @@
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_Nutrients_UT)
 #'
 #' # Remove Suspect characteristic-analytical method combinations from
-#' # dataframe:
-#' SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12,
+#' # data frame:
+#' SuspectMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT,
 #'   clean = TRUE
 #' )
 #'
 #' # Flag, but do not remove, Suspect characteristic-analytical method
 #' # combinations
 #' # in new column titled "TADA.AnalyticalMethod.Flag":
-#' SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12,
+#' SuspectMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT,
 #'   clean = FALSE
 #' )
 #'
 #' # Show only Suspect characteristic-analytical method combinations:
-#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12,
+#' SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT,
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
@@ -457,24 +457,24 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_Nutrients_UT)
 #'
 #' # Remove data that is above the upper WQX threshold from dataframe:
 #' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = TRUE
 #' )
 #'
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
 #' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 #' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = FALSE
 #' )
 #'
 #' # Show only data flagged as above the upper WQX threshold:
 #' WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'
@@ -665,24 +665,24 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_NCTCShepherdstown_HUC12)
+#' data(Data_Nutrients_UT)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
 #' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = TRUE
 #' )
 #'
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
 #' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 #' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = FALSE
 #' )
 #'
 #' # Show only data that is below the lower WQX threshold:
 #' WQXLowerThreshold_flagsonly <- TADA_FlagBelowThreshold(
-#'   Data_NCTCShepherdstown_HUC12,
+#'   Data_Nutrients_UT,
 #'   clean = FALSE, flaggedonly = TRUE
 #' )
 #'

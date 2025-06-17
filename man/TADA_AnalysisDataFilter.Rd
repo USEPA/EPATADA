@@ -34,7 +34,7 @@ be flagged or removed in the returned data frame. Default is sediment = FALSE,
 sediment results are identified as not usable for analysis.}
 
 \item{other}{Boolean argument; species whether "other" (uncategorized) results should be flagged
-or removed in the returned data frame. Default is other = TRUE, othe results are retained for
+or removed in the returned data frame. Default is other = TRUE, other results are retained for
 additional review by user/use in analysis.}
 }
 \value{

@@ -24,11 +24,12 @@ editor_options:
 ```{r setup-knitr, include = F}
 library(knitr)
 
-knitr::opts_chunk$set(echo = TRUE,
-                      warning = FALSE,
-                      message = FALSE,
-                      eval = FALSE
-                      )
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
 ```
 
 # Welcome!
@@ -50,9 +51,9 @@ needed before installing the EPATADA R package because it is only
 available on GitHub.
 
 ```{r setup-remotes, results = 'hide'}
-install.packages("remotes", 
-                 repos = "http://cran.us.r-project.org"
-                 )
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
 library(remotes)
 ```
 
@@ -75,16 +76,16 @@ update all of them (enter 1 into the console).
 
 ```{r install-develop-branch, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "develop",
-                        dependencies = TRUE
-                        )
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 ```{r install-current-branch, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "develop",
-                        dependencies = TRUE
-                        )
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the EPATADA R Package
@@ -202,18 +203,18 @@ the complete list:
 
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 ```
 
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
 specific organization in the TADA_CreateParamRef() function, we must
 first review the ATTAINS organization domain list to get the ATTAINS
-organization id's to use for the funciton input.
+organization id's to use for the function input.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues('org_id'))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 ```
 
 # TADA_CreateParamRef() Basics
@@ -296,7 +297,7 @@ ATTAINS outside of your organization.
 NCTC_ParamRef_All <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
-  fillBy = "All", 
+  fillBy = "All",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -526,7 +527,7 @@ TADA_CreateUseParamRef for multiple organizations using autoassign = TRUE.
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_MultipleOrgs <- TADA_CreateParamRef(
   Data_NCTC,
-  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"), 
+  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
   fillBy = "Org",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -552,7 +553,7 @@ NCTC_ParamRef_MultipleOrgs_Final <- TADA_CreateParamRef(
 NCTC_UseParamRef_MultipleOrgs_AutoAssign <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = NCTC_ParamRef_MultipleOrgs_Final, 
+  paramRef = NCTC_ParamRef_MultipleOrgs_Final,
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file

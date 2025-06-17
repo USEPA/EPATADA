@@ -174,15 +174,23 @@ paramRef_UT4 <- TADA_CreateParamRef(Data_Nutrients_UT,
 )
 
 # Example where multiple org_id's are selected
+# Retrieve data
+shepherdstown <- TADA_DataRetrieval(
+  startDate = "2022-01-01",
+  endDate = "2025-12-31",
+  huc = "02070004",
+  applyautoclean = TRUE,
+  ask = FALSE
+)
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <-
-  TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
-Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
+shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown)
+shepherdstown3 <- TADA_HarmonizeSynonyms(shepherdstown2)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
-paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
-  org_id =
-    c("MDE_EASP", "21VASWCB", "21PA"), fillBy = "All", excel = FALSE
+paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,
+  org_id = c("MDE_EASP", "21VASWCB", "21PA"),
+  fillBy = "All",
+  excel = FALSE
 )
 }
 

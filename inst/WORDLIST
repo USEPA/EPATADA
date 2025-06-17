@@ -178,7 +178,6 @@ MultipleOrgDupGroupID
 MultipleOrgDuplicate
 NA's
 NCTC
-NCTCShepherdstown
 ND's
 NHD
 NHDPlus
@@ -298,7 +297,6 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
-TADACybertown
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -361,6 +359,7 @@ applyautoclean
 arcgis
 asNO
 assessmentunitidentifier
+autoassign
 autoclean
 autocleaned
 bBox
@@ -383,7 +382,6 @@ crosswalking
 crs
 csv
 cwa
-cybertown
 dailyagg
 dataRetrieval
 dateTime
@@ -464,7 +462,7 @@ ph
 pkgdown
 plotly
 pre
-rATTAINS
+rExpertQuery
 randombelowlimit
 rda
 readWQPdata
@@ -495,6 +493,7 @@ th
 tigris
 tmap
 un
+uncategorized
 uncomment
 uncommenting
 uri

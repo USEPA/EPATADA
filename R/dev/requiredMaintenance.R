@@ -1,3 +1,5 @@
+# last ref and example data update: 6/17/25
+
 ###########################################################
 
 # Update All TADA Reference Files
@@ -23,7 +25,7 @@ TADA_UpdateTribalLayers()
 
 ###########################################################
 
-## Update Example Data
+# Update Example Data
 
 TADA_UpdateExampleData <- function() {
   # Generate Data_Nutrients_UT
@@ -92,27 +94,27 @@ TADA_UpdateExampleData <- function() {
   rm(Data_6Tribes_5y_Harmonized)
   rm(y)
 
-  # Generate Data_NCTCShepherdstown_HUC12
-  Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(
-    startDate = "2020-03-14",
-    endDate = "null",
-    countycode = "null",
-    huc = "02070004",
-    siteid = "null",
-    siteType = "null",
-    characteristicName = "null",
-    characteristicType = "null",
-    sampleMedia = "null",
-    statecode = "null",
-    organization = "null",
-    project = "null",
-    applyautoclean = TRUE,
-    ask = FALSE
-  )
-  print("Data_NCTCShepherdstown_HUC12:")
-  print(dim(Data_NCTCShepherdstown_HUC12))
-  usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
-  rm(Data_NCTCShepherdstown_HUC12)
+  # # Generate Data_NCTCShepherdstown_HUC12
+  # Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(
+  #   startDate = "2022-01-01",
+  #   endDate = "2024-12-31",
+  #   countycode = "null",
+  #   huc = "02070004",
+  #   siteid = "null",
+  #   siteType = "null",
+  #   characteristicName = "null",
+  #   characteristicType = "null",
+  #   sampleMedia = "null",
+  #   statecode = "null",
+  #   organization = "null",
+  #   project = "null",
+  #   applyautoclean = TRUE,
+  #   ask = FALSE
+  # )
+  # print("Data_NCTCShepherdstown_HUC12:")
+  # print(dim(Data_NCTCShepherdstown_HUC12))
+  # usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
+  # rm(Data_NCTCShepherdstown_HUC12)
 
   # Generate Data_R5_TADAPackageDemo
   Data_R5_TADAPackageDemo <- TADA_DataRetrieval(

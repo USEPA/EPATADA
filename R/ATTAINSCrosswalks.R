@@ -586,15 +586,23 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' )
 #'
 #' # Example where multiple org_id's are selected
+#' # Retrieve data
+#' shepherdstown <- TADA_DataRetrieval(
+#'   startDate = "2022-01-01",
+#'   endDate = "2025-12-31",
+#'   huc = "02070004",
+#'   applyautoclean = TRUE,
+#'   ask = FALSE
+#' )
 #' # First, run key flag functions and harmonize synonyms across
 #' # characteristic, fraction, and speciation columns
-#' Data_NCTCShepherdstown <-
-#'   TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
-#' Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
+#' shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown)
+#' shepherdstown3 <- TADA_HarmonizeSynonyms(shepherdstown2)
 #' # Create ATTAINS parameter crosswalk for MD, VA, and PA
-#' paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
-#'   org_id =
-#'     c("MDE_EASP", "21VASWCB", "21PA"), fillBy = "All", excel = FALSE
+#' paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,
+#'   org_id = c("MDE_EASP", "21VASWCB", "21PA"),
+#'   fillBy = "All",
+#'   excel = FALSE
 #' )
 #' }
 #'
@@ -913,7 +921,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     Excel formulas will only be generated for the first 100 rows. Please fill down on Cells D1 and Cells E1 in excel
     to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."))
     }
-    
+
     # Create column names for an empty dataframe
     columns <- c(
       "TADA.ComparableDataIdentifier",
@@ -990,11 +998,11 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     rm(ATTAINS_param, ATTAINS_param_all)
 
     max_loops <- 0
-    
+
     for (i in 1:nrow(CreateParamRef)) {
       max_loops <- max_loops + 1
       if (max_loops > 100) break
-      
+
       openxlsx::writeFormula(
         wb, "CreateParamRef",
         startCol = 4,
@@ -1190,20 +1198,19 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, let's compare the crosswalk for paramRef_UT4 when we use fillBy = "All". 
+#' # Now, let's compare the crosswalk for paramRef_UT4 when we use fillBy = "All".
 #' # Notice, there are NA values for ATTAINS.UseName as these UT ATTAINS Parameter Name were
 #' # not listed as a cause in prior ATTAINS assessment cycles.
 #' UseParamRef_UT2 <- TADA_CreateUseParamRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT4, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
-#' 
+#'
 #' # Let's test the "auto_assign" input
 #' UseParamRef_UT3 <- TADA_CreateUseParamRef(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT4, auto_assign = TRUE, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
-#' 
 #'
 TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, useParamRef = NULL,
                                    auto_assign = FALSE, excel = FALSE, overwrite = FALSE) {
@@ -1546,17 +1553,17 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
   rm(ATTAINS_param)
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  
+
   if (excel == TRUE) {
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(CreateUseParamRef)
-    if (n > 100 ) {
+    if (n > 100) {
       message(paste0("There are ", n, " rows in your CreateUseParamRef.
     This may result in slow runtime for TADA_CreateUseParamRef() when generating the excel spreadsheet.
     Excel formulas will only be generated for the first 100 rows. Please fill down on Cells F1 and Cells G1 in excel
     to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."))
     }
-    
+
     # Create column names for an empty dataframe
     columns <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
@@ -1627,7 +1634,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     )
 
     max_loops <- 0
-    
+
     for (i in 1:nrow(CreateUseParamRef)) {
       # Formula based cell values in excel.
       openxlsx::writeFormula(
@@ -1646,7 +1653,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
             "Use name is listed as a prior cause in ATTAINS for this organization."))))'
         )
       )
-      
+
       openxlsx::writeFormula(
         wb, "CreateUseParamRef",
         startCol = 7,
@@ -1660,7 +1667,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       max_loops <- max_loops + 1
       if (max_loops > 100) break
     }
-    
+
     # Conditional formatting created below.
 
     # If a user has left an ATTAINS.UseName blank, flag as a red cell.
@@ -1670,7 +1677,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
-    
+
     # If a user has an ATTAINS.UseName filled out, flag as a yellow cell.
     openxlsx::conditionalFormatting(
       wb, "CreateUseParamRef",
