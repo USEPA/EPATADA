@@ -78,10 +78,14 @@ Imports:
     openxlsx,
     rATTAINS,
     DT,
-    dataRetrieval
+    dataRetrieval,
+    dbscan,
+    janitor
 Depends: 
     R (>= 3.5.0)
 Suggests:
+    StreamCatTools, 
+    hydroloom,
     lwgeom,
     RColorBrewer,
     rmarkdown,
@@ -96,9 +100,12 @@ Suggests:
     spelling,
     htmltools,
     tigris,
-    yaml
+    yaml,
+    rvest,
+    remotes
 Remotes:
-    DOI-USGS/dataRetrieval@develop
+    DOI-USGS/dataRetrieval@develop,
+    USEPA/StreamCatTools@master
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3

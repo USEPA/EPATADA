@@ -1,7 +1,7 @@
-#' Generate TADA-compatible dataframe from WQP Data
+#' Generate TADA-compatible data frame from WQP Data
 #'
 #' Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-#' dataframe. Note that the inputs (e.g. project, organization, siteType) with the
+#' data frame. Note that the inputs (e.g. project, organization, siteType) with the
 #' exceptions of endDate and startDate match the web service call format from the
 #' online WQP GUI. endDate and startDate match the format suggested in USGS's
 #' dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
@@ -33,7 +33,7 @@
 #' Alternatively, you can use the WQP services to find areas where data is available in the US:
 #' https://www.waterqualitydata.us/Codes/countycode
 #'
-#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
+#' TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 #' is important for categorizing result value and detection limit data, as well as
 #' harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 #'
@@ -83,6 +83,7 @@
 #'        See https://www.waterqualitydata.us/Codes/project for options.
 #' @param providers Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
 #'        "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.
+#' @param bBox The latitude and longitude extent. Includes four numbers, e.g. bBox <- c(-xmin, ymin, -xmax, ymax).
 #' @param maxrecs Maximum number of records to query at once (i.e., without breaking into smaller
 #'        queries).
 #' @param ask A logical value (TRUE or FALSE) indicating whether the user should be asked for approval before
@@ -90,7 +91,7 @@
 #' @param applyautoclean Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
 #'        data profile. Suggest switching to FALSE for queries that are expected to be large.
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 #'
 #' @note
 #' Alaska Native Villages and Virginia Federally Recognized Tribes are point
@@ -165,6 +166,9 @@
 #'   endDate = "2023-12-31",
 #'   ask = FALSE
 #' )
+#'
+#' bbox <- c(-86.9736, 34.4883, -86.6135, 34.6562)
+#' tada8 <- TADA_DataRetrieval(bBox = bbox)
 #' }
 #'
 TADA_DataRetrieval <- function(startDate = "null",
@@ -184,6 +188,7 @@ TADA_DataRetrieval <- function(startDate = "null",
                                organization = "null",
                                project = "null",
                                providers = "null",
+                               bBox = "null",
                                maxrecs = 350000,
                                ask = TRUE,
                                applyautoclean = TRUE) {
@@ -312,6 +317,14 @@ TADA_DataRetrieval <- function(startDate = "null",
     } else if (providers != "null") {
       WQPquery <- c(WQPquery, providers = providers)
     }
+
+    # bbox
+    if (length(bBox) > 1) {
+      WQPquery <- c(WQPquery, bBox = list(bBox))
+    } else if (bBox != "null") {
+      WQPquery <- c(WQPquery, bBox = bBox)
+    }
+
     # Organization
     if (length(organization) > 1) {
       WQPquery <- c(WQPquery, organization = list(organization))
@@ -522,7 +535,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       if ((nrow(results.DR) > 0) == FALSE) {
         print(
           paste0(
-            "Returning empty results dataframe: ",
+            "Returning empty results data frame: ",
             "Your WQP query returned no results (no data available). ",
             "Try a different query. ",
             "Removing some of your query filters OR broadening your search area may help."
@@ -605,7 +618,7 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
         paste0(
-          "Returning empty results dataframe: ",
+          "Returning empty results data frame: ",
           "Your WQP query returned no results (no data available). ",
           "Try a different query. ",
           "Removing some of your query filters OR broadening your search area may help."
@@ -755,6 +768,13 @@ TADA_DataRetrieval <- function(startDate = "null",
       WQPquery <- c(WQPquery, providers = list(providers))
     } else if (providers != "null") {
       WQPquery <- c(WQPquery, providers = providers)
+    }
+
+    # bbox
+    if (length(bBox) > 1) {
+      WQPquery <- c(WQPquery, bBox = list(bBox))
+    } else if (bBox != "null") {
+      WQPquery <- c(WQPquery, bBox = bBox)
     }
 
     if (length(organization) > 1) {
@@ -914,8 +934,13 @@ TADA_DataRetrieval <- function(startDate = "null",
 
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
+#<<<<<<< HEAD
         print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
         TADAprofile.clean <- results.DR 
+#=======
+ #       print("Returning empty results data frame: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+ #       TADAprofile.clean <- results.DR
+#>>>>>>> 25489e660dff6d38fc83cbe279def4d11c8e0248
       } else {
         TADAprofile <- results.DR # JUST NEED RESULTS PROFILE in beta - will contain site and project information
         
@@ -1047,13 +1072,13 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #' 3. Site Data Only
 #'
 #' After you retrieve all three profiles, you can use TADA_JoinWQPProfiles to
-#' join the three dataframes into a single dataframe.
+#' join the three data frames into a single data frame.
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
 #' with all your selected data filters. For example, this is the query used
 #' in the examples for this function:
-#' https://www.waterqualitydata.us/#statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET
+#' https://www.waterqualitydata.us/#statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&startDateHi=02-01-2021&mimeType=csv&providers=NWIS&providers=STORET
 #'
 #' **Extra tip:** Note that the web service call built using the Water
 #' Quality Portal uses the inputs startDateLo and startDateHi rather than
@@ -1074,9 +1099,44 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' physchemresults1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&dataProfile=biological&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' sites1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projects1 <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' # construct the WQP web service URL for each profile
+#' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
+#' profile_result_2 <- "&dataProfile=biological"
+#' profile_project <- "/data/Project"
+#' filters <- "/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water"
+#' dates <- "&startDateLo=01-01-2021&startDateHi=02-01-2021"
+#' type <- "&mimeType=csv&zip=yes"
+#' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+#'
+#' physchemresults1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_station,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
+#'
+#' sites1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_result,
+#'   filters,
+#'   dates,
+#'   type,
+#'   profile_result_2,
+#'   providers
+#' ))
+#'
+#' projects1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_project,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
 #' }
 #'
 TADA_ReadWQPWebServices <- function(webservice) {
@@ -1112,7 +1172,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' This is a helper function that takes large WQP (waterqualitydata.us) queries
 #' and splits them up into multiple, smaller queries. By default it pulls data
 #' for up to 300 sites or 250,000 data records at a time and then joins the separate
-#' pulls back together to produce a single TADA compatible dataframe as the output.
+#' pulls back together to produce a single TADA compatible data frame as the output.
 #' Computer memory may limit the size of data frames that your R console will
 #' be able to hold in one session.
 #'
@@ -1121,7 +1181,7 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' @param maxrecs Maximum number of records to query at once.
 #' @param maxsites Maximum number of sites to query at once.
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsites = 300) {
   # Get total number of results per site and separate out sites with >maxrecs results
   tot_sites <- record_summary %>%
@@ -1245,25 +1305,61 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' Join WQP Profiles
 #'
 #' After retrieving multiple result and metadata profiles from the WQP, this
-#' function joins those profiles together into one dataframe.
+#' function joins those profiles together into one data frame.
 #' The FullPhysChem data input is required to run this function.
+#'
+#' The WQP user interface assists users with constructing a web service query
+#' URL - for example:
+#' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
 #'
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
 #' @param Projects Projects data profile
 #'
-#' @return TADA-compatible dataframe
+#' @return TADA-compatible data frame
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Load WQP data
-#' # WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
-#' # Use TADA_ReadWQPWebServices to load each profile
-#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' # construct the WQP web service URL for each profile
+#' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
+#' profile_result_2 <- "&dataProfile=resultPhysChem"
+#' profile_project <- "/data/Project"
+#' filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
+#' dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+#' type <- "&mimeType=csv&zip=yes"
+#' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+#'
+#' stationProfile <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_station,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
+#'
+#' physchemProfile <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_result,
+#'   filters,
+#'   dates,
+#'   type,
+#'   profile_result_2,
+#'   providers
+#' ))
+#'
+#' projectProfile <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_project,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(
@@ -1328,7 +1424,16 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   } else {
     join2 <- join1
   }
-
+  # check to make sure project cols have been added (a few of these are
+  # required TADA cols for the shiny app to run & for package checks to pass)
+  # even if blank
+  if (all(Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(join2)) == FALSE) {
+    join2[c(
+      "ProjectDescriptionText",
+      "SamplingDesignTypeCode", "QAPPApprovedIndicator", "QAPPApprovalAgencyName",
+      "ProjectFileUrl", "ProjectMonitoringLocationWeightingUrl"
+    )] <- NA
+  }
   return(join2)
 }
 
@@ -1398,12 +1503,11 @@ make_groups <- function(x, maxrecs) {
 #' Create ActivityStartDateTime column
 #'
 #' Copy of internal dataRetrieval create_dateTime function 3/7/2025
-#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L223
-#' offsetLibrary is a dataframe saved in sysdata.rda
-#' You can see where and how it gets called here:
-#' https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L160
+#' See  USGS dataRetrieval importWQP.R file (line 223)
+#' offsetLibrary is a data frame saved in sysdata.rda
+#' You can see where and how it gets called on line 160
 #'
-#' @param .data TADA dataframe
+#' @param .data TADA data frame
 #' @param date_col date column
 #' @param time_col time column
 #' @param tz_col time zone column
@@ -1426,7 +1530,7 @@ make_groups <- function(x, maxrecs) {
 #' )
 #'
 #' # Run TADA_CheckRequiredFields, returns error message,
-#' # 'The dataframe does not contain the required fields: ActivityStartDateTime'
+#' # 'The data frame does not contain the required fields: ActivityStartDateTime'
 #' TADA_CheckRequiredFields(TADAProfile)
 #'
 #' # Add missing col

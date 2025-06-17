@@ -1040,7 +1040,7 @@ TADA_DepthProfilePlot <- function(.data,
 
   # title for three characteristics
   if (length(groups) == 3) {
-    title <- TADA_InsertBreaks(
+    title <- stringr::str_wrap(
       paste0(
         param1$TADA.CharacteristicName[1],
         "; ",
@@ -1052,13 +1052,13 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 50
+      width = 50
     )
   }
 
   # title for two characteristics
   if (length(groups) == 2) {
-    title <- TADA_InsertBreaks(
+    title <- stringr::str_wrap(
       paste0(
         param1$TADA.CharacteristicName[1],
         " and ",
@@ -1069,13 +1069,13 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 50
+      width = 50
     )
   }
 
   # title for one characteristic
   if (length(groups) == 1) {
-    title <- TADA_InsertBreaks(
+    title <- stringr::str_wrap(
       paste0(
         param1$TADA.CharacteristicName[1],
         " for ",
@@ -1084,7 +1084,7 @@ TADA_DepthProfilePlot <- function(.data,
         " on ",
         format(as.Date(plot.data$ActivityStartDate[1]), "%B %d, %Y")
       ),
-      len = 50
+      width = 50
     )
   }
 

@@ -16,13 +16,13 @@ TADA_BigDataHelper(record_summary, WQPquery, maxrecs = 250000, maxsites = 300)
 \item{maxsites}{Maximum number of sites to query at once.}
 }
 \value{
-TADA-compatible dataframe
+TADA-compatible data frame
 }
 \description{
 This is a helper function that takes large WQP (waterqualitydata.us) queries
 and splits them up into multiple, smaller queries. By default it pulls data
 for up to 300 sites or 250,000 data records at a time and then joins the separate
-pulls back together to produce a single TADA compatible dataframe as the output.
+pulls back together to produce a single TADA compatible data frame as the output.
 Computer memory may limit the size of data frames that your R console will
 be able to hold in one session.
 }

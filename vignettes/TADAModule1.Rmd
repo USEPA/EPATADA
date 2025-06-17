@@ -79,7 +79,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "tada_dr_updates_tada_team",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
@@ -197,7 +197,7 @@ Additional resources:
     the console: ?TADA_DataRetrieval
 
 -   [Introduction to the dataRetrieval
-    package](https://CRAN.R-project.org/package=dataRetrieval)
+    package](https://cran.r-project.org/web/packages/dataRetrieval/index.html)
 
 -   [General Data Import from Water Quality
     Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)

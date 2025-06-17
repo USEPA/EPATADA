@@ -26,7 +26,7 @@ produced from a set of TADA spatial features.
 \dontrun{
 tada_data <- TADA_DataRetrieval(
   startDate = "1990-01-01",
-  endDate = "1995-12-31",
+  endDate = "1990-12-30",
   characteristicName = "pH",
   statecode = "NV",
   applyautoclean = TRUE,

@@ -7,7 +7,7 @@
 TADA_ViewATTAINS(.data)
 }
 \arguments{
-\item{.data}{A list containing a dataframe and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
+\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
@@ -33,7 +33,10 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-attains_data <- TADA_GetATTAINS(tada_data, return_sf = TRUE)
+attains_data <- TADA_GetATTAINS(tada_data,
+  fill_catchments = TRUE,
+  return_nearest = TRUE, resolution = "hi", return_sf = TRUE
+)
 
 TADA_ViewATTAINS(attains_data)
 }

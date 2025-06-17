@@ -7,7 +7,7 @@
 TADA_CreateDateTime(.data, date_col, time_col, tz_col, tz)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{TADA data frame}
 
 \item{date_col}{date column}
 
@@ -19,10 +19,9 @@ TADA_CreateDateTime(.data, date_col, time_col, tz_col, tz)
 }
 \description{
 Copy of internal dataRetrieval create_dateTime function 3/7/2025
-https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L223
-offsetLibrary is a dataframe saved in sysdata.rda
-You can see where and how it gets called here:
-https://github.com/DOI-USGS/dataRetrieval/blob/main/R/importWQP.R#L160
+See  USGS dataRetrieval importWQP.R file (line 223)
+offsetLibrary is a data frame saved in sysdata.rda
+You can see where and how it gets called on line 160
 }
 \examples{
 \dontrun{
@@ -41,7 +40,7 @@ TADAProfile <- TADA_JoinWQPProfiles(
 )
 
 # Run TADA_CheckRequiredFields, returns error message,
-# 'The dataframe does not contain the required fields: ActivityStartDateTime'
+# 'The data frame does not contain the required fields: ActivityStartDateTime'
 TADA_CheckRequiredFields(TADAProfile)
 
 # Add missing col

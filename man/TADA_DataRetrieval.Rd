@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataDiscoveryRetrieval.R
 \name{TADA_DataRetrieval}
 \alias{TADA_DataRetrieval}
-\title{Generate TADA-compatible dataframe from WQP Data}
+\title{Generate TADA-compatible data frame from WQP Data}
 \usage{
 TADA_DataRetrieval(
   startDate = "null",
@@ -22,6 +22,7 @@ TADA_DataRetrieval(
   organization = "null",
   project = "null",
   providers = "null",
+  bBox = "null",
   maxrecs = 350000,
   ask = TRUE,
   applyautoclean = TRUE
@@ -87,6 +88,8 @@ See https://www.waterqualitydata.us/Codes/project for options.}
 \item{providers}{Leave blank to include all, or specify "STEWARDS", "STORET" (i.e., WQX), and/or
 "NWIS". See https://www.waterqualitydata.us/Codes/providers for options.}
 
+\item{bBox}{The latitude and longitude extent. Includes four numbers, e.g. bBox <- c(-xmin, ymin, -xmax, ymax).}
+
 \item{maxrecs}{Maximum number of records to query at once (i.e., without breaking into smaller
 queries).}
 
@@ -97,11 +100,11 @@ downloads begin. Defaults to TRUE.}
 data profile. Suggest switching to FALSE for queries that are expected to be large.}
 }
 \value{
-TADA-compatible dataframe
+TADA-compatible data frame
 }
 \description{
 Retrieve data from Water Quality Portal (WQP) and generate a TADA-compatible
-dataframe. Note that the inputs (e.g. project, organization, siteType) with the
+data frame. Note that the inputs (e.g. project, organization, siteType) with the
 exceptions of endDate and startDate match the web service call format from the
 online WQP GUI. endDate and startDate match the format suggested in USGS's
 dataRetrieval package (endDate = "YYYY-MM-DD"), which is a more familiar date
@@ -134,7 +137,7 @@ and statecode: https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
 Alternatively, you can use the WQP services to find areas where data is available in the US:
 https://www.waterqualitydata.us/Codes/countycode
 
-TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming dataframe. TADA_AutoClean
+TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming data frame. TADA_AutoClean
 is important for categorizing result value and detection limit data, as well as
 harmonizing key columns used in TADA. See ?TADA_AutoClean for more information.
 
@@ -213,6 +216,9 @@ tada7 <- TADA_DataRetrieval(
   endDate = "2023-12-31",
   ask = FALSE
 )
+
+bbox <- c(-86.9736, 34.4883, -86.6135, 34.6562)
+tada8 <- TADA_DataRetrieval(bBox = bbox)
 }
 
 }
