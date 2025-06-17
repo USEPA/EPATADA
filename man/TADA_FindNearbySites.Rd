@@ -75,15 +75,17 @@ TADA.LatitudeMeasure) were determined.
 \examples{
 \dontrun{
 # cleanup lat/long if needed
-GroupNearbySites = TADA_FlagCoordinates(Data_Nutrients_UT, 
-clean_outsideUSA = "remove", 
-clean_imprecise = TRUE)
+GroupNearbySites <- TADA_FlagCoordinates(Data_Nutrients_UT,
+  clean_outsideUSA = "remove",
+  clean_imprecise = TRUE
+)
 # make sure there are no NA's in lat/long
-GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure),]
-GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure),]
+GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure), ]
+GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure), ]
 # group sites
-GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
-GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
-dist_buffer = 10)
+GroupNearbySites_100m <- TADA_FindNearbySites(GroupNearbySites)
+GroupNearbySites_10m <- TADA_FindNearbySites(GroupNearbySites,
+  dist_buffer = 10
+)
 }
 }
