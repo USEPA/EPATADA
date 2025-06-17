@@ -187,42 +187,10 @@ TADA_FieldValuesTable(
 )
 ```
 
-The **TADA_AnalysisDataFilter** function can assist in identifying and
-filtering surface water, groundwater, and sediment results. If you set
-clean = FALSE, this function will categorize and flag (but not remove)
-rows in a new *TADA.UseForAnalysis.Flag* column for review. However, the
-default functionality (clean = TRUE) is to include surface water and
-exclude groundwater and sediment results. For this example, we will
-choose to exclude any results that have been explicitly identified as
-groundwater or sediment if any results were found. Our data set does not
-contain any ground water or sediment results to remove.
-
-```{r TADA_AnalysisDataFilter}
-WQP_flag <- TADA_AnalysisDataFilter(
-  WQP_raw,
-  clean = FALSE,
-  surface_water = TRUE,
-  ground_water = FALSE,
-  sediment = FALSE
-)
-
-# Review unique flags
-unique(WQP_flag$TADA.UseForAnalysis.Flag)
-
-# Keep only surface water and other (noncategorized) results, not working
-WQP_clean <- TADA_AnalysisDataFilter(
-  WQP_flag,
-  clean = TRUE,
-  surface_water = TRUE,
-  ground_water = FALSE,
-  sediment = FALSE
-)
-```
-
 Create an overview map.
 
 ```{r TADA_OverviewMap}
-TADA_OverviewMap(WQP_clean)
+TADA_OverviewMap(WQP_raw)
 ```
 
 Let's take a quick look at all unique values in the
@@ -232,7 +200,7 @@ associated with each.
 ```{r TADA_FieldValuesTable}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
-  WQP_clean,
+  WQP_raw,
   field = "MonitoringLocationIdentifier",
   characteristicName = "null"
 )
@@ -244,7 +212,7 @@ Are there sites located within 100 meters of each other?
 
 ```{r TADA_FlagCoordinates}
 WQP_clean <- TADA_FindNearbySites(
-  WQP_clean,
+  WQP_raw,
   dist_buffer = 100,
   nhd_res = "Hi",
   org_hierarchy = "none",
