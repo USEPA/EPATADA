@@ -124,7 +124,7 @@ paramRef_UT3 <- TADA_CreateParamRef(
 
 paramRef_UT4 <- TADA_CreateParamRef(
   Data_Nutrients_UT,
-  org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 )
 
 # Next, enter the crosswalk generated above as the paramRef function input
@@ -134,7 +134,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-# Now, let's compare the crosswalk for paramRef_UT4 when we use fillBy = "All".
+# Now, let's compare the crosswalk for paramRef_UT4 when we use auto_assign = "All".
 # Notice, there are NA values for ATTAINS.UseName as these UT ATTAINS Parameter Name were
 # not listed as a cause in prior ATTAINS assessment cycles.
 UseParamRef_UT2 <- TADA_CreateUseParamRef(

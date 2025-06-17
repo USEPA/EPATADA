@@ -527,7 +527,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' EPA 304a criteria) also need to include an additional column name:
 #' 'organization_identifier'.
 #'
-#' @param fillBy A string value of "None", "All", or "Org". Default is "All".
+#' @param auto_assign A string value of "None", "All", or "Org". Default is "All".
 #' If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
 #' currently based on and exact match of WQP CharacteristicName with
 #' ATTAINS ParameterName along with a few manual review). If "Org" then this
@@ -556,7 +556,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' # Example below generates the same output as a dataframe
 #' paramRef_UT <- TADA_CreateParamRef(
 #'   Data_Nutrients_UT,
-#'   org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
+#'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
 #' # Users can choose to edit the paramRef_UT through the R environment or in
 #' # the excel spreadsheet. Users should be aware that any updates done only
@@ -577,12 +577,12 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' # Update the 'ATTAINS.FlagParameterName' values
 #' paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2,
-#'   org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
+#'   org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 #' )
 #'
-#' # How does fillBy = "All" compare to paramRef_UT3?
+#' # How does auto_assign = "All" compare to paramRef_UT3?
 #' paramRef_UT4 <- TADA_CreateParamRef(Data_Nutrients_UT,
-#'   org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
+#'   org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 #' )
 #'
 #' # Example where multiple org_id's are selected
@@ -601,12 +601,12 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 #' # Create ATTAINS parameter crosswalk for MD, VA, and PA
 #' paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,
 #'   org_id = c("MDE_EASP", "21VASWCB", "21PA"),
-#'   fillBy = "All",
+#'   auto_assign = "All",
 #'   excel = FALSE
 #' )
 #' }
 #'
-TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = "None", # c("None", "All", "Org"),
+TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = "None", # c("None", "All", "Org"),
                                 excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
@@ -617,11 +617,11 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
     ))
   }
 
-  # Ensures you have used a valid fillBy name
-  if (!fillBy %in% c("None", "All", "Org")) {
+  # Ensures you have used a valid auto_assign name
+  if (!auto_assign %in% c("None", "All", "Org")) {
     stop(paste0(
       "TADA_CreateParamRef: ",
-      "argument input ", fillBy, " is not a valid entry. Please type one of 'None', 'All', 'Org' as a value."
+      "argument input ", auto_assign, " is not a valid entry. Please type one of 'None', 'All', 'Org' as a value."
     ))
   }
 
@@ -724,7 +724,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
   }
 
   # If no paramRef is provided, the ATTAINS.ParameterName returns a blank column of NA that will need user input.
-  if (tolower(fillBy) == tolower("None")) {
+  if (tolower(auto_assign) == tolower("None")) {
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
       dplyr::select(
@@ -743,9 +743,9 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       dplyr::distinct()
   }
 
-  if (tolower(fillBy) == tolower("All")) {
+  if (tolower(auto_assign) == tolower("All")) {
     print(paste0(
-      "fillBy == 'All' was selected, ",
+      "auto_assign == 'All' was selected, ",
       "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
     ))
     ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
@@ -781,16 +781,16 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       dplyr::mutate(
         Flag.ParameterInput = dplyr::if_else(
           !is.na(ATTAINS.ParameterName),
-          "This crosswalk was provided through an exact match fillBy = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+          "This crosswalk was provided through an exact match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
           "No Crosswalk was provided and no exact matches were found."
         )
       ) %>%
       dplyr::distinct()
   }
 
-  if (tolower(fillBy) == tolower("Org")) {
+  if (tolower(auto_assign) == tolower("Org")) {
     print(paste0(
-      "fillBy == 'Org' was selected, ",
+      "auto_assign == 'Org' was selected, ",
       "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
     ))
 
@@ -824,7 +824,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
             "Parameter name is listed as a prior cause in ATTAINS for this organization."
         )
       ) %>%
-      # since fillBy = Org matches only, then we must flag the parameter name, then only keep if it is a match
+      # since auto_assign = Org matches only, then we must flag the parameter name, then only keep if it is a match
       dplyr::mutate(ATTAINS.ParameterName = dplyr::if_else(
         ATTAINS.FlagParameterName == "Parameter name is listed as a prior cause in ATTAINS for this organization.",
         ATTAINS.ParameterName,
@@ -833,7 +833,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
       dplyr::mutate(
         Flag.ParameterInput = dplyr::if_else(
           !is.na(ATTAINS.ParameterName),
-          "This crosswalk was provided through an exact match fillBy = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+          "This crosswalk was provided through an exact match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
           "No Crosswalk was provided and no exact matches were found for this organization."
         )
       ) %>%
@@ -1188,7 +1188,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
 #'
 #' paramRef_UT4 <- TADA_CreateParamRef(
 #'   Data_Nutrients_UT,
-#'   org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
+#'   org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 #' )
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
@@ -1198,7 +1198,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, fillBy = 
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, let's compare the crosswalk for paramRef_UT4 when we use fillBy = "All".
+#' # Now, let's compare the crosswalk for paramRef_UT4 when we use auto_assign = "All".
 #' # Notice, there are NA values for ATTAINS.UseName as these UT ATTAINS Parameter Name were
 #' # not listed as a cause in prior ATTAINS assessment cycles.
 #' UseParamRef_UT2 <- TADA_CreateUseParamRef(
