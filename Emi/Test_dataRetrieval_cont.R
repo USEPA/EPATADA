@@ -25,8 +25,8 @@ library(readr)
 
 ##############
 ## USGS BRANCH of dataRetrieval reverting back to using Post
-remotes::install_github("DOI-USGS/dataRetrieval", ref = "develop", dependencies = TRUE, force = TRUE)
-library(dataRetrieval)
+#remotes::install_github("DOI-USGS/dataRetrieval", ref = "develop", dependencies = TRUE, force = TRUE)
+#library(dataRetrieval)
 
 # Check which branch is being used - "RemoteRef"
 # https://stackoverflow.com/questions/60982775/r-check-which-branch-of-a-package-was-installed-with-install-git?newreg=13421ec963844a839c360fc7ddcb6272
@@ -78,9 +78,9 @@ result.tada.rand <- TADA_RandomTestingData(number_of_days = 4, choose_random_sta
 
 ##################
 ## TESTING OTHER QUERIES
-result.tada2 <- TADA_DataRetrieval(organization = c("CNENVSER"),# "REDLAKE_WQX","SFNOES_WQX","PUEBLO_POJOAQUE","FONDULAC_WQX","PUEBLOOFTESUQUE", "CNENVSER"
-                                   startDate = "2018-01-01", 
-                                   endDate = "2018-01-31", 
+result.tada2 <- TADA_DataRetrieval(organization = c("FONDULAC_WQX"),# "CNENVSER","REDLAKE_WQX","SFNOES_WQX","PUEBLO_POJOAQUE","FONDULAC_WQX","PUEBLOOFTESUQUE", "CNENVSER"
+                                   startDate = "2007-01-01", 
+                                   endDate = "2007-05-31", 
                                    applyautoclean = FALSE)
 
 # Seems to time out when call using TADAModule1.Rmd

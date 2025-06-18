@@ -69,11 +69,11 @@ df <- result.DR |>
 # Only apply to subset of columns that were beta that had legacy names
 # and remove two column names that are not in the dataRetrieval call "ActivityMediaSubdivisionName" and "SampleAquifer" 
 # Fields to remove
-drp_fields <- c("ActivityMediaSubdivisionName","SampleAquifer")
+drop_fields <- c("ActivityMediaSubdivisionName","SampleAquifer")
 
 wqxcrswlk_legacy <- wqxcrswlk_mod3 |> 
   #filter(in_DR2.0 == "Y") |> 
-  filter(!WqxV2.FieldName %in% drp_fields)
+  filter(!WqxV2.FieldName %in% drop_fields)
 
 ## WRITE MODIFIED CROSSWALK TABLE
 write_csv(wqxcrswlk_legacy, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_toshare.csv")
@@ -109,7 +109,7 @@ TADA_RenameColumns <- function(.data, crswlk) {
   ## READ WQX3.0 column name schema from web services
   wqxnames <- crswlk
   
-   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names that are in WQX schema crosswalk table
   beta_names = crswlk$FieldName3.0
   legacy_names = crswlk$WqxV2.FieldName
   
@@ -117,10 +117,11 @@ TADA_RenameColumns <- function(.data, crswlk) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
   
+  # Rename columns in WQP (beta) data query back to the legacy names 
   df <- data.table::setnames(.data, old = beta_names,
                              new = legacy_names, skip_absent = TRUE) 
   
-  # Replace special characters in column names
+  # Replace special characters in column names to match expected TADA output
   df <- df |> 
     rename_with(~ stringr::str_replace_all(., c('_' = '\\.', '/' = '\\.'))) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
   

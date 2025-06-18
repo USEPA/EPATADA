@@ -268,3 +268,16 @@ result.beta4 <- dataRetrieval::readWQPdata(WQPquery4,
                                           dataProfile = "fullPhysChem",
                                           ignore_attributes = T)
 ```
+
+
+```{r}
+#| echo: false
+#| message: false
+
+WQPquery2 <- list(siteid = "USGS-440504121435800")
+
+
+# BETA PORTAL data call (note different service and dataProfile) (n = 183 fields vs n = 141 with legacy fullPhysChem)
+result.summ.beta <- dataRetrieval::readWQPsummary(WQPquery2)
+
+```
