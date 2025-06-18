@@ -10,10 +10,10 @@ articles:
   TADAModule1_BeginnerTraining: TADAModule1_BeginnerTraining.html
   TADAModule1: TADAModule1.html
   TADAModule2: TADAModule2.html
-  TADAModule3_PartA: TADAModule3_PartA.html
+  TADAModule3a: TADAModule3a.html
   TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
   WQXValidationService: WQXValidationService.html
-last_built: 2025-06-17T15:31Z
+last_built: 2025-06-18T18:55Z
 urls:
   reference: usepa.github.io/EPATADA/reference
   article: usepa.github.io/EPATADA/articles

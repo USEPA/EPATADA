@@ -32,7 +32,7 @@ character string or a vector of strings."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule1_BeginnerTraining.html">TADA Module 1: Training for Beginner R Users</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1.html">TADA Module 1: Water Quality Portal Data Discovery and Cleaning</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
-    <li><a class="dropdown-item" href="../articles/TADAModule3_PartA.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS State, Tribal or EPA 304(a) Parameter and Use Names</a></li>
+    <li><a class="dropdown-item" href="../articles/TADAModule3a.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
@@ -88,7 +88,23 @@ from figure titles and axis labels for the TADA package.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "NITRATE_DISSOLVED_NA_NA"             "NITROGEN_SUSPENDED_NA_MG/L"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "NITRATE_DISSOLVED_AS N_MG/L"         "NITRATE_DISSOLVED_AS NO3_MG/L"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NITROGEN_SUSPENDED_NA_NA"            "NITROGEN_TOTAL_AS N_MG/L"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN_DISSOLVED_AS N_MG/L"        "NITRATE_NONE_NA_MG/L"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "AMMONIA_TOTAL RECOVERABLE_AS N_MG/L" "AMMONIA_UNFILTERED_AS N_MG/L"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "NITRATE_UNFILTERED_AS N_MG/L"        "NITRATE_TOTAL_AS N_NA"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE_UNFILTERED_AS N_NA"          "NITRATE_TOTAL_AS N_MG/L"            </span>
 <span class="r-in"><span><span class="va">UT_Titles</span> <span class="op">&lt;-</span> <span class="fu">TADA_CharStringRemoveNA</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">UT_Titles</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "NITRATE DISSOLVED"                   "NITROGEN SUSPENDED MG/L"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "NITRATE DISSOLVED AS N MG/L"         "NITRATE DISSOLVED AS NO3 MG/L"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NITROGEN SUSPENDED"                  "NITROGEN TOTAL AS N MG/L"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN DISSOLVED AS N MG/L"        "NITRATE NONE MG/L"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "AMMONIA TOTAL RECOVERABLE AS N MG/L" "AMMONIA UNFILTERED AS N MG/L"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "NITRATE UNFILTERED AS N MG/L"        "NITRATE TOTAL AS N"                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE UNFILTERED AS N"             "NITRATE TOTAL AS N MG/L"            </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
