@@ -249,9 +249,9 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' @param sediment Boolean argument; specifies whether sediment results should
 #' be flagged or removed in the returned data frame. Default is sediment = FALSE,
 #' sediment results are identified as not usable for analysis.
-#' 
+#'
 #' @param other Boolean argument; species whether "other" (uncategorized) results should be flagged
-#' or removed in the returned data frame. Default is other = TRUE, othe results are retained for
+#' or removed in the returned data frame. Default is other = TRUE, other results are retained for
 #' additional review by user/use in analysis.
 #'
 #' @return If clean = TRUE, returns the data frame with only the media types
@@ -322,7 +322,8 @@ TADA_AnalysisDataFilter <- function(.data,
     dplyr::select(-ML.Media.Flag) %>%
     # set remaining NA TADA.Media.Flag to OTHER %>%
     dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
-                                           "OTHER", TADA.Media.Flag))
+      "OTHER", TADA.Media.Flag
+    ))
 
   print("TADA_AnalysisDataFilter: Identifying groundwater results.")
 
@@ -362,16 +363,16 @@ TADA_AnalysisDataFilter <- function(.data,
 
     print("TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments.")
   }
-  
+
   if (other == TRUE) {
     other.flag <- "Yes"
-    
+
     print("TADA_AnalysisDataFilter: Flagging other results to include in assessments.")
   }
-  
+
   if (other == FALSE) {
     other.flag <- "No"
-    
+
     print("TADA_AnalysisDataFilter: Flagging other results to exclude from assessments.")
   }
 
@@ -386,7 +387,7 @@ TADA_AnalysisDataFilter <- function(.data,
         !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
       )
     )
-      
+
   if (clean == TRUE) {
     .data <- .data %>%
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%

@@ -21,5 +21,5 @@ TADA.MethodSpeciationName in a TADA data frame.
 }
 \examples{
 UniqueCharUnitSpecExample <-
-  TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+  TADA_UniqueCharUnitSpeciation(Data_Nutrients_UT)
 }

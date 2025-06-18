@@ -27,12 +27,10 @@ Create Overview Map
 \dontrun{
 # Load example dataframe:
 data(Data_Nutrients_UT)
-data(Data_NCTCShepherdstown_HUC12)
 data(Data_6Tribes_5y_Harmonized)
 
 # Create maps:
 TADA_OverviewMap(Data_Nutrients_UT)
-TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
 TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 }
 
