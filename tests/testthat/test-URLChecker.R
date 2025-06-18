@@ -1,6 +1,4 @@
-# ignore warning
-# file("") only supports open = "w+" and open = "w+b": using the former
-# https://github.com/USEPA/EPATADA/pull/548
+# test for broken URLs
 suppressWarnings(
   test_that("URLs are not broken", {
     # extract urls function
@@ -33,7 +31,7 @@ suppressWarnings(
       append(r_files)
 
     # create list of urls
-    urls <- purrr::map(files, ~ readLines(.x)) %>%
+    urls <- purrr::map(files, ~ readr::read_file(.x)) %>%
       unlist() %>%
       extract_urls() %>%
       clean_url() %>%
