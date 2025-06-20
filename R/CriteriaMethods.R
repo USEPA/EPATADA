@@ -131,6 +131,11 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       as.character(NA),
       MonitoringLocationTypeName
     )) %>%
+    dplyr::mutate(ATTAINS.waterTypeCode = dplyr::if_else( # Only include if a unique spatial criteria is applied for
+      is.na(ApplyUniqueSpatialCriteria),
+      as.character(NA),
+      ATTAINS.waterTypeCode
+    )) %>%
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
@@ -280,11 +285,11 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 4:17, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 4:25, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 4:17, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 4:25, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
     
