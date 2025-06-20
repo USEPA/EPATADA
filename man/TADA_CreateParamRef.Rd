@@ -9,7 +9,7 @@ TADA_CreateParamRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  fillBy = "None",
+  auto_assign = "None",
   excel = FALSE,
   overwrite = FALSE
 )
@@ -40,7 +40,7 @@ one organization (multiple states or tribes, or a single state/tribe and
 EPA 304a criteria) also need to include an additional column name:
 'organization_identifier'.}
 
-\item{fillBy}{A string value of "None", "All", or "Org". Default is "All".
+\item{auto_assign}{A string value of "None", "All", or "Org". Default is "All".
 If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
 currently based on and exact match of WQP CharacteristicName with
 ATTAINS ParameterName along with a few manual review). If "Org" then this
@@ -144,7 +144,7 @@ ATTAINS assessment cycles.
 # Example below generates the same output as a dataframe
 paramRef_UT <- TADA_CreateParamRef(
   Data_Nutrients_UT,
-  org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 )
 # Users can choose to edit the paramRef_UT through the R environment or in
 # the excel spreadsheet. Users should be aware that any updates done only
@@ -165,24 +165,32 @@ paramRef_UT2 <- dplyr::mutate(paramRef_UT,
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
   paramRef = paramRef_UT2,
-  org_id = "UTAHDWQ", fillBy = "None", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 )
 
-# How does fillBy = "All" compare to paramRef_UT3?
+# How does auto_assign = "All" compare to paramRef_UT3?
 paramRef_UT4 <- TADA_CreateParamRef(Data_Nutrients_UT,
-  org_id = "UTAHDWQ", fillBy = "All", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 )
 
 # Example where multiple org_id's are selected
+# Retrieve data
+shepherdstown <- TADA_DataRetrieval(
+  startDate = "2022-01-01",
+  endDate = "2025-12-31",
+  huc = "02070004",
+  applyautoclean = TRUE,
+  ask = FALSE
+)
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <-
-  TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
-Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
+shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown)
+shepherdstown3 <- TADA_HarmonizeSynonyms(shepherdstown2)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
-paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
-  org_id =
-    c("MDE_EASP", "21VASWCB", "21PA"), fillBy = "All", excel = FALSE
+paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,
+  org_id = c("MDE_EASP", "21VASWCB", "21PA"),
+  auto_assign = "All",
+  excel = FALSE
 )
 }
 
