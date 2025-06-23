@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: [develop]
 
-name: test-coverage
+name: url-checker
 jobs:
   check_urls:
   runs-on: ubuntu-latest
@@ -22,7 +22,9 @@ run: |
 run: |
   Rscript -e '
             library(urlchecker)
+            # update urls
+            urlchecker::url_update(".")
+            
             # check package
-            url_check(".") 
-            # Or if in a subdirectory: url_check("path/to/your/package")
+            test <- urlchecker::url_check(".") 
           '
