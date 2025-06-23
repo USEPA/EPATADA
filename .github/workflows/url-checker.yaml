@@ -1,7 +1,7 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 on:
   push:
-    branches: [develop]
+    branches: [608-intermittent-check-issues]
   pull_request:
     branches: [develop]
 
