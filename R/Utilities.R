@@ -691,8 +691,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   nhd.catch <- near.dfs %>%
     purrr::map(~ .x %>%
       fetchNHD(resolution = nhd_res))
+  
+  # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
+  nhd.catch.filt <- purrr::keep(nhd.catch, ~nrow(.) > 0)
 
-  nhd.catch.all <- dplyr::bind_rows(nhd.catch)
+  # create one df from all fetchNHD data
+  nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
 
   # join nhd catchments with monitoring locations, filter to include group/catchment
   catch.groups <- near.sites %>%
@@ -709,7 +713,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::select(-n)
 
   # remove intermediate objects
-  rm(near.sites, nhd.catch, nhd.catch.all)
+  rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
 
   if (nrow(catch.groups) == 0) { # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
