@@ -112,6 +112,8 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     }
   }
   
+  spatialRef$ATTAINS.waterTypeCode <- as.character(spatialRef$ATTAINS.waterTypeCode)
+
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
   metal_list <- data.frame(
