@@ -1,9 +1,10 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 on:
   push:
-    branches: [608-intermittent-check-issues]
+    branches: [develop]
   pull_request:
     branches: [develop]
+    workflow_dispatch:
 
 name: url-checker
 jobs:
@@ -26,5 +27,5 @@ run: |
             urlchecker::url_update(".")
             
             # check package
-            test <- urlchecker::url_check(".") 
+            urlchecker::url_check(".") 
           '
