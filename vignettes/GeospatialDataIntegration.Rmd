@@ -105,21 +105,15 @@ dependencies for this workflow will be downloaded automatically. We will
 also need to install StreamCatTools for some steps later in the
 workflow.
 
-```{r dev_install, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "569-tada_dataretrieval-test-failure",
-  dependencies = TRUE
-)
-library(EPATADA)
-```
-
-```{r usersetup, eval = F, results = 'hide'}
+```{r usersetup, results = 'hide'}
+# enter 1 in the console to update all dependencies
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE,
   force = TRUE
 )
 
+# enter 1 in the console to update all dependencies
 remotes::install_github("USEPA/StreamCatTools",
   ref = "master",
   dependencies = TRUE,
@@ -531,7 +525,7 @@ ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
   ggplot2::geom_density()
 ```
 
-### **Pull in data for modeling**
+### Pull in data for modeling
 
 Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
