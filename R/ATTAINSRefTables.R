@@ -22,7 +22,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <- data.frame(rExpertQuery::EQ_DomainValues('param_name')[,"name"])
+      attainsParamRef <- data.frame(name = rExpertQuery::EQ_DomainValues('param_name')[,"name"])
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
@@ -30,11 +30,43 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
 
       matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
 
+      ## Add manual additional TADA.ComparableDataIdentifier and ATTAINS Parameter alias
+      others <- data.frame(
+        CharacteristicName = c(
+          "ESCHERICHIA COLI",
+          "DISSOLVED OXYGEN (DO)",
+          "SPECIFIC CONDUCTANCE",
+          "CHLOROPHYLL A",
+          "ORGANIC CARBON",
+          "ALKALINITY",
+          "TOTAL DISSOLVED SOLIDS"
+        ),
+        Char_Flag = c(
+          "Accepted",
+          "Accepted",
+          "Accepted",
+          "Accepted",
+          "Accepted",
+          "Accepted",
+          "Accepted"
+        ),
+        ATTAINS.ParameterName = c(
+          "ESCHERICHIA COLI (E. COLI)",
+          "DISSOLVED OXYGEN",
+          "SPECIFIC CONDUCTIVITY",
+          "CHLOROPHYLL-A",
+          "TOTAL ORGANIC CARBON (TOC)",
+          "ALKALINITY, TOTAL",
+          "TOTAL DISSOLVED SOLIDS (TDS)"
+          
+        )
+      )
+      
       attainsWQXRef <- WQXCharRef %>%
         dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
         # Hard code bind E.coli as we know this is a match
-        dplyr::bind_rows(c(CharacteristicName = "ESCHERICHIA COLI", Char_Flag = "Accepted", ATTAINS.ParameterName = "ESCHERICHIA COLI (E. COLI)")) %>%
+        dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) %>%
         dplyr::distinct()
     },
     error = function(err) {
