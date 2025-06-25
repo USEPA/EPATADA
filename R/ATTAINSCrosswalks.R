@@ -860,12 +860,12 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     
     # identifies if a user has MODIFIED any ATTAINS.ParameterName values by TADA.ComparableDataIdentifier and ATTAINS.OrganizationIdentifier
     Flag2 <- paramRef %>%
-      dplyr::anti_join(CreateParamRef,
-                       by =
-                         c(
-                           "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"
-                         )
-      ) %>%
+      dplyr::anti_join(
+        CreateParamRef,
+        by = c(
+          "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"
+          )
+        ) %>%
       dplyr::mutate(
         Flag.ParameterInput =
           "This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier."
@@ -948,14 +948,21 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
     
+    # New row to rbind if a user selects "Not Applicable for Analysis."
+    no_match_df <- data.frame(
+      ATTAINS.OrganizationIdentifier = "NA", 
+      ATTAINS.ParameterName = "Not Applicable for Analysis.",
+      ATTAINS.UseName = "Not Applicable for Analysis."
+    )
+    
     # Index of allowable values for drop-down lists
     openxlsx::writeData(
       wb, "Index",
       startCol = 4,
       x = rbind(
-        c("NA", "Not Applicable for Analysis.", "No use name match for TADA.ComparableDataIdentifier.",
+        no_match_df,
         ATTAINS_param_all[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")]
-        )
+        %>% dplyr::arrange(ATTAINS.ParameterName)
       )
     )
     
@@ -974,10 +981,20 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       )
     )
     
-    openxlsx::writeData(wb, "CreateParamRef", startCol = 1, x = CreateParamRef, headerStyle = header_st)
+    openxlsx::writeData(
+      wb, "CreateParamRef", 
+      startCol = 1, 
+      x = CreateParamRef, 
+      headerStyle = header_st
+      )
     
     # Creates a tab that contains the ATTAINS parameter-use filtered by the org_id input.
-    openxlsx::writeData(wb, "ATTAINSOrgNamesParamRef", startCol = 1, x = ATTAINS_param, headerStyle = header_st)
+    openxlsx::writeData(
+      wb, "ATTAINSOrgNamesParamRef", 
+      startCol = 1, 
+      x = ATTAINS_param, 
+      headerStyle = header_st
+      )
     
     # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
     
@@ -1483,13 +1500,14 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     # This should flag users that they need to review this entry and if they
     # truly want to exclude it or not. What should the default be?
     Flag1 <- CreateUseParamRef %>%
-      dplyr::anti_join(useParamRef,
-                       by =
-                         c(
-                           "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"
-                           # "ATTAINS.UseName", "IncludeOrExclude", "ATTAINS.FlagUseName"
-                         )
-      ) %>%
+      dplyr::anti_join(
+        useParamRef,
+        by =
+          c(
+            "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"
+            # "ATTAINS.UseName", "IncludeOrExclude", "ATTAINS.FlagUseName"
+            )
+        ) %>%
       dplyr::mutate(
         Flag.UseInput =
           "Suspect: Your useParamRef argument did not include this TADA.ComparableDataIdentifier. Please ensure you have provided all ATTAINS.UseName and ATTAINS.ParameterName combinations in your input."
@@ -1498,12 +1516,12 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     
     # identifies if a user has MODIFIED any useParam rows.
     Flag2 <- useParamRef %>%
-      dplyr::anti_join(CreateUseParamRef,
-                       by =
-                         c(
-                           "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-                           "IncludeOrExclude" # , "ATTAINS.FlagUseName"
-                         )
+      dplyr::anti_join(
+        CreateUseParamRef, 
+        by = c(
+          "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+          "IncludeOrExclude" # , "ATTAINS.FlagUseName"
+          )
       ) %>%
       dplyr::mutate(
         Flag.UseInput =
