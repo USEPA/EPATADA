@@ -9,14 +9,15 @@ TADA_CreateParamRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  excel = TRUE,
+  auto_assign = "None",
+  excel = FALSE,
   overwrite = FALSE
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. We recommend running all desired data
-cleaning, processing, harmonization, filtering, QAQC, and handling of
-censored data prior to running TADA_CreateParamRef.}
+\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
+processing, harmonization, filtering, and handling of censored data functions
+prior to running this function.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
@@ -39,6 +40,17 @@ one organization (multiple states or tribes, or a single state/tribe and
 EPA 304a criteria) also need to include an additional column name:
 'organization_identifier'.}
 
+\item{auto_assign}{A string value of "None", "All", or "Org". Default is "All".
+If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
+currently based on and exact match of WQP CharacteristicName with
+ATTAINS ParameterName along with a few manual review). If "Org" then this
+only provide the TADA logic match if your ATTAINS organization has included that
+ATTAINS ParameterName in the past. If not, this will be left blank for your
+organization to specify. "None" will result in an empty ATTAINS.ParameterName
+column. Users will be required to fill this out on their own completely or
+through a prior paramRef crosswalk. See paramRef argument input above for more
+information.}
+
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If needed, please type the following into your R console:
@@ -51,7 +63,7 @@ function input. This helps prevent users from overwriting their progress.}
 }
 \value{
 A excel file or data frame which contains the columns:
-TADA.ComparableDataIdentifier, organization_identifier, EPA304A.PollutantName,
+TADA.ComparableDataIdentifier, organization_identifier,
 ATTAINS.ParameterName, and ATTAINS.FlagParameterName. Users will need to
 complete the crosswalk between ATTAINS.ParameterName and
 TADA.ComparableDataIdentifier.
@@ -83,9 +95,8 @@ crosswalk can provide it as an input to this function. The user-supplied
 crosswalk (dataframe entered into paramRef function input) must contain the
 two required columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 In addition, users who are interested in performing analyses for more than
-one organization (multiple states or tribes, or a single state/tribe and
-EPA 304a criteria) also need to include an additional column name:
-'organization_identifier'. This ensures that the crosswalk between
+one organization (multiple states and/or tribes) also need to include an additional column name:
+'ATTAINS.OrganizationIdentifier'. This ensures that the crosswalk between
 TADA.ComparableDataIdentifier and ATTAINS.ParameterName are specific and
 accurate for each organization. If a crosswalk has already been created in the
 past and is entered into this function as a starting point, then any
@@ -95,6 +106,9 @@ TADA.ComparableDataIdentifiers from the new input data frame will be added
 to the crosswalk. Users can then focus on matching only the new
 TADA.ComparableDataIdentifiers with applicable ATTAINS parameter names.
 
+Future development efforts may allow users to pull in magnitude values
+for an ATTAINS parameter through the Criteria Search Tool depending on a
+users quality control and review of these metrics.
 The EPA TADA team created a draft crosswalk between characteristic
 names (TADA.ComparableDataIdentifier) and EPA 304A pollutant names
 (sourced from the Criteria Search Tool:
@@ -130,7 +144,7 @@ ATTAINS assessment cycles.
 # Example below generates the same output as a dataframe
 paramRef_UT <- TADA_CreateParamRef(
   Data_Nutrients_UT,
-  org_id = "UTAHDWQ", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
 )
 # Users can choose to edit the paramRef_UT through the R environment or in
 # the excel spreadsheet. Users should be aware that any updates done only
@@ -151,19 +165,32 @@ paramRef_UT2 <- dplyr::mutate(paramRef_UT,
 # Update the 'ATTAINS.FlagParameterName' values
 paramRef_UT3 <- TADA_CreateParamRef(Data_Nutrients_UT,
   paramRef = paramRef_UT2,
-  org_id = "UTAHDWQ", excel = FALSE
+  org_id = "UTAHDWQ", auto_assign = "None", excel = FALSE
+)
+
+# How does auto_assign = "All" compare to paramRef_UT3?
+paramRef_UT4 <- TADA_CreateParamRef(Data_Nutrients_UT,
+  org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 )
 
 # Example where multiple org_id's are selected
+# Retrieve data
+shepherdstown <- TADA_DataRetrieval(
+  startDate = "2022-01-01",
+  endDate = "2025-12-31",
+  huc = "02070004",
+  applyautoclean = TRUE,
+  ask = FALSE
+)
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-Data_NCTCShepherdstown <-
-  TADA_RunKeyFlagFunctions(Data_NCTCShepherdstown_HUC12)
-Data_NCTCShepherdstown2 <- TADA_HarmonizeSynonyms(Data_NCTCShepherdstown)
+shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown)
+shepherdstown3 <- TADA_HarmonizeSynonyms(shepherdstown2)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
-paramRef_NCTC <- TADA_CreateParamRef(Data_NCTCShepherdstown2,
-  org_id =
-    c("MDE_EASP", "21VASWCB", "21PA"), excel = FALSE
+paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,
+  org_id = c("MDE_EASP", "21VASWCB", "21PA"),
+  auto_assign = "All",
+  excel = FALSE
 )
 }
 

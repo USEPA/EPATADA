@@ -57,24 +57,24 @@ the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:
-data(Data_NCTCShepherdstown_HUC12)
+data(Data_Nutrients_UT)
 
 # Remove data that is above the upper WQX threshold from dataframe:
 WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
-  Data_NCTCShepherdstown_HUC12,
+  Data_Nutrients_UT,
   clean = TRUE
 )
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
 # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
-  Data_NCTCShepherdstown_HUC12,
+  Data_Nutrients_UT,
   clean = FALSE
 )
 
 # Show only data flagged as above the upper WQX threshold:
 WQXUpperThreshold_flagsonly <- TADA_FlagAboveThreshold(
-  Data_NCTCShepherdstown_HUC12,
+  Data_Nutrients_UT,
   clean = FALSE, flaggedonly = TRUE
 )
 

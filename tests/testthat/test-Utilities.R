@@ -25,7 +25,6 @@ test_that("TADA_AutoClean function does not grow dataset", {
 #    )
 #    random_pH_data <- dplyr::filter(random_data, CharacteristicName %in% "pH")
 # }
-
 #  # TADA_AutoClean harmonizes pH, and other mod 1 required functions remove garbage data
 #  pHtest <- TADA_AutoClean(random_data)
 #  pHtest2 <- TADA_SimpleCensoredMethods(pHtest)

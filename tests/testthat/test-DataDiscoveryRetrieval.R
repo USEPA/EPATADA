@@ -453,7 +453,7 @@ test_that("TADA_JoinWQPProfiles_works", {
     FullPhysChem = physchemresults
   )
 
-  # this always adds the required project columns now as well (NA)... even if only 
+  # this always adds the required project columns now as well (NA)... even if only
   # sites and results are entered 6/13/25
   expect_true(ncol(add_sites_metadata) == 119)
 })
