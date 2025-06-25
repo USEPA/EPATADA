@@ -708,7 +708,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
   # Pulls in all domain values of parameter and use names in ATTAINS.
   ATTAINS_param_all <- utils::read.csv(
     system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")
-  )
+  ) 
   
   # Filters the full domain value by the specified org_id(s)
   ATTAINS_param <- ATTAINS_param_all %>%
@@ -889,7 +889,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::rows_patch(CreateParamRef, by = "TADA.ComparableDataIdentifier") %>%
       dplyr::mutate(
         ATTAINS.FlagParameterName = dplyr::case_when(
-          ATTAINS.ParameterName == "No ATTAINS.ParameterName match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
+          ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
             "No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
           !ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName ~
             "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
@@ -953,8 +953,9 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       wb, "Index",
       startCol = 4,
       x = rbind(
-        ATTAINS_param_all[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")],
-        c("NA", "No ATTAINS.ParameterName match for TADA.ComparableDataIdentifier.", "No use name match for TADA.ComparableDataIdentifier.")
+        c("NA", "Not Applicable for Analysis.", "No use name match for TADA.ComparableDataIdentifier.",
+        ATTAINS_param_all[, c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName")]
+        )
       )
     )
     
@@ -968,7 +969,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       wb, "Index",
       startCol = 1,
       x = data.frame(
-        ATTAINS.ParameterName = c(unique(ATTAINS_param$ATTAINS.ParameterName), "No ATTAINS.ParameterName match for TADA.ComparableDataIdentifier.")
+        "Not Applicable for Analysis.",
+        ATTAINS.ParameterName = c(unique(ATTAINS_param$ATTAINS.ParameterName))
       )
     )
     
@@ -1010,7 +1012,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         array = TRUE,
         x = paste0(
           "=IF(OR(C", i + 1, '="",C', i + 1,
-          '="No ATTAINS.ParameterName match for TADA.ComparableDataIdentifier."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+          '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
           IF(ISNA(MATCH(C', i + 1, ',Index!E:E,0)),
             "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
           IF(ISNA(MATCH(1,(C', i + 1, "=ATTAINSOrgNamesParamRef!D:D)*(B", i + 1, '=ATTAINSOrgNamesParamRef!A:A),0)),
