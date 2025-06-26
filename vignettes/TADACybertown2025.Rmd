@@ -66,12 +66,8 @@ into the console). Our team is actively developing *EPATADA*, therefore
 we highly recommend that you update the package (and all of its
 dependencies) each time you use it.
 
-```{r install EPATADA, eval = F, results = 'hide'}
+```{r install EPATADA, results = 'hide'}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
-```
-
-```{r dev install EPATADA, include = F}
-remotes::install_github("USEPA/EPATADA", ref = "596-tada_analysisdatafilter-removes-rows-when-clean-true-if-tadauseforanalysisflag-no---na", dependencies = TRUE)
 ```
 
 Load the EPATADA R Package.

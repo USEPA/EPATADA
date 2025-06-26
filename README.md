@@ -1,4 +1,4 @@
-## Welcome to EPATADA: Tools for Automated Data Analysis!
+## EPATADA: Tools for Automated Data Analysis!
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
@@ -24,27 +24,39 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 ## Installation
 
-You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the [TADA R Package](https://github.com/USEPA/EPATADA) and all dependencies by running:
+You must first have R and R Studio installed to use the TADA R Package (see instructions below if needed). Our team is actively developing TADA, therefore we highly recommend that you update the TADA R Package and all of its dependency libraries each time you use the package. You can install and/or update the TADA R Package and all dependencies by running:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
+
+library(remotes)
 
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
+
+library(EPATADA)
 ```
 
-The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues and to make sure you have the most up to data version (web version is on a slightly lagged update schedule). Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues (especially when working with large datasets) and to make sure you are using the most up to date version. The web version of the application is on a slightly lagged update schedule. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
 
 ```{r}
 if(!"remotes"%in%installed.packages()){
 install.packages("remotes")
 }
+
+library(remotes)
 
 remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
 
-TADAShiny::run_app()
+library(TADAShiny)
+
+run_app()
 ```
+
+## Run Web Version
+
+Alternatively, you can run the public web version of the TADAShiny application (<https://rconnect-public.epa.gov/TADAShiny/>). Beware that this version is not the most up to date and we recommend running the app from R studio instead if possible.
 
 ### Recommended Citation:
 
