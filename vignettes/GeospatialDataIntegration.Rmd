@@ -2,6 +2,16 @@
 title: "Geospatial Data Integration"
 format: html
 editor: visual
+authors: 
+  - name: "Cristina Mullin"
+    orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Marc Weber"
+    affiliation: EPA
+  - name: "Dave Blodgett"
+    affiliation: USGS
+  - name: "Michael Dumelle"
+    affiliation: EPA
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -17,22 +27,6 @@ editor_options:
   chunk_output_type: console
   markdown:
     wrap: 72
-authors: 
-  - name: "Cristina Mullin"
-    orcid: 0000-0002-0615-6087
-    affiliation: EPA
-  - name: "Hillary Marler"
-    affiliation: EPA
-  - name: "Marc Weber"
-    affiliation: EPA
-  - name: "Dave Blodgett"
-    affiliation: USGS
-  - name: "Michael Dumelle"
-    affiliation: EPA
-  - name: "Shelly Thawley"
-    affiliation: EPA
-  - name: "Kenny Wong"
-    affiliation: ORISE at EPA
 ---
 
 ```{r knitsetup, include = F}
@@ -134,7 +128,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "usability-6.23.25",
   dependencies = TRUE
 )
 ```
