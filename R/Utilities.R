@@ -691,9 +691,9 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   nhd.catch <- near.dfs %>%
     purrr::map(~ .x %>%
       fetchNHD(resolution = nhd_res))
-  
+
   # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
-  nhd.catch.filt <- purrr::keep(nhd.catch, ~nrow(.) > 0)
+  nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
 
   # create one df from all fetchNHD data
   nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
