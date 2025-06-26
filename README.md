@@ -20,7 +20,7 @@ Tools for Automated Data Analysis, or TADA, is being developed to help States, T
 
 -   [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
 
-![](vignettes/images/overview.png)
+![](vignettes/images/TADA-Poster.png)
 
 ## Installation
 
