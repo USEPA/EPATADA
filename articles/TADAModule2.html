@@ -70,7 +70,7 @@
       <h1>TADA Module 2: Geospatial Functions</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-06-23</h4>
+            <h4 data-toc-skip class="date">2025-06-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule2.Rmd" class="external-link"><code>vignettes/TADAModule2.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule2.Rmd</code></div>
@@ -78,9 +78,9 @@
 
     
     
-<div class="section level3">
-<h3 id="welcome">Welcome!<a class="anchor" aria-label="anchor" href="#welcome"></a>
-</h3>
+<div class="section level2">
+<h2 id="welcome">Welcome!<a class="anchor" aria-label="anchor" href="#welcome"></a>
+</h2>
 <p>Thank you for your interest in Tools for Automated Data Analysis
 (TADA). TADA is an open-source tool set built in the R programming
 language. This <a href="https://bookdown.org/yihui/rmarkdown/" class="external-link">RMarkdown</a> document
@@ -96,9 +96,9 @@ more information is available at:</strong></p>
 <p><a href="https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html"><strong>Contributing</strong></a></p>
 <p><strong>We welcome collaboration with external partners.</strong></p>
 </div>
-<div class="section level3">
-<h3 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
-</h3>
+<div class="section level2">
+<h2 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
+</h2>
 <p>First, install and load the remotes package specifying the repo. This
 is needed before installing TADA because it is only available on
 GitHub.</p>
@@ -123,9 +123,9 @@ R Package into your R session.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="help-pages">Help pages<a class="anchor" aria-label="anchor" href="#help-pages"></a>
-</h3>
+<div class="section level2">
+<h2 id="help-pages">Help pages<a class="anchor" aria-label="anchor" href="#help-pages"></a>
+</h2>
 <p>All EPATADA R package functions have their own individual help pages,
 listed in the Package index on the <a href="https://usepa.github.io/EPATADA/reference/index.html">Reference</a>
 tab of the GitHub website. Users can also access the help page for a
@@ -135,9 +135,9 @@ below): <code>?[name of TADA function]</code></p>
 <code class="sourceCode R"><span><span class="co"># Access help page for TADA_DataRetrieval</span></span>
 <span><span class="op">?</span><span class="va">TADA_DataRetrieval</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="geospatial-functions-in-tada">Geospatial Functions in TADA<a class="anchor" aria-label="anchor" href="#geospatial-functions-in-tada"></a>
-</h3>
+<div class="section level2">
+<h2 id="geospatial-functions-in-tada">Geospatial Functions in TADA<a class="anchor" aria-label="anchor" href="#geospatial-functions-in-tada"></a>
+</h2>
 <p>This vignette showcases functions that provide users the option to
 convert TADA Water Quality Portal data into a geospatial sf object as
 well as to associate water quality observations with their <a href="https://www.epa.gov/waterdata/integrated-reporting-georeferencing-pilot-report" class="external-link">intersecting
@@ -166,10 +166,10 @@ all of them. Moreover, it is possible that some assessment units are not
 geospatially referenced at all, meaning they are not captured in the
 ATTAINS geospatial database.</p>
 </div>
-<div class="section level3">
-<h3 id="tada_makespatial">
+<div class="section level2">
+<h2 id="tada_makespatial">
 <code>TADA_MakeSpatial()</code><a class="anchor" aria-label="anchor" href="#tada_makespatial"></a>
-</h3>
+</h2>
 <p>This function converts any Water Quality Portal (WQP)-style dataframe
 with latitude/longitude data into a geospatial shapefile object. To run
 the function, the user supplies a WQP dataframe and the coordinate
@@ -178,9 +178,9 @@ is CRS 4326 (WGS 84)]. For the function to work properly, the input
 dataframe must have - at a minimum - WQP observation coordinates in
 “LongitudeMeasure” and “LatitudeMeasure” and a
 “HorizontalCoordinateReferenceSystemDatumName” column.</p>
-<div class="section level5">
-<h5 id="using-tada_makespatial">Using <code>TADA_MakeSpatial()</code><a class="anchor" aria-label="anchor" href="#using-tada_makespatial"></a>
-</h5>
+<div class="section level4">
+<h4 id="using-tada_makespatial">Using <code>TADA_MakeSpatial()</code><a class="anchor" aria-label="anchor" href="#using-tada_makespatial"></a>
+</h4>
 <p>First, we will need to pull in some TADA Water Quality Portal
 Data:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -233,10 +233,10 @@ additional information.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 </div>
 </div>
-<div class="section level3">
-<h3 id="tada_getattains">
+<div class="section level2">
+<h2 id="tada_getattains">
 <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#tada_getattains"></a>
-</h3>
+</h2>
 <p>This function pulls in ATTAINS data from the EPA’s ATTAINS Assessment
 Geospatial Service and links it to TADA-pulled Water Quality Portal
 observations. For the function to work properly, the input dataframe
@@ -273,9 +273,9 @@ observation).</p>
 unit, set <code>return_nearest = TRUE</code>. This will return only the
 closest assessment unit to the WQP observation in instances where a
 catchment contains more than one assessment unit.</p>
-<div class="section level5">
-<h5 id="using-tada_getattains">Using <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_getattains"></a>
-</h5>
+<div class="section level4">
+<h4 id="using-tada_getattains">Using <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_getattains"></a>
+</h4>
 <p>Using either our original <code>TADA_dataframe</code> <em>or</em> the
 geospatial version <code>TADA_spatial</code>, we can pull in the ATTAINS
 catchment features that intersect our observations:</p>
@@ -303,9 +303,9 @@ the raw intersecting ATTAINS features associated with these ATTAINS
 catchment observations stored in a list along with the TADA
 dataframe.</p>
 </div>
-<div class="section level5">
-<h5 id="filling-in-missing-attains-assessment-units">Filling in missing ATTAINS assessment units<a class="anchor" aria-label="anchor" href="#filling-in-missing-attains-assessment-units"></a>
-</h5>
+<div class="section level4">
+<h4 id="filling-in-missing-attains-assessment-units">Filling in missing ATTAINS assessment units<a class="anchor" aria-label="anchor" href="#filling-in-missing-attains-assessment-units"></a>
+</h4>
 <p>As you can see in the above examples, not all WQP observations have
 an intersecting ATTAINS catchment: see that in the returned dataframes,
 some WQP observations have NAs where there should be ATTAINS
@@ -330,9 +330,9 @@ will additionally return the raw catchment features associated with the
 observations in <code>TADA_without_ATTAINS</code> in a new shapefile
 called <code>without_ATTAINS_catchments</code>.</p>
 </div>
-<div class="section level5">
-<h5 id="arguments-for-tada_getattains">Arguments for <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#arguments-for-tada_getattains"></a>
-</h5>
+<div class="section level4">
+<h4 id="arguments-for-tada_getattains">Arguments for <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#arguments-for-tada_getattains"></a>
+</h4>
 <ul>
 <li><p><code>.data</code>: Your input TADA-style Water Quality Portal
 data.</p></li>
@@ -351,10 +351,10 @@ to tabular data.</p></li>
 another example of this function in use and additional information.</p>
 </div>
 </div>
-<div class="section level3">
-<h3 id="tada_viewattains">
+<div class="section level2">
+<h2 id="tada_viewattains">
 <code>TADA_ViewATTAINS()</code><a class="anchor" aria-label="anchor" href="#tada_viewattains"></a>
-</h3>
+</h2>
 <p>This function visualizes the raw ATTAINS features that are linked to
 the TADA Water Quality Portal observations that are generated in
 <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> when <code>return_sf = TRUE</code>. For
@@ -362,9 +362,9 @@ the function to work properly, the input dataframe must be the list
 produced from <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> with
 <code>return_sf = TRUE</code>. The map also displays the Water Quality
 Portal monitoring locations used in <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code>.</p>
-<div class="section level5">
-<h5 id="using-tada_viewattains">Using <code>TADA_ViewATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_viewattains"></a>
-</h5>
+<div class="section level4">
+<h4 id="using-tada_viewattains">Using <code>TADA_ViewATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_viewattains"></a>
+</h4>
 <p>Let’s view the data associated with our
 <code>TADA_with_ATTAINS_list</code> object! Enter
 <code><a href="../reference/TADA_ViewATTAINS.html">?TADA_ViewATTAINS</a></code> into the console to review another
@@ -378,131 +378,6 @@ example query and additional information.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">TADA_with_ATTAINS_filled</span><span class="op">)</span></span></code></pre></div>
 <p>Enter <code><a href="../reference/TADA_ViewATTAINS.html">?TADA_ViewATTAINS</a></code> into the console to review
 another example of this function in use and additional information.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="usgs-national-water-information-system-nwis-functions">USGS National Water Information System (NWIS) Functions<a class="anchor" aria-label="anchor" href="#usgs-national-water-information-system-nwis-functions"></a>
-</h2>
-<p>TADA also provides functions to access continuous daily USGS National
-Water Information System (NWIS) data. These functions allow you to query
-and retrieve continuous daily-value data from USGS water monitoring
-locations.</p>
-<div class="section level4">
-<h4 id="tada_listnwis">
-<code>TADA_listNWIS()</code><a class="anchor" aria-label="anchor" href="#tada_listnwis"></a>
-</h4>
-<p>This function retrieves all available daily data from USGS National
-Water Information System (NWIS) based on different queries: an area of
-interest (i.e., an sf object), states, or specific sites.</p>
-<p>The function returns a spatial sf object containing site information
-and available parameters. If no data is found, it returns an empty sf
-object with the appropriate column structure.</p>
-<div class="section level5">
-<h5 id="using-tada_listnwis">Using <code>TADA_listNWIS()</code><a class="anchor" aria-label="anchor" href="#using-tada_listnwis"></a>
-</h5>
-<p>Let’s retrieve information about available NWIS data by a state, then
-visualize that information:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Example: Query by state</span></span>
-<span><span class="va">ri_sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_listNWIS.html">TADA_listNWIS</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"RI"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">ri_summary</span> <span class="op">&lt;-</span> <span class="va">ri_sites</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">site_no</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span></span>
-<span>    parameters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">parameter</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">";  "</span><span class="op">)</span>,</span>
-<span>    parameter_codes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">parameter_code</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">";  "</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span></span>
-<span><span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/leaflet.html" class="external-link">leaflet</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addProviderTiles.html" class="external-link">addProviderTiles</a></span><span class="op">(</span><span class="st">"Esri.WorldTopoMap"</span>,</span>
-<span>    group <span class="op">=</span> <span class="st">"World topo"</span>,</span>
-<span>    options <span class="op">=</span> <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addProviderTiles.html" class="external-link">providerTileOptions</a></span><span class="op">(</span></span>
-<span>      updateWhenZooming <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>      updateWhenIdle <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/remove.html" class="external-link">clearShapes</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">leaflet.extras</span><span class="fu">::</span><span class="fu"><a href="https://trafficonese.github.io/leaflet.extras/reference/addResetMapButton.html" class="external-link">addResetMapButton</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">addLegend</a></span><span class="op">(</span></span>
-<span>    position <span class="op">=</span> <span class="st">"bottomright"</span>,</span>
-<span>    colors <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>    labels <span class="op">=</span> <span class="st">"NWIS Monitoring Location(s)"</span>,</span>
-<span>    opacity <span class="op">=</span> <span class="fl">1</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">addCircleMarkers</a></span><span class="op">(</span></span>
-<span>    data <span class="op">=</span> <span class="va">ri_summary</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"grey"</span>, fillColor <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>    fillOpacity <span class="op">=</span> <span class="fl">0.8</span>, stroke <span class="op">=</span> <span class="cn">TRUE</span>, weight <span class="op">=</span> <span class="fl">1.5</span>, radius <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>    popup <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
-<span>      <span class="st">"Site Number: "</span>,</span>
-<span>      <span class="va">ri_summary</span><span class="op">$</span><span class="va">site_no</span>,</span>
-<span>      <span class="st">"&lt;br&gt; Parameters: "</span>,</span>
-<span>      <span class="va">ri_summary</span><span class="op">$</span><span class="va">parameters</span>,</span>
-<span>      <span class="st">"&lt;br&gt; Parameter codes: "</span>,</span>
-<span>      <span class="va">ri_summary</span><span class="op">$</span><span class="va">parameter_codes</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<p>We can also query by specific USGS monitoring sites:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">site_nums</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"11530500"</span>, <span class="st">"11532500"</span><span class="op">)</span> <span class="co"># Two sites in Northern California</span></span>
-<span><span class="va">sites_info</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_listNWIS.html">TADA_listNWIS</a></span><span class="op">(</span>siteid <span class="op">=</span> <span class="va">site_nums</span><span class="op">)</span></span></code></pre></div>
-<p>Lastly, can query NWIS sites by a user-supplied sf object:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cherokee_sf</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="st">"inst/extdata/OKTribe.shp"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">NAME</span> <span class="op">==</span> <span class="st">"Cherokee"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">cherokee_nwis</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_listNWIS.html">TADA_listNWIS</a></span><span class="op">(</span>aoi_sf <span class="op">=</span> <span class="va">cherokee_sf</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level4">
-<h4 id="tada_getnwis">
-<code>TADA_getNWIS()</code><a class="anchor" aria-label="anchor" href="#tada_getnwis"></a>
-</h4>
-<p>This function retrieves and tidy-formats daily values from NWIS. It
-interfaces with the USGS National Water Information System to retrieve
-daily value (DV) water data. Like <code><a href="../reference/TADA_listNWIS.html">TADA_listNWIS()</a></code>, users
-can query data based on an area of interest (i.e., an sf object),
-statecode, or specific sites.</p>
-<p>Additionally, users must specify the parameter codes and statistics
-they want to download and a date range. A list of all available
-parameters can be found at: <a href="https://help.waterdata.usgs.gov/parameter_cd?group_cd=%" class="external-link uri">https://help.waterdata.usgs.gov/parameter_cd?group_cd=%</a>
-and a list of all statistics codes can be found at: <a href="https://help.waterdata.usgs.gov/stat_code" class="external-link uri">https://help.waterdata.usgs.gov/stat_code</a></p>
-<div class="section level5">
-<h5 id="using-tada_getnwis">Using <code>TADA_getNWIS()</code><a class="anchor" aria-label="anchor" href="#using-tada_getnwis"></a>
-</h5>
-<p>With TADA_getNWIS(), users can retrieve time series data available
-from USGS sites by specifying the desired locations (using site
-identifiers, spatial feature (sf) objects, or states - similar to
-<code><a href="../reference/TADA_listNWIS.html">TADA_listNWIS()</a></code>), parameter codes, statistics codes, and a
-time period. Let’s retrieve mean (stat code 00003) water temperature
-data (parameter code 00010) being collected in the sf object above for
-January 2022:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Example: Retrieve water temperature data within a specified area of interest:</span></span>
-<span><span class="va">temperature_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_getNWIS.html">TADA_getNWIS</a></span><span class="op">(</span></span>
-<span>  aoi_sf <span class="op">=</span> <span class="va">cherokee_sf</span>, <span class="co"># could also use argumens `statecode` or `siteid`</span></span>
-<span>  parameter_codes <span class="op">=</span> <span class="st">"00010"</span>, <span class="co"># water temperature in Celsius</span></span>
-<span>  stat_codes <span class="op">=</span> <span class="st">"00003"</span>, <span class="co"># mean daily value</span></span>
-<span>  start_date <span class="op">=</span> <span class="st">"2022-01-01"</span>,</span>
-<span>  end_date <span class="op">=</span> <span class="st">"2022-01-31"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Let's visualize the discharge data</span></span>
-<span><span class="va">temperature_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
-<span>    NWIS.date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">NWIS.date</span><span class="op">)</span>,</span>
-<span>    NWIS.value <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">NWIS.value</span><span class="op">)</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">NWIS.date</span>, y <span class="op">=</span> <span class="va">NWIS.value</span>, color <span class="op">=</span> <span class="va">NWIS.site_no</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span></span>
-<span>    title <span class="op">=</span> <span class="st">"Daily Water Temperature at Selected USGS Sites"</span>,</span>
-<span>    x <span class="op">=</span> <span class="st">"Date"</span>,</span>
-<span>    y <span class="op">=</span> <span class="st">"Water Temperature (Celsius)"</span>,</span>
-<span>    color <span class="op">=</span> <span class="st">"Site Number"</span></span>
-<span>  <span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_minimal</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
