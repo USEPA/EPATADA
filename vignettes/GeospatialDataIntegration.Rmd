@@ -393,7 +393,7 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 We use `StreamCatTools` function `sc_get_comid` (which uses an
 `nhdplusTools` web service client) to get the comid for each location.
 
-```{r}
+```{r, eval = F}
 GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs), split = ",")[[1]])
 
 nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
@@ -410,7 +410,7 @@ Do a network navigation and get NHDPlus for our data. Note that the
 network navigation only includes flowline geometry. `nhdplusTools`
 subsets all of the NHDPlus.
 
-```{r}
+```{r, eval = F}
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
@@ -443,7 +443,7 @@ Note that hydroloom is compatible with nhdplus and other attribute
 systems. See [hydroloom documentation for
 more!](https://doi-usgs.github.io/hydroloom/articles/hydroloom.html)
 
-```{r}
+```{r, eval = F}
 GreenBay_FoxRiver_sf_locs <- sf::st_join(
   GreenBay_FoxRiver_sf_locs,
   hydroloom::st_compatibalize(
@@ -468,7 +468,7 @@ return here tells us what waterbody our locations are near or within.
 For on-network waterbodies, it will also include the outlet flowline for
 each waterbody.
 
-```{r}
+```{r, eval = F}
 all_wb <- dplyr::bind_rows(
   dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
   dplyr::select(nhdplus_data$NHDArea, wbid = comid)
@@ -482,7 +482,7 @@ all_wb <- dplyr::bind_rows(
 ))
 ```
 
-```{r}
+```{r, eval = F}
 par(mar = c(0, 0, 0, 0))
 nhdplusTools::plot_nhdplus(
   bbox = sf::st_bbox(GreenBay_FoxRiver_sf),
@@ -514,7 +514,7 @@ watershed for each particular site using
 
 **Discover what StreamCat metrics we might want to use**
 
-```{r}
+```{r, eval = F}
 metrics <- StreamCatTools::sc_get_params(param = "metric_names")
 print(paste0("A selection of available StreamCat metrics include: ", paste(metrics[1:10], collapse = ", ")))
 ```
@@ -524,7 +524,7 @@ print(paste0("A selection of available StreamCat metrics include: ", paste(metri
 We'll pull in all the NLCD categories at the local catchment level for
 each location
 
-```{r}
+```{r, eval = F}
 GB_FR_NLCD <- StreamCatTools::sc_nlcd(year = "2019", aoi = "cat", comid = GreenBay_FoxRiver_sf_locs$COMID)
 
 
@@ -536,7 +536,7 @@ GB_FR_Urb
 
 **Visualize urbanization for local catchment for each location**
 
-```{r}
+```{r, eval = F}
 ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
   ggplot2::geom_density()
 ```
@@ -546,7 +546,7 @@ ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
 Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
 
-```{r}
+```{r, eval = F}
 ws_data <- StreamCatTools::sc_get_data(metric = "fert,nsurp,nani,manure,IWI", aoi = "cat,ws", comid = GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
