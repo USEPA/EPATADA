@@ -24,11 +24,12 @@ editor_options:
 ```{r setup-knitr, include = F}
 library(knitr)
 
-knitr::opts_chunk$set(echo = TRUE,
-                      warning = FALSE,
-                      message = FALSE,
-                      eval = FALSE
-                      )
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
 ```
 
 # Welcome!
@@ -50,9 +51,9 @@ needed before installing the EPATADA R package because it is only
 available on GitHub.
 
 ```{r setup-remotes, results = 'hide'}
-install.packages("remotes", 
-                 repos = "http://cran.us.r-project.org"
-                 )
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
 library(remotes)
 ```
 
@@ -75,16 +76,16 @@ update all of them (enter 1 into the console).
 
 ```{r install-develop-branch, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "develop",
-                        dependencies = TRUE
-                        )
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 ```{r install-current-branch, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "develop",
-                        dependencies = TRUE
-                        )
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the EPATADA R Package
@@ -202,18 +203,18 @@ the complete list:
 
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 ```
 
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
 specific organization in the TADA_CreateParamRef() function, we must
 first review the ATTAINS organization domain list to get the ATTAINS
-organization id's to use for the funciton input.
+organization id's to use for the function input.
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
-TADA_TableExport(rExpertQuery::EQ_DomainValues('org_id'))
+TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 ```
 
 # TADA_CreateParamRef() Basics
@@ -223,7 +224,7 @@ Identifiers. Therefore, we recommend users manually provide a crosswalk.
 TADA_CreateParamRef() can help generate this crosswalk, but if desired,
 users can provide a pre-filled crosswalk with the required column names
 ("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName").
-TADA_CreateParamRef() includes an argument input 'fillBy' to assist
+TADA_CreateParamRef() includes an argument input 'auto_assign' to assist
 users in doing an exact match between TADA Characteristic Names to
 ATTAINS Parameter Name. There are roughly 598/1180 unique ATTAINS
 Parameter Names that have an exact match. \*\*It is important to note
@@ -265,16 +266,16 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 For our first example, let's start of with a single organization. In
 this example TADA data frame, this spatial area consists of WQP data
 from several different states. We will specify Maryland "MDE_EASP" as
-our ATTAINS organization identifier of interest. By default, fillBy =
+our ATTAINS organization identifier of interest. By default, auto_assign =
 "None" which will not populate any entries for the ATTAINS.ParameterName
 column, and users will need to manually fill this crosswalk out.
 
-```{r fillBy-none}
+```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_None <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
-  fillBy = "None",
+  auto_assign = "None",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -285,18 +286,18 @@ TADA_TableExport(NCTC_ParamRef_None)
 ```
 
 Now, let's go through an example in which users auto-populate the
-crosswalk with exact matches. We will use fillBy = 'All' to indicate we
+crosswalk with exact matches. We will use auto_assign = 'All' to indicate we
 will use exact matches regardless of if your organization has used this
 "ATTAINS.ParameterName" domain value in the past. i.e. Your organization
 is fine with using an ATTAINS Parameter Name that has been submitted to
 ATTAINS outside of your organization.
 
-```{r fillBy-All}
+```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_All <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
-  fillBy = "All", 
+  auto_assign = "All",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -306,16 +307,16 @@ NCTC_ParamRef_All <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_All)
 ```
 
-We can also use fillBy = 'Org' to indicate we will use exact matches
+We can also use auto_assign = 'Org' to indicate we will use exact matches
 ONLY if your organization has used this "ATTAINS.ParameterName" domain
 value in the past.
 
-```{r fillBy-Org}
+```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_Org <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
-  fillBy = "Org",
+  auto_assign = "Org",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -385,13 +386,13 @@ NCTC_ParamRef_AutoCreate <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_AutoCreate)
 ```
 
-Your 'paramRef' is prioritized over the 'fillBy' argument inputs.
-However, fillBy will fill in any remaining blanks that you have not
+Your 'paramRef' is prioritized over the 'auto_assign' argument inputs.
+However, auto_assign will fill in any remaining blanks that you have not
 filled in. For example, this 'paramRef' argument input that was provided
 matched 'Nitrate' to 'NITROGEN, TOTAL' rather than 'NITRATE', thus even
-if you specified 'fillBy = 'All', this crosswalk will prioritize
+if you specified 'auto_assign = 'All', this crosswalk will prioritize
 'NITROGEN, TOTAL' as the ATTAINS.ParameterName. However, by specifying
-fillBy = 'All' for any values that have not been crosswalk,
+auto_assign = 'All' for any values that have not been crosswalk,
 TADA_CreateParamRef() will fill those if there is an exact match, in the
 example below, no crosswalk of pH in your ParamRef2 was provided, so
 NCTC_ParamRef_Manual2 will crosswalk the TADA Characteristic name to
@@ -408,7 +409,7 @@ NCTC_ParamRef_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = ParamRef2,
-  fillBy = "All",
+  auto_assign = "All",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -526,8 +527,8 @@ TADA_CreateUseParamRef for multiple organizations using autoassign = TRUE.
 # create TADA parameter reference table for specified organization
 NCTC_ParamRef_MultipleOrgs <- TADA_CreateParamRef(
   Data_NCTC,
-  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"), 
-  fillBy = "Org",
+  org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
+  auto_assign = "Org",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -544,7 +545,7 @@ NCTC_ParamRef_MultipleOrgs_Final <- TADA_CreateParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP"),
   paramRef = ParamRef_MultipleOrgs,
-  fillBy = "None"
+  auto_assign = "None"
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -552,7 +553,7 @@ NCTC_ParamRef_MultipleOrgs_Final <- TADA_CreateParamRef(
 NCTC_UseParamRef_MultipleOrgs_AutoAssign <- TADA_CreateUseParamRef(
   Data_NCTC,
   org_id = c("MDE_EASP", "21VASWCB", "21PA", "WVDEP"),
-  paramRef = NCTC_ParamRef_MultipleOrgs_Final, 
+  paramRef = NCTC_ParamRef_MultipleOrgs_Final,
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file

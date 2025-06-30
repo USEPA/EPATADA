@@ -60,7 +60,7 @@ utils::globalVariables(c(
   "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
   "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
   "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
-  "value", "Flag_Column", "Data_NCTCShepherdstown_HUC12", "ActivityStartDateTime",
+  "value", "Flag_Column", "ActivityStartDateTime",
   "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
@@ -571,10 +571,21 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' @export
 #'
 #' @examples
-#' GroupNearbySites_100m <- TADA_FindNearbySites(Data_Nutrients_UT)
-#' GroupNearbySites_10m <- TADA_FindNearbySites(Data_Nutrients_UT,
+#' \dontrun{
+#' # cleanup lat/long if needed
+#' GroupNearbySites <- TADA_FlagCoordinates(Data_Nutrients_UT,
+#'   clean_outsideUSA = "remove",
+#'   clean_imprecise = TRUE
+#' )
+#' # make sure there are no NA's in lat/long
+#' GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure), ]
+#' GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure), ]
+#' # group sites
+#' GroupNearbySites_100m <- TADA_FindNearbySites(GroupNearbySites)
+#' GroupNearbySites_10m <- TADA_FindNearbySites(GroupNearbySites,
 #'   dist_buffer = 10
 #' )
+#' }
 TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                  nhd_res = "Hi",
                                  org_hierarchy = "none",
@@ -681,7 +692,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     purrr::map(~ .x %>%
       fetchNHD(resolution = nhd_res))
 
-  nhd.catch.all <- dplyr::bind_rows(nhd.catch)
+  # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
+  nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
+
+  # create one df from all fetchNHD data
+  nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
 
   # join nhd catchments with monitoring locations, filter to include group/catchment
   catch.groups <- near.sites %>%
@@ -698,7 +713,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::select(-n)
 
   # remove intermediate objects
-  rm(near.sites, nhd.catch, nhd.catch.all)
+  rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
 
   if (nrow(catch.groups) == 0) { # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
@@ -1630,7 +1645,7 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #'
 #' @examples
 #' UniqueCharUnitSpecExample <-
-#'   TADA_UniqueCharUnitSpeciation(Data_NCTCShepherdstown_HUC12)
+#'   TADA_UniqueCharUnitSpeciation(Data_Nutrients_UT)
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
@@ -1861,7 +1876,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @examples
 #' \dontrun{
 #' # return ATTAINS parameter domain values
-#' TADA_TableExport(rExpertQuery::EQ_DomainValues('param_name'))
+#' TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 #' }
 TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
@@ -1910,7 +1925,7 @@ TADA_CreateCSV <- function(.data) {
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
 
-  write.csv(.data, file = downloads_path, row.names = FALSE)
+  utils::write.csv(.data, file = downloads_path, row.names = FALSE)
 
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }

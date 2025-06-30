@@ -5,7 +5,7 @@ editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output: 
-  rmarkdown::html_document:
+  rmarkdown::html_vignette:
     toc: true
     fig_caption: yes
     fig_height: 8
@@ -15,18 +15,31 @@ vignette: >
   %\VignetteIndexEntry{TADA: WaterSciCon Workshop Demo}
   %\VignetteEngine{knitr::rmarkdown}
 description: A demonstration of data discovery for the confluence of the San Juan and Animas Rivers near Farmington, New Mexico. This example focuses on surface water quality with a focus on total dissolved solids and conductivity.
-editor_options: 
+editor_options:
   chunk_output_type: console
-  markdown: 
+  markdown:
     wrap: 72
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include = F}
+library(knitr)
+
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE
 )
+```
+
+```{css, include = F}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 300px;
+}
 ```
 
 ## Overview
@@ -55,44 +68,51 @@ more comprehensive module vignettes:
 -   [TADA Module
     2](https://usepa.github.io/EPATADA/articles/TADAModule2.html)
 
-## Load Required Packages
+## Install and load packages
 
-The fist step is to load the TADA package and other packages used in our
-workflow. (If you are a first-time TADA user, see [TADA Module 1
-Beginner
-Training](https://usepa.github.io/EPATADA/articles/TADAModule1_BeginnerTraining.html)
-for TADA package installation instructions.)
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r load EPATADA, results = 'hide'}
+library(EPATADA)
+```
 
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r install_TADA, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r install_TADA_developer, include = FALSE}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-```{r library, results = 'hide'}
-# Load required packages
-library(EPATADA)
-library(dplyr)
-library(yaml)
-library(lwgeom)
-library(sf)
-library(lubridate)
-library(knitr)
-library(DT)
-library(stringr)
-
-
+```{r starttime, results = 'hide'}
 # Record start time
 start.time <- Sys.time()
 ```

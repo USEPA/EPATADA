@@ -57,32 +57,6 @@ NULL
 #' @format A dataframe with 117124 rows and 166 variables
 NULL
 
-#' Data_NCTCShepherdstown_HUC12
-#'
-#' Original pull:
-#' Data_NCTCShepherdstown_HUC12 = TADA_DataRetrieval(
-#'   startDate = "2020-03-14",
-#'   endDate = "null",
-#'   countycode = "null",
-#'   huc = "02070004",
-#'   siteid = "null",
-#'   siteType = "null",
-#'   characteristicName = "null",
-#'   characteristicType = "null",
-#'   sampleMedia = "null",
-#'   statecode = "null",
-#'   organization = "null",
-#'   project = "null",
-#'   applyautoclean = TRUE
-#' )
-#'
-#' @docType data
-#' @keywords dataframe
-#' @name Data_NCTCShepherdstown_HUC12
-#' @usage data(Data_NCTCShepherdstown_HUC12)
-#' @format A dataframe with 39236 rows and 151 variables
-NULL
-
 #' Data_R5_TADAPackageDemo
 #'
 #' Original pull:
@@ -120,15 +94,4 @@ NULL
 #' @name Data_HUC8_02070004_Mod1Output
 #' @usage data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
-NULL
-
-#' cybertown
-#'
-#' See TADACybertown2025.Rmd in vignettes folder.
-#'
-#' @docType data
-#' @keywords data frame
-#' @name cybertown
-#' @usage data(cybertown)
-#' @format A data frame with 990 rows and 150 variables
 NULL

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ContinuousDataFunctions.R
 \name{TADA_getNWIS}
 \alias{TADA_getNWIS}
-\title{Retrieve and tidy daily values from NWIS}
+\title{Retrieve and tidy daily values from NWIS (DRAFT - UNDER ACTIVE DEVELOPMENT)}
 \usage{
 TADA_getNWIS(
   aoi_sf = "null",
