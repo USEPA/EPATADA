@@ -27,3 +27,6 @@ testing_log.txt
 # built and rendered vignettes aren't tracked
 inst/doc
 vignettes/*.R
+
+# testing
+EPATADAIssues_July2025_ExampleDataSet1_ForDemoPurposesOnly.csv
