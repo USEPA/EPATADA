@@ -412,21 +412,26 @@ TADA_AnalysisDataFilter <- function(.data,
 
 #' AutoFilter
 #'
-#' This function removes rows where the result value is not numeric to
+#' This function removes or flags rows where the result value is not numeric to
 #' prepare a dataframe for quantitative analyses. Ideally, this function should
 #' be run after other data cleaning, QA/QC, and harmonization steps are
 #' completed using other TADA package functions, or manually. Specifically,
 #' this function removes rows with "Text" and "NA - Not Available"
 #' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-#' TADA.ResultMeasureValue column. In addition, this function removes results
-#' with QA/QC ActivityTypeCode's. This function also removes any columns not
-#' required for TADA workflow where all values are equal to NA. It provides a
-#' warning message identifying any TADA required columns containing only NA
-#' values.
+#' TADA.ResultMeasureValue column. In addition, this function also removes or
+#' flags results with QA/QC ActivityTypeCodes. This function also removes any
+#' columns not required for TADA workflow where all values are equal to NA.
+#' It provides a warning message identifying any TADA required columns
+#' containing only NA values which were removed.
 #'
 #' @param .data TADA dataframe
+#' @param clean Boolean argument. When clean = TRUE, rows where the result
+#' value is not numeric are removed. When clean = FALSE, rows with non-numeric
+#' result values are flagged with a removal reason in the new
+#' TADA.AutoFilter.Flag column.
 #'
-#' @return .data with rows non-quantitative and QA/QC results removed
+#' @return .data with rows non-quantitative and QA/QC results removed or
+#' flagged.
 #'
 #' @export
 #'
