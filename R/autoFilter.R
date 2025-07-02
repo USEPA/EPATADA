@@ -528,7 +528,7 @@ TADA_AutoFilter <- function(.data, clean = FALSE) {
     print(paste0("TADA_AutoFilter: TADA Required column(s) ", req.paste,
                  " contain only NA values. This may impact other TADA functions."))
   } else {
-    print("TADA_AutoFilterAll TADA Required columns contain some non-NA values.")
+    print("TADA_AutoFilter: All TADA Required columns contain some non-NA values.")
   }
 
   # remove intermediate objects
