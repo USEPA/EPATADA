@@ -113,6 +113,8 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   }
   
   spatialRef$ATTAINS.waterTypeCode <- as.character(spatialRef$ATTAINS.waterTypeCode)
+  spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
+  spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
@@ -123,30 +125,42 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
     dplyr::arrange(ATTAINS.ParameterName)
   
+  # Creates the DefineCriteriaMethodology table from the spatialRef.
   DefineCriteriaMethodology <- spatialRef %>%
     dplyr::select(
+      "TADA.ComparableDataIdentifier", #"TADA.CharacteristicName", "TADA.Fraction"
       "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
-      "MonitoringLocationTypeName", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
+      "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
     ) %>%
-    dplyr::mutate(MonitoringLocationTypeName = dplyr::if_else( # Only include if a unique spatial criteria is applied for
-      is.na(ApplyUniqueSpatialCriteria),
-      as.character(NA),
-      MonitoringLocationTypeName
-    )) %>%
-    dplyr::mutate(ATTAINS.waterTypeCode = dplyr::if_else( # Only include if a unique spatial criteria is applied for
+    # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
+    dplyr::mutate(ATTAINS.waterTypeCode = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
       ATTAINS.waterTypeCode
     )) %>%
+    dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
+      is.na(ApplyUniqueSpatialCriteria),
+      as.character(NA),
+      SaltFresh
+    )) %>%
+    dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
+      is.na(ApplyUniqueSpatialCriteria),
+      as.character(NA),
+      TADA.DepthCategory.Flag
+    )) %>%
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.waterTypeCode), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
-        AcuteChronic = as.character(NA), SaltFresh = as.character(NA), WaterDepth = as.numeric(NA),
-        BegAssessDate = as.Date(NA), EndAssessDate = as.Date(NA), Season = as.character(NA),
-        MinimumSample = as.numeric(NA), EquationBased = as.character(NA),
-        MagnitudeValueLower = as.character(NA), MagnitudeValueUpper = as.character(NA), MagnitudeUnit = as.character(NA),
-        DurationValue = as.numeric(NA),	DurationUnit = as.character(NA),	FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
-        MinimumSamplingFrequency = as.numeric(NA),	MinimumSampleSize = as.numeric(NA),	MinimumSamplingPeriod = as.numeric(NA),	SamplingDepth = as.numeric(NA)
+        AcuteChronic = as.character(NA),
+        # Criteria Columns
+        EquationBased = as.character(NA),
+        MagnitudeValueLower = as.numeric(NA), MagnitudeValueUpper = as.numeric(NA), MagnitudeUnit = as.character(NA),
+        DurationValue = as.numeric(NA),	DurationUnit = as.character(NA), DurationAggregation = as.character(NA),
+        FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
+        # Data Sufficiency Columns
+        DataSufficiency.AssessPeriod = as.character(NA), DataSufficiency.BegAssessDate = as.Date(NA), DataSufficiency.EndAssessDate = as.Date(NA), Season = as.character(NA),
+        DataSufficiency.Season = as.character(NA), DataSufficiency.SeasonBegDate = as.Date(NA), DataSufficiency.SeasonEndDate = as.Date(NA),
+        DataSufficiency.SamplingDistribution = as.character(NA), DataSufficiency.MinResultPerSample = as.numeric(NA), DataSufficiency.MinSamplePerDistribution = as.numeric(NA)
       )
     ) %>%
     dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
@@ -156,12 +170,18 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::distinct() %>%
     dplyr::select(
-      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
-      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "WaterDepth", "BegAssessDate", "EndAssessDate",
-      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
+      "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", 
+      "ATTAINS.UseName", "AcuteChronic", 
+      # Spatial Columns
+      "ATTAINS.waterTypeCode", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit",	"FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
-      "MinimumSamplingFrequency",	"MinimumSampleSize",	"MinimumSamplingPeriod",	"SamplingDepth"
+      "DurationValue",	"DurationUnit", "DurationAggregation",
+      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      # Data Sufficiency Columns
+      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
+      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
+      "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution", "DataSufficiency.MinResultPerSample"
       
     )
   
@@ -185,7 +205,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       dplyr::mutate(dplyr::across(
         c(
           MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FrequencyCriteriaValue,	
-          MinimumSampleSize, MinimumSamplingPeriod,	SamplingDepth
+          MinimumSampleSize, MinimumSamplingPeriod,	TADA.DepthCategory.Flag
         ), as.numeric)) %>%
       dplyr::mutate(dplyr::across(
         c(
@@ -241,12 +261,18 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     }
     
     columns <- c(
-      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName", "MonitoringLocationTypeName",
-      "ATTAINS.waterTypeCode", "AcuteChronic", "SaltFresh", "BegAssessDate", "EndAssessDate",
-      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria",
+      "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", 
+      "ATTAINS.UseName", "AcuteChronic", 
+      # Spatial Columns
+      "ATTAINS.waterTypeCode", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit",	"FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
-      "MinimumSamplingFrequency",	"MinimumSampleSize",	"MinimumSamplingPeriod",	"SamplingDepth"
+      "DurationValue",	"DurationUnit", "DurationAggregation",
+      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      # Data Sufficiency Columns
+      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
+      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
+      "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution", "DataSufficiency.MinResultPerSample"
     )
     
     # Format column header
@@ -255,43 +281,154 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     openxlsx::setColWidths(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), widths = "auto")
     openxlsx::setColWidths(wb, sheet = "DefineCriteriaMethodology", cols = 1:5, widths = 20)
     
-    # Write column names in the excel spreadsheet under the tab [DefineCriteriaMethodology]
-    # writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = par, headerStyle = header_st)
     # Export DefineCriteriaMethodology dataframe into the excel spreadsheet tab
     openxlsx::writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = DefineCriteriaMethodology, headerStyle = header_st)
-    # writeData(wb, "DefineCriteriaMethodology", startCol = 13, startRow = 1, x = MagnitudeValue)
     
-    openxlsx::writeData(wb, "Index", startCol = 10, startRow = 1, x = data.frame(MonitoringLocationTypeName = c(unique(.data$MonitoringLocationTypeName), "All", "NA"))) # WQP MonitoringTypeLocationName
+    # Creates the Index List of allowable values under each column
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 10, startRow = 1, 
+      # AcuteChronic
+      x = data.frame(
+        AcuteChronic = c("Acute", "Chronic", "NA")
+        )
+      ) 
     
-    openxlsx::writeData(wb, "Index", startCol = 11, startRow = 1, x = data.frame(ATTAINS.waterTypeCode = c(unique(spatialRef$ATTAINS.waterTypeCode), "All", "NA"))) # ATTAINS.waterTypeCode
-    openxlsx::writeData(wb, "Index", startCol = 12, startRow = 1, x = data.frame(AcuteChronic = c("A", "C", "NA"))) # AcuteChronic
-    openxlsx::writeData(wb, "Index", startCol = 13, startRow = 1, x = data.frame(AcuteChronic = c("S", "F", "NA"))) # SaltFresh
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 11, startRow = 1, 
+      # ATTAINS.waterTypeCode
+      x = data.frame( 
+        ATTAINS.waterTypeCode = c(unique(spatialRef$ATTAINS.waterTypeCode), "All", "NA")
+        )
+      ) 
     
-    openxlsx::writeData(wb, "Index", startCol = 14, startRow = 1, x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))) # Season
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 12, startRow = 1, 
+      # SaltFresh
+      x = data.frame(
+        SaltFresh = c("Salt", "Fresh", "NA")
+        )
+      ) 
     
-    openxlsx::writeData(wb, "Index", startCol = 15, startRow = 1, x = data.frame(ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA"))) # ApplyUniqueSpatialCriteria
-    openxlsx::writeData(wb, "Index", startCol = 16, startRow = 1, x = data.frame(EquationBased = c("Yes", "No", "NA"))) # EquationBased
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 13, startRow = 1, 
+      x = data.frame(
+        TADA.DepthCategory.Flag = c("No depth info", "Epilimnion-surface", "Surface", "Bottom", "Middle")
+      )
+    )
     
-    openxlsx::writeData(wb, "Index", startCol = 17, startRow = 1, x = data.frame(MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode))) # MagnitudeUnit
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 14, startRow = 1, 
+      # ApplyUniqueSpatialCriteria
+      x = data.frame(
+        ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA")
+        )
+      ) 
+    
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 15, startRow = 1, 
+      # EquationBased
+      x = data.frame(
+        EquationBased = c("Yes", "No", "NA")
+        )
+      ) 
+    
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 18, startRow = 1, 
+      # MagnitudeUnit
+      x = data.frame(
+        MagnitudeUnit = unique(.data$TADA.ResultMeasure.MeasureUnitCode)
+      )
+    ) 
+    
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 20, startRow = 1, 
+      # DurationUnit
+      x = data.frame(
+        DurationUnit = c("n-hour", "n-day", "n-week", "n-month", "n-quarter")
+      )
+    ) 
+    
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 21, startRow = 1, 
+      # DurationAggregation
+      x = data.frame(
+        DurationAggregation = c(
+          "arithmetic mean", "arithmetic median", "arithmetic max", "arithmetic min", 
+          "geometric mean", "geometric median", "geometric max", "geometric min",
+          "rolling geometric mean", "rolling arithmetric mean"
+          )
+      )
+    ) 
+
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 23, startRow = 1, 
+      # FrequencyCriteriaMethod
+      x = data.frame(
+        FrequencyCriteriaMethod = c(
+          "Percent of samples not meeting", "percentile",
+          "n-samples in 3 years", "n-samples in 4 years", "n-samples in 5 years", 
+          "binomial test", "NumberNotMeeting" 
+        )
+      )
+    )     
+        
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 24, startRow = 1, 
+      x = data.frame(
+        DataSufficiency.AssessPeriod = c("Last 30 years", "Last 10 years", "Last 5 years", "Last 3 years", "Last year", "NA")
+        )
+      )
+        
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 27, startRow = 1, 
+      x = data.frame(
+        DataSufficiency.Season = c("Summer", "Fall", "Spring", "Winter", "NA")
+      )
+    )
+    
+    openxlsx::writeData(
+      wb, "Index", 
+      startCol = 30, startRow = 1, 
+      x = data.frame(
+        DataSufficiency.SamplingDistribution = c("Seasonal", "Annual", "Semi-Annual", "Quarterly", "Monthly", "Bi-weekly", "Weekly", "10 days", "NA")
+      )
+    )
     
     # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # WQP MonitoringTypeLocationName
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ATTAINS.waterTypeCode
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # AcuteChronic
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # SaltFresh
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # Season
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # ApplyUniqueSpatialCriteria
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 14, rows = 2:1000, type = "list", value = sprintf("'Index'!$P$2:$P$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # EquationBased
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$Q$2:$Q$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) # MagnitudeUnit
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 19, rows = 2:1000, type = "list", value = sprintf("'Index'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 22, rows = 2:1000, type = "list", value = sprintf("'Index'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 25, rows = 2:1000, type = "list", value = sprintf("'Index'!$AD$2:$AD$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     # Conditional Formatting
-    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
+    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 5)
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 4:25, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:27, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 4:25, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:27, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
     
@@ -313,7 +450,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 
 
 
-#' Magnitude Summary
+#' Criteria Summary
 #'
 #' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
 #' processing, harmonization and filtering functions prior to this step.
@@ -326,7 +463,76 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-# TADA_MagnitudeSummary <- function(.data, StandardsRef = NULL, UseAURef = NULL, overwrite = FALSE) {
+TADA_CriteriaSummary <- function(
+    .data, criteriaMethods = NULL, overwrite = FALSE) {
+  
+  criteria <- dplyr::select(
+    TADA_CriteriaMethodology,
+    MagnitudeValueLower,	MagnitudeValueUpper,	MagnitudeUnit,	
+    DurationValue,	DurationUnit,	DurationAggregation,	
+    FrequencyCriteriaValue,	FrequencyCriteriaMethod
+  )
+  
+  data_with_criteria <- dplyr::left_join()
+  
+  StatsTable <- TADA_Stats(.data)
+  
+  StatsTable %>% dplyr::group_by()
+  
+  group_cols <- unique(c("TADA.ComparableDataIdentifier", 
+                         "ATTAINS.ParameterName",
+                         "ATTAINS.UseName",
+                         "ATTAINS.AssessmentUnitIdentifier",
+                         "TADA.MonitoringLocationIdentifier"
+                         
+  ))
+  
+  CriteriaSummaryTable <- criteriaMethods %>%
+    dplyr::left_join(StatsTable, by = "TADA.ComparableDataIdentifier")
+    
+    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) %>%
+    dplyr::summarize(
+      Location_Count = length(unique(TADA.MonitoringLocationIdentifier)),
+      Measurement_Count = length(unique(ResultIdentifier)),
+      Non_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]),
+      Non_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]) / length(TADA.CensoredData.Flag) * 100,
+      Non_Detect_Lvls = length(unique(DetectionQuantitationLimitTypeName[TADA.CensoredData.Flag %in% c("Non-Detect")])),
+      Over_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]),
+      Over_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]) / length(TADA.CensoredData.Flag) * 100,
+      # To build this fence we take 1.5 times the IQR and then subtract this value
+      # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
+      # posts that we compare each observation to. Any observations that are more than
+      # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
+      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75)) + (1.5 * stats::IQR(TADA.ResultMeasureValue))),
+      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25)) - (1.5 * stats::IQR(TADA.ResultMeasureValue))),
+      Min = min(TADA.ResultMeasureValue),
+      Mean = mean(TADA.ResultMeasureValue),
+      Max = max(TADA.ResultMeasureValue),
+      Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
+      Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
+      Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
+      Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
+      Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
+      Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
+      Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
+      Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
+      Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
+    ) %>%
+    dplyr::mutate(ND_Estimation_Method = dplyr::case_when(
+      Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
+      Non_Detect_Pct > 80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
+      Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
+      Non_Detect_Pct < 50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
+      Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
+      Measurement_Count < 50 ~ as.character("Robust Regression Order Statistics")
+    )) # 50%-80% censored, less than 50 measures
+  
+  # StatsTable = StatsTable[,!names(StatsTable)%in%c("Non_Detect_Pct","Non_Detect_Lvls","Over_Detect_Pct")]
+  
+  return(StatsTable)
+  
+}
 #' #  # Attempt to pull in the ref files from the default Downloads location.
 #' #  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 #' #  if (is.null(StandardsRef)) {

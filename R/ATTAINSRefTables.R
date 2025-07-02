@@ -65,7 +65,6 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
       attainsWQXRef <- WQXCharRef %>%
         dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
-        # Hard code bind E.coli as we know this is a match
         dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) %>%
         dplyr::distinct()
     },

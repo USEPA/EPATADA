@@ -4,7 +4,11 @@
 \alias{TADA_Stats}
 \title{Generate Statistics Table}
 \usage{
-TADA_Stats(.data, group_cols = c("TADA.ComparableDataIdentifier"))
+TADA_Stats(
+  .data,
+  group_cols = c("TADA.ComparableDataIdentifier"),
+  criteriaMethods = NULL
+)
 }
 \arguments{
 \item{.data}{TADA dataframe containing the data downloaded from the WQP,
