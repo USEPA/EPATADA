@@ -170,7 +170,6 @@ require.cols <- c(
   "LaboratoryName",
   "ResultLaboratoryCommentText",
   "ActivityIdentifier", # required
-  "TADA.AutoFilter.Flag",
 
   # Organization (e.g. data submitter)
   "OrganizationIdentifier", # required
