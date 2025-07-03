@@ -412,78 +412,22 @@ TADA_AnalysisDataFilter <- function(.data,
 
 #' AutoFilter
 #'
-#' This function removes or flags rows where the result value is not numeric to
-#' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are
-#' completed using other TADA package functions, or manually. Specifically,
-#' this function removes rows with "Text" and "NA - Not Available"
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-#' TADA.ResultMeasureValue column. In addition, this function also removes or
-#' flags results with QA/QC ActivityTypeCodes. This function also removes any
-#' columns not required for TADA workflow where all values are equal to NA.
-#' It provides a warning message identifying any TADA required columns
-#' containing only NA values which were removed.
+#' This function also removes any columns not required for the TADA workflow
+#' where all values are equal to NA. It provides a warning message identifying
+#' any TADA required columns containing only NA values.
 #'
 #' @param .data TADA dataframe
-#' @param clean Boolean argument. When clean = TRUE, rows where the result
-#' value is not numeric are removed. When clean = FALSE, rows with non-numeric
-#' result values are flagged with a removal reason in the new
-#' TADA.AutoFilter.Flag column. Default is clean = FALSE.
 #'
-#' @return .data with rows non-quantitative and QA/QC results removed or
-#' flagged.
+#' @return .data with any non-required columns containing only NA values
+#' removed.
 #'
 #' @export
 #'
 #' @examples
 #' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
-TADA_AutoFilter <- function(.data, clean = FALSE) {
+TADA_AutoFilter <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
-  TADA_CheckColumns(.data, c(
-    "ActivityTypeCode", "MeasureQualifierCode",
-    "TADA.ResultMeasureValueDataTypes.Flag",
-    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode"
-  ))
-
-  # keep track of starting and ending number of rows
-  start <- dim(.data)[1]
-
-
-  # run TADA_FindQCActivities if needed
-  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
-    .data <- .data
-  }
-
-  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
-    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
-  }
-
-  if (clean == TRUE) {
-
-  # remove text, NAs and QC results
-  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
-    !is.na(TADA.ResultMeasureValue))
-
-  print("TADA_AutoFilter: removing rows not suitable for quantitative analysis.")
-  }
-
-  if (clean == FALSE) {
-
-    # flag text, NAs and QC results
-    .data <- .data %>%
-      dplyr::mutate(TADA.AutoFilter.Flag = dplyr::case_when(
-      TADA.ResultMeasureValueDataTypes.Flag == "Text" ~ "Result data type is not numeric.",
-      TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" ~ "Result value is NA.",
-      TADA.ActivityType.Flag != "Non_QC" ~ "Result is from a quality control sample.",
-      .default = NA))
-
-    print("TADA_AutoFilter: flagging rows not suitable for quantitative analysis.")
-  }
 
   # remove columns that are not required for TADA workflow
   print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
@@ -493,8 +437,10 @@ TADA_AutoFilter <- function(.data, clean = FALSE) {
     purrr::keep(~ all(is.na(.x))) %>%
     names()
 
-  # create list of columns to be removed by comparing columns containing all NA values to required columns.
-  # any required columns with all NA values will be excluded from the list of columns to remove.
+  # create list of columns to be removed by comparing columns containing all NA
+  # values to required columns.
+  # any required columns with all NA values will be excluded from the list of
+  # columns to remove.
   remove.cols <- setdiff(na.cols, require.cols)
 
   # remove not required columns containing all NA values from dataframe.
@@ -513,9 +459,10 @@ TADA_AutoFilter <- function(.data, clean = FALSE) {
   # create character string for list of removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
-  # print list of columns removed from dataframe
+  # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
-    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
+    print(paste0("The following column(s) were removed as they contained only NAs ",
+                 "and are not required for the TADA workflow: ", remove.paste, "."))
   } else {
     print("All columns contained some non-NA values and were retained in the dataframe.")
   }
@@ -533,17 +480,6 @@ TADA_AutoFilter <- function(.data, clean = FALSE) {
 
   # remove intermediate objects
   rm(req.paste, remove.cols, remove.paste, req.check)
-
-  end <- dim(.data)[1]
-
-  # print number of results removed
-  if (!start == end) {
-    net <- start - end
-    print(paste0("Function removed ", format(net, big.mark = ",", scientific = FALSE),
-                 " results. These results are either text or NA ",
-                 "and cannot be plotted or represent quality control activities ",
-                 "(not routine samples or measurements)."))
-  }
 
   return(.data)
 }

@@ -4,32 +4,19 @@
 \alias{TADA_AutoFilter}
 \title{AutoFilter}
 \usage{
-TADA_AutoFilter(.data, clean = FALSE)
+TADA_AutoFilter(.data)
 }
 \arguments{
 \item{.data}{TADA dataframe}
-
-\item{clean}{Boolean argument. When clean = TRUE, rows where the result
-value is not numeric are removed. When clean = FALSE, rows with non-numeric
-result values are flagged with a removal reason in the new
-TADA.AutoFilter.Flag column. Default is clean = FALSE.}
 }
 \value{
-.data with rows non-quantitative and QA/QC results removed or
-flagged.
+.data with any non-required columns containing only NA values
+removed.
 }
 \description{
-This function removes or flags rows where the result value is not numeric to
-prepare a dataframe for quantitative analyses. Ideally, this function should
-be run after other data cleaning, QA/QC, and harmonization steps are
-completed using other TADA package functions, or manually. Specifically,
-this function removes rows with "Text" and "NA - Not Available"
-in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-TADA.ResultMeasureValue column. In addition, this function also removes or
-flags results with QA/QC ActivityTypeCodes. This function also removes any
-columns not required for TADA workflow where all values are equal to NA.
-It provides a warning message identifying any TADA required columns
-containing only NA values which were removed.
+This function also removes any columns not required for the TADA workflow
+where all values are equal to NA. It provides a warning message identifying
+any TADA required columns containing only NA values.
 }
 \examples{
 TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
