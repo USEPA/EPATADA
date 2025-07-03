@@ -114,6 +114,16 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   
   spatialRef$ATTAINS.waterTypeCode <- as.character(spatialRef$ATTAINS.waterTypeCode)
   spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
+  # Extracts the characteristic, speciation and fraction columns to join
+  spatialRef <- spatialRef %>% 
+    dplyr::left_join(
+      .data[,c(
+        "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+        "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"
+        )] %>%
+      dplyr::distinct(), 
+      by ="TADA.ComparableDataIdentifier"
+      )
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
@@ -127,8 +137,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   # Creates the DefineCriteriaMethodology table from the spatialRef.
   DefineCriteriaMethodology <- spatialRef %>%
     dplyr::select(
-      "TADA.ComparableDataIdentifier", #"TADA.CharacteristicName", "TADA.Fraction"
-      "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+      "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.waterTypeCode"
     ) %>%
     # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
@@ -169,8 +180,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::distinct() %>%
     dplyr::select(
-      "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", 
-      "ATTAINS.UseName", "AcuteChronic", 
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+      "TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic", 
       # Spatial Columns
       "ATTAINS.waterTypeCode", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
       # Criteria Columns
@@ -260,8 +272,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     }
     
     columns <- c(
-      "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier", 
-      "ATTAINS.UseName", "AcuteChronic", 
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+      "TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
       # Spatial Columns
       "ATTAINS.waterTypeCode", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
       # Criteria Columns
@@ -284,6 +297,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     openxlsx::writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = DefineCriteriaMethodology, headerStyle = header_st)
     
     # Creates the Index List of allowable values under each column
+    
+    # openxlsx::writeData(
+    #   wb, "Index", 
+    #   startCol = 7, startRow = 1, 
+    #   x = .data[,c(
+    #     "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+    #     "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"
+    #   )] %>%
+    #     dplyr::distinct()
+    # )
+    
     openxlsx::writeData(
       wb, "Index", 
       startCol = 10, startRow = 1, 
@@ -406,28 +430,28 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     )
     
     # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 19, rows = 2:1000, type = "list", value = sprintf("'Index'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 22, rows = 2:1000, type = "list", value = sprintf("'Index'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 25, rows = 2:1000, type = "list", value = sprintf("'Index'!$AD$2:$AD$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 19, rows = 2:1000, type = "list", value = sprintf("'Index'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = sprintf("'Index'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 22, rows = 2:1000, type = "list", value = sprintf("'Index'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 25, rows = 2:1000, type = "list", value = sprintf("'Index'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 28, rows = 2:1000, type = "list", value = sprintf("'Index'!$AD$2:$AD$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     # Conditional Formatting
-    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 5)
+    openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 5:27, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 5:27, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
     
