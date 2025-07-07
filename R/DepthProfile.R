@@ -209,7 +209,13 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::select(-ARD_Category, -DepthsPerGroup)
 
     if (depth.count == 0) {
-      print(paste("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available, TADA_FlagDepthCategory cannot be used on this data set.", sep = ""))
+      print(paste0("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available. ",
+                  "TADA.DepthCategory.Flag and TADA.ConsolidatedDepth columns filled with NA have been added."))
+
+      .data <- .data %>%
+        dplyr::mutate(TADA.DepthCategory.Flag = NA,
+                      TADA.ConsolidatedDepth = NA) %>%
+        TADA_OrderCols()
 
       return(.data)
     }
