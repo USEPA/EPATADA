@@ -1659,17 +1659,12 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     .data <- TADA_AutoClean(.data)
   }
 
-  if (all(required_cols %in% colnames(.data)) == TRUE) {
-    .data <- .data
-  }
-
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
-    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode)) %>%
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
@@ -1692,11 +1687,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName"
     )) %>%
     dplyr::distinct() %>%
-    dplyr::group_by(TADA.CharacteristicName) %>%
-    dplyr::mutate(NCode = length(unique(TADA.ResultMeasure.MeasureUnitCode))) %>%
-    dplyr::filter(!is.na(TADA.ResultMeasure.MeasureUnitCode) |
-      is.na(TADA.ResultMeasure.MeasureUnitCode) & NCode == 1) %>%
-    dplyr::select(-NCode)
+    dplyr::group_by(TADA.CharacteristicName)
 
   return(data.units)
 }
