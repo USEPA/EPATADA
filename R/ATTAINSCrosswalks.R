@@ -1069,7 +1069,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     rm(TADA_param, max_loops)
     
     # Format column widths in CreateParamRef - for future considerations of formatting
-    openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(CreateParamRef), widths = "auto")
+    openxlsx::setColWidths(wb, "CreateParamRef", cols = 1:ncol(CreateParamRef) + 2, widths = "auto")
     
     if (overwrite == TRUE) {
       message(
@@ -1724,7 +1724,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     )
     
     # Format Column widths
-    openxlsx::setColWidths(wb, "CreateUseParamRef", cols = 1:ncol(CreateUseParamRef), widths = "auto")
+    openxlsx::setColWidths(wb, "CreateUseParamRef", cols = 1:ncol(CreateUseParamRef) + 2, widths = "auto")
     
     # Handles overwriting the excel file.
     if (overwrite == TRUE) {

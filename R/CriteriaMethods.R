@@ -117,6 +117,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   spatialRef <- spatialRef %>% 
     dplyr::left_join(
       .data[,c(
+        "TADA.ComparableDataIdentifier",
         "TADA.CharacteristicName",
         "TADA.ResultSampleFractionText", 
         "TADA.MethodSpeciationName"
