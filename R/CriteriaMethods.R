@@ -86,9 +86,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(spatialRef) & !is.character(spatialRef)) {
     if (!is.data.frame(spatialRef)) {
-      stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with seven columns:
+      stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
-        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
+        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
     }
     
     if (is.data.frame(spatialRef)) {
@@ -98,16 +98,15 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
         "ATTAINS.OrganizationIdentifier",
         "ApplyUniqueSpatialCriteria",
         "ATTAINS.WaterType",
-        "ATTAINS.assessmentunitidentifier",
-        "MonitoringLocationTypeName"
+        "ATTAINS.assessmentunitidentifier"
       )
       
       ref.names <- names(spatialRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with seven columns:
+        stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
-        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier, MonitoringLocationTypeName")
+        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
       }
     }
   }
@@ -118,8 +117,9 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   spatialRef <- spatialRef %>% 
     dplyr::left_join(
       .data[,c(
-        "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-        "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"
+        "TADA.CharacteristicName",
+        "TADA.ResultSampleFractionText", 
+        "TADA.MethodSpeciationName"
         )] %>%
       dplyr::distinct(), 
       by ="TADA.ComparableDataIdentifier"
@@ -128,10 +128,10 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
   metal_list <- data.frame(
-    ATTAINS.ParameterName = c("ARSENIC", "ZINC")
+    ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
   ) %>%
-    cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 2)) %>%
-    cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 2)) %>%
+    cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
+    cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
     dplyr::arrange(ATTAINS.ParameterName)
   
   # Creates the DefineCriteriaMethodology table from the spatialRef.
@@ -146,17 +146,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
-      ATTAINS.WaterType
+      as.character(ATTAINS.WaterType)
     )) %>%
     dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
-      SaltFresh
+      as.character(SaltFresh)
     )) %>%
     dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
-      TADA.DepthCategory.Flag
+      as.character(TADA.DepthCategory.Flag)
     )) %>%
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
     dplyr::bind_cols(
