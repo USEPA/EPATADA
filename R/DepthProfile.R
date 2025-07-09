@@ -208,10 +208,9 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       ) %>%
       dplyr::select(-ARD_Category, -DepthsPerGroup)
   }
-  
+
   if (depth.count == 0) {
-    print(paste0("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available. ",
-                "TADA.DepthCategory.Flag and TADA.ConsolidatedDepth columns filled with NA have been added."))
+    print("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available. TADA.DepthCategory.Flag and TADA.ConsolidatedDepth columns filled with NA have been added.")
 
     .data <- .data %>%
       dplyr::mutate(TADA.DepthCategory.Flag = as.character(NA),
@@ -220,7 +219,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
     return(.data)
   }
-  
+
 
   if (clean == TRUE) {
     .data <- .data %>%
