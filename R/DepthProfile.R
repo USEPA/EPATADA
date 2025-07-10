@@ -210,8 +210,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
 
   }
   if (depth.count == 0) {
-    print(paste0("TADA_FlagDepthCategory: checking data set for depth values. No results have depth values available. ",
-                 "TADA.DepthCategory.Flag and TADA.ConsolidatedDepth columns filled with NA have been added."))
+    print("TADA_FlagDepthCategory: No depth information was found in the dataset. The columns TADA.DepthCategory.Flag and TADA.ConsolidatedDepth are being added and populated with NA values.")
     
     .data <- .data %>%
       dplyr::mutate(TADA.DepthCategory.Flag = as.character(NA),
