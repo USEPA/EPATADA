@@ -412,7 +412,6 @@ geospatial
 geospatially
 getFeatureLayer
 getLayer
-getNWIS
 getPopup
 getenv
 ggplot
@@ -495,7 +494,6 @@ un
 uncategorized
 uncomment
 uncommenting
-uri
 useR
 usepa
 usgs

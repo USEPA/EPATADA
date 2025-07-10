@@ -461,8 +461,10 @@ TADA_AutoFilter <- function(.data) {
 
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
-    print(paste0("The following column(s) were removed as they contained only NAs ",
-                 "and are not required for the TADA workflow: ", remove.paste, "."))
+    print(paste0(
+      "The following column(s) were removed as they contained only NAs ",
+      "and are not required for the TADA workflow: ", remove.paste, "."
+    ))
   } else {
     print("All columns contained some non-NA values and were retained in the dataframe.")
   }
@@ -472,8 +474,10 @@ TADA_AutoFilter <- function(.data) {
 
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
-    print(paste0("TADA_AutoFilter: TADA Required column(s) ", req.paste,
-                 " contain only NA values. This may impact other TADA functions."))
+    print(paste0(
+      "TADA_AutoFilter: TADA Required column(s) ", req.paste,
+      " contain only NA values. This may impact other TADA functions."
+    ))
   } else {
     print("TADA_AutoFilter: All TADA Required columns contain some non-NA values.")
   }

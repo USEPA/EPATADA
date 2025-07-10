@@ -213,8 +213,10 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
     print("TADA_FlagDepthCategory: No depth information was found in the dataset. The columns TADA.DepthCategory.Flag and TADA.ConsolidatedDepth are being added and populated with NA values.")
 
     .data <- .data %>%
-      dplyr::mutate(TADA.DepthCategory.Flag = as.character(NA),
-                    TADA.ConsolidatedDepth = as.numeric(NA)) %>%
+      dplyr::mutate(
+        TADA.DepthCategory.Flag = as.character(NA),
+        TADA.ConsolidatedDepth = as.numeric(NA)
+      ) %>%
       TADA_OrderCols()
 
     return(.data)
