@@ -121,7 +121,9 @@ utils::globalVariables(c(
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
-  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", "nearby", "rainbow"
+  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", 
+  "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
+  "monitoringLocationDataLink"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -196,12 +198,19 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' converted to an average of the two numbers. Result values
 #' containing any other text or non-numeric characters become NA in
 #' the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
-#' NAME DataTypes.Flag".
+#' NAME DataTypes.Flag". When clean = TRUE, rows that cannot be converted to
+#' numeric are removed. When clean = FALSE, no rows are removed. Default is
+#' clean = FALSE. When flaggedonly = TRUE, data frame is filtered to show only
+#' rows with non-numeric result values. Default is flaggedonly = FALSE.
 #'
 #'
 #' @param .data A TADA profile object
 #' @param col A character column to be converted to numeric
-#'
+#' @param clean Boolean argument; removes non-numeric result values from the
+#' data frame when clean = TRUE. Default is clean = FALSE.
+#' @param flaggedonly Boolean argument; filters dataframe to show only
+#' non-numeric result values when flaggedonly = TRUE. Default is flaggedonly
+#' = FALSE.
 #' @param percent.ave Boolean argument; default is percent.ave = TRUE. When
 #' clean = TRUE, any percent range values will be averaged. When
 #' percent.ave = FALSE, percent range values are not averaged, but are flagged.
@@ -229,9 +238,15 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   )
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
+TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
+                                     clean = FALSE, flaggedonly = FALSE) {
   if (!col %in% names(.data)) {
     stop("Suspect column name specified for input dataset.")
+  }
+
+  # check that clean and flaggedonly are not both TRUE
+  if (clean == TRUE & flaggedonly == TRUE) {
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # Define new column names
@@ -353,7 +368,23 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE) {
 
   clean.data <- TADA_OrderCols(clean.data)
 
-  return(clean.data)
+  if (flaggedonly == FALSE) {
+    if (clean == TRUE) {
+      clean.data <- clean.data %>%
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text"))
+
+      return(clean.data)
+    }
+
+    if (clean == FALSE) {
+      return(clean.data)
+    }
+  }
+
+  if (flaggedonly == TRUE) {
+    clean.data <- clean.data %>%
+      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text"))
+  }
 }
 
 #' Substitute Preferred Characteristic Name for Deprecated Names

@@ -28,7 +28,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
 
       WQXCharRef$CharacteristicName <- toupper(WQXCharRef$CharacteristicName)
 
-      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
+      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$rExpertQuery..EQ_DomainValues..param_name......name..)
 
       ## Add manual additional TADA.ComparableDataIdentifier and ATTAINS Parameter alias
       others <- data.frame(
@@ -63,7 +63,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
       )
       
       attainsWQXRef <- WQXCharRef %>%
-        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
+        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "rExpertQuery..EQ_DomainValues..param_name......name..")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
         dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) %>%
         dplyr::distinct()

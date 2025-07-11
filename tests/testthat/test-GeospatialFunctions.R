@@ -1,7 +1,6 @@
 # Testing the Geospatial Functions ----
 # Tests for the functions in GeoSpatialFunctions.R using sample data
 
-
 TADA_dataframe <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_dataframe.rds"))
 TADA_spatial <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_spatial.rds"))
 TADA_with_ATTAINS <- readRDS(testthat::test_path("testdata/GeospatialFunctions_TADA_with_ATTAINS.rds"))
