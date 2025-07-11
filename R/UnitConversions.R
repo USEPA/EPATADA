@@ -311,7 +311,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # check transform is boolean
   TADA_CheckType(transform, "logical")
 
-   # check .data has all of the required columns
+  # check .data has all of the required columns
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
@@ -420,7 +420,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # helper functions
   # join unit. ref to data
   joinUnitRef <- function(.data, ref) {
-
     # list of conversion columns
     conversion.cols <- c(
       "TADA.SpeciationUnitConversion",
@@ -443,17 +442,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::select(-tidyselect::any_of(c(conversion.cols))) %>%
       # add new conversion columns
       dplyr::left_join(ref,
-                       by =
-                         c(
-                           ref.join
-                         ),
-                       relationship = "many-to-many"
+        by =
+          c(
+            ref.join
+          ),
+        relationship = "many-to-many"
       )
-
   }
 
   # add TADA.WQXResultUnitConversion flag column
-  addConversionCol <- function(.data){
+  addConversionCol <- function(.data) {
     .data <- .data %>%
       dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
         (!is.na(TADA.ResultMeasureValue) & !is.na(TADA.Target.ResultMeasure.MeasureUnitCode)) ~ as.character("Convert"),
@@ -463,16 +461,17 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
   # helper function to create usgs unit ref from main unit ref
-  createUSGSUnitRef <- function(.data, ref, spec){
-
+  createUSGSUnitRef <- function(.data, ref, spec) {
     meth.spec.usgs <- .data %>%
-      dplyr::select(ResultMeasure.MeasureUnitCode,
-                    TADA.MethodSpeciationName) %>%
+      dplyr::select(
+        ResultMeasure.MeasureUnitCode,
+        TADA.MethodSpeciationName
+      ) %>%
       dplyr::distinct()
 
     unit.ref.usgs <- ref %>%
       dplyr::filter(ResultMeasure.MeasureUnitCode %in%
-                      usgs.spec$ResultMeasure.MeasureUnitCode) %>%
+        usgs.spec$ResultMeasure.MeasureUnitCode) %>%
       dplyr::left_join(spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
       dplyr::left_join(meth.spec.usgs, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
       dplyr::distinct()
@@ -507,9 +506,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::distinct()
 
     # create usgs specific ref if any results have method speciation in result units
-    if(length(usgs.results) > 0) {
-    unit.ref.usgs <- createUSGSUnitRef(usgs.results, ref = unit.ref,
-                                       spec = usgs.spec)
+    if (length(usgs.results) > 0) {
+      unit.ref.usgs <- createUSGSUnitRef(usgs.results,
+        ref = unit.ref,
+        spec = usgs.spec
+      )
     }
 
     # create message to inform users if user-supplied unit reference contains all combinations present in TADA dataframe
@@ -561,9 +562,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       unit.ref <- unit.ref %>%
         dplyr::distinct()
 
-      if(length(usgs.results) > 0) {
-      unit.ref.usgs <- createUSGSUnitRef(usgs.results, ref = unit.ref,
-                                         spec = usgs.spec)}
+      if (length(usgs.results) > 0) {
+        unit.ref.usgs <- createUSGSUnitRef(usgs.results,
+          ref = unit.ref,
+          spec = usgs.spec
+        )
+      }
     }
 
 
@@ -599,9 +603,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::select(-MeasureUnitCode.match) %>%
         dplyr::distinct()
 
-      if(length(usgs.results) > 0) {
-      unit.ref.usgs <- createUSGSUnitRef(usgs.results, ref = unit.ref,
-                                         spec = usgs.spec)
+      if (length(usgs.results) > 0) {
+        unit.ref.usgs <- createUSGSUnitRef(usgs.results,
+          ref = unit.ref,
+          spec = usgs.spec
+        )
       }
 
       rm(wqx.ref)
@@ -609,13 +615,17 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
 
-
   # join unit.ref for data without speciation in units
+  if(length(other.results) > 0) {
   other.data <- joinUnitRef(other.results, ref = unit.ref)
 
   # add TADA.WQXResultUnitConversion flag column for data without speciation in units
   other.data <- addConversionCol(other.data)
 
+  rm(other.results)
+  }
+
+  if(length(usgs.results) > 0) {
   # join unit.ref for usgs data with speciation in units
   usgs.data <- joinUnitRef(usgs.results, ref = unit.ref.usgs)
 
@@ -623,13 +633,31 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   usgs.data <- addConversionCol(usgs.data)
 
   # add target method speciation name when needed
-  clean.usgs.data <- usgs.data %>%
+  usgs.data <- usgs.data %>%
     dplyr::mutate(
       TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
       # replace UNKNOWN or NONE method speciation name with NA
       TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
     )
 
+  rm(usgs.results)
+  }
+
+  # create clean data set by combining or assigning df
+  if(exists("usgs.data") & exists("other.data") == TRUE) {
+    clean.data <- other.data %>%
+      dplyr::full_join(usgs.data, by = colnames(other.data))
+
+    rm(other.data, usgs.data)
+  }
+
+  if(exists("usgs.data") == TRUE & exists("other.data") == FALSE) {
+    clean.data <- usgs.data
+  }
+
+  if(exists("usgs.data") == FALSE & exists("other.data") == TRUE) {
+    clean.data <- other.data
+  }
 
   if (transform == FALSE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
@@ -643,6 +671,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     return(clean.data)
   }
+# finished working here on 7/11/2025
 
   if (transform == TRUE) {
     # Transform result measure value to Target Unit only if target unit exists
