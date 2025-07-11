@@ -6,18 +6,28 @@
 \usage{
 TADA_CreateUseAURef(
   .data,
-  sitesAURef = NULL,
-  useAURef = NULL,
   org_id = NULL,
+  sitesAURef = NULL,
+  waterUseRef = NULL,
+  useAURef = NULL,
   excel = FALSE,
-  overwrite = FALSE,
-  assign_all = FALSE
+  overwrite = FALSE
 )
 }
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
 processing, harmonization, filtering, and handling of censored data functions
 prior to running this function.}
+
+\item{org_id}{The ATTAINS organization identifier must be supplied by the
+user. A list of organization identifiers can be found by downloading
+the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+organization identifiers are listed in the "OrgName" tab.
+The "code" column contains the organization identifiers that
+should be used for this param. If a user does not provide an org_id argument,
+the function attempts to identify which organization identifier(s) to include
+based on the unique ATTAINS organization identifiers found in the dataframe.}
 
 \item{sitesAURef}{An option data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
@@ -29,16 +39,6 @@ See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_Ge
 should contain a completed crosswalk of use names associated with an assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
-
-\item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. A list of organization identifiers can be found by downloading
-the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-organization identifiers are listed in the "OrgName" tab.
-The "code" column contains the organization identifiers that
-should be used for this param. If a user does not provide an org_id argument,
-the function attempts to identify which organization identifier(s) to include
-based on the unique ATTAINS organization identifiers found in the dataframe.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.

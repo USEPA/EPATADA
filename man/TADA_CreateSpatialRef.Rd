@@ -7,10 +7,9 @@
 TADA_CreateSpatialRef(
   .data,
   org_id = NULL,
-  waterUseParamRef = NULL,
-  useAURef = NULL,
   useParamRef = NULL,
   sitesAURef = NULL,
+  useAURef = NULL,
   spatialRef = NULL,
   excel = FALSE,
   overwrite = FALSE
@@ -31,17 +30,6 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{waterUseParamRef}{An option data frame input. If provided, this data frame
-should contain a completed crosswalk of any unique spatial criteria applied to
-a water body, use, or parameter and by any combinations if needed. Users will
-need to ensure this crosswalk contains the appropriate column names in order to
-run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
-
-\item{useAURef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with an assessment unit.
-Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
-
 \item{useParamRef}{A required data frame which contains a completed crosswalk of
 organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
 Users will need to ensure this crosswalk contains the appropriate column
@@ -53,6 +41,11 @@ should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
 See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
+
+\item{useAURef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with an assessment unit.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function. See output of \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}} for column names.}
 
 \item{spatialRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
@@ -68,6 +61,12 @@ the cells in which users should input information.}
 \item{overwrite}{A Boolean value that ensures the function will not overwrite
 the user supplied crosswalk entered into this function via the paramRef
 function input. This helps prevent users from overwriting their progress.}
+
+\item{waterUseParamRef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of any unique spatial criteria applied to
+a water body, use, or parameter and by any combinations if needed. Users will
+need to ensure this crosswalk contains the appropriate column names in order to
+run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
 }
 \value{
 A data frame with any unique spatial descriptions defined for

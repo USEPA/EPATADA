@@ -114,17 +114,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   spatialRef$ATTAINS.WaterType <- as.character(spatialRef$ATTAINS.WaterType)
   spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
   # Extracts the characteristic, speciation and fraction columns to join
-  spatialRef <- spatialRef %>% 
-    dplyr::left_join(
-      .data[,c(
-        "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName",
-        "TADA.ResultSampleFractionText", 
-        "TADA.MethodSpeciationName"
-        )] %>%
-      dplyr::distinct(), 
-      by ="TADA.ComparableDataIdentifier"
-      )
+  # spatialRef <- spatialRef %>% 
+  #   dplyr::left_join(
+  #     .data[,c(
+  #       "TADA.ComparableDataIdentifier",
+  #       "TADA.CharacteristicName",
+  #       "TADA.ResultSampleFractionText", 
+  #       "TADA.MethodSpeciationName"
+  #       )] %>%
+  #     dplyr::distinct(), 
+  #     by ="TADA.ComparableDataIdentifier"
+  #     )
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
@@ -139,22 +139,21 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   DefineCriteriaMethodology <- spatialRef %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
+      "TADA.ComparableDataIdentifier",
       "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.WaterType"
     ) %>%
     # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
-    dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
+    dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
       as.character(ATTAINS.WaterType)
     )) %>%
-    dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
+    dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
       as.character(SaltFresh)
     )) %>%
-    dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied for
+    dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
       is.na(ApplyUniqueSpatialCriteria),
       as.character(NA),
       as.character(TADA.DepthCategory.Flag)
@@ -162,7 +161,8 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
-        AcuteChronic = as.character(NA),
+        TADA.CharacteristicName = as.character(NA), TADA.ResultSampleFractionText = as.character(NA), 
+        TADA.MethodSpeciationName = as.character(NA), AcuteChronic = as.character(NA),
         # Criteria Columns
         EquationBased = as.character(NA),
         MagnitudeValueLower = as.numeric(NA), MagnitudeValueUpper = as.numeric(NA), MagnitudeUnit = as.character(NA),
@@ -180,10 +180,10 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::distinct() %>%
+    tidyr::drop_na(ATTAINS.ParameterName) %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
       # Criteria Columns
@@ -197,6 +197,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       
     )
   
+  # Handling of auto populating EPA304a Criteria in the future if desired.
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
     dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
     dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
@@ -233,32 +234,20 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       dplyr::distinct() %>%
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
   }
-  #
-  # paramRef$ATTAINS.ParameterName <- as.character(paramRef$ATTAINS.ParameterName)
-  # # Pulls in all the units that are found in TADA.ResultMeasure.MeasureUnitCode as unique allowable unit column
-  # MagnitudeValue <- paramRef %>%
-  #   dplyr::left_join(
-  #     (dplyr::select(.data, "TADA.ComparableDataIdentifier", "TADA.ResultMeasure.MeasureUnitCode") %>%
-  #       dplyr::distinct() %>%
-  #       tidyr::drop_na(TADA.ResultMeasure.MeasureUnitCode)
-  #     ),
-  #     by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many"
-  #   ) %>%
-  #   dplyr::select(ATTAINS.ParameterName, TADA.ResultMeasure.MeasureUnitCode) %>%
-  #   dplyr::distinct() %>%
-  #   dplyr::right_join(DefineCriteriaMethodology, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-  #   dplyr::select(TADA.ResultMeasure.MeasureUnitCode) %>%
-  #   dplyr::rename(MagnitudeUnit = TADA.ResultMeasure.MeasureUnitCode)
   
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+        openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       },
       error = function(e) {
         openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
         openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
+        
+        openxlsx::removeWorksheet(wb, "Index-Criteria")
+        openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       }
     )
     
@@ -274,8 +263,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     
     columns <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.ComparableDataIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
       # Criteria Columns
@@ -291,26 +279,22 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     # Format Column widths
-    openxlsx::setColWidths(wb, "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), widths = "auto")
+    openxlsx::setColWidths(wb, sheet = "DefineCriteriaMethodology", cols = 1:ncol(DefineCriteriaMethodology), widths = "auto")
     openxlsx::setColWidths(wb, sheet = "DefineCriteriaMethodology", cols = 1:5, widths = 20)
     
     # Export DefineCriteriaMethodology dataframe into the excel spreadsheet tab
     openxlsx::writeData(wb, "DefineCriteriaMethodology", startCol = 1, x = DefineCriteriaMethodology, headerStyle = header_st)
     
-    # Creates the Index List of allowable values under each column
-    
-    # openxlsx::writeData(
-    #   wb, "Index", 
-    #   startCol = 7, startRow = 1, 
-    #   x = .data[,c(
-    #     "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-    #     "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"
-    #   )] %>%
-    #     dplyr::distinct()
-    # )
+    # Creates the Index-Criteria List of allowable values under each column
+    openxlsx::writeData(
+      wb, "Index-Criteria", 
+      startCol = 7, startRow = 1, 
+      # AcuteChronic
+      x = unique(.data[,c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
+    ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 10, startRow = 1, 
       # AcuteChronic
       x = data.frame(
@@ -319,7 +303,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 11, startRow = 1, 
       # ATTAINS.WaterType
       x = data.frame( 
@@ -328,7 +312,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 12, startRow = 1, 
       # SaltFresh
       x = data.frame(
@@ -337,7 +321,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 13, startRow = 1, 
       x = data.frame(
         TADA.DepthCategory.Flag = c("No depth info", "Epilimnion-surface", "Surface", "Bottom", "Middle")
@@ -345,7 +329,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     )
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 14, startRow = 1, 
       # ApplyUniqueSpatialCriteria
       x = data.frame(
@@ -354,7 +338,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 15, startRow = 1, 
       # EquationBased
       x = data.frame(
@@ -363,7 +347,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 18, startRow = 1, 
       # MagnitudeUnit
       x = data.frame(
@@ -372,7 +356,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 20, startRow = 1, 
       # DurationUnit
       x = data.frame(
@@ -381,7 +365,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     ) 
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 21, startRow = 1, 
       # DurationAggregation
       x = data.frame(
@@ -394,7 +378,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     ) 
 
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 23, startRow = 1, 
       # FrequencyCriteriaMethod
       x = data.frame(
@@ -407,7 +391,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     )     
         
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 24, startRow = 1, 
       x = data.frame(
         DataSufficiency.AssessPeriod = c("Last 30 years", "Last 10 years", "Last 5 years", "Last 3 years", "Last year", "NA")
@@ -415,7 +399,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       )
         
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 27, startRow = 1, 
       x = data.frame(
         DataSufficiency.Season = c("Summer", "Fall", "Spring", "Winter", "NA")
@@ -423,41 +407,45 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     )
     
     openxlsx::writeData(
-      wb, "Index", 
+      wb, "Index-Criteria", 
       startCol = 31, startRow = 1, 
       x = data.frame(
         DataSufficiency.SamplingDistribution = c("Seasonal", "Annual", "Semi-Annual", "Quarterly", "Monthly", "Bi-weekly", "Weekly", "10 days", "NA")
       )
     )
     
-    # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index-Criteria] tab
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$G$2:$G$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 19, rows = 2:1000, type = "list", value = sprintf("'Index'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = sprintf("'Index'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 22, rows = 2:1000, type = "list", value = sprintf("'Index'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 25, rows = 2:1000, type = "list", value = sprintf("'Index'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 20, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 28, rows = 2:1000, type = "list", value = sprintf("'Index'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 24, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 27, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 8:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:29, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 8:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 5:29, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
     
@@ -465,7 +453,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     openxlsx::groupColumns(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 22:30,
+      cols = 21:29,
       hidden = FALSE, 
       level = -1
       )
