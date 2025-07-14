@@ -704,6 +704,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data)
 
+    rm(usgs.data, other.data)
+
     # Transform result measure value to Target Unit only if target unit exists
     clean.data <- clean.data %>%
       # apply conversions where there is a target unit, use original value if no target unit
@@ -751,6 +753,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ ((TADA.DetectionQuantitationLimitMeasure.MeasureValue + TADA.WQXUnitConversionCoefficient) * TADA.WQXUnitConversionFactor),
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
+
     rm(clean.data)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
@@ -763,8 +766,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # Remove unneccessary conversion columns
       dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
       # update ID and column ordering
-      convert.data() <- TADA_CreateComparableID(convert.data)
-    convert.data <- TADA_OrderCols(convert.data)
+     TADA_CreateComparableID() %>%
+     TADA_OrderCols()
 
     return(convert.data)
   }
