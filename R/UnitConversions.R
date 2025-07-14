@@ -684,7 +684,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
 
   if (transform == TRUE) {
-    if (exists(usgs.data)) {
+    if (exists("usgs.data")) {
       print(paste0("NOTE: Dataset contains ", dim(usgs.data)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
