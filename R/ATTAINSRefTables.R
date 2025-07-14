@@ -28,10 +28,10 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
 
       WQXCharRef$CharacteristicName <- toupper(WQXCharRef$CharacteristicName)
 
-      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
+      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$rExpertQuery..EQ_DomainValues..param_name......name..)
 
       attainsWQXRef <- WQXCharRef %>%
-        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
+        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "rExpertQuery..EQ_DomainValues..param_name......name..")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
         # Hard code bind E.coli as we know this is a match
         dplyr::bind_rows(c(CharacteristicName = "ESCHERICHIA COLI", Char_Flag = "Accepted", ATTAINS.ParameterName = "ESCHERICHIA COLI (E. COLI)")) %>%

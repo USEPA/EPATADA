@@ -126,6 +126,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' @seealso [TADA_MakeSpatial()]
 #' @seealso [TADA_DataRetrieval()]
+#' 
+#' @export
 #'
 #' @examples
 #' \dontrun{
@@ -137,7 +139,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
-#'
+#' 
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 fetchATTAINS <- function(.data, catchments_only = FALSE) {
