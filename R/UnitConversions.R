@@ -419,7 +419,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # helper functions
   # join unit. ref to data
-  joinUnitRef <- function(.data, ref) {
+  joinUnitRef <- function(.data, ref, spec = FALSE) {
     # list of conversion columns
     conversion.cols <- c(
       "TADA.SpeciationUnitConversion",
@@ -431,12 +431,15 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     ref.join <- c(
       "TADA.CharacteristicName",
       "ResultMeasure.MeasureUnitCode",
-      "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.MethodSpeciationName"
+      "TADA.ResultMeasure.MeasureUnitCode"
     )
 
+    # add method speciation to ref join if needed
+    if (spec == TRUE) {
+      ref.join <- append(ref.join, "TADA.MethodSpeciationName")
+    }
 
-
+    # join unit ref to data
     .data <- .data %>%
       # remove existing conversion columns
       dplyr::select(-tidyselect::any_of(c(conversion.cols))) %>%
@@ -617,7 +620,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # join unit.ref for data without speciation in units
   if(length(other.results) > 0) {
-  other.data <- joinUnitRef(other.results, ref = unit.ref)
+  other.data <- joinUnitRef(other.results, ref = unit.ref, spec = FALSE)
 
   # add TADA.WQXResultUnitConversion flag column for data without speciation in units
   other.data <- addConversionCol(other.data)
@@ -627,7 +630,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   if(length(usgs.results) > 0) {
   # join unit.ref for usgs data with speciation in units
-  usgs.data <- joinUnitRef(usgs.results, ref = unit.ref.usgs)
+  usgs.data <- joinUnitRef(usgs.results, ref = unit.ref.usgs, spec = TRUE)
 
   # add TADA.WQXResultUnitConversion flag column for data without speciation in units
   usgs.data <- addConversionCol(usgs.data)
