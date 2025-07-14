@@ -646,24 +646,32 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   rm(usgs.results)
   }
 
+  # helper function to combine usgs and other data
+  joinUSGSOther <- function(usgs.data = NULL, other.data = NULL) {
+
   # create clean data set by combining or assigning df
-  if(exists("usgs.data") & exists("other.data") == TRUE) {
+  if(!is.null(usgs.data) & !is.null(other.data) == TRUE) {
     clean.data <- other.data %>%
       dplyr::full_join(usgs.data, by = colnames(other.data))
 
     rm(other.data, usgs.data)
   }
 
-  if(exists("usgs.data") == TRUE & exists("other.data") == FALSE) {
+  if(!is.null(usgs.data) == TRUE & !is.null(other.data) == FALSE) {
     clean.data <- usgs.data
   }
 
-  if(exists("usgs.data") == FALSE & exists("other.data") == TRUE) {
+  if(!is.null(usgs.data) == FALSE & !is.null(other.data) == TRUE) {
     clean.data <- other.data
+  }
   }
 
   if (transform == FALSE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
+
+    # join usgs and other data
+    clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data)
+
     # reorder columns
     clean.data <- TADA_OrderCols(flag.data) %>%
       TADA_CreateComparableID()
@@ -674,6 +682,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     return(clean.data)
   }
+
 # finished working here on 7/11/2025
 
   if (transform == TRUE) {
