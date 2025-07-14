@@ -659,10 +659,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   if(!is.null(usgs.data) == TRUE & !is.null(other.data) == FALSE) {
     clean.data <- usgs.data
+
+    rm(usgs.data)
   }
 
   if(!is.null(usgs.data) == FALSE & !is.null(other.data) == TRUE) {
     clean.data <- other.data
+
+    rm(clean.data)
   }
   }
 
@@ -670,15 +674,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
 
     # join usgs and other data
-    clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data)
-
+    clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data) %>%
     # reorder columns
-    clean.data <- TADA_OrderCols(flag.data) %>%
+      TADA_OrderCols(flag.data) %>%
+    # update col order
       TADA_CreateComparableID()
-
-    # Update ID and column ordering
-    clean.data <- TADA_CreateComparableID(clean.data)
-    clean.data <- TADA_OrderCols(clean.data)
 
     return(clean.data)
   }
