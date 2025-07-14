@@ -739,7 +739,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to target value only if target unit exists
     det.data <- clean.data %>%
-      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
+      dplyr::select(-tidyselect::any_of(c(
+        "TADA.SpeciationUnitConversion", "TADA.WQXUnitConversionFactor",
+        "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+        "TADA.Target.ResultMeasure.MeasureUnitCode"
+      ))) %>%
       dplyr::left_join(det.ref, by = det.join) %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
