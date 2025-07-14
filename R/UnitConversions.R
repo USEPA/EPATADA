@@ -383,6 +383,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   TADA_CheckColumns(.data, expected_cols)
 
+  # list of conversion columns
+  conversion.cols <- c(
+    "TADA.SpeciationUnitConversion",
+    "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
+    "TADA.Target.MethodSpeciationName", "TADA.Target.ResultMeasure.MeasureUnitCode"
+  )
+
   # execute function after checks are passed
 
   # import USGS ref for method speciation
@@ -419,13 +426,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # helper functions
   # join unit. ref to data
-  joinUnitRef <- function(.data, ref, spec = FALSE) {
-    # list of conversion columns
-    conversion.cols <- c(
-      "TADA.SpeciationUnitConversion",
-      "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
-      "TADA.Target.MethodSpeciationName", "TADA.Target.ResultMeasure.MeasureUnitCode"
-    )
+  joinUnitRef <- function(.data, ref, convert.col = conversion.cols, spec = FALSE) {
 
     # ref join
     ref.join <- c(
@@ -617,7 +618,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
 
-
   # join unit.ref for data without speciation in units
   if (exists("other.results")) {
     other.data <- joinUnitRef(other.results, ref = unit.ref, spec = FALSE)
@@ -640,7 +640,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::mutate(
         TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
         # replace UNKNOWN or NONE method speciation name with NA
-        TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
+        TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName),
+        TADA.MethodSpeciationName = as.character(TADA.MethodSpeciationName)
       )
 
     rm(usgs.results)
@@ -675,6 +676,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
 
+  # helper function to set other.results or usgs.results as null if not included in df
+  setNull <- function(dfname) {
+
+    if(exists("other.data")) {
+     df.name <- NULL
+    }
+
+    return(df.name)
+  }
+
   if (transform == FALSE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
 
@@ -690,7 +701,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
 
   if (transform == TRUE) {
-    if (exists("usgs.data")) {
+    if (dim(usgs.data)[1] > 0) {
       print(paste0("NOTE: Dataset contains ", dim(usgs.data)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
     }
 
@@ -741,11 +752,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # Transform TADA.DetectionQuantitationLimitMeasure.MeasureValue value to target value only if target unit exists
     det.data <- clean.data %>%
-      dplyr::select(-tidyselect::any_of(c(
-        "TADA.SpeciationUnitConversion", "TADA.WQXUnitConversionFactor",
-        "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
-        "TADA.Target.ResultMeasure.MeasureUnitCode"
-      ))) %>%
+      dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
       dplyr::left_join(det.ref, by = det.join) %>%
       # apply conversions where there is a target unit, use original value if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureValue = dplyr::case_when(
