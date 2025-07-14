@@ -653,19 +653,25 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       clean.data <- other.data %>%
         dplyr::full_join(usgs.data, by = colnames(other.data))
 
-      #rm(other.data, usgs.data)
+      rm(other.data, usgs.data)
+
+      return(clean.data)
     }
 
     if (!is.null(usgs.data) == TRUE & !is.null(other.data) == FALSE) {
       clean.data <- usgs.data
 
       rm(usgs.data)
+
+      return(clean.data)
     }
 
     if (!is.null(usgs.data) == FALSE & !is.null(other.data) == TRUE) {
       clean.data <- other.data
 
       rm(clean.data)
+
+      return(clean.data)
     }
   }
 
