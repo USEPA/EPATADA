@@ -420,6 +420,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   usgs.results <- .data %>%
     dplyr::filter(ResultMeasure.MeasureUnitCode %in% usgs.spec$ResultMeasure.MeasureUnitCode)
 
+  if(dim(usgs.results)[1] == 0) {
+    # remove intermediate objects
+    rm(usgs.ref, usgs.spec, usgs.unit)
+  }
+
   # create df of all results without method speciation in units
   other.results <- .data %>%
     dplyr::anti_join(usgs.results, by = colnames(.data))
@@ -639,7 +644,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # set other.results to NULL if no results
   if (dim(other.results)[1] == 0) {
-    other.data <- setNull(df.name = "other.results")
+    other.data <- setNull(other.results)
   }
 
   if (dim(usgs.results)[1] > 0) {
@@ -661,7 +666,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # set other.results to NULL if no results
   if (dim(usgs.results)[1] == 0) {
-    usgs.data <- setNull(df.name = "usgs.results")
+    usgs.data <- setNull(usgs.results)
   }
 
   # remove intermediat objects
