@@ -197,10 +197,7 @@ Additional resources:
     the console: ?TADA_DataRetrieval
 
 -   [Introduction to the dataRetrieval
-    package](https://CRAN.R-project.org/package=dataRetrieval)
-
--   [General Data Import from Water Quality
-    Portal](https://rdrr.io/cran/dataRetrieval/man/readWQPdata.html)
+    package](https://doi-usgs.github.io/dataRetrieval/)
 
 -   [Water Quality Portal Web Services
     Guide](https://www.waterqualitydata.us/webservices_documentation/)
