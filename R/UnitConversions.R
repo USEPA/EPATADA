@@ -424,8 +424,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   other.results <- .data %>%
     dplyr::anti_join(usgs.results, by = colnames(.data))
 
-  # helper functions
-  # join unit. ref to data
+  # internal functions
+  # internal function to join unit.ref to data
   joinUnitRef <- function(.data, ref, convert.col = conversion.cols, spec = FALSE) {
 
     # ref join
@@ -454,7 +454,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       )
   }
 
-  # add TADA.WQXResultUnitConversion flag column
+  # internal function add TADA.WQXResultUnitConversion flag column
   addConversionCol <- function(.data) {
     .data <- .data %>%
       dplyr::mutate(TADA.WQXResultUnitConversion = dplyr::case_when(
@@ -464,7 +464,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       ))
   }
 
-  # helper function to create usgs unit ref from main unit ref
+  # internal function to create usgs unit ref from main unit ref if needed
   if(dim(usgs.results)[1] > 0){
 
   createUSGSUnitRef <- function(.data, ref, spec) {
@@ -558,7 +558,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
 
-
   # if user did not provide a dataframe
   if (!is.data.frame(ref)) {
     # if no unit reference df was provided by user or user input was "tada"
@@ -620,7 +619,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
 
-  # helper function to set other.results or usgs.results as null if not included in df
+  # internal function to set other.results or usgs.results as null if not included in df
   setNull <- function(df.name) {
 
     if(!exists(paste0(df.name))) {
@@ -636,18 +635,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     # add TADA.WQXResultUnitConversion flag column for data without speciation in units
     other.data <- addConversionCol(other.data)
-
-    rm(other.results)
   }
 
   # set other.results to NULL if no results
-  if (dim(other.results)[1] > 0) {
-    other.data <- setNull("other.results")
-
-    rm(other.results)
+  if (dim(other.results)[1] == 0) {
+    other.data <- setNull(df.name = "other.results")
   }
 
-  if (dim(usgs.results)[1]) {
+  if (dim(usgs.results)[1] > 0) {
     # join unit.ref for usgs data with speciation in units
     usgs.data <- joinUnitRef(usgs.results, ref = unit.ref.usgs, spec = TRUE)
 
@@ -662,18 +657,17 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName),
         TADA.MethodSpeciationName = as.character(TADA.MethodSpeciationName)
       )
-
-    rm(usgs.results)
   }
 
   # set other.results to NULL if no results
-  if (dim(usgs.results)[1] > 0) {
-    usgs.data <- setNull("usgs.results")
-
-    rm(usgs.results)
+  if (dim(usgs.results)[1] == 0) {
+    usgs.data <- setNull(df.name = "usgs.results")
   }
 
-  # helper function to combine usgs and other data
+  # remove intermediat objects
+  rm(usgs.results, other.results)
+
+  # internal function to combine usgs and other data
   joinUSGSOther <- function(usgs.data = NULL, other.data = NULL) {
     # create clean data set by combining or assigning df
     if (!is.null(usgs.data) & !is.null(other.data) == TRUE) {
