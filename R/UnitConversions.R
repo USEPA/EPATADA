@@ -968,9 +968,6 @@ TADA_ConvertDepthUnits <- function(.data,
     )) %>%
     dplyr::filter(Target.Unit == unit)
 
-
-
-
   # Loop over all supplied depth columns, create TADA columns, then join conversion table
   for (i in 1:length(valid_fields)) {
     field <- valid_fields[i]
