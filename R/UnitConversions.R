@@ -770,8 +770,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.DetectionQuantitationLimitMeasure.MeasureValue
       ))
 
-    rm(clean.data)
-
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
     final.data <- det.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
@@ -785,7 +783,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
      TADA_CreateComparableID() %>%
      TADA_OrderCols()
 
-    rm(convert.data, det.data, det.ref)
+    rm(clean.data, det.data, det.ref)
   }
   # remove intermediate objects
   rm(unit.ref, unit.ref.usgs, usgs.spec, usgs.unit)
