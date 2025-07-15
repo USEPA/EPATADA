@@ -465,6 +465,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
   # helper function to create usgs unit ref from main unit ref
+  if(dim(usgs.results)[1] > 0){
+
   createUSGSUnitRef <- function(.data, ref, spec) {
     meth.spec.usgs <- .data %>%
       dplyr::select(
@@ -484,7 +486,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     return(unit.ref.usgs)
   }
-
+}
 
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
@@ -566,7 +568,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       unit.ref <- unit.ref %>%
         dplyr::distinct()
 
-      if (length(usgs.results) > 0) {
+      if (dim(usgs.results)[1] > 0) {
         unit.ref.usgs <- createUSGSUnitRef(usgs.results,
           ref = unit.ref,
           spec = usgs.spec
@@ -618,8 +620,18 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
 
+  # helper function to set other.results or usgs.results as null if not included in df
+  setNull <- function(df.name) {
+
+    if(!exists(paste0(df.name))) {
+      df.name <- NULL
+    }
+
+    return(df.name)
+  }
+
   # join unit.ref for data without speciation in units
-  if (exists("other.results")) {
+  if (dim(other.results)[1] > 0) {
     other.data <- joinUnitRef(other.results, ref = unit.ref, spec = FALSE)
 
     # add TADA.WQXResultUnitConversion flag column for data without speciation in units
@@ -628,7 +640,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     rm(other.results)
   }
 
-  if (exists("usgs.results")) {
+  # set other.results to NULL if no results
+  if (dim(other.results)[1] > 0) {
+    other.data <- setNull("other.results")
+
+    rm(other.results)
+  }
+
+  if (dim(usgs.results)[1]) {
     # join unit.ref for usgs data with speciation in units
     usgs.data <- joinUnitRef(usgs.results, ref = unit.ref.usgs, spec = TRUE)
 
@@ -643,6 +662,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName),
         TADA.MethodSpeciationName = as.character(TADA.MethodSpeciationName)
       )
+
+    rm(usgs.results)
+  }
+
+  # set other.results to NULL if no results
+  if (dim(usgs.results)[1] > 0) {
+    usgs.data <- setNull("usgs.results")
 
     rm(usgs.results)
   }
@@ -676,15 +702,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
   }
 
-  # helper function to set other.results or usgs.results as null if not included in df
-  setNull <- function(dfname) {
-
-    if(exists("other.data")) {
-     df.name <- NULL
-    }
-
-    return(df.name)
-  }
 
   if (transform == FALSE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
