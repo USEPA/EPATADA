@@ -711,13 +711,14 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       TADA_OrderCols() %>%
       # update col order
       TADA_CreateComparableID()
+
+    rm(usgs.data, other.data)
   }
 
 
   if (transform == TRUE) {
-    if (dim(usgs.data)[1] > 0) {
+    if (!is.null(usgs.data)) {
       print(paste0("NOTE: Dataset contains ", dim(usgs.data)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
-    }
 
     # add target method speciation name when needed
     usgs.data <- usgs.data %>%
@@ -726,6 +727,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         # replace UNKNOWN or NONE method speciation name with NA
         TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
       )
+    }
 
     clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data)
 
