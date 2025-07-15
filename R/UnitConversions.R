@@ -701,13 +701,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     print("TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks).")
 
     # join usgs and other data
-    clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data) %>%
+    final.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data) %>%
       # reorder columns
       TADA_OrderCols() %>%
       # update col order
       TADA_CreateComparableID()
-
-    return(clean.data)
   }
 
 
@@ -775,7 +773,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     rm(clean.data)
 
     # populate TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-    convert.data <- det.data %>%
+    final.data <- det.data %>%
       # use target unit where there is a target unit, use original unit if no target unit
       dplyr::mutate(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = dplyr::case_when(
         !is.na(TADA.Target.ResultMeasure.MeasureUnitCode) ~ TADA.Target.ResultMeasure.MeasureUnitCode,
@@ -787,8 +785,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
      TADA_CreateComparableID() %>%
      TADA_OrderCols()
 
-    return(convert.data)
+    rm(convert.data, det.data, det.ref)
   }
+  # remove intermediate objects
+  rm(unit.ref, unit.ref.usgs, usgs.spec, usgs.unit)
+
+  return(final.data)
 }
 
 #' Convert Depth Units
