@@ -627,7 +627,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # internal function to set other.results or usgs.results as null if not included in df
   setNull <- function(df.name) {
 
-    if(!exists(paste0(df.name))) {
+    if(dim(df.name)[1] == 0) {
       df.name <- NULL
     }
 
