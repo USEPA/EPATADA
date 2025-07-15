@@ -305,7 +305,10 @@ TADA_IDCensoredData <- function(.data) {
 #'   )
 #' }
 #'
-TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null") {
+TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
+                                       nd_multiplier = 0.5,
+                                       od_method = "as-is",
+                                       od_multiplier = "null") {
   # check .data has all of the required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
@@ -337,7 +340,14 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     # split out over detects and non detects
     nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect")
     od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
-    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier))
+    no.ref.missing <- subset(cens.data, cens.data$TADA.CensoredData.Flag %in%
+                               c("Detection condition or detection limit is not documented in TADA reference tables.",
+                                 "Detection condition is missing and required for censored data ID."))
+
+    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier,
+                                                                       no.ref.missing$ResultIdentifier))
+
+  # HRM note 7/15/2025 still need to add code to set no.ref.missing results to NA
 
     # ND handling
     if (dim(nd)[1] > 0) {
