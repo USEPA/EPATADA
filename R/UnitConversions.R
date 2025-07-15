@@ -662,6 +662,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName),
         TADA.MethodSpeciationName = as.character(TADA.MethodSpeciationName)
       )
+
+    # remove intermediat objects
+    rm(unit.ref.usgs, usgs.spec, usgs.unit)
   }
 
   # set other.results to NULL if no results
@@ -669,7 +672,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     usgs.data <- setNull(usgs.results)
   }
 
-  # remove intermediat objects
+  # remove intermediate objects
   rm(usgs.results, other.results)
 
   # internal function to combine usgs and other data
@@ -678,27 +681,19 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     if (!is.null(usgs.data) & !is.null(other.data) == TRUE) {
       clean.data <- other.data %>%
         dplyr::full_join(usgs.data, by = colnames(other.data))
-
-      rm(other.data, usgs.data)
-
-      return(clean.data)
     }
 
     if (!is.null(usgs.data) == TRUE & !is.null(other.data) == FALSE) {
       clean.data <- usgs.data
-
-      rm(usgs.data)
-
-      return(clean.data)
     }
 
     if (!is.null(usgs.data) == FALSE & !is.null(other.data) == TRUE) {
       clean.data <- other.data
-
-      rm(clean.data)
-
-      return(clean.data)
     }
+
+    rm(other.data, usgs.data)
+
+    return(clean.data)
   }
 
 
@@ -792,8 +787,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     rm(clean.data, det.data, det.ref)
   }
-  # remove intermediate objects
-  rm(unit.ref, unit.ref.usgs, usgs.spec, usgs.unit)
+  # remove remaining intermediate objects if they exist
+  rm(unit.ref)
 
   return(final.data)
 }
