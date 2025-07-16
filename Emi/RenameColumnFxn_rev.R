@@ -3,13 +3,27 @@
 ##  referencing updated crosswalk table (temporary)
 ##
 ## 4/4/2025
+## 6/26/2025
 ###################
+
+# load most recent packages in development
+library(remotes)
+
+library(dataRetrieval) #dataRetrieval 2.7.19  OLD dataRetrieval 2.7.17.9000 #Extended Documentation: https://doi-usgs.github.io/dataRetrieval
+
+library(devtools)
+load_all()
 
 library(tidyverse)
 library(readr)
+library(data.table)
 
-## Read modified crosswalk table
-wqxcrswlk_mod <- read_csv("C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_modified.csv")
+## Read modified crosswalk table - linked to the EPA Water Quality Portal Quick Reference site
+# https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
+# UPDATED 6/26/2025
+wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv")
+#wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2024-07/schema_outbound_wqx3.0.csv")
+#wqxcrswlk_mod <- read_csv("C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/UpdatedSchema/Updated_2025_0626/schema_outbound_WQX3.0.csv")
 
 ## Load WQ data using beta services
 result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
@@ -22,7 +36,8 @@ result.tada <- TADA_DataRetrieval(siteid = "USGS-04024315",
 ## PROCESS DATA
 ##################
 # Manually changing crosswalk table to better suit TADA objectives
-#  Changing the 'see Comments field' to useful names - relevant to dataRetrieval and TADA
+#  In particular - Changing the 'see Comments field' to useful names - relevant to dataRetrieval and TADA
+#                - Making some legacy names NA (would have been called BinaryObjectFileName and BinaryObjectFileTypeCode)
 wqxcrswlk_mod2 <- wqxcrswlk_mod |> 
   mutate(WqxV2.FieldName = case_when( #existing in 3.0 column ~ change to in 2.0 column
     FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
@@ -31,15 +46,24 @@ wqxcrswlk_mod2 <- wqxcrswlk_mod |>
     FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
     FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
     FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+    FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure",  # Changing to what is returned in legacy Site profile 
+    FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile 
+    FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile 
     FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
     FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
     FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+    FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+    FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+    FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+    FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+    FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+    FieldName3.0 == "ResultAttachment_FileType" ~ NA,
     TRUE ~ WqxV2.FieldName
   ))
 
 # Remove NAs from crosswalk table 
-# wqxcrswlk_mod3 <- wqxcrswlk_mod2 |> 
-#   filter(!is.na(WqxV2.FieldName))
+wqxcrswlk_mod3 <- wqxcrswlk_mod2 |> 
+   filter(!is.na(WqxV2.FieldName))
 
 ###############
 # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
@@ -57,27 +81,101 @@ if (length(beta_names) != length(legacy_names)) {
 # There is a bug with data.table::setnames - it modifies inputs (even original file) - does not save a copy but modifies directly
 # https://www.canallc.com/post/pitfalls-with-using-the-data-table-package
 
+
+####################
+## USGS dataRetrieval n = 63 at USGS site 04024315 for water temperature
+WQPquery <- list(siteid = "USGS-04024315",
+                 #startDate = "1975-01-01",
+                 #endDate = "1978-12-31",
+                 characteristicName = "Temperature, water"
+                 
+)
+
+result.DR <- dataRetrieval::readWQPdata(WQPquery,
+                                        service = "ResultWQX3", # WQX3 option "ResultWQX3",
+                                        dataProfile = "fullPhysChem", #"fullPhysChem", "basicPhysChem", "narrow"
+                                        ignore_attributes = TRUE)
+
+names(result.DR)
+
+df <- result.DR
+
 ###############
 ## RENAME COLUMNS FROM BETA BACK TO LEGACY
 #https://stackoverflow.com/questions/29380447/using-data-tablesetnames-when-some-column-names-might-not-be-present 
-df <- result.DR |> 
-  rename(any_of(setNames(beta_names,
-                         legacy_names))) 
+# setnames is part of data.table package - https://cran.r-project.org/web/packages/data.table/data.table.pdf 
+#  will change column names (no copy is made)
+# setnames(data.frame, old, new) 
+#  old = character names to change (I provide this as a list object - names from the schema table) 
+#  new = new column names - this must be the same length as columns provided to old
+#  skip_absent - skip items in old that are missing in names(x)
+# Need to make sure to drop from the crosswalk table NAs for legacy names 
+df <- df |> 
+  data.table::setnames(beta_names,legacy_names, skip_absent = TRUE)
+
+#df <- result.DR |> 
+#  rename(any_of(stats::setNames(legacy_names,
+#                                beta_names))) 
 
 ###############
 ## REPLACE SPECIAL CHARACTERS TO MATCH TADA FORMAT
 # Only apply to subset of columns that were beta that had legacy names
-# and remove two column names that are not in the dataRetrieval call "ActivityMediaSubdivisionName" and "SampleAquifer" 
-# Fields to remove
-drop_fields <- c("ActivityMediaSubdivisionName","SampleAquifer")
+# and remove column names that are not in the dataRetrieval call - see below
 
-wqxcrswlk_legacy <- wqxcrswlk_mod3 |> 
-  #filter(in_DR2.0 == "Y") |> 
-  filter(!WqxV2.FieldName %in% drop_fields)
+####
+# To process data for renaming special characters - need to remove unmatching names in schema table that don't have a paterner in the dataRetrieval output
+# Make column headings a vector
+beta_DR <- as.data.frame(colnames(result.DR)) |> 
+  rename("beta" = 1) # Give the first column the name "FieldName3.0"
+
+# Select schema names of interest from crosswalk table
+wqx_red <- wqxcrswlk_mod2 |> 
+  select(FieldName3.0,WqxV2.FieldName) |> 
+  mutate(WqxV3.FieldName = FieldName3.0)
+
+# Join dataRetrieval output using beta service with modified crosswalk table - left join
+test <- left_join(beta_DR, wqx_red, by = c("beta" = "FieldName3.0"))
+# List of legacy names that are returned in dataRetrieval
+cols_wqx2_legacy <- test$WqxV2.FieldName
+
+# Fields to remove
+ drop_fields <- c("ActivityMediaSubdivisionName","SampleAquifer","OrganizationDescriptionText","TribalCode","ElectronicAddress",
+                  "Telephonic","OrganizationAddress/AddressTypeName_1","OrganizationAddress/AddressText_1","OrganizationAddress/SupplementalAddressText_1",
+                  "OrganizationAddress/LocalityName_1", "OrganizationAddress/StateCode_1", "OrganizationAddress/PostalCode_1",
+                  "OrganizationAddress/CountryCode_1","OrganizationAddress/CountyCode_1", "OrganizationAddress/AddressTypeName_2",
+                  "OrganizationAddress/AddressText_2", "OrganizationAddress/SupplementalAddressText_2","OrganizationAddress/LocalityName_2",
+                  "OrganizationAddress/StateCode_2", "OrganizationAddress/PostalCode_2", "OrganizationAddress/CountryCode_2", "OrganizationAddress/CountyCode_2",
+                  "OrganizationAddress/AddressTypeName_3",
+                  "OrganizationAddress/AddressText_3", "OrganizationAddress/SupplementalAddressText_3","OrganizationAddress/LocalityName_3",
+                  "OrganizationAddress/StateCode_3", "OrganizationAddress/PostalCode_3", "OrganizationAddress/CountryCode_3", "OrganizationAddress/CountyCode_3",
+                  "ProjectDescriptionText", "SamplingDesignTypeCode", "MeasureValue", "MeasureUnitCode", "StatisticalStratumText",
+                  "LocationCategoryName","LocationStatusName", "ReferenceLocationTypeCode", "ReferenceLocationStartDate", "ReferenceLocationEndDate",
+                  "ResourceCreatorName", "ResourceSubjectText", "ResourcePublisherName", "ResourceDate", "ResourceIdentifier", 
+                  "CommentText", "ProjectFileUrl", "ProjectMonitoringLocationWeightingUrl", "SourceMapScaleNumeric", "HorizontalAccuracyMeasure/MeasureValue",
+                  "HorizontalAccuracyMeasure/MeasureUnitCode", "HorizontalCollectionMethodName", "VerticalMeasure/MeasureValue", "VerticalMeasure/MeasureUnitCode",
+                  "VerticalAccuracyMeasure/MeasureValue", "VerticalAccuracyMeasure/MeasureUnitCode", "VerticalCollectionMethodName", "VerticalCoordinateReferenceSystemDatumName",
+                  "AquiferTypeName", "AquiferName", "LocalAqfrName", "FormationTypeText", "WellHoleDepthMeasure/MeasureValue", "WellHoleDepthMeasure/MeasureUnitCode",
+                  "ConstructionDateText", "WellDepthMeasure/MeasureValue", "WellDepthMeasure/MeasureUnitCode", "DrainageAreaMeasure/MeasureValue", "DrainageAreaMeasure/MeasureUnitCode",
+                  "ContributingDrainageAreaMeasure/MeasureValue", "ContributingDrainageAreaMeasure/MeasureUnitCode", "IndexIdentifier", "IndexTypeIdentifier", "IndexTypeIdentifierContext",
+                  "IndexTypeName", "ResourceTitleName", "IndexTypeScaleText", "IndexQualifierCode", "IndexCommentText", "IndexCalculatedDate",
+                  "CollectionDuration/MeasureValue", "CollectionDuration/MeasureUnitCode", "ReachLengthMeasure/MeasureValue", "ReachLengthMeasure/MeasureUnitCode", 
+                  "ReachWidthMeasure/MeasureValue", "ReachWidthMeasure/MeasureUnitCode", "PassCount", "NetTypeName", "NetSurfaceAreaMeasure/MeasureValue", 
+                  "NetSurfaceAreaMeasure/MeasureUnitCode", "NetMeshSizeMeasure/MeasureUnitCode","BoatSpeedMeasure/MeasureValue", "BoatSpeedMeasure/MeasureUnitCode",
+                  "CurrentSpeedMeasure/MeasureValue", "NetMeshSizeMeasure/MeasureValue", "CurrentSpeedMeasure/MeasureUnitCode", "ActivityMetricType/MetricTypeIdentifier",
+                  "ActivityMetricType/MetricTypeIdentifierContext", "ActivityMetricType/MetricTypeName", "see Comment field",
+                  "MetricTypeCitation/MetricTypeScaleText", "MetricTypeCitation/FormulaDescriptionText", "MetricValueMeasure/MeasureValue",
+                  "MetricValueMeasure/MeasureUnitCode", "MetricValueMeasure/MetricScoreNumeric", "MetricValueMeasure/MetricCommentText", "MetricValueMeasure/IndexIdentifier",
+                  "CellFormName", "CellShapeName","HabitName", "VoltinismName", "TaxonomicPollutionTolerance", "TaxonomicPollutionToleranceScaleText",
+                  "TrophicLevelName", "FunctionalFeedingGroupName", "FrequencyClassDescriptorCode", "FrequencyClassDescriptorUnitCode",
+                  "LowerClassBoundValue", "UpperClassBoundValue", "ActivityGroupUrl")
+
+ wqxcrswlk_legacy <- wqxcrswlk_mod3 |> 
+   #filter(in_DR2.0 == "Y") |> 
+   filter(!WqxV2.FieldName %in% drop_fields)
 
 ## WRITE MODIFIED CROSSWALK TABLE
-write_csv(wqxcrswlk_legacy, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_toshare.csv")
-cols_wqx2_legacy <- wqxcrswlk_legacy$WqxV2.FieldName
+# write_csv(wqxcrswlk_legacy, "C:/Users/efergus/OneDrive - Environmental Protection Agency (EPA)/a_WDIB/TADA/WQP_transition/Crosswalk_tables/Temp_Crswlk/wqxcrswlk_temp_toshare.csv")
+ cols_wqx2_legacy <- wqxcrswlk_legacy$WqxV2.FieldName
 
 
 ## Replace special characters
@@ -85,6 +183,9 @@ df2 <- df |>
   rename_with(~ stringr::str_replace_all(., c('_' = '\\.', '/' = '\\.')), 
               .cols = all_of(cols_wqx2_legacy)) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
 names(df2)
+
+
+
 
 #############
 ## READ Crosswalk table - modified
