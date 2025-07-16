@@ -340,9 +340,8 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
     # split out over detects and non detects
     nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect")
     od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
-    no.ref.missing <- subset(cens.data, cens.data$TADA.CensoredData.Flag %in%
-                               c("Detection condition or detection limit is not documented in TADA reference tables.",
-                                 "Detection condition is missing and required for censored data ID."))
+    no.ref <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Detection condition is missing and required for censored data ID.")
+    missing.ref <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Detection condition or detection limit is not documented in TADA reference tables.")
 
     all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier,
                                                                        no.ref.missing$ResultIdentifier))
@@ -378,6 +377,21 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
         od$TADA.CensoredMethod <- "Detection Limit Value Unchanged"
       }
     }
+
+    # handling for results with missing detection conditions or with a detection condition or limit not in TADA ref table
+    if (dim(no.ref.missing)[1] > 0) {
+        no.ref$TADA.ResultMeasureValue <- NA
+        no.refTADA.CensoredMethod <- "Result set to NA due to Missing Detection Condition"
+        no.ref$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
+    }
+
+    # handling for results with missing detection conditions or with a detection condition or limit not in TADA ref table
+    if (dim(no.ref.missing)[1] > 0) {
+      missing.ref$TADA.ResultMeasureValue <- NA
+      missing.ref$TADA.CensoredMethod <- "Result set to NA as Detection Conditon or Limit is not in TADA Ref Table"
+      missing.ref$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
+    }
+
 
     .data <- plyr::rbind.fill(nd, od, all_others) %>%
       TADA_CreateComparableID()
