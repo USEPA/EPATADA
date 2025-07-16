@@ -114,17 +114,17 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   spatialRef$ATTAINS.WaterType <- as.character(spatialRef$ATTAINS.WaterType)
   spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
   # Extracts the characteristic, speciation and fraction columns to join
-  # spatialRef <- spatialRef %>% 
-  #   dplyr::left_join(
-  #     .data[,c(
-  #       "TADA.ComparableDataIdentifier",
-  #       "TADA.CharacteristicName",
-  #       "TADA.ResultSampleFractionText", 
-  #       "TADA.MethodSpeciationName"
-  #       )] %>%
-  #     dplyr::distinct(), 
-  #     by ="TADA.ComparableDataIdentifier"
-  #     )
+  spatialRef <- spatialRef %>%
+    dplyr::left_join(
+      .data[,c(
+        "TADA.ComparableDataIdentifier",
+        "TADA.CharacteristicName"
+        #"TADA.ResultSampleFractionText",
+        #"TADA.MethodSpeciationName"
+        )] %>%
+      dplyr::distinct(),
+      by ="TADA.ComparableDataIdentifier"
+      )
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
@@ -139,7 +139,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
   DefineCriteriaMethodology <- spatialRef %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.ComparableDataIdentifier",
+      "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
       "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.WaterType"
     ) %>%
     # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
@@ -161,7 +161,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
     dplyr::bind_cols(
       data.frame(
-        TADA.CharacteristicName = as.character(NA), TADA.ResultSampleFractionText = as.character(NA), 
+        TADA.ResultSampleFractionText = as.character(NA), 
         TADA.MethodSpeciationName = as.character(NA), AcuteChronic = as.character(NA),
         # Criteria Columns
         EquationBased = as.character(NA),
@@ -489,8 +489,37 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_CriteriaSummary <- function(
-    .data, criteriaMethods = NULL, overwrite = FALSE) {
+TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, summarizeBy = c("All", "Criteria", "Fraction"), overwrite = FALSE) {
+  
+  if( length(is.na(criteriaMethods$MagnitudeValueLower)) > 0 ){
+    print(paste0("Warning: There are ", length(is.na(criteriaMethods$MagnitudeValueLower)), "rows with no magnitude values
+                 defined or specification of being an equation-based standards. Cannot compare these results to an NA value." ))
+  }
+  
+  if( summarizeBy == "All") {
+    TADA_Example4.1 <- TADA_Example4 %>%
+      dplyr::left_join(TADA_CriteriaMethodology_AU, by = c("TADA.CharacteristicName"))
+  }
+  
+  if( summarizeBy == "Criteria") {
+    .data <- dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"))
+  }
+  
+  # TADA_Example4_30day<- TADA_Example4 %>%
+  #   dplyr::mutate(
+  #     time=dplyr::case_when(Duration lubridate::floor_date(ActivityStartDateTime, '30 day'), 
+  #   )
+  #   dplyr::group_by(
+  #     ActivityStartDateTime,
+  #     time=lubridate::floor_date(ActivityStartDateTime, '30 day'), 
+  #     ActivityTypeCode, TADA.ComparableDataIdentifier, MonitoringLocationName, 
+  #     MonitoringLocationIdentifier, MonitoringLocationTypeName
+  #     ) %>%
+  #   dplyr::summarize(
+  #     mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue),
+  #     count = dplyr::n()
+  #     )
+  
   
   criteria <- dplyr::select(
     TADA_CriteriaMethodology,
