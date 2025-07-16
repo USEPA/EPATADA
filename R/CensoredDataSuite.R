@@ -344,7 +344,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
     missing.ref <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Detection condition or detection limit is not documented in TADA reference tables.")
 
     all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier,
-                                                                       no.ref.missing$ResultIdentifier))
+                                                                       no.ref$ResultIdentifier, missing.ref$ResultIdentifier))
 
   # HRM note 7/15/2025 still need to add code to set no.ref.missing results to NA
 
@@ -379,7 +379,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
     }
 
     # handling for results with missing detection conditions or with a detection condition or limit not in TADA ref table
-    if (dim(no.ref.missing)[1] > 0) {
+    if (dim(no.ref)[1] > 0) {
         no.ref$TADA.ResultMeasureValue <- NA
         no.refTADA.CensoredMethod <- "Result set to NA due to Missing Detection Condition"
         no.ref$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
