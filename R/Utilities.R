@@ -1858,18 +1858,18 @@ TADA_CharStringRemoveNA <- function(char_string) {
   return(labs)
 }
 
-#' TADA_RenameColumns
+#' TADA_RenametoLegacy
 #' This function renames columns in a data frame pulled from the Water Quality Portal 3.0
-#'  using USGS dataRetrieval function (in development) back to schema names from WQX2.0 (Legacy).
+#'  using USGS dataRetrieval service = "ResultWQX3" back to schema names from WQX2.0 (Legacy).
 #'  The purpose of this function is to aid in integrating and updating TADA dependencies
 #'  developed under WQX2.0 to function with WQX3.0.
 #'
-#'  TADA_RenameColumns will be called within the revised TADA_DataRetrieval function.
+#'  TADA_RenametoLegacy will be called within the revised TADA_DataRetrieval function.DO WE WANT TO USE IT THIS WAY?
 #'
-#'  TADA_RenameColumns function calls on EPA web services to grab the documented
+#'  TADA_RenametoLegacy function calls on EPA web services to grab the documented
 #'  WQX3.0 schema file (schema_outbound_wqx3.0.csv).The file crosswalks WQX3.0 column names
 #'  with equivalent WQX2.0 Legacy column names across profiles (e.g., PhysChem, ActivityMetric) where appropriate.
-#'  The function leverages data.table::setnames() to replace column names
+#'  The function uses data.table::setnames() to replace column names
 #'  by specifying 'old' and 'new' vector of names pulled from the crosswalk file.
 #'
 #'
@@ -1878,56 +1878,63 @@ TADA_CharStringRemoveNA <- function(char_string) {
 #' @return A data frame with column names changed to WQX2.0 Legacy names to test TADA package compatibility
 #' @export
 #'
-#' @examples TADA_RenameColumns(WQP3.0df)
-TADA_RenameColumns <- function(.data) {
-  ## READ WQX3.0 column name schema from web services
-  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2024-07/schema_outbound_wqx3.0.csv")
+#' @examples TADA_RenametoLegacy(WQP3.0df)
+#' 
+TADA_RenametoLegacy  <- function(.data) {
+  ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
+  # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv")
   
-  # Collapse related wqx schema variables into a single column based on conditions
-  # And drop columns that aren't in WQX Legacy
-  wqxnames_rev <- wqxnames |>
-    rowwise() |>
-    mutate(legacy = case_when(!is.na(FieldName2.0.PhysChem) ~ FieldName2.0.PhysChem,
-                              is.na(FieldName2.0.PhysChem) & !is.na(FieldName2.0.ActivityMetric) ~ FieldName2.0.ActivityMetric,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & !is.na(FieldName2.0.Project) ~ FieldName2.0.Project,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & !is.na(FieldName2.0.SamplingActivity) ~ FieldName2.0.SamplingActivity,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & !is.na(FieldName2.0.Site) ~ FieldName2.0.Site,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & !is.na(FieldName2.0.QuantitationLimit) ~ FieldName2.0.QuantitationLimit,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & !is.na(FieldName2.0.Organization) ~ FieldName2.0.Organization,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & !is.na(FieldName2.0.PrjMonLocWeighting) ~ FieldName2.0.PrjMonLocWeighting,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & is.na(FieldName2.0.PrjMonLocWeighting) & !is.na(FieldName2.0.BiolHabitatMetric) ~ FieldName2.0.BiolHabitatMetric,
-                              is.na(FieldName2.0.PhysChem) & is.na(FieldName2.0.ActivityMetric) & is.na(FieldName2.0.Project) & is.na(FieldName2.0.SamplingActivity) & is.na(FieldName2.0.Site) & is.na(FieldName2.0.QuantitationLimit) & is.na(FieldName2.0.Organization) & is.na(FieldName2.0.PrjMonLocWeighting) & is.na(FieldName2.0.BiolHabitatMetric) & !is.na(FieldName2.0.Biological) ~ FieldName2.0.Biological,
-                              TRUE ~ NA)
-    ) |>
-    filter(!is.na(legacy)) # from 364 column names to 286 - beta version adds 78 names
-  
-  # Fix legacy names that do not match TADA template names
-  # Note - this will replace all / and _ with . but there maybe legacy names getting changed that do not have a TADA equivalent - so may need to fix later
-  wqxnames_rev <- wqxnames_rev |> 
-    #mutate(legacy_2 = str_replace_all(legacy, "/|_", "\\.")) |> 
-    distinct(legacy, .keep_all = T) # There are some duplicate variables in crosswalk - may want to change this
+  # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
+  wqxnames_mod <- wqxnames |> 
+    mutate(WqxV2.FieldName = case_when( # 3.0 element ~ change to in 2.0 element
+      FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+      FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+      FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+      FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+      FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+      FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure",  # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+      FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+      FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+      FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+      FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileType" ~ NA,
+      TRUE ~ WqxV2.FieldName
+    )) |> 
+    # Remove rows without a legacy name in the crosswalk table
+    filter(!is.na(WqxV2.FieldName)) |> 
     
+    # Some elements in the crosswalk table have different special characters compared to 
+    # elements returned with dataRetrieval 
+    # Using stringr to identify special characters replacing "_" with "." and "/" with "."
+    mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c('_' = '\\.', '/' = '\\.')))
+  
+   # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames 
+   # will overwrite original dataframe
+   df <- data.table::copy(.data)
+   beta_names_dr <- names(.data) # copy of original elements
+  
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
-  beta_names = wqxnames_rev$FieldName3.0
-  legacy_names = wqxnames_rev$legacy
+  beta_names = wqxnames_mod$FieldName3.0
+  legacy_names = wqxnames_mod$WqxV2.FieldName
   
     if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
-  }
-  df <- data.table::setnames(.data, old = beta_names,
+    }
+  
+  df <- data.table::setnames(df, old = beta_names,
                              new = legacy_names, skip_absent = TRUE) 
-  
-  # Replace special characters in column names
-  df <- df |> 
-   rename_with(~ stringr::str_replace_all(., c('_' = '\\.', '/' = '\\.'))) #rename_with(~ stringr::str_replace_all(., pattern = '_', replacement = '\\.'))
-  
-  # Rename columns missing from crosswalk table
-  df <- df |> 
-    rename(DetectionQuantitationLimitMeasure.MeasureValue = DetectionLimit.MeasureA,
-           DetectionQuantitationLimitMeasure.MeasureUnitCode = DetectionLimit.MeasureUnitA)
   
   return(df)
 }
+
 
 #' Create downloadable table
 #'
