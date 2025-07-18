@@ -490,7 +490,10 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
 TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NULL, 
-                                 summarizeBy = c("All", "Criteria", "Fraction"), overwrite = FALSE) {
+                                 summarizeBy = c("All", "Criteria", "Char"), 
+                                 assessmentUnit = c("groupedML", "individualML", NULL),
+                                 criteriaOutput = c("")
+                                 overwrite = FALSE) {
   
   # Runs TADA_FlagDepthCategory if not already ran
   if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
@@ -502,9 +505,12 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
                  defined or specification of being an equation-based standards. Cannot compare these results to an NA value." ))
   }
   
-  if( summarizeBy == "All") {
+  # Combine all and summarize by ONLY characteristic and ignore fraction and speciation
+  # We can say "it's not recommended" - good question to ask to M3 subgroup - but would people find it useful?
+  if( summarizeBy == "Char") {
     TADA_Example4.1 <- TADA_Example4 %>%
-      dplyr::left_join(TADA_CriteriaMethodology_AU_Final, by = c("TADA.CharacteristicName"))
+      dplyr::left_join(TADA_CriteriaMethodology_AU_Final, by = c("TADA.CharacteristicName")) #%>%
+      # dplyr::mutate(Flag.CharOnly...) # will help to see if the logic makes sense
   }
   
   if( summarizeBy == "Criteria") {
@@ -513,7 +519,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
   }
   
   
-  
+  # Aggregates data by duration period, then provides summary stats on the aggegrated data.
   TADA_Example4_30day<- TADA_Example4.1 %>%
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
     dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
@@ -531,16 +537,33 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
     dplyr::group_by(
       #ActivityStartDateTime,
       AggregatedActivityStartDateTime, DurationPeriod,
-      TADA.ComparableDataIdentifier,# TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
       ATTAINS.ParameterName, ATTAINS.UseName,
-      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-      # MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+      MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
     dplyr::summarize(
       geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
       arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
       count = dplyr::n()
     )
+  
+  # Compares the specified stat to the Magnitude Criteria. Count number of exceedance and percent exceedances by param and use
+  CriteriaSummary <- TADA_Example4_30day %>%
+    dplyr::group_by(
+      #AggregatedActivityStartDateTime, 
+      DurationPeriod,
+      TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      ATTAINS.ParameterName, ATTAINS.UseName,
+      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+      MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+    ) %>%
+    dplyr::summarize(
+      n_Aggregatedsamples = dplyr::n(),
+      n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
+      percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)
+    )
+  
   
   if( rolling) {
     TADA_Example4_30day2 <- TADA_Example4_30day %>%
