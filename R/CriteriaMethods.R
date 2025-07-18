@@ -489,7 +489,13 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, summarizeBy = c("All", "Criteria", "Fraction"), overwrite = FALSE) {
+TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NULL, 
+                                 summarizeBy = c("All", "Criteria", "Fraction"), overwrite = FALSE) {
+  
+  # Runs TADA_FlagDepthCategory if not already ran
+  if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
+    .data <- TADA_FlagDepthCategory(.data)
+  }
   
   if( length(is.na(criteriaMethods$MagnitudeValueLower)) > 0 ){
     print(paste0("Warning: There are ", length(is.na(criteriaMethods$MagnitudeValueLower)), "rows with no magnitude values
@@ -498,28 +504,50 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, summarizeBy = c(
   
   if( summarizeBy == "All") {
     TADA_Example4.1 <- TADA_Example4 %>%
-      dplyr::left_join(TADA_CriteriaMethodology_AU, by = c("TADA.CharacteristicName"))
+      dplyr::left_join(TADA_CriteriaMethodology_AU_Final, by = c("TADA.CharacteristicName"))
   }
   
   if( summarizeBy == "Criteria") {
-    .data <- dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"))
+    TADA_Example4.1 <- TADA_Example4 %>%
+      dplyr::left_join(TADA_CriteriaMethodology_AU_Final, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"))
   }
   
-  # TADA_Example4_30day<- TADA_Example4 %>%
-  #   dplyr::mutate(
-  #     time=dplyr::case_when(Duration lubridate::floor_date(ActivityStartDateTime, '30 day'), 
-  #   )
-  #   dplyr::group_by(
-  #     ActivityStartDateTime,
-  #     time=lubridate::floor_date(ActivityStartDateTime, '30 day'), 
-  #     ActivityTypeCode, TADA.ComparableDataIdentifier, MonitoringLocationName, 
-  #     MonitoringLocationIdentifier, MonitoringLocationTypeName
-  #     ) %>%
-  #   dplyr::summarize(
-  #     mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue),
-  #     count = dplyr::n()
-  #     )
   
+  
+  TADA_Example4_30day<- TADA_Example4.1 %>%
+    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+    dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
+    # dplyr::mutate(
+    #   RollingActivityStartDateTime := 
+    #     data.table::frollmean(TADA.ResultMeasureValue, n = 30, adaptive = TRUE)
+    #   ) %>%
+    dplyr::mutate(
+      AggregatedActivityStartDateTime = dplyr::if_else(
+        is.na(DurationUnit),
+        ActivityStartDateTime,
+        lubridate::floor_date(ActivityStartDateTime, gsub("n-", DurationValue, DurationUnit)),
+      )
+    ) %>%
+    dplyr::group_by(
+      #ActivityStartDateTime,
+      AggregatedActivityStartDateTime, DurationPeriod,
+      TADA.ComparableDataIdentifier,# TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      ATTAINS.ParameterName, ATTAINS.UseName,
+      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+      # MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+      ) %>%
+    dplyr::summarize(
+      geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
+      arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
+      count = dplyr::n()
+    )
+  
+  if( rolling) {
+    TADA_Example4_30day2 <- TADA_Example4_30day %>%
+      group_by(time_window = floor_date(timestamp, "30 minutes")) %>%
+      summarize(total_value = sum(value))
+  }
+
   
   criteria <- dplyr::select(
     TADA_CriteriaMethodology,
