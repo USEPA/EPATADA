@@ -310,7 +310,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
     if (attains_replace == TRUE) {
       update.crosswalk <- crosswalk
 
-      rm(attains.crosswalk, crosswalk)
+     rm(crosswalk)
     }
 
     # add Monitoring Location data links if wqp_data_links is not equal to "none"
@@ -401,7 +401,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           MONITORING_DATA_LINK_TEXT = stringr::str_remove_all(
             MONITORING_DATA_LINK_TEXT,
             "NA, "
-          )
+          ),
+          MONITORING_DATA_LINK_TEXT = sub("^; ", "", MONITORING_DATA_LINK_TEXT)
         ) %>%
         tidyr::separate_rows(MONITORING_DATA_LINK_TEXT, sep = ", ") %>%
         dplyr::group_by(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID) %>%

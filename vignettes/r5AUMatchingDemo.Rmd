@@ -1,0 +1,76 @@
+---
+title: "R5 AU Matching Demo"
+author: "TADA Team"
+output: html_document
+date: "2025-07-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+An example use case for one of the Region 5 states to consider using during this meeting is PFAS data in IL.
+
+```{r wqp.data}
+
+IL_PFAS <- TADA_DataRetrieval(startDate = "2014-01-01",
+                              endDate = "2024-12-31",
+                              statecode = "IL",
+                              characteristicType = c("PFAS,Perfluorinated Alkyl Substance",
+                                                     "Organics, PFAS"),
+                              ask = FALSE)
+
+```
+
+## Filter for Surface Water Results
+
+You can also embed plots, for example:
+
+```{r surface.water}
+IL_PFAS_clean <- IL_PFAS %>%
+  TADA_AnalysisDataFilter(surface_water = TRUE,
+                          clean = TRUE) %>%
+  TADA_SimpleCensoredMethods()
+
+```
+## Match To AUs
+```{r}
+IL_PFAS_AUs <-IL_PFAS_clean %>% 
+  TADA_GetATTAINS(return_nearest = TRUE)
+
+IL_AUs <- IL_PFAS_AUs$TADA_with_ATTAINS
+```
+Next we can view with TADA_ViewATTAINS.
+
+```{r}
+TADA_ViewATTAINS(IL_PFAS_AUs)
+```
+
+## Create Crosswalk and add to ATTAINS
+```{r}
+# check to see if any existing crosswalk data in ATTAINS
+Existing_CW <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "IL_EPA")
+
+# create cross walk from TADA_GetATTAINS data
+New_CW <- IL_AUs %>%
+  dplyr::select(ATTAINS.assessmentunitidentifier,
+                TADA.MonitoringLocationIdentifier,
+                OrganizationIdentifier) %>%
+  sf::st_drop_geometry() %>%
+  dplyr::distinct() %>%
+  dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
+                MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
+                MS_ORG_ID = OrganizationIdentifier) %>%
+  dplyr::filter(!is.na(ASSESSMENT_UNIT_ID)) %>%
+  dplyr::mutate(MONITORING_DATA_LINK_TEXT = "")
+
+# create batch upload file for ATTAINS
+Batch_Upload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "IL_EPA",
+                                        crosswalk = New_CW,
+                                        attains_replace = TRUE, # must set as true because there are currently no entries in ATTAINS
+                                        wqp_data_links = "add")
+
+```
+
