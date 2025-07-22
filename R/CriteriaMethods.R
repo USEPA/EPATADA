@@ -179,7 +179,6 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
     dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
     dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
-    dplyr::distinct() %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
@@ -194,8 +193,8 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
       "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
       "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
       "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
-      
-    )
+    ) %>%
+  dplyr::distinct()
   
   # Handling of auto populating EPA304a Criteria in the future if desired.
   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
@@ -492,7 +491,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
 TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NULL, 
                                  summarizeBy = c("All", "Criteria", "Char"), 
                                  assessmentUnit = c("groupedML", "individualML", NULL),
-                                 criteriaOutput = c("")
+                                 #criteriaOutput = c("")
                                  overwrite = FALSE) {
   
   # Runs TADA_FlagDepthCategory if not already ran
@@ -520,33 +519,70 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
   
   
   # Aggregates data by duration period, then provides summary stats on the aggegrated data.
-  TADA_Example4_30day<- TADA_Example4.1 %>%
-    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+  TADA_Example4_30day <- TADA_Example4.1 %>%
     dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
-    # dplyr::mutate(
-    #   RollingActivityStartDateTime := 
-    #     data.table::frollmean(TADA.ResultMeasureValue, n = 30, adaptive = TRUE)
-    #   ) %>%
-    dplyr::mutate(
-      AggregatedActivityStartDateTime = dplyr::if_else(
-        is.na(DurationUnit),
-        ActivityStartDateTime,
-        lubridate::floor_date(ActivityStartDateTime, gsub("n-", DurationValue, DurationUnit)),
-      )
-    ) %>%
+    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+    dplyr::filter(!is.na(ActivityStartDateTime)) %>%
     dplyr::group_by(
-      #ActivityStartDateTime,
-      AggregatedActivityStartDateTime, DurationPeriod,
-      TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
       ATTAINS.ParameterName, ATTAINS.UseName,
       ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
       MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
+    dplyr::mutate(beg = min(ActivityStartDateTime, na.rm = TRUE)) %>%
+    dplyr::ungroup() %>%
+    dplyr::group_by(
+      ActivityStartDateTime, beg,
+      #AggregatedActivityStartDateTime, 
+      DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      ATTAINS.ParameterName, ATTAINS.UseName,
+      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+      MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+    ) %>%
     dplyr::summarize(
       geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
       arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
       count = dplyr::n()
+    ) 
+  
+  TADA_Example4_30day_Filled <- TADA_Example4_30day %>%
+    dplyr::filter(!is.na(DurationPeriod)) %>%
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      AggregatedActivityStartDateTime = dplyr::if_else(
+        is.na(DurationPeriod),
+        as.POSIXct(ActivityStartDateTime),
+        # If not based on a calendar period, then find the minimum start date and use that as our starting window.
+        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod) + difftime(
+          as.POSIXct(beg),
+          lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod)
+      )
     )
+    )%>% 
+    dplyr::ungroup()
+  
+  TADA_Example4_30day_NA <- TADA_Example4_30day %>%
+    dplyr::filter(is.na(DurationPeriod)) %>%
+    dplyr::rowwise() %>% 
+    dplyr::mutate(
+      AggregatedActivityStartDateTime = ActivityStartDateTime
+    )%>% 
+    dplyr::ungroup()
+    
+  TADA_Example4_30day_Final <- rbind(TADA_Example4_30day_Filled,TADA_Example4_30day_NA)
+  
+  
+    dplyr::mutate(
+      AggregatedActivityStartDateTime = dplyr::if_else(
+        is.na(DurationPeriod),
+        as.POSIXct(ActivityStartDateTime),
+        # If not based on a calendar period, then find the minimum start date and use that as our starting window.
+        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), units = DurationPeriod, na.rm = TRUE) + difftime(
+        as.POSIXct(beg),
+        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), units = DurationPeriod, na.rm = TRUE)
+        )
+      )
+    ) 
   
   # Compares the specified stat to the Magnitude Criteria. Count number of exceedance and percent exceedances by param and use
   CriteriaSummary <- TADA_Example4_30day %>%
@@ -561,7 +597,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
     dplyr::summarize(
       n_Aggregatedsamples = dplyr::n(),
       n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
-      percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)
+      percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)  
     )
   
   
