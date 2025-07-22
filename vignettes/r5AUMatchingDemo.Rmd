@@ -3,41 +3,83 @@ title: "R5 AU Matching Demo"
 author: "TADA Team"
 output: html_document
 date: "2025-07-21"
+editor_options: 
+  chunk_output_type: console
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Install and Load Package
+First, install and load the remotes package specifying the repo. This is needed before installing EPATADA because it is only available on GitHub (not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's dataRetrieval and other TADA R Package dependencies will also be downloaded automatically from CRAN with the TADA install. If desired, the development version of dataRetrieval can be downloaded directly from GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the library() function to load the TADA R Package into your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+
 ## Introduction
 
-An example use case for one of the Region 5 states to consider using during this meeting is PFAS data in IL.
+This workflow demonstrates how EPATADA functions can be used to assist a state in matching Water Quality Portal monitoring locations from other organizations with their own existing assessment units in ATTAINS. The example use case queries the WQP for all results in the "PFAS,Perfluorinated Alkyl Substance", "Organics, PFAS", and "Cyanotoxins, Phytotoxins" from 2014 through 2024 in the state of Illinois. Run the code chunk below to download the WQP data.
 
 ```{r wqp.data}
 
-IL_PFAS <- TADA_DataRetrieval(startDate = "2014-01-01",
+IL.PFASandCyano <- TADA_DataRetrieval(startDate = "2014-01-01",
                               endDate = "2024-12-31",
                               statecode = "IL",
                               characteristicType = c("PFAS,Perfluorinated Alkyl Substance",
-                                                     "Organics, PFAS"),
+                                                     "Organics, PFAS",
+                                                     "Cyanotoxins, Phytotoxins"),
                               ask = FALSE)
 
 ```
 
-## Filter for Surface Water Results
+## Filter for Surface Water Results and External Organizations
 
-You can also embed plots, for example:
+Next, we can filter the data set to retain only surface water results using TADA_AnalysisDataFilter. We can also filter to remove any records from "IL_EPA_WQX" so that only results from monitoring locations from other organizations remain.
 
 ```{r surface.water}
-IL_PFAS_clean <- IL_PFAS %>%
+IL.clean <- IL.PFASandCyano %>%
+  dplyr::filter(OrganizationIdentifier != "IL_EPA_WQX") %>%
   TADA_AnalysisDataFilter(surface_water = TRUE,
-                          clean = TRUE) %>%
-  TADA_SimpleCensoredMethods()
+                          clean = TRUE) 
 
 ```
 ## Match To AUs
+
+The next step is to use TADA_GetATTAINS to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest 
+
 ```{r}
-IL_PFAS_AUs <-IL_PFAS_clean %>% 
+IL.aus <-IL.clean %>% 
   TADA_GetATTAINS(return_nearest = TRUE)
 
 IL_AUs <- IL_PFAS_AUs$TADA_with_ATTAINS
