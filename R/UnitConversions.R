@@ -517,7 +517,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       dplyr::distinct()
 
     # create usgs specific ref if any results have method speciation in result units
-    if (length(usgs.results) > 0) {
+    if (dim(usgs.results)[1] > 0) {
       unit.ref.usgs <- createUSGSUnitRef(usgs.results,
         ref = unit.ref,
         spec = usgs.spec
@@ -556,10 +556,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         ". Consider revising the user-supplied unit reference dataframe and running TADA_ConvertResultUnits again.",
         sep = ""
       ))
-    }
 
+      rm(compare.list)
+    }
     # remove intermediate objects
-    rm(compare.ref, compare.list, tada.list, user.list)
+    rm(compare.ref, tada.list, user.list)
   }
 
 
@@ -613,7 +614,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::select(-MeasureUnitCode.match) %>%
         dplyr::distinct()
 
-      if (length(usgs.results) > 0) {
+      if (dim(usgs.results)[1] > 0) {
         unit.ref.usgs <- createUSGSUnitRef(usgs.results,
           ref = unit.ref,
           spec = usgs.spec
