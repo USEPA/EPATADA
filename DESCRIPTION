@@ -103,8 +103,8 @@ Suggests:
     devtools,
     usethis
 Remotes:
-    github::USEPA/rExpertQuery@develop,
-    github::DOI-USGS/dataRetrieval@develop
+    USEPA/rExpertQuery@develop,
+    DOI-USGS/dataRetrieval@develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
