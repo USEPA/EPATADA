@@ -1,7 +1,7 @@
 Package: EPATADA
 Type: Package
 Title: EPA TADA (Tools for Automated Data Analysis) R Package
-Version: 0.0.1
+Version: 1.0.3
 Authors@R: 
   c(person(given = "Cristina",
            family = "Mullin",
@@ -76,15 +76,15 @@ Imports:
     igraph,
     jsonlite, 
     openxlsx,
-    rExpertQuery,
     DT,
     dataRetrieval,
     dbscan,
-    janitor
+    janitor,
+    devtools,
+    usethis
 Depends: 
     R (>= 3.5.0)
 Suggests:
-    StreamCatTools, 
     hydroloom,
     lwgeom,
     RColorBrewer,
@@ -94,8 +94,6 @@ Suggests:
     knitr,
     testthat,
     testthis,
-    usethis,
-    devtools,
     pkgdown,
     spelling,
     htmltools,
@@ -104,9 +102,7 @@ Suggests:
     rvest,
     remotes
 Remotes:
-    DOI-USGS/dataRetrieval@develop,
-    USEPA/rExpertQuery@develop,
-    USEPA/StreamCatTools@master
+    github::USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3
