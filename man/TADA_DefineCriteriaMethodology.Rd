@@ -8,6 +8,9 @@ TADA_DefineCriteriaMethodology(
   .data,
   spatialRef = NULL,
   epa304a = FALSE,
+  auto_assign = FALSE,
+  org_id = NULL,
+  sitesAURef = NULL,
   excel = TRUE,
   overwrite = FALSE
 )

@@ -78,10 +78,40 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  
+  # If user wants to create a prepopulated CriteriaMethods table, it will run all crosswalk tables and use the default.
+  if(auto_assign == TRUE){
+    message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review  this paramRef table output."))
+    TADA_ParamRef <- TADA_CreateParamRef(  
+      .data, 
+      org_id = org_id,
+      auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+    )
+    
+    message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review  this Use to paramRef table output."))
+    TADA_UseParamRef <- TADA_CreateUseParamRef(  
+      .data, 
+      org_id = org_id,
+      paramRef = TADA_ParamRef,
+      auto_assign = TRUE,
+      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+    )
+    
+    message(paste0("auto_assign = TRUE selected. Running TADA_CreateSpatialRef with default assignment. Please review  this sites Ref table output."))
+    spatialRef <- TADA_CreateSpatialRef(  
+      .data, 
+      org_id = org_id,
+      useParamRef = TADA_UseParamRef,
+      sitesAURef = sitesAURef,
+      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+    )
+  }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
   if (!is.null(spatialRef) & !is.character(spatialRef)) {
@@ -422,7 +452,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateSpatialRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
@@ -435,7 +465,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, epa304a = F
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 24, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 27, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 28, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
@@ -492,7 +522,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
                                  summarizeBy = c("All", "Criteria", "Char"), 
                                  assessmentUnit = c("groupedML", "individualML", NULL),
                                  #criteriaOutput = c("")
-                                 overwrite = FALSE) {
+                                 excel = FALSE, overwrite = FALSE) {
   
   # Runs TADA_FlagDepthCategory if not already ran
   if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
@@ -571,21 +601,8 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NUL
     
   TADA_Example4_30day_Final <- rbind(TADA_Example4_30day_Filled,TADA_Example4_30day_NA)
   
-  
-    dplyr::mutate(
-      AggregatedActivityStartDateTime = dplyr::if_else(
-        is.na(DurationPeriod),
-        as.POSIXct(ActivityStartDateTime),
-        # If not based on a calendar period, then find the minimum start date and use that as our starting window.
-        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), units = DurationPeriod, na.rm = TRUE) + difftime(
-        as.POSIXct(beg),
-        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), units = DurationPeriod, na.rm = TRUE)
-        )
-      )
-    ) 
-  
   # Compares the specified stat to the Magnitude Criteria. Count number of exceedance and percent exceedances by param and use
-  CriteriaSummary <- TADA_Example4_30day %>%
+  CriteriaSummary <- TADA_Example4_30day_Final %>%
     dplyr::group_by(
       #AggregatedActivityStartDateTime, 
       DurationPeriod,

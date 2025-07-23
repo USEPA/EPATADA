@@ -4,7 +4,17 @@
 \alias{TADA_CriteriaSummary}
 \title{Criteria Summary}
 \usage{
-TADA_CriteriaSummary(.data, criteriaMethods = NULL, overwrite = FALSE)
+TADA_CriteriaSummary(
+  .data,
+  auto_assign = FALSE,
+  org_id = NULL,
+  criteriaMethods = NULL,
+  spatialRef = NULL,
+  summarizeBy = c("All", "Criteria", "Char"),
+  assessmentUnit = c("groupedML", "individualML", NULL),
+  excel = FALSE,
+  overwrite = FALSE
+)
 }
 \arguments{
 \item{.data}{A TADA dataframe. Users should run the appropriate data cleaning,

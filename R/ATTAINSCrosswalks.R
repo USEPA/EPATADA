@@ -948,6 +948,13 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
     bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
     
+    # Format Column widths
+    openxlsx::setColWidths(
+      wb, "CreateParamRef",
+      cols = 1:ncol(CreateParamRef),
+      widths = "auto"
+    )
+    
     # New row to rbind if a user selects "Not Applicable for Analysis."
     no_match_df <- data.frame(
       ATTAINS.OrganizationIdentifier = "NA", 
@@ -1617,6 +1624,14 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    
+    # Format Column widths
+    openxlsx::setColWidths(
+      wb, "CreateUseParamRef",
+      cols = 1:ncol(CreateUseParamRef),
+      widths = "auto"
+    )
+    
     # Export CreateUseParamRef dataframe into the excel spreadsheet tab
     openxlsx::writeData(wb, "CreateUseParamRef", startCol = 1, x = CreateUseParamRef, headerStyle = header_st)
     
