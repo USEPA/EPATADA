@@ -101,7 +101,7 @@ Suggests:
     rvest,
     remotes
 Remotes:
-    github::USEPA/rExpertQuery@develop
+    github::USEPA/rExpertQuery@develop,
     github::DOI-USGS/dataRetrieval@develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US

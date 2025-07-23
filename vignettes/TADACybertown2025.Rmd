@@ -66,8 +66,12 @@ into the console). Our team is actively developing *EPATADA*, therefore
 we highly recommend that you update the package (and all of its
 dependencies) each time you use it.
 
-```{r install EPATADA, results = 'hide'}
+```{r install EPATADA develop, results = 'hide', eval = F}
 remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+```
+
+```{r install EPATADA dev branch, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA", ref = "harmonize", dependencies = TRUE)
 ```
 
 Load the EPATADA R Package.
