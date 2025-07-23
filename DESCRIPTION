@@ -79,8 +79,8 @@ Imports:
     DT,
     dbscan,
     janitor,
-    devtools,
-    usethis
+    rExpertQuery,
+    dataRetrieval
 Depends: 
     R (>= 3.5.0)
 Suggests:
@@ -99,7 +99,9 @@ Suggests:
     tigris,
     yaml,
     rvest,
-    remotes
+    remotes,
+    devtools,
+    usethis
 Remotes:
     github::USEPA/rExpertQuery@develop,
     github::DOI-USGS/dataRetrieval@develop
