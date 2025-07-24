@@ -58,7 +58,7 @@ prior assessment cycles are being done for an organization's assessment.
 Users are expected to modify this ref file as needed.
 }
 \examples{
-WaterUseRef_UT <- TADA_CreateWaterUseRef(org_id = "UTAHDWQ")
+TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 
 }
 \seealso{
