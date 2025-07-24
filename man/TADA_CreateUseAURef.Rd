@@ -29,11 +29,16 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{sitesAURef}{An option data frame input. If provided, this data frame
-should contain a completed crosswalk of monitoring location sites associated
-with an assessment unit. Users will need to ensure this crosswalk contains the
+\item{sitesAURef}{A required data frame input. This data frame
+should contain a completed crosswalk of water types found in ATTAINS associated
+with each assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
 See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
+
+\item{waterUseRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with a water type.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
 
 \item{useAURef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with an assessment unit.
@@ -55,40 +60,103 @@ function input. This helps prevent users from overwriting their progress.}
 A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
 }
 \description{
-This function will pull in all prior use names associated with an organization identifier
-assessment units from prior ATTAINS cycles.
+This function pulls in all prior use names associated with each
+organization's assessment unit from the prior ATTAINS cycle.
 }
 \details{
-Note that any new or modified AU information must be provided from the user's end if
-they decide to incorporate this in their summaries as we
-cannot query use names from AU that are not shown in ATTAINS yet.
-NOTE: Future development looks to allow users to submit their own
-AU shapefiles into TADA module 2 functions to allow for
-matching ML to these new/modified AU.
+This function requires a crosswalk of an organization's ML, AU and ATTAINS
+Water Type code.The output from TADA_GetATTAINS(.data, return_sf = FALSE)
+can be used directly as the sitesAURef argument input in this function.
 
-This function requires users to provide a crosswalk between ML and AU.
-The output from TADA_GetATTAINS(.data, return_sf = FALSE) can be used directly
-as the sitesAURef argument input in this function.
+Users must supply their own Use to AU crosswalk table if they would like
+to apply Uses to AUs that cannot be retrieved from the prior ATTAINS cycle.
 
-Users are expected to modify this AU ref file with the appropriate AU and
-MonitoringLocationName/MonitoringLocationType/MonitoringLocationId crosswalk
-for the current Assessment cycle. Users can decide to "Include or Exclude" a MonitoringLocation
-within an AU if desired. This can be used if a MoniotringLocation would still like to be
-crosswalk to the AU but may only be applicable for certain parameters. Users
-can choose to add new parameters and uses as needed.
+Any new or modified AU information that gets submitted in the current assessment
+cycle as an ATTAINS batch upload will not be available in ATTAINS until the
+assessment is approved and completed. Users can either supply their own Water
+Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water to
+Use reference file. This Water to Use reference file can be used to assign all
+unique Uses to a new/modified AU.
 }
 \examples{
-# First, we will generate our ML to AU crosswalk. See Module 2 for more information
-# Preload Data_Nutrients_UT_GetATTAINS which already contains output from TADA_GetATTAINS.
-# UT_AU_ML <- TADA_GetATTAINS(Data_Nutrients_UT, return_sf = FALSE)
-UT_AU_ML <- Data_Nutrients_UT_GetATTAINS
+\dontrun{
+# Pull a sample WQP data query 
+TADA_AK_Example <- TADA_DataRetrieval(
+  startDate = "2022-01-01", endDate = "2022-03-31",
+  organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
+  characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
+  ask = FALSE)
 
-# Now, run TADA_CreateUseAURef()
-UseAURef_UT <- TADA_CreateUseAURef(
-  Data_Nutrients_UT,
-  org_id = c("UTAHDWQ"),
-  sitesAURef = UT_AU_ML,
-  excel = FALSE
+# Alaska example to updated data links with no user supplied crosswalk
+AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
+  org_id = "AKDECWQ",
+  crosswalk = NULL,
+  attains_replace = FALSE,
+  wqp_data_links = "none"
 )
+
+# Alaska example using a user supplied crosswalk to update entries in
+# ATTAINS by appending user supplied information to ATTAINS crosswalk
+
+# example monitoring location identifiers
+ASSESSMENT_UNIT_ID <- c(
+  "AK_M_1021211_000", "AK_M_1021008_000",
+  "AK_M_1021109_013", "AK_M_1021109_013",
+  "AK_M_1021109_013"
+)
+
+# example organization identifiers
+MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+
+# example ML, these are only examples
+MS_LOCATION_ID <- c(
+  "AKDECWQ-Snag Point", "AKDECWQ-Kanakanak", "AKDECWQ-Scandinavian",
+  "AKDECWQ-Snag Point", "AKDECWQ-Kanakanak"
+)
+
+ATTAINS.WaterType <- c(
+  "BEACH", "BAY", "CREEK",
+  "ESTUARY", "COASTAL"
+)
+
+# example urls
+MONITORING_DATA_LINK_TEXT <- c(
+  "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+  "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+  "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+  "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
+  "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/"
+)
+
+# create example crosswalk data frame
+ex.user.cw <- data.frame(
+  MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
+  MONITORING_DATA_LINK_TEXT, ATTAINS.WaterType
+)
+
+AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(
+  org_id = "AKDECWQ",
+  crosswalk = ex.user.cw,
+  attains_replace = FALSE,
+  wqp_data_links = "none"
+)
+
+# Rename column for TADA_CreateUseAURef format
+AK_AU_Ref <- AK_appenduserdata \%>\% 
+  dplyr::mutate(ATTAINS.assessmentunitidentifier = ASSESSMENT_UNIT_ID) \%>\%
+  dplyr::mutate(ATTAINS.OrganizationIdentifier = "AKDECWQ") \%>\%
+  dplyr::mutate(MonitoringLocationIdentifier = MS_LOCATION_ID) \%>\%
+  dplyr::select(
+    ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier,
+    ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
+    )
+
+AK_CreateUseAURef <- TADA_CreateUseAURef(
+  TADA_AK_Example, org_id = "AKDECWQ", 
+  sitesAURef = AK_AU_Ref,
+  excel = FALSE
+  )
+
+}
 
 }

@@ -4,7 +4,12 @@
 \alias{TADA_CreateWaterUseRef}
 \title{Helper Function to Apply Uses to Unassigned Assessment Units by Water Type}
 \usage{
-TADA_CreateWaterUseRef(.data, org_id = NULL, auto_assign = FALSE)
+TADA_CreateWaterUseRef(
+  .data,
+  org_id = NULL,
+  waterUseRef = NULL,
+  auto_assign = FALSE
+)
 }
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,

@@ -6,8 +6,6 @@
 \usage{
 TADA_CriteriaSummary(
   .data,
-  auto_assign = FALSE,
-  org_id = NULL,
   criteriaMethods = NULL,
   spatialRef = NULL,
   summarizeBy = c("All", "Criteria", "Char"),

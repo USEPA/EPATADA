@@ -7,6 +7,7 @@
 TADA_DefineCriteriaMethodology(
   .data,
   spatialRef = NULL,
+  criteriaMethods = NULL,
   epa304a = FALSE,
   auto_assign = FALSE,
   org_id = NULL,
