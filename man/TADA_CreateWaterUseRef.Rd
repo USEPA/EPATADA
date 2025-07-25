@@ -4,12 +4,7 @@
 \alias{TADA_CreateWaterUseRef}
 \title{Helper Function to Apply Uses to Unassigned Assessment Units by Water Type}
 \usage{
-TADA_CreateWaterUseRef(
-  .data,
-  org_id = NULL,
-  waterUseRef = NULL,
-  auto_assign = FALSE
-)
+TADA_CreateWaterUseRef(.data, org_id = NULL, waterUseRef = NULL)
 }
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
@@ -26,11 +21,10 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{auto_assign}{A Boolean value. NOTE: Should we consider assignments of
-MonitoringLocationTypeName to ATTAINS WaterTypeCode here? THIS HAS NOT BEEN
-DEVELOPED BUT IS IT WORTHWHILE TO TRY TO ASSIGN USES TO SITES. PERHAPS A SITE
-DOES NOT GET MATCHED TO ANY AUS BUT USERS MAY BE INTERESTED IN CREATING A NEW
-AU FOR THESE NON-MATCHED SITES.}
+\item{waterUseRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with a water type.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -63,6 +57,4 @@ TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 }
 \seealso{
 \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
-
-\code{\link[=TADA_CreateSpatialRef]{TADA_CreateSpatialRef()}}
 }
