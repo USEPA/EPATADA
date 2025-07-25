@@ -2034,7 +2034,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
     
     CreateUseAURef_MissingUse <- CreateUseAURef_MissingUse %>%
       dplyr::select(ATTAINS.assessmentunitidentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType, TADA.AssessmentUnitStatus) %>%
-      dplyr::left_join(AK_Sites, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.WaterType")) %>%
+      dplyr::left_join(sitesAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.WaterType")) %>%
       dplyr::left_join(waterUseRef, by = c("ATTAINS.OrganizationIdentifier" , "ATTAINS.WaterType"))
     
     CreateUseAURef <- CreateUseAURef %>%
