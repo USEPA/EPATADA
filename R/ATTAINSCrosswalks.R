@@ -58,7 +58,8 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
     au.crosswalk <- au.info %>%
       dplyr::select(
         monitoringLocationId, monitoringLocationOrgId,
-        assessmentUnitId, monitoringLocationDataLink
+        assessmentUnitId, monitoringLocationDataLink,
+        waterType
       ) %>%
       dplyr::filter(!is.na(monitoringLocationId)) %>%
       dplyr::distinct() %>%
@@ -66,7 +67,8 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
         ATTAINS.assessmentunitidentifier = assessmentUnitId,
         MonitoringLocationIdentifier = monitoringLocationId,
         OrganizationIdentifier = monitoringLocationOrgId,
-        MonitoringDataLinkText = monitoringLocationDataLink
+        MonitoringDataLinkText = monitoringLocationDataLink,
+        ATTAINS.WaterType = waterType
       ) %>%
       # paste org_id in front of MLs from the specified org if they are missing
       # from ATTAINS
@@ -1914,7 +1916,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
 #'   excel = FALSE
 #' )
-#' 
+#'
 #' # We can save and reuse a useAURef as desired.
 #' AK_CreateUseAURef2 <- TADA_CreateUseAURef(
 #'   TADA_AK_Example,
@@ -1923,7 +1925,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   sitesAURef = AK_AU_Ref,
 #'   excel = FALSE
 #' )
-#' 
+#'
 #' }
 #'
 TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Required inputs in this line
