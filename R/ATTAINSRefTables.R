@@ -171,77 +171,50 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     return(ATTAINSParamUseOrgRef_Cached)
   }
 
-  # Try to download up-to-date raw data
-  raw.data <- tryCatch(
-    {
-      # reads rExpertQuery domain value
-      org_id <- rExpertQuery::EQ_DomainValues("org_id")[[3]]
-      all.data <- list()
+  # from national download
+  nat.assessments <- rExpertQuery::EQ_NationalExtract("assessments")
 
-      for (i in 1:length(org_id)) {
-        skip_to_next <- FALSE
-
-        tryCatch(
-          all.data[[i]] <- rExpertQuery::EQ_Assessments(
-            org_id = org_id[i],
-            api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
-          )[, c(5, 6, 4, 17, 29)],
-          error = function(e) {
-            skip_to_next <<- TRUE
-          }
-        )
-
-        if (skip_to_next) {
-          next
-        }
-      }
-
-      all.data2 <- lapply(
-        all.data,
-        function(x) {
-          if (!is.null(x)) {
-            x <- x %>%
-              dplyr::distinct() %>%
-              dplyr::mutate_at(dplyr::vars(organizationId), as.character)
-          } else {
-            NULL
-          }
-        }
-      )
-
-      all.data3 <- all.data2 %>%
-        dplyr::bind_rows(.id = "column_label") %>%
-        dplyr::select(
-          ATTAINS.OrganizationIdentifier = organizationId,
-          ATTAINS.OrganizationName = organizationName,
-          ATTAINS.OrganizationType = organizationType,
-          ATTAINS.ParameterName = parameterName,
-          ATTAINS.UseName = useName
-        )
-    },
-    error = function(err) {
-      NULL
-    }
-  )
-
-  # remove intermediate variables
-  rm(all.data, all.data2, all.data3, i, skip_to_next)
-
-  # If the download failed fall back to internal data (and report it)
-  if (is.null(raw.data)) {
+  if (!exists("nat.assessments")) {
     message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
   }
 
-  ATTAINSParamUseOrgRef <- raw.data
+  # to match you origianal query which by default was considering only the
+  # latest cycle form each org, you could skip this step and use params from
+  # all assessment cycles
+
+  latest.assessments <- nat.assessments %>%
+    dplyr::group_by(organizationId) %>%
+    dplyr::slice_max(reportingCycle) %>%
+    dplyr::select(-objectId) %>%
+    dplyr::distinct() %>%
+    dplyr::ungroup()
+
+    latest.params <- latest.assessments %>%
+    dplyr::select(organizationId, organizationName,
+                  organizationType, parameterName,
+                  useName) %>%
+    dplyr::rename( ATTAINS.OrganizationIdentifier = organizationId,
+                   ATTAINS.OrganizationName = organizationName,
+                   ATTAINS.OrganizationType = organizationType,
+                   ATTAINS.ParameterName = parameterName,
+                   ATTAINS.UseName = useName) %>%
+      dplyr::distinct()
+
+  # remove intermediate variables
+  rm(nat.assessments, latest.assessments)
+  # If the download failed fall back to internal data (and report it)
+
+  ATTAINSParamUseOrgRef <- latest.params
+
+  rm(latest.params)
 
   # Save updated table in cache
   ATTAINSParamUseOrgRef_Cached <- ATTAINSParamUseOrgRef
 
   ATTAINSParamUseOrgRef
 }
-
 
 # Update ATTAINSParamUseOrg Reference Table internal file
 # (for internal use only)

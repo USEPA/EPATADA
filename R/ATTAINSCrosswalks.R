@@ -16,13 +16,13 @@
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
 #'
-#' @return A dataframe with four columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier, and
-#' MonitoringDataLinkText is returned. This is the crosswalk between monitoring
-#' location identifiers and assessment units that the state or tribal
-#' organization submitted to ATTAINS (optional). If an ATTAINS organization
-#' has not submitted this information in ATTAINS, the function will not return
-#' a dataframe.
+#' @return A dataframe with five columns, MonitoringLocationIdentifier,
+#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
+#' MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
+#' crosswalk between monitoring location identifiers and assessment units that
+#' the state or tribal organization submitted to ATTAINS (optional). If an
+#' ATTAINS organization has not submitted this information in ATTAINS, the
+#' function will not return a dataframe.
 #'
 #' @export
 #'
