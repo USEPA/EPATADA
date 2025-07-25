@@ -2216,11 +2216,10 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
 #' the function attempts to identify which organization identifier(s) to include
 #' based on the unique ATTAINS organization identifiers found in the dataframe.
 #'
-#' @param auto_assign A Boolean value. NOTE: Should we consider assignments of
-#' MonitoringLocationTypeName to ATTAINS WaterTypeCode here? THIS HAS NOT BEEN
-#' DEVELOPED BUT IS IT WORTHWHILE TO TRY TO ASSIGN USES TO SITES. PERHAPS A SITE
-#' DOES NOT GET MATCHED TO ANY AUS BUT USERS MAY BE INTERESTED IN CREATING A NEW
-#' AU FOR THESE NON-MATCHED SITES.
+#' @param waterUseRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with a water type.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -2236,14 +2235,13 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
 #' @seealso [TADA_CreateUseAURef()]
-#' @seealso [TADA_CreateSpatialRef()]
 #'
 #' @export
 #'
 #' @examples
 #' TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 #'
-TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL, auto_assign = FALSE) {
+TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
   # If org_id argument is not provided, this will attempt to pull in org_id from TADA_GetATTAINS.
   if (is.null(org_id)) {
     print(
