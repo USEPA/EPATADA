@@ -299,7 +299,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
             MS_LOCATION_ID,
             MS_ORG_ID,
             ASSESSMENT_UNIT_ID,
-            MONITORING_DATA_LINK_TEXT
+            MONITORING_DATA_LINK_TEXT,
+            ATTAINS.WaterType
           )) %>%
           dplyr::distinct()
 
