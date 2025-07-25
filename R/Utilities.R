@@ -121,7 +121,7 @@ utils::globalVariables(c(
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
-  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", 
+  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
   "monitoringLocationDataLink"
 ))

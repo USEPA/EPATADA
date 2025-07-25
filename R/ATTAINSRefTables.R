@@ -22,7 +22,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <- data.frame(name = rExpertQuery::EQ_DomainValues('param_name')[,"name"])
+      attainsParamRef <- data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"])
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
@@ -58,10 +58,9 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
           "TOTAL ORGANIC CARBON (TOC)",
           "ALKALINITY, TOTAL",
           "TOTAL DISSOLVED SOLIDS (TDS)"
-          
         )
       )
-      
+
       attainsWQXRef <- WQXCharRef %>%
         dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "rExpertQuery..EQ_DomainValues..param_name......name..")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
@@ -120,7 +119,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      rExpertQuery::EQ_DomainValues('org_id')
+      rExpertQuery::EQ_DomainValues("org_id")
     },
     error = function(err) {
       NULL
@@ -176,7 +175,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   raw.data <- tryCatch(
     {
       # reads rExpertQuery domain value
-      org_id <- rExpertQuery::EQ_DomainValues('org_id')[[3]]
+      org_id <- rExpertQuery::EQ_DomainValues("org_id")[[3]]
       all.data <- list()
 
       for (i in 1:length(org_id)) {

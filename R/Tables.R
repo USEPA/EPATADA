@@ -72,8 +72,7 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #' # Create stats table:
 #' Data_6Tribes_5y_Harmonized_stats <- TADA_Stats(Data_6Tribes_5y_Harmonized)
 #'
-TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier"),
-                       criteriaMethods = NULL) {
+TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
     sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(.data$TADA.ResultMeasureValue)])
     print(paste0("Dataset contains ", sumNAs, " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."))
