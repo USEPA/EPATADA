@@ -2222,17 +2222,6 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #'
-#' @param excel A Boolean value that returns an excel spreadsheet if
-#' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-#' If you have any trouble locating the file, please type the following into
-#' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
-#' the cells in which users should input information.
-#'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
-#'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
 #' @seealso [TADA_CreateUseAURef()]
