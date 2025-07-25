@@ -1914,6 +1914,16 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
 #'   excel = FALSE
 #' )
+#' 
+#' # We can save and reuse a useAURef as desired.
+#' AK_CreateUseAURef2 <- TADA_CreateUseAURef(
+#'   TADA_AK_Example,
+#'   org_id = "AKDECWQ",
+#'   useAURef = AK_CreateUseAURef_auto_assign,
+#'   sitesAURef = AK_AU_Ref,
+#'   excel = FALSE
+#' )
+#' 
 #' }
 #'
 TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Required inputs in this line
@@ -2063,7 +2073,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
         useAURef,
         by =
           c(
-            "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
+            "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", # "ATTAINS.assessmentunitname",
             "ATTAINS.UseName", "ATTAINS.WaterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
           )
       ) %>%
@@ -2071,7 +2081,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
         TADA.AssessmentUnitStatus = dplyr::case_when(
           !ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~ "New",
           ATTAINS.assessmentunitidentifier %in% sitesAURef$ATTAINS.assessmentunitidentifier ~
-            "Suspect: Excluding from Assessment. This AU is not found in your useAURef"
+            "Suspect: Excluding from Assessment. This AU and use is not found in your useAURef"
         )
       ) %>%
       dplyr::mutate(
@@ -2086,7 +2096,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
         useAURef,
         by =
           c(
-            "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
+            "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", # "ATTAINS.assessmentunitname",
             "ATTAINS.UseName", "ATTAINS.WaterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
           )
       ) %>%

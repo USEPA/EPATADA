@@ -80,12 +80,13 @@ unique Uses to a new/modified AU.
 }
 \examples{
 \dontrun{
-# Pull a sample WQP data query 
+# Pull a sample WQP data query
 TADA_AK_Example <- TADA_DataRetrieval(
-  startDate = "2022-01-01", endDate = "2022-03-31",
+  startDate = "2022-01-01", endDate = "2022-12-31",
   organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
-  ask = FALSE)
+  ask = FALSE
+)
 
 # Alaska example to updated data links with no user supplied crosswalk
 AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
@@ -142,29 +143,41 @@ AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(
 )
 
 # Rename column for TADA_CreateUseAURef format
-AK_AU_Ref <- AK_appenduserdata \%>\% 
+AK_AU_Ref <- AK_appenduserdata \%>\%
   dplyr::mutate(ATTAINS.assessmentunitidentifier = ASSESSMENT_UNIT_ID) \%>\%
   dplyr::mutate(ATTAINS.OrganizationIdentifier = "AKDECWQ") \%>\%
   dplyr::mutate(MonitoringLocationIdentifier = MS_LOCATION_ID) \%>\%
   dplyr::select(
     ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier,
     ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
-    )
+  )
 
 # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
 AK_CreateUseAURef <- TADA_CreateUseAURef(
-  TADA_AK_Example, org_id = "AKDECWQ", 
+  TADA_AK_Example,
+  org_id = "AKDECWQ",
   sitesAURef = AK_AU_Ref,
   excel = FALSE
-  )
+)
 
 # Let's use a wateruseRef now to fill in these values.
 AK_CreateUseAURef_auto_assign <- TADA_CreateUseAURef(
-  TADA_AK_Example, org_id = "AKDECWQ", 
+  TADA_AK_Example,
+  org_id = "AKDECWQ",
   sitesAURef = AK_AU_Ref,
   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
   excel = FALSE
-  )
+)
+
+# We can save and reuse a useAURef as desired.
+AK_CreateUseAURef2 <- TADA_CreateUseAURef(
+  TADA_AK_Example,
+  org_id = "AKDECWQ",
+  useAURef = AK_CreateUseAURef_auto_assign,
+  sitesAURef = AK_AU_Ref,
+  excel = FALSE
+)
+
 }
 
 }
