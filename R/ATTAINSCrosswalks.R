@@ -2286,7 +2286,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
 #' \dontrun{
 #' # Pull a sample WQP data query 
 #' TADA_AK_Example <- TADA_DataRetrieval(
-#'   startDate = "2022-01-01", endDate = "2022-03-31",
+#'   startDate = "2022-01-01", endDate = "2022-12-31",
 #'   organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
 #'   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
 #'   ask = FALSE)
@@ -2492,7 +2492,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
     
     CreateUseAURef_MissingUse <- CreateUseAURef_MissingUse %>%
       dplyr::select(ATTAINS.assessmentunitidentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType, TADA.AssessmentUnitStatus) %>%
-      dplyr::left_join(AK_Sites, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.WaterType")) %>%
+      dplyr::left_join(sitesAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.WaterType")) %>%
       dplyr::left_join(waterUseRef, by = c("ATTAINS.OrganizationIdentifier" , "ATTAINS.WaterType"))
     
     CreateUseAURef <- CreateUseAURef %>%

@@ -82,7 +82,7 @@ unique Uses to a new/modified AU.
 \dontrun{
 # Pull a sample WQP data query 
 TADA_AK_Example <- TADA_DataRetrieval(
-  startDate = "2022-01-01", endDate = "2022-03-31",
+  startDate = "2022-01-01", endDate = "2022-12-31",
   organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
   ask = FALSE)
@@ -100,9 +100,9 @@ AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
 
 # example monitoring location identifiers
 ASSESSMENT_UNIT_ID <- c(
-  "AK_M_1021211_000", "AK_M_1021008_000",
-  "AK_M_1021109_013", "AK_M_1021109_013",
-  "AK_M_1021109_013"
+  "NEW:AK_M_1021211_000", "NEW:AK_M_1021008_000",
+  "NEW:AK_M_1021109_013", "NEW:AK_M_1021109_013",
+  "NEW:AK_M_1021109_013"
 )
 
 # example organization identifiers
@@ -151,12 +151,20 @@ AK_AU_Ref <- AK_appenduserdata \%>\%
     ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
     )
 
+# New AUs that are not found in ATTAINS show blank ATTAINS.UseName
 AK_CreateUseAURef <- TADA_CreateUseAURef(
   TADA_AK_Example, org_id = "AKDECWQ", 
   sitesAURef = AK_AU_Ref,
   excel = FALSE
   )
 
+# Let's use a wateruseRef now to fill in these values.
+AK_CreateUseAURef_auto_assign <- TADA_CreateUseAURef(
+  TADA_AK_Example, org_id = "AKDECWQ", 
+  sitesAURef = AK_AU_Ref,
+  waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
+  excel = FALSE
+  )
 }
 
 }
