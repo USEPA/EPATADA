@@ -305,7 +305,10 @@ TADA_IDCensoredData <- function(.data) {
 #'   )
 #' }
 #'
-TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null") {
+TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
+                                       nd_multiplier = 0.5,
+                                       od_method = "as-is",
+                                       od_multiplier = "null") {
   # check .data has all of the required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
@@ -337,7 +340,13 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
     # split out over detects and non detects
     nd <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Non-Detect")
     od <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Over-Detect")
-    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier))
+    no.ref <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Detection condition is missing and required for censored data ID.")
+    missing.ref <- subset(cens.data, cens.data$TADA.CensoredData.Flag == "Detection condition or detection limit is not documented in TADA reference tables.")
+
+    all_others <- subset(cens.data, !cens.data$ResultIdentifier %in% c(nd$ResultIdentifier, od$ResultIdentifier,
+                                                                       no.ref$ResultIdentifier, missing.ref$ResultIdentifier))
+
+  # HRM note 7/15/2025 still need to add code to set no.ref.missing results to NA
 
     # ND handling
     if (dim(nd)[1] > 0) {
@@ -369,7 +378,22 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier", nd_multi
       }
     }
 
-    .data <- plyr::rbind.fill(nd, od, all_others) %>%
+    # handling for results with missing detection conditions or with a detection condition or limit not in TADA ref table
+    if (dim(no.ref)[1] > 0) {
+        no.ref$TADA.ResultMeasureValue <- NA
+        no.refTADA.CensoredMethod <- "Result set to NA due to Missing Detection Condition"
+        no.ref$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
+    }
+
+    # handling for results with missing detection conditions or with a detection condition or limit not in TADA ref table
+    if (dim(missing.ref)[1] > 0) {
+      missing.ref$TADA.ResultMeasureValue <- NA
+      missing.ref$TADA.CensoredMethod <- "Result set to NA as Detection Conditon or Limit is not in TADA Ref Table"
+      missing.ref$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
+    }
+
+
+    .data <- plyr::rbind.fill(nd, od, all_others, no.ref, missing.ref) %>%
       TADA_CreateComparableID()
   }
   .data <- TADA_OrderCols(.data)
