@@ -534,10 +534,10 @@ user's decision to remove/correct sites that are outside the US.
 TADA_OverviewMap(TADAProfile)
 ```
 
-The TADA **TADA_FlagCoordinates** function identifies and flags
-potentially invalid coordinate data. While its functionality is
-showcased here, it is always important to review any invalid outputs
-before cleaning to reduce the risk of leaving out usable data/sites.
+The **TADA_FlagCoordinates** function identifies and flags potentially
+invalid coordinate data. While its functionality is showcased here, it
+is always important to review any invalid outputs before cleaning to
+reduce the risk of leaving out usable data/sites.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
 sign". The default is "no" which flags latitude and longitude
@@ -611,9 +611,13 @@ Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
 
 Unique_SuspectCoordinateFlags
 
-# if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
+# if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also set clean_imprecise = TRUE if you want to remove sites with imprecise lat/longs. Enter ?TADA_FlagCoordinates into the console for more details.
 
-# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, flaggedonly = FALSE)
+# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = TRUE, flaggedonly = FALSE)
+```
+
+```{r, include = F}
+rm(Unique_SuspectCoordinateFlags)
 ```
 
 ## Depth unit conversions
@@ -1202,15 +1206,11 @@ Count how many NA's remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only numeric data. Remove data where the
+Filter down to only include data that is numeric in the "TADA.ResultMeasureValue" column. This removes data where the
 TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
-You can also remove any columns not required for the TADA workflow that
-contain only NAs. The **TADA_AutoFilter()** function removes non-numeric
-data and optional columns containing only NAs.
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
-TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
+TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 Double check to make sure no NA's or ND's remain.
@@ -1218,7 +1218,16 @@ Double check to make sure no NA's or ND's remain.
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 
+nrow(TADAProfileClean4)-nrow(TADAProfileClean5)
+
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
+```
+
+You can also use the **TADA_AutoFilter()** function to remove any columns not required for the TADA workflow that
+contain only NAs. 
+
+```{r filter_out_NAs}
+TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean5)
 ```
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
@@ -1297,7 +1306,11 @@ the same day at the same site and depth, the function will pick the
 maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
-TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
+TADAProfileClean6 <- TADAProfileClean5
+  # TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
+
+# this is generating a new invalid comparable data ID
+# test = as.data.frame(unique(TADAProfileClean6$TADA.ComparableDataIdentifier))
 ```
 
 ## Parameter Level Filtering

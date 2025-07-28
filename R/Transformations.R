@@ -342,7 +342,6 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     # bring in equations
     eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "EPATADA"))
 
-
     # dataframe to hold results
     summeddata <- data.frame()
     grps <- vector()
