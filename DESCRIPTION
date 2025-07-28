@@ -79,7 +79,8 @@ Imports:
     DT,
     dataRetrieval,
     dbscan,
-    janitor
+    janitor,
+    rExpertQuery
 Depends: 
     R (>= 3.5.0)
 Suggests:
