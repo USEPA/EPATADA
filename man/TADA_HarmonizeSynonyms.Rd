@@ -22,8 +22,8 @@ NO3 will be converted to as N using molecular weight conversion factors.}
 }
 \value{
 The input TADA dataframe with the TADA.CharacteristicName,
-TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
-TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
+TADA.ResultSampleFractionText, and TADA.MethodSpeciationName columns
+converted to the target values,
 if supplied. Also includes additional columns
 TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
 TADA.SpeciationAssumptions populated with additional notes about the conversion
@@ -37,7 +37,7 @@ and visualization. Users may populate the function with a dataset-specific
 synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
-characteristic name, fraction, speciation, or unit is present, the function
+characteristic name, fraction, or speciation is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName to the target format. In cases where a target
 speciation differs from the existing speciation, the reference table will

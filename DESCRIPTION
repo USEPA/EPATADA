@@ -76,15 +76,14 @@ Imports:
     igraph,
     jsonlite, 
     openxlsx,
-    rExpertQuery,
     DT,
     dataRetrieval,
     dbscan,
-    janitor
+    janitor,
+    rExpertQuery
 Depends: 
     R (>= 3.5.0)
 Suggests:
-    StreamCatTools, 
     hydroloom,
     lwgeom,
     RColorBrewer,
@@ -104,9 +103,7 @@ Suggests:
     rvest,
     remotes
 Remotes:
-    DOI-USGS/dataRetrieval@develop,
-    USEPA/rExpertQuery@develop,
-    USEPA/StreamCatTools@master
+    USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
 Language: en-US
 Config/testthat/edition: 3

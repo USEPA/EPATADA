@@ -6,7 +6,7 @@
 #' synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 #' user (recommended), or the default TADA-provided synonym table, containing
 #' suggested synonym naming for some priority characteristics. Where a suggested
-#' characteristic name, fraction, speciation, or unit is present, the function
+#' characteristic name, fraction, or speciation is present, the function
 #' will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 #' and TADA.MethodSpeciationName to the target format. In cases where a target
 #' speciation differs from the existing speciation, the reference table will
@@ -24,8 +24,8 @@
 #'   NO3 will be converted to as N using molecular weight conversion factors.
 #'
 #' @return The input TADA dataframe with the TADA.CharacteristicName,
-#'   TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
-#'   TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
+#'   TADA.ResultSampleFractionText, and TADA.MethodSpeciationName columns 
+#'   converted to the target values,
 #'   if supplied. Also includes additional columns
 #'   TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
 #'   TADA.SpeciationAssumptions populated with additional notes about the conversion
@@ -94,11 +94,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
   }
 
-  # Change NONE in unit, fraction, and speciation to NA for better harmonization
+  # Changes NONE in fraction and speciation to NA for better harmonization
+  # Should this be specified in the template instead? 7/25/25 cm
   .data <- .data %>% dplyr::mutate(
     TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
-    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA),
-    TADA.ResultMeasure.MeasureUnitCode = replace(TADA.ResultMeasure.MeasureUnitCode, TADA.ResultMeasure.MeasureUnitCode %in% c("NONE"), NA)
+    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA)
   )
 
   # define harm.ref
@@ -313,7 +313,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityMediaSubdivisionName",
     "TADA.ActivityMediaName",
     "TADA.ComparableDataIdentifier",
-    "TADA.ResultMeasure.MeasureUnitCode",
+    # "TADA.ResultMeasure.MeasureUnitCode",
     depths
   )
 
