@@ -28,7 +28,7 @@ test_that("TADA_AutoClean function does not grow dataset", {
 #  # TADA_AutoClean harmonizes pH, and other mod 1 required functions remove garbage data
 #  pHtest <- TADA_AutoClean(random_data)
 #  pHtest2 <- TADA_SimpleCensoredMethods(pHtest)
-#  pHtest3 <- TADA_AutoFilter(pHtest2)
+#  pHtest3 <- TADA_ConvertSpecialChars(pHtest2, col = "TADA.ResultMeasureValue", clean = TRUE)
 #  pHtest4 <- TADA_RunKeyFlagFunctions(pHtest3)
 #  pHtest5 <- TADA_HarmonizeSynonyms(pHtest4)
 #

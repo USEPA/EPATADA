@@ -189,7 +189,8 @@ TADA_UpdateExampleData <- function() {
   # REQUIRED
   unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
   sum(is.na(Data_WV$TADA.ResultMeasureValue))
-  Data_WV <- TADA_AutoFilter(Data_WV)
+  # deals with NAs 
+  Data_WV <- TADA_ConvertSpecialChars(Data_WV, col = "TADA.ResultMeasureValue", clean = TRUE)
   unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
   sum(is.na(Data_WV$TADA.ResultMeasureValue))
   # Remove results with QC issues
@@ -198,7 +199,6 @@ TADA_UpdateExampleData <- function() {
     Data_WV,
     clean = TRUE
   )
-  # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
   # Flag above and below threshold. Do not remove
   # OPTIONAL
   Data_WV <- TADA_FlagAboveThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
