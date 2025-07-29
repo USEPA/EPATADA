@@ -293,7 +293,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     sum_ref <- TADA_GetNutrientSummationRef()
   }
 
-  # check if QC flag function run and print warning if not
+  # check if QC flag function ran and print warning if not
   if (!"TADA.ActivityType.Flag" %in% names(.data)) {
     "Warning: TADA dataset does not have the TADA.ActivityType.Flag column, which indicates QC replicates have not been handled/reviewed. This function is not built to handle QC replicate samples and will use them to aggregate to a daily max and total nutrient value."
   }
@@ -313,7 +313,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityMediaSubdivisionName",
     "TADA.ActivityMediaName",
     "TADA.ComparableDataIdentifier",
-    # "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.ResultMeasure.MeasureUnitCode", # this needs to be included because TADA.ComparableDataIdentifier no longer includes unit
     depths
   )
 
