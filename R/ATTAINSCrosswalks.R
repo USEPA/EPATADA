@@ -723,7 +723,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     ))
   }
   
-  # If no paramRef is provided, the ATTAINS.ParameterName returns a blank column of NA that will need user input.
+  # ATTAINS.ParameterName returns a blank column of NA that will need manual crosswalk.
   if (tolower(auto_assign) == tolower("None")) {
     CreateParamRef <- TADA_param %>%
       dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
@@ -743,6 +743,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::distinct()
   }
   
+  # ATTAINS.ParameterName is matched by WQP Characteristic Name alias name as reviewed by TADA.
   if (tolower(auto_assign) == tolower("All")) {
     print(paste0(
       "auto_assign == 'All' was selected, ",
@@ -788,6 +789,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::distinct()
   }
   
+  # ATTAINS.ParameterName is matched by WQP Characteristic Name alias name as reviewed by TADA.
+  # Only returned if a user's org has used the domain value in prior ATTAINS cycle submission.
   if (tolower(auto_assign) == tolower("Org")) {
     print(paste0(
       "auto_assign == 'Org' was selected, ",
@@ -840,6 +843,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::distinct()
   }
   
+  # User supplies their own completed crosswalk. Will flag rows based on the type of match.
   if (!is.null(paramRef)) {
     # Identifies NEW rows in your current CreateParamRef data frame that are missing from your paramRef input -
     # i.e. current WQP Characteristics that you have not defined a crosswalk for
