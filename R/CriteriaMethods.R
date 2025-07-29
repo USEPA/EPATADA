@@ -80,13 +80,15 @@
 #'
 TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
+                                           paramRef = NULL, useParamRef = NULL, spatialRef = NULL, # Optional if user makes edits to any of these.
+                                           myfileRef = FALSE, # Makes each excel spreadsheet a user supplied ref input.
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
   # If user wants to create a prepopulated CriteriaMethods table, it will run all crosswalk tables and use the default.
   if(auto_assign == TRUE){
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review  this paramRef table output."))
+    message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
     TADA_ParamRef <- TADA_CreateParamRef(  
       .data, 
       org_id = org_id,
@@ -94,7 +96,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
       excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     )
     
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review  this Use to paramRef table output."))
+    message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
     TADA_UseParamRef <- TADA_CreateUseParamRef(  
       .data, 
       org_id = org_id,
@@ -111,6 +113,20 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
       sitesAURef = sitesAURef,
       excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     )
+    
+    if (myfileRef == TRUE && is.null(paramRef) ) {
+      myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef") 
+      
+      TADA_ParamRef <- TADA_CreateParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = myfile_ParamRef,
+        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      
+    }
   }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
@@ -158,12 +174,12 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
   # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-  metal_list <- data.frame(
-    ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
-  ) %>%
-    cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
-    cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
-    dplyr::arrange(ATTAINS.ParameterName)
+  # metal_list <- data.frame(
+  #   ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
+  # ) %>%
+  #   cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
+  #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
+  #   dplyr::arrange(ATTAINS.ParameterName)
   
   # Creates the DefineCriteriaMethodology table from the spatialRef.
   DefineCriteriaMethodology <- spatialRef %>%
@@ -204,11 +220,11 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
         DataSufficiency.CountSamplingDistribution = as.numeric(NA), DataSufficiency.SamplingDistribution = as.character(NA), DataSufficiency.MinSamplePerDistribution = as.numeric(NA)
       )
     ) %>%
-    dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-    dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
-    dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
-    dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
-    dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
+    #dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+    #dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
+    #dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
+    #dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
+    #dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
     tidyr::drop_na(ATTAINS.ParameterName) %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
