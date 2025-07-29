@@ -1241,13 +1241,6 @@ nrow(TADAProfileClean4)-nrow(TADAProfileClean5)
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
 ```
 
-You can also use the **TADA_AutoFilter()** function to remove any
-columns not required for the TADA workflow that contain only NAs.
-
-```{r remove_cols}
-TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean5)
-```
-
 ```{r}
 rm(TADAProfileClean4)
 ```

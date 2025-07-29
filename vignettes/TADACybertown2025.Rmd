@@ -340,6 +340,12 @@ WQP_clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
+`TADA_FindQCActivities` removes results with QA/QC ActivityTypeCode's.
+
+```{r QCdata}
+WQP_clean <- TADA_FindQCActivities(WQP_clean, clean = TRUE)
+```
+
 `TADA_ConvertSpecialChars` removes rows where the result value is not numeric to
 prepare a dataframe for quantitative analyses. Specifically, this
 function removes rows with "Text" and "NA - Not Available" in the
@@ -348,20 +354,14 @@ TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode's. This function also removes any
 columns not required for TADA workflow where all values are equal to NA.
 
-```{r autofilter}
+```{r SpecialChars}
 WQP_clean <- TADA_ConvertSpecialChars(WQP_clean, col = "TADA.ResultMeasureValue", clean = TRUE)
-```
-
-XXX removes results with QA/QC ActivityTypeCode's. XXX removes any
-columns not required for the TADA workflow where all values are equal to NA.
-
-```{r}
-
 ```
 
 TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
 flagging functions. See ?function documentation for TADA_FlagResultUnit,
-TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode,
+TADA_FlagFraction,
+TADA_FlagMeasureQualifierCode,
 and TADA_FlagSpeciation for more information.
 
 ```{r TADA_RunKeyFlagFunctions}
@@ -608,6 +608,12 @@ TADA_Histogram(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_Boxplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
+```
+
+`TADA_RetainRequired` removes extra columns. Enter ?TADA_RetainRequired into the console for more details.
+
+```{r}
+WQP_clean_subset_final <- TADA_RetainRequired(WQP_clean_subset)
 ```
 
 ## Record end time
