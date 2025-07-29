@@ -1,7 +1,7 @@
 #' Define Criteria and Methodology
 #'
 #' Users will need to provide the completed reference tables from
-#' TADA_CreateSpatialRef. This will generate a template for users to fill out
+#' TADA_CreateSiteRef. This will generate a template for users to fill out
 #' and define either the full Criteria or magnitude only values associated with
 #' an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
 #' users will need to ensure they properly define any additional methods that will
@@ -33,7 +33,7 @@
 #' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
 #' processing, harmonization and filtering functions prior to this step.
 #'
-#' @param spatialRef An optional data frame which contains the completed spatial
+#' @param siteRef An optional data frame which contains the completed spatial
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
 #' 
@@ -63,8 +63,8 @@
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, run TADA_CreateSpatialRef()
-#' SpatialRef_UT <- TADA_CreateSpatialRef(
+#' # Now, run TADA_CreateSiteRef()
+#' siteRef_UT <- TADA_CreateSiteRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
 #'   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
@@ -74,48 +74,65 @@
 #'
 #' DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT,
-#'   spatialRef = SpatialRef_UT,
+#'   siteRef = siteRef_UT,
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
-                                           paramRef = NULL, useParamRef = NULL, spatialRef = NULL, # Optional if user makes edits to any of these.
-                                           myfileRef = FALSE, # Makes each excel spreadsheet a user supplied ref input.
+                                           updateRef = "none", # c("none", "paramRef", "useParamRef", "siteRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
+  # Invalid function input combos
+  if (auto_assign == FALSE && updateRef != "none") {
+    stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE and updateRef = 'none' is an invalid function input.")
+  }
+  
+  # Ensures you have used a valid auto_assign name
+  if (!updateRef %in% c("none", "paramRef", "useParamRef", "siteRef")) {
+    stop(paste0(
+      "TADA_DefineCriteriaMethodology: ",
+      "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'siteRef' as a value."
+    ))
+  }
+  
   # If user wants to create a prepopulated CriteriaMethods table, it will run all crosswalk tables and use the default.
-  if(auto_assign == TRUE){
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
-    TADA_ParamRef <- TADA_CreateParamRef(  
-      .data, 
-      org_id = org_id,
-      auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
-      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
-    )
+  if (auto_assign == TRUE) {
+    # default, runs all reference tables with no user edits
+    if(updateRef == "none") {
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
+      TADA_ParamRef <- TADA_CreateParamRef(  
+        .data, 
+        org_id = org_id,
+        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
+      TADA_UseParamRef <- TADA_CreateUseParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = TADA_ParamRef,
+        auto_assign = TRUE,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateSiteRef with default assignment. Please review  this sites Ref table output."))
+      siteRef <- TADA_CreateSiteRef(  
+        .data, 
+        org_id = org_id,
+        useParamRef = TADA_UseParamRef,
+        sitesAURef = sitesAURef,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+    }
     
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
-    TADA_UseParamRef <- TADA_CreateUseParamRef(  
-      .data, 
-      org_id = org_id,
-      paramRef = TADA_ParamRef,
-      auto_assign = TRUE,
-      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
-    )
-    
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateSpatialRef with default assignment. Please review  this sites Ref table output."))
-    spatialRef <- TADA_CreateSpatialRef(  
-      .data, 
-      org_id = org_id,
-      useParamRef = TADA_UseParamRef,
-      sitesAURef = sitesAURef,
-      excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
-    )
-    
-    if (myfileRef == TRUE && is.null(paramRef) ) {
-      myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef") 
+    # user only updates paramRef. This will update paramRef, useParamRef, and siteRef based on these modifications.
+    if (updateRef == "paramRef") {
+      message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef") 
       
       TADA_ParamRef <- TADA_CreateParamRef(  
         .data, 
@@ -125,19 +142,96 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
+      TADA_UseParamRef <- TADA_CreateUseParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = TADA_ParamRef,
+        auto_assign = TRUE,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
       
+      siteRef <- TADA_CreateSiteRef(  
+        .data, 
+        org_id = org_id,
+        useParamRef = TADA_UseParamRef,
+        sitesAURef = sitesAURef,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+    }
+      
+    # user only updates useParamRef. This will update useParamRef, siteRef based on this modifications.
+    if (updateRef == "useParamRef") {
+      message(paste0("auto_assign = TRUE and updateRef = useParamRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      myfile_UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef") 
+      
+      TADA_ParamRef <- TADA_CreateParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = myfile_UseParamRef, # will update paramRef based on useParamRef
+        auto_assign = "All",
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      TADA_UseParamRef <- TADA_CreateUseParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = TADA_ParamRef,
+        useParamRef = myfile_UseParamRef,
+        auto_assign = TRUE,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      siteRef <- TADA_CreateSiteRef(  
+        .data, 
+        org_id = org_id,
+        useParamRef = TADA_UseParamRef,
+        sitesAURef = sitesAURef,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+    }
+    
+    # user only updates siteRef in excel. This will update siteRef based on this modifications.
+    if (updateRef == "siteRef") {
+      message(paste0("auto_assign = TRUE and updateRef = siteRef selected. Running TADA_CreateSiteRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      myfile_SiteRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateSiteRef") 
+      
+      TADA_ParamRef <- TADA_CreateParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = myfile_SiteRef, # will update paramRef based on useParamRef
+        auto_assign = "All",
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      TADA_UseParamRef <- TADA_CreateUseParamRef(  
+        .data, 
+        org_id = org_id,
+        paramRef = TADA_ParamRef,
+        useParamRef = myfile_SiteRef,
+        auto_assign = TRUE,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
+      
+      siteRef <- TADA_CreateSiteRef(  
+        .data, 
+        org_id = org_id,
+        useParamRef = TADA_UseParamRef,
+        sitesAURef = sitesAURef,
+        siteRef = myfile_SiteRef,
+        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      )
     }
   }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
-  if (!is.null(spatialRef) & !is.character(spatialRef)) {
-    if (!is.data.frame(spatialRef)) {
-      stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with six columns:
+  if (!is.null(siteRef) & !is.character(siteRef)) {
+    if (!is.data.frame(siteRef)) {
+      stop("TADA_DefineCriteriaMethodology: 'siteRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
     }
     
-    if (is.data.frame(spatialRef)) {
+    if (is.data.frame(siteRef)) {
       col.names <- c(
         "ATTAINS.ParameterName",
         "ATTAINS.UseName",
@@ -147,20 +241,20 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
         "ATTAINS.assessmentunitidentifier"
       )
       
-      ref.names <- names(spatialRef)
+      ref.names <- names(siteRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineCriteriaMethodology: 'spatialRef' must be a data frame with six columns:
+        stop("TADA_DefineCriteriaMethodology: 'siteRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
       }
     }
   }
   
-  spatialRef$ATTAINS.WaterType <- as.character(spatialRef$ATTAINS.WaterType)
-  spatialRef$SaltFresh <- as.character(spatialRef$SaltFresh)
+  siteRef$ATTAINS.WaterType <- as.character(siteRef$ATTAINS.WaterType)
+  siteRef$SaltFresh <- as.character(siteRef$SaltFresh)
   # Extracts the characteristic, speciation and fraction columns to join
-  spatialRef <- spatialRef %>%
+  siteRef <- siteRef %>%
     dplyr::left_join(
       .data[,c(
         "TADA.ComparableDataIdentifier",
@@ -169,7 +263,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
         #"TADA.MethodSpeciationName"
         )] %>%
       dplyr::distinct(),
-      by ="TADA.ComparableDataIdentifier"
+      by = "TADA.ComparableDataIdentifier"
       )
 
   # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
@@ -181,8 +275,8 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
   #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
   #   dplyr::arrange(ATTAINS.ParameterName)
   
-  # Creates the DefineCriteriaMethodology table from the spatialRef.
-  DefineCriteriaMethodology <- spatialRef %>%
+  # Creates the DefineCriteriaMethodology table from the siteRef.
+  DefineCriteriaMethodology <- siteRef %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
       "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
@@ -352,7 +446,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
       startCol = 11, startRow = 1, 
       # ATTAINS.WaterType
       x = data.frame( 
-        ATTAINS.WaterType = c(unique(spatialRef$ATTAINS.WaterType), "All", "NA")
+        ATTAINS.WaterType = c(unique(siteRef$ATTAINS.WaterType), "All", "NA")
         )
       ) 
     
@@ -378,7 +472,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
       startCol = 14, startRow = 1, 
       # ApplyUniqueSpatialCriteria
       x = data.frame(
-        ApplyUniqueSpatialCriteria = c(unique(spatialRef$ApplyUniqueSpatialCriteria), "NA")
+        ApplyUniqueSpatialCriteria = c(unique(siteRef$ApplyUniqueSpatialCriteria), "NA")
         )
       ) 
     
@@ -468,7 +562,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateSpatialRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateSiteRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
@@ -534,7 +628,7 @@ TADA_DefineCriteriaMethodology <- function(.data, spatialRef = NULL, criteriaMet
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, spatialRef = NULL, 
+TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL, 
                                  summarizeBy = c("All", "Criteria", "Char"), 
                                  assessmentUnit = c("groupedML", "individualML", NULL),
                                  #criteriaOutput = c("")

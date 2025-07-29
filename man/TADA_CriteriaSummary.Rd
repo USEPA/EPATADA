@@ -7,7 +7,7 @@
 TADA_CriteriaSummary(
   .data,
   criteriaMethods = NULL,
-  spatialRef = NULL,
+  siteRef = NULL,
   summarizeBy = c("All", "Criteria", "Char"),
   assessmentUnit = c("groupedML", "individualML", NULL),
   excel = FALSE,

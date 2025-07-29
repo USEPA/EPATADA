@@ -6,12 +6,13 @@
 \usage{
 TADA_DefineCriteriaMethodology(
   .data,
-  spatialRef = NULL,
+  siteRef = NULL,
   criteriaMethods = NULL,
   epa304a = FALSE,
   auto_assign = FALSE,
   org_id = NULL,
   sitesAURef = NULL,
+  updateRef = "none",
   excel = TRUE,
   overwrite = FALSE
 )
@@ -20,7 +21,7 @@ TADA_DefineCriteriaMethodology(
 \item{.data}{A TADA dataframe. Users should run the appropriate data cleaning,
 processing, harmonization and filtering functions prior to this step.}
 
-\item{spatialRef}{An optional data frame which contains the completed spatial
+\item{siteRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 or monitoring site/assessment unit.}
 
@@ -42,7 +43,7 @@ A data frame with all allowable ATTAINS designated use values for an ATTAINS Par
 }
 \description{
 Users will need to provide the completed reference tables from
-TADA_CreateSpatialRef. This will generate a template for users to fill out
+TADA_CreateSiteRef. This will generate a template for users to fill out
 and define either the full Criteria or magnitude only values associated with
 an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
 users will need to ensure they properly define any additional methods that will
@@ -81,8 +82,8 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-# Now, run TADA_CreateSpatialRef()
-SpatialRef_UT <- TADA_CreateSpatialRef(
+# Now, run TADA_CreateSiteRef()
+siteRef_UT <- TADA_CreateSiteRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
@@ -92,7 +93,7 @@ SpatialRef_UT <- TADA_CreateSpatialRef(
 
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
-  spatialRef = SpatialRef_UT,
+  siteRef = siteRef_UT,
   excel = FALSE
 )
 

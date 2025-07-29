@@ -880,13 +880,12 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
             by =
               c(
                 "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier",
-                "ATTAINS.ParameterName", "ATTAINS.FlagParameterName", "Flag.ParameterInput"
+                "ATTAINS.ParameterName", "Flag.ParameterInput"
               )
           ),
         by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName")
       ) %>%
       dplyr::mutate(Flag.ParameterInput = dplyr::if_else(is.na(ATTAINS.ParameterName), NA, Flag.ParameterInput)) %>%
-      dplyr::rows_patch(CreateParamRef, by = "TADA.ComparableDataIdentifier") %>%
       dplyr::mutate(
         ATTAINS.FlagParameterName = dplyr::case_when(
           ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
@@ -899,6 +898,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
             "Parameter name is listed as a prior cause in ATTAINS for this organization"
         )
       ) %>%
+      dplyr::rows_patch(CreateParamRef, by = "TADA.ComparableDataIdentifier") %>%
       dplyr::select(
         TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
         ATTAINS.FlagParameterName, Flag.ParameterInput
@@ -1544,7 +1544,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
             by =
               c(
                 "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude",
-                "ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.FlagUseName", "Flag.UseInput"
+                "ATTAINS.ParameterName", "ATTAINS.UseName", "Flag.UseInput"
               )
           ),
         by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.ParameterName", "ATTAINS.UseName")
@@ -1581,6 +1581,14 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
   if (excel == TRUE) {
+    TADA_CreateParamRef(
+      .data,
+      org_id = org_id,
+      paramRef = paramRef,
+      excel = excel, overwrite = overwrite
+      )
+    
+    
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(CreateUseParamRef)
     if (n > 100) {
@@ -1833,7 +1841,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
 #'
-#' @param spatialRef An optional data frame which contains the completed spatial
+#' @param siteRef An optional data frame which contains the completed spatial
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
 #'
@@ -1865,8 +1873,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, run TADA_CreateSpatialRef()
-#' SpatialRef_UT <- TADA_CreateSpatialRef(
+#' # Now, run TADA_CreateSiteRef()
+#' siteRef_UT <- TADA_CreateSiteRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
 #'   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
@@ -1874,8 +1882,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   excel = FALSE
 #' )
 #'
-TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
-                                  sitesAURef = NULL,  useAURef = NULL, spatialRef = NULL,
+TADA_CreateSiteRef <- function(.data, org_id = NULL, useParamRef = NULL,
+                                  sitesAURef = NULL,  useAURef = NULL, siteRef = NULL,
                                   # applyUniqueSpatial = NULL, applyToWater = NULL,
                                   # applyToParam = NULL, applyToUse = NULL,
                                   # applyToAU = NULL, applyToML = NULL,
@@ -1889,7 +1897,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
   }
   
   # Creates the data frame.
-  CreateSpatialRef <- data.frame()
+  CreateSiteRef <- data.frame()
   
   # default Downloads file location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
@@ -1909,7 +1917,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
   if (!is.null(useAURef) & !is.character(useAURef)) {
     if (!is.data.frame(useAURef)) {
       stop(paste0(
-        "TADA_CreateSpatialRef: 'useAURef' must be a data frame with these 3 columns:",
+        "TADA_CreateSiteRef: 'useAURef' must be a data frame with these 3 columns:",
         "ATTAINS.UseName, ATTAINS.OrganizationIdentifier and ATTAINS.assessmentunitidentifier"
       ))
     }
@@ -1923,7 +1931,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop(paste0(
-          "TADA_CreateSpatialRef: 'useAURef' must be a data frame with these 3 columns:",
+          "TADA_CreateSiteRef: 'useAURef' must be a data frame with these 3 columns:",
           "ATTAINS.UseName, ATTAINS.OrganizationIdentifier and ATTAINS.assessmentunitidentifier"
         ))
       }
@@ -1934,7 +1942,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
   if (!is.null(useParamRef) & !is.character(useParamRef)) {
     if (!is.data.frame(useParamRef)) {
       stop(paste0(
-        "TADA_CreateSpatialRef: 'useParamRef' must be a data frame with these 5 columns:",
+        "TADA_CreateSiteRef: 'useParamRef' must be a data frame with these 5 columns:",
         "TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ",
         "ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude"
       ))
@@ -1949,7 +1957,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop(paste0(
-          "TADA_CreateSpatialRef: 'useParamRef' must be a data frame with these 5 columns:",
+          "TADA_CreateSiteRef: 'useParamRef' must be a data frame with these 5 columns:",
           "TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ",
           "ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude"
         ))
@@ -1966,8 +1974,8 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
   
   # If there are no siteAURef, this will return the Spatial Ref Table on a monitoring sites level.
   if (is.null(sitesAURef)) {
-    print("No sitesAURef was provided. Creating SpatialRef table on a monitoring sites level. NAs are generated for any ATTAINS AU columns.")
-    CreateSpatialRef <- useParamRef %>%
+    print("No sitesAURef was provided. Creating siteRef table on a monitoring sites level. NAs are generated for any ATTAINS AU columns.")
+    CreateSiteRef <- useParamRef %>%
       dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(ATTAINS.assessmentunitname = NA) %>%
       dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
@@ -2009,8 +2017,8 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::filter(IncludeOrExclude == "Include") %>%
       dplyr::select(-IncludeOrExclude)
     
-    # Joins the crosswalk tables for CreateSpatialRef
-    CreateSpatialRef <- useParamRef %>%
+    # Joins the crosswalk tables for CreateSiteRef
+    CreateSiteRef <- useParamRef %>%
       dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::right_join(useAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) %>%
       dplyr::right_join(sitesAURef, by = c("ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname", "MonitoringLocationIdentifier", "MonitoringLocationName", "MonitoringLocationTypeName")) %>%
@@ -2042,21 +2050,21 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::distinct()
   }
   
-  if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSpatialRef)) {
+  if (!"ATTAINS.assessmentunitidentifier" %in% colnames(CreateSiteRef)) {
     print(paste0(
       "No Monitoring Location to Assessment Unit crosswalk provided. ",
       "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
     ))
   }
   
-  # User provides their own spatialRef that has been filled out.
-  if (!is.null(spatialRef)) {
+  # User provides their own siteRef that has been filled out.
+  if (!is.null(siteRef)) {
     # identifies if a user has excluded any spatial rows. This row is showing up as a new entry but has not been defined.
     # should this be a suspect or named something else? This should flag users that they need to review this entry and if they
     # truly want to exclude it or not. What should the default be?
-    Flag1 <- CreateSpatialRef %>%
+    Flag1 <- CreateSiteRef %>%
       dplyr::anti_join(
-        spatialRef,
+        siteRef,
       by =
        c(
          "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
@@ -2071,9 +2079,9 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::mutate(IncludeOrExclude = "Exclude")
     
     # identifies if a user has ADDED on any spatial rows.
-    Flag2 <- spatialRef %>%
+    Flag2 <- siteRef %>%
       dplyr::anti_join(
-        CreateSpatialRef,
+        CreateSiteRef,
          by =
            c(
              "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.assessmentunitname",
@@ -2087,7 +2095,7 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
           "The spatial criteria for this row was ADDED from your spatial reference"
       )
     
-    CreateSpatialRef <- CreateSpatialRef %>%
+    CreateSiteRef <- CreateSiteRef %>%
       dplyr::select(-ApplyUniqueSpatialCriteria) %>%
       dplyr::full_join(
         Flag1,
@@ -2129,11 +2137,11 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
     
     tryCatch(
       {
-        openxlsx::addWorksheet(wb, "CreateSpatialRef")
+        openxlsx::addWorksheet(wb, "CreateSiteRef")
       },
       error = function(e) {
-        openxlsx::removeWorksheet(wb, "CreateSpatialRef")
-        openxlsx::addWorksheet(wb, "CreateSpatialRef")
+        openxlsx::removeWorksheet(wb, "CreateSiteRef")
+        openxlsx::addWorksheet(wb, "CreateSiteRef")
       }
     )
     
@@ -2142,8 +2150,8 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
     
     # Format Column widths
     openxlsx::setColWidths(
-      wb, "CreateSpatialRef",
-      cols = 8:ncol(CreateSpatialRef),
+      wb, "CreateSiteRef",
+      cols = 8:ncol(CreateSiteRef),
       widths = "auto"
     )
     
@@ -2155,46 +2163,46 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
     
-    # writes CreateSpatialRef dataframe
+    # writes CreateSiteRef dataframe
     openxlsx::writeData(
-      wb, "CreateSpatialRef",
+      wb, "CreateSiteRef",
       startCol = 1,
-      x = CreateSpatialRef,
+      x = CreateSiteRef,
       headerStyle = header_st
     )
     
     # data validation drop down list created below.
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateSpatialRef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateSiteRef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     
     
     # Conditional Formatting
     openxlsx::conditionalFormatting(
-      wb, "CreateSpatialRef",
-      cols = 16, rows = 2:(nrow(CreateSpatialRef) + 1),
+      wb, "CreateSiteRef",
+      cols = 16, rows = 2:(nrow(CreateSiteRef) + 1),
       type = "contains",
       rule = "Include",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
     ) # default values or indicates good to go cells.
     
     openxlsx::conditionalFormatting(
-      wb, "CreateSpatialRef",
-      cols = 16, rows = 2:(nrow(CreateSpatialRef) + 1),
+      wb, "CreateSiteRef",
+      cols = 16, rows = 2:(nrow(CreateSiteRef) + 1),
       type = "contains",
       rule = "Exclude",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # using yellow to indicate modified cell
-    # conditionalFormatting(wb, "CreateSpatialRef",
-    #                       cols = 8, rows = 2:(nrow(CreateSpatialRef) + 1),
+    # conditionalFormatting(wb, "CreateSiteRef",
+    #                       cols = 8, rows = 2:(nrow(CreateSiteRef) + 1),
     #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
     openxlsx::conditionalFormatting(
-      wb, "CreateSpatialRef",
-      cols = 17, rows = 2:(nrow(CreateSpatialRef) + 1),
+      wb, "CreateSiteRef",
+      cols = 17, rows = 2:(nrow(CreateSiteRef) + 1),
       type = "blanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
     ) # green is default values or indicates good to go cells.
     openxlsx::conditionalFormatting(
-      wb, "CreateSpatialRef",
-      cols = 17, rows = 2:(nrow(CreateSpatialRef) + 1),
+      wb, "CreateSiteRef",
+      cols = 17, rows = 2:(nrow(CreateSiteRef) + 1),
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # using yellow to indicate modified cell
@@ -2210,10 +2218,10 @@ TADA_CreateSpatialRef <- function(.data, org_id = NULL, useParamRef = NULL,
     
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
     
-    CreateSpatialRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateSpatialRef")
+    CreateSiteRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateSiteRef")
   }
   
-  return(CreateSpatialRef)
+  return(CreateSiteRef)
 }
 
 
@@ -2575,7 +2583,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
       wb$worksheets[[i]]$sheetViews <- set_zoom(90)
     }
     
-    # writes CreateSpatialRef dataframe
+    # writes CreateSiteRef dataframe
     openxlsx::writeData(wb, "CreateUseAURef", startCol = 1, x = CreateUseAURef, headerStyle = header_st)
     
     # data validation drop down list created below.
@@ -2673,7 +2681,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
 #' @seealso [TADA_CreateUseAURef()]
-#' @seealso [TADA_CreateSpatialRef()]
+#' @seealso [TADA_CreateSiteRef()]
 #'
 #' @export
 #'

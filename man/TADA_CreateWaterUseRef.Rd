@@ -64,5 +64,5 @@ WaterUseRef_UT <- TADA_CreateWaterUseRef(org_id = "UTAHDWQ")
 \seealso{
 \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
 
-\code{\link[=TADA_CreateSpatialRef]{TADA_CreateSpatialRef()}}
+\code{\link[=TADA_CreateSiteRef]{TADA_CreateSiteRef()}}
 }
