@@ -955,7 +955,6 @@ TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 rm(TADAProfileClean2, fieldCounts_Table)
 ```
 
-
 The *ActivityTypeCode* field has multiple unique values. Before we
 remove the QC samples/measurements from this dataset to prepare for
 analyses, lets review flagged Quality Control (QC) values using the
@@ -1442,7 +1441,9 @@ Review unique TADA.ComparableDataIdentifier's.
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
-Filter dataframe and generate scatterplots for each selected TADA.ComparableDataIdentifier: 
+Filter dataframe and generate scatterplots for each selected
+TADA.ComparableDataIdentifier:
+
 ```{r}
 TADAProfileClean6_filtered <- TADAProfileClean6[
   TADAProfileClean6$TADA.ComparableDataIdentifier %in% 
@@ -1459,6 +1460,7 @@ TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIde
 ```
 
 Choose two from TADAProfileClean6 and generate scatterplot:
+
 ```{r}
 TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 ```
