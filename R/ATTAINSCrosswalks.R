@@ -662,7 +662,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     
     if (is.data.frame(paramRef)) {
       col.names <- c(
-        "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName"
+        #"TADA.ComparableDataIdentifier", 
+        "ATTAINS.ParameterName"
       )
       
       ref.names <- names(paramRef)
@@ -682,17 +683,21 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
   # If users don't provide TADA.ComparableDataIdentifier in their paramRef input,
   # crosswalk using TADA.CharacteristicName, TADA.MethodSpeciationName, TADA.ResultSampleFractionText
   if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
+    # Handles join by any combination of "TADA.CharacteristicName", "TADA.MethodSpeciationName","TADA.ResultSampleFractionText"
+    join_cols <- c("TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")
+    
+    actual_joins <- intersect(names(paramRef), join_cols)
+    
     paramRef <- paramRef %>%
       dplyr::left_join(
-        .data, c(
-          "TADA.CharacteristicName", "TADA.MethodSpeciationName",
-          "TADA.ResultSampleFractionText"
-        )
+        .data, actual_joins
       ) %>%
       dplyr::select(
-        "TADA.CharacteristicName", "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.ParameterName", "ATTAINS.FlagParameterName"
-      )
+        dplyr::any_of(c(join_cols, "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName"))
+      ) %>%
+      dplyr::distinct() %>%
+      tidyr::uncount(weights = length(org_id)) %>%
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
   }
   
   # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
