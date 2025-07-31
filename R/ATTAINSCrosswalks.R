@@ -2067,9 +2067,6 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Requi
 
   # User provides their own useAURef that has been filled out.
   if (!is.null(useAURef)) {
-    # We should consider helping users to review their crosswalk versus what is found in ATTAINS.
-    # They should theoretically match, but if
-
     # What rows did the user have in their useAURef that was not found in the most recent ATTAINS data system?
     Flag1 <- CreateUseAURef %>%
       dplyr::anti_join(
