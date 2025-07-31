@@ -281,7 +281,22 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "TADA.ResultMeasureValue",
     "ActivityStartDate",
     "TADA.MonitoringLocationIdentifier",
-    "ActivityTypeCode"
+    "ActivityTypeCode",
+    "OrganizationIdentifier",
+    "OrganizationFormalName",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "HUCEightDigitCode",
+    "MonitoringLocationTypeName",
+    "MonitoringLocationDescriptionText",
+    "TADA.MonitoringLocationName",
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "ActivityRelativeDepthName",
+    "ActivityMediaSubdivisionName",
+    "TADA.ActivityMediaName",
+    "TADA.ComparableDataIdentifier"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
 
@@ -307,13 +322,21 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     # "ActivityStartDateTime", #does not make sense to include for daily agg
     "ActivityRelativeDepthName",
     "TADA.MonitoringLocationIdentifier",
-    "MonitoringLocationName",
+    "TADA.MonitoringLocationName",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
     "ActivityMediaSubdivisionName",
     "TADA.ActivityMediaName",
     "TADA.ComparableDataIdentifier",
-    "TADA.ResultMeasure.MeasureUnitCode", # this needs to be included because TADA.ComparableDataIdentifier no longer includes unit
+    "TADA.ResultMeasure.MeasureUnitCode", # this may not need to be included but fixes this bug: https://github.com/USEPA/EPATADA/actions/runs/16576529497/job/46882064434 (needs more review)
+    "OrganizationIdentifier", # should be okay to include here since this is by MonitoringLocationIdentifier which are org specific anyway
+    "OrganizationFormalName",
+    "CountryCode",
+    "StateCode",
+    "CountyCode",
+    "HUCEightDigitCode",
+    "MonitoringLocationTypeName",
+    "MonitoringLocationDescriptionText",
     depths
   )
 
