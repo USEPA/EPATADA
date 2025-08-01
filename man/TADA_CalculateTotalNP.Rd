@@ -71,3 +71,13 @@ will be caught as the function moves down the hierarchy of equations to fewer
 and fewer subspecies). Eventually, even groups with only one subspecies will
 be used to represent a TOTAL N value for that site/day/depth.
 }
+\examples{
+dat <- TADA_DataRetrieval(statecode = "UT", startDate = "2024-06-01", 
+endDate = "2024-07-01", characteristicType = "Nutrient", ask = FALSE)
+
+dat <- TADA_SimpleCensoredMethods(dat, nd_method = "multiplier",
+nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+
+dat <- TADA_CalculateTotalNP(dat, daily_agg = "max")
+
+}

@@ -267,6 +267,16 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   total was calculated and from which subspecies.
 #'
 #' @export
+#' 
+#' @examples
+#' dat <- TADA_DataRetrieval(statecode = "UT", startDate = "2024-06-01", 
+#' endDate = "2024-07-01", characteristicType = "Nutrient", ask = FALSE)
+#' 
+#' dat <- TADA_SimpleCensoredMethods(dat, nd_method = "multiplier",
+#' nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+#' 
+#' dat <- TADA_CalculateTotalNP(dat, daily_agg = "max")
+#' 
 
 TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "mean")) {
   # check to make sure daily_agg is populated with allowable value
@@ -296,7 +306,8 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityRelativeDepthName",
     "ActivityMediaSubdivisionName",
     "TADA.ActivityMediaName",
-    "TADA.ComparableDataIdentifier"
+    "TADA.ComparableDataIdentifier",
+    "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
 
@@ -410,12 +421,12 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
       dplyr::filter(nutrient == "Total Nitrogen as N") %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
       dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
-      dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.")
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS N", TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.", TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.")
     TotalP <- summeddata %>%
       dplyr::filter(nutrient == "Total Phosphorus as P") %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
       dplyr::summarise(TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)) %>%
-      dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.")
+      dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", TADA.ResultSampleFractionText = "UNFILTERED", TADA.MethodSpeciationName = "AS P", TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.", TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.")
 
     # if summation is zero....include anyway?
 
@@ -432,7 +443,13 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     .data$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
     print("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
   }
-
+  
+  # Remove any rows that were created but are NA (this may occur if rows that are NA are not removed prior to this function being run)
+  .data <- .data[!(.data$TADA.ResultMeasureValueDataTypes.Flag %in% 
+                     c("TP estimated from one or more subspecies.", 
+                       "TN estimated from one or more subspecies.") & 
+                     is.na(.data$TADA.ResultMeasureValue)), ]
+  
   # order columns
   .data <- TADA_CreateComparableID(.data)
   .data <- TADA_OrderCols(.data)

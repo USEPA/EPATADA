@@ -371,13 +371,14 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     clean.data <- TADA_OrderCols(clean.data)
   } else {
     clean.data = .data
+    flagcol <- paste0(col, "DataTypes.Flag")
     print("TADA_ConvertSpecialChars: Data types flag already exists in the input dataframe for the specified column.")
   }
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text"))
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit"))
 
       return(clean.data)
     }
@@ -389,7 +390,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text"))
+      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit"))
   }
 }
 

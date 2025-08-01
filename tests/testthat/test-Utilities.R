@@ -73,3 +73,56 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   expect_false(any(pattern_found), info = "Some column names contain the pattern 'TADA.TADA.'")
 })
 
+test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
+  today <- Sys.Date()
+  twoago <- as.character(today - 2 * 365)
+  testdat <- TADA_DataRetrieval(statecode = "UT", 
+                                startDate = twoago, 
+                                characteristicName = c("Nitrate", "Copper"), 
+                                sampleMedia = "Water", 
+                                ask = FALSE)
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", "Percentage", "Result Value/Unit Estimated from Detection Limit", "Less Than", 
+                      "TP estimated from one or more subspecies.", "TN estimated from one or more subspecies.")))  
+})
+
+test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
+  testdat <- TADA_RandomTestingData(number_of_days = 1,
+                                    choose_random_state = TRUE,
+                                    autoclean = TRUE)
+  
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", "NA - Not Available", "Text", "Percentage")))
+  
+  testdat <- TADA_SimpleCensoredMethods(testdat,
+                                        nd_method = "multiplier",
+                                        nd_multiplier = 0.5,
+                                        od_method = "as-is",
+                                        od_multiplier = "null")
+  
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", "NA - Not Available", "Text", "Result Value/Unit Estimated from Detection Limit")))
+  
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
+  
+  # Test to ensure unit column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+  
+  # Test to make sure remaining result value data types are expected
+  # "Result Value/Unit Copied from Detection Limit" should no longer be there
+  # NA should not be there... 
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Less Than")))  
+})
