@@ -80,7 +80,8 @@ Imports:
     dataRetrieval,
     dbscan,
     janitor,
-    rExpertQuery
+    rExpertQuery,
+    curl
 Depends: 
     R (>= 3.5.0)
 Suggests:
