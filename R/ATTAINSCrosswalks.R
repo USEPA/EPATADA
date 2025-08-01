@@ -418,8 +418,22 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       urls.to.check <- .data %>%
         dplyr::filter(!is.na(!!rlang::sym(url.col)))
 
+      # check to see if any urls to check
+      if(dim(urls.to.check)[1] == 0) {
+        .data <- .data %>%
+          dplyr::mutate(response.code = "none")
+
+        rm(urls.to.check)
+
+        return(.data)
+      }
+
+      if(dim(urls.to.check)[1] > 0) {
+
       # retrieve http response headers from url list
-      headers <- urls.to.check$MONITORING_DATA_LINK_TEXT.New %>%
+      headers <- urls.to.check %>%
+        dplyr::select(!!rlang::sym(url.col)) %>%
+        dplyr::pull() %>%
         purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
       # extract response code from first line of header response
@@ -436,8 +450,26 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       rm(urls.to.check, headers, response.code, response.df)
 
       return(.data)
+      }
     }
 
+
+    if(update_mlid == TRUE & wqp_data_links == "none") {
+
+      update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+      if(check_links == TRUE) {
+
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(stringr::str_detect(response.code, "200"),
+                                                           MONITORING_DATA_LINK_TEXT.New,
+                                                           NA))
+
+      }
+    }
 
     if(update_mlid == TRUE & wqp_data_links == "replace") {
 
@@ -449,64 +481,143 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
       if(check_links == TRUE) {
 
-        update.crosswalk <- checkUrlResp(update.crosswalk)
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(stringr::str_detect(response.code, "200"),
+                                                           MONITORING_DATA_LINK_TEXT.New,
+                                                           NA))
 
       }
     }
 
+    if(update_mlid == TRUE & wqp_data_links == "add") {
 
+      update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+      update.crosswalk <- createNewMLUrls(update.crosswalk)
+
+      if(check_links == TRUE) {
+
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(stringr::str_detect(response.code, "200"),
+                                                           MONITORING_DATA_LINK_TEXT.New,
+                                                           NA)) %>%
+          dplyr::select(-response.code)
+
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT.New")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(stringr::str_detect(response.code, "200"),
+                                                               MONITORING_DATA_LINK_TEXT.New,
+                                                               NA)) %>%
+          dplyr::select(-response.code)
+
+        update.crosswalk5 <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = dplyr::case_when(
+            !is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~
+              paste0(
+                MONITORING_DATA_LINK_TEXT, "; ",
+                MONITORING_DATA_LINK_TEXT.New
+                ),
+            is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT.New,
+            !is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT,
+            is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ NA
+          )) %>%
+          dplyr::select(-MONITORING_DATA_LINK_TEXT.New)
+      }
+    }
+
+    if(update_mlid == FALSE & wqp_data_links == "none") {
+
+      update.crosswalk <- update.crosswalk
 
     }
 
-    if (wqp_data_links == "replace") {
+    if(update_mlid == FALSE & wqp_data_links == "replace") {
+
       update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(
-          grepl("200", response.code), MONITORING_DATA_LINK_TEXT.New,
-          MONITORING_DATA_LINK_TEXT
-        )) %>%
-        dplyr::select(
-          ASSESSMENT_UNIT_ID, MS_ORG_ID,
-          MS_LOCATION_ID, MONITORING_DATA_LINK_TEXT
-        ) %>%
-        dplyr::distinct()
+        dplyr::mutate(OLD_MS_LOCATION_ID = MS_LOCATION_ID) %>%
+        updateMonLocIds()
+
+      update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
+        dplyr::select(-MONITORING_DATA_LINK_TEXT) %>%
+        dplyr::rename(MONITORING_DATA_LINK_TEXT = MONITORING_DATA_LINK_TEXT.New) %>%
+        dplyr::select(-MS_LOCATION_ID) %>%
+        dplyr::rename(MS_LOCATION_ID = OLD_MS_LOCATION_ID)
     }
 
-    if (wqp_data_links == "add") {
+    if(update_mlid == FALSE & wqp_data_links == "add") {
+
       update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(
-          MONITORING_DATA_LINK_TEXT = ifelse(
-            grepl("200", response.code),
-            paste0(
-              MONITORING_DATA_LINK_TEXT, "; ",
-              MONITORING_DATA_LINK_TEXT.New
-            ),
-            MONITORING_DATA_LINK_TEXT
-          ),
-          MONITORING_DATA_LINK_TEXT = stringr::str_remove_all(
-            MONITORING_DATA_LINK_TEXT,
-            "NA, "
-          )
-        ) %>%
-        tidyr::separate_rows(MONITORING_DATA_LINK_TEXT, sep = ", ") %>%
-        dplyr::group_by(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID) %>%
-        suppressMessages(dplyr::summarise(
-          MONITORING_DATA_LINK_TEXT =
-            paste(
-              unique(
-                MONITORING_DATA_LINK_TEXT
+        dplyr::mutate(OLD_MS_LOCATION_ID = MS_LOCATION_ID) %>%
+        updateMonLocIds()
+
+      update.crosswalk <- createNewMLUrls(update.crosswalk)
+
+      if(check_links == TRUE) {
+
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = ifelse(stringr::str_detect(response.code, "200"),
+                                                           MONITORING_DATA_LINK_TEXT.New,
+                                                           NA)) %>%
+          dplyr::select(-response.code)
+
+        update.crosswalk <- checkUrlResp(update.crosswalk,
+                                         url.col = "MONITORING_DATA_LINK_TEXT.New")
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(stringr::str_detect(response.code, "200"),
+                                                               MONITORING_DATA_LINK_TEXT.New,
+                                                               NA)) %>%
+          dplyr::select(-response.code)
+
+        update.crosswalk5 <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = dplyr::case_when(
+            !is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~
+              paste0(
+                MONITORING_DATA_LINK_TEXT, "; ",
+                MONITORING_DATA_LINK_TEXT.New
               ),
-              collapse = ", "
-            )
-        )) %>%
-        dplyr::select(
-          ASSESSMENT_UNIT_ID,
-          MS_ORG_ID, MS_LOCATION_ID,
-          MONITORING_DATA_LINK_TEXT
-        ) %>%
-        dplyr::distinct()
+            is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT.New,
+            !is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT,
+            is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ NA
+          )) %>%
+          dplyr::select(-MONITORING_DATA_LINK_TEXT.New, -MS_LOCATION_ID) %>%
+          dplyr::rename(MS_LOCATION_ID = OLD_MS_LOCATION_ID)
+
     }
+
+      if(check_links == FALSE) {
+
+        update.crosswalk <- update.crosswalk %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT = dplyr::case_when(
+            !is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~
+              paste0(
+                MONITORING_DATA_LINK_TEXT, "; ",
+                MONITORING_DATA_LINK_TEXT.New
+              ),
+            is.na(MONITORING_DATA_LINK_TEXT) & !is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT.New,
+            !is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ MONITORING_DATA_LINK_TEXT,
+            is.na(MONITORING_DATA_LINK_TEXT) & is.na(MONITORING_DATA_LINK_TEXT.New) ~ NA
+          )) %>%
+          dplyr::select(-MONITORING_DATA_LINK_TEXT.New, -MS_LOCATION_ID) %>%
+          dplyr::rename(MS_LOCATION_ID = OLD_MS_LOCATION_ID)
+      }
+
+      }
+
     return(update.crosswalk)
   }
+}
 
 
 
