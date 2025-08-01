@@ -373,49 +373,27 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         dplyr::full_join(update.crosswalk.storet,
                          by = c(names(update.crosswalk)))
 
-      rm(pdate.crosswalk.storet, provider.ref)
+      rm(update.crosswalk.storet, provider.ref)
 
       return(update.crosswalk)
     }
 
-    # add Monitoring Location data links if wqp_data_links is not equal to "none"
-    if (wqp_data_links != "none" | update_mlid == TRUE) {
-      # get org/provider name ref
-
-      provider.ref <- TADA_GetWQPOrgProviderRef() %>%
-        dplyr::select(OrganizationIdentifier, ProviderName) %>%
-        dplyr::distinct() %>%
-        dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
-        dplyr::mutate(OrgIDForURL = MS_ORG_ID)
-
-      # add additional rows to account for the addition of "_WQX" to many org
-      # names for WQP data
-      add.orgs <- provider.ref %>%
-        dplyr::filter(ProviderName == "STORET",
-                      grepl("_WQX", MS_ORG_ID)) %>%
-        dplyr::mutate(MS_ORG_ID = stringr::str_remove_all(
-          OrgIDForURL,
-          "_WQX"
-        ))
-
-      # combine provider refs
-      provider.ref <- provider.ref %>%
-        dplyr::bind_rows(add.orgs)
-
-      # remove intermediate object
-      rm(add.orgs)
-
-      # join provider ref df to crosswalk
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::left_join(provider.ref, by = dplyr::join_by(MS_ORG_ID))
-
-      # next build the URLS for ms location urls for storet provided data
-      update.crosswalk.storet <- update.crosswalk %>%
+    # internal function to create new urls for monitoring locations
+    createNewMLUrls <- function(.data) {
+      new.urls.storet <- .data %>%
         dplyr::filter(ProviderName == "STORET") %>%
-        dplyr::mutate(MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, MS_ORG_ID),
-                      MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, "_WQX"),
-                      MS_LOCATION_ID = paste0(MS_ORG_ID, "-", MS_LOCATION_ID),
-                      MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
+        dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
+                        is.na(OrgIDForURL), NA,
+                        URLencode(paste0(
+                          "https://www.waterqualitydata.us/provider/", ProviderName,
+                          "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
+                        ))
+                      )))
+
+      # build the urls for nwis provided data
+      new.urls.nwis <- .data %>%
+        dplyr::filter(ProviderName == "NWIS") %>%
+        dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
           is.na(OrgIDForURL), NA,
           URLencode(paste0(
             "https://www.waterqualitydata.us/provider/", ProviderName,
@@ -423,29 +401,22 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
           ))
         )))
 
-      # build the urls for nwis provided data
-        update.crosswalk.nwis <- update.crosswalk %>%
-          dplyr::filter(ProviderName == "NWIS") %>%
-          dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
-            is.na(OrgIDForURL), NA,
-            URLencode(paste0(
-              "https://www.waterqualitydata.us/provider/", ProviderName,
-              "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
-            ))
-          )))
-
       # join nwis and storet crosswalks
-        update.crosswalk <- update.crosswalk.storet %>%
-          dplyr::full_join(update.crosswalk.nwis,
-                           by = c(names(update.crosswalk)))
+      new.urls <- new.urls.storet %>%
+        dplyr::full_join(new.urls.nwis,
+                         by = c(names(new.urls.storet)))
 
-        rm(update.crosswalk.nwis, update.crosswalk.storet)
+      rm(new.urls.storet, new.urls.nwis)
+
+      return(new.urls)
     }
 
+    # internal function to check urls
+    checkUrlResp <- function(.data, url.col) {
 
       # create df of urls to check
-      urls.to.check <- update.crosswalk %>%
-        dplyr::filter(!is.na(MONITORING_DATA_LINK_TEXT.New))
+      urls.to.check <- .data %>%
+        dplyr::filter(!is.na(!!rlang::sym(url.col)))
 
       # retrieve http response headers from url list
       headers <- urls.to.check$MONITORING_DATA_LINK_TEXT.New %>%
@@ -459,8 +430,32 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
         dplyr::distinct()
 
       # join response codes to add.urls df
-      update.crosswalk <- update.crosswalk %>%
+      .data <- .data %>%
         dplyr::left_join(response.df, by = names(update.crosswalk))
+
+      rm(urls.to.check, headers, response.code, response.df)
+
+      return(.data)
+    }
+
+
+    if(update_mlid == TRUE & wqp_data_links == "replace") {
+
+      update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+      update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
+        dplyr::select(-MONITORING_DATA_LINK_TEXT) %>%
+        dplyr::rename(MONITORING_DATA_LINK_TEXT = MONITORING_DATA_LINK_TEXT.New)
+
+      if(check_links == TRUE) {
+
+        update.crosswalk <- checkUrlResp(update.crosswalk)
+
+      }
+    }
+
+
+
     }
 
     if (wqp_data_links == "replace") {
