@@ -249,124 +249,130 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
-  # Define new column names
-  numcol <- paste0("TADA.", col)
-  flagcol <- paste0("TADA.", col, "DataTypes.Flag")
+  if (!any(grepl("TADA.", col))) {
 
-  # Create dummy columns for easy handling in function
-  chars.data <- .data
-  names(chars.data)[names(chars.data) == col] <- "orig"
-  chars.data <- chars.data %>%
-    dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
-  chars.data$masked <- chars.data$orig
-
-  # Add percentage character to dissolved oxygen saturation ResultMeasureValue
-  # so percentage and percentage - range averaged can be identified correctly
-  if (col == "ResultMeasureValue") {
-    do.units <- c("%", "% SATURATN")
-
-    chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-      paste(chars.data$masked, "%"), chars.data$masked
-    )
-
-    # updates percentage units where NA
-    chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-      grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
-    )
-
-    # TADA.ResultMeasure.MeasureUnitCode to uppercase
-    chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
-  }
-
-  # If column is already numeric, just discern between NA and numeric
-  if (is.numeric(chars.data$orig)) {
-    clean.data <- chars.data %>%
-      dplyr::mutate(flag = dplyr::case_when(
-        is.na(masked) ~ as.character("NA - Not Available"),
-        TRUE ~ as.character("Numeric")
-      ))
-  } else {
-    chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
-    # Detect special characters in column and populate new flag column with descriptor
-    # of the specific type of character/data type
-    clean.data <- chars.data %>%
-      dplyr::mutate(
-        flag = dplyr::case_when(
-          is.na(masked) ~ as.character("NA - Not Available"),
-          (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
-          (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
-          (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
-          (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
-          (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
-          (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
-          (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-          (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
-          (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
-          # because * is a special character you have to escape\\ it:
-          (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
-          (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
-          TRUE ~ "Coerced to NA"
-        ),
-        flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-          "Percentage Range - Averaged", flag
-        ),
-        flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-          "Percentage Range - Averaged", flag
-        )
+    # Define new column names
+    numcol <- paste0("TADA.", col)
+    flagcol <- paste0("TADA.", col, "DataTypes.Flag")
+    
+    # Create dummy columns for easy handling in function
+    chars.data <- .data
+    names(chars.data)[names(chars.data) == col] <- "orig"
+    chars.data <- chars.data %>%
+      dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
+    chars.data$masked <- chars.data$orig
+    
+    # Add percentage character to dissolved oxygen saturation ResultMeasureValue
+    # so percentage and percentage - range averaged can be identified correctly
+    if (col == "ResultMeasureValue") {
+      do.units <- c("%", "% SATURATN")
+      
+      chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+                                  paste(chars.data$masked, "%"), chars.data$masked
       )
+      
+      # updates percentage units where NA
+      chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
+        grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
+      )
+      
+      # TADA.ResultMeasure.MeasureUnitCode to uppercase
+      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
+    }
+    
+    # If column is already numeric, just discern between NA and numeric
+    if (is.numeric(chars.data$orig)) {
+      clean.data <- chars.data %>%
+        dplyr::mutate(flag = dplyr::case_when(
+          is.na(masked) ~ as.character("NA - Not Available"),
+          TRUE ~ as.character("Numeric")
+        ))
+    } else {
+      chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
+      # Detect special characters in column and populate new flag column with descriptor
+      # of the specific type of character/data type
+      clean.data <- chars.data %>%
+        dplyr::mutate(
+          flag = dplyr::case_when(
+            is.na(masked) ~ as.character("NA - Not Available"),
+            (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
+            (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
+            (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
+            (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
+            (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
+            (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
+            (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+            (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+            (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
+            # because * is a special character you have to escape\\ it:
+            (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
+            (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
+            TRUE ~ "Coerced to NA"
+          ),
+          flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
+                        "Percentage Range - Averaged", flag
+          ),
+          flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
+                        "Percentage Range - Averaged", flag
+          )
+        )
+    }
+    
+    if (percent.ave == FALSE) {
+      num.range.filter <- c("Numeric Range - Averaged")
+    }
+    
+    if (percent.ave == TRUE) {
+      num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
+    }
+    
+    # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
+    if (any(clean.data$flag %in% num.range.filter)) {
+      numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
+      notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
+      numrange <- numrange %>%
+        dplyr::mutate(
+          masked = stringr::str_remove(masked, "[1-9]\\)"),
+          masked = stringr::str_remove(masked, "%"),
+          masked = stringr::str_remove(masked, ">"),
+          masked = stringr::str_remove(masked, "<")
+        ) %>%
+        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
+        dplyr::mutate_at(c("num1", "num2"), as.numeric)
+      numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
+      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+        dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
+      
+      clean.data <- plyr::rbind.fill(notnumrange, numrange)
+    }
+    
+    # In the new TADA column, convert to numeric and remove some specific special
+    # characters.
+    clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
+      clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
+    )))
+    
+    # this updates the DataTypes.Flag to "NA - Not Available" if NA
+    clean.data$flag <- ifelse(
+      is.na(clean.data$flag),
+      "NA - Not Available",
+      clean.data$flag
+    )
+    
+    # remove columns to be replaced
+    clean.data <- clean.data %>%
+      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
+    
+    # Rename to original column name, TADA column name, and flag column name
+    names(clean.data)[names(clean.data) == "orig"] <- col
+    names(clean.data)[names(clean.data) == "masked"] <- numcol
+    names(clean.data)[names(clean.data) == "flag"] <- flagcol
+    
+    clean.data <- TADA_OrderCols(clean.data)
+  } else {
+    clean.data = .data
+    print("TADA_ConvertSpecialChars: Data types flag already exists in the input dataframe for the specified column.")
   }
-
-  if (percent.ave == FALSE) {
-    num.range.filter <- c("Numeric Range - Averaged")
-  }
-
-  if (percent.ave == TRUE) {
-    num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
-  }
-
-  # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
-  if (any(clean.data$flag %in% num.range.filter)) {
-    numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
-    notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
-    numrange <- numrange %>%
-      dplyr::mutate(
-        masked = stringr::str_remove(masked, "[1-9]\\)"),
-        masked = stringr::str_remove(masked, "%"),
-        masked = stringr::str_remove(masked, ">"),
-        masked = stringr::str_remove(masked, "<")
-      ) %>%
-      tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
-      dplyr::mutate_at(c("num1", "num2"), as.numeric)
-    numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
-    numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
-      dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-
-    clean.data <- plyr::rbind.fill(notnumrange, numrange)
-  }
-
-  # In the new TADA column, convert to numeric and remove some specific special
-  # characters.
-  clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-    clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
-  )))
-
-  # this updates the DataTypes.Flag to "NA - Not Available" if NA
-  clean.data$flag <- ifelse(
-    is.na(clean.data$flag),
-    "NA - Not Available",
-    clean.data$flag
-  )
-
-  # remove columns to be replaced
-  clean.data <- clean.data %>%
-    dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-
-  # Rename to original column name, TADA column name, and flag column name
-  names(clean.data)[names(clean.data) == "orig"] <- col
-  names(clean.data)[names(clean.data) == "masked"] <- numcol
-  names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
-  clean.data <- TADA_OrderCols(clean.data)
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
