@@ -126,7 +126,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' @seealso [TADA_MakeSpatial()]
 #' @seealso [TADA_DataRetrieval()]
-#' 
+#'
 #' @export
 #'
 #' @examples
@@ -139,7 +139,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
-#' 
+#'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 fetchATTAINS <- function(.data, catchments_only = FALSE) {
@@ -1179,6 +1179,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' the function will additionally return the raw catchment features associated
 #' with the observations in TADA_without_ATTAINS in a new shapefile called
 #' without_ATTAINS_catchments. Defaults to TRUE.
+#' @param au_ref Optional. A df containing the existing crosswalk of known
+#' AU and monitoring location identifier combinations. Can be created using
+#' TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+#' Must contain the columns MonitoringLocationIdentifier,
+#' WQP.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
+#' ATTAINS.assessmentunitidentifier. The monitoring location identifiers must
+#' match those in the WQP, which may contain the organization and provider in
+#' the MonitoringLocationIdentifier.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if

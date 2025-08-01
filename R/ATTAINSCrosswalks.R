@@ -130,19 +130,26 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
 #' Portal Data Site page for each Monitoring Location Identifier in the data
-#' frame. It will examine the response code of each URL and only retain those
-#' with a 200 response, which indicates the URL is valid. When
-#' wqp_data_links = "add", the URL will be added to any existing text in the
+#' frame. When wqp_data_links = "add", the URL will be added to any existing text in the
 #' MS_DATA_LINK_TEXT column. When wqp_data_links = "replace", the URL will
 #' replace any existing text in the MS_DATA_LINK_TEXT column. When
 #' wqp_data_links = "none", no URLs will be created or added to the returned
 #' data frame. Default is wqp_data_links = "add".
+#'
+#' @param check_links. Boolean argument. When check_links = TRUE the function
+#' will examine the response code of each MS_DATA_LINK URL and only retain those
+#' with a 200 response, which indicates the URL is valid.
 #'
 #' @param attains_replace Character argument. When attains_replace = FALSE, all
 #' Monitoring Location Identifiers in the user supplied crosswalk will be
 #' appended to the existing ATTAINS crosswalk. When attains_replace = TRUE,
 #' Monitoring Location Identifiers will only be retained if they are in the
 #' user supplied crosswalk. Default equals FALSE.
+#'
+#' @param update_mlid Boolean argument. Updates MonitoringLocationIdentifier to
+#' be compatible with WQP MonitoringLocationIdentifiers by adding prefix for provider
+#' and organization identifier if needed when update_mlid = TRUE. Default is
+#' update_mlid = TRUE.
 #'
 #' @param crosswalk A user-supplied dataframe with the columns
 #' ASSESSMENT_UNIT_ID, MS_LOCATION_ID, MS_ORG_ID, and MONITORING_DATA_LINK_TEXT
@@ -158,6 +165,11 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #' users to add URLs for the Water Quality Portal data site pages to the ATTAINS
 #' assessment unit profile where possible without updating other information
 #' in ATTAINS.
+#'
+#' @param batch_upload Boolean argument. When batch_upload = TRUE, the column
+#' names in the returned df will match the column names required for ATTAINS
+#' batch upload. When batch_upload = FALSE, the column names will match those in
+#' the TADA workflow. Default is batch_upload = FALSE.
 #'
 #' @return A dataframe with four columns, MonitoringLocationIdentifier,
 #' OrganizationIdentifier, ATTAINS.assessmentunitidentifier, and
@@ -222,7 +234,10 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
                                                     crosswalk = NULL,
                                                     attains_replace = FALSE,
-                                                    wqp_data_links = "add") {
+                                                    wqp_data_links = "add",
+                                                    update_mlid = TRUE,
+                                                    batch_upload = FALSE,
+                                                    check_links = FALSE) {
   # get list of organization identifiers from ATTAINS
   org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv",
     package = "EPATADA"
@@ -274,7 +289,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
     if (attains_replace == FALSE) {
       # create assessment unit crosswalk from ATTAINS
-      attains.crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id) %>%
+      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)) %>%
         dplyr::rename(
           ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
           MS_ORG_ID = OrganizationIdentifier,
@@ -313,9 +328,58 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       rm(attains.crosswalk, crosswalk)
     }
 
-    # add Monitoring Location data links if wqp_data_links is not equal to "none"
 
-    if (wqp_data_links != "none") {
+    # internal function to update monitoring location identifiers
+
+    updateMonLocIds <- function(.data) {
+
+      provider.ref <- TADA_GetWQPOrgProviderRef() %>%
+        dplyr::select(OrganizationIdentifier, ProviderName) %>%
+        dplyr::distinct() %>%
+        dplyr::rename(MS_ORG_ID = OrganizationIdentifier) %>%
+        dplyr::mutate(OrgIDForURL = MS_ORG_ID)
+
+      # add additional rows to account for the addition of "_WQX" to many org
+      # names for WQP data
+      add.orgs <- provider.ref %>%
+        dplyr::filter(ProviderName == "STORET",
+                      grepl("_WQX", MS_ORG_ID)) %>%
+        dplyr::mutate(MS_ORG_ID = stringr::str_remove_all(
+          OrgIDForURL,
+          "_WQX"
+        ))
+
+      # combine provider refs
+      provider.ref <- provider.ref %>%
+        dplyr::bind_rows(add.orgs)
+
+      # remove intermediate object
+      rm(add.orgs)
+
+      # join provider ref df to crosswalk
+      update.crosswalk <- .data %>%
+        dplyr::left_join(provider.ref, by = dplyr::join_by(MS_ORG_ID))
+
+      # build the updated mls for storet results
+      update.crosswalk.storet <- update.crosswalk %>%
+        dplyr::filter(ProviderName == "STORET") %>%
+        dplyr::mutate(MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, MS_ORG_ID),
+                      MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, "_WQX"),
+                      MS_LOCATION_ID = paste0(MS_ORG_ID, "-", MS_LOCATION_ID))
+
+      # join nwis and storet crosswalks
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::filter(ProviderName == "NWIS") %>%
+        dplyr::full_join(update.crosswalk.storet,
+                         by = c(names(update.crosswalk)))
+
+      rm(pdate.crosswalk.storet, provider.ref)
+
+      return(update.crosswalk)
+    }
+
+    # add Monitoring Location data links if wqp_data_links is not equal to "none"
+    if (wqp_data_links != "none" | update_mlid == TRUE) {
       # get org/provider name ref
 
       provider.ref <- TADA_GetWQPOrgProviderRef() %>%
@@ -327,7 +391,8 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       # add additional rows to account for the addition of "_WQX" to many org
       # names for WQP data
       add.orgs <- provider.ref %>%
-        dplyr::filter(grepl("_WQX", MS_ORG_ID)) %>%
+        dplyr::filter(ProviderName == "STORET",
+                      grepl("_WQX", MS_ORG_ID)) %>%
         dplyr::mutate(MS_ORG_ID = stringr::str_remove_all(
           OrgIDForURL,
           "_WQX"
@@ -344,15 +409,39 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
       update.crosswalk <- update.crosswalk %>%
         dplyr::left_join(provider.ref, by = dplyr::join_by(MS_ORG_ID))
 
-      # next build the URLS for ms location urls
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = ifelse(
+      # next build the URLS for ms location urls for storet provided data
+      update.crosswalk.storet <- update.crosswalk %>%
+        dplyr::filter(ProviderName == "STORET") %>%
+        dplyr::mutate(MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, MS_ORG_ID),
+                      MS_LOCATION_ID = stringr::str_remove(MS_LOCATION_ID, "_WQX"),
+                      MS_LOCATION_ID = paste0(MS_ORG_ID, "-", MS_LOCATION_ID),
+                      MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
           is.na(OrgIDForURL), NA,
           URLencode(paste0(
             "https://www.waterqualitydata.us/provider/", ProviderName,
             "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
           ))
-        ))
+        )))
+
+      # build the urls for nwis provided data
+        update.crosswalk.nwis <- update.crosswalk %>%
+          dplyr::filter(ProviderName == "NWIS") %>%
+          dplyr::mutate(MONITORING_DATA_LINK_TEXT.New = as.character(ifelse(
+            is.na(OrgIDForURL), NA,
+            URLencode(paste0(
+              "https://www.waterqualitydata.us/provider/", ProviderName,
+              "/", OrgIDForURL, "/", MS_LOCATION_ID, "/"
+            ))
+          )))
+
+      # join nwis and storet crosswalks
+        update.crosswalk <- update.crosswalk.storet %>%
+          dplyr::full_join(update.crosswalk.nwis,
+                           by = c(names(update.crosswalk)))
+
+        rm(update.crosswalk.nwis, update.crosswalk.storet)
+    }
+
 
       # create df of urls to check
       urls.to.check <- update.crosswalk %>%
@@ -423,7 +512,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
     }
     return(update.crosswalk)
   }
-}
+
 
 
 

@@ -1,0 +1,69 @@
+---
+title: "Example Workflow"
+author: "TADA Team"
+date: "2025-08-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Get Montana TADA Data
+
+Get data bacteria data from Montana.
+
+```{r tada.data}
+
+# get Montna bacteria data 
+tada.MT <- TADA_DataRetrieval(
+   startDate = "2020-01-01", endDate = "2022-12-31",
+   statecode = "MT",
+    characteristicName = c("Escherichia", "Escherichia coli"),
+   ask = FALSE)
+
+# review comparable data identifiers
+sort(unique(tada.MT$TADA.ComparableDataIdentifier))
+
+# clean up data set (minimal)
+  tada.MT.clean <- tada.MT %>%
+    TADA_RunKeyFlagFunctions() %>%
+    TADA_SimpleCensoredMethods() %>%
+  # could separate this out and add to harmonization table?  
+  TADA_HarmonizeSynonyms()
+  
+# review comparable data identifiers
+  sort(unique(tada.MT.clean$TADA.ComparableDataIdentifier))
+
+```
+
+
+## Retrieve existing monitoring location and assessment unit crosswalk from ATTAINS
+
+Get existing data from TTAINS
+
+```{r existing.attains.crosswalk, echo = FALSE}
+
+attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
+```
+
+## Run TADA_GetATTAINS
+
+```{r tada.get.attains}
+
+get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE)
+
+```
+
+o	If they have their own sites to AU list not retrievable from TADA_GetATTAINSAUSite, what will be the best method to handle this in the package side? A new function?Within this function? Within TADA_GetATTAINS?
+•	Run TADA_GetATTAINS
+o	User will review their user supplied list (either from TADA_GetATTAINSAUSite if they have submitted it to ATTAINS or as their own internal data frame)
+•	Run TADA_ViewATTAINS
+o	Decide if they want to keep any matches suggested by TADA_GetATTAINS.
+o	TT has a map that seems to show these match types, but thinking through how we want to do this in the TADA package side? See TADAShinyJoinToAU tab 2 for more info.
+•	Run TADA_UpdateMonitoringLocationsInATTAINS
+o	Once a final list is reviewed and a user is comfortable with this, they can run this and have an easy way to submit to ATTAINS if desired.
+•	Run TADA_CreateUseAURef (current PR)
+o	From the user’s final sites to AU list, they must now decide how to assign Uses to these AUs they have defined.
+o	Need to consider the best way to help assign uses to any NEW AUs (or if manual assignment is best). TADA_CreateWaterUseRef attempts to assist with this, but thinking through other ways to visualize this output on a map (Ex. AUs on a map, and we can hover over them to see if Uses have been assigned)
+
