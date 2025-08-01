@@ -339,15 +339,16 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     "ActivityMediaSubdivisionName",
     "TADA.ActivityMediaName",
     "TADA.ComparableDataIdentifier",
-    "TADA.ResultMeasure.MeasureUnitCode", # this may not need to be included but fixes this bug: https://github.com/USEPA/EPATADA/actions/runs/16576529497/job/46882064434 (needs more review)
-    "OrganizationIdentifier", # should be okay to include here since this is by MonitoringLocationIdentifier which are org specific anyway
-    "OrganizationFormalName",
-    "CountryCode",
-    "StateCode",
-    "CountyCode",
-    "HUCEightDigitCode",
-    "MonitoringLocationTypeName",
-    "MonitoringLocationDescriptionText",
+    # "TADA.ResultMeasure.MeasureUnitCode", # this may not need to be included since we have TADA.ComparableDataIdentifier
+    # consider adding columns below... 
+    # "OrganizationIdentifier", # should be okay to include here since this is by MonitoringLocationIdentifier which are org specific anyway
+    # "OrganizationFormalName",
+    # "CountryCode",
+    # "StateCode",
+    # "CountyCode",
+    # "HUCEightDigitCode",
+    # "MonitoringLocationTypeName",
+    # "MonitoringLocationDescriptionText",
     depths
   )
 
