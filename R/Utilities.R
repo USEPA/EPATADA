@@ -1955,26 +1955,24 @@ TADA_CreateCSV <- function(.data) {
 
 #' TADA_RenametoLegacy
 #' 
-#' This function renames columns in a data frame pulled from the Water Quality Portal 3.0
-#'  using USGS dataRetrieval service = "ResultWQX3" back to schema names from WQX2.0 (Legacy).
+#' This function renames columns in a dataframe from WQX3.0 (beta) names to WQX2.0 (legacy) names.
+#'  Water Quality Portal data are retrieved using USGS dataRetrieval service = "ResultWQX3".
 #'  The purpose of this function is to aid in integrating and updating TADA dependencies
-#'  developed under WQX2.0 to function with WQX3.0.
+#'  developed under WQX2.0 to function with data retrieved using WQX3.0 service.
 #'
-#'  TADA_RenametoLegacy will be called within the revised TADA_DataRetrieval function.
-#'
-#'  TADA_RenametoLegacy function calls on EPA web services to grab the documented
+#'  TADA_RenametoLegacy function calls on EPA web services to read in the documented
 #'  WQX3.0 schema file (schema_outbound_wqx3.0.csv).The file crosswalks WQX3.0 column names
 #'  with equivalent WQX2.0 Legacy column names across profiles (e.g., PhysChem, ActivityMetric) where appropriate.
-#'  The function uses data.table::setnames() to replace column names
-#'  by specifying 'old' and 'new' vector of names pulled from the crosswalk file.
+#'  The function uses data.table::setnames() to rename columns in the dataframe
+#'  by reference - in this case where there are beta names, rename to legacy names, and skip where there are no matches.
 #'
 #'
-#' @param .data A data frame queried from the WQP3.0 using dataRetrieval (development)
+#' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services 
 #'
-#' @return A data frame with column names changed to WQX2.0 Legacy names to test TADA package compatibility
+#' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
 #' @export
 #'
-#' @examples TADA_RenametoLegacy(WQP3.0df)
+#' @examples TADA_RenametoLegacy(dat)
 #' 
 TADA_RenametoLegacy  <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
