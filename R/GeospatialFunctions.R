@@ -1182,9 +1182,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param au_ref Optional. A df containing the existing crosswalk of known
 #' AU and monitoring location identifier combinations. Can be created using
 #' TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
-#' Must contain the columns MonitoringLocationIdentifier,
-#' WQP.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
-#' ATTAINS.assessmentunitidentifier. The monitoring location identifiers must
+#' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
+#' ML.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
+#' ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 #' match those in the WQP, which may contain the organization and provider in
 #' the MonitoringLocationIdentifier.
 #'
@@ -1247,7 +1247,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   return_nearest = TRUE
 #' )
 #' }
-TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FALSE, resolution = "Hi", return_sf = TRUE) {
+TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
+                            fill_catchments = FALSE, resolution = "Hi",
+                            return_sf = TRUE, au_ref = NULL) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1264,7 +1266,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
     "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length",
     "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl",
     "ATTAINS.orgtype", "ATTAINS.permid_joinkey", "ATTAINS.catchmentistribal",
-    "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier",
+    "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.AssessmentUnitIdentifier",
     "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
     "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan",
     "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",
@@ -1319,6 +1321,23 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE, fill_catchments = FAL
   # multiple AUs
   .data <- .data %>%
     dplyr::select(ResultIdentifier, dplyr::everything())
+
+  # if au_ref is provided, remove already assigned monitoring locations
+  if(is.null(au_ref)) {
+    if(!is.data.frame(au_ref)) {
+      stop("au_ref must be a data frame containing the required columns.")
+    }
+
+    if(is.data.frame(au_ref)) {
+      au_ref <- au_ref %>%
+        dplyr::select(ATTAINS.MonitoringLocationIdentifier) %>%
+        dplyr::distinct() %>%
+        dplyr::pull()
+
+      .data <- .data %>%
+        dplyr::filter(!MonitoringLocationIdentifier %in% au_ref)
+    }
+  }
 
   # If data doesn't already contain ATTAINS data and isn't an empty dataframe:
   suppressMessages(suppressWarnings({

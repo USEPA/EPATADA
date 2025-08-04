@@ -19,7 +19,7 @@ Get data bacteria data from Montana.
 tada.MT <- TADA_DataRetrieval(
    startDate = "2020-01-01", endDate = "2022-12-31",
    statecode = "MT",
-    characteristicName = c("Escherichia", "Escherichia coli"),
+    characteristicName = c("Escherichia", "Escherichia coli", "pH"),
    ask = FALSE)
 
 # review comparable data identifiers
@@ -40,23 +40,32 @@ sort(unique(tada.MT$TADA.ComparableDataIdentifier))
 
 ## Retrieve existing monitoring location and assessment unit crosswalk from ATTAINS
 
-Get existing data from TTAINS
+Get existing data from ATTAINS
 
 ```{r existing.attains.crosswalk, echo = FALSE}
 
 attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
 ```
 
+## Clean/update existing data from ATTAINS
+```{r clean.existing.crosswalk}
+
+clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
+
+```
+
+
 ## Run TADA_GetATTAINS
 
 ```{r tada.get.attains}
 
-get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE)
+# use TADA get attains to make AU assignments for unassigned MLs
+get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE,
+                                  au_ref = clean.existing.attains.MT)
 
 ```
 
-o	If they have their own sites to AU list not retrievable from TADA_GetATTAINSAUSite, what will be the best method to handle this in the package side? A new function?Within this function? Within TADA_GetATTAINS?
-•	Run TADA_GetATTAINS
+
 o	User will review their user supplied list (either from TADA_GetATTAINSAUSite if they have submitted it to ATTAINS or as their own internal data frame)
 •	Run TADA_ViewATTAINS
 o	Decide if they want to keep any matches suggested by TADA_GetATTAINS.

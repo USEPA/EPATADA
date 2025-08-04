@@ -9,7 +9,8 @@ TADA_GetATTAINS(
   return_nearest = FALSE,
   fill_catchments = FALSE,
   resolution = "Hi",
-  return_sf = TRUE
+  return_sf = TRUE,
+  au_ref = NULL
 )
 }
 \arguments{
@@ -39,6 +40,15 @@ are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE,
 the function will additionally return the raw catchment features associated
 with the observations in TADA_without_ATTAINS in a new shapefile called
 without_ATTAINS_catchments. Defaults to TRUE.}
+
+\item{au_ref}{Optional. A df containing the existing crosswalk of known
+AU and monitoring location identifier combinations. Can be created using
+TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+Must contain the columns ATTAINS.MonitoringLocationIdentifier,
+ML.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
+ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
+match those in the WQP, which may contain the organization and provider in
+the MonitoringLocationIdentifier.}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
