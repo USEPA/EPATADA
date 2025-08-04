@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Get Montana TADA Data
 
-Get data bacteria data from Montana.
+Get data bacteria and pH data from Montana.
 
 ```{r tada.data}
 
