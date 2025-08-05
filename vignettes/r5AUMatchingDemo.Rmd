@@ -1,0 +1,122 @@
+---
+title: "R5 AU Matching Demo"
+author: "TADA Team"
+output: html_document
+date: "2025-07-21"
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install and Load Package
+First, install and load the remotes package specifying the repo. This is needed before installing EPATADA because it is only available on GitHub (not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's dataRetrieval and other TADA R Package dependencies will also be downloaded automatically from CRAN with the TADA install. If desired, the development version of dataRetrieval can be downloaded directly from GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the library() function to load the TADA R Package into your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+
+## Introduction
+
+This workflow demonstrates how EPATADA functions can be used to assist a state in matching Water Quality Portal monitoring locations from other organizations with their own existing assessment units in ATTAINS. The example use case queries the WQP for all results in the "PFAS,Perfluorinated Alkyl Substance", "Organics, PFAS", and "Cyanotoxins, Phytotoxins" from 2014 through 2024 in the state of Illinois. Run the code chunk below to download the WQP data.
+
+```{r wqp.data}
+
+IL.PFASandCyano <- TADA_DataRetrieval(startDate = "2014-01-01",
+                              endDate = "2024-12-31",
+                              statecode = "IL",
+                              characteristicType = c("PFAS,Perfluorinated Alkyl Substance",
+                                                     "Organics, PFAS",
+                                                     "Cyanotoxins, Phytotoxins"),
+                              ask = FALSE)
+
+```
+
+## Filter for Surface Water Results and External Organizations
+
+Next, we can filter the data set to retain only surface water results using TADA_AnalysisDataFilter. We can also filter to remove any records from "IL_EPA_WQX" so that only results from monitoring locations from other organizations remain.
+
+```{r surface.water}
+IL.clean <- IL.PFASandCyano %>%
+  dplyr::filter(OrganizationIdentifier != "IL_EPA_WQX") %>%
+  TADA_AnalysisDataFilter(surface_water = TRUE,
+                          clean = TRUE) 
+
+```
+## Match To AUs
+
+The next step is to use TADA_GetATTAINS to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest assessment unit within the same catchment as the monitoring location.
+
+```{r match.aus}
+IL.aus <-IL.clean %>% 
+  TADA_GetATTAINS(return_nearest = TRUE)
+
+IL.attains.w.tada <- IL.aus$TADA_with_ATTAINS
+```
+
+Next we can view with TADA_ViewATTAINS. At this point, you can identify associations you'd like to remove.
+
+```{r view.map}
+TADA_ViewATTAINS(IL.aus)
+```
+
+## Create Crosswalk and add to ATTAINS
+
+The following code chunk checks for any existing crosswalk information in ATTAINS and then creates a batch upload df with the new ATTAINS assessment unit and monitoring locations combinations. If there were any combinations you've identified for removal, you could remove them here before batch upload to ATTAINS.
+
+```{r batch.upload}
+# check to see if any existing crosswalk data in ATTAINS
+Existing_CW <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "IL_EPA")
+
+# create cross walk from TADA_GetATTAINS data
+New_CW <- IL.attains.w.tada %>%
+  dplyr::select(ATTAINS.assessmentunitidentifier,
+                TADA.MonitoringLocationIdentifier,
+                OrganizationIdentifier) %>%
+  sf::st_drop_geometry() %>%
+  dplyr::distinct() %>%
+  dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
+                MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
+                MS_ORG_ID = OrganizationIdentifier) %>%
+  dplyr::filter(!is.na(ASSESSMENT_UNIT_ID)) %>%
+  dplyr::mutate(MONITORING_DATA_LINK_TEXT = "")
+
+# create batch upload file for ATTAINS
+Batch.Upload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "IL_EPA",
+                                        crosswalk = New_CW, 
+                                        attains_replace = TRUE, # must set as true because there are currently no entries in ATTAINS
+                                        wqp_data_links = "add")
+
+```
+
