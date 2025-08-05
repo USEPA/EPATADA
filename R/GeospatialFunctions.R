@@ -31,8 +31,8 @@
 #' }
 #'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
-  if (!"LongitudeMeasure" %in% colnames(.data) |
-    !"LatitudeMeasure" %in% colnames(.data) |
+  if (!"TADA.LongitudeMeasure" %in% colnames(.data) |
+    !"TADA.LatitudeMeasure" %in% colnames(.data) |
     !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
     stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
   } else if (!is.null(.data) & inherits(.data, "sf")) {
@@ -74,8 +74,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     sf <- .data %>%
       tibble::rowid_to_column(var = "index") %>%
       dplyr::mutate(
-        lat = as.numeric(LatitudeMeasure),
-        lon = as.numeric(LongitudeMeasure),
+        lat = as.numeric(TADA.LatitudeMeasure),
+        lon = as.numeric(TADA.LongitudeMeasure),
         # If `HorizontalCoordinateReferenceSystemDatumName` is NA...
         HorizontalCoordinateReferenceSystemDatumName = ifelse(is.na(HorizontalCoordinateReferenceSystemDatumName),
           # ... assign it the same crs as the user-supplied crs:
@@ -1750,7 +1750,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
-    dplyr::filter(MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
+    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+    dplyr::select(TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
+                  TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName) %>%
+    dplyr::distinct() %>%
+    TADA_MakeSpatial()
 
   # REST for ATTAINS geospatial data:
   baseurls <- c( # ATTAINS catchments:
@@ -1871,10 +1875,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
 
   # get one catchment per WQP location
   filt.df <- .data %>%
-    dplyr::select(MonitoringLocationIdentifier, LatitudeMeasure,
-                  LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName) %>%
     dplyr::distinct() %>%
-    TADA_MakeSpatial()%>%
+
     #dplyr::left_join(au_ref %>% dplyr::select(ATTAINS.AssessmentUnitIdentifier,
     # ATTAINS.MonitoringLocationIdentifier),
     #by = c("MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier")) %>%
