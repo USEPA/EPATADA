@@ -8,8 +8,8 @@ TADA_CreateUseAURef(
   .data,
   org_id = NULL,
   sitesAURef = NULL,
-  waterUseRef = NULL,
   useAURef = NULL,
+  waterUseRef = NULL,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -30,18 +30,18 @@ the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
 \item{sitesAURef}{A required data frame input. This data frame
-should contain a completed crosswalk of water types found in ATTAINS associated
-with each assessment unit. Users will need to ensure this crosswalk contains the
-appropriate column names in order to run the function.
+should contain a completed crosswalk of WQP Monitoring Locations
+associated with each ATTAINS Assessment Unit. Users will need to ensure
+this crosswalk contains the appropriate column names in order to run this function.
 See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
 
-\item{waterUseRef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with a water type.
+\item{useAURef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with each assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
-\item{useAURef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with an assessment unit.
+\item{waterUseRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with a water type.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 

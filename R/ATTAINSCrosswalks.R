@@ -1797,7 +1797,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' 
 #' @param .data A TADA dataframe. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' prior to running this function. 
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. A list of organization identifiers can be found by downloading
@@ -1809,6 +1809,22 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' the function attempts to identify which organization identifier(s) to include
 #' based on the unique ATTAINS organization identifiers found in the dataframe.
 #'
+#' @param sitesAURef A required data frame input. This data frame
+#' should contain a completed crosswalk of WQP Monitoring Locations 
+#' associated with each ATTAINS Assessment Unit. Users will need to ensure 
+#' this crosswalk contains the appropriate column names in order to run this function.
+#' See module 2 vignette and sample output of [TADA_GetATTAINS()].
+#' 
+#' @param useAURef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with each assessment unit.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
+#' 
+#' @param waterUseRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with a water type.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
+#' 
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
@@ -1819,22 +1835,6 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' @param overwrite A Boolean value that ensures the function will not overwrite
 #' the user supplied crosswalk entered into this function via the paramRef
 #' function input. This helps prevent users from overwriting their progress.
-#'
-#' @param sitesAURef A required data frame input. This data frame
-#' should contain a completed crosswalk of water types found in ATTAINS associated
-#' with each assessment unit. Users will need to ensure this crosswalk contains the
-#' appropriate column names in order to run the function.
-#' See module 2 vignette and sample output of [TADA_GetATTAINS()].
-#'
-#' @param waterUseRef An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of use names associated with a water type.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
-#'
-#' @param useAURef An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of use names associated with an assessment unit.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
 #' 
 #' @seealso [TADA_DataRetrieval()] for the required format of .data
 #' @seealso [TADA_GetATTAINS()] to help generate the required sitesAURef
@@ -1949,7 +1949,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' }
 #'
 TADA_CreateUseAURef <- function(.data, org_id = NULL, sitesAURef = NULL, # Required inputs in this line
-                                waterUseRef = NULL, useAURef = NULL, 
+                                useAURef = NULL, waterUseRef = NULL,  
                                 excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
