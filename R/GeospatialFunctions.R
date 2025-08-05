@@ -1887,8 +1887,26 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
       silent = TRUE
   )
 
-  TADA_with_ATTAINS <- .data %>%
-    dplyr::left_join(catchments, dplyr::join_by(nhdplusid))
+  # this is ending up with too many rows
+  TADA_with_ATTAINS <- catchments %>%
+    sf::st_drop_geometry() %>%
+    dplyr::left_join(catchments.cw,
+                     dplyr::join_by(nhdplusid),
+                     relationship = "many-to-many") %>%
+    dplyr::full_join(.data, dplyr::join_by(TADA.MonitoringLocationIdentifier),
+                                           relationship = "many-to-many")
+
+  catchments.no.geo <- catchments %>%
+    sf::st_drop_geometry() %>%
+    dplyr::distinct()
+
+# pick up here on 8/6 (HRM)
+    TADA_with_ATTAINS <- .data %>%
+    dplyr::left_join(au_ref)
+    dplyr::left_join(catchments.cw,
+                     dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+    dplyr::left_join(catchments.no.geo,
+                     dplyr::join_by(nhdplusid, TADA.MonitoringLocationIdentifier))
 
   final_features <- list(
     "ATTAINS_catchments" = catchments,
