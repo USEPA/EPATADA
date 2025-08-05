@@ -1301,13 +1301,13 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     dplyr::summarise(ncount = length(ResultIdentifier))
 
   if (max(ncount$ncount) < 2) {
-    print("No rows to aggregate.")
+    print("TADA_AggregateMeasurements: No rows to aggregate.")
     return(.data)
   } else {
     dat <- merge(.data, ncount, all.x = TRUE)
 
     if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+      "TADA_AggregateMeasurements: Your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
     }
 
     dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Used in ", agg_fun, " aggregation function but not selected"))

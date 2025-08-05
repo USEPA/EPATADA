@@ -58,7 +58,7 @@ Imports:
     stringi,
     utils, 
     stats, 
-    lubridate, 
+    lubridate (>= 1.5.0), 
     ggplot2, 
     sf,
     leaflet,
@@ -81,15 +81,18 @@ Imports:
     dbscan,
     janitor,
     rExpertQuery,
-    curl
+    curl (>= 6.0.0),
+    xml2,
+    readr (>= 1.4.0),
+    httr2,
+    whisker
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Suggests:
     hydroloom,
     lwgeom,
     RColorBrewer,
     rmarkdown,
-    readr,
     tidyverse,
     knitr,
     testthat,
@@ -102,10 +105,12 @@ Suggests:
     tigris,
     yaml,
     rvest,
-    remotes
+    remotes,
+    covr
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
+BuildVignettes: true
 Language: en-US
 Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
@@ -113,3 +118,4 @@ URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
 LazyData: true
 LazyDataCompression: xz
 Config/Needs/website: rmarkdown
+BugReports: https://github.com/USEPA/EPATADA/issues

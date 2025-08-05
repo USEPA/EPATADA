@@ -414,7 +414,7 @@ as groundwater.
 
 This function identifies surface water, groundwater, and sediment
 results. Users can specify whether all results should be returned with a
-new column, *TADA.UseForAnalysis.Flag*,identifying if the result should
+new column, *TADA.UseForAnalysis.Flag*, identifying if the result should
 be included in further analysis or if only results that should be in
 included are returned.
 

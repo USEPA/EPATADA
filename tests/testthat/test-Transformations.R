@@ -39,13 +39,18 @@ test_that("TADA_CalculateTotalNP does not introduce NAs in cols", {
                                         od_multiplier = "null")
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit", "Result Value/Unit Estimated from Detection Limit", "Less Than")))
+                    c("Numeric", "NA - Not Available", "Text", 
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit", 
+                      "Result Value/Unit Estimated from Detection Limit", "Less Than")))
   
   testdat <- TADA_CalculateTotalNP(testdat, daily_agg = "max")
 
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in%
-                    c("Numeric", "Percentage", "NA - Not Available", "Text", "Less Than", "Result Value/Unit Estimated from Detection Limit", 
-                      "Result Value/Unit Cannot Be Estimated From Detection Limit", "TP estimated from one or more subspecies.", "TN estimated from one or more subspecies.")))
+                    c("Numeric", "Percentage", "NA - Not Available", "Text", "Less Than", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit", 
+                      "TP estimated from one or more subspecies.", 
+                      "TN estimated from one or more subspecies.")))
 
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -64,5 +69,7 @@ test_that("TADA_CalculateTotalNP does not introduce NAs in cols", {
   # "Result Value/Unit Copied from Detection Limit" should no longer be there
   # NA should not be there... 
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Less Than", "TP estimated from one or more subspecies.", "TN estimated from one or more subspecies.")))  
+                    c("Numeric", "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than", "TP estimated from one or more subspecies.", 
+                      "TN estimated from one or more subspecies.")))  
 })
