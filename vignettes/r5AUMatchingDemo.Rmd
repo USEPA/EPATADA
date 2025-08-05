@@ -76,27 +76,31 @@ IL.clean <- IL.PFASandCyano %>%
 ```
 ## Match To AUs
 
-The next step is to use TADA_GetATTAINS to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest 
+The next step is to use TADA_GetATTAINS to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest assessment unit within the same catchment as the monitoring location.
 
-```{r}
+```{r match.aus}
 IL.aus <-IL.clean %>% 
   TADA_GetATTAINS(return_nearest = TRUE)
 
-IL_AUs <- IL_PFAS_AUs$TADA_with_ATTAINS
+IL.attains.w.tada <- IL.aus$TADA_with_ATTAINS
 ```
-Next we can view with TADA_ViewATTAINS.
 
-```{r}
-TADA_ViewATTAINS(IL_PFAS_AUs)
+Next we can view with TADA_ViewATTAINS. At this point, you can identify associations you'd like to remove.
+
+```{r view.map}
+TADA_ViewATTAINS(IL.aus)
 ```
 
 ## Create Crosswalk and add to ATTAINS
-```{r}
+
+The following code chunk checks for any existing crosswalk information in ATTAINS and then creates a batch upload df with the new ATTAINS assessment unit and monitoring locations combinations. If there were any combinations you've identified for removal, you could remove them here before batch upload to ATTAINS.
+
+```{r batch.upload}
 # check to see if any existing crosswalk data in ATTAINS
 Existing_CW <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "IL_EPA")
 
 # create cross walk from TADA_GetATTAINS data
-New_CW <- IL_AUs %>%
+New_CW <- IL.attains.w.tada %>%
   dplyr::select(ATTAINS.assessmentunitidentifier,
                 TADA.MonitoringLocationIdentifier,
                 OrganizationIdentifier) %>%
@@ -109,7 +113,7 @@ New_CW <- IL_AUs %>%
   dplyr::mutate(MONITORING_DATA_LINK_TEXT = "")
 
 # create batch upload file for ATTAINS
-Batch_Upload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "IL_EPA",
+Batch.Upload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "IL_EPA",
                                         crosswalk = New_CW,
                                         attains_replace = TRUE, # must set as true because there are currently no entries in ATTAINS
                                         wqp_data_links = "add")
