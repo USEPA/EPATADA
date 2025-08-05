@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateUseAURef}
 \alias{TADA_CreateUseAURef}
-\title{Assessment Unit and Use Name Crosswalk}
+\title{ATTAINS Assessment Unit and Use Name Crosswalk}
 \usage{
 TADA_CreateUseAURef(
   .data,
@@ -60,23 +60,36 @@ function input. This helps prevent users from overwriting their progress.}
 A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
 }
 \description{
-This function pulls in all prior use names associated with each
-organization's assessment unit from the prior ATTAINS cycle.
+This function pulls in all prior ATTAINS Use names associated with each
+ATTAINS organization's Assessment Unit (AU) from the prior ATTAINS cycle.
+This function requires an ATTAINS org_id and
+a crosswalk of an organization's WQP
+Monitoring Location's, ATTAINS Assessment Unit's, and ATTAINS
+Water Type codes as a function input (sitesAURef). The output from
+\code{TADA_GetATTAINS(.data, return_sf = FALSE)} can be used
+directly as the sitesAURef argument input in this function. Alternatively,
+a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUSiteCrosswalk()}
+and/or \code{TADA_UpdateMonitoringLocationsInATTAINS()} functions can be leveraged
+to generate the crosswalk.
 }
 \details{
-This function requires a crosswalk of an organization's ML, AU and ATTAINS
-Water Type code.The output from TADA_GetATTAINS(.data, return_sf = FALSE)
-can be used directly as the sitesAURef argument input in this function.
+This function is mainly designed to assist with pulling
+existing Uses that have been entered
+into ATTAINS in the prior ATTAINS cycle (most recent assessment).
 
-Users must supply their own Use to AU crosswalk table if they would like
-to apply Uses to AUs that cannot be retrieved from the prior ATTAINS cycle.
-
-Any new or modified AU information that gets submitted in the current assessment
-cycle as an ATTAINS batch upload will not be available in ATTAINS until the
-assessment is approved and completed. Users can either supply their own Water
-Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water to
+For any NEW AUs and/or NEW uses, users must modify
+the output of this function to manually add those uses and AU's to the crosswalk.
+Alternatively, we have developed a helper function, \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}},
+to assist with assigning uses to NEW AU's. This can be levereaged to assign
+uses for any new AUs based on the water type of the AU.
+Users can either supply their own Water
+Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water Type to
 Use reference file. This Water to Use reference file can be used to assign all
-unique Uses to a new/modified AU.
+unique Uses to a new/modified AU based on which uses have been assisgned to that
+water type in the past for the specified ATTAINS organization.
+Any new or modified AU and use information that gets submitted to ATTAINS
+in the current assessment cycle will not be available in ATTAINS until the
+assessment is approved and completed.
 }
 \examples{
 \dontrun{
@@ -180,4 +193,15 @@ AK_CreateUseAURef2 <- TADA_CreateUseAURef(
 
 }
 
+}
+\seealso{
+\code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} for the required format of .data
+
+\code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}} to help generate the required sitesAURef
+
+\code{\link[=TADA_GetATTAINSAUSiteCrosswalk]{TADA_GetATTAINSAUSiteCrosswalk()}} to help generate the required sitesAURef
+
+\code{\link[=TADA_UpdateMonitoringLocationsInATTAINS]{TADA_UpdateMonitoringLocationsInATTAINS()}} to help generate the required sitesAURef
+
+\code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}} to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
 }
