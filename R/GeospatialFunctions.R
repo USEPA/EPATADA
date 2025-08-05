@@ -1750,7 +1750,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
-    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
+
+  filt.data <- .data %>%
     dplyr::select(TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
                   TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName) %>%
     dplyr::distinct() %>%
@@ -1874,21 +1876,17 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
   )
 
   # get one catchment per WQP location
-  filt.df <- .data %>%
+  catchments.cw <- filt.data %>%
     dplyr::distinct() %>%
-
-    #dplyr::left_join(au_ref %>% dplyr::select(ATTAINS.AssessmentUnitIdentifier,
-    # ATTAINS.MonitoringLocationIdentifier),
-    #by = c("MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier")) %>%
-    sf::st_join(catchments, join = st_nearest_feature) %>%
-    dplyr::group_by(MonitoringLocationIdentifier) %>%
+    sf::st_join(catchments, join = sf::st_nearest_feature) %>%
+    dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
     dplyr::mutate(catchCount = dplyr::n()) %>%
-    dplyr::select(MonitoringLocationIdentifier, nhdplusid) %>%
+    dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
     dplyr::distinct() %>%
     sf::st_drop_geometry()
 
-  catchments <- catchments %>%
-    dplyr::semi_join(filt.df)
+  catchments.filt <- catchments %>%
+    dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
 
   try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
       silent = TRUE
@@ -1902,15 +1900,12 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
       silent = TRUE
   )
 
-  try(catchments <- catchments %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+  try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
       silent = TRUE
   )
 
-  catch.for.TADA <- catchments %>%
-    dplyr::select(OBJECTID)
-    dplyr::rename(ATTAINS.areasqkm =)
-
-  TADA_with_ATTAINS <-
+  TADA_with_ATTAINS <- .data %>%
+    dplyr::left_join(catchments, dplyr::join_by(nhdplusid))
 
   final_features <- list(
     "ATTAINS_catchments" = catchments,
