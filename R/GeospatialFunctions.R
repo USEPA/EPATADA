@@ -2062,11 +2062,11 @@ TADA_ViewATTAINS <- function(.data) {
     }
 
     required_columns <- c(
-      "LongitudeMeasure", "LatitudeMeasure",
+      "TADA.LongitudeMeasure", "TADA.LatitudeMeasure",
       "HorizontalCoordinateReferenceSystemDatumName",
-      "CharacteristicName", "MonitoringLocationIdentifier",
-      "MonitoringLocationName", "ResultIdentifier",
-      "ActivityStartDate", "OrganizationIdentifier"
+      "TADA.CharacteristicName", "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationName", "ResultIdentifier",
+      "ActivityStartDate", "TADA.OrganizationIdentifier"
     )
 
     if (!any(required_columns %in% colnames(ATTAINS_table))) {

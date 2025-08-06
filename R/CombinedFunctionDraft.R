@@ -24,7 +24,8 @@
    # user supplied au_ref section
    # subset data for au_ref
    au.ref.mls <- .data %>%
-     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$MonitoringLocationIdentifier)
+     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$MonitoringLocationIdentifier) %>%
+     dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
    # rename au_ref cols for nex function
    au_ref <- au_ref %>%
@@ -43,7 +44,9 @@
                                                          attains_replace = TRUE)
 
    attains.cw.mls <- .data %>%
-     dplyr::filter(TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier)
+     dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
+                   TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier) %>%
+     dplyr::mutate(TADA.AURefSource = "ATTAINS crosswalk")
 
    # get geospatial data for attains cw monitoring locations
    attains.matches <- TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw)
@@ -51,7 +54,8 @@
    # TADA_GetATTAINS section
    get.attains.mls <- .data %>%
      dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-                   !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier)
+                   !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
+     dplyr::mutate(TADA.AURefSource = "TADA_GetATTAINS")
 
 
    # use get attains for matching remaining monitoring locations
@@ -62,32 +66,39 @@
    #TADA_with_ATTAINS
 
    TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
-     dplyr::full_join(attains.matches$TADA_with_ATTAINS) %>%
-     dplyr::full_join(get.attains.matches$TADA_with_ATTAINS)
+     dplyr::bind_rows(attains.matches$TADA_with_ATTAINS) %>%
+     dplyr::bind_rows(get.attains.matches$TADA_with_ATTAINS) %>%
+     dplyr::distinct()
 
    ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
-     dplyr::full_join(attains.matches$ATTAINS_catchments) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_catchments)
+     dplyr::bind_rows(attains.matches$ATTAINS_catchments) %>%
+     dplyr::bind_rows(get.attains.matches$ATTAINS_catchments) %>%
+     dplyr::distinct()
 
    ATTAINS_lines <- user.matches$ATTAINS_lines %>%
-     dplyr::full_join(attains.matches$ATTAINS_lines) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_lines)
+     dplyr::bind_rows(attains.matches$ATTAINS_lines) %>%
+     dplyr::bind_rows(get.attains.matches$ATTAINS_lines) %>%
+     dplyr::distinct()
 
    ATTAINS_points <- user.matches$ATTAINS_points %>%
-     dplyr::full_join(attains.matches$ATTAINS_points) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_points)
+     dplyr::bind_rows(attains.matches$ATTAINS_points) %>%
+     dplyr::bind_rows(get.attains.matches$ATTAINS_points) %>%
+     dplyr::distinct()
 
    ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
-     dplyr::full_join(attains.matches$ATTAINS_polygons) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_polygons)
+     dplyr::bind_rows(attains.matches$ATTAINS_polygons) %>%
+     dplyr::bind_rows(get.attains.matches$ATTAINS_polygons) %>%
+     dplyr::distinct()
 
 
+   final_list <- list(
+     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+     "ATTAINS_catchments" = ATTAINS_catchments,
+     "ATTAINS_points" = ATTAINS_points,
+     "ATTAINS_lines" = ATTAINS_lines,
+     "ATTAINS_polygons" = ATTAINS_polygons
+   )
+
+   return(final_list)
 }
-#' }
-#' 1. user
-#' 2. ATTAINS
-#' 3. GetATTAINS
-#'
-#' flag for review site that was assigned in two different ways
-#'
-#
+
