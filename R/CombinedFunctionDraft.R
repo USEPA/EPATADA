@@ -73,13 +73,13 @@
      dplyr::full_join(attains.matches$ATTAINS_lines) %>%
      dplyr::full_join(get.attains.matches$ATTAINS_lines)
 
-   ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
-     dplyr::full_join(attains.matches$ATTAINS_catchments) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_catchments)
+   ATTAINS_points <- user.matches$ATTAINS_points %>%
+     dplyr::full_join(attains.matches$ATTAINS_points) %>%
+     dplyr::full_join(get.attains.matches$ATTAINS_points)
 
-   ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
-     dplyr::full_join(attains.matches$ATTAINS_catchments) %>%
-     dplyr::full_join(get.attains.matches$ATTAINS_catchments)
+   ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
+     dplyr::full_join(attains.matches$ATTAINS_polygons) %>%
+     dplyr::full_join(get.attains.matches$ATTAINS_polygons)
 
 
 }

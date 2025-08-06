@@ -1549,7 +1549,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
       # CATCHMENT FEATURES
       # use original catchment pull, but return column names to original
       ATTAINS_catchments <- nearby_catchments %>%
-        dplyr::filter(ATTAINS.AssessmentUnitIdentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
+        dplyr::filter(ATTAINS.AssessmentUnitIdentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
         dplyr::distinct(.keep_all = TRUE)
 
       colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
@@ -1562,7 +1562,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
       try(
         ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
           # subset to only ATTAINS point features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
           # make sure no duplicate features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1576,7 +1576,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
       try(
         ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
           # subset to only ATTAINS line features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
           # make sure no duplicate line features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1590,7 +1590,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
       try(
         ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
           # subset to only ATTAINS polygon features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
           # make sure no duplicate polygon features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1614,7 +1614,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
       if (fill_catchments == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
+          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.AssessmentUnitIdentifier)) %>% dplyr::pull(ResultIdentifier)))
 
         nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
@@ -1624,7 +1624,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
         # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.assessmentunitidentifier)),
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)),
           "TADA_without_ATTAINS" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
@@ -1639,7 +1639,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
       if (fill_catchments == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
+          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.AssessmentUnitIdentifier)) %>% dplyr::pull(ResultIdentifier)))
 
         nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
@@ -1649,7 +1649,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
         # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.assessmentunitidentifier)),
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)),
           "TADA_without_ATTAINS" = TADA_without_ATTAINS
         )
 
@@ -2131,7 +2131,7 @@ TADA_ViewATTAINS <- function(.data) {
           Visit_Count = length(unique(ActivityStartDate)),
           Parameter_Count = length(unique(CharacteristicName)),
           Organization_Count = length(unique(OrganizationIdentifier)),
-          ATTAINS_AUs = as.character(list(unique(ATTAINS.assessmentunitidentifier)))
+          ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier)))
         ) %>%
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
@@ -2376,7 +2376,7 @@ TADA_ViewATTAINS <- function(.data) {
           Visit_Count = length(unique(ActivityStartDate)),
           Parameter_Count = length(unique(CharacteristicName)),
           Organization_Count = length(unique(OrganizationIdentifier)),
-          ATTAINS_AUs = as.character(list(unique(ATTAINS.assessmentunitidentifier)))
+          ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier)))
         ) %>%
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
