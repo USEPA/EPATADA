@@ -63,7 +63,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
       dplyr::filter(!is.na(monitoringLocationId)) %>%
       dplyr::distinct() %>%
       dplyr::rename(
-        ATTAINS.assessmentunitidentifier = assessmentUnitId,
+        ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
         MonitoringLocationIdentifier = monitoringLocationId,
         OrganizationIdentifier = monitoringLocationOrgId,
         MonitoringDataLinkText = monitoringLocationDataLink
@@ -78,11 +78,12 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
           )),
       paste0(org_id, "-", MonitoringLocationIdentifier),
       MonitoringLocationIdentifier
-      ))
+      )) %>%
+      dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier)
 
     rm(au.info)
 
-    if (length(au.crosswalk$MonitoringLocationIdentifier > 0)) {
+    if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier > 0)) {
       print(paste0(
         "TADA_GetATTAINSAUSiteCrosswalk: ",
         "There are ", nrow(au.crosswalk),
@@ -93,7 +94,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
       return(au.crosswalk)
     }
 
-    if (length(au.crosswalk$MonitoringLocationIdentifier) == 0) {
+    if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) == 0) {
       print(paste0(
         "TADA_GetATTAINSAUSiteCrosswalk: ",
         "No monitoring location identifiers were recorded in ATTAINS for ",
