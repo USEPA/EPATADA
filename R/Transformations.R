@@ -266,6 +266,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   TADA.NutrientSummationEquation columns, which can be used to trace how the
 #'   total was calculated and from which subspecies.
 #'
+#' @seealso [TADA_AggregateMeasurements()]
+#' @seealso [TADA_FlagDepthCategory()]
+#' 
 #' @export
 #' 
 #' @examples
@@ -275,7 +278,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' df <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
 #' nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 #' 
-#' df <- TADA_RunKeyFlagFunctions(df)
+#' df <- TADA_RunKeyFlagFunctions(df, clean = TRUE)
 #' 
 #' df <- TADA_HarmonizeSynonyms(df)
 #' 
@@ -396,7 +399,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
     depths
   )
 
-  dat <- suppressMessages(TADA_AggregateMeasurements(include_df, grouping_cols = grpcols, agg_fun = daily_agg, clean = TRUE))
+  dat <- suppressMessages(TADA_AggregateMeasurements(include_df, grouping_cols = grpcols, agg_fun = daily_agg, clean = FALSE))
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat, sum_ref, all.x = TRUE)
@@ -541,7 +544,7 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 #'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
 #'   additional measurements are indicated in the
 #'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
-#'   selected".
+#'   selected". The default is clean = FALSE. 
 #'
 #' @return A TADA dataframe with aggregated values combined into one row. If the
 #'   agg_fun is 'min' or 'max', the function will select the row matching the
@@ -557,7 +560,8 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 #' @examples
 #' # Load example dataset
 #' data(Data_6Tribes_5y)
-#' # Select maximum value per day, site, comparable data identifier, unit, result detection condition,
+#' # Select maximum value per day, site, comparable data identifier, 
+#' # unit, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
 #' Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
 #'   grouping_cols = c(
@@ -583,7 +587,16 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = c("max", "min", "m
 #'   agg_fun = "mean", 
 #'   clean = FALSE
 #' )
-TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode", "TADA.ResultMeasure.MeasureUnitCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
+#' 
+TADA_AggregateMeasurements <- function(.data, 
+                                       grouping_cols = c("ActivityStartDate", 
+                                                         "TADA.MonitoringLocationIdentifier", 
+                                                         "TADA.ComparableDataIdentifier", 
+                                                         "ResultDetectionConditionText", 
+                                                         "ActivityTypeCode", 
+                                                         "TADA.ResultMeasure.MeasureUnitCode"), 
+                                       agg_fun = c("max", "min", "mean"), 
+                                       clean = FALSE) {
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
   

@@ -78,10 +78,15 @@ endDate = "2024-07-01", characteristicType = "Nutrient", ask = FALSE)
 df <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
 nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 
-df <- TADA_RunKeyFlagFunctions(df)
+df <- TADA_RunKeyFlagFunctions(df, clean = TRUE)
 
 df <- TADA_HarmonizeSynonyms(df)
 
 df2 <- TADA_CalculateTotalNP(df, daily_agg = "max")
 
+}
+\seealso{
+\code{\link[=TADA_AggregateMeasurements]{TADA_AggregateMeasurements()}}
+
+\code{\link[=TADA_FlagDepthCategory]{TADA_FlagDepthCategory()}}
 }

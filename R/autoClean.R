@@ -312,7 +312,7 @@ TADA_AutoClean <- function(.data) {
 #'
 #' @param .data A TADA dataframe.
 #' @param clean Boolean. Determines whether to keep the suspect rows (or not).
-#' Defaults to TRUE.
+#' Defaults to FALSE.
 #'
 #' @return A TADA dataframe with the following flagging columns:
 #' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag,
@@ -326,7 +326,7 @@ TADA_AutoClean <- function(.data) {
 #'
 #' # Run flagging functions and remove and suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
-TADA_RunKeyFlagFunctions <- function(.data, clean = TRUE) {
+TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   if (clean == TRUE) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)

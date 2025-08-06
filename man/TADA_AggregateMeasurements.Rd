@@ -10,7 +10,7 @@ TADA_AggregateMeasurements(
     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode",
     "TADA.ResultMeasure.MeasureUnitCode"),
   agg_fun = c("max", "min", "mean"),
-  clean = TRUE
+  clean = FALSE
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ either be 'min', 'max', or 'mean'.}
 aggregation should be removed or kept in the dataframe. If clean = FALSE,
 additional measurements are indicated in the
 TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
-selected".}
+selected". The default is clean = FALSE.}
 }
 \value{
 A TADA dataframe with aggregated values combined into one row. If the
@@ -44,7 +44,8 @@ TADA.ResultMeasureValue to a minimum, maximum, or average value.
 \examples{
 # Load example dataset
 data(Data_6Tribes_5y)
-# Select maximum value per day, site, comparable data identifier, unit, result detection condition,
+# Select maximum value per day, site, comparable data identifier, 
+# unit, result detection condition,
 # and activity type code. Clean all non-maximum measurements from grouped data.
 Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   grouping_cols = c(
@@ -70,4 +71,5 @@ Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   agg_fun = "mean", 
   clean = FALSE
 )
+
 }

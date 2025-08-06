@@ -67,7 +67,7 @@ TADA_UpdateExampleData <- function() {
 
   # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
-  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
+  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
   rm(Data_6Tribes_5y)
   y <- TADA_FlagMethod(y, clean = TRUE)
   y <- TADA_FlagAboveThreshold(y, clean = TRUE)

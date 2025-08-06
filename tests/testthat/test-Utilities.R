@@ -29,7 +29,7 @@ test_that("TADA_AutoClean: pH harmonization works as expected", {
  pHtest <- TADA_AutoClean(random_data)
  pHtest2 <- TADA_SimpleCensoredMethods(pHtest)
  pHtest3 <- TADA_ConvertSpecialChars(pHtest2, col = "TADA.ResultMeasureValue", clean = TRUE)
- pHtest4 <- TADA_RunKeyFlagFunctions(pHtest3)
+ pHtest4 <- TADA_RunKeyFlagFunctions(pHtest3, clean = TRUE)
  pHtest5 <- TADA_HarmonizeSynonyms(pHtest4)
 
  # Is pH data harmonized after above mod 1 functions have run?

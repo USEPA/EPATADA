@@ -422,7 +422,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
         TADA.DepthCategory.Flag %in% depthcat.list
       ) %>%
       dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as max aggregate value ", cattype)) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("TADA_FlagDepthCategory: Selecting maximum aggregate value.", cattype)) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
       dplyr::select(-DepthsByGroup) %>%
       dplyr::ungroup()
