@@ -2255,16 +2255,14 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% ATTAINS_table) {
+      if(exists("TADA.AURefSource", where = ATTAINS_table)) {
 
       # if TADA_AUSourceRef col exists in data
-      ref.pal <- c(tada.pal[1], tada.pal[8], tada.pal[13])
-
-      ref.pal <- stats::setNames(ref.pal, c("User-supplied Ref",
-                                            "ATTAINS crosswalk",
-                                            "TADA_GetATTAINS"))
-
-      set.fill <- ref.pal(ATTAINS_table$TADA.AURefSource)
+      set.fill <- leaflet::colorFactor(
+        palette = c(tada.pal[1], tada.pal[8], tada.pal[13]),
+        domain = c("User-supplied Ref",
+                   "ATTAINS crosswalk",
+                   "TADA_GetATTAINS"))
       }
 
       if(!"TADA.AURefSource" %in% ATTAINS_table) {

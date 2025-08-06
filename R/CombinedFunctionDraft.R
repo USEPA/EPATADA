@@ -47,15 +47,15 @@
        # should this be using a more generic function?
        TADA_CheckColumns(au_ref, req.cols)
 
+   # rename au_ref cols for nex function
+    au_ref <- au_ref %>%
+         dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
+                       ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier)
+
    # subset data for au_ref
    au.ref.mls <- .data %>%
-     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$MonitoringLocationIdentifier) %>%
+     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
      dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
-
-   # rename au_ref cols for nex function
-   au_ref <- au_ref %>%
-     dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
-                   ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier)
 
    # get geospatial data for au_ref monitoring locations
    user.matches <- TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref)
@@ -97,12 +97,24 @@
                    !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
      dplyr::mutate(TADA.AURefSource = "TADA_GetATTAINS")
 
-   if(get.attains.mls)
+   # add code here for if there are no remaning mls to match
+   if(dim(get.attains.mls)[1] == 0) {
 
+     get.attains.matches <- list(
+       "TADA_with_ATTAINS" = NULL,
+       "ATTAINS_catchments" = NULL,
+       "ATTAINS_points" = NULL,
+       "ATTAINS_lines" = NULL,
+       "ATTAINS_polygons" = NULL
+     )
 
+   }
+
+    if(dim(get.attains.mls)[1] > 0) {
    # use get attains for matching remaining monitoring locations
    get.attains.matches <- TADA_GetATTAINS(get.attains.mls,
                                           return_nearest = TRUE)
+    }
 
    # need to figure out what happens here if no matches are found in ATTAINS
 
@@ -176,7 +188,17 @@
 
  clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
 
- rm()
+ rm(attains.existing.MT)
+
+ au_ref <- clean.existing.attains.MT %>%
+   dplyr::slice_head(n = 50) %>%
+   dplyr::rename(MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+                 AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier)
+
+ attains.cw <- clean.existing.attains.MT %>%
+   dplyr::anti_join(au_ref)
+
+ rm(clean.existing.attains.MT)
 
 
 
