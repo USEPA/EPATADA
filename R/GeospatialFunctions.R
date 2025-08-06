@@ -1354,7 +1354,43 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
         # select only catchments that have WQP observations in them:
         .[TADA_DataRetrieval_data, ] %>%
         # add prefix "ATTAINS" to ATTAINS data
-        dplyr::rename_with(~ paste0("ATTAINS.", .), dplyr::everything()) %>%
+        dplyr::rename(ATTAINS.SubmissionId = submissionid,
+                      ATTAINS.NhdPlusId = nhdplusid,
+                      ATTAINS.State = state,
+                      ATTAINS.Region = region,
+                      ATTAINS.OrganizationId = organizationid,
+                      ATTAINS.OrgType = orgtype,
+                      ATTAINS.Tas303d = tas303d,
+                      ATTAINS.OrganizationName = organizationname,
+                      ATTAINS.ReportingCycle = reportingcycle,
+                      ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
+                      ATTAINS.AssessmentUnitName = assessmentunitname,
+                      ATTAINS.WaterbodyReportLink = waterbodyreportlink,
+                      ATTAINS.AssmntJoinKey = assmnt_joinkey,
+                      ATTAINS.PermIdJoinKey = permid_joinkey,
+                      ATTAINS.IrCategory = ircategory,
+                      ATTAINS.OverallStatus = overallstatus,
+                      ATTAINS.IsAssessed = isassessed,
+                      ATTAINS.IsImpaired = isimpaired,
+                      ATTAINS.IsThreatened = isthreatened,
+                      ATTAINS.On303dList = on303dlist,
+                      ATTAINS.HasTmdl = hastmdl,
+                      ATTAINS.Has4bPlan = has4bplan,
+                      ATTAINS.HasAlternativePlan = hasalternativeplan,
+                      ATTAINS.HasProtectionPlan = hasprotectionplan,
+                      ATTAINS.VisionPriority303d =  visionpriority303d,
+                      ATTAINS.AreaSqkm = areasqkm,
+                      ATTAINS.Huc12 = huc12,
+                      ATTAINS.XwalkMethod = xwalk_method,
+                      ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
+                      ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
+                      ATTAINS.CatchmentStateCode = catchmentstatecode,
+                      ATTAINS.CatchmentIsTribal = catchmentistribal,
+                      ATTAINS.CatchmentResolution = catchmentresolution,
+                      ATTAINS.ShapeLength = Shape_Length,
+                      ATTAINS.ShapeArea = Shape_Area,
+                      ATTAINS.WaterType = waterTypeCode
+        ) %>%
         # get rid of dupes (as a precaution)
         dplyr::distinct(.keep_all = TRUE),
       silent = TRUE
@@ -1731,6 +1767,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
     }
   }
 
+  # drop provider from au_ref
+  au_ref <- au_ref %>%
+    dplyr::select(-ProviderName)
+
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
@@ -1761,6 +1801,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
     chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
 
     # get water type
+    # need to edit funciton to silent print outs from EQ_AUs
 
     wat_type <- function(chunk) {
       results <- suppressMessages(rExpertQuery::EQ_AssessmentUnits(
@@ -1887,28 +1928,61 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
       silent = TRUE
   )
 
-  # this is ending up with too many rows
-  TADA_with_ATTAINS <- catchments %>%
-    sf::st_drop_geometry() %>%
-    dplyr::left_join(catchments.cw,
-                     dplyr::join_by(nhdplusid),
-                     relationship = "many-to-many") %>%
-    dplyr::full_join(.data, dplyr::join_by(TADA.MonitoringLocationIdentifier),
-                                           relationship = "many-to-many")
-
   catchments.no.geo <- catchments %>%
     sf::st_drop_geometry() %>%
     dplyr::distinct()
 
 # pick up here on 8/6 (HRM)
+  # create internal function to rename cols coming from ATTAINS geospatial
     TADA_with_ATTAINS <- .data %>%
-    dplyr::left_join(au_ref)
+    dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =
+                                      "ATTAINS.MonitoringLocationIdentifier")) %>%
     dplyr::left_join(catchments.cw,
                      dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
     dplyr::left_join(catchments.no.geo,
-                     dplyr::join_by(nhdplusid, TADA.MonitoringLocationIdentifier))
+                    by = c("nhdplusid" = "nhdplusid",
+                           "ATTAINS.AssessmentUnitIdentifier" =
+                             "assessmentunitidentifier")) %>%
+    dplyr::select(-OBJECTID) %>%
+    dplyr::rename(ATTAINS.SubmissionId = submissionid,
+                  ATTAINS.NhdPlusId = nhdplusid,
+                  ATTAINS.State = state,
+                  ATTAINS.Region = region,
+                  ATTAINS.OrganizationId = organizationid,
+                  ATTAINS.OrgType = orgtype,
+                  ATTAINS.Tas303d = tas303d,
+                  ATTAINS.OrganizationName = organizationname,
+                  ATTAINS.ReportingCycle = reportingcycle,
+                  ATTAINS.AssessmentUnitName = assessmentunitname,
+                  ATTAINS.WaterbodyReportLink = waterbodyreportlink,
+                  ATTAINS.AssmntJoinKey = assmnt_joinkey,
+                  ATTAINS.PermIdJoinKey = permid_joinkey,
+                  ATTAINS.IrCategory = ircategory,
+                  ATTAINS.OverallStatus = overallstatus,
+                  ATTAINS.IsAssessed = isassessed,
+                  ATTAINS.IsImpaired = isimpaired,
+                  ATTAINS.IsThreatened = isthreatened,
+                  ATTAINS.On303dList = on303dlist,
+                  ATTAINS.HasTmdl = hastmdl,
+                  ATTAINS.Has4bPlan = has4bplan,
+                  ATTAINS.HasAlternativePlan = hasalternativeplan,
+                  ATTAINS.HasProtectionPlan = hasprotectionplan,
+                  ATTAINS.VisionPriority303d =  visionpriority303d,
+                  ATTAINS.AreaSqkm = areasqkm,
+                  ATTAINS.Huc12 = huc12,
+                  ATTAINS.XwalkMethod = xwalk_method,
+                  ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
+                  ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
+                  ATTAINS.CatchmentStateCode = catchmentstatecode,
+                  ATTAINS.CatchmentIsTribal = catchmentistribal,
+                  ATTAINS.CatchmentResolution = catchmentresolution,
+                  ATTAINS.ShapeLength = Shape_Length,
+                  ATTAINS.ShapeArea = Shape_Area,
+                  ATTAINS.WaterType = waterType
+                  )
 
   final_features <- list(
+    "TADA_with_ATTAINS" = TADA_with_ATTAINS,
     "ATTAINS_catchments" = catchments,
     "ATTAINS_points" = points,
     "ATTAINS_lines" = lines,
