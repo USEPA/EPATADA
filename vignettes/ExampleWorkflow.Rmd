@@ -60,8 +60,7 @@ clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "M
 ```{r tada.get.attains}
 
 # use TADA get attains to make AU assignments for unassigned MLs
-get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE,
-                                  au_ref = clean.existing.attains.MT)
+get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE)
 
 ```
 

@@ -21,7 +21,32 @@
  TADA_CreateAUMLRef <- function(.data, au_ref = NULL, org_id = NULL) {
    # need to write checks for each component
 
-   # user supplied au_ref section
+   # check for user supplied ref
+   if(is.null(au_ref)) {
+
+     user.matches <- list(
+       "TADA_with_ATTAINS" = NULL,
+       "ATTAINS_catchments" = NULL,
+       "ATTAINS_points" = NULL,
+       "ATTAINS_lines" = NULL,
+       "ATTAINS_polygons" = NULL
+     )
+   }
+
+   if(!is.null(au_ref)) {
+
+   if(!is.data.frame(au_ref)) {
+        stop("The user supplied au_ref must be a data frame.")
+     }
+
+     if(is.data.frame(au_ref)) {
+
+       req.cols <- c("AssessmentUnitIdentifier",
+                     "MonitoringLocationIdentifier")
+
+       # should this be using a more generic function?
+       TADA_CheckColumns(au_ref, req.cols)
+
    # subset data for au_ref
    au.ref.mls <- .data %>%
      dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$MonitoringLocationIdentifier) %>%
@@ -34,11 +59,25 @@
 
    # get geospatial data for au_ref monitoring locations
    user.matches <- TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref)
+     }
+   }
 
    # ATTAINS supplied ref section
    # get attains crosswalk
    attains.cw <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)
 
+   if(is.null(attains.cw)) {
+
+      attains.matches <- list(
+        "TADA_with_ATTAINS" = NULL,
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
+      )
+   }
+
+   if(!is.null(attains.cw)) {
    attains.cw <- TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
                                                          org_id = org_id,
                                                          attains_replace = TRUE)
@@ -50,6 +89,7 @@
 
    # get geospatial data for attains cw monitoring locations
    attains.matches <- TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw)
+   }
 
    # TADA_GetATTAINS section
    get.attains.mls <- .data %>%
@@ -57,10 +97,14 @@
                    !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
      dplyr::mutate(TADA.AURefSource = "TADA_GetATTAINS")
 
+   if(get.attains.mls)
+
 
    # use get attains for matching remaining monitoring locations
    get.attains.matches <- TADA_GetATTAINS(get.attains.mls,
                                           return_nearest = TRUE)
+
+   # need to figure out what happens here if no matches are found in ATTAINS
 
    # join all the resulting tables within each list to return as one large list
    #TADA_with_ATTAINS
@@ -101,4 +145,39 @@
 
    return(final_list)
 }
+
+
+
+# test data sets
+
+ # get Montna bacteria data
+ tada.MT <- TADA_DataRetrieval(
+   startDate = "2020-01-01", endDate = "2022-12-31",
+   statecode = "MT",
+   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+   ask = FALSE)
+
+ # review comparable data identifiers
+ sort(unique(tada.MT$TADA.ComparableDataIdentifier))
+
+ # clean up data set (minimal)
+ tada.MT.clean <- tada.MT %>%
+   TADA_RunKeyFlagFunctions() %>%
+   TADA_SimpleCensoredMethods() %>%
+   # could separate this out and add to harmonization table?
+   TADA_HarmonizeSynonyms()
+
+ rm(tada.MT)
+
+ # review comparable data identifiers
+ sort(unique(tada.MT.clean$TADA.ComparableDataIdentifier))
+
+ attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
+
+ clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
+
+ rm()
+
+
+
 

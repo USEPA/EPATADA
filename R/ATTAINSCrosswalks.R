@@ -176,7 +176,7 @@ TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
 #' the TADA workflow. Default is batch_upload = FALSE.
 #'
 #' @return A dataframe with four columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier, and
+#' OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
 #' MonitoringDataLinkText is returned. This matches the format of the batch
 #' upload files required to add or update monitoring locations in ATTAINS.
 #'
@@ -293,12 +293,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
     if (attains_replace == FALSE) {
       # create assessment unit crosswalk from ATTAINS
-      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)) %>%
-        dplyr::rename(
-          ATTAINS.AssessmentUnitIdentifier = ATTAINS.assessmentunitidentifier,
-          ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
-          ATTAINS.MonitoringDataLinkText = MonitoringDataLinkText
-        )
+      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id))
 
       if (is.null(crosswalk)) {
         update.crosswalk <- attains.crosswalk
