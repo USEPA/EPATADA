@@ -33,7 +33,7 @@ A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 This is a helper function to TADA_CreateUseAURef and is meant to help users
 with reviewing all water type and use name combination from their org.
 This function will help to assign ATTAINS use names to any new or modified
-assessment unit provided from a user's MLAURef if there are any.
+assessment unit provided from a user's AUMLRef if there are any.
 }
 \details{
 This function will assume all use names applies to a water type from the
