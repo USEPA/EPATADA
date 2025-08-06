@@ -1490,7 +1490,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
       subset <- attains_features[-1] %>%
         purrr::map(~ tryCatch(
-          dplyr::filter(., assessmentunitidentifier %in% sub_tada$ATTAINS.assessmentunitidentifier),
+          dplyr::filter(., assessmentunitidentifier %in% sub_tada$ATTAINS.AssessmentUnitIdentifier),
           error = function(e) data.frame(),
           warning = function(w) data.frame()
         )) %>%
@@ -1507,18 +1507,18 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
         dplyr::bind_rows() %>%
         sf::st_drop_geometry() %>%
         dplyr::select(
-          ATTAINS.assessmentunitidentifier = assessmentunitidentifier,
+          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
           TADA.DistanceAway.Meters
         ) %>%
         dplyr::distinct(), silent = TRUE)
 
       try(result <- sub_tada %>%
         data.table::data.table() %>%
-        dplyr::select(ResultIdentifier, ATTAINS.assessmentunitidentifier) %>%
-        dplyr::left_join(., distances, by = "ATTAINS.assessmentunitidentifier") %>%
+        dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+        dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
         sf::st_drop_geometry() %>%
         # for AUs with multiple features, only assess the one closest:
-        dplyr::group_by(ResultIdentifier, ATTAINS.assessmentunitidentifier) %>%
+        dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
         dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
         dplyr::ungroup(), silent = TRUE)
 
@@ -1530,7 +1530,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 
     TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
       data.table::data.table() %>%
-      dplyr::left_join(., distances_table, by = c("ResultIdentifier", "ATTAINS.assessmentunitidentifier")) %>%
+      dplyr::left_join(., distances_table, by = c("ResultIdentifier", "ATTAINS.AssessmentUnitIdentifier")) %>%
       dplyr::distinct() %>%
       sf::st_as_sf()
 
@@ -1549,7 +1549,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
       # CATCHMENT FEATURES
       # use original catchment pull, but return column names to original
       ATTAINS_catchments <- nearby_catchments %>%
-        dplyr::filter(ATTAINS.assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
+        dplyr::filter(ATTAINS.AssessmentUnitIdentifier %in% TADA_with_ATTAINS$ATTAINS.assessmentunitidentifier) %>%
         dplyr::distinct(.keep_all = TRUE)
 
       colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
