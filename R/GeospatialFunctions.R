@@ -2255,13 +2255,32 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      # Add WQP observation features (should always exist):
+      if("TADA.AURefSource" %in% ATTAINS_table) {
+
+      # if TADA_AUSourceRef col exists in data
+      ref.pal <- c(tada.pal[1], tada.pal[8], tada.pal[13])
+
+      ref.pal <- stats::setNames(ref.pal, c("User-supplied Ref",
+                                            "ATTAINS crosswalk",
+                                            "TADA_GetATTAINS"))
+
+      set.fill <- ref.pal(ATTAINS_table$TADA.AURefSource)
+      }
+
+      if(!"TADA.AURefSource" %in% ATTAINS_table) {
+
+        # if TADA_AUSourceRef col exists in data
+        set.fill <- c(tada.pal[1])
+      }
+
+
+             # Add WQP observation features (should always exist):
       try(
         map <- map %>%
           leaflet::addCircleMarkers(
             data = sumdat,
             lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            color = "grey", fillColor = "black",
+            color = "grey", fillColor = set.fill,
             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
             popup = paste0(
               "Site ID: ", sumdat$MonitoringLocationIdentifier,
