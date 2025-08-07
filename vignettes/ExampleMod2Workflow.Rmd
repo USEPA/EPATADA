@@ -11,11 +11,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Get Montana TADA Data
 
-Get data bacteria and pH data from Montana.
+Get data bacteria and pH data from Missoula County, Montana.
 
 ```{r tada.data}
 
-# get Montna bacteria data 
+# get MT data 
 tada.MT <- TADA_DataRetrieval(
    startDate = "2020-01-01", endDate = "2022-12-31",
    statecode = "MT",
@@ -36,7 +36,7 @@ tada.MT <- TADA_DataRetrieval(
 
 ## Set up Demo User-Supplied Crosswalk
 
-Get existing data from ATTAINS
+Get existing data from ATTAINS and subset a few rows to create a demo user-supplied crosswalk.
 
 ```{r demo.user, echo = FALSE}
 
@@ -62,6 +62,10 @@ rm(attains.existing.MT, clean.existing.attains.MT)
 
 ## Run TADA_CreateAUMLRef
 
+Run TADA_CreateAUMLRef which can incorporate any combination of (1) (optional) user-supplied crosswalk, (2) crosswalk downloaded from ATTAINS, and (3) results from TADA_GetATTAINS. The assignments are prioritized in the order listed. Any MonitoringLocations which remain unassigned after checking the user-supplied crosswalk will be subset and run with TADA_GetATTAINS to attempt additional AssessmentUnit assignments.
+
+To make function run more efficiently, catchment data are not currently being returned for the user-supplied crosswalk and the crosswalk downloaded from ATTAINS. We have plans to create additional functions/internal reference files to faciliate this in the future. Therefore, any catchment data available for mapping is currently from TADA_GetATTAINS assessed MonitoringLocations only.
+
 ```{r tada.get.attains}
 
 # use TADA get attains to make AU assignments for unassigned MLs
@@ -72,7 +76,9 @@ MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
 
 ```
 ## TADA_ViewATTAINS
-```{r}
+
+The TADA_View ATTAINS map function has been edited to shows the results from all three different sources using different color circle markers (not final colors, we are very open to suggestions). The source has also been added to the popup window.
+```{r view.map}
 
 TADA_ViewATTAINS(MT.AUMLRef)
 

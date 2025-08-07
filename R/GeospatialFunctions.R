@@ -2313,11 +2313,21 @@ TADA_ViewATTAINS <- function(.data) {
       # if TADA_AUSourceRef col exists in data
       set.fill <- leaflet::colorFactor(
         palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
-        domain = .data$TADA.AURefSource)
+        domain =  c("User-supplied Ref",
+          "ATTAINS crosswalk",
+          "TADA_GetATTAINS"))
 
-          #c("User-supplied Ref",
-                   #"ATTAINS crosswalk",
-                   #"TADA_GetATTAINS"))
+      set.popup <- paste0(
+        "Site ID: ", sumdat$MonitoringLocationIdentifier,
+        "<br> Site Name: ", sumdat$MonitoringLocationName,
+        "<br> Measurement Count: ", sumdat$Sample_Count,
+        "<br> Visit Count: ", sumdat$Visit_Count,
+        "<br> Characteristic Count: ", sumdat$Parameter_Count,
+        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
+        "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
+      )
+
+
       }
 
       if(!"TADA.AURefSource" %in% ATTAINS_table) {
@@ -2326,6 +2336,15 @@ TADA_ViewATTAINS <- function(.data) {
         set.fill <- leaflet::colorFactor(
           palette = c(tada.pal[1]),
           domain = .data$TADA.AURefSource)
+
+        set.popup <- paste0(
+          "Site ID: ", sumdat$MonitoringLocationIdentifier,
+          "<br> Site Name: ", sumdat$MonitoringLocationName,
+          "<br> Measurement Count: ", sumdat$Sample_Count,
+          "<br> Visit Count: ", sumdat$Visit_Count,
+          "<br> Characteristic Count: ", sumdat$Parameter_Count,
+          "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
+        )
       }
 
 
@@ -2337,15 +2356,8 @@ TADA_ViewATTAINS <- function(.data) {
             lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
             color = "grey", fillColor = ~set.fill(TADA.AURefSource),
             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
-            popup = paste0(
-              "Site ID: ", sumdat$MonitoringLocationIdentifier,
-              "<br> Site Name: ", sumdat$MonitoringLocationName,
-              "<br> Measurement Count: ", sumdat$Sample_Count,
-              "<br> Visit Count: ", sumdat$Visit_Count,
-              "<br> Characteristic Count: ", sumdat$Parameter_Count,
-              "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
-            )
-          ),
+            popup = set.popup
+            ),
         silent = TRUE
       )
 

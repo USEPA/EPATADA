@@ -131,27 +131,32 @@
    TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
      plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
      plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
-     plyr::rbind.fill()
+     plyr::rbind.fill() %>%
+     sf::st_as_sf()
 
    ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
      plyr::rbind.fill(attains.matches$ATTAINS_catchments) %>%
      plyr::rbind.fill(get.attains.matches$ATTAINS_catchments) %>%
-     dplyr::distinct()
+     dplyr::distinct() %>%
+     sf::st_as_sf()
 
    ATTAINS_lines <- user.matches$ATTAINS_lines %>%
      plyr::rbind.fill(attains.matches$ATTAINS_lines) %>%
      plyr::rbind.fill(get.attains.matches$ATTAINS_lines) %>%
-     plyr::rbind.fill()
+     plyr::rbind.fill() %>%
+     sf::st_as_sf()
 
    ATTAINS_points <- user.matches$ATTAINS_points %>%
      plyr::rbind.fill(attains.matches$ATTAINS_points) %>%
      plyr::rbind.fill(get.attains.matches$ATTAINS_points) %>%
-     dplyr::distinct()
+     dplyr::distinct() %>%
+     sf::st_as_sf()
 
    ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
      plyr::rbind.fill(attains.matches$ATTAINS_polygons) %>%
      plyr::rbind.fill(get.attains.matches$ATTAINS_polygons) %>%
-     dplyr::distinct()
+     dplyr::distinct() %>%
+     sf::st_as_sf()
 
 
    final_list <- list(
