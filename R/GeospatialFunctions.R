@@ -2131,7 +2131,10 @@ TADA_ViewATTAINS <- function(.data) {
           Visit_Count = length(unique(ActivityStartDate)),
           Parameter_Count = length(unique(CharacteristicName)),
           Organization_Count = length(unique(OrganizationIdentifier)),
-          ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier)))
+          ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
+          TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
+                                    as.character(TADA.AURefSource),
+                                    NA)
         ) %>%
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
@@ -2255,20 +2258,24 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      if(exists("TADA.AURefSource", where = ATTAINS_table)) {
+      if("TADA.AURefSource" %in% ATTAINS_table) {
 
       # if TADA_AUSourceRef col exists in data
       set.fill <- leaflet::colorFactor(
-        palette = c(tada.pal[1], tada.pal[8], tada.pal[13]),
-        domain = c("User-supplied Ref",
-                   "ATTAINS crosswalk",
-                   "TADA_GetATTAINS"))
+        palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
+        domain = .data$TADA.AURefSource)
+
+          #c("User-supplied Ref",
+                   #"ATTAINS crosswalk",
+                   #"TADA_GetATTAINS"))
       }
 
       if(!"TADA.AURefSource" %in% ATTAINS_table) {
 
         # if TADA_AUSourceRef col exists in data
-        set.fill <- c(tada.pal[1])
+        set.fill <- leaflet::colorFactor(
+          palette = c(tada.pal[1]),
+          domain = .data$TADA.AURefSource)
       }
 
 
@@ -2278,7 +2285,7 @@ TADA_ViewATTAINS <- function(.data) {
           leaflet::addCircleMarkers(
             data = sumdat,
             lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            color = "grey", fillColor = set.fill,
+            color = "grey", fillColor = ~set.fill(TADA.AURefSource),
             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
             popup = paste0(
               "Site ID: ", sumdat$MonitoringLocationIdentifier,
