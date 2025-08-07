@@ -9,8 +9,7 @@ TADA_GetATTAINS(
   return_nearest = FALSE,
   fill_catchments = FALSE,
   resolution = "Hi",
-  return_sf = TRUE,
-  au_ref = NULL
+  return_sf = TRUE
 )
 }
 \arguments{
