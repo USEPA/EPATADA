@@ -2673,10 +2673,14 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
   if(!is.null(au_ref)) {
 
     if(!is.data.frame(au_ref)) {
-      stop("The user supplied au_ref must be a data frame.")
+      stop(paste0("TADA_CreateAUMLRef: The user supplied au_ref must be a data frame ",
+                  "containg the columns AssessmentUnitIdentifier and MonitoringLocationIdentifier.",
+                  "MonitoringLocationIdentifiers must be WQP compatible."))
     }
 
     if(is.data.frame(au_ref)) {
+
+      print("TADA_CreateAUMLRef: fetching geospatial data for user-supplied crosswalk.")
 
       req.cols <- c("AssessmentUnitIdentifier",
                     "MonitoringLocationIdentifier")
@@ -2695,15 +2699,23 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
         dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
       # get geospatial data for au_ref monitoring locations
-      user.matches <- TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch)
+      user.matches <- spsUtil::quiet(
+        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch))
     }
   }
 
   # ATTAINS supplied ref section
   # get attains crosswalk
-  attains.cw <- TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id)
+
+  print("TADA_CreateAUMLRef: checking for crosswalk in ATTAINS.")
+
+  attains.cw <- spsUtil::quiet(
+    TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id))
 
   if(is.null(attains.cw)) {
+
+    print(paste0("TADA_CreateAUMLRef: There are no MonitoringLocation records ",
+                 "in ATTAINS for ", org_id, "."))
 
     attains.matches <- list(
       "TADA_with_ATTAINS" = NULL,
@@ -2717,20 +2729,29 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
   if(!is.null(attains.cw)) {
     # we could remove or make this step optional, but it is very helpful for making sure
     # monitoring location identifiers are WQP compatible
-    attains.cw <- TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
+
+    print("TADA_CreateAUMLRef: crosswalk from ATTAINS has been imported.")
+
+    attains.cw <- spsUtil::quiet(
+      TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
                                                           org_id = org_id,
-                                                          attains_replace = TRUE)
+                                                          attains_replace = TRUE))
 
     attains.cw.mls <- .data %>%
       dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
                     TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier) %>%
       dplyr::mutate(TADA.AURefSource = "ATTAINS crosswalk")
 
+    print("TADA_CreateAUMLRef: fetching geospatial data for crosswalk from ATTAINS.")
     # get geospatial data for attains cw monitoring locations
-    attains.matches <- TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
+    attains.matches <- spsUtil::quiet(
+      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch))
   }
 
   # TADA_GetATTAINS section
+
+  print("TADA_CreateAUMLRef: checking to see if any unmatched MonitoringLocations reamin.")
+
   get.attains.mls <- .data %>%
     dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
                   !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
@@ -2738,6 +2759,8 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
 
   # add code here for if there are no remaning mls to match
   if(dim(get.attains.mls)[1] == 0) {
+
+    print("TADA_CreateAUMLRef: all MonitoringLocations have already been matched by user or ATTAINS.")
 
     get.attains.matches <- list(
       "TADA_with_ATTAINS" = NULL,
@@ -2750,15 +2773,18 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
   }
 
   if(dim(get.attains.mls)[1] > 0) {
-    # use get attains for matching remaining monitoring locations
-    get.attains.matches <- TADA_GetATTAINS(get.attains.mls,
-                                           return_nearest = TRUE)
-  }
 
-  # need to figure out what happens here if no matches are found in ATTAINS
+    print("TADA_CreateAUMLRef: using TADA_GetATTAINS to match remaining MonitoringLocations.")
+
+    # use get attains for matching remaining monitoring locations
+    get.attains.matches <-  spsUtil::quiet(
+      TADA_GetATTAINS(get.attains.mls, return_nearest = TRUE))
+  }
 
   # join all the resulting tables within each list to return as one large list
   #TADA_with_ATTAINS
+
+  print("TADA_CreateAUMLRef: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
 
   TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
     plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%

@@ -80,7 +80,8 @@ Imports:
     dataRetrieval,
     dbscan,
     janitor,
-    rExpertQuery
+    rExpertQuery,
+    spsUtil
 Depends: 
     R (>= 3.5.0)
 Suggests:
