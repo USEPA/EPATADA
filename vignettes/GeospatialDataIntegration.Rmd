@@ -253,15 +253,19 @@ Filter out any remaining irrelevant data, NA's and empty columns.
 ```{r autofilter}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
-sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
-
 GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
+
 ```
 
 Check to make sure there are no more NA's in TADA.ResultMeasureValue.
 
 ```{r recheck}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
+
+sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
+
+GreenBay_FoxRiver <- GreenBay_FoxRiver %>%
+  dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 ```

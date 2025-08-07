@@ -2184,7 +2184,7 @@ TADA_ViewATTAINS <- function(.data) {
           ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
           TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
                                     as.character(TADA.AURefSource),
-                                    NA)
+                                    "not provided")
         ) %>%
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
@@ -2335,7 +2335,7 @@ TADA_ViewATTAINS <- function(.data) {
         # if TADA_AUSourceRef col exists in data
         set.fill <- leaflet::colorFactor(
           palette = c(tada.pal[1]),
-          domain = .data$TADA.AURefSource)
+          domain = sumdat$TADA.AURefSource)
 
         set.popup <- paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
