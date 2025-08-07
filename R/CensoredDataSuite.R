@@ -84,6 +84,17 @@ TADA_IDCensoredData <- function(.data) {
     "Result Value/Unit Copied from Detection Limit",
     .data$TADA.ResultMeasureValueDataTypes.Flag
   )
+  
+  # this updates the TADA.ResultMeasureValueDataTypes.Flag if there are only NAs
+  .data$TADA.ResultMeasureValueDataTypes.Flag <- ifelse(
+    (.data$ResultMeasureValue == "BPQL" |
+       .data$ResultMeasureValue == "BDL" |
+       .data$ResultMeasureValue == "ND") &
+      is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
+      is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode),
+    "Result Value/Unit Cannot Be Estimated From Detection Limit",
+    .data$TADA.ResultMeasureValueDataTypes.Flag
+  )
 
   # Copy detection limit value and unit to TADA Result Measure Value and Unit columns
   # this first row copies all over when TADA.DetectionQuantitationLimitMeasure.MeasureValue is not NA and the

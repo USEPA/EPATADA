@@ -26,13 +26,14 @@ loaded into the R environment. Dataframe must have same columns as default
 TADA.summation reference table.}
 
 \item{daily_agg}{If there are multiple measurements for the same
-characteristic-unit-fraction-speciation combination at the same location
-and depth on the same day, this will select a single measurement to use in the
+characteristic-unit-fraction-speciation-media combination at the same location
+(TADA.MonitoringLocationIdentifier) on the same day (ActivityStartDate),
+this will select a single measurement to use in the
 Total N or Total P summation. Defaults to 'max', but can be set
 to 'min' or 'mean'.}
 }
 \value{
-Input TADA dataframe with additional rows representing total N and P
+TADA dataframe with additional rows representing total N and P
 summation values from adding up subspecies. Note that for total phosphorus,
 these additional rows are simply a re-classification of phosphorus or
 phosphate into the total phosphorus as P format. These new rows share the
@@ -48,14 +49,18 @@ from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
 to approximate a total nitrogen value on a single day at a single site. Additional
 rows are added with the total nitrogen and total phosphorous estimations.
 Before summing subspecies, this function runs TADA_AggregateMeasurements to
-obtain the max value of a characteristic-fraction-speciation at a given site,
-date, and depth. Where necessary, it uses conversion factors to convert
+obtain the max value of a characteristic-fraction-speciation-unit-media
+combination at a given site
+and date. Where necessary, it uses conversion factors to convert
 nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
 as nitrogen based on the atomic weights of the different elements in the
-compound. The reference table is contained within the package but may be
-edited/customized by users. Nutrient equations are as follows:
+compound. Similarly, phosphate and other phosphorus forms are converted to
+AS P where applicable. The reference table is contained within the package but may be
+edited/customized by users.
 }
 \details{
+Nutrient equations are as follows:
+
 NITROGEN:
 \enumerate{
 \item TOTAL N (UNFILTERED)
@@ -76,23 +81,24 @@ Equations are applied in the order above. The function looks for groups of
 nutrients that exactly match each equation before looking for every
 combination within each equation (for example, a group of nitrogen subspecies
 including AMMONIA and NITRATE will be passed over in an initial sweep of
-groups of subspecies containing ORG N, AMMONIA, NITRATE, and NITRITE, but
+groups of subspecies containing ORGANIC N, AMMONIA, NITRATE, and NITRITE, but
 will be caught as the function moves down the hierarchy of equations to fewer
 and fewer subspecies). Eventually, even groups with only one subspecies will
 be used to represent a TOTAL N value for that site/day/depth.
 }
 \examples{
 df <- TADA_DataRetrieval(statecode = "UT", startDate = "2024-06-01", 
-endDate = "2024-07-01", characteristicType = "Nutrient", ask = FALSE)
+endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE, 
+ask = FALSE)
 
-df <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
+df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
 nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
 
-df <- TADA_RunKeyFlagFunctions(df, clean = TRUE)
+df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
 
-df <- TADA_HarmonizeSynonyms(df)
+df2 <- TADA_HarmonizeSynonyms(df2)
 
-df2 <- TADA_CalculateTotalNP(df, daily_agg = "max")
+df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
 
 }
 \seealso{
