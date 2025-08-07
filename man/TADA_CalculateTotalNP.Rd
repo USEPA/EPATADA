@@ -7,9 +7,17 @@
 TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
 }
 \arguments{
-\item{.data}{TADA dataframe, ideally harmonized using TADA_HarmonizeSynonyms.
+\item{.data}{TADA dataframe. TADA_AutoClean() must have been run (and the
+TADA.ResultMeasureValueDataTypes.Flag added)
+before this TM/TP summation function can be used.
+This function runs required flag functions
+(TADA_FindQCActivities, TADA_FlagResultUnit, TADA_FlagFraction, TADA_FlagSpeciation) if
+they have not yet been run. Suspect and invalid combinations are not included in
+TN and TP summation. While not required for this function to run, ideally,
+users should also run TADA_SimpleCensoredMethods
+and TADA_HarmonizeSynonyms before this function.
 If user wants to consider grouping N or P subspecies across multiple
-organizations, user should have run TADA_FindNearbySites and grouped all
+organizations, user should have also run TADA_FindNearbySites and grouped all
 nearby sites to one common TADA.MonitoringLocationIdentifier,
 TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.}
 
@@ -17,9 +25,10 @@ TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.}
 loaded into the R environment. Dataframe must have same columns as default
 TADA.summation reference table.}
 
-\item{daily_agg}{The function used to aggregate to a single
-characteristic-unit-fraction-speciation at the same location and depth on
-the same day for multiple measurements. Defaults to 'max', but can be set
+\item{daily_agg}{If there are multiple measurements for the same
+characteristic-unit-fraction-speciation combination at the same location
+and depth on the same day, this will select a single measurement to use in the
+Total N or Total P summation. Defaults to 'max', but can be set
 to 'min' or 'mean'.}
 }
 \value{
@@ -36,7 +45,8 @@ total was calculated and from which subspecies.
 \description{
 This function applies the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
 from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-to approximate a total nitrogen value on a single day at a single site.
+to approximate a total nitrogen value on a single day at a single site. Additional
+rows are added with the total nitrogen and total phosphorous estimations.
 Before summing subspecies, this function runs TADA_AggregateMeasurements to
 obtain the max value of a characteristic-fraction-speciation at a given site,
 date, and depth. Where necessary, it uses conversion factors to convert
@@ -89,4 +99,20 @@ df2 <- TADA_CalculateTotalNP(df, daily_agg = "max")
 \code{\link[=TADA_AggregateMeasurements]{TADA_AggregateMeasurements()}}
 
 \code{\link[=TADA_FlagDepthCategory]{TADA_FlagDepthCategory()}}
+
+\code{\link[=TADA_SimpleCensoredMethods]{TADA_SimpleCensoredMethods()}}
+
+\code{\link[=TADA_HarmonizeSynonyms]{TADA_HarmonizeSynonyms()}}
+
+\code{\link[=TADA_FindNearbySites]{TADA_FindNearbySites()}}
+
+\code{\link[=TADA_FindQCActivities]{TADA_FindQCActivities()}}
+
+\code{\link[=TADA_FlagResultUnit]{TADA_FlagResultUnit()}}
+
+\code{\link[=TADA_FlagFraction]{TADA_FlagFraction()}}
+
+\code{\link[=TADA_FlagSpeciation]{TADA_FlagSpeciation()}}
+
+\code{\link[=TADA_AutoClean]{TADA_AutoClean()}}
 }
