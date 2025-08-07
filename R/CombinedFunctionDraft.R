@@ -63,7 +63,7 @@
      dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
    # get geospatial data for au_ref monitoring locations
-   user.matches <- TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref)
+   user.matches <- TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch)
      }
    }
 
@@ -83,7 +83,9 @@
    }
 
    if(!is.null(attains.cw)) {
-   attains.cw <- TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
+   # we could remove or make this step optional, but it is very helpful for making sure
+     # monitoring location identifiers are WQP compatible
+     attains.cw <- TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
                                                          org_id = org_id,
                                                          attains_replace = TRUE)
 
@@ -93,7 +95,7 @@
      dplyr::mutate(TADA.AURefSource = "ATTAINS crosswalk")
 
    # get geospatial data for attains cw monitoring locations
-   attains.matches <- TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw)
+   attains.matches <- TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
    }
 
    # TADA_GetATTAINS section
@@ -127,28 +129,28 @@
    #TADA_with_ATTAINS
 
    TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
-     dplyr::bind_rows(attains.matches$TADA_with_ATTAINS) %>%
-     dplyr::bind_rows(get.attains.matches$TADA_with_ATTAINS) %>%
-     dplyr::distinct()
+     plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
+     plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
+     plyr::rbind.fill()
 
    ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
-     dplyr::bind_rows(attains.matches$ATTAINS_catchments) %>%
-     dplyr::bind_rows(get.attains.matches$ATTAINS_catchments) %>%
+     plyr::rbind.fill(attains.matches$ATTAINS_catchments) %>%
+     plyr::rbind.fill(get.attains.matches$ATTAINS_catchments) %>%
      dplyr::distinct()
 
    ATTAINS_lines <- user.matches$ATTAINS_lines %>%
-     dplyr::bind_rows(attains.matches$ATTAINS_lines) %>%
-     dplyr::bind_rows(get.attains.matches$ATTAINS_lines) %>%
-     dplyr::distinct()
+     plyr::rbind.fill(attains.matches$ATTAINS_lines) %>%
+     plyr::rbind.fill(get.attains.matches$ATTAINS_lines) %>%
+     plyr::rbind.fill()
 
    ATTAINS_points <- user.matches$ATTAINS_points %>%
-     dplyr::bind_rows(attains.matches$ATTAINS_points) %>%
-     dplyr::bind_rows(get.attains.matches$ATTAINS_points) %>%
+     plyr::rbind.fill(attains.matches$ATTAINS_points) %>%
+     plyr::rbind.fill(get.attains.matches$ATTAINS_points) %>%
      dplyr::distinct()
 
    ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
-     dplyr::bind_rows(attains.matches$ATTAINS_polygons) %>%
-     dplyr::bind_rows(get.attains.matches$ATTAINS_polygons) %>%
+     plyr::rbind.fill(attains.matches$ATTAINS_polygons) %>%
+     plyr::rbind.fill(get.attains.matches$ATTAINS_polygons) %>%
      dplyr::distinct()
 
 
@@ -162,49 +164,3 @@
 
    return(final_list)
 }
-
-
-
-# test data sets
-
- # get Montna bacteria data
- tada.MT <- TADA_DataRetrieval(
-   startDate = "2020-01-01", endDate = "2022-12-31",
-   statecode = "MT",
-   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
-   ask = FALSE)
-
- # review comparable data identifiers
- sort(unique(tada.MT$TADA.ComparableDataIdentifier))
-
- # clean up data set (minimal)
- tada.MT.clean <- tada.MT %>%
-   TADA_RunKeyFlagFunctions() %>%
-   TADA_SimpleCensoredMethods() %>%
-   # could separate this out and add to harmonization table?
-   TADA_HarmonizeSynonyms()
-
- rm(tada.MT)
-
- # review comparable data identifiers
- sort(unique(tada.MT.clean$TADA.ComparableDataIdentifier))
-
- attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
-
- clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
-
- rm(attains.existing.MT)
-
- au_ref <- clean.existing.attains.MT %>%
-   dplyr::slice_head(n = 50) %>%
-   dplyr::rename(MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-                 AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier)
-
- attains.cw <- clean.existing.attains.MT %>%
-   dplyr::anti_join(au_ref)
-
- rm(clean.existing.attains.MT)
-
-
-
-

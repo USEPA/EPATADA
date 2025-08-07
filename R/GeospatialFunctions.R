@@ -1769,7 +1769,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
   # drop provider from au_ref
   au_ref <- au_ref %>%
-    dplyr::select(-ProviderName)
+    dplyr::select(ATTAINS.AssessmentUnitIdentifier,
+                  ATTAINS.MonitoringLocationIdentifier)
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
@@ -1890,32 +1891,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     silent = TRUE
   )
 
-
-  if(add_catch = TRUE) {
-
-  try(
-    catchments <- fetch_au(
-      baseurls = baseurls[1],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
-      chunk_n = 10
-    ),
-    silent = TRUE
-  )
-
-  # get one catchment per WQP location
-  catchments.cw <- filt.data %>%
-    dplyr::distinct() %>%
-    sf::st_join(catchments, join = sf::st_nearest_feature) %>%
-    dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
-    dplyr::mutate(catchCount = dplyr::n()) %>%
-    dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
-    dplyr::distinct() %>%
-    sf::st_drop_geometry()
-
-  catchments.filt <- catchments %>%
-    dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
-  }
-
   try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
       silent = TRUE
   )
@@ -1928,61 +1903,133 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       silent = TRUE
   )
 
-  try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+  if(add_catch == TRUE) {
+
+    try(
+      catchments <- fetch_au(
+        baseurls = baseurls[1],
+        assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+        chunk_n = 10
+      ),
       silent = TRUE
-  )
+    )
 
-  catchments.no.geo <- catchments %>%
-    sf::st_drop_geometry() %>%
-    dplyr::distinct()
+    # get one catchment per WQP location
+    catchments.cw <- filt.data %>%
+      dplyr::distinct() %>%
+      sf::st_join(catchments, join = sf::st_nearest_feature) %>%
+      dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
+      dplyr::mutate(catchCount = dplyr::n()) %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
+      dplyr::distinct() %>%
+      sf::st_drop_geometry()
 
-  # create internal function to rename cols coming from ATTAINS geospatial
+    catchments.filt <- catchments %>%
+      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+
+    catchments.no.geo <- catchments %>%
+      sf::st_drop_geometry() %>%
+      dplyr::distinct()
+
+    try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+        silent = TRUE
+    )
+
+    # create internal function to rename cols coming from ATTAINS geospatial
     TADA_with_ATTAINS <- .data %>%
+      dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =
+                                        "ATTAINS.MonitoringLocationIdentifier")) %>%
+      dplyr::left_join(catchments.cw,
+                       dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+      dplyr::left_join(catchments.no.geo,
+                       by = c("nhdplusid" = "nhdplusid",
+                              "ATTAINS.AssessmentUnitIdentifier" =
+                                "assessmentunitidentifier")) %>%
+      dplyr::select(-OBJECTID) %>%
+      dplyr::rename(ATTAINS.SubmissionId = submissionid,
+                    ATTAINS.NhdPlusId = nhdplusid,
+                    ATTAINS.State = state,
+                    ATTAINS.Region = region,
+                    ATTAINS.OrganizationId = organizationid,
+                    ATTAINS.OrgType = orgtype,
+                    ATTAINS.Tas303d = tas303d,
+                    ATTAINS.OrganizationName = organizationname,
+                    ATTAINS.ReportingCycle = reportingcycle,
+                    ATTAINS.AssessmentUnitName = assessmentunitname,
+                    ATTAINS.WaterbodyReportLink = waterbodyreportlink,
+                    ATTAINS.AssmntJoinKey = assmnt_joinkey,
+                    ATTAINS.PermIdJoinKey = permid_joinkey,
+                    ATTAINS.IrCategory = ircategory,
+                    ATTAINS.OverallStatus = overallstatus,
+                    ATTAINS.IsAssessed = isassessed,
+                    ATTAINS.IsImpaired = isimpaired,
+                    ATTAINS.IsThreatened = isthreatened,
+                    ATTAINS.On303dList = on303dlist,
+                    ATTAINS.HasTmdl = hastmdl,
+                    ATTAINS.Has4bPlan = has4bplan,
+                    ATTAINS.HasAlternativePlan = hasalternativeplan,
+                    ATTAINS.HasProtectionPlan = hasprotectionplan,
+                    ATTAINS.VisionPriority303d =  visionpriority303d,
+                    ATTAINS.AreaSqkm = areasqkm,
+                    ATTAINS.Huc12 = huc12,
+                    ATTAINS.XwalkMethod = xwalk_method,
+                    ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
+                    ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
+                    ATTAINS.CatchmentStateCode = catchmentstatecode,
+                    ATTAINS.CatchmentIsTribal = catchmentistribal,
+                    ATTAINS.CatchmentResolution = catchmentresolution,
+                    ATTAINS.ShapeLength = Shape_Length,
+                    ATTAINS.ShapeArea = Shape_Area,
+                    ATTAINS.WaterType = waterType
+      )
+  }
+
+  if(add_catch == FALSE) {
+
+    catchments <- NULL
+
+  TADA_with_ATTAINS <- .data %>%
     dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =
                                       "ATTAINS.MonitoringLocationIdentifier")) %>%
-    dplyr::left_join(catchments.cw,
-                     dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
-    dplyr::left_join(catchments.no.geo,
-                    by = c("nhdplusid" = "nhdplusid",
-                           "ATTAINS.AssessmentUnitIdentifier" =
-                             "assessmentunitidentifier")) %>%
-    dplyr::select(-OBJECTID) %>%
-    dplyr::rename(ATTAINS.SubmissionId = submissionid,
-                  ATTAINS.NhdPlusId = nhdplusid,
-                  ATTAINS.State = state,
-                  ATTAINS.Region = region,
-                  ATTAINS.OrganizationId = organizationid,
-                  ATTAINS.OrgType = orgtype,
-                  ATTAINS.Tas303d = tas303d,
-                  ATTAINS.OrganizationName = organizationname,
-                  ATTAINS.ReportingCycle = reportingcycle,
-                  ATTAINS.AssessmentUnitName = assessmentunitname,
-                  ATTAINS.WaterbodyReportLink = waterbodyreportlink,
-                  ATTAINS.AssmntJoinKey = assmnt_joinkey,
-                  ATTAINS.PermIdJoinKey = permid_joinkey,
-                  ATTAINS.IrCategory = ircategory,
-                  ATTAINS.OverallStatus = overallstatus,
-                  ATTAINS.IsAssessed = isassessed,
-                  ATTAINS.IsImpaired = isimpaired,
-                  ATTAINS.IsThreatened = isthreatened,
-                  ATTAINS.On303dList = on303dlist,
-                  ATTAINS.HasTmdl = hastmdl,
-                  ATTAINS.Has4bPlan = has4bplan,
-                  ATTAINS.HasAlternativePlan = hasalternativeplan,
-                  ATTAINS.HasProtectionPlan = hasprotectionplan,
-                  ATTAINS.VisionPriority303d =  visionpriority303d,
-                  ATTAINS.AreaSqkm = areasqkm,
-                  ATTAINS.Huc12 = huc12,
-                  ATTAINS.XwalkMethod = xwalk_method,
-                  ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
-                  ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
-                  ATTAINS.CatchmentStateCode = catchmentstatecode,
-                  ATTAINS.CatchmentIsTribal = catchmentistribal,
-                  ATTAINS.CatchmentResolution = catchmentresolution,
-                  ATTAINS.ShapeLength = Shape_Length,
-                  ATTAINS.ShapeArea = Shape_Area,
-                  ATTAINS.WaterType = waterType
-                  )
+    # when catchment/monitoring location crosswalk is available, that info can be added here
+    # can add the assessment related info sooner via rExpertQuery functions (HRM 8/7/25)
+    dplyr::mutate(ATTAINS.SubmissionId = NA,
+                  ATTAINS.NhdPlusId = NA,
+                  ATTAINS.State = NA,
+                  ATTAINS.Region = NA,
+                  ATTAINS.OrganizationId = NA,
+                  ATTAINS.OrgType = NA,
+                  ATTAINS.Tas303d = NA,
+                  ATTAINS.OrganizationName = NA,
+                  ATTAINS.ReportingCycle = NA,
+                  ATTAINS.AssessmentUnitName = NA,
+                  ATTAINS.WaterbodyReportLink = NA,
+                  ATTAINS.AssmntJoinKey = NA,
+                  ATTAINS.PermIdJoinKey = NA,
+                  ATTAINS.IrCategory = NA,
+                  ATTAINS.OverallStatus = NA,
+                  ATTAINS.IsAssessed = NA,
+                  ATTAINS.IsImpaired = NA,
+                  ATTAINS.IsThreatened = NA,
+                  ATTAINS.On303dList = NA,
+                  ATTAINS.HasTmdl = NA,
+                  ATTAINS.Has4bPlan = NA,
+                  ATTAINS.HasAlternativePlan = NA,
+                  ATTAINS.HasProtectionPlan = NA,
+                  ATTAINS.VisionPriority303d =  NA,
+                  ATTAINS.AreaSqkm = NA,
+                  ATTAINS.Huc12 = NA,
+                  ATTAINS.XwalkMethod = NA,
+                  ATTAINS.WwalkHuc12Version= NA,
+                  ATTAINS.CatchmentAreaSqkm = NA,
+                  ATTAINS.CatchmentStateCode = NA,
+                  ATTAINS.CatchmentIsTribal = NA,
+                  ATTAINS.CatchmentResolution = NA,
+                  ATTAINS.ShapeLength = NA,
+                  ATTAINS.ShapeArea = NA,
+                  ATTAINS.WaterType = NA
+    )
+  }
 
   final_features <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,

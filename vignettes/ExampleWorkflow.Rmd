@@ -23,18 +23,13 @@ tada.MT <- TADA_DataRetrieval(
    county = "Missoula County",
    ask = FALSE)
 
-# review comparable data identifiers
-sort(unique(tada.MT$TADA.ComparableDataIdentifier))
-
 # clean up data set (minimal)
   tada.MT.clean <- tada.MT %>%
     TADA_RunKeyFlagFunctions() %>%
-    TADA_SimpleCensoredMethods() %>%
-  # could separate this out and add to harmonization table?  
-  TADA_HarmonizeSynonyms()
+    TADA_SimpleCensoredMethods()
   
-# review comparable data identifiers
-  sort(unique(tada.MT.clean$TADA.ComparableDataIdentifier))
+# remove intermediate objects
+  rm(tada.MT)
 
 ```
 
@@ -43,17 +38,16 @@ sort(unique(tada.MT$TADA.ComparableDataIdentifier))
 
 Get existing data from ATTAINS
 
-```{r existing.attains.crosswalk, echo = FALSE}
+```{r demo.user, echo = FALSE}
 
+# get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
-```
 
-```{r clean.existing.crosswalk}
-
+# clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
+# WQP compatible
 clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
 
-# set up demo user supplied cw
-
+# set up demo user supplied cw (select a few Monitoring Locations from the tada df)
 user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::select(ATTAINS.AssessmentUnitIdentifier, 
                 ATTAINS.MonitoringLocationIdentifier) %>%
@@ -63,10 +57,8 @@ user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::rename(AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
                 MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier)
 
-
-
+rm(attains.existing.MT, clean.existing.attains.MT)
 ```
-
 
 ## Run TADA_CreateAUMLRef
 
@@ -82,16 +74,9 @@ MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
 ## TADA_ViewATTAINS
 ```{r}
 
+TADA_ViewATTAINS(MT.AUMLRef)
+
 ```
 
 
-o	User will review their user supplied list (either from TADA_GetATTAINSAUSite if they have submitted it to ATTAINS or as their own internal data frame)
-•	Run TADA_ViewATTAINS
-o	Decide if they want to keep any matches suggested by TADA_GetATTAINS.
-o	TT has a map that seems to show these match types, but thinking through how we want to do this in the TADA package side? See TADAShinyJoinToAU tab 2 for more info.
-•	Run TADA_UpdateMonitoringLocationsInATTAINS
-o	Once a final list is reviewed and a user is comfortable with this, they can run this and have an easy way to submit to ATTAINS if desired.
-•	Run TADA_CreateUseAURef (current PR)
-o	From the user’s final sites to AU list, they must now decide how to assign Uses to these AUs they have defined.
-o	Need to consider the best way to help assign uses to any NEW AUs (or if manual assignment is best). TADA_CreateWaterUseRef attempts to assist with this, but thinking through other ways to visualize this output on a map (Ex. AUs on a map, and we can hover over them to see if Uses have been assigned)
 
