@@ -1699,7 +1699,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 #' \dontrun{
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1890,6 +1890,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
     silent = TRUE
   )
 
+
+  if(add_catch = TRUE) {
+
   try(
     catchments <- fetch_au(
       baseurls = baseurls[1],
@@ -1911,6 +1914,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
 
   catchments.filt <- catchments %>%
     dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+  }
 
   try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
       silent = TRUE
@@ -1932,7 +1936,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref) {
     sf::st_drop_geometry() %>%
     dplyr::distinct()
 
-# pick up here on 8/6 (HRM)
   # create internal function to rename cols coming from ATTAINS geospatial
     TADA_with_ATTAINS <- .data %>%
     dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =

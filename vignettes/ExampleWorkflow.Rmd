@@ -19,7 +19,8 @@ Get data bacteria and pH data from Montana.
 tada.MT <- TADA_DataRetrieval(
    startDate = "2020-01-01", endDate = "2022-12-31",
    statecode = "MT",
-    characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+   county = "Missoula County",
    ask = FALSE)
 
 # review comparable data identifiers
@@ -38,7 +39,7 @@ sort(unique(tada.MT$TADA.ComparableDataIdentifier))
 ```
 
 
-## Retrieve existing monitoring location and assessment unit crosswalk from ATTAINS
+## Set up Demo User-Supplied Crosswalk
 
 Get existing data from ATTAINS
 
@@ -47,20 +48,39 @@ Get existing data from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "MTDEQ")
 ```
 
-## Clean/update existing data from ATTAINS
 ```{r clean.existing.crosswalk}
 
 clean.existing.attains.MT <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "MTDEQ")
 
+# set up demo user supplied cw
+
+user.supplied.cw <- clean.existing.attains.MT %>%
+  dplyr::select(ATTAINS.AssessmentUnitIdentifier, 
+                ATTAINS.MonitoringLocationIdentifier) %>%
+  dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
+    "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02", 
+    "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54")) %>%
+  dplyr::rename(AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
+                MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier)
+
+
+
 ```
 
 
-## Run TADA_GetATTAINS
+## Run TADA_CreateAUMLRef
 
 ```{r tada.get.attains}
 
 # use TADA get attains to make AU assignments for unassigned MLs
-get.attains.MT <- TADA_GetATTAINS(tada.MT.clean, return_nearest = TRUE)
+MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
+                                 au_ref = user.supplied.cw,
+                                 org_id = "MTDEQ", 
+                                 add_catch = FALSE)
+
+```
+## TADA_ViewATTAINS
+```{r}
 
 ```
 
