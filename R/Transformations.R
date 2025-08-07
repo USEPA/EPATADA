@@ -457,7 +457,10 @@ TADA_CalculateTotalNP <- function(.data,
     # "ActivityMediaSubdivisionName", # should be considered before this function is run, may be blank so should not be included here
     "TADA.ActivityMediaName",
     "TADA.ComparableDataIdentifier",
-    # "TADA.ResultMeasure.MeasureUnitCode", # dpes not need to be included since we have TADA.ComparableDataIdentifier
+    "TADA.ResultMeasure.MeasureUnitCode", # safer to include
+    "TADA.CharacteristicName", # safer to include
+    "TADA.MethodSpeciationName", # safer to include
+    "TADA.ResultSampleFractionText", # safer to include
     # consider adding columns below... 
     "OrganizationIdentifier", # should be okay to include here since this is by MonitoringLocationIdentifier which are org specific anyway
     "OrganizationFormalName",
@@ -493,12 +496,12 @@ TADA_CalculateTotalNP <- function(.data,
   # move forward with only max values selected for each grouping
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
   # no longer need "Considered in max aggregation function but not selected"
-  dat <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
+  dat_TNTP <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
                 c("No aggregation needed",
                   "Selected as max aggregate value")), ]
   
   # join data to summation table and keep only those that match for summations
-  sum_dat <- merge(dat, sum_ref, all.x = TRUE)
+  sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)
   sum_dat <- subset(sum_dat, !is.na(sum_dat$NutrientGroup))
   
   # # REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
@@ -515,7 +518,11 @@ TADA_CalculateTotalNP <- function(.data,
 
   # If the join results in matching rows
   if (dim(sum_dat)[1] > 0) {
-    thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier")]
+    thecols <- grpcols[!grpcols %in% c("TADA.ComparableDataIdentifier", 
+                                       "TADA.ResultMeasure.MeasureUnitCode", # safer to include
+                                       "TADA.CharacteristicName", # safer to include
+                                       "TADA.MethodSpeciationName", # safer to include
+                                       "TADA.ResultSampleFractionText" )] # safer to include
 
     # create nutrient group ID's.
     sum_dat <- sum_dat %>%
@@ -577,6 +584,7 @@ TADA_CalculateTotalNP <- function(.data,
       dplyr::mutate(TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS", 
                     TADA.ResultSampleFractionText = "UNFILTERED", 
                     TADA.MethodSpeciationName = "AS N", 
+                    TADA.ResultMeasure.MeasureUnitCode = "MG/L",
                     TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.", 
                     TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.")
     TotalP <- summeddata %>%
@@ -586,6 +594,7 @@ TADA_CalculateTotalNP <- function(.data,
       dplyr::mutate(TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS", 
                     TADA.ResultSampleFractionText = "UNFILTERED", 
                     TADA.MethodSpeciationName = "AS P", 
+                    TADA.ResultMeasure.MeasureUnitCode = "UG/L",
                     TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.", 
                     TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.")
 
@@ -597,32 +606,37 @@ TADA_CalculateTotalNP <- function(.data,
                                       sample(seq_len(1000000000), 
                                              dim(Totals)[1]))
 
-    # combine all data back into include_df and get rid of unneeded columns
-    TNTP_df <- merge(include_df, summeddata, all.x = TRUE)
-    TNTP_df <- plyr::rbind.fill(TNTP_df, Totals)
-    TNTP_df <- TNTP_df %>% dplyr::select(-c(SummationFractionNotes, 
-                                                  SummationSpeciationNotes, 
-                                                  SummationSpeciationConversionFactor, 
-                                                  SummationName, SummationRank, 
-                                                  SummationNote, 
-                                                  nutrient, 
-                                                  NutrientGroup))
-    TNTP_df$TADA.NutrientSummation.Flag[is.na(
-      TNTP_df$TADA.NutrientSummation.Flag)] <- "Not used to calculate Total N or P."
+    # combine all data back into dat_TNTP and get rid of unneeded columns
+    dat_TNTP <- merge(dat_TNTP, summeddata, all.x = TRUE)
+    dat_TNTP <- plyr::rbind.fill(dat_TNTP, Totals)
+    dat_TNTP <- dat_TNTP %>% dplyr::select(-c(SummationFractionNotes,
+                                              SummationSpeciationNotes, 
+                                              SummationSpeciationConversionFactor, 
+                                              SummationName, 
+                                              SummationRank, 
+                                              SummationNote, 
+                                              nutrient, 
+                                              NutrientGroup))
+    dat_TNTP$TADA.NutrientSummation.Flag[is.na(
+      dat_TNTP$TADA.NutrientSummation.Flag)] <- "Not used to calculate Total N or P."
   } else {
     # if there are no data to sum
-    TNTP_df$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
+    dat_TNTP$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
     print("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
   }
   
-  # Remove any rows that were created in TNTP_df but are NA (this may occur if rows that are NA are not removed prior to this function being run)
-  TNTP_df <- TNTP_df[!(TNTP_df$TADA.ResultMeasureValueDataTypes.Flag %in% 
-                     c("TP estimated from one or more subspecies.", 
-                       "TN estimated from one or more subspecies.") & 
-                     is.na(TNTP_df$TADA.ResultMeasureValue)), ]
+  # # Remove any rows that were created in dat_TNTP but are NA (this may occur if rows that are NA are not removed prior to this function being run)
+  # dat_TNTP <- dat_TNTP[!(dat_TNTP$TADA.ResultMeasureValueDataTypes.Flag %in% 
+  #                    c("TP estimated from one or more subspecies.", 
+  #                      "TN estimated from one or more subspecies.") & 
+  #                    is.na(dat_TNTP$TADA.ResultMeasureValue)), ]
   
+  # not neceswsary here
+  # dat_TNTP <- TADA_CreateComparableID(dat_TNTP)
+  
+  # At very end... summation complete at this point
   # Use bind_rows to combine the data frames
-  final_df <- dplyr::bind_rows(TNTP_df, exclude_df, dat_addback)
+  final_df <- dplyr::bind_rows(dat_TNTP, exclude_df, dat_addback)
   
   # # For testing only
   # # Check that all ResultIdentifier values from the original .data are in the combined_df
@@ -774,6 +788,7 @@ TADA_AggregateMeasurements <- function(.data,
       dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
     }
     
+    dat <- TADA_CreateComparableID(dat)
     dat <- TADA_OrderCols(dat)
     print("Aggregation results:")
     print(table(dat$TADA.ResultValueAggregation.Flag))

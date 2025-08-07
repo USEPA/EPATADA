@@ -633,6 +633,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 
   # order and return final dataframe
+  final.data <- TADA_CreateComparableID(final.data)
   final.data <- TADA_OrderCols(final.data)
   return(final.data)
 }
