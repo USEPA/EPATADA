@@ -121,7 +121,7 @@ utils::globalVariables(c(
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
-  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", 
+  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
   "monitoringLocationDataLink"
 ))
@@ -642,11 +642,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
       TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure,
       HorizontalCoordinateReferenceSystemDatumName
     ) %>%
-    dplyr::rename(
-      LongitudeMeasure = TADA.LongitudeMeasure,
-      LatitudeMeasure = TADA.LatitudeMeasure,
-      MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier
-    ) %>%
     dplyr::distinct()
 
   # convert to sf object
@@ -659,8 +654,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   dist.matrix <- dist.matrix %>%
     units::drop_units()
 
-  rownames(dist.matrix) <- unique.mls$MonitoringLocationIdentifier
-  colnames(dist.matrix) <- unique.mls$MonitoringLocationIdentifier
+  rownames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
+  colnames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
 
   # convert distances to those within buffer (1) and beyond buffer (0)
   dist.mat1 <- apply(dist.matrix, c(1, 2), function(x) {
@@ -682,12 +677,12 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
   # create site group dfs
   group.sites <- data.frame(
-    MonitoringLocationIdentifier = names(comp.results$membership),
+    TADA.MonitoringLocationIdentifier = names(comp.results$membership),
     Group = comp.results$membership,
     row.names = NULL
   ) %>%
     dplyr::group_by(Group) %>%
-    dplyr::mutate(n = length(MonitoringLocationIdentifier)) %>%
+    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) %>%
     dplyr::filter(n > 1) %>%
     dplyr::select(-n) %>%
     dplyr::ungroup()
@@ -710,9 +705,9 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
   # subset nearby sites
   near.sites <- unique.mls %>%
-    dplyr::filter(MonitoringLocationIdentifier %in%
-      group.sites$MonitoringLocationIdentifier) %>%
-    dplyr::left_join(group.sites, by = dplyr::join_by(MonitoringLocationIdentifier))
+    dplyr::filter(TADA.MonitoringLocationIdentifier %in%
+      group.sites$TADA.MonitoringLocationIdentifier) %>%
+    dplyr::left_join(group.sites, by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
 
   # break into multiple dfs
   near.dfs <- near.sites %>%
@@ -732,11 +727,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # join nhd catchments with monitoring locations, filter to include group/catchment
   catch.groups <- near.sites %>%
     sf::st_join(nhd.catch.all, left = TRUE) %>%
-    dplyr::rename(
-      TADA.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
-      TADA.LongitudeMeasure = LongitudeMeasure,
-      TADA.LatitudeMeasure = LatitudeMeasure
-    ) %>%
     dplyr::distinct() %>%
     dplyr::group_by(Group, NHD.nhdplusid) %>%
     dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) %>%

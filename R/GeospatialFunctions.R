@@ -31,10 +31,10 @@
 #' }
 #'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
-  if (!"TADA.LongitudeMeasure" %in% colnames(.data) |
-    !"TADA.LatitudeMeasure" %in% colnames(.data) |
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
-    stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
+  if (!"TADA.LongitudeMeasure" %in% names(.data) |
+    !"TADA.LatitudeMeasure" %in% names(.data) |
+    !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)) {
+    stop("The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`.")
   } else if (!is.null(.data) & inherits(.data, "sf")) {
     stop("Your data is already a spatial object.")
   }
@@ -1805,7 +1805,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     # need to edit funciton to silent print outs from EQ_AUs
 
     wat_type <- function(chunk) {
-      results <- suppressMessages(rExpertQuery::EQ_AssessmentUnits(
+      results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
         api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
         auid = chunk))
     }
