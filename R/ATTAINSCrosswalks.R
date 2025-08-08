@@ -15,14 +15,19 @@
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
+#' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
+#' names in the output will match those required for batch upload to ATTAINS. When
+#' batch_upload = FALSE, the output column names will be consistent with the TADA
+#' workflow. Default is batch_upload = FALSE.
 #'
-#' @return A dataframe with four columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
-#' MonitoringDataLinkText is returned. This is the crosswalk between monitoring
-#' location identifiers and assessment units that the state or tribal
-#' organization submitted to ATTAINS (optional). If an ATTAINS organization
-#' has not submitted this information in ATTAINS, the function will not return
-#' a dataframe.
+#' @return A dataframe with four columns. When batch_upload = FALSE, the column
+#' names are MonitoringLocationIdentifier, OrganizationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and MonitoringDataLinkText. When batch_upload
+#' = TRUE, the column names are ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
+#' and MS_DATA_LINK. This is the crosswalk between monitoring location identifiers
+#' and assessment units that the state or tribal organization submitted to ATTAINS
+#' (optional). If an ATTAINS organization has not submitted this information in
+#' ATTAINS, the function will not return a dataframe.
 #'
 #' @export
 #'
@@ -91,6 +96,16 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
         " monitoring location identifiers associated with assessment units for ",
         org_id, " in ATTAINS."
       ))
+
+      if(batch_upload == TRUE) {
+
+        au.crosswalk <- au.crosswalk %>%
+          dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+                        MS_ORG_ID = MonitoringLocationIdentifier,
+                        MS_LOCATION_ID = OrganizationIdentifier,
+                        MS_DATA_LINK = MonitoringDataLinkText)
+
+      }
 
       return(au.crosswalk)
     }
