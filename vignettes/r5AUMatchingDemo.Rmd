@@ -76,7 +76,7 @@ IL.clean <- IL.PFASandCyano %>%
 ```
 ## Match To AUs
 
-The next step is to use TADA_GetATTAINS to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest assessment unit within the same catchment as the monitoring location.
+The next step is to use TADA_CreateATTAINSAUMLRef to match the monitoring locations to existing assessment units in ATTAINS. The function returns the nearest assessment unit within the same catchment as the monitoring location.
 
 ```{r match.aus}
 IL.aus <-IL.clean %>% 

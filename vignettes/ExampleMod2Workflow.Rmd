@@ -45,7 +45,7 @@ attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
 # WQP compatible
-clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLRef(org_id = "MTDEQ")
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # set up demo user supplied cw (select a few Monitoring Locations from the tada df)
 user.supplied.cw <- clean.existing.attains.MT %>%

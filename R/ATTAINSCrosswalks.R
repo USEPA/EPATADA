@@ -187,7 +187,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 #' @examples
 #' \dontrun{
 #' # Alaska example to updated data links with no user supplied crosswalk
-#' AK_adddatalinks <- TADA_UpdateATTAINSAUMLRef(
+#' AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = NULL,
 #'   attains_replace = FALSE,
@@ -227,7 +227,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 #'   ATTAINS.MonitoringDataLinkText
 #' )
 #'
-#' AK_appenduserdata <- TADA_UpdateATTAINSAUMLRef(
+#' AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = ex.user.cw,
 #'   attains_replace = FALSE,
@@ -235,7 +235,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 #' )
 #' }
 #'
-TADA_UpdateATTAINSAUMLRef <- function(org_id = NULL,
+TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
                                                     crosswalk = NULL,
                                                     attains_replace = FALSE,
                                                     wqp_data_links = "add",
@@ -250,14 +250,14 @@ TADA_UpdateATTAINSAUMLRef <- function(org_id = NULL,
   # stop function if organization identifiers is not found in ATTAINS
   if (!org_id %in% org.ref$code) {
     stop(paste0(
-      "TADA_UpdateATTAINSAUMLRef: ",
+      "TADA_UpdateATTAINSAUMLCrosswalk: ",
       "The organization identifier entered by user is not found in ATTAINS."
     ))
   }
 
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
-      "TADA_UpdateATTAINSAUMLRef: ",
+      "TADA_UpdateATTAINSAUMLCrosswalk: ",
       "in order to replace MonitoringLocations stored in ATTAINS ",
       "(with attains_replace = TRUE), user must provide a ",
       "MonitoringLocation/AssessmentUnitcrosswalk."
@@ -271,7 +271,7 @@ TADA_UpdateATTAINSAUMLRef <- function(org_id = NULL,
     # if the crosswalk is not a dataframe, stop the function
     if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
       stop(paste0(
-        "TADA_UpdateATTAINSAUMLRef: ",
+        "TADA_UpdateATTAINSAUMLCrosswalk: ",
         "A crosswalk dataframe with columns 'ATTAINS.assessmentunit.identifier' and ",
         "'MonitoringLocationIdentifier' or setting crosswalk = NULL is required to run ",
         "this function."
