@@ -32,8 +32,8 @@ Returns ATTAINS data for assessment unit identifiers provided by the user.
 }
 \details{
 This function can be used to provide information for known assessment unit
-identifier/monitoring location combinations in order to provide data compatiable
-with the results of TADA_GetATTAINS for previously unidentified assessment unit
+identifier/monitoring location combinations in order to provide data compatible
+with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
 identifier/monitoring location combinations.
 }
 \examples{
@@ -44,5 +44,5 @@ identifier/monitoring location combinations.
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}
 
-\code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}
+\code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}
 }

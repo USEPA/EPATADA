@@ -25,12 +25,12 @@ Need to add the full list
 \description{
 Create the assessment unit and monitoring location ref by utilizing an optional
 user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
-and TADA_GetATTAINS to match unassigned monitoring locations to assessment units.
+and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
 }
 \examples{
 \dontrun{ }
 
 }
 \seealso{
-\code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}} # add additional functions here
+\code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}} # add additional functions here
 }
