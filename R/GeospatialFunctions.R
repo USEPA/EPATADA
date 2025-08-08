@@ -2852,7 +2852,7 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
       dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
                     MS_DATA_LINK)
 
-    final_list <- c(final_list, list(ATTAINS_batchupload))
+    final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
   }
 
   return(final_list)

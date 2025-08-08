@@ -297,14 +297,34 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
     # check that crosswalk is a dataframe before proceeding
     if (is.data.frame(crosswalk)) {
       # check crosswalk has all of the required columns
-      expected_cols <- c(
+      user_cols <- c(
         "ATTAINS.AssessmentUnitIdentifier",
         "ATTAINS.MonitoringLocationIdentifier",
         "OrganizationIdentifier",
         "ATTAINS.MonitoringDataLinkText"
       )
 
-      TADA_CheckColumns(crosswalk, expected_cols)
+      batch_cols <- c(
+        "ASSESSMENT_UNIT_ID",
+        "MS_LOCATION_ID",
+        "MS_ORG_ID",
+        "MS_DATA_LINK"
+      )
+
+      if(!any(user_cols %in% names(crosswalk))
+         & !any(batch_cols %in% names(crosswalk))) {
+
+        stop(paste0("Column names must reflect either the TADA workflow or the ATTAINS ",
+        "batch upload requirements. Review function documentation for more information"))
+      }
+
+      if(all(batch_cols %in% names(crosswalk))) {
+        crosswalk <- crosswalk %>%
+          dplyr::rename(ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
+                        ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
+                        OrganizationIdentifier = MS_ORG_ID,
+                        ATTAINS.MonitoringDataLinkText = MS_DATA_LINK)
+      }
     }
 
     if (attains_replace == FALSE) {
@@ -342,14 +362,21 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       rm(attains.crosswalk, crosswalk)
     }
 
+    # add provider ref if required
 
-    # internal function to update monitoring location identifiers
+    if(wqp_data_links == "add" | wqp_data_links == "replace" |
+       update_mlid == TRUE) {
 
-    updateMonLocIds <- function(.data) {
       provider.ref <- TADA_GetWQPOrgProviderRef() %>%
         dplyr::select(OrganizationIdentifier, ProviderName) %>%
         dplyr::distinct() %>%
         dplyr::mutate(OrgIDForURL = OrganizationIdentifier)
+
+    }
+
+    # internal function to update monitoring location identifiers
+
+    updateMonLocIds <- function(.data) {
 
       # add additional rows to account for the addition of "_WQX" to many org
       # names for WQP data
@@ -380,6 +407,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
         dplyr::mutate(
           ATTAINS.MonitoringLocationIdentifier =
             stringr::str_remove(ATTAINS.MonitoringLocationIdentifier,
+                                paste0(OrganizationIdentifier, "-")),
+          ATTAINS.MonitoringLocationIdentifier =
+            stringr::str_remove(ATTAINS.MonitoringLocationIdentifier,
                                OrganizationIdentifier),
           ATTAINS.MonitoringLocationIdentifier = stringr::str_remove(ATTAINS.MonitoringLocationIdentifier, "_WQX"),
           ATTAINS.MonitoringLocationIdentifier = paste0(OrganizationIdentifier, "-",
@@ -400,6 +430,14 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
     # internal function to create new urls for monitoring locations
     createNewMLUrls <- function(.data) {
+
+      if(!"ProviderName" %in% names(.data)) {
+
+        .data <- .data %>%
+          dplyr::left_join(provider.ref,
+                           by = dplyr::join_by(OrganizationIdentifier))
+      }
+
       new.urls.storet <- .data %>%
         dplyr::filter(ProviderName == "STORET") %>%
         dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = as.character(ifelse(
@@ -633,9 +671,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
       update.crosswalk <- update.crosswalk %>%
         dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-                      MS_ORG_ID = MonitoringLocationIdentifier,
+                      MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
                       MS_LOCATION_ID = OrganizationIdentifier,
-                      MS_DATA_LINK = MonitoringDataLinkText)
+                      MS_DATA_LINK = ATTAINS.MonitoringDataLinkText)
     }
 
     return(update.crosswalk)
