@@ -459,9 +459,9 @@ additional ATTAINS meta data for this assessment unit. We can also
 generate a new table to give us some information about the individual
 monitoring locations within this assessment unit.
 
--   TADA_GetATTAINS() automates matching of WQP monitoring locations
-    with ATTAINS assessment units that fall within (intersect) the same
-    NHDPlus catchment
+-   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP
+    monitoring locations with ATTAINS assessment units that fall within
+    (intersect) the same NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default
     because 80% of state submitted assessment units in ATTAINS were
@@ -469,7 +469,7 @@ monitoring locations within this assessment unit.
     applicable to their use case
 
 ```{r Data Retrieval - Geospatial}
-WQP_clean_subset_spatial <- TADA_GetATTAINS(
+WQP_clean_subset_spatial <- TADA_CreateATTAINSAUMLCrosswalk(
   WQP_clean_subset,
   return_nearest = TRUE,
   fill_catchments = FALSE,

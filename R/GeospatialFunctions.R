@@ -1118,7 +1118,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
 
 
-#' TADA_GetATTAINS
+#' TADA_CreateATTAINSAUMLCrosswalk
 #'
 #' Link catchment-based ATTAINS assessment unit data
 #' (EPA snapshot of NHDPlus HR catchments associated with entity submitted
@@ -1221,33 +1221,33 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'
 #' # note: these example ATTAINS data retrieval queries below may take a long
 #' # time (10+ minutes) to run
-#' tada_attains <- TADA_GetATTAINS(tada_data,
+#' tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = FALSE,
 #'   return_sf = FALSE,
 #'   return_nearest = FALSE,
 #' )
 #'
-#' tada_attains_sf <- TADA_GetATTAINS(tada_data,
+#' tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = FALSE,
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
 #' )
 #'
-#' tada_attains_filled <- TADA_GetATTAINS(tada_data,
+#' tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = FALSE,
 #'   return_nearest = TRUE
 #' )
 #'
-#' tada_attains_filled_sf <- TADA_GetATTAINS(tada_data,
+#' tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
 #' )
 #' }
-TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
+TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
                             fill_catchments = FALSE, resolution = "Hi",
                             return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
@@ -1667,8 +1667,8 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 #' Returns ATTAINS data for assessment unit identifiers provided by the user.
 #'
 #' This function can be used to provide information for known assessment unit
-#' identifier/monitoring location combinations in order to provide data compatiable
-#' with the results of TADA_GetATTAINS for previously unidentified assessment unit
+#' identifier/monitoring location combinations in order to provide data compatible
+#' with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
 #' identifier/monitoring location combinations.
 #'
 #' @param .data A TADA data frame including including some results from monitoring
@@ -1691,7 +1691,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 #' observations.
 #'
 #' @seealso [TADA_DataRetrieval()]
-#' @seealso [TADA_GetATTAINS()]
+#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -2046,20 +2046,20 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
 #' TADA_ViewATTAINS
 #'
-#' Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE.
+#' Visualizes the data returned from TADA_CreateAUMLRef or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
 #'
-#' This function visualizes the shapefile features generated with TADA_GetATTAINS and the associated
+#' This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
 #' TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-#' .data must be the list produced from `TADA_GetATTAINS()`
+#' .data must be the list produced from `TADA_CreateATTAINSAUMLCrosswalk()`
 #' with `return_sf = TRUE`. Check out the
 #' TADAModule2.Rmd for an example workflow.
 #'
-#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_GetATTAINS()` with the return_sf argument set to TRUE.
+#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_CreateATTAINSAUMLCrosswalk()` with the return_sf argument set to TRUE.
 #'
 #' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 #'
 #' @seealso [TADA_DataRetrieval()]
-#' @seealso [TADA_GetATTAINS()]
+#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -2074,7 +2074,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'   ask = FALSE
 #' )
 #'
-#' attains_data <- TADA_GetATTAINS(tada_data,
+#' attains_data <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = TRUE,
 #'   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 #' )
@@ -2086,7 +2086,7 @@ TADA_ViewATTAINS <- function(.data) {
     "ATTAINS_catchments", "ATTAINS_points",
     "ATTAINS_lines", "ATTAINS_polygons"
   ) %in% names(.data))) {
-    stop("Your input dataframe was not produced from `TADA_GetATTAINS(return_sf = TRUE)`, or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS()` and confirm that return_sf had been set to TRUE.")
+    stop("Your input dataframe was not produced from `TADA_CreateATTAINSAUMLCrosswalk(return_sf = TRUE)`, or it was modified. Please create your list of ATTAINS features using `TADA_CreateATTAINSAUMLCrosswalk()` and confirm that return_sf had been set to TRUE.")
   }
 
   ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
@@ -2315,7 +2315,7 @@ TADA_ViewATTAINS <- function(.data) {
         palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
         domain =  c("User-supplied Ref",
           "ATTAINS crosswalk",
-          "TADA_GetATTAINS"))
+          "TADA_CreateATTAINSAUMLCrosswalk"))
 
       set.popup <- paste0(
         "Site ID: ", sumdat$MonitoringLocationIdentifier,
@@ -2634,7 +2634,7 @@ TADA_ViewATTAINS <- function(.data) {
 #'
 #' Create the assessment unit and monitoring location ref by utilizing an optional
 #' user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
-#' and TADA_GetATTAINS to match unassigned monitoring locations to assessment units.
+#' and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier
@@ -2647,7 +2647,7 @@ TADA_ViewATTAINS <- function(.data) {
 #'
 #' @return Need to add the full list
 #'
-#' @seealso [TADA_GetATTAINS()] # add additional functions here
+#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()] # add additional functions here
 #'
 #' @export
 #'
@@ -2748,14 +2748,14 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch))
   }
 
-  # TADA_GetATTAINS section
+  # TADA_CreateATTAINSAUMLCrosswalk section
 
   print("TADA_CreateAUMLRef: checking to see if any unmatched MonitoringLocations reamin.")
 
   get.attains.mls <- .data %>%
     dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
                   !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
-    dplyr::mutate(TADA.AURefSource = "TADA_GetATTAINS")
+    dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
   # add code here for if there are no remaning mls to match
   if(dim(get.attains.mls)[1] == 0) {
@@ -2774,11 +2774,11 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
 
   if(dim(get.attains.mls)[1] > 0) {
 
-    print("TADA_CreateAUMLRef: using TADA_GetATTAINS to match remaining MonitoringLocations.")
+    print("TADA_CreateAUMLRef: using TADA_CreateATTAINSAUMLCrosswalk to match remaining MonitoringLocations.")
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <-  spsUtil::quiet(
-      TADA_GetATTAINS(get.attains.mls, return_nearest = TRUE))
+      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls, return_nearest = TRUE))
   }
 
   # join all the resulting tables within each list to return as one large list

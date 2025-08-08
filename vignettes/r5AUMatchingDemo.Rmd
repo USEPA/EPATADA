@@ -80,7 +80,7 @@ The next step is to use TADA_CreateATTAINSAUMLRef to match the monitoring locati
 
 ```{r match.aus}
 IL.aus <-IL.clean %>% 
-  TADA_GetATTAINS(return_nearest = TRUE)
+  TADA_CreateATTAINSAUMLCrosswalk(return_nearest = TRUE)
 
 IL.attains.w.tada <- IL.aus$TADA_with_ATTAINS
 ```
@@ -99,7 +99,7 @@ The following code chunk checks for any existing crosswalk information in ATTAIN
 # check to see if any existing crosswalk data in ATTAINS
 Existing_CW <- TADA_GetATTAINSAUMLCrosswalk(org_id = "IL_EPA")
 
-# create cross walk from TADA_GetATTAINS data
+# create cross walk from TADA_CreateATTAINSAUMLCrosswalk data
 New_CW <- IL.attains.w.tada %>%
   dplyr::select(ATTAINS.AssessmentUnitIdentifier,
                 TADA.MonitoringLocationIdentifier,

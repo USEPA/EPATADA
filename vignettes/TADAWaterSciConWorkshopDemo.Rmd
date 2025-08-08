@@ -351,17 +351,17 @@ New TADA functions leverage the **ATTAINS** geospatial services to make
 geospatial information including catchment and assessment unit geometry
 easily accessible to R users.
 
-We can use the function, `TADA_GetATTAINS` to obtain geospatial data
+We can use the function, `TADA_CreateATTAINSAUMLCrosswalk` to obtain geospatial data
 from **ATTAINS** relevant to the Monitoring Locations included in the
 **WQP** data set. See [TADA Module
 2](https://usepa.github.io/EPATADA/articles/TADAModule2.html) for a much
 more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
-```{r TADA_GetAttains}
+```{r TADA_CreateATTAINSAUMLCrosswalk}
 # Import data from ATTAINS geospatial services
 
-ATTAINS_data <- TADA_GetATTAINS(data)
+ATTAINS_data <- TADA_CreateATTAINSAUMLCrosswalk(data)
 ```
 
 ## View Geospatial Features

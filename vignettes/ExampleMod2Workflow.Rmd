@@ -41,7 +41,7 @@ Get existing data from ATTAINS and subset a few rows to create a demo user-suppl
 ```{r demo.user, echo = FALSE}
 
 # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+attains.existing.MT <- TADA_CreateATTAINSAUMLCrosswalkAUMLCrosswalk(org_id = "MTDEQ")
 
 # clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
 # WQP compatible
@@ -62,9 +62,9 @@ rm(attains.existing.MT, clean.existing.attains.MT)
 
 ## Run TADA_CreateAUMLRef
 
-Run TADA_CreateAUMLRef which can incorporate any combination of (1) (optional) user-supplied crosswalk, (2) crosswalk downloaded from ATTAINS, and (3) results from TADA_GetATTAINS. The assignments are prioritized in the order listed. Any MonitoringLocations which remain unassigned after checking the user-supplied crosswalk will be subset and run with TADA_GetATTAINS to attempt additional AssessmentUnit assignments.
+Run TADA_CreateAUMLRef which can incorporate any combination of (1) (optional) user-supplied crosswalk, (2) crosswalk downloaded from ATTAINS, and (3) results from TADA_CreateATTAINSAUMLCrosswalk. The assignments are prioritized in the order listed. Any MonitoringLocations which remain unassigned after checking the user-supplied crosswalk will be subset and run with TADA_CreateATTAINSAUMLCrosswalk to attempt additional AssessmentUnit assignments.
 
-To make function run more efficiently, catchment data are not currently being returned for the user-supplied crosswalk and the crosswalk downloaded from ATTAINS. We have plans to create additional functions/internal reference files to faciliate this in the future. Therefore, any catchment data available for mapping is currently from TADA_GetATTAINS assessed MonitoringLocations only.
+To make function run more efficiently, catchment data are not currently being returned for the user-supplied crosswalk and the crosswalk downloaded from ATTAINS. We have plans to create additional functions/internal reference files to faciliate this in the future. Therefore, any catchment data available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk assessed MonitoringLocations only.
 
 ```{r tada.get.attains}
 
