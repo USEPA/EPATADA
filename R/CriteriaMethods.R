@@ -665,18 +665,23 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
   # Split the joined .data by duration period.
   Duration_splits <- split(TADA_Example4.1, TADA_Example4.1$DurationPeriod)
   
-  df_final <- as.list(0)
+  df_final <- list() # will contain raw data aggregated by Duration and CriteriaSummary
+  df_raw_aggregated <- data.frame()
+  df_raw_aggregated_rolling <- data.frame()
+  df_summary <- data.frame()
   
   for (i in 1:length(Duration_splits)) {
     # For rolling summary calculations
+    DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
     
+    # Need to change to DurationUnit
     DurationPeriod <- as.character(unique(Duration_splits[[i]]["DurationPeriod"]))
     
     df_raw <- Duration_splits[[i]]
     
     start_date <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
     end_date <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
-    regular_timestamps <- seq(start_date, end_date, by = "day")
+    regular_timestamps <- seq(start_date, end_date, by = DurationPeriod)
     
     regular_timestamps_df <- data.frame(
       AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps[-length(regular_timestamps)], format = "%Y-%m-%d %H:%M:%S"),
@@ -694,23 +699,22 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       dplyr::filter(!is.na(ActivityStartDateTime)) %>%
       dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
       dplyr::group_by(
-        DurationPeriod, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+        DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(
-        ActivityStartDateTime,
-        #AggregatedActivityStartDateTime, 
+        AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::summarize(
-        rolling_geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-        rolling_arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
+        geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
+        arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
         count = dplyr::n(),
         Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
         Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
@@ -723,68 +727,207 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
         Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
         Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) 
-    
-    df_final[[i]] <- df_aggregated
-  }
-  
-  # For Non-Rolling Summary
-  
-  
-  # Aggregates data by duration period, then provides summary stats on the aggregated data.
-  TADA_Example4_Aggregated <- TADA_Example4.1 %>%
-    dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
-    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-    dplyr::filter(!is.na(ActivityStartDateTime)) %>%
-    dplyr::filter(!is.na(MagnitudeValueLower), !is.na(MagnitudeValueUpper)) %>%
-    dplyr::group_by(
-      DurationPeriod, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-      ATTAINS.ParameterName, ATTAINS.UseName,
-      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-      #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-      ) %>%
-    dplyr::mutate(
-      beg = min(ActivityStartDateTime, na.rm = TRUE)) %>%
-    dplyr::ungroup() %>%
-    dplyr::group_by(
-      ActivityStartDateTime, beg,
-      #AggregatedActivityStartDateTime, 
-      DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-      ATTAINS.ParameterName, ATTAINS.UseName,
-      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-      #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-    ) %>%
-    dplyr::summarize(
-      geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-      arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
-      count = dplyr::n(),
-      Min = min(TADA.ResultMeasureValue),
-      Max = max(TADA.ResultMeasureValue),
-      Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-      Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-      Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-      Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-      Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-      Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-      Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-      Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-      Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) 
-  
-  TADA_Example4_Aggregated_Rolling <- TADA_Example4_Aggregated %>%
-    dplyr::filter(!is.na(DurationPeriod)) %>%
-    dplyr::rowwise() %>% 
-    dplyr::mutate(
-      AggregatedActivityStartDateTime = dplyr::if_else(
-        is.na(DurationPeriod) | beg < lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod),
-        as.POSIXct(ActivityStartDateTime),
-        # If not based on a calendar period, then find the minimum start date and use that as our starting window.
-        lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod) + 
-          difftime(as.POSIXct(beg), lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod))
-      )
     )
-    %>% 
-    dplyr::ungroup()
+    #####################################################
+      # For rolling summary calculations
+      DurationValue <- as.numeric(unique(Duration_splits[[i]]["DurationValue"]))
+      DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
+      
+      df_raw <- Duration_splits[[i]]
+      
+      start_date_roll <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
+      end_date_roll <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
+      regular_timestamps_roll <- seq(start_date_roll, end_date_roll, by = DurationUnit)
+      
+      regular_timestamps_df_roll <- data.frame(
+        AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps_roll[-length(regular_timestamps_roll)], format = "%Y-%m-%d %H:%M:%S"),
+        AggregatedActivityEndDateTime = regular_timestamps_roll[2:length(regular_timestamps_roll)]
+      )
+      
+      df_start_end_roll <- dplyr::right_join(
+        df_raw, regular_timestamps_df_roll, 
+        by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
+      )
+      
+      df_aggregated_roll <- df_start_end_roll %>%
+        tidyr::drop_na(ActivityStartDateTime) %>%
+        dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+        dplyr::filter(!is.na(ActivityStartDateTime)) %>%
+        dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
+        dplyr::group_by(
+          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+          ATTAINS.ParameterName, ATTAINS.UseName,
+          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+          #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ) %>%
+        dplyr::ungroup() %>%
+        dplyr::group_by(
+          AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
+          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+          ATTAINS.ParameterName, ATTAINS.UseName,
+          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+          #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ) %>%
+        dplyr::summarize(
+          geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
+          arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
+          count = dplyr::n(),
+          Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
+          Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
+          Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
+          Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
+          Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
+          Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
+          Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
+          Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
+          Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
+          Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
+          Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
+        )
+      
+      
+      rolling_mean_custom <- function(x, k, na_rm = TRUE) {
+        if (k == 1) {
+          return(x) # For a window of 1, the average is just the value itself
+        }
+        
+        n <- length(x)
+        result <- numeric(n)
+        
+        for (i in 1:n) {
+          start_index <- max(1, i - k + 1)
+          window_values <- x[start_index:i]
+          
+          if (na_rm) {
+            window_values <- window_values[!is.na(window_values)]
+          }
+          
+          if (length(window_values) > 0) { # Ensure there are non-NA values to average
+            result[i] <- mean(window_values, na.rm = na_rm)
+          } else {
+            result[i] <- NA # If all values in window are NA or empty after na_rm
+          }
+        }
+        return(result)
+      }
+      
+      df_aggregated_rolling <- regular_timestamps_df_roll %>%
+        dplyr::left_join(df_aggregated_roll) %>%
+        dplyr::group_by(
+          AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
+          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+          ATTAINS.ParameterName, ATTAINS.UseName,
+          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+          #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ) %>%
+        mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = as.numeric(unique(Duration_splits[[i]]["DurationValue"])), na_rm = TRUE))
+      
+      # rolling_mean_na_rm <- function(x, k) {
+      #   if (k == 1) {
+      #     return(x) # For a window of 1, the average is just the value itself
+      #   }
+      #   
+      #   if (length(x) < k) {
+      #     return(NA_real_) # Return NA if window size is larger than available data
+      #   }
+      #   # Calculate mean of the last 'k' non-NA values
+      #   return(mean(tail(na.omit(x), k), na.rm = TRUE))
+      # }
+      # 
+      # df_aggregated_rolling <- regular_timestamps_df_roll %>%
+      #   dplyr::left_join(df_aggregated_roll) %>%
+      #   dplyr::mutate(
+      #     rolling_avg = purrr::map_dbl(row_number(), ~{
+      #       current_index <- .x
+      #       start_index <- max(1, current_index - 2 + 1) # Adjust for window size
+      #       window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
+      #       rolling_mean_na_rm(window_data, 2)
+      #     })
+      #   )
+    ####################
+      
+    # non rolling raw data  
+    df_raw_aggregated <- rbind(df_raw_aggregated, df_aggregated)
+    # rolling raw data
+    df_raw_aggregated_rolling <- rbind(df_raw_aggregated_rolling, df_aggregated_rolling)
+    
+    # For Non-Rolling Summary
+    df_aggregated_summary <- df_aggregated %>%
+      dplyr::group_by(
+        #AggregatedActivityStartDateTime, 
+        DurationPeriod,
+        TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+        ATTAINS.ParameterName, ATTAINS.UseName,
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+      ) %>%
+      dplyr::summarize(
+        n_Aggregatedsamples = dplyr::n(),
+        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
+        percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)  
+      )
+    
+    df_summary <- rbind(df_summary, df_aggregated_summary)
+    
+    
+  }
+  df_final <- list(df_raw_aggregated = df_raw_aggregated, CriteriaSummary = df_summary)
+  
+  
+  # # Aggregates data by duration period, then provides summary stats on the aggregated data.
+  # TADA_Example4_Aggregated <- TADA_Example4.1 %>%
+  #   dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
+  #   dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+  #   dplyr::filter(!is.na(ActivityStartDateTime)) %>%
+  #   dplyr::filter(!is.na(MagnitudeValueLower), !is.na(MagnitudeValueUpper)) %>%
+  #   dplyr::group_by(
+  #     DurationPeriod, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+  #     ATTAINS.ParameterName, ATTAINS.UseName,
+  #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+  #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+  #     ) %>%
+  #   dplyr::mutate(
+  #     beg = min(ActivityStartDateTime, na.rm = TRUE)) %>%
+  #   dplyr::ungroup() %>%
+  #   dplyr::group_by(
+  #     ActivityStartDateTime, beg,
+  #     #AggregatedActivityStartDateTime, 
+  #     DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+  #     ATTAINS.ParameterName, ATTAINS.UseName,
+  #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+  #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+  #   ) %>%
+  #   dplyr::summarize(
+  #     geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
+  #     arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
+  #     count = dplyr::n(),
+  #     Min = min(TADA.ResultMeasureValue),
+  #     Max = max(TADA.ResultMeasureValue),
+  #     Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
+  #     Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
+  #     Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
+  #     Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
+  #     Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
+  #     Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
+  #     Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
+  #     Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
+  #     Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
+  #   ) 
+  # 
+  # TADA_Example4_Aggregated_Rolling <- TADA_Example4_Aggregated %>%
+  #   dplyr::filter(!is.na(DurationPeriod)) %>%
+  #   dplyr::rowwise() %>% 
+  #   dplyr::mutate(
+  #     AggregatedActivityStartDateTime = dplyr::if_else(
+  #       is.na(DurationPeriod) | beg < lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod),
+  #       as.POSIXct(ActivityStartDateTime),
+  #       # If not based on a calendar period, then find the minimum start date and use that as our starting window.
+  #       lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod) + 
+  #         difftime(as.POSIXct(beg), lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod))
+  #     )
+  #   )
+  #   %>% 
+  #   dplyr::ungroup()
   
   TADA_Example4_30day_NA <- TADA_Example4_30day %>%
     dplyr::filter(is.na(DurationPeriod)) %>%
