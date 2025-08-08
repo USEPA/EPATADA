@@ -95,7 +95,7 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
 testthat::test_that("TADA_GetATTAINS correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
-  mock_attains_data$ATTAINS.assessmentunitidentifier <- "TEST"
+  mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
 
   testthat::expect_error(
     TADA_GetATTAINS(mock_attains_data),

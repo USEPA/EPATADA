@@ -45,7 +45,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 
   if (!org_id %in% org.ref$code) {
     print(paste0(
-      "TADA_GetATTAINSAUSiteCrosswalk: ",
+      "TADA_GetATTAINSAUMLCrosswalk: ",
       "The organization identifier entered by user is not found in ATTAINS."
     ))
   }
@@ -86,7 +86,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 
     if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier > 0)) {
       print(paste0(
-        "TADA_GetATTAINSAUSiteCrosswalk: ",
+        "TADA_GetATTAINSAUMLCrosswalk: ",
         "There are ", nrow(au.crosswalk),
         " monitoring location identifiers associated with assessment units for ",
         org_id, " in ATTAINS."
@@ -97,7 +97,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 
     if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) == 0) {
       print(paste0(
-        "TADA_GetATTAINSAUSiteCrosswalk: ",
+        "TADA_GetATTAINSAUMLCrosswalk: ",
         "No monitoring location identifiers were recorded in ATTAINS for ",
         org_id, " assessment units.", " No crosswalk can be returned."
       ))
@@ -180,7 +180,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 #' MonitoringDataLinkText is returned. This matches the format of the batch
 #' upload files required to add or update monitoring locations in ATTAINS.
 #'
-#' @seealso [TADA_GetATTAINSAUSiteCrosswalk()]
+#' @seealso [TADA_GetATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -293,7 +293,7 @@ TADA_UpdateMonitoringLocationsInATTAINS <- function(org_id = NULL,
 
     if (attains_replace == FALSE) {
       # create assessment unit crosswalk from ATTAINS
-      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id))
+      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
       if (is.null(crosswalk)) {
         update.crosswalk <- attains.crosswalk

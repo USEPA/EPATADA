@@ -270,10 +270,10 @@ the relative number of results contributed by each organization.
 # Filter data for specified assessment unit
 
 AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84")
+  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "IL_I-84")
 
 Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.assessmentunitidentifier == "IL_I-84") %>%
+  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "IL_I-84") %>%
   dplyr::select(-contains("ATTAINS.")) %>%
   sf::st_drop_geometry() %>%
   TADA_RetainRequired()

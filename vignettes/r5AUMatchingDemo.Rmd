@@ -97,16 +97,16 @@ The following code chunk checks for any existing crosswalk information in ATTAIN
 
 ```{r batch.upload}
 # check to see if any existing crosswalk data in ATTAINS
-Existing_CW <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "IL_EPA")
+Existing_CW <- TADA_GetATTAINSAUMLCrosswalk(org_id = "IL_EPA")
 
 # create cross walk from TADA_GetATTAINS data
 New_CW <- IL.attains.w.tada %>%
-  dplyr::select(ATTAINS.assessmentunitidentifier,
+  dplyr::select(ATTAINS.AssessmentUnitIdentifier,
                 TADA.MonitoringLocationIdentifier,
                 OrganizationIdentifier) %>%
   sf::st_drop_geometry() %>%
   dplyr::distinct() %>%
-  dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.assessmentunitidentifier,
+  dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                 MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
                 MS_ORG_ID = OrganizationIdentifier) %>%
   dplyr::filter(!is.na(ASSESSMENT_UNIT_ID)) %>%

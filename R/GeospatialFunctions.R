@@ -1181,7 +1181,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' without_ATTAINS_catchments. Defaults to TRUE.
 #' @param au_ref Optional. A df containing the existing crosswalk of known
 #' AU and monitoring location identifier combinations. Can be created using
-#' TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+#' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
 #' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
 #' ML.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
 #' ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
@@ -1676,7 +1676,7 @@ TADA_GetATTAINS <- function(.data, return_nearest = FALSE,
 #'
 #' @param au_ref Required. A df containing the existing crosswalk of known
 #' AU and monitoring location identifier combinations. Can be created using
-#' TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+#' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
 #' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
 #' and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 #' match those in the WQP, which may contain the organization and provider in
@@ -2710,7 +2710,7 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
   print("TADA_CreateAUMLRef: checking for crosswalk in ATTAINS.")
 
   attains.cw <- spsUtil::quiet(
-    TADA_GetATTAINSAUSiteCrosswalk(org_id = org_id))
+    TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
   if(is.null(attains.cw)) {
 

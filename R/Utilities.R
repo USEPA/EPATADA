@@ -115,7 +115,7 @@ utils::globalVariables(c(
   "resultCount", "tribal_area", "txtProgressBar", "Date", "NWIS.parameter",
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
-  "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.assessmentunitname",
+  "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
   "ATTAINS.OrganizationId", "ATTAINS.WaterType", "useName", "waterType",
   "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
