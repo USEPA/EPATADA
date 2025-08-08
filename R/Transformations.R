@@ -415,7 +415,12 @@ TADA_CalculateTotalNP <- function(.data,
                      !(.data$TADA.MethodSpeciation.Flag %in% 
                          c("Pass",
                            "Not Reviewed")), ]
-    
+  
+  # add flags noting these are not used in TN/TP summation
+  exclude_df <- exclude_df %>%
+    dplyr::mutate(TADA.NutrientSummation.Flag = "Not used to calculate Total N or P.") %>%
+    dplyr::mutate(TADA.ResultValueAggregation.Flag = "Not considered in max aggregation function")
+  
   # # For function testing only
   # # Calculate the number of rows in each data frame
   total_rows_data <- nrow(.data)
@@ -492,6 +497,7 @@ TADA_CalculateTotalNP <- function(.data,
   # add rows back at end but do not include in TN/TP summation
   dat_addback <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
                         "Considered in max aggregation function but not selected"), ]
+  dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   
   # move forward with only max values selected for each grouping
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
@@ -585,8 +591,9 @@ TADA_CalculateTotalNP <- function(.data,
                     TADA.ResultSampleFractionText = "UNFILTERED", 
                     TADA.MethodSpeciationName = "AS N", 
                     TADA.ResultMeasure.MeasureUnitCode = "MG/L",
-                    TADA.NutrientSummation.Flag = "Nutrient summation from one or more subspecies.", 
-                    TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.")
+                    TADA.NutrientSummation.Flag = "New row added: Nutrient summation from one or more subspecies.", 
+                    TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.",
+                    TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed.")
     TotalP <- summeddata %>%
       dplyr::filter(nutrient == "Total Phosphorus as P") %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
@@ -595,10 +602,11 @@ TADA_CalculateTotalNP <- function(.data,
                     TADA.ResultSampleFractionText = "UNFILTERED", 
                     TADA.MethodSpeciationName = "AS P", 
                     TADA.ResultMeasure.MeasureUnitCode = "UG/L",
-                    TADA.NutrientSummation.Flag = "Nutrient summation from one subspecies.", 
-                    TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.")
+                    TADA.NutrientSummation.Flag = "New row added: Nutrient summation from one subspecies.", 
+                    TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.",
+                    TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed.")
 
-    # If summation is zero....include anyway?
+    # If summation is zero....include anyway
     Totals <- plyr::rbind.fill(TotalN, TotalP)
     
     # Generate unique ResultIdentifier
@@ -609,6 +617,26 @@ TADA_CalculateTotalNP <- function(.data,
     # combine all data back into dat_TNTP and get rid of unneeded columns
     dat_TNTP <- merge(dat_TNTP, summeddata, all.x = TRUE)
     dat_TNTP <- plyr::rbind.fill(dat_TNTP, Totals)
+    
+    ##
+    # adding logic here to handle duplicates where a new row is created but not necessary 
+    # because TN/TP is already there
+    # double check logic here cm 8/8/25
+    dat_TNTP <- TADA_CreateComparableID(dat_TNTP)
+    dat_TNTP <- dat_TNTP %>%
+      filter(!(
+        (TADA.ComparableDataIdentifier %in% c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L")) &
+          TADA.NutrientSummationEquation == "TOTAL N (UNFILTERED)" &
+          TADA.ResultMeasureValueDataTypes.Flag == "TN estimated from one or more subspecies." &
+          is.na(SummationFractionNotes) &
+          is.na(SummationName) &
+          is.na(NutrientGroup) &
+          is.na(SummationRank) &
+          is.na(NutrientGroup) &
+          TADA.NutrientSummation.Flag == "New row added: Nutrient summation from one or more subspecies."
+      ))
+    ##
+    
     dat_TNTP <- dat_TNTP %>% dplyr::select(-c(SummationFractionNotes,
                                               SummationSpeciationNotes, 
                                               SummationSpeciationConversionFactor, 
@@ -619,20 +647,12 @@ TADA_CalculateTotalNP <- function(.data,
                                               NutrientGroup))
     dat_TNTP$TADA.NutrientSummation.Flag[is.na(
       dat_TNTP$TADA.NutrientSummation.Flag)] <- "Not used to calculate Total N or P."
+    
   } else {
     # if there are no data to sum
     dat_TNTP$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
     print("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
   }
-  
-  # # Remove any rows that were created in dat_TNTP but are NA (this may occur if rows that are NA are not removed prior to this function being run)
-  # dat_TNTP <- dat_TNTP[!(dat_TNTP$TADA.ResultMeasureValueDataTypes.Flag %in% 
-  #                    c("TP estimated from one or more subspecies.", 
-  #                      "TN estimated from one or more subspecies.") & 
-  #                    is.na(dat_TNTP$TADA.ResultMeasureValue)), ]
-  
-  # not neceswsary here
-  # dat_TNTP <- TADA_CreateComparableID(dat_TNTP)
   
   # At very end... summation complete at this point
   # Use bind_rows to combine the data frames
