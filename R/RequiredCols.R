@@ -246,24 +246,19 @@ extra.cols <- c(
 )
 
 attains.cols <- c(
-  "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan",
-  "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d",
-  "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist",
-  "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length",
-  "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl",
-  "ATTAINS.orgtype",
-  "ATTAINS.permid_joinkey", #
-  "ATTAINS.catchmentistribal",
-  "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier",
-  "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
-  "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan",
-  "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",
-  "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area",
-  "ATTAINS.xwalk_method",
-  "ATTAINS.xwalk_huc12_version",
-  "ATTAINS.waterTypeCode"
+  "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+  "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+  "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+  "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+  "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+  "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+  "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+  "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+  "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+  "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+  "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+  "ATTAINS.ShapeArea"
 )
-
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "TADA.Remove",

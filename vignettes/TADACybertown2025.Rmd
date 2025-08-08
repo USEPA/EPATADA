@@ -499,7 +499,7 @@ Create table of monitoring location identifiers and AUs.
 
 ```{r}
 ML_AU_crosswalk <- WQP_clean_subset %>%
-  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
+  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.AssessmentUnitName, TADA.CharacteristicName) %>%
   dplyr::distinct()
 ```
 

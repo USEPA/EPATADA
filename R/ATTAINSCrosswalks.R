@@ -17,7 +17,7 @@
 #' contains the organization identifiers that should be used for this param.
 #'
 #' @return A dataframe with four columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier, and
+#' OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
 #' MonitoringDataLinkText is returned. This is the crosswalk between monitoring
 #' location identifiers and assessment units that the state or tribal
 #' organization submitted to ATTAINS (optional). If an ATTAINS organization
@@ -29,18 +29,18 @@
 #' @examples
 #' \dontrun{
 #' # Alaska example
-#' AK_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "AKDECWQ")
+#' AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "AKDECWQ")
 #'
 #' # Pueblo of Tesuque example
-#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(
+#' PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
 #'   org_id = "PUEBLOOFTESUQUE"
 #' )
 #'
 #' # Arizona example, returns blank dataframe as of 1/21/25
-#' AZ_crosswalk <- TADA_GetATTAINSAUSiteCrosswalk(org_id = "21ARIZ")
+#' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUSiteCrosswalk <- function(org_id = NULL) {
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
   if (!org_id %in% org.ref$code) {
