@@ -2308,7 +2308,7 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% ATTAINS_table) {
+      if("TADA.AURefSource" %in% names(ATTAINS_table)) {
 
       # if TADA_AUSourceRef col exists in data
       set.fill <- leaflet::colorFactor(
@@ -2330,7 +2330,7 @@ TADA_ViewATTAINS <- function(.data) {
 
       }
 
-      if(!"TADA.AURefSource" %in% ATTAINS_table) {
+      if(!"TADA.AURefSource" %in% names(ATTAINS_table)) {
 
         # if TADA_AUSourceRef col exists in data
         set.fill <- leaflet::colorFactor(
