@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_UpdateATTAINSAUMLCrosswalk}
 \alias{TADA_UpdateATTAINSAUMLCrosswalk}
-\title{Create or Update Monitoring Location Identifier and Assessment Unit Identifier
+\title{Update Monitoring Location Identifier and Assessment Unit Identifier
 Crosswalk in ATTAINS}
 \usage{
 TADA_UpdateATTAINSAUMLCrosswalk(

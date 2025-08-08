@@ -2644,10 +2644,22 @@ TADA_ViewATTAINS <- function(.data) {
 #' locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
 #' and matching these additional geospatial data will increase the run time of this function
 #' significantly. Default is add_catch = FALSE.
+#' @param batch_upload Boolean argument. When batch_upload = TRUE, an additional data frame
+#' which matches the format required for batch upload to ATTAINS is included in the
+#' output. When batch_upload = FALSE, this df is not included in the output.
+#' Default is batch_upload = FALSE. If you would like to add new monitoring location
+#' data links or retain existing ones in ATTAINS, you will need to run
+#' TADA_UpdateATTAINSAUMLCrosswalk on the ATTAINS_batchupload data frame from this
+#' function's output.
 #'
-#' @return Need to add the full list
+#' @return A list containing a modified TADA data frame with added ATTAINS columns and
+#' data frames for ATTAINS data and features for points, lines, polygons and catchments.
+#' When batch_upload = TRUE, the list will contain an additional data frame formatted
+#' for compatibilty with ATTAINS batch upload for Monitoring_Stations.
 #'
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()] # add additional functions here
+#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
+#'          [TADA_GetATTAINSAUMLCrosswalk()]
+#'          [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -2655,7 +2667,8 @@ TADA_ViewATTAINS <- function(.data) {
 #' \dontrun{ }
 #'
 TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
-                               org_id = NULL, add_catch = FALSE) {
+                               org_id = NULL, add_catch = FALSE,
+                               batch_upload = TRUE) {
   # need to write checks for each component
 
   # check for user supplied ref
@@ -2824,6 +2837,23 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
     "ATTAINS_lines" = ATTAINS_lines,
     "ATTAINS_polygons" = ATTAINS_polygons
   )
+
+  if(batch_upload == TRUE) {
+    ATTAINS_batchupload <- TADA_with_ATTAINS %>%
+      sf::st_drop_geometry() %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier,
+                    ATTAINS.AssessmentUnitIdentifier,
+                    OrganizationIdentifier) %>%
+      dplyr::distinct() %>%
+      dplyr::rename(MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
+                    ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+                    MS_ORG_ID = OrganizationIdentifier) %>%
+      dplyr::mutate(MS_DATA_LINK = NA) %>%
+      dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
+                    MS_DATA_LINK)
+
+    final_list <- c(final_list, list(ATTAINS_batchupload))
+  }
 
   return(final_list)
 }

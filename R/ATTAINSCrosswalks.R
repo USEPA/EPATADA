@@ -45,7 +45,8 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
+                                         batch_upload = FALSE) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
   if (!org_id %in% org.ref$code) {
@@ -124,7 +125,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL) {
 
 
 
-#' Create or Update Monitoring Location Identifier and Assessment Unit Identifier
+#' Update Monitoring Location Identifier and Assessment Unit Identifier
 #' Crosswalk in ATTAINS
 #'
 #' This function creates the batch upload files needed to create or update
@@ -627,6 +628,16 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           dplyr::rename(ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier)
       }
     }
+
+    if(batch_upload == TRUE) {
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+                      MS_ORG_ID = MonitoringLocationIdentifier,
+                      MS_LOCATION_ID = OrganizationIdentifier,
+                      MS_DATA_LINK = MonitoringDataLinkText)
+    }
+
     return(update.crosswalk)
   }
 }

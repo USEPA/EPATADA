@@ -41,7 +41,7 @@ Get existing data from ATTAINS and subset a few rows to create a demo user-suppl
 ```{r demo.user, echo = FALSE}
 
 # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_CreateATTAINSAUMLCrosswalkAUMLCrosswalk(org_id = "MTDEQ")
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
 # WQP compatible
