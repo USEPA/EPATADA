@@ -2733,7 +2733,7 @@ TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
     print("TADA_CreateAUMLRef: crosswalk from ATTAINS has been imported.")
 
     attains.cw <- spsUtil::quiet(
-      TADA_UpdateMonitoringLocationsInATTAINS(crosswalk = attains.cw,
+      TADA_UpdateATTAINSAUMLRef(crosswalk = attains.cw,
                                                           org_id = org_id,
                                                           attains_replace = TRUE))
 

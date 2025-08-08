@@ -42,7 +42,7 @@ without_ATTAINS_catchments. Defaults to TRUE.}
 
 \item{au_ref}{Optional. A df containing the existing crosswalk of known
 AU and monitoring location identifier combinations. Can be created using
-TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
 Must contain the columns ATTAINS.MonitoringLocationIdentifier,
 ML.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
 ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must

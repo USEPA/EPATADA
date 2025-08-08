@@ -12,7 +12,7 @@ locations already paired with assessment unit identifiers.}
 
 \item{au_ref}{Required. A df containing the existing crosswalk of known
 AU and monitoring location identifier combinations. Can be created using
-TADA_GetATTAINSAUSiteCrosswalk or provided by the user from an external file.
+TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
 Must contain the columns ATTAINS.MonitoringLocationIdentifier,
 and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 match those in the WQP, which may contain the organization and provider in

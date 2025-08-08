@@ -113,7 +113,7 @@ New_CW <- IL.attains.w.tada %>%
   dplyr::mutate(MONITORING_DATA_LINK_TEXT = "")
 
 # create batch upload file for ATTAINS
-Batch.Upload <- TADA_UpdateMonitoringLocationsInATTAINS(org_id = "IL_EPA",
+Batch.Upload <- TADA_UpdateATTAINSAUMLRef(org_id = "IL_EPA",
                                         crosswalk = New_CW, 
                                         attains_replace = TRUE, # must set as true because there are currently no entries in ATTAINS
                                         wqp_data_links = "add")
