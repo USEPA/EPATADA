@@ -1410,7 +1410,7 @@ Generate a scatterplot with two
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 
 # choose two and generate scatterplot
-TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("PH_NONE_NONE_NONE", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 ```
 
 Now we will summarize results for a single comparable data group using
