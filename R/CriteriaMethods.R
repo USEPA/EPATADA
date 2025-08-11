@@ -827,7 +827,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       # 
       
       # calculates rolling average by specified k window size
-      rolling_mean_na_rm <- function(x, k) {
+      rolling_mean_na_rm <- function(x, y, k) {
         if (k == 1) {
           return(x) # For a window of 1, the average is just the value itself
         }
@@ -835,8 +835,8 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         if (length(x) < k) {
           return(NA_real_) # Return NA if window size is larger than available data
         }
-        # Calculate mean of the last 'k' non-NA values
-        return(mean(tail(na.omit(x), k), na.rm = TRUE))
+        # Calculate weighted mean of the last 'k' non-NA values
+        return(sum(tail(na.omit(x * y), k), na.rm = TRUE) / sum(tail(na.omit(y), k)) )
       }
 
       unique_parameters <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
@@ -847,12 +847,14 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         dplyr::left_join(df_aggregated_roll[df_aggregated_roll$TADA.ComparableDataIdentifier == unique_parameters[i],]) %>%
         tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
                     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down") %>%
+        #dplyr::mutate(geomean_weightedResult = geomean_TADA.ResultMeasureValue * count) %>%
         dplyr::mutate(
           rolling_avg = purrr::map_dbl(dplyr::row_number(), ~{
             current_index <- .x
             start_index <- max(1, current_index - 2 + 1) # Adjust for window size
             window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
-            rolling_mean_na_rm(window_data, 2)
+            window_weights <- count[start_index:current_index]
+            rolling_mean_na_rm(window_data, window_weights, 2)
           })
         )
       df_aggregated_rolling <- rbind(df_aggregated_rolling, temp_df)
