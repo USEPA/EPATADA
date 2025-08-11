@@ -44,10 +44,6 @@ Create the assessment unit and monitoring location ref by utilizing an optional
 user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
 and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
 }
-\examples{
-\dontrun{ }
-
-}
 \seealso{
 \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}
 \code{\link[=TADA_GetATTAINSAUMLCrosswalk]{TADA_GetATTAINSAUMLCrosswalk()}}
