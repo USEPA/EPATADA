@@ -646,7 +646,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
   # Combine all and summarize by ONLY characteristic and ignore fraction and speciation
   # We can say "it's not recommended" - good question to ask to M3 subgroup - but would people find it useful?
   if( summarizeBy == "Char") {
-    TADA_Example4.1 <- TADA_Example4 %>%
+     char_only <- TADA_Example4 %>%
       dplyr::left_join(myfileRef, by = c("TADA.CharacteristicName")) %>%
       dplyr::mutate(DurationPeriod = gsub("n-", paste0(DurationValue," "), DurationUnit)) %>%
       mutate(
@@ -694,7 +694,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       )
     
     df_aggregated <- df_start_end %>%
-      tidyr::drop_na(ActivityStartDateTime) %>%
+      #tidyr::drop_na(ActivityStartDateTime) %>%
       dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
       dplyr::filter(!is.na(ActivityStartDateTime)) %>%
       dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
@@ -727,7 +727,14 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
         Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
         Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    )
+    ) 
+    
+    
+    df_test <- df_start_end %>% 
+      dplyr::select(-ActivityStartDate) %>% 
+      dplyr::left_join(df_aggregated, by = c("AggregatedActivityStartDateTime","AggregatedActivityEndDateTime","TADA.ComparableDataIdentifier")) %>% dplyr::rename(ActivityStartDate = AggregatedActivityStartDateTime)
+    
+    TADA_Scatterplot(df_test)
     #####################################################
       # For rolling summary calculations
       DurationValue <- as.numeric(unique(Duration_splits[[i]]["DurationValue"]))
@@ -839,7 +846,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         return(sum(tail(na.omit(x * y), k), na.rm = TRUE) / sum(tail(na.omit(y), k)) )
       }
 
-      unique_parameters <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
+      unique_parameters_use <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
       df_aggregated_rolling <- data.frame()
       
       for (i in 1:length(unique_parameters)){
@@ -847,16 +854,19 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         dplyr::left_join(df_aggregated_roll[df_aggregated_roll$TADA.ComparableDataIdentifier == unique_parameters[i],]) %>%
         tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
                     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down") %>%
-        #dplyr::mutate(geomean_weightedResult = geomean_TADA.ResultMeasureValue * count) %>%
+        dplyr::select(
+          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
+          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper) %>%
         dplyr::mutate(
           rolling_avg = purrr::map_dbl(dplyr::row_number(), ~{
             current_index <- .x
-            start_index <- max(1, current_index - 2 + 1) # Adjust for window size
+            start_index <- max(1, current_index - as.numeric(unique(Duration_splits[[i]]["DurationValue"])) + 1) # Adjust for window size
             window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
             window_weights <- count[start_index:current_index]
-            rolling_mean_na_rm(window_data, window_weights, 2)
+            rolling_mean_na_rm(window_data, window_weights, as.numeric(unique(Duration_splits[[i]]["DurationValue"])))
           })
         )
+      
       df_aggregated_rolling <- rbind(df_aggregated_rolling, temp_df)
       }
     ####################
