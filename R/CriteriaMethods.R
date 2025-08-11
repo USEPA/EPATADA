@@ -762,7 +762,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         ) %>%
         dplyr::ungroup() %>%
         dplyr::group_by(
-          AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
+          AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
           DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
           ATTAINS.ParameterName, ATTAINS.UseName,
           ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
@@ -798,12 +798,12 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
           start_index <- max(1, i - k + 1)
           window_values <- x[start_index:i]
           
-          if (na_rm) {
-            window_values <- window_values[!is.na(window_values)]
-          }
+          # if (na_rm) {
+          #   window_values <- window_values[!is.na(window_values)]
+          # }
           
           if (length(window_values) > 0) { # Ensure there are non-NA values to average
-            result[i] <- mean(window_values, na.rm = na_rm)
+            result[i] <- mean(tail(na.omit(window_values, k, na.rm = TRUE)))
           } else {
             result[i] <- NA # If all values in window are NA or empty after na_rm
           }
@@ -813,16 +813,18 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       
       df_aggregated_rolling <- regular_timestamps_df_roll %>%
         dplyr::left_join(df_aggregated_roll) %>%
+        tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
+                    ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down")  %>%
         dplyr::group_by(
-          AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
+          AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
           DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
           ATTAINS.ParameterName, ATTAINS.UseName,
           ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
           #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
         ) %>%
-        mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = as.numeric(unique(Duration_splits[[i]]["DurationValue"])), na_rm = TRUE))
+        mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = 4, na_rm = TRUE))
       
-      # rolling_mean_na_rm <- function(x, k) {
+       #rolling_mean_na_rm <- function(x, k) {
       #   if (k == 1) {
       #     return(x) # For a window of 1, the average is just the value itself
       #   }
