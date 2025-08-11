@@ -98,7 +98,7 @@ testthat::test_that("TADA_GetATTAINS correctly identifies already joined ATTAINS
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
 
   testthat::expect_error(
-    TADA_GetATTAINS(mock_attains_data),
+    TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
     "Your data has already been joined with ATTAINS data"
   )
 })
@@ -112,7 +112,7 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
     HorizontalCoordinateReferenceSystemDatumName = character(0)
   )
 
-  result <- TADA_GetATTAINS(.data = empty_df, return_sf = FALSE)
+  result <- TADA_CreateATTAINSAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
   testthat::expect_true(nrow(result) == 0)
   testthat::expect_true("ResultIdentifier" %in% names(result))
   testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
@@ -121,7 +121,7 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
 
 testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
   testthat::expect_error(
-    TADA_GetATTAINS(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "Invalid", return_sf = FALSE),
+    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "Invalid", return_sf = FALSE),
     "User-supplied resolution unavailable"
   )
 })
