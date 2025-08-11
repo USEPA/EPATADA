@@ -2661,9 +2661,6 @@ TADA_ViewATTAINS <- function(.data) {
 #'
 #' @export
 #'
-#' @examples
-#' \dontrun{ }
-#'
 TADA_CreateAUMLRef <- function(.data, au_ref = NULL,
                                org_id = NULL, add_catch = FALSE,
                                batch_upload = TRUE) {
