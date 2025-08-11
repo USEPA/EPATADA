@@ -97,7 +97,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "compatible_au_cols",
   dependencies = TRUE
 )
 ```
@@ -351,9 +351,9 @@ New TADA functions leverage the **ATTAINS** geospatial services to make
 geospatial information including catchment and assessment unit geometry
 easily accessible to R users.
 
-We can use the function, `TADA_CreateATTAINSAUMLCrosswalk` to obtain geospatial data
-from **ATTAINS** relevant to the Monitoring Locations included in the
-**WQP** data set. See [TADA Module
+We can use the function, `TADA_CreateATTAINSAUMLCrosswalk` to obtain
+geospatial data from **ATTAINS** relevant to the Monitoring Locations
+included in the **WQP** data set. See [TADA Module
 2](https://usepa.github.io/EPATADA/articles/TADAModule2.html) for a much
 more detailed look at the logic behind this and the other TADA
 geospatial functions.
