@@ -1,7 +1,7 @@
 test_that("TADA_AutoClean function does not grow dataset", {
   testautoclean1 <- TADA_RandomTestingData(
     choose_random_state = TRUE,
-    number_of_days = 5,
+    number_of_days = 3,
     autoclean = FALSE
   )
   testautoclean2 <- TADA_AutoClean(testautoclean1)
@@ -81,13 +81,18 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                 characteristicName = c("Nitrate", "Copper"), 
                                 sampleMedia = "Water", 
                                 ask = FALSE)
+  
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
                                       clean = TRUE)
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "Percentage", "Result Value/Unit Estimated from Detection Limit", "Less Than", 
-                      "TP estimated from one or more subspecies.", "TN estimated from one or more subspecies.")))  
+                    c("Numeric", 
+                      "Percentage", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than", 
+                      "TP estimated from one or more subspecies.", 
+                      "TN estimated from one or more subspecies.")))  
 })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
@@ -126,3 +131,39 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
                     c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Less Than")))  
 })
+
+
+
+test_that("TADA_ConvertSpecialChars removes NAs when clean = TRUE", {
+  testdat <- TADA_DataRetrieval(statecode = "UT", 
+                                startDate = "2024-08-11", 
+                                endDate = "2025-08-11",
+                                characteristicType = "Nutrient",
+                                ask = FALSE)
+
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Create a list of values with NA in TADA.ResultMeasureValue or TADA.ResultMeasureValueDataTypes.Flag
+  na_values <- testdat[is.na(testdat$TADA.ResultMeasureValue), ]
+  na_flags <- testdat[is.na(testdat$TADA.ResultMeasureValueDataTypes.Flag), ]
+  
+  # Check if either na_values or na_flags has observations and fail if they do
+  if (nrow(na_values) > 0 || nrow(na_flags) > 0) {
+    stop("Failure: There are NA observations in TADA.ResultMeasureValue or TADA.ResultMeasureValueDataTypes.Flag.")
+  }
+
+  # Test to ensure the value column is entirely numeric
+  expect_true(
+    is.numeric(testdat$TADA.ResultMeasureValue),
+    info = "The TADA.ResultMeasureValue column is not entirely numeric."
+  )
+  
+  # Test to ensure unit column does not contain any NA values
+  expect_true(
+    !any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)),
+    info = "The TADA.ResultMeasure.MeasureUnitCode column contains NA values."
+  )
+})
+

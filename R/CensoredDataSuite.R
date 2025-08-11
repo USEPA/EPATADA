@@ -126,15 +126,23 @@ TADA_IDCensoredData <- function(.data) {
     "Result Value/Unit Copied from Detection Limit",
     .data$TADA.ResultMeasureValueDataTypes.Flag
   )
-
+  
   # If user has not previously run TADA_FlagMeasureQualifierCode, run it here
   # to add column TADA.MeasureQualifier.Flag to allow for using user-supplied
   # Result Measure Qualifier codes to identify censored samples.
   if (!"TADA.MeasureQualifierCode.Flag" %in% names(.data)) {
-    data_mq_flag <- TADA_FlagMeasureQualifierCode(.data)
+    data_mq_flag <- TADA_FlagMeasureQualifierCode(.data, clean = FALSE)
   } else {
     data_mq_flag <- .data
   }
+  
+  # update TADA.ResultMeasureValueDataTypes.Flag if TADA.ResultMeasureValue is still NA
+  data_mq_flag <- data_mq_flag %>%
+    dplyr::mutate(TADA.ResultMeasureValueDataTypes.Flag = ifelse(
+      is.na(TADA.ResultMeasureValueDataTypes.Flag) & is.na(TADA.ResultMeasureValue),
+      "NA - Not Available",
+      TADA.ResultMeasureValueDataTypes.Flag
+    ))
 
   ## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
   cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")

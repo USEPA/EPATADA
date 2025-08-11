@@ -82,3 +82,47 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
 
   expect_true(all(!is.na(df3_subset$TADA.ResultMeasure.MeasureUnitCode)))
 })
+
+test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValueDataTypes.Flag", {
+  testdat <- TADA_DataRetrieval(statecode = "UT", 
+                                startDate = "2024-08-11", 
+                                endDate = "2025-08-11",
+                                characteristicType = "Nutrient",
+                                ask = FALSE)
+  
+  # Create a list of values with NA in TADA.ResultMeasureValueDataTypes.Flag
+  na_flags <- testdat[is.na(testdat$TADA.ResultMeasureValueDataTypes.Flag), ]
+  
+  # Check if either na_values or na_flags has observations and fail if they do
+  if (nrow(na_flags) > 0) {
+    stop("Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag.")
+  }
+  
+  # testdat2 <- TADA_SimpleCensoredMethods(testdat,
+  #                                       nd_method = "multiplier",
+  #                                       nd_multiplier = 0.5,
+  #                                       od_method = "as-is",
+  #                                       od_multiplier = "null")
+  
+  testdat2 <- TADA_IDCensoredData(testdat)
+  
+  # Create a list of values with NA in TADA.ResultMeasureValueDataTypes.Flag
+  na_flags_2 <- testdat2[is.na(testdat2$TADA.ResultMeasureValueDataTypes.Flag), ]
+  
+  # Check if either na_values or na_flags has observations and fail if they do
+  if (nrow(na_flags_2) > 0) {
+    stop("Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag.")
+  }
+  
+  # Test to ensure the value column is entirely numeric
+  expect_true(
+    is.numeric(testdat$TADA.ResultMeasureValue),
+    info = "The TADA.ResultMeasureValue column is not entirely numeric."
+  )
+  
+  # Test to ensure unit column does not contain any NA values
+  expect_true(
+    !any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)),
+    info = "The TADA.ResultMeasure.MeasureUnitCode column contains NA values."
+  )
+})
