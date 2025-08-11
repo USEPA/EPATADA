@@ -1,8 +1,24 @@
 ---
-title: "Example Workflow"
+title: "Example Module 2 Workflow"
+format: html
+editor: visual
 author: "TADA Team"
-date: "2025-08-01"
-output: html_document
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Example Module 2 Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+description: An example Module 2 workflow for creating an assessment unit/monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
 ---
 
 ```{r setup, include=FALSE}

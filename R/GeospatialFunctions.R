@@ -1116,8 +1116,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
   }
 }
 
-
-
 #' TADA_CreateATTAINSAUMLCrosswalk
 #'
 #' Link catchment-based ATTAINS assessment unit data
