@@ -259,7 +259,6 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
                                             update_mlid = TRUE,
                                             batch_upload = FALSE,
                                             check_links = FALSE) {
-
   # get list of organization identifiers from ATTAINS
   org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv",
                                          package = "EPATADA"
@@ -318,7 +317,6 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
         stop(paste0("Column names must reflect either the TADA workflow or the ATTAINS ",
                     "batch upload requirements. Review function documentation for more information"))
-
       }
 
       if(all(batch_cols %in% names(crosswalk))) {
@@ -421,10 +419,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
       # join nwis and storet crosswalks
       update.crosswalk <- update.crosswalk %>%
-        dplyr::filter(ProviderName == "NWIS") %>%
-        dplyr::full_join(update.crosswalk.storet,
-                         by = c(names(update.crosswalk))
-        )
+        dplyr::filter(!ProviderName %in% c("STORET")) %>%
+        dplyr::bind_rows(update.crosswalk.storet)
 
       rm(update.crosswalk.storet, provider.ref)
 
@@ -473,6 +469,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       return(new.urls)
     }
 
+    if(check_links == TRUE) {
     # internal function to check urls
     checkUrlResp <- function(.data, url.col) {
       # create df of urls to check
@@ -511,6 +508,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
         return(.data)
       }
+    }
     }
 
 
@@ -567,13 +565,13 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
         update.crosswalk <- checkUrlResp(update.crosswalk,
                                          url.col = "ATTAINS.MonitoringDataLinkText.New"
-
         )
 
         update.crosswalk <- update.crosswalk %>%
           dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = ifelse(stringr::str_detect(response.code, "200"),
                                                                     ATTAINS.MonitoringDataLinkText.New,
-                                                                    NA)) %>%
+                                                                    NA
+          )) %>%
           dplyr::select(-response.code)
       }
 
@@ -589,7 +587,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
         )) %>%
         dplyr::select(-ATTAINS.MonitoringDataLinkText.New, -OrgIDForURL)
-}
+
+    }
 
     if (update_mlid == FALSE & wqp_data_links == "none") {
       update.crosswalk <- update.crosswalk
