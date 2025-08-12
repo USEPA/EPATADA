@@ -2121,7 +2121,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' )
 #'
 #' # Alaska example to updated data links with no user supplied crosswalk
-#' AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
+#' AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = NULL,
 #'   attains_replace = FALSE,
@@ -2158,7 +2158,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   MONITORING_DATA_LINK_TEXT = NA, ATTAINS.WaterType
 #' )
 #'
-#' AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(
+#' AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = ex.user.cw,
 #'   attains_replace = FALSE,

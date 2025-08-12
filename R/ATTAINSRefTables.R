@@ -180,9 +180,8 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
   }
 
-  # to match you origianal query which by default was considering only the
-  # latest cycle form each org, you could skip this step and use params from
-  # all assessment cycles
+  # considers only the latest cycle form each org, you could skip this step
+  # and use params from all assessment cycles - What is preferred?
 
   latest.assessments <- nat.assessments %>%
     dplyr::group_by(organizationId) %>%
