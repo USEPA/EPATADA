@@ -22,13 +22,13 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <- data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"])
+      attainsParamRef <-spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
       WQXCharRef$CharacteristicName <- toupper(WQXCharRef$CharacteristicName)
 
-      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$rExpertQuery..EQ_DomainValues..param_name......name..)
+      matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
 
       ## Add manual additional TADA.ComparableDataIdentifier and ATTAINS Parameter alias
       others <- data.frame(
@@ -62,7 +62,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
       )
 
       attainsWQXRef <- WQXCharRef %>%
-        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "rExpertQuery..EQ_DomainValues..param_name......name..")) %>%
+        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
         dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) %>%
         dplyr::distinct()
