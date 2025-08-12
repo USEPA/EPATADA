@@ -491,8 +491,10 @@ TADA_CalculateTotalNP <- function(.data,
   
   # add rows back at end but do not include in TN/TP summation
   dat_addback <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
-                        "Considered in max aggregation function but not selected"), ]
-  dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
+                        c(paste0("Used in ", daily_agg, " aggregation function but not selected"))), ]
+  if( dim(dat_addback)[1] > 0){
+    dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
+  }
   
   # move forward with only max values selected for each grouping
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
@@ -647,7 +649,7 @@ TADA_CalculateTotalNP <- function(.data,
   
   # Filter the data frame
   final_final_df <- final_df %>%
-    filter(!ResultIdentifier %in% remove_list)
+    dplyr::filter(!ResultIdentifier %in% remove_list)
 
   # order columns and return final_final_df
   final_final_df <- TADA_CreateComparableID(final_final_df)
