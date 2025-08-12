@@ -85,7 +85,8 @@ Imports:
     xml2,
     readr (>= 1.4.0),
     httr2,
-    whisker
+    whisker,
+    spsUtil
 Depends: 
     R (>= 4.1.0)
 Suggests:

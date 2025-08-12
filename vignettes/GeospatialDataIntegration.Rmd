@@ -264,6 +264,11 @@ Check to make sure there are no more NA's in TADA.ResultMeasureValue.
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
+
+GreenBay_FoxRiver <- GreenBay_FoxRiver %>%
+  dplyr::filter(!is.na(TADA.ResultMeasureValue))
+
+sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 ```
 
 Flag or remove QAQC samples and suspect results.
@@ -634,7 +639,7 @@ quality data is the WQP.
 
 #### **Matching WQP monitoring locations with ATTAINS assessment units**
 
--   TADA_GetATTAINS() automates matching of WQP monitoring locations
+-   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP monitoring locations
     with ATTAINS assessment units that fall within (intersect) the same
     NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
@@ -644,7 +649,7 @@ quality data is the WQP.
     applicable to their use case
 
 ```{r}
-WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```
@@ -662,7 +667,7 @@ TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 
 #### Analyzing areas outside of ATTAINS assessment unit areas
 
-*See: nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(),
+*See: nhdplusTools, TADA::fetchNHD(), TADA_CreateATTAINSAUMLCrosswalk(),
 TADA_ViewATTAINS()*
 
 Some waterbodies have data available in the WQP or from other sources,
@@ -670,7 +675,7 @@ but there are no existing Assessment Units in ATTAINS for them. If you
 are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
-TADA_GetATTAINS() fill_catchments function input (leveraging USGS's
+TADA_CreateATTAINSAUMLCrosswalk() fill_catchments function input (leveraging USGS's
 nhdplusTools and TADA geospatial functions). This is included for
 exploratory purposes only. In theory, states and tribal nations could
 use the high res catchments as new assessment unit polygons to assess
@@ -689,7 +694,7 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ```{r}
-WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ```

@@ -1,0 +1,179 @@
+---
+title: "Example Module 2 Workflow"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Example Module 2 Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+description: An example Module 2 workflow for creating an assessment unit/monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Install and Load Package
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "compatible_au_cols",
+  dependencies = TRUE
+)
+```
+
+Finally, use the library() function to load the TADA R Package into your
+R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+## Get Montana TADA Data
+
+Get data bacteria and pH data from Missoula County, Montana.
+
+```{r tada.data}
+
+# get MT data 
+tada.MT <- TADA_DataRetrieval(
+   startDate = "2020-01-01", endDate = "2022-12-31",
+   statecode = "MT",
+   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+   county = "Missoula County",
+   ask = FALSE)
+
+# clean up data set (minimal)
+  tada.MT.clean <- tada.MT %>%
+    TADA_RunKeyFlagFunctions() %>%
+    TADA_SimpleCensoredMethods()
+  
+# remove intermediate objects
+  rm(tada.MT)
+
+```
+
+## Set up Demo User-Supplied Crosswalk
+
+Get existing data from ATTAINS and subset a few rows to create a demo
+user-supplied crosswalk.
+
+```{r demo.user, echo = FALSE}
+
+# get crosswalk from ATTAINS
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+
+# clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
+# WQP compatible
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+
+# set up demo user supplied cw (select a few Monitoring Locations from the tada df)
+user.supplied.cw <- clean.existing.attains.MT %>%
+  dplyr::select(ATTAINS.AssessmentUnitIdentifier, 
+                ATTAINS.MonitoringLocationIdentifier) %>%
+  dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
+    "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02", 
+    "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54")) %>%
+  dplyr::rename(AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
+                MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier)
+
+rm(attains.existing.MT, clean.existing.attains.MT)
+```
+
+## Run TADA_CreateAUMLRef
+
+Run TADA_CreateAUMLRef which can incorporate any combination of (1)
+(optional) user-supplied crosswalk, (2) crosswalk downloaded from
+ATTAINS, and (3) results from TADA_CreateATTAINSAUMLCrosswalk. The
+assignments are prioritized in the order listed. Any MonitoringLocations
+which remain unassigned after checking the user-supplied crosswalk will
+be subset and run with TADA_CreateATTAINSAUMLCrosswalk to attempt
+additional AssessmentUnit assignments.
+
+To make function run more efficiently, catchment data are not currently
+being returned for the user-supplied crosswalk and the crosswalk
+downloaded from ATTAINS. We have plans to create additional
+functions/internal reference files to faciliate this in the future.
+Therefore, any catchment data available for mapping is currently from
+TADA_CreateATTAINSAUMLCrosswalk assessed MonitoringLocations only.
+
+```{r tada.get.attains}
+
+# use TADA get attains to make AU assignments for unassigned MLs
+MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
+                                 au_ref = user.supplied.cw,
+                                 org_id = "MTDEQ", 
+                                 add_catch = FALSE,
+                                 batch_upload = TRUE)
+
+```
+
+## TADA_ViewATTAINS
+
+The TADA_View ATTAINS map function has been edited to shows the results
+from all three different sources using different color circle markers
+(not final colors, we are very open to suggestions). The source has also
+been added to the popup window.
+
+```{r view.map}
+
+TADA_ViewATTAINS(MT.AUMLRef)
+
+```
+
+## TADA_UpdateATTAINSAUMLCrosswalk
+
+After making any necessary changes to the ATTAINS_batchupload data frame
+generated by TADA_CreateAUMLRef, run TADA_UpdateATTAINSAUMLCrosswalk to
+add new links to WQP site pages.
+
+```{r add.links}
+
+batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
+  TADA_UpdateATTAINSAUMLCrosswalk(# selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new                                          crosswalk
+                                  attains_replace =TRUE,
+                                  batch_upload = TRUE,
+                                  wqp_data_links = "add",
+                                  #ml ids have already  been corrected if needed
+                                  update_mlid = FALSE,
+                                  org_id = "MTDEQ")
+
+```
