@@ -66,9 +66,9 @@ This function requires an ATTAINS org_id and
 a crosswalk of an organization's WQP
 Monitoring Location's, ATTAINS Assessment Unit's, and ATTAINS
 Water Type codes as a function input (AUMLRef). The output from
-\code{TADA_GetATTAINS(.data, return_sf = FALSE)} can be used
+\code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can be used
 directly as the AUMLRef argument input in this function. Alternatively,
-a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUSiteCrosswalk()}
+a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUMLCrosswalk()}
 and/or \code{TADA_UpdateMonitoringLocationsInATTAINS()} functions can be leveraged
 to generate the crosswalk.
 }
@@ -101,12 +101,12 @@ TADA_AK_Example <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-# Alaska example to updated data links with no user supplied crosswalk
+# Alaska example to update data links with no user supplied crosswalk
 AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
   org_id = "AKDECWQ",
   crosswalk = NULL,
   attains_replace = FALSE,
-  wqp_data_links = "none"
+  wqp_data_links = "replace"
 )
 
 # Alaska example using a user supplied crosswalk to update entries in
@@ -143,18 +143,8 @@ AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
   org_id = "AKDECWQ",
   crosswalk = ex.user.cw,
   attains_replace = FALSE,
-  wqp_data_links = "none"
+  wqp_data_links = "replace"
 )
-
-# Rename column for TADA_CreateUseAURef format
-AK_AU_Ref <- AK_appenduserdata \%>\%
-  dplyr::mutate(ATTAINS.assessmentunitidentifier = ASSESSMENT_UNIT_ID) \%>\%
-  dplyr::mutate(ATTAINS.OrganizationIdentifier = "AKDECWQ") \%>\%
-  dplyr::mutate(MonitoringLocationIdentifier = MS_LOCATION_ID) \%>\%
-  dplyr::select(
-    ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier,
-    ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
-  )
 
 # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
 AK_CreateUseAURef <- TADA_CreateUseAURef(
@@ -188,9 +178,9 @@ AK_CreateUseAURef2 <- TADA_CreateUseAURef(
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} for the required format of .data
 
-\code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}} to help generate the required AUMLRef
+\code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}} to help generate the required AUMLRef
 
-\code{\link[=TADA_GetATTAINSAUSiteCrosswalk]{TADA_GetATTAINSAUSiteCrosswalk()}} to help generate the required AUMLRef
+\code{\link[=TADA_GetATTAINSAUMLCrosswalk]{TADA_GetATTAINSAUMLCrosswalk()}} to help generate the required AUMLRef
 
 \code{\link[=TADA_UpdateMonitoringLocationsInATTAINS]{TADA_UpdateMonitoringLocationsInATTAINS()}} to help generate the required AUMLRef
 

@@ -493,7 +493,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
         return(.data)
       }
     }
-    }
+}
 
 
     if (update_mlid == TRUE & wqp_data_links == "none") {
@@ -586,7 +586,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
         dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
         dplyr::rename(ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New) %>%
-        dplyr::select(-ATTAINS.MonitoringLocationIdentifier) %>%
+        dplyr::select(-ATTAINS.MonitoringLocationIdentifier, -OrgIDForURL) %>%
         dplyr::rename(ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier)
     }
 
@@ -2166,7 +2166,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   org_id = "AKDECWQ",
 #'   crosswalk = ex.user.cw,
 #'   attains_replace = FALSE,
-#'   wqp_data_links = "none"
+#'   wqp_data_links = "replace"
 #' )
 #'
 #' # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
