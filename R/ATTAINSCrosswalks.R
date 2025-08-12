@@ -447,7 +447,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
             "https://www.waterqualitydata.us/provider/", ProviderName,
             "/", OrgIDForURL, "/", ATTAINS.MonitoringLocationIdentifier, "/"
           ))
-        )))
+        ))) %>%
+        dplyr::select(-OrgIDForURL)
 
       return(new.urls)
     }
@@ -569,7 +570,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           !is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText,
           is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
         )) %>%
-        dplyr::select(-ATTAINS.MonitoringDataLinkText.New, -OrgIDForURL)
+        dplyr::select(-ATTAINS.MonitoringDataLinkText.New)
 
     }
 
