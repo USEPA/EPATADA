@@ -97,7 +97,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "compatible_au_cols",
   dependencies = TRUE
 )
 ```
@@ -351,17 +351,17 @@ New TADA functions leverage the **ATTAINS** geospatial services to make
 geospatial information including catchment and assessment unit geometry
 easily accessible to R users.
 
-We can use the function, `TADA_GetATTAINS` to obtain geospatial data
-from **ATTAINS** relevant to the Monitoring Locations included in the
-**WQP** data set. See [TADA Module
+We can use the function, `TADA_CreateATTAINSAUMLCrosswalk` to obtain
+geospatial data from **ATTAINS** relevant to the Monitoring Locations
+included in the **WQP** data set. See [TADA Module
 2](https://usepa.github.io/EPATADA/articles/TADAModule2.html) for a much
 more detailed look at the logic behind this and the other TADA
 geospatial functions.
 
-```{r TADA_GetAttains}
+```{r TADA_CreateATTAINSAUMLCrosswalk}
 # Import data from ATTAINS geospatial services
 
-ATTAINS_data <- TADA_GetATTAINS(data)
+ATTAINS_data <- TADA_CreateATTAINSAUMLCrosswalk(data)
 ```
 
 ## View Geospatial Features
@@ -395,22 +395,22 @@ data <- ATTAINS_data$TADA_with_ATTAINS %>%
   # Adding "Other" as name for unnamed assessment units
   dplyr::mutate(
     ATTAINS.assessmentunitname =
-      ifelse(is.na(ATTAINS.assessmentunitname),
-        "Other", ATTAINS.assessmentunitname
+      ifelse(is.na(ATTAINS.AssessmentUnitName),
+        "Other", ATTAINS.AssessmentUnitName
       )
   )
 
 # Create pie chart of results for each AUID group for total dissolved solids
 
 TADA_FieldValuesPie(data,
-  field = "ATTAINS.assessmentunitname",
+  field = "ATTAINS.AssessmentUnitName",
   characteristicName = "TOTAL DISSOLVED SOLIDS"
 )
 
 # Create pie chart of results for each AUID group for specific conductance
 
 TADA_FieldValuesPie(data,
-  field = "ATTAINS.assessmentunitname",
+  field = "ATTAINS.AssessmentUnitName",
   characteristicName = "SPECIFIC CONDUCTANCE"
 )
 ```
@@ -424,7 +424,7 @@ results per each parameter and the oldest and most recent sampling date.
 MonitoringLocations <- data %>%
   dplyr::select(
     MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName,
-    ATTAINS.assessmentunitname, TADA.CharacteristicName, ActivityStartDate
+    ATTAINS.AssessmentUnitName, TADA.CharacteristicName, ActivityStartDate
   ) %>%
   dplyr::group_by(MonitoringLocationIdentifier) %>%
   dplyr::mutate(
@@ -435,7 +435,7 @@ MonitoringLocations <- data %>%
   ) %>%
   dplyr::select(
     MonitoringLocationIdentifier,
-    ATTAINS.assessmentunitname,
+    ATTAINS.AssessmentUnitName,
     n_TDS,
     n_SpecificConductance,
     StartDate,
@@ -451,13 +451,13 @@ will be useful to create some basic data visualizations.
 
 ```{r}
 data_animas <- data %>%
-  dplyr::filter(ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)")
+  dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)")
 
 data_sanjuan <- data %>%
-  dplyr::filter(ATTAINS.assessmentunitname == "San Juan River (Navajo bnd at Hogback to Animas River)")
+  dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)")
 
 data_other <- data %>%
-  dplyr::filter(ATTAINS.assessmentunitname == "Other")
+  dplyr::filter(ATTAINS.AssessmentUnitName == "Other")
 ```
 
 ## Data Visualization
@@ -501,7 +501,7 @@ TADA_Histogram(
     dplyr::filter(
       ActivityStartDate > "2014-12-31",
       TADA.CharacteristicName == "SPECIFIC CONDUCTANCE",
-      ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"
+      ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)"
     ),
   id_cols = "TADA.ComparableDataIdentifier"
 )
@@ -518,7 +518,7 @@ TADA_Boxplot(
       ActivityStartDate > "2014-12-31",
       TADA.CharacteristicName ==
         "SPECIFIC CONDUCTANCE",
-      ATTAINS.assessmentunitname == "San Juan River (Navajo bnd at Hogback to Animas River)"
+      ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)"
     ),
   id_cols = "TADA.ComparableDataIdentifier"
 )
@@ -537,7 +537,7 @@ twochar_scatter <- TADA_TwoCharacteristicScatterplot(
       TADA.ComparableDataIdentifier ==
         "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"
     ),
-  id_cols = "ATTAINS.assessmentunitname",
+  id_cols = "ATTAINS.AssessmentUnitName",
   groups = c("San Juan River (Navajo bnd at Hogback to Animas River)", "Animas River (San Juan River to Estes Arroyo)")
 ) %>%
   # remove default plot features that are not applicable for a location comparison
@@ -567,14 +567,14 @@ DT::datatable(data_stats, fillContainer = TRUE)
 
 ```{r stats animas}
 # create table with animas data
-animas_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.assessmentunitname == "Animas River (San Juan River to Estes Arroyo)"))
+animas_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)"))
 
 DT::datatable(animas_stats, fillContainer = TRUE)
 ```
 
 ```{r stats sanjuan}
 # create table with san juan data
-sanjuan_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.assessmentunitname == "San Juan River (Navajo bnd at Hogback to Animas River)"))
+sanjuan_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)"))
 
 DT::datatable(sanjuan_stats, fillContainer = TRUE)
 ```

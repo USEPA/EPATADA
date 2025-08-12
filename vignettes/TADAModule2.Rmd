@@ -212,7 +212,7 @@ leaflet::leaflet() %>%
   )
 ```
 
-## `TADA_GetATTAINS()`
+## `TADA_CreateATTAINSAUMLCrosswalk()`
 
 This function pulls in ATTAINS data from the EPA's ATTAINS Assessment
 Geospatial Service and links it to TADA-pulled Water Quality Portal
@@ -221,7 +221,7 @@ must have - at a minimum - WQP observation coordinates in
 "LongitudeMeasure" and "LatitudeMeasure" columns and a
 "HorizontalCoordinateReferenceSystemDatumName" column.
 
-By default, `TADA_GetATTAINS()` returns a dataframe with ATTAINS-linked
+By default, `TADA_CreateATTAINSAUMLCrosswalk()` returns a dataframe with ATTAINS-linked
 Water Quality Portal entries. Users have the added option of returning
 the intersecting ATTAINS geospatial shapefile objects with their
 ATTAINS-linked Water Quality Portal dataframe. If `return_sf = TRUE`,
@@ -232,7 +232,7 @@ empty, this indicates that there are no ATTAINS objects of that type
 intersecting any WQP-linked ATTAINS catchment.
 
 Regardless of the user's decision on returning the ATTAINS shapefile
-objects, `TADA_GetATTAINS()` always returns a dataframe (or dataframes
+objects, `TADA_CreateATTAINSAUMLCrosswalk()` always returns a dataframe (or dataframes
 if `fill_catchments = TRUE`, see section ***Filling in missing ATTAINS
 assessment units**)* containing the original TADA WQP dataframe, plus
 new columns representing the ATTAINS assessment unit(s) that fall within
@@ -251,17 +251,17 @@ set `return_nearest = TRUE`. This will return only the closest
 assessment unit to the WQP observation in instances where a catchment
 contains more than one assessment unit.
 
-#### Using `TADA_GetATTAINS()`
+#### Using `TADA_CreateATTAINSAUMLCrosswalk()`
 
 Using either our original `TADA_dataframe` *or* the geospatial version
 `TADA_spatial`, we can pull in the ATTAINS catchment features that
 intersect our observations:
 
 ```{r}
-TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = FALSE, return_nearest = FALSE)
+TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, return_sf = FALSE, return_nearest = FALSE)
 
 # Can also be performed on the spatial data:
-# TADA_with_ATTAINS <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE, return_nearest = FALSE)
+# TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = FALSE, return_nearest = FALSE)
 ```
 
 This new `TADA_with_ATTAINS` object is a modification of the original
@@ -274,10 +274,10 @@ Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
 ```{r}
-TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_dataframe, return_sf = TRUE, return_nearest = FALSE)
+TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, return_sf = TRUE, return_nearest = FALSE)
 
 # return only the closest ATTAINS AU for observations within a catchment with multiple AUs
-# TADA_with_ATTAINS_list <- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
+# TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
 ```
 
 If we set `return_sf = TRUE` as done to create the
@@ -294,7 +294,7 @@ information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering `fill_catchments = TRUE`:
 
 ```{r}
-TADA_with_ATTAINS_filled <- TADA_GetATTAINS(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_nearest = FALSE)
+TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(TADA_dataframe, fill_catchments = TRUE, return_sf = TRUE, return_nearest = FALSE)
 ```
 
 When `fill_catchments = TRUE`, the returned list splits observations
@@ -303,7 +303,7 @@ WQP observations without ATTAINS catchment data. Instead of listing
 ATTAINS information in `TADA_without_ATTAINS`, it links basic
 information about the catchment including its unique identifier,
 catchment area, and the resolution of the NHD used. As a default,
-`TADA_GetATTAINS()` will use the NHD HiRes (`resolution = "Hi"`) for
+`TADA_CreateATTAINSAUMLCrosswalk()` will use the NHD HiRes (`resolution = "Hi"`) for
 filling in missing ATTAINS catchments. However, the user can choose to
 change the resolution to the NHDPlus V2 by setting `resolution = "Med".`
 
@@ -312,7 +312,7 @@ additionally return the raw catchment features associated with the
 observations in `TADA_without_ATTAINS` in a new shapefile called
 `without_ATTAINS_catchments`.
 
-#### Arguments for `TADA_GetATTAINS()`
+#### Arguments for `TADA_CreateATTAINSAUMLCrosswalk()`
 
 -   `.data`: Your input TADA-style Water Quality Portal data.
 
@@ -328,17 +328,17 @@ observations in `TADA_without_ATTAINS` in a new shapefile called
 -   `return_sf`: If TRUE, returns spatial data in addition to tabular
     data.
 
-Enter `?TADA_GetATTAINS` into the console to review another example of
+Enter `?TADA_CreateATTAINSAUMLCrosswalk` into the console to review another example of
 this function in use and additional information.
 
 ## `TADA_ViewATTAINS()`
 
 This function visualizes the raw ATTAINS features that are linked to the
 TADA Water Quality Portal observations that are generated in
-`TADA_GetATTAINS()` when `return_sf = TRUE`. For the function to work
+`TADA_CreateATTAINSAUMLCrosswalk()` when `return_sf = TRUE`. For the function to work
 properly, the input dataframe must be the list produced from
-`TADA_GetATTAINS()` with `return_sf = TRUE`. The map also displays the
-Water Quality Portal monitoring locations used in `TADA_GetATTAINS()`.
+`TADA_CreateATTAINSAUMLCrosswalk()` with `return_sf = TRUE`. The map also displays the
+Water Quality Portal monitoring locations used in `TADA_CreateATTAINSAUMLCrosswalk()`.
 
 #### Using `TADA_ViewATTAINS()`
 

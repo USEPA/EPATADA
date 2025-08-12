@@ -73,7 +73,7 @@ utils::globalVariables(c(
   "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
   "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
-  "ATTAINS.assessmentunitidentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
+  "ATTAINS.AssessmentUnitIdentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
   "ATTAINS_AUs", "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
   "DepthsPerGroup", "MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
   "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
@@ -89,7 +89,7 @@ utils::globalVariables(c(
   "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
   "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
   "TADA.MonitoringLocationName", "TADA.MonitoringLocationTypeName",
-  "ATTAINS.submissionid", "HorizontalCoordinateReferenceSystemDatumName",
+  "ATTAINS.SubmissionId", "HorizontalCoordinateReferenceSystemDatumName",
   "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution",
   "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid",
   "featureid", "geometry", "nhdplusid", "waterTypeCode", "TADA.NearbySiteGroup",
@@ -115,13 +115,13 @@ utils::globalVariables(c(
   "resultCount", "tribal_area", "txtProgressBar", "Date", "NWIS.parameter",
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
-  "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.assessmentunitname",
-  "ATTAINS.organizationid", "ATTAINS.waterTypeCode", "useName", "waterType",
+  "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
+  "ATTAINS.OrganizationId", "ATTAINS.WaterType", "useName", "waterType",
   "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
-  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n", 
+  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
   "monitoringLocationDataLink"
 ))
@@ -569,7 +569,207 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 
 
 
+#' Generate a random WQP dataset
+#'
+#' Retrieves data for a period of time in the past 20 years using
+#' TADA_DataRetrieval. This function can be used for testing functions on
+#' random datasets. Only random data sets with 10 or more results will be returned.
+#' If a random dataset has fewer than 10 results, the function will automatically
+#' create another random WQP query until a df with greater than 10 results is returned.
+#'
+#' @param number_of_days Numeric. The default is 1, which will query and retrieve
+#' data for a random two-day period (e.g.startDate = "2015-04-21",
+#' endDate = "2015-04-22"). The user can change this number to select additional days
+#' if desired.
+#'
+#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE.
+#' If FALSE, the function will query all data in the WQP for the number_of_days
+#' specified (national query). If TRUE, the function will select a random state
+#' and only retrieve data for that state.
+#'
+#' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
+#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the
+#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
+#' TADA_DataRetrieval.
+#'
+#' @return Random WQP dataset.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+#' }
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE,
+                                   autoclean = TRUE) {
+  get_random_data <- function(ndays = number_of_days, state_choice = choose_random_state,
+                              ac = autoclean, ask = FALSE) {
+    # choose a random day within the last 20 years
+    twenty_yrs_ago <- Sys.Date() - 20 * 365
+    random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
+    # choose a random start date and add any number_of_days (set that as the end date)
+    end_date <- random_start_date + ndays
 
+    if (state_choice == TRUE) {
+      load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
+      state <- sample(statecodes_df$STUSAB, 1)
+    }
+
+    if (state_choice == FALSE) {
+      state <- "null"
+    }
+
+    print(c(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state
+    ))
+
+    if (ac == TRUE) {
+      dat <- TADA_DataRetrieval(
+        startDate = as.character(random_start_date),
+        endDate = as.character(end_date),
+        statecode = state,
+        applyautoclean = TRUE,
+        ask = FALSE
+      )
+    }
+
+    if (ac == FALSE) {
+      dat <- TADA_DataRetrieval(
+        startDate = as.character(random_start_date),
+        endDate = as.character(end_date),
+        statecode = state,
+        applyautoclean = FALSE,
+        ask = FALSE
+      )
+    }
+    return(dat)
+  }
+
+  verify_random_data <- function() {
+    df <- get_random_data()
+    while (nrow(df) < 10) {
+      df <- get_random_data()
+    }
+    return(df)
+  }
+
+  df <- verify_random_data()
+  return(df)
+}
+
+#' Aggregate multiple result values to a min, max, or mean
+#'
+#' This function groups TADA data by user-defined columns and aggregates the
+#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
+#'
+#' @param .data A TADA dataframe
+#' @param grouping_cols The column names used to group the data
+#' @param agg_fun The aggregation function used on the grouped data. This can
+#'   either be 'min', 'max', or 'mean'.
+#' @param clean Boolean. Determines whether other measurements from the group
+#'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
+#'   additional measurements are indicated in the
+#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
+#'   selected".
+#'
+#' @return A TADA dataframe with aggregated values combined into one row. If the
+#'   agg_fun is 'min' or 'max', the function will select the row matching the
+#'   aggregation condition and flag it as the selected measurement. If the
+#'   agg_fun is 'mean', the function will select a random row from the
+#'   aggregated rows to represent the metadata associated with the mean value,
+#'   and gives the row a unique ResultIdentifier: the original ResultIdentifier
+#'   with the prefix "TADA-". Function adds a TADA.ResultValueAggregation.Flag
+#'   to indicate which rows have been aggregated.
+#'
+#' @export
+#'
+#' @examples
+#' # Load example dataset
+#' data(Data_6Tribes_5y)
+#' # Select maximum value per day, site, comparable data identifier, result detection condition,
+#' # and activity type code. Clean all non-maximum measurements from grouped data.
+#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#'   grouping_cols = c(
+#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
+#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'     "ActivityTypeCode"
+#'   ),
+#'   agg_fun = "max", clean = TRUE
+#' )
+#'
+#' # Calculate a mean value per day, site, comparable data identifier, result detection condition,
+#' # and activity type code. Keep all measurements used to calculate mean measurement.
+#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
+#'   grouping_cols = c(
+#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
+#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
+#'     "ActivityTypeCode"
+#'   ),
+#'   agg_fun = "mean", clean = FALSE
+#' )
+TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
+  TADA_CheckColumns(.data, grouping_cols)
+  agg_fun <- match.arg(agg_fun)
+
+  # Find multiple values in groups
+  ncount <- .data %>%
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+    dplyr::summarise(ncount = length(ResultIdentifier))
+
+  if (max(ncount$ncount) < 2) {
+    print("No rows to aggregate.")
+    return(.data)
+  } else {
+    dat <- merge(.data, ncount, all.x = TRUE)
+
+    if (any(is.na(dat$TADA.ResultMeasureValue))) {
+      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+    }
+
+    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Used in ", agg_fun, " aggregation function but not selected"))
+    multiples <- dat %>% dplyr::filter(ncount > 1)
+
+    dat <- dat %>% dplyr::select(-ncount)
+
+    if (agg_fun == "max") {
+      out <- multiples %>%
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+        dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if (agg_fun == "min") {
+      out <- multiples %>%
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+        dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
+      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
+    }
+    if (agg_fun == "mean") {
+      out <- multiples %>%
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+        dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
+        dplyr::slice_sample(n = 1) %>%
+        dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
+      out <- out %>%
+        dplyr::select(-TADA.ResultMeasureValue) %>%
+        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
+        dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
+      dat <- plyr::rbind.fill(dat, out)
+    }
+
+    if (clean == TRUE) {
+      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Used in ", agg_fun, " aggregation function but not selected")))
+    }
+
+    dat <- TADA_OrderCols(dat)
+    print("Aggregation results:")
+    print(table(dat$TADA.ResultValueAggregation.Flag))
+    return(dat)
+  }
+}
 
 
 
