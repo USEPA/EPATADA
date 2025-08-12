@@ -5,7 +5,7 @@
 #' Adds one new column to input dataframe, 'geometry', which allows for mapping and additional
 #' geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
 #'
-#' @param .data A dataframe created by `TADA_DataRetrieval()`.
+#' @param .data A dataframe created by `TADA_DataRetrieval()` and `TADA_AutoClean`().
 #' @param crs The coordinate reference system (CRS) you would like the returned point features to
 #' be in. The default is CRS 4326 (WGS84).
 #'
@@ -1664,7 +1664,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #'
 #' Returns ATTAINS data for assessment unit identifiers provided by the user.
 #'
-#' This function can be used to provide information for known assessment unit
+#' This function can be used to fetch information for known assessment unit
 #' identifier/monitoring location combinations in order to provide data compatible
 #' with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
 #' identifier/monitoring location combinations.
