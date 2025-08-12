@@ -102,6 +102,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
       if(batch_upload == TRUE) {
 
         au.crosswalk <- au.crosswalk %>%
+          dplyr::select(-ATTAINS.WaterType) %>%
           dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                         MS_ORG_ID = MonitoringLocationIdentifier,
                         MS_LOCATION_ID = OrganizationIdentifier,
@@ -347,7 +348,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
             ATTAINS.MonitoringLocationIdentifier,
             OrganizationIdentifier ,
             ATTAINS.AssessmentUnitIdentifier,
-            ATTAINS.MonitoringDataLinkText
+            ATTAINS.MonitoringDataLinkText,
+            ATTAINS.WaterType
           )) %>%
           dplyr::distinct()
 
@@ -617,7 +619,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           )) %>%
           dplyr::select(-response.code)
 
-        update.crosswalk5 <- update.crosswalk %>%
+        update.crosswalk <- update.crosswalk %>%
           dplyr::mutate(ATTAINS.MonitoringDataLinkText = dplyr::case_when(
             !is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~
               paste0(
@@ -652,6 +654,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
     if(batch_upload == TRUE) {
 
       update.crosswalk <- update.crosswalk %>%
+        dplyr::select(-ATTAINS.WaterType) %>%
         dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                       MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
                       MS_LOCATION_ID = OrganizationIdentifier,
@@ -2035,9 +2038,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' a crosswalk of an organization's WQP
 #' Monitoring Location's, ATTAINS Assessment Unit's, and ATTAINS
 #' Water Type codes as a function input (AUMLRef). The output from
-#' `TADA_GetATTAINS(.data, return_sf = FALSE)` can be used
+#' `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can be used
 #' directly as the AUMLRef argument input in this function. Alternatively,
-#' a user supplied crosswalk can be entered or `TADA_GetATTAINSAUSiteCrosswalk()`
+#' a user supplied crosswalk can be entered or `TADA_GetATTAINSAUMLCrosswalk()`
 #' and/or `TADA_UpdateMonitoringLocationsInATTAINS()` functions can be leveraged
 #' to generate the crosswalk.
 #'
@@ -2101,8 +2104,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' function input. This helps prevent users from overwriting their progress.
 #'
 #' @seealso [TADA_DataRetrieval()] for the required format of .data
-#' @seealso [TADA_GetATTAINS()] to help generate the required AUMLRef
-#' @seealso [TADA_GetATTAINSAUSiteCrosswalk()] to help generate the required AUMLRef
+#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
+#' @seealso [TADA_GetATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
 #' @seealso [TADA_UpdateMonitoringLocationsInATTAINS()] to help generate the required AUMLRef
 #' @seealso [TADA_CreateWaterUseRef()] to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
 #'
@@ -2120,12 +2123,12 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   ask = FALSE
 #' )
 #'
-#' # Alaska example to updated data links with no user supplied crosswalk
-#' AK_adddatalinks <- TADA_UpdateMonitoringLocationsInATTAINS(
+#' # Alaska example to update data links with no user supplied crosswalk
+#' AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = NULL,
 #'   attains_replace = FALSE,
-#'   wqp_data_links = "none"
+#'   wqp_data_links = "replace"
 #' )
 #'
 #' # Alaska example using a user supplied crosswalk to update entries in
@@ -2164,16 +2167,6 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   attains_replace = FALSE,
 #'   wqp_data_links = "none"
 #' )
-#'
-#' # Rename column for TADA_CreateUseAURef format
-#' AK_AU_Ref <- AK_appenduserdata %>%
-#'   dplyr::mutate(ATTAINS.assessmentunitidentifier = ASSESSMENT_UNIT_ID) %>%
-#'   dplyr::mutate(ATTAINS.OrganizationIdentifier = "AKDECWQ") %>%
-#'   dplyr::mutate(MonitoringLocationIdentifier = MS_LOCATION_ID) %>%
-#'   dplyr::select(
-#'     ATTAINS.assessmentunitidentifier, MonitoringLocationIdentifier,
-#'     ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
-#'   )
 #'
 #' # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
 #' AK_CreateUseAURef <- TADA_CreateUseAURef(
