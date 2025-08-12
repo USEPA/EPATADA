@@ -437,8 +437,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
                            by = dplyr::join_by(OrganizationIdentifier))
       }
 
-      new.urls.storet <- .data %>%
-        dplyr::filter(ProviderName == "STORET") %>%
+      new.urls <- .data %>%
+        #dplyr::filter(ProviderName == "STORET") %>%
         dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = as.character(ifelse(
           is.na(OrgIDForURL), NA,
           URLencode(paste0(
@@ -446,25 +446,6 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
             "/", OrgIDForURL, "/", ATTAINS.MonitoringLocationIdentifier, "/"
           ))
         )))
-
-      # build the urls for nwis provided data
-      new.urls.nwis <- .data %>%
-        dplyr::filter(ProviderName == "NWIS") %>%
-        dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = as.character(ifelse(
-          is.na(OrgIDForURL), NA,
-          URLencode(paste0(
-            "https://www.waterqualitydata.us/provider/", ProviderName,
-            "/", OrgIDForURL, "/", ATTAINS.MonitoringLocationIdentifier, "/"
-          ))
-        )))
-
-      # join nwis and storet crosswalks
-      new.urls <- new.urls.storet %>%
-        dplyr::full_join(new.urls.nwis,
-                         by = c(names(new.urls.storet))
-        )
-
-      rm(new.urls.storet, new.urls.nwis)
 
       return(new.urls)
     }
