@@ -99,8 +99,8 @@ TADA_IDCensoredData <- function(.data) {
   # Copy detection limit value and unit to TADA Result Measure Value and Unit columns
   # this first row copies all over when TADA.DetectionQuantitationLimitMeasure.MeasureValue is not NA and the
   # TADA.ResultMeasureValueDataTypes.Flag is "NA - Not Available"
-  # Imp note: TADA result values are NA for text and other values (coerced) even though they are not
-  # NA in the original result value
+  # Imp note: TADA result values are NA for text and other values (coerced in TADA_ConvertSpecialChars) 
+  # even though they are not NA in the original result value
   .data$TADA.ResultMeasureValue <- ifelse(
     !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
       (.data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available" |
@@ -219,6 +219,7 @@ TADA_IDCensoredData <- function(.data) {
       "Detection condition is missing and required for censored data ID.",
       cens$TADA.CensoredData.Flag
     )
+
     cens$TADA.CensoredData.Flag <- ifelse(cens$TADA.Detection_Type %in% c("Non-Detect") &
       cens$TADA.Limit_Type %in% c("Non-Detect"),
     "Non-Detect",

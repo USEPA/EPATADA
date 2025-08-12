@@ -167,3 +167,19 @@ test_that("TADA_ConvertSpecialChars removes NAs when clean = TRUE", {
   )
 })
 
+test_that("TADA_ConvertSpecialChars removes all NAs in result or unit cols", {
+  testdat <- TADA_RandomTestingData()
+
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
+  
+  # Test to ensure unit column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+})

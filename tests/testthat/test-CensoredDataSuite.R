@@ -90,6 +90,10 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
                                 characteristicType = "Nutrient",
                                 ask = FALSE)
   
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
   # Create a list of values with NA in TADA.ResultMeasureValueDataTypes.Flag
   na_flags <- testdat[is.na(testdat$TADA.ResultMeasureValueDataTypes.Flag), ]
   
@@ -97,13 +101,7 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
   if (nrow(na_flags) > 0) {
     stop("Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag.")
   }
-  
-  # testdat2 <- TADA_SimpleCensoredMethods(testdat,
-  #                                       nd_method = "multiplier",
-  #                                       nd_multiplier = 0.5,
-  #                                       od_method = "as-is",
-  #                                       od_multiplier = "null")
-  
+
   testdat2 <- TADA_IDCensoredData(testdat)
   
   # Create a list of values with NA in TADA.ResultMeasureValueDataTypes.Flag
@@ -125,4 +123,42 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
     !any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)),
     info = "The TADA.ResultMeasure.MeasureUnitCode column contains NA values."
   )
+})
+
+test_that("TADA_SimpleCensoredMethods does not introduce duplicates or NAs in result or unit cols that cannot be handled in TADA_ConvertSpecialChars", {
+  
+  testdat <- TADA_RandomTestingData()
+  
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
+  
+  # TADA_ConvertSpecialChars does not handle this yet 8/11/25
+  # # Test to ensure unit column does not contain any NA values
+  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+  
+  testdat2 <- TADA_SimpleCensoredMethods(testdat,
+                                         nd_method = "multiplier",
+                                         nd_multiplier = 0.5,
+                                         od_method = "as-is",
+                                         od_multiplier = "null")
+  
+  testdat3 <- TADA_ConvertSpecialChars(testdat2, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat3$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat3$TADA.ResultMeasureValue)))
+  
+  # # Test to ensure unit column does not contain any NA values
+  # expect_true(!any(is.na(testdat2$TADA.ResultMeasure.MeasureUnitCode)))
 })

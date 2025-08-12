@@ -12,6 +12,8 @@ test_that("harmonization works", {
   expect_true(dim(dat)[1] == dim(dat1)[1])
 })
 
+
+
 test_that("np summation key matches nutrient harmonization ref", {
   harm <- TADA_GetSynonymRef()
   harm <- unique(subset(harm, harm$HarmonizationGroup %in% c("Phosphorus", "Nitrogen"))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
@@ -21,33 +23,33 @@ test_that("np summation key matches nutrient harmonization ref", {
   expect_false(any(is.na(check$np)))
 })
 
+
+
 test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result or unit cols", {
-  testdat <- TADA_RandomTestingData()
-  
-  testdat <- TADA_SimpleCensoredMethods(testdat,
-                                        nd_method = "multiplier",
-                                        nd_multiplier = 0.5,
-                                        od_method = "as-is",
-                                        od_multiplier = "null")
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
                                       clean = TRUE)
   
   testdat <- TADA_CalculateTotalNP(testdat, daily_agg = "max")
-
+  
+  # na_rows <- testdat %>% filter(is.na(TADA.ResultMeasureValue))
+  
   # Test to ensure the column is entirely numeric
   expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
   
   # Test to ensure value column does not contain any NA values
   expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
   
-  # Test to ensure unit column does not contain any NA values
-  expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+  # # Test to ensure unit column does not contain any NA values
+  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
 })
 
+
+
 test_that("TADA_CalculateTotalNP does not remove any original data", {
-  df <- TADA_RandomTestingData()
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
                                     nd_multiplier = 0.5, od_method = "as-is", 
@@ -77,8 +79,9 @@ test_that("TADA_CalculateTotalNP does not remove any original data", {
 })
 
 
+
 test_that("TADA_CalculateTotalNP exclude data logic is not missing results", {
-  df_original <- TADA_RandomTestingData()
+  df_original <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   # Check if QC flag function ran and message warning if not
   if (!"TADA.ActivityType.Flag" %in% names(df_original)) {

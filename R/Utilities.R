@@ -351,8 +351,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
       clean.data$masked, c("<" = "", ">" = "", "~" = "", "%" = "", "\\*" = "", "1\\)" = "")
     )))
-    
-    # this updates the DataTypes.Flag to "NA - Not Available" if NA
+ 
+    # this updates the DataTypes.Flag to "NA - Not Available" if flag is NA
     clean.data$flag <- ifelse(
       is.na(clean.data$flag),
       "NA - Not Available",
@@ -370,15 +370,35 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     
     clean.data <- TADA_OrderCols(clean.data)
   } else {
-    clean.data = .data
     flagcol <- paste0(col, "DataTypes.Flag")
-    print("TADA_ConvertSpecialChars: Data types flag already exists in the input dataframe for the specified column.")
+    numcol <- col
+    
+    clean.data = .data
+    
+    # this updates the flagcol to "NA - Not Available" if numcol is NA
+    clean.data[[flagcol]] <- ifelse(
+      is.na(clean.data[[numcol]]),
+      "NA - Not Available",
+      clean.data[[flagcol]]
+    )
+    
+    # remove columns to be replaced
+    clean.data <- clean.data %>%
+      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
+    
+    # Rename to original column name, TADA column name, and flag column name
+    names(clean.data)[names(clean.data) == "orig"] <- col
+    names(clean.data)[names(clean.data) == "masked"] <- numcol
+    names(clean.data)[names(clean.data) == "flag"] <- flagcol
+    
+    clean.data <- TADA_OrderCols(clean.data)
+    
   }
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit"))
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit", "Coerced to NA"))
 
       return(clean.data)
     }
@@ -390,7 +410,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit"))
+      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit", "Coerced to NA"))
   }
 }
 
