@@ -31,7 +31,7 @@ observations.
 Returns ATTAINS data for assessment unit identifiers provided by the user.
 }
 \details{
-This function can be used to provide information for known assessment unit
+This function can be used to fetch information for known assessment unit
 identifier/monitoring location combinations in order to provide data compatible
 with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
 identifier/monitoring location combinations.

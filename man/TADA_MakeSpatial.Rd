@@ -7,7 +7,7 @@
 TADA_MakeSpatial(.data, crs = 4326)
 }
 \arguments{
-\item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
+\item{.data}{A dataframe created by \code{TADA_DataRetrieval()} and \code{TADA_AutoClean}().}
 
 \item{crs}{The coordinate reference system (CRS) you would like the returned point features to
 be in. The default is CRS 4326 (WGS84).}
