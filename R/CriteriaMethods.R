@@ -673,10 +673,11 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
   for (i in 1:length(Duration_splits)) {
     # For rolling summary calculations
     DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
-    
-    # Need to change to DurationUnit
+    DurationValue <- 
+      
     DurationPeriod <- as.character(unique(Duration_splits[[i]]["DurationPeriod"]))
     
+    # for each unique duration period perform aggregation. rbind in final df.
     df_raw <- Duration_splits[[i]]
     
     start_date <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
@@ -706,7 +707,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       ) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(
-        AggregatedActivityStartDateTime,AggregatedActivityEndDateTime, 
+        AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
         ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
@@ -729,100 +730,44 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
     ) 
     
-    
-    df_test <- df_start_end %>% 
+    TADA_with_Summary <- df_start_end %>% 
       dplyr::select(-ActivityStartDate) %>% 
       dplyr::left_join(df_aggregated, by = c("AggregatedActivityStartDateTime","AggregatedActivityEndDateTime","TADA.ComparableDataIdentifier")) %>% dplyr::rename(ActivityStartDate = AggregatedActivityStartDateTime)
     
-    TADA_Scatterplot(df_test)
+    #TADA_Scatterplot(TADA_with_Summary)
     #####################################################
-      # For rolling summary calculations
-      DurationValue <- as.numeric(unique(Duration_splits[[i]]["DurationValue"]))
-      DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
-      
-      df_raw <- Duration_splits[[i]]
-      
-      start_date_roll <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
-      end_date_roll <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
-      regular_timestamps_roll <- seq(start_date_roll, end_date_roll, by = DurationUnit)
-      
-      regular_timestamps_df_roll <- data.frame(
-        AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps_roll[-length(regular_timestamps_roll)], format = "%Y-%m-%d %H:%M:%S"),
-        AggregatedActivityEndDateTime = regular_timestamps_roll[2:length(regular_timestamps_roll)]
-      )
-      
-      df_start_end_roll <- dplyr::right_join(
-        df_raw, regular_timestamps_df_roll, 
-        by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
-      )
-      
-      df_aggregated_roll <- df_start_end_roll %>%
-        tidyr::drop_na(ActivityStartDateTime) %>%
-        dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-        dplyr::filter(!is.na(ActivityStartDateTime)) %>%
-        dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
-        dplyr::group_by(
-          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-          ATTAINS.ParameterName, ATTAINS.UseName,
-          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-          #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-        ) %>%
-        dplyr::ungroup() %>%
-        dplyr::group_by(
-          AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
-          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-          ATTAINS.ParameterName, ATTAINS.UseName,
-          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-          #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-        ) %>%
-        dplyr::summarize(
-          geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-          arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
-          count = dplyr::n(),
-          Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
-          Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
-          Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-          Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-          Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-          Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-          Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-          Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-          Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-          Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-          Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-        )
-      
-      
-      # rolling_mean_custom <- function(x, k, na_rm = TRUE) {
-      #   if (k == 1) {
-      #     return(x) # For a window of 1, the average is just the value itself
-      #   }
-      #   
-      #   n <- length(x)
-      #   result <- numeric(n)
-      #   
-      #   for (i in 1:n) {
-      #     start_index <- max(1, i - k + 1)
-      #     window_values <- x[start_index:i]
-      #     
-      #     # if (na_rm) {
-      #     #   window_values <- window_values[!is.na(window_values)]
-      #     # }
-      #     
-      #     if (length(window_values) > 0) { # Ensure there are non-NA values to average
-      #       result[i] <- mean(tail(na.omit(window_values, k, na.rm = TRUE)))
-      #     } else {
-      #       result[i] <- NA # If all values in window are NA or empty after na_rm
-      #     }
-      #   }
-      #   return(result)
-      # }
+      # # For rolling summary calculations
+      # DurationValue <- as.numeric(unique(Duration_splits[[i]]["DurationValue"]))
+      # DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
       # 
-      # df_aggregated_rolling <- regular_timestamps_df_roll %>%
-      #   dplyr::left_join(df_aggregated_roll) %>%
-      #   dplyr::filter(TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO) MG/L") %>%
-      #   tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-      #               ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down")  %>%
+      # df_raw <- Duration_splits[[i]]
+      # 
+      # start_date_roll <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
+      # end_date_roll <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
+      # regular_timestamps_roll <- seq(start_date_roll, end_date_roll, by = DurationUnit)
+      # 
+      # regular_timestamps_df_roll <- data.frame(
+      #   AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps_roll[-length(regular_timestamps_roll)], format = "%Y-%m-%d %H:%M:%S"),
+      #   AggregatedActivityEndDateTime = regular_timestamps_roll[2:length(regular_timestamps_roll)]
+      # )
+      # 
+      # df_start_end_roll <- dplyr::right_join(
+      #   df_raw, regular_timestamps_df_roll, 
+      #   by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
+      # )
+      # 
+      # df_aggregated_roll <- df_start_end_roll %>%
+      #   tidyr::drop_na(ActivityStartDateTime) %>%
+      #   dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
+      #   dplyr::filter(!is.na(ActivityStartDateTime)) %>%
+      #   dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
+      #   dplyr::group_by(
+      #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      #     ATTAINS.ParameterName, ATTAINS.UseName,
+      #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+      #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+      #   ) %>%
+      #   dplyr::ungroup() %>%
       #   dplyr::group_by(
       #     AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
       #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
@@ -830,51 +775,106 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
       #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       #   ) %>%
-      #   dplyr::mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = 4, na_rm = TRUE))
+      #   dplyr::summarize(
+      #     geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
+      #     arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
+      #     count = dplyr::n(),
+      #     Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
+      #     Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
+      #     Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
+      #     Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
+      #     Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
+      #     Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
+      #     Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
+      #     Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
+      #     Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
+      #     Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
+      #     Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
+      #   )
       # 
-      
-      # calculates rolling average by specified k window size
-      rolling_mean_na_rm <- function(x, y, k) {
-        if (k == 1) {
-          return(x) # For a window of 1, the average is just the value itself
-        }
-
-        if (length(x) < k) {
-          return(NA_real_) # Return NA if window size is larger than available data
-        }
-        # Calculate weighted mean of the last 'k' non-NA values
-        return(sum(tail(na.omit(x * y), k), na.rm = TRUE) / sum(tail(na.omit(y), k)) )
-      }
-
-      unique_parameters_use <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
-      df_aggregated_rolling <- data.frame()
-      
-      for (i in 1:length(unique_parameters)){
-      temp_df <- regular_timestamps_df_roll %>%
-        dplyr::left_join(df_aggregated_roll[df_aggregated_roll$TADA.ComparableDataIdentifier == unique_parameters[i],]) %>%
-        tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-                    ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down") %>%
-        dplyr::select(
-          DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-          ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper) %>%
-        dplyr::mutate(
-          rolling_avg = purrr::map_dbl(dplyr::row_number(), ~{
-            current_index <- .x
-            start_index <- max(1, current_index - as.numeric(unique(Duration_splits[[i]]["DurationValue"])) + 1) # Adjust for window size
-            window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
-            window_weights <- count[start_index:current_index]
-            rolling_mean_na_rm(window_data, window_weights, as.numeric(unique(Duration_splits[[i]]["DurationValue"])))
-          })
-        )
-      
-      df_aggregated_rolling <- rbind(df_aggregated_rolling, temp_df)
-      }
+      # 
+      # # rolling_mean_custom <- function(x, k, na_rm = TRUE) {
+      # #   if (k == 1) {
+      # #     return(x) # For a window of 1, the average is just the value itself
+      # #   }
+      # #   
+      # #   n <- length(x)
+      # #   result <- numeric(n)
+      # #   
+      # #   for (i in 1:n) {
+      # #     start_index <- max(1, i - k + 1)
+      # #     window_values <- x[start_index:i]
+      # #     
+      # #     # if (na_rm) {
+      # #     #   window_values <- window_values[!is.na(window_values)]
+      # #     # }
+      # #     
+      # #     if (length(window_values) > 0) { # Ensure there are non-NA values to average
+      # #       result[i] <- mean(tail(na.omit(window_values, k, na.rm = TRUE)))
+      # #     } else {
+      # #       result[i] <- NA # If all values in window are NA or empty after na_rm
+      # #     }
+      # #   }
+      # #   return(result)
+      # # }
+      # # 
+      # # df_aggregated_rolling <- regular_timestamps_df_roll %>%
+      # #   dplyr::left_join(df_aggregated_roll) %>%
+      # #   dplyr::filter(TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO) MG/L") %>%
+      # #   tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
+      # #               ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down")  %>%
+      # #   dplyr::group_by(
+      # #     AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
+      # #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
+      # #     ATTAINS.ParameterName, ATTAINS.UseName,
+      # #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+      # #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+      # #   ) %>%
+      # #   dplyr::mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = 4, na_rm = TRUE))
+      # # 
+      # 
+      # # calculates rolling average by specified k window size
+      # rolling_mean_na_rm <- function(x, y, k) {
+      #   if (k == 1) {
+      #     return(x) # For a window of 1, the average is just the value itself
+      #   }
+      # 
+      #   if (length(x) < k) {
+      #     return(NA_real_) # Return NA if window size is larger than available data
+      #   }
+      #   # Calculate weighted mean of the last 'k' non-NA values
+      #   return(sum(tail(na.omit(x * y), k), na.rm = TRUE) / sum(tail(na.omit(y), k)) )
+      # }
+      # 
+      # unique_parameters_use <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
+      # df_aggregated_rolling <- data.frame()
+      # 
+      # for (i in 1:length(unique_parameters)){
+      # temp_df <- regular_timestamps_df_roll %>%
+      #   dplyr::left_join(df_aggregated_roll[df_aggregated_roll$TADA.ComparableDataIdentifier == unique_parameters[i],]) %>%
+      #   tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
+      #               ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down") %>%
+      #   dplyr::select(
+      #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
+      #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper) %>%
+      #   dplyr::mutate(
+      #     rolling_avg = purrr::map_dbl(dplyr::row_number(), ~{
+      #       current_index <- .x
+      #       start_index <- max(1, current_index - as.numeric(unique(Duration_splits[[i]]["DurationValue"])) + 1) # Adjust for window size
+      #       window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
+      #       window_weights <- count[start_index:current_index]
+      #       rolling_mean_na_rm(window_data, window_weights, as.numeric(unique(Duration_splits[[i]]["DurationValue"])))
+      #     })
+      #   )
+      # 
+      # df_aggregated_rolling <- rbind(df_aggregated_rolling, temp_df)
+      # }
     ####################
       
     # non rolling raw data  
-    df_raw_aggregated <- rbind(df_raw_aggregated, df_aggregated)
+    df_raw_aggregated <- rbind(df_raw_aggregated, TADA_with_Summary)
     # rolling raw data
-    df_raw_aggregated_rolling <- rbind(df_raw_aggregated_rolling, df_aggregated_rolling)
+    #df_raw_aggregated_rolling <- rbind(df_raw_aggregated_rolling, df_aggregated_rolling)
     
     # For Non-Rolling Summary
     df_aggregated_summary <- df_aggregated %>%
@@ -888,16 +888,31 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       ) %>%
       dplyr::summarize(
         n_Aggregatedsamples = dplyr::n(),
-        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
+        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper | geomean_TADA.ResultMeasureValue < MagnitudeValueLower), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
         percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)  
       )
     
-    df_summary <- rbind(df_summary, df_aggregated_summary)
-    
-    
+    df_summary <- rbind(df_summary, df_aggregated_summary) %>% dplyr::distinct()
   }
-  df_final <- list(df_raw_aggregated = df_raw_aggregated, CriteriaSummary = df_summary)
+  df_final <- list(TADA_with_Summary_Stats = df_raw_aggregated, CriteriaSummary = df_summary)
   
+  TADA_Summary_Scatter %>% TADA_Scatterplot(df_final$TADA_with_Summary_Stats) %>%
+    plotly::add_lines(
+      y = 6.5,
+      x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
+      inherit = FALSE,
+      showlegend = FALSE,
+      line = list(color = "red"),
+      hoverinfo = "none"
+    ) %>%
+    plotly::add_lines(
+      y = 9,
+      x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
+      inherit = FALSE,
+      showlegend = FALSE,
+      line = list(color = "red"),
+      hoverinfo = "none"
+    )
   
   # # Aggregates data by duration period, then provides summary stats on the aggregated data.
   # TADA_Example4_Aggregated <- TADA_Example4.1 %>%
