@@ -22,7 +22,7 @@ workflow. Default is batch_upload = FALSE.}
 }
 \value{
 A dataframe with five columns, MonitoringLocationIdentifier,
-OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
+OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
 MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
 crosswalk between monitoring location identifiers and assessment units that
 the state or tribal organization submitted to ATTAINS (optional). If an
