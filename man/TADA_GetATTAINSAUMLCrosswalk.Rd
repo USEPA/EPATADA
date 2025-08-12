@@ -21,14 +21,13 @@ batch_upload = FALSE, the output column names will be consistent with the TADA
 workflow. Default is batch_upload = FALSE.}
 }
 \value{
-A dataframe with four columns. When batch_upload = FALSE, the column
-names are MonitoringLocationIdentifier, OrganizationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and MonitoringDataLinkText. When batch_upload
-= TRUE, the column names are ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
-and MS_DATA_LINK. This is the crosswalk between monitoring location identifiers
-and assessment units that the state or tribal organization submitted to ATTAINS
-(optional). If an ATTAINS organization has not submitted this information in
-ATTAINS, the function will not return a dataframe.
+A dataframe with five columns, MonitoringLocationIdentifier,
+OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
+MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
+crosswalk between monitoring location identifiers and assessment units that
+the state or tribal organization submitted to ATTAINS (optional). If an
+ATTAINS organization has not submitted this information in ATTAINS, the
+function will not return a dataframe.
 }
 \description{
 Tribes and States who participate in electronic reporting of water quality

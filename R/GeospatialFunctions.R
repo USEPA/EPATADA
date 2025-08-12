@@ -212,8 +212,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     repeat {
       query <- urltools::param_set(baseurls, key = "geometry", value = sf_bbox) %>%
         urltools::param_set(key = "inSR", value = our_epsg) %>%
-        # Total of 1000 features at a time...
-        urltools::param_set(key = "resultRecordCount", value = 1000) %>%
+        # Total of 100 features at a time...
+        urltools::param_set(key = "resultRecordCount", value = 100) %>%
         # ... starting at the "offset":
         urltools::param_set(key = "resultOffset", value = offset) %>%
         urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
@@ -248,8 +248,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       }
 
       all_features <- c(all_features, list(features))
-      # once done, change offset by 1000 features:
-      offset <- offset + 1000
+      # once done, change offset by 100 features:
+      offset <- offset + 100
     }
 
     all_features <- dplyr::bind_rows(all_features) %>%
@@ -261,7 +261,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
   fetch_au <- function(baseurls, assessment_unit_ids) {
     # Split the assessment_unit_ids into chunks of 1000
     # API cannot handle more than 1000 features
-    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / 1000))
+    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / 100))
 
     # Query API for a chunk of assessment unit IDs
     fetch_chunk <- function(id_chunk) {

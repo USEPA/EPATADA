@@ -123,7 +123,7 @@ utils::globalVariables(c(
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
   "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
-  "monitoringLocationDataLink"
+  "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
