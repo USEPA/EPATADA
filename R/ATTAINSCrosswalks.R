@@ -21,7 +21,7 @@
 #' workflow. Default is batch_upload = FALSE.
 #'
 #' @return A dataframe with five columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
+#' OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
 #' MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
 #' crosswalk between monitoring location identifiers and assessment units that
 #' the state or tribal organization submitted to ATTAINS (optional). If an
@@ -85,7 +85,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
           )),
       paste0(org_id, "-", MonitoringLocationIdentifier),
       MonitoringLocationIdentifier
-      )) %>%
+      ),
+      ATTAINS.OrganizationIdentifier = org_id) %>%
       dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
                     ATTAINS.MonitoringDataLinkText = MonitoringDataLinkText)
 
@@ -2206,7 +2207,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 
     empty_df <- data.frame(
       ATTAINS.OrganizationIdentifier = character(0),
-      ATTAINS.assessmentunitidentifier = character(0), # ATTAINS.assessmentunitname,
+      ATTAINS.AssessmentUnitIdentifier = character(0), # ATTAINS.assessmentunitname,
       ATTAINS.UseName = character(0),
       ATTAINS.WaterType  = character(0),
       TADA.AssessmentUnitStatus = character(0),
@@ -2240,24 +2241,27 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
     if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
       if (!is.data.frame(AUMLRef)) {
         stop(paste0(
-          "TADA_CreateUseAURef: 'AUMLRef' must be a data frame with these 3 columns:",
-          "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.assessmentunitidentifier"
+          "TADA_CreateUseAURef: 'AUMLRef' must be a data frame with these 2 columns:",
+          "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
         ))
       }
 
       if (is.data.frame(AUMLRef)) {
         col.names <- c(
-          "ATTAINS.WaterType", "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier"
+          "ATTAINS.WaterType", "ATTAINS.AssessmentUnitIdentifier",
+          "ATTAINS.OrganizationIdentifier"
         )
 
-        ref.names <- names(AUMLRef)
-
-        if (length(setdiff(col.names, ref.names)) > 0) {
+        if (!any(col.names %in% names(AUMLRef))) {
           stop(paste0(
             "TADA_CreateUseAURef: 'AUMLRef' must be a data frame with these 3 columns:",
-            "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.assessmentunitidentifier"
+            "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.AssessmentUnitIdentifier"
           ))
         }
+
+        AULMLRef <- AUMLRef %>%
+          dplyr::select(ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType,
+                        ATTAINS.OrganizationIdentifier)
       }
     }
 
@@ -2278,13 +2282,15 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
     }
 
     # Pulls in Existing Uses by Existing AU from ATTAINS EQ
-    OrgID_assessments <- suppressMessages(
+    print("TADA_CreateUseAURef: Importing existing uses by AU from Expert Query.")
+
+    OrgID_assessments <- spsUtil::quiet(
       rExpertQuery::EQ_Assessments(org_id = org_id, api_key = tadakey)
     )
 
     OrgID_assessments <- dplyr::filter(
       OrgID_assessments,
-      assessmentUnitId %in% unique(AUMLRef$ATTAINS.assessmentunitidentifier)
+      assessmentUnitId %in% unique(AUMLRef$ATTAINS.AssessmentUnitIdentifier)
     )
 
     # Joins Existing Uses to Existing AUs in your AUMLRef dataframe. Non-matches are flagged as New AU.
@@ -2292,7 +2298,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
       dplyr::left_join(
         OrgID_assessments,
         by = c(
-          "ATTAINS.assessmentunitidentifier" = "assessmentUnitId",
+          "ATTAINS.AssessmentUnitIdentifier" = "assessmentUnitId",
           "ATTAINS.OrganizationIdentifier" = "organizationId"
         ),
         relationship = "many-to-many"
@@ -2300,7 +2306,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
       dplyr::mutate(
         TADA.AssessmentUnitStatus =
           dplyr::if_else(
-            ATTAINS.assessmentunitidentifier %in% unique(OrgID_assessments$assessmentUnitId), "Existing", "New"
+            ATTAINS.AssessmentUnitIdentifier %in% unique(OrgID_assessments$assessmentUnitId), "Existing", "New"
           )
       ) %>%
       dplyr::bind_cols(
@@ -2312,19 +2318,19 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
         ATTAINS.WaterType = dplyr::coalesce(waterType, ATTAINS.WaterType)
       ) %>%
       dplyr::select(
-        ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier, # ATTAINS.assessmentunitname,
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
         ATTAINS.UseName = useName, ATTAINS.WaterType, TADA.AssessmentUnitStatus, IncludeOrExclude
       ) %>%
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
       sf::st_drop_geometry() %>%
       dplyr::distinct() %>%
-      dplyr::arrange(ATTAINS.assessmentunitidentifier, ATTAINS.UseName)
+      dplyr::arrange(ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName)
 
     # User provides a WaterUseRef - specifying the assignment of Uses to AUs not found in ATTAINS by its Water Type.
     if (!is.null(waterUseRef)) {
       AUMLRef <- dplyr::select(
         AUMLRef,
-        ATTAINS.assessmentunitidentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
+        ATTAINS.AssessmentUnitIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType
       )
 
       waterUseRef <- waterUseRef %>%
@@ -2333,15 +2339,15 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
       CreateUseAURef_MissingUse <- dplyr::filter(CreateUseAURef, is.na(ATTAINS.UseName))
 
       CreateUseAURef_MissingUse <- CreateUseAURef_MissingUse %>%
-        dplyr::select(ATTAINS.assessmentunitidentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType, TADA.AssessmentUnitStatus) %>%
-        dplyr::left_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", "ATTAINS.WaterType")) %>%
+        dplyr::select(ATTAINS.AssessmentUnitIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.WaterType, TADA.AssessmentUnitStatus) %>%
+        dplyr::left_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")) %>%
         dplyr::left_join(waterUseRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType"))
 
       CreateUseAURef <- CreateUseAURef %>%
         dplyr::filter(!is.na(ATTAINS.UseName)) %>%
         dplyr::bind_rows(CreateUseAURef_MissingUse) %>%
         dplyr::select(
-          ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier, # ATTAINS.assessmentunitname,
+          ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
           ATTAINS.UseName, ATTAINS.WaterType, TADA.AssessmentUnitStatus, IncludeOrExclude
         )
     }
@@ -2354,20 +2360,20 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
           useAURef,
           by =
             c(
-              "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", # "ATTAINS.assessmentunitname",
+              "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
               "ATTAINS.UseName", "ATTAINS.WaterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
             )
         ) %>%
         dplyr::mutate(
           TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.assessmentunitidentifier %in% AUMLRef$ATTAINS.assessmentunitidentifier ~ "New",
-            ATTAINS.assessmentunitidentifier %in% AUMLRef$ATTAINS.assessmentunitidentifier ~
+            !ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
+            ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier ~
               "Suspect: Excluding from Assessment. This AU and use is not found in your useAURef"
           )
         ) %>%
         dplyr::mutate(
           IncludeOrExclude = dplyr::case_when(
-            ATTAINS.assessmentunitidentifier %in% AUMLRef$ATTAINS.assessmentunitidentifier ~
+            ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier ~
               "Exclude"
           )
         )
@@ -2377,13 +2383,13 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
           useAURef,
           by =
             c(
-              "ATTAINS.OrganizationIdentifier", "ATTAINS.assessmentunitidentifier", # "ATTAINS.assessmentunitname",
+              "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", # "ATTAINS.assessmentunitname",
               "ATTAINS.UseName", "ATTAINS.WaterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
             )
         ) %>%
         dplyr::mutate(
           TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.assessmentunitidentifier %in% AUMLRef$ATTAINS.assessmentunitidentifier ~ "New",
+            !ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
             TRUE ~ TADA.AssessmentUnitStatus
           )
         ) %>%
