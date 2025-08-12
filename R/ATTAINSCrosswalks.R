@@ -2161,7 +2161,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   MONITORING_DATA_LINK_TEXT = NA, ATTAINS.WaterType
 #' )
 #'
-#' AK_appenduserdata <- TADA_UpdateMonitoringLocationsInATTAINS(
+#' AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ",
 #'   crosswalk = ex.user.cw,
 #'   attains_replace = FALSE,
