@@ -119,7 +119,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      rExpertQuery::EQ_DomainValues("org_id")
+      spsUtil::quiet(rExpertQuery::EQ_DomainValues("org_id"))
     },
     error = function(err) {
       NULL
@@ -172,7 +172,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   }
 
   # from national download
-  nat.assessments <- rExpertQuery::EQ_NationalExtract("assessments")
+  nat.assessments <- spsUtil::quiet(rExpertQuery::EQ_NationalExtract("assessments"))
 
   if (!exists("nat.assessments")) {
     message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
