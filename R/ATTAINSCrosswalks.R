@@ -2383,7 +2383,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
           useAURef,
           by =
             c(
-              "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", # "ATTAINS.assessmentunitname",
+              "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
               "ATTAINS.UseName", "ATTAINS.WaterType", "TADA.AssessmentUnitStatus", "IncludeOrExclude"
             )
         ) %>%
@@ -2512,26 +2512,28 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
   # If org_id argument is not provided, this will attempt to pull in org_id from TADA_GetATTAINS.
   if (is.null(org_id)) {
+    print(paste0(
+      "TADA_CreateWaterUseParamRef: No organization identifier(s) provided. ",
+      "Attempting to pull in organization identifiers found in the TADA data frame. ",
+      "Please ensure that TADA_CreateATTAINSAUMLCrosswalk has been run if you did not provide ",
+      "an org_id input."
+    ))
     print(
-      "TADA_CreateWaterUseParamRef: No organization identifier(s) provided.",
-      "Attempting to pull in organization identifiers found in the TADA data frame.",
-      "Please ensure that you have ran TADA_GetATTAINS if you did not provide an org_id argument input."
+      "Users should provide one or more ATTAINS.OrganizationIdentifier",
+      "that pertains to their analysis."
     )
-    print(
-      "Users should provide a list of ATTAINS organization state or tribal name",
-      "that pertains to their assessment."
-    )
-    TADA_CheckColumns(.data, "ATTAINS.organizationname")
-    org_id <- unique(stats::na.omit(.data[, "ATTAINS.organizationid"]))
+    TADA_CheckColumns(.data, "ATTAINS.OrganizationId")
+    org_id <- .data %>%
+      sf::st_drop_geometry() %>%
+      dplyr::select(ATTAINS.OrganizationId) %>%
+      dplyr::distinct() %>%
+      dplyr::pull()
   }
 
   # User needs to supply their ATTAINS org id
   if (is.null(org_id)) {
     stop("TADA_CreateWaterUseParamRef: No organization identifier(s) provided.")
   }
-
-  # If multiple org_id are used, create a loop when calling EQ National extract by each org_id value.
-  # org_id <- as.list(org_id)
 
   # rExpertQuery API key for TADA
   tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
@@ -2548,7 +2550,10 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
   }
 
   # Calls on EQ_Assessments from latest assessment cycle. Pulls in unique water types and uses by org
-  OrgID_assessments <- suppressMessages(rExpertQuery::EQ_Assessments(org_id = org_id, api_key = tadakey))
+  print(paste0("TADA_CreateWaterUseParamRef: Importing unique water types and uses ",
+  "by organization from Expert Query."))
+
+  OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(org_id = org_id, api_key = tadakey))
 
   CreateWaterUseRef <- OrgID_assessments[, c("organizationName", "organizationId", "waterType", "useName")] %>%
     dplyr::distinct() %>%
