@@ -13,7 +13,7 @@ TADA_ViewATTAINS(.data)
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 }
 \description{
-Visualizes the data returned from TADA_CreateAUMLRef or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
+Visualizes the data returned from TADA_CreateAUMLCrosswalk or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
 }
 \details{
 This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
