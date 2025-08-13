@@ -25,7 +25,7 @@ description: An example Module 2 workflow for creating an ATTAINS assessment uni
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Install and Load Package
+## Install and Load EPATADA Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -67,7 +67,7 @@ R session.
 library(EPATADA)
 ```
 
-## Get Monitoring Data in Montana
+## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
 Get bacteria and pH data from Missoula County, Montana.
 
@@ -94,7 +94,7 @@ tada.MT <- TADA_DataRetrieval(
 
 ```
 
-## Create Example User-Supplied Crosswalk
+## Create An Example User-Supplied ATTAINS Assessment Unit and WQP Monitoring Location Crosswalk
 
 Get existing data from ATTAINS and subset a few rows to create an
 example user-supplied crosswalk for demonstration purposes.
@@ -120,7 +120,7 @@ user.supplied.cw <- clean.existing.attains.MT %>%
 rm(attains.existing.MT, clean.existing.attains.MT)
 ```
 
-## Run TADA_CreateAUMLCrosswalk
+## Find Additional ATTAINS Assessment Unit and WQP Monitoring Location Matches Using TADA_CreateAUMLCrosswalk()
 
 Run TADA_CreateAUMLCrosswalk which can incorporate any combination of:
 
@@ -128,7 +128,9 @@ Run TADA_CreateAUMLCrosswalk which can incorporate any combination of:
 
 2.  crosswalk downloaded from ATTAINS, and
 
-3.  results from TADA_CreateATTAINSAUMLCrosswalk.
+3.  results from TADA_CreateATTAINSAUMLCrosswalk which leverages the
+    ATTAINS catchments to join monitoring locations to assessment units
+    via a geospatial join .
 
 The assignments are prioritized in the order listed. Any WQP monitoring
 locations which remain unassigned after checking the user-supplied
@@ -145,7 +147,7 @@ imported from ATTAINS. We have plans to create additional
 functions/internal reference files to facilitate this returing the
 associated catchments in the future. Therefore, any catchment data
 available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk
-assessed WQP monitoring locatio
+assessed WQP monitoring locations only.
 
 ```{r tada.get.attains}
 
@@ -158,12 +160,13 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
 
 ```
 
-## TADA_ViewATTAINS
+## Generate a Map with TADA_ViewATTAINS
 
-The TADA_View ATTAINS map function has been edited to shows the results
-from all three different sources using different color circle markers
-(not final colors, we are very open to suggestions). The source has also
-been added to the popup window.
+The TADA_ViewATTAINS() map function shows the results from all three
+different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
+and ATTAINS catchments/geospatial join) using different color circle
+markers (not final colors, we are very open to suggestions). The source
+has also been added to the popup window.
 
 ```{r view.map}
 
