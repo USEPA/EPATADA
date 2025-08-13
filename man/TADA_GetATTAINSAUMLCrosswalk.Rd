@@ -22,13 +22,15 @@ workflow. Default is batch_upload = FALSE.}
 }
 \value{
 When batch_upload = FALSE, A dataframe with six columns:
-ATTAINS.MonitoringLocationIdentifier, ATTAINS.OrganizationIdentifier,
-OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-ATTAINS.MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
-crosswalk between monitoring location identifiers and assessment units that
-the state or tribal organization submitted to ATTAINS (optional). If an
-ATTAINS organization has not submitted this information in ATTAINS, the
-function will not return a dataframe.
+OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
+ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
+When batch_upload = TRUE, A dataframe with four columns:
+MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
+is returned. This is the crosswalk between monitoring location identifiers
+and assessment units that the state or tribal organization submitted
+to ATTAINS (optional). If an ATTAINS organization has not submitted this
+information in ATTAINS, the function will not return a dataframe.
 }
 \description{
 Tribes and States who participate in electronic reporting of water quality
@@ -45,7 +47,7 @@ tribal nations record this information in ATTAINS but only a few states.
 AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "AKDECWQ", batch_upload = TRUE)
 
-# Alska example with ATTAINS prefix compatible with TADA Analysis workflow
+# Alaska example with ATTAINS prefix compatible with TADA Analysis workflow
 AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "AKDECWQ", batch_upload = FALSE)
 
