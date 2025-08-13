@@ -122,7 +122,7 @@ ASSESSMENT_UNIT_ID <- c(
 # example organization identifiers
 MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
-# example ML, these are only examples
+# example ML matched to new AUs, these are only examples
 MS_LOCATION_ID <- c(
   "AKDECWQ-Snag Point", "AKDECWQ-Kanakanak", "AKDECWQ-ANC02_HSLP",
   "AKDECWQ-Scandinavian", "AKDECWQ-ANC03_HSLP"

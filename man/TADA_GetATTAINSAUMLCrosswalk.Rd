@@ -21,9 +21,10 @@ batch_upload = FALSE, the output column names will be consistent with the TADA
 workflow. Default is batch_upload = FALSE.}
 }
 \value{
-A dataframe with five columns, MonitoringLocationIdentifier,
+When batch_upload = FALSE, A dataframe with six columns:
+ATTAINS.MonitoringLocationIdentifier, ATTAINS.OrganizationIdentifier,
 OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
+ATTAINS.MonitoringDataLinkText and ATTAINS.WaterType is returned. This is the
 crosswalk between monitoring location identifiers and assessment units that
 the state or tribal organization submitted to ATTAINS (optional). If an
 ATTAINS organization has not submitted this information in ATTAINS, the
@@ -40,8 +41,13 @@ tribal nations record this information in ATTAINS but only a few states.
 }
 \examples{
 \dontrun{
-# Alaska example
-AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "AKDECWQ")
+# Alaska example in 
+AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "AKDECWQ", batch_upload = TRUE)
+
+# Alska example with ATTAINS prefix compatible with TADA Analysis workflow
+AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "AKDECWQ", batch_upload = FALSE)
 
 # Pueblo of Tesuque example
 PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(

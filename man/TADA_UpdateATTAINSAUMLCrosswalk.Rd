@@ -24,7 +24,7 @@ Organization identifiers are listed in the "OrgName" tab. The "code" column
 contains the organization identifiers that should be used for this param.}
 
 \item{crosswalk}{A user-supplied dataframe with the columns
-ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier,
+ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, ATTAINS.WaterType,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.MonitoringDataLinkText
 is required. The ATTAINS.AssessmentUnitIdentifier and
 ATTAINS.MonitoringLocationIdentifier must be filled out in order to use this
@@ -126,8 +126,8 @@ ATTAINS.MonitoringDataLinkText <- c(
 
 # create example crosswalk data frame
 ex.user.cw <- data.frame(
-  ATTAINS.MonitoringLocationIdentifier, ML.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-  ATTAINS.MonitoringDataLinkText
+  ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+  ATTAINS.WaterType, ATTAINS.MonitoringDataLinkText
 )
 
 AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
