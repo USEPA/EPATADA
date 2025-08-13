@@ -491,7 +491,7 @@ TADA_CalculateTotalNP <- function(.data,
   
   # add rows back at end but do not include in TN/TP summation
   dat_addback <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
-                        c(paste0("Used in ", daily_agg, " aggregation function but not selected"))), ]
+                        c(paste0("Considered in ", daily_agg, " aggregation function but not selected"))), ]
   if( dim(dat_addback)[1] > 0){
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
@@ -662,17 +662,19 @@ TADA_CalculateTotalNP <- function(.data,
 #' Aggregate multiple result values to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the
-#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
+#' TADA.ResultMeasureValue to a minimum, maximum, or mean value.
 #'
 #' @param .data A TADA dataframe
+#' 
 #' @param grouping_cols The column names used to group the data
+#' 
 #' @param agg_fun The aggregation function used on the grouped data. This can
 #'   either be 'min', 'max', or 'mean'.
+#'   
 #' @param clean Boolean. Determines whether other measurements from the group
 #'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
-#'   additional measurements are indicated in the
-#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
-#'   selected". The default is clean = FALSE. 
+#'   additional measurements that were considered are indicated in the
+#'   TADA.ResultValueAggregation.Flag. The default is clean = FALSE. 
 #'
 #' @return A TADA dataframe with aggregated values combined into one row. If the
 #'   agg_fun is 'min' or 'max', the function will select the row matching the

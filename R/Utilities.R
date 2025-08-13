@@ -730,7 +730,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
       "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
     }
 
-    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Used in ", agg_fun, " aggregation function but not selected"))
+    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
     multiples <- dat %>% dplyr::filter(ncount > 1)
 
     dat <- dat %>% dplyr::select(-ncount)
@@ -761,7 +761,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     }
 
     if (clean == TRUE) {
-      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Used in ", agg_fun, " aggregation function but not selected")))
+      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
     }
 
     dat <- TADA_OrderCols(dat)

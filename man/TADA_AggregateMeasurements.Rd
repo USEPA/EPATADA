@@ -55,7 +55,7 @@ to indicate which rows have been aggregated.
 }
 \description{
 This function groups TADA data by user-defined columns and aggregates the
-TADA.ResultMeasureValue to a minimum, maximum, or average value.
+TADA.ResultMeasureValue to a minimum, maximum, or mean value.
 
 This function groups TADA data by user-defined columns and aggregates the
 TADA.ResultMeasureValue to a minimum, maximum, or average value.
