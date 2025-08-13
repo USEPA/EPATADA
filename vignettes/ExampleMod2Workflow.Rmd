@@ -18,14 +18,14 @@ editor_options:
   chunk_output_type: console
   markdown:
     wrap: 72
-description: An example Module 2 workflow for creating an assessment unit/monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
+description: An example Module 2 workflow for creating an ATTAINS assessment unit/WQP monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any WQP monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Install and Load Package
+## Install and Load EPATADA Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -55,7 +55,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "compatible_au_cols",
+  ref = "combined-review",
   dependencies = TRUE
 )
 ```
@@ -67,17 +67,20 @@ R session.
 library(EPATADA)
 ```
 
-## Get Montana TADA Data
+## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-Get data bacteria and pH data from Missoula County, Montana.
+Get bacteria and pH data from Missoula County, Montana.
 
 ```{r tada.data}
 
 # get MT data 
 tada.MT <- TADA_DataRetrieval(
-   startDate = "2020-01-01", endDate = "2022-12-31",
+   startDate = "2020-01-01", 
+   endDate = "2022-12-31",
    statecode = "MT",
-   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+   characteristicName = c("Escherichia", 
+                          "Escherichia coli", 
+                          "pH"),
    county = "Missoula County",
    ask = FALSE)
 
@@ -91,21 +94,20 @@ tada.MT <- TADA_DataRetrieval(
 
 ```
 
-## Set up Demo User-Supplied Crosswalk
+## Create An Example User-Supplied ATTAINS Assessment Unit and WQP Monitoring Location Crosswalk
 
-Get existing data from ATTAINS and subset a few rows to create a demo
-user-supplied crosswalk.
+Get existing data from ATTAINS and subset a few rows to create an
+example user-supplied crosswalk for demonstration purposes.
 
 ```{r demo.user, echo = FALSE}
 
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
-# clean existing crosswalk from ATTAINS to make sure monitoring location IDs are 
-# WQP compatible
+# clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
 clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
-# set up demo user supplied cw (select a few Monitoring Locations from the tada df)
+# create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
 user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::select(ATTAINS.AssessmentUnitIdentifier, 
                 ATTAINS.MonitoringLocationIdentifier) %>%
@@ -118,27 +120,39 @@ user.supplied.cw <- clean.existing.attains.MT %>%
 rm(attains.existing.MT, clean.existing.attains.MT)
 ```
 
-## Run TADA_CreateAUMLRef
+## Find Additional ATTAINS Assessment Unit and WQP Monitoring Location Matches Using TADA_CreateAUMLCrosswalk()
 
-Run TADA_CreateAUMLRef which can incorporate any combination of (1)
-(optional) user-supplied crosswalk, (2) crosswalk downloaded from
-ATTAINS, and (3) results from TADA_CreateATTAINSAUMLCrosswalk. The
-assignments are prioritized in the order listed. Any MonitoringLocations
-which remain unassigned after checking the user-supplied crosswalk will
-be subset and run with TADA_CreateATTAINSAUMLCrosswalk to attempt
-additional AssessmentUnit assignments.
+Run TADA_CreateAUMLCrosswalk which can incorporate any combination of:
 
-To make function run more efficiently, catchment data are not currently
-being returned for the user-supplied crosswalk and the crosswalk
-downloaded from ATTAINS. We have plans to create additional
-functions/internal reference files to faciliate this in the future.
-Therefore, any catchment data available for mapping is currently from
-TADA_CreateATTAINSAUMLCrosswalk assessed MonitoringLocations only.
+1.  (optional) user-supplied crosswalk,
+
+2.  crosswalk downloaded from ATTAINS, and
+
+3.  results from TADA_CreateATTAINSAUMLCrosswalk which leverages the
+    ATTAINS catchments to join monitoring locations to assessment units
+    via a geospatial join .
+
+The assignments are prioritized in the order listed. Any WQP monitoring
+locations which remain unassigned after checking the user-supplied
+crosswalk will be subset and run with TADA_CreateATTAINSAUMLCrosswalk
+which will attempt to make additional ATTAINS assessment unit
+assignments.
+
+To make this function run more efficiently, and because we already have
+assessment unit assignments for some monitoring locations from the
+user-supplied crosswalk and the crosswalk downloaded from ATTAINS, the
+ATTAINS catchment data from the geospatial service is not currently
+being returned for matches in the crosswalks supplied by users or
+imported from ATTAINS. We have plans to create additional
+functions/internal reference files to facilitate this returing the
+associated catchments in the future. Therefore, any catchment data
+available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk
+assessed WQP monitoring locations only.
 
 ```{r tada.get.attains}
 
 # use TADA get attains to make AU assignments for unassigned MLs
-MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
+MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
                                  au_ref = user.supplied.cw,
                                  org_id = "MTDEQ", 
                                  add_catch = FALSE,
@@ -146,12 +160,13 @@ MT.AUMLRef <- TADA_CreateAUMLRef(tada.MT.clean,
 
 ```
 
-## TADA_ViewATTAINS
+## Generate a Map with TADA_ViewATTAINS
 
-The TADA_View ATTAINS map function has been edited to shows the results
-from all three different sources using different color circle markers
-(not final colors, we are very open to suggestions). The source has also
-been added to the popup window.
+The TADA_ViewATTAINS() map function shows the results from all three
+different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
+and ATTAINS catchments/geospatial join) using different color circle
+markers (not final colors, we are very open to suggestions). The source
+has also been added to the popup window.
 
 ```{r view.map}
 
@@ -162,8 +177,8 @@ TADA_ViewATTAINS(MT.AUMLRef)
 ## TADA_UpdateATTAINSAUMLCrosswalk
 
 After making any necessary changes to the ATTAINS_batchupload data frame
-generated by TADA_CreateAUMLRef, run TADA_UpdateATTAINSAUMLCrosswalk to
-add new links to WQP site pages.
+generated by TADA_CreateAUMLCrosswalk, run
+TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.
 
 ```{r add.links}
 

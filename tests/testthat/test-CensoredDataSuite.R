@@ -1,10 +1,10 @@
 test_that("TADA_IDCensoredData orphans", {
-  cens.check <- TADA_DataRetrieval(statecode = "CO", startDate = "2021-01-01", endDate = "2022-01-01", characteristicName = c("Phosphorus", "Nitrate"), ask = FALSE)
+  cens.check <- TADA_RandomTestingData(choose_random_state = TRUE)
   expect_true(all(!is.na(cens.check$TADA.CensoredData.Flag)))
 })
 
 test_that("TADA_SimpleCensoredMethods doesn't drop data", {
-  testdat <- TADA_DataRetrieval(statecode = "KS", startDate = "2021-01-01", endDate = "2022-01-01", characteristicName = c("Phosphorus", "Nitrate"), ask = FALSE)
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   cens.check <- TADA_SimpleCensoredMethods(testdat)
   expect_equal(dim(testdat)[1], dim(cens.check)[1])
 })
@@ -39,6 +39,7 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
+  # example data with this issue
   df <- TADA_DataRetrieval(
     startDate = "2022-12-19",
     endDate = "2022-12-20",
@@ -84,11 +85,7 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
 })
 
 test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValueDataTypes.Flag", {
-  testdat <- TADA_DataRetrieval(statecode = "UT", 
-                                startDate = "2024-08-11", 
-                                endDate = "2025-08-11",
-                                characteristicType = "Nutrient",
-                                ask = FALSE)
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -127,7 +124,7 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
 
 test_that("TADA_SimpleCensoredMethods does not introduce duplicates or NAs in result or unit cols that cannot be handled in TADA_ConvertSpecialChars", {
   
-  testdat <- TADA_RandomTestingData()
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
