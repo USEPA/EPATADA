@@ -2218,7 +2218,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
 #'   useAURef = AK_CreateUseAURef_auto_assign,
-#'   AUMLRef = AK_AU_Ref,
+#'   AUMLRef = AK_appenduserdata,
 #'   excel = FALSE
 #' )
 #'
@@ -2375,7 +2375,8 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
         dplyr::select(
           ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
           ATTAINS.UseName, ATTAINS.WaterType, TADA.AssessmentUnitStatus, IncludeOrExclude
-        )
+        ) %>%
+        dplyr::distinct()
     }
 
     # User provides their own useAURef that has been filled out.

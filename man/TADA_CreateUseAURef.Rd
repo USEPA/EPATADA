@@ -172,7 +172,7 @@ AK_CreateUseAURef2 <- TADA_CreateUseAURef(
   TADA_AK_Example,
   org_id = "AKDECWQ",
   useAURef = AK_CreateUseAURef_auto_assign,
-  AUMLRef = AK_AU_Ref,
+  AUMLRef = AK_appenduserdata,
   excel = FALSE
 )
 
