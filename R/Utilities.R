@@ -709,15 +709,18 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' random_data_state <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
 #' print(random_data_state)
 #'
-#' # Example 3: Retrieve a random dataset for a 5-day period within a randomly selected state without auto-cleaning
+#' # Example 3: Retrieve a random dataset for a 5-day period 
+#' # within a randomly selected state without auto-cleaning
 #' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' print(random_data_state_no_clean)
 #'
-#' # Example 4: Retrieve a random dataset for a 30-day period across the entire nation with auto-cleaning
+#' # Example 4: Retrieve a random dataset for a 30-day period 
+#' # across the entire nation with auto-cleaning
 #' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, choose_random_state = FALSE, autoclean = TRUE)
 #' print(random_data_large_period)
 #'
-#' # Example 5: Retrieve a random dataset for a 15-day period across the entire nation without auto-cleaning
+#' # Example 5: Retrieve a random dataset for a 15-day period 
+#' # across the entire nation without auto-cleaning
 #' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, choose_random_state = FALSE, autoclean = FALSE)
 #' print(random_data_no_clean)
 #' }

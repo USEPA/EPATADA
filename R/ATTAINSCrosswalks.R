@@ -215,8 +215,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
 #' is returned. This is the crosswalk between monitoring location identifiers 
 #' and assessment units that the state or tribal organization submitted 
-#' to ATTAINS (optional). If an ATTAINS organization has not submitted this 
-#' information in ATTAINS, the function will not return a dataframe.
+#' to ATTAINS (optional).
 #'
 #' @seealso [TADA_GetATTAINSAUMLCrosswalk()]
 #'
@@ -2150,8 +2149,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' # Pull a sample WQP data query
 #' TADA_AK_Example <- TADA_DataRetrieval(
 #'   startDate = "2022-01-01", endDate = "2022-12-31",
-#'   organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
-#'   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
+#'   organization = "AKDECWQ", statecode = "AK", 
+#'   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli"),
 #'   ask = FALSE
 #' )
 #'
