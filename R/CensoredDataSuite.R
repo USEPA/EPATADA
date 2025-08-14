@@ -384,6 +384,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
       }
       if (nd_method == "as-is") {
         nd$TADA.CensoredMethod <- "Detection Limit Value Unchanged"
+        nd$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Estimated from Detection Limit"
       }
     }
     # OD handling
@@ -395,6 +396,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
       }
       if (od_method == "as-is") {
         od$TADA.CensoredMethod <- "Detection Limit Value Unchanged"
+        od$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Estimated from Detection Limit"
       }
     }
 
