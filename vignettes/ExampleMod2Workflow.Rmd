@@ -151,7 +151,7 @@ user-supplied crosswalk and the crosswalk downloaded from ATTAINS, the
 ATTAINS catchment data from the geospatial service is not currently
 being returned for matches in the crosswalks supplied by users or
 imported from ATTAINS. We have plans to create additional
-functions/internal reference files to facilitate this returing the
+functions/internal reference files to facilitate this returning the
 associated catchments in the future. Therefore, any catchment data
 available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk
 assessed WQP monitoring locations only.

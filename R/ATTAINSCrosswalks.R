@@ -2065,7 +2065,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can be used
 #' directly as the AUMLRef argument input in this function. Alternatively,
 #' a user supplied crosswalk can be entered or `TADA_GetATTAINSAUMLCrosswalk()`
-#' and/or `TADA_UpdateMonitoringLocationsInATTAINS()` functions can be leveraged
+#' and/or `TADA_UpdateATTAINSAUMLCrosswalk()` functions can be leveraged
 #' to generate the crosswalk.
 #'
 #' This function is mainly designed to assist with pulling
@@ -2104,7 +2104,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' should contain a completed crosswalk of WQP Monitoring Locations
 #' associated with each ATTAINS Assessment Unit. Users will need to ensure
 #' this crosswalk contains the appropriate column names in order to run this function.
-#' See module 2 vignette and sample output of [TADA_GetATTAINS()].
+#' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
 #'
 #' @param useAURef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with each assessment unit.
