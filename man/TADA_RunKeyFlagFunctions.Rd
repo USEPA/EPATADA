@@ -10,7 +10,7 @@ TADA_RunKeyFlagFunctions(.data, clean = FALSE)
 \item{.data}{A TADA dataframe.}
 
 \item{clean}{Boolean. Determines whether to keep the suspect rows (or not).
-Defaults to FALSE.}
+Defaults to \code{FALSE}.}
 }
 \value{
 A TADA dataframe with the following flagging columns:

@@ -4,7 +4,7 @@
 \alias{TADA_CheckType}
 \title{Check Type}
 \usage{
-TADA_CheckType(arg, type, paramName)
+TADA_CheckType(arg, type, paramName = deparse(substitute(arg)))
 }
 \arguments{
 \item{arg}{An input argument to check}
@@ -15,6 +15,24 @@ TADA_CheckType(arg, type, paramName)
 }
 \description{
 This function checks if the inputs to a function are of the expected type. It
-is used at the beginning of TADA functions to ensure the
-inputs are suitable.
+is used at the beginning of TADA functions to ensure the inputs are suitable.
+}
+\examples{
+# Example 1: Check if a numeric value is of class 'numeric'
+TADA_CheckType(42, "numeric") # No error
+
+# Example 2: Check if a character value is of class 'numeric'
+# This will stop execution and throw an error
+tryCatch({
+  TADA_CheckType("Hello", "numeric")
+}, error = function(e) {
+  print(e$message)
+})
+
+# Example 3: Check using a custom parameter name for error message
+tryCatch({
+  TADA_CheckType("Hello", "numeric", paramName = "inputValue")
+}, error = function(e) {
+  print(e$message)
+})
 }

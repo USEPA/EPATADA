@@ -2,17 +2,25 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_DecimalPlaces}
 \alias{TADA_DecimalPlaces}
-\title{Decimal Places}
+\title{Calculate Decimal Places}
 \usage{
 TADA_DecimalPlaces(x)
 }
 \arguments{
-\item{x}{Numeric data field from TADA profile}
+\item{x}{A numeric value or vector from the TADA profile.}
 }
 \value{
-Number of values to the right of the decimal point for numeric
-type data.
+An integer representing the number of decimal places in the numeric value.
+If the input is an integer or a numeric value with no decimal places, the function returns 0.
 }
 \description{
-for numeric data type
+This function calculates the number of decimal places in a numeric value.
+It returns the number of digits to the right of the decimal point for numeric data.
+}
+\examples{
+TADA_DecimalPlaces(3.14159)  # Returns 5
+TADA_DecimalPlaces(2.0)      # Returns 0
+TADA_DecimalPlaces(123)      # Returns 0
+TADA_DecimalPlaces(0.001)    # Returns 3
+
 }

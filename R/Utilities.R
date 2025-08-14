@@ -1,6 +1,8 @@
-#' Pipe operator
+#' Pipe Operator
 #'
-#' See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+#' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
+#' It allows you to pass the left-hand side (`lhs`) value into the right-hand side (`rhs`) function call.
+#' For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
 #'
 #' @name %>%
 #' @rdname pipe
@@ -8,18 +10,42 @@
 #' @importFrom magrittr %>%
 #' @usage lhs \%>\% rhs
 #' @export
-#' @param lhs A value or the magrittr placeholder.
-#' @param rhs A function call using the magrittr semantics.
-#' @return The result of calling `rhs(lhs)`.
+#' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
+#' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
+#' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
+#'
+#' @examples
+#' # Example: Using the pipe operator to transform data
+#' library(magrittr)
+#' result <- iris %>%
+#' head(10) %>%
+#' subset(Species == "setosa") %>%
+#' summary()
+#' print(result)
 NULL
 
-#' Silence print messages
+#' Silence Print Messages from Code Execution
+#'
+#' This utility function executes the provided code while suppressing any print messages.
+#' It is useful for running code quietly, especially when print statements are not needed.
+#'
 #' @name quiet
-#' @param x Code to silence
-#' @return Function or code output with print messages silenced
+#' @param x Expression or code block to execute silently.
+#' @return The result of the executed code, with all print messages suppressed.
+#'
+#' @examples
+#' # Example: Silencing print messages from a function
+#' result <- quiet({
+#'   print("This message will not be displayed.")
+#'   2 + 2  # The result of this expression will be returned
+#' })
+#' print(result)  # Output: 4
 quiet <- function(x) {
+  # Redirect output to a temporary file to suppress prints
   sink(tempfile())
+  # Ensure sink is terminated on exit
   on.exit(sink())
+  # Execute the code and return its result invisibly
   invisible(force(x))
 }
 
@@ -48,10 +74,10 @@ utils::globalVariables(c(
   "Status2", "ActivityTypeCode", "SampleCollectionEquipmentName",
   "ResultTimeBasisText", "StatisticalBaseCode", "ResultValueTypeName",
   "masked", "TADA.env", "Legend", "Fields", "desc", "WQXActivityType_Cached",
-  "TADA.ActivityType.Flag", "Code", "ActivityTypeCode", "ResultCount",
+  "TADA.ActivityType.Flag", "Code", "ResultCount",
   "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure",
   "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier",
-  "desc", "Legend", "roundRV", "TADA.DuplicateID", "maxRV", "within10",
+  "roundRV", "TADA.DuplicateID", "maxRV", "within10",
   "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
   "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
   "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -64,15 +90,15 @@ utils::globalVariables(c(
   "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
   "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
   "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
-  "Conversion.Coefficient", "Last.Change.Date", "Value", "Minimum", "Unique.Identifier",
-  "Domain", "ResultMeasure.MeasureUnitCode", "Comb", "CombList",
+  "Last.Change.Date", "Value", "Minimum",
+  "Comb", "CombList",
   "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
   "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
   "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
   "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
   "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
   "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
-  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "NCode",
+  "NCode",
   "ATTAINS.AssessmentUnitIdentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
   "ATTAINS_AUs", "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
   "DepthsPerGroup", "MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
@@ -111,7 +137,7 @@ utils::globalVariables(c(
   "Flag.ParameterInput", "Flag.UseInput", "TADA.ComparableDataIdentifier.x",
   "TADA.ComparableDataIdentifier.y", "organizationId", "organizationName",
   "organizationType", "parameterName",
-  "MONITORING_DATA_LINK_TEXT", "PARCEL_NO", "TRIBE_NAME", "everything",
+  "PARCEL_NO", "TRIBE_NAME", "everything",
   "resultCount", "tribal_area", "txtProgressBar", "Date", "NWIS.parameter",
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
@@ -134,41 +160,72 @@ OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/Ma
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
 
-#' Decimal Places
+#' Calculate Decimal Places
 #'
-#' for numeric data type
+#' This function calculates the number of decimal places in a numeric value. 
+#' It returns the number of digits to the right of the decimal point for numeric data.
 #'
-#' @param x Numeric data field from TADA profile
+#' @param x A numeric value or vector from the TADA profile.
+#' 
+#' @return An integer representing the number of decimal places in the numeric value.
+#' If the input is an integer or a numeric value with no decimal places, the function returns 0.
 #'
-#' @return Number of values to the right of the decimal point for numeric
-#' type data.
+#' @examples
+#' TADA_DecimalPlaces(3.14159)  # Returns 5
+#' TADA_DecimalPlaces(2.0)      # Returns 0
+#' TADA_DecimalPlaces(123)      # Returns 0
+#' TADA_DecimalPlaces(0.001)    # Returns 3
+#'
 TADA_DecimalPlaces <- function(x) {
-  if (abs(x - round(x)) > .Machine$double.eps^0.5) {
-    nchar(strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]][[2]])
+  # Convert the number to a character string, remove trailing zeros, and split by the decimal point
+  parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
+  
+  # If there is a decimal part, return its length; otherwise, return 0
+  if (length(parts) > 1) {
+    return(nchar(parts[[2]]))
   } else {
     return(0)
   }
 }
 
+
+
 #' Check Type
 #'
 #' This function checks if the inputs to a function are of the expected type. It
-#' is used at the beginning of TADA functions to ensure the
-#' inputs are suitable.
+#' is used at the beginning of TADA functions to ensure the inputs are suitable.
 #'
 #' @param arg An input argument to check
 #' @param type Expected class of input argument
 #' @param paramName Optional name for argument to use in error message
-TADA_CheckType <- function(arg, type, paramName) {
-  if ((type %in% class(arg)) == FALSE) {
-    # if optional parameter name not specified use arg in errorMessage
-    if (missing(paramName)) {
-      paramName <- arg
-    }
-    errorMessage <- paste(paramName, " must be of class '", type, "'", sep = "")
-    return(stop(errorMessage))
+#'
+#' @examples
+#' # Example 1: Check if a numeric value is of class 'numeric'
+#' TADA_CheckType(42, "numeric") # No error
+#'
+#' # Example 2: Check if a character value is of class 'numeric'
+#' # This will stop execution and throw an error
+#' tryCatch({
+#'   TADA_CheckType("Hello", "numeric")
+#' }, error = function(e) {
+#'   print(e$message)
+#' })
+#'
+#' # Example 3: Check using a custom parameter name for error message
+#' tryCatch({
+#'   TADA_CheckType("Hello", "numeric", paramName = "inputValue")
+#' }, error = function(e) {
+#'   print(e$message)
+#' })
+TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
+  if (!inherits(arg, type)) {
+    errorMessage <- sprintf("%s must be of class '%s'", paramName, type)
+    stop(errorMessage)
   }
+  invisible(NULL)
 }
+
+
 
 #' Check Columns
 #'
@@ -180,11 +237,50 @@ TADA_CheckType <- function(arg, type, paramName) {
 #'
 #' @param .data A dataframe
 #' @param expected_cols A vector of expected column names as strings
+#' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
+#' @examples
+#' # Example 1: All required columns are present
+#' df1 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
+#' expected_cols1 <- c("A", "B", "C")
+#' TADA_CheckColumns(df1, expected_cols1) # No error should be raised
+#'
+#' # Example 2: Some required columns are missing
+#' df2 <- data.frame(A = 1:5, B = 6:10)
+#' expected_cols2 <- c("A", "B", "C")
+#' tryCatch(
+#'   TADA_CheckColumns(df2, expected_cols2),
+#'   error = function(e) { print(e$message) }
+#' )
+#' # Should print: "The dataframe does not contain the required fields: C. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
+#'
+#' # Example 3: No expected columns specified
+#' df3 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
+#' expected_cols3 <- character(0)
+#' TADA_CheckColumns(df3, expected_cols3) # No error should be raised
+#'
 TADA_CheckColumns <- function(.data, expected_cols) {
-  if (all(expected_cols %in% colnames(.data)) == FALSE) {
-    stop("The dataframe does not contain the required fields. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage.")
+  if (!inherits(.data, "data.frame")) {
+    stop("Input must be a dataframe.")
   }
+  
+  if (!is.vector(expected_cols) || !is.character(expected_cols)) {
+    stop("Expected columns must be a character vector.")
+  }
+  
+  missing_cols <- setdiff(expected_cols, colnames(.data))
+  
+  if (length(missing_cols) > 0) {
+    stop(paste(
+      "The dataframe does not contain the required field(s):",
+      paste(missing_cols, collapse = ", "),
+      ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
+    ))
+  }
+  
+  invisible(NULL)
 }
+
+
 
 #' TADA_ConvertSpecialChars
 #'
@@ -569,98 +665,101 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 
 
 
-#' Generate a random WQP dataset
+#' Generate a Random Water Quality Portal (WQP) Dataset
 #'
-#' Retrieves data for a period of time in the past 20 years using
-#' TADA_DataRetrieval. This function can be used for testing functions on
-#' random datasets. Only random data sets with 10 or more results will be returned.
-#' If a random dataset has fewer than 10 results, the function will automatically
-#' create another random WQP query until a df with greater than 10 results is returned.
+#' This function retrieves water quality data for a randomly selected period within the past 20 years using `TADA_DataRetrieval`.
+#' It can be used to test functions on random datasets. The function ensures that the returned dataset contains at least 10 results.
+#' If the initial random dataset contains fewer than 10 results, the function automatically queries another random dataset until the criteria are met.
 #'
-#' @param number_of_days Numeric. The default is 1, which will query and retrieve
-#' data for a random two-day period (e.g.startDate = "2015-04-21",
-#' endDate = "2015-04-22"). The user can change this number to select additional days
-#' if desired.
+#' @param number_of_days Numeric. Specifies the number of days for which data will be queried. The default is 1, which queries data for a random two-day period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
+#' Users can increase this number to retrieve data for more days.
 #'
-#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE.
-#' If FALSE, the function will query all data in the WQP for the number_of_days
-#' specified (national query). If TRUE, the function will select a random state
-#' and only retrieve data for that state.
+#' @param choose_random_state Boolean (TRUE or FALSE). Default is FALSE.
+#' If FALSE, the function queries all available WQP data for the specified number_of_days (national query).
+#' If TRUE, the function selects a random state and retrieves data only for that state.
 #'
-#' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
-#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the
-#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
-#' TADA_DataRetrieval.
+#' @param autoclean Boolean (TRUE or FALSE). Default is TRUE.
+#' If TRUE, the function applies `TADA_AutoClean` as part of the `TADA_DataRetrieval`.
+#' If FALSE, the function does not apply `TADA_AutoClean`.
 #'
-#' @return Random WQP dataset.
+#' @return A data frame containing a random WQP dataset with at least 10 results.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
-#' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
-#' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+#' # Example 1: Retrieve a random dataset for a single day across the entire nation
+#' random_data_national <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' print(random_data_national)
+#'
+#' # Example 2: Retrieve a random dataset for a 10-day period within a randomly selected state
+#' random_data_state <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' print(random_data_state)
+#'
+#' # Example 3: Retrieve a random dataset for a 5-day period within a randomly selected state without auto-cleaning
+#' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+#' print(random_data_state_no_clean)
+#'
+#' # Example 4: Retrieve a random dataset for a 30-day period across the entire nation with auto-cleaning
+#' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, choose_random_state = FALSE, autoclean = TRUE)
+#' print(random_data_large_period)
+#'
+#' # Example 5: Retrieve a random dataset for a 15-day period across the entire nation without auto-cleaning
+#' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, choose_random_state = FALSE, autoclean = FALSE)
+#' print(random_data_no_clean)
 #' }
 TADA_RandomTestingData <- function(number_of_days = 1, 
                                    choose_random_state = FALSE,
                                    autoclean = TRUE) {
-  get_random_data <- function(ndays = number_of_days, state_choice = choose_random_state,
-                              ac = autoclean, ask = FALSE) {
-    # choose a random day within the last 20 years
-    twenty_yrs_ago <- Sys.Date() - 20 * 365
-    random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
-    # choose a random start date and add any number_of_days (set that as the end date)
+  # Internal function to retrieve random data
+  get_random_data <- function(ndays, state_choice, ac) {
+    # Calculate a random start date within the last 20 years
+    twenty_years_ago <- Sys.Date() - 20 * 365
+    random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-
-    if (state_choice == TRUE) {
+    
+    # Determine if a random state should be selected
+    if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
-    }
-
-    if (state_choice == FALSE) {
+    } else {
       state <- "null"
     }
-
-    print(c(
+    
+    # Print the selected date range and state code
+    print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-
-    if (ac == TRUE) {
-      dat <- TADA_DataRetrieval(
-        startDate = as.character(random_start_date),
-        endDate = as.character(end_date),
-        statecode = state,
-        applyautoclean = TRUE,
-        ask = FALSE
-      )
-    }
-
-    if (ac == FALSE) {
-      dat <- TADA_DataRetrieval(
-        startDate = as.character(random_start_date),
-        endDate = as.character(end_date),
-        statecode = state,
-        applyautoclean = FALSE,
-        ask = FALSE
-      )
-    }
+    
+    # Retrieve data with or without auto-cleaning
+    dat <- TADA_DataRetrieval(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state,
+      applyautoclean = ac,
+      ask = FALSE
+    )
+    
     return(dat)
   }
-
+  
+  # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
-    df <- get_random_data()
-    while (nrow(df) < 10) {
-      df <- get_random_data()
+    repeat {
+      df <- get_random_data(number_of_days, choose_random_state, autoclean)
+      if (nrow(df) >= 10) break
     }
     return(df)
   }
-
+  
+  # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
 }
+
+
 
 #' Aggregate multiple result values to a min, max, or mean
 #'
