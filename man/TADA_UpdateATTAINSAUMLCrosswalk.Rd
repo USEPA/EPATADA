@@ -114,7 +114,10 @@ ATTAINS.AssessmentUnitIdentifier <- c(
 )
 
 # example organization identifiers
-OrganizationIdentifier <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+OrganizationIdentifier <- 
+  c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+ATTAINS.OrganizationIdentifier <- 
+  c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
 # example assessment units
 ATTAINS.MonitoringLocationIdentifier <- c(
@@ -132,7 +135,8 @@ ATTAINS.MonitoringDataLinkText <- c(
 
 # create example crosswalk data frame
 ex.user.cw <- data.frame(
-  ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+  ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, 
+  ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
   ATTAINS.WaterType, ATTAINS.MonitoringDataLinkText
 )
 

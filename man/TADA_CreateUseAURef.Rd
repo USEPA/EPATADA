@@ -186,7 +186,7 @@ AK_CreateUseAURef2 <- TADA_CreateUseAURef(
 
 \code{\link[=TADA_GetATTAINSAUMLCrosswalk]{TADA_GetATTAINSAUMLCrosswalk()}} to help generate the required AUMLRef
 
-\code{\link[=TADA_UpdateMonitoringLocationsInATTAINS]{TADA_UpdateMonitoringLocationsInATTAINS()}} to help generate the required AUMLRef
+\code{\link[=TADA_UpdateATTAINSAUMLCrosswalk]{TADA_UpdateATTAINSAUMLCrosswalk()}} to help generate the required AUMLRef
 
 \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}} to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
 }
