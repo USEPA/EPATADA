@@ -33,7 +33,7 @@ based on the unique ATTAINS organization identifiers found in the dataframe.}
 should contain a completed crosswalk of WQP Monitoring Locations
 associated with each ATTAINS Assessment Unit. Users will need to ensure
 this crosswalk contains the appropriate column names in order to run this function.
-See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
+See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
 
 \item{useAURef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with each assessment unit.
@@ -69,7 +69,7 @@ Water Type codes as a function input (AUMLRef). The output from
 \code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can be used
 directly as the AUMLRef argument input in this function. Alternatively,
 a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUMLCrosswalk()}
-and/or \code{TADA_UpdateMonitoringLocationsInATTAINS()} functions can be leveraged
+and/or \code{TADA_UpdateATTAINSAUMLCrosswalk()} functions can be leveraged
 to generate the crosswalk.
 }
 \details{
