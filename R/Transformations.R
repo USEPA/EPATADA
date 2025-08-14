@@ -489,14 +489,14 @@ TADA_CalculateTotalNP <- function(.data,
   #     "TADA.ComparableDataIdentifier",
   #     "TADA.ResultValueAggregation.Flag")))
   
-  # add rows back at end but do not include in TN/TP summation
+  # add rows not selected back at end but do not include in TN/TP summation
   dat_addback <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
                         c(paste0("Considered in ", daily_agg, " aggregation function but not selected"))), ]
   if( dim(dat_addback)[1] > 0){
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
   
-  # move forward with only max values selected for each grouping
+  # move forward with only max values selected for each grouping (dat_TNTP)
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
   # no longer need "Considered in max aggregation function but not selected"
   dat_TNTP <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
@@ -625,19 +625,20 @@ TADA_CalculateTotalNP <- function(.data,
       dplyr::mutate(TADA.NutrientSummation.Flag = dplyr::if_else(is.na(TADA.NutrientSummation.Flag), 
                                                                  "Not used to calculate Total N or P.", 
                                                                  TADA.NutrientSummation.Flag))
-    
-  } else {
-    # if there are no data to sum
-    dat_TNTP_combined$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
-    message("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
-  }
-  
-  # At end... summation complete at this point
-  # Use bind_rows to combine the data frames
-  final_df <- dplyr::bind_rows(dat_TNTP_combined, exclude_df, dat_addback)
+    # At end... summation complete at this point
+    # Check if each data frame is not empty
+    dat_TNTP_combined_non_empty <- if (nrow(dat_TNTP_combined) > 0) dat_TNTP_combined else NULL
+    exclude_df_non_empty <- if (nrow(exclude_df) > 0) exclude_df else NULL
+    dat_addback_non_empty <- if (nrow(dat_addback) > 0) dat_addback else NULL
+    # Bind rows only if the data frames are not NULL
+    final_TNTP <- dplyr::bind_rows(
+      dat_TNTP_combined_non_empty,
+      exclude_df_non_empty,
+      dat_addback_non_empty
+    )
   
   # Filter rows based on specific conditions
-  final_final_df_removed <- final_df %>%
+  duplicates <- final_TNTP %>%
     dplyr::group_by(TADA.NutrientSummationGroup) %>%
     dplyr::filter(
       dplyr::n() == 2 &
@@ -645,16 +646,34 @@ TADA_CalculateTotalNP <- function(.data,
     ) %>%
     dplyr::filter(TADA.NutrientSummation.Flag == "New row added: Nutrient summation from one or more subspecies.")
   
-  remove_list = unique(final_final_df_removed$ResultIdentifier)
+  remove_list = unique(duplicates$ResultIdentifier)
   
   # Filter the data frame
-  final_final_df <- final_df %>%
+  complete_df <- final_TNTP %>%
     dplyr::filter(!ResultIdentifier %in% remove_list)
-
-  # order columns and return final_final_df
-  final_final_df <- TADA_CreateComparableID(final_final_df)
-  final_final_df <- TADA_OrderCols(final_final_df)
-  return(final_final_df)
+  
+  } else {
+    # Check if each data frame is not empty
+    dat_TNTP_non_empty <- if (nrow(dat_TNTP) > 0) dat_TNTP else NULL
+    exclude_df_non_empty <- if (nrow(exclude_df) > 0) exclude_df else NULL
+    dat_addback_non_empty <- if (nrow(dat_addback) > 0) dat_addback else NULL
+    
+    # Bind rows only if the data frames are not NULL
+    complete_df <- dplyr::bind_rows(
+      dat_TNTP_non_empty,
+      exclude_df_non_empty,
+      dat_addback_non_empty
+    )
+    
+    # if there are no data to sum
+    complete_df$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
+    message("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
+  }
+  
+  # order columns and return complete_df
+  complete_df <- TADA_CreateComparableID(complete_df)
+  complete_df <- TADA_OrderCols(complete_df)
+  return(complete_df)
 }
 
 
