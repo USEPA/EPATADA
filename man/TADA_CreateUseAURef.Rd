@@ -113,17 +113,18 @@ AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
 # ATTAINS by appending user supplied information to ATTAINS crosswalk
 
 # example new AU identifiers
-ASSESSMENT_UNIT_ID <- c(
+ATTAINS.AssessmentUnitIdentifier <- c(
   "NEW:AK_M_1021211_000", "NEW:AK_M_1021008_000",
   "NEW:AK_M_1021109_013", "NEW:AK_L_2040108_063",
   "NEW:AK_M_1021109_013"
 )
 
 # example organization identifiers
-MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+ATTAINS.OrganizationIdentifier <- 
+  c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
 # example ML matched to new AUs, these are only examples
-MS_LOCATION_ID <- c(
+ATTAINS.MonitoringLocationIdentifier <- c(
   "AKDECWQ-Snag Point", "AKDECWQ-Kanakanak", "AKDECWQ-ANC02_HSLP",
   "AKDECWQ-Scandinavian", "AKDECWQ-ANC03_HSLP"
 )
@@ -135,8 +136,11 @@ ATTAINS.WaterType <- c(
 
 # create example crosswalk data frame
 ex.user.cw <- data.frame(
-  MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
-  MONITORING_DATA_LINK_TEXT = NA, ATTAINS.WaterType
+  ATTAINS.MonitoringLocationIdentifier, 
+  ATTAINS.OrganizationIdentifier,
+  OrganizationIdentifier = ATTAINS.OrganizationIdentifier, 
+  ATTAINS.AssessmentUnitIdentifier,
+  ATTAINS.MonitoringDataLinkText = NA, ATTAINS.WaterType
 )
 
 AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
@@ -150,7 +154,7 @@ AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
 AK_CreateUseAURef <- TADA_CreateUseAURef(
   TADA_AK_Example,
   org_id = "AKDECWQ",
-  AUMLRef = AK_AU_Ref,
+  AUMLRef = AK_appenduserdata,
   excel = FALSE
 )
 
@@ -158,7 +162,7 @@ AK_CreateUseAURef <- TADA_CreateUseAURef(
 AK_CreateUseAURef_auto_assign <- TADA_CreateUseAURef(
   TADA_AK_Example,
   org_id = "AKDECWQ",
-  AUMLRef = AK_AU_Ref,
+  AUMLRef = AK_appenduserdata,
   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
   excel = FALSE
 )

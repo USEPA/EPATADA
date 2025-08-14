@@ -207,10 +207,16 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' batch upload. When batch_upload = FALSE, the column names will match those in
 #' the TADA workflow. Default is batch_upload = FALSE.
 #'
-#' @return A dataframe with four columns, MonitoringLocationIdentifier,
-#' OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
-#' MonitoringDataLinkText is returned. This matches the format of the batch
-#' upload files required to add or update monitoring locations in ATTAINS.
+#' @return When batch_upload = FALSE, A dataframe with six columns: 
+#' OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
+#' ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+#' ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned. 
+#' When batch_upload = TRUE, A dataframe with four columns: 
+#' MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
+#' is returned. This is the crosswalk between monitoring location identifiers 
+#' and assessment units that the state or tribal organization submitted 
+#' to ATTAINS (optional). If an ATTAINS organization has not submitted this 
+#' information in ATTAINS, the function will not return a dataframe.
 #'
 #' @seealso [TADA_GetATTAINSAUMLCrosswalk()]
 #'
@@ -317,6 +323,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
         "ATTAINS.AssessmentUnitIdentifier",
         "ATTAINS.MonitoringLocationIdentifier",
         "OrganizationIdentifier",
+        "ATTAINS.OrganizationIdentifier",
         "ATTAINS.MonitoringDataLinkText"
       )
 
@@ -339,6 +346,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           dplyr::rename(ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
                         ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
                         OrganizationIdentifier = MS_ORG_ID,
+                        ATTAINS.OrganizationIdentifier = org_id,
                         ATTAINS.MonitoringDataLinkText = MS_DATA_LINK)
       }
     }
@@ -360,7 +368,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
         update.crosswalk <- attains.crosswalk %>%
           dplyr::full_join(crosswalk, by = dplyr::join_by(
             ATTAINS.MonitoringLocationIdentifier,
-            OrganizationIdentifier ,
+            OrganizationIdentifier,
+            ATTAINS.OrganizationIdentifier,
             ATTAINS.AssessmentUnitIdentifier,
             ATTAINS.MonitoringDataLinkText,
             ATTAINS.WaterType
@@ -2150,17 +2159,18 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' # ATTAINS by appending user supplied information to ATTAINS crosswalk
 #'
 #' # example new AU identifiers
-#' ASSESSMENT_UNIT_ID <- c(
+#' ATTAINS.AssessmentUnitIdentifier <- c(
 #'   "NEW:AK_M_1021211_000", "NEW:AK_M_1021008_000",
 #'   "NEW:AK_M_1021109_013", "NEW:AK_L_2040108_063",
 #'   "NEW:AK_M_1021109_013"
 #' )
 #'
 #' # example organization identifiers
-#' MS_ORG_ID <- c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
+#' ATTAINS.OrganizationIdentifier <- 
+#'   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 #'
 #' # example ML matched to new AUs, these are only examples
-#' MS_LOCATION_ID <- c(
+#' ATTAINS.MonitoringLocationIdentifier <- c(
 #'   "AKDECWQ-Snag Point", "AKDECWQ-Kanakanak", "AKDECWQ-ANC02_HSLP",
 #'   "AKDECWQ-Scandinavian", "AKDECWQ-ANC03_HSLP"
 #' )
@@ -2172,8 +2182,11 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'
 #' # create example crosswalk data frame
 #' ex.user.cw <- data.frame(
-#'   MS_LOCATION_ID, MS_ORG_ID, ASSESSMENT_UNIT_ID,
-#'   MONITORING_DATA_LINK_TEXT = NA, ATTAINS.WaterType
+#'   ATTAINS.MonitoringLocationIdentifier, 
+#'   ATTAINS.OrganizationIdentifier,
+#'   OrganizationIdentifier = ATTAINS.OrganizationIdentifier, 
+#'   ATTAINS.AssessmentUnitIdentifier,
+#'   ATTAINS.MonitoringDataLinkText = NA, ATTAINS.WaterType
 #' )
 #'
 #' AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
@@ -2187,7 +2200,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' AK_CreateUseAURef <- TADA_CreateUseAURef(
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
-#'   AUMLRef = AK_AU_Ref,
+#'   AUMLRef = AK_appenduserdata,
 #'   excel = FALSE
 #' )
 #'
@@ -2195,7 +2208,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' AK_CreateUseAURef_auto_assign <- TADA_CreateUseAURef(
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
-#'   AUMLRef = AK_AU_Ref,
+#'   AUMLRef = AK_appenduserdata,
 #'   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
 #'   excel = FALSE
 #' )
@@ -2233,7 +2246,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
     if (excel == FALSE && overwrite == TRUE) {
       stop(paste0(
         "argument input excel = FALSE and overwrite = TRUE is an invalid combination.",
-        "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE"
+        "Cannot overwrite the excel generated spreadsheet if a user specifies excel = FALSE."
       ))
     }
 
@@ -2254,7 +2267,7 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
     if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
       if (!is.data.frame(AUMLRef)) {
         stop(paste0(
-          "TADA_CreateUseAURef: 'AUMLRef' must be a data frame with these 2 columns:",
+          "TADA_CreateUseAURef: 'AUMLRef' must be a data frame with these 3 columns:",
           "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
         ))
       }

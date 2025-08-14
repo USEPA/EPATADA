@@ -70,10 +70,16 @@ will examine the response code of each MS_DATA_LINK URL and only retain those
 with a 200 response, which indicates the URL is valid.}
 }
 \value{
-A dataframe with four columns, MonitoringLocationIdentifier,
-OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, and
-MonitoringDataLinkText is returned. This matches the format of the batch
-upload files required to add or update monitoring locations in ATTAINS.
+When batch_upload = FALSE, A dataframe with six columns:
+OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
+ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
+When batch_upload = TRUE, A dataframe with four columns:
+MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
+is returned. This is the crosswalk between monitoring location identifiers
+and assessment units that the state or tribal organization submitted
+to ATTAINS (optional). If an ATTAINS organization has not submitted this
+information in ATTAINS, the function will not return a dataframe.
 }
 \description{
 This function creates the batch upload files needed to create or update
