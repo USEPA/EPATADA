@@ -96,8 +96,8 @@ assessment is approved and completed.
 # Pull a sample WQP data query
 TADA_AK_Example <- TADA_DataRetrieval(
   startDate = "2022-01-01", endDate = "2022-12-31",
-  organization = "AKDECWQ", statecode = "AK", # update this line to reflect your spatial area of interest - whether it's by countyCode, stateCode, organizationName etc.
-  characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli", "Fecal Coliform", "Total Coliform"),
+  organization = "AKDECWQ", statecode = "AK", 
+  characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli"),
   ask = FALSE
 )
 

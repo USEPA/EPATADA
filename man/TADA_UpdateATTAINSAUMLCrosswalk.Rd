@@ -78,8 +78,7 @@ When batch_upload = TRUE, A dataframe with four columns:
 MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
 is returned. This is the crosswalk between monitoring location identifiers
 and assessment units that the state or tribal organization submitted
-to ATTAINS (optional). If an ATTAINS organization has not submitted this
-information in ATTAINS, the function will not return a dataframe.
+to ATTAINS (optional).
 }
 \description{
 This function creates the batch upload files needed to create or update
