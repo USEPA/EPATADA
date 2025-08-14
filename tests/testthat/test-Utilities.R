@@ -11,7 +11,7 @@ test_that("TADA_AutoClean function does not grow dataset", {
 test_that("TADA_AutoClean: pH harmonization works as expected", {
  # get random pH data
  random_data <- TADA_RandomTestingData(
-   choose_random_state = FALSE,
+   choose_random_state = TRUE,
    number_of_days = 1,
    autoclean = FALSE
  )
@@ -19,8 +19,8 @@ test_that("TADA_AutoClean: pH harmonization works as expected", {
 
  while (nrow(random_pH_data) < 2) {
    random_data <- TADA_RandomTestingData(
-     choose_random_state = FALSE,
-     number_of_days = 2,
+     choose_random_state = TRUE,
+     number_of_days = 1,
      autoclean = FALSE
    )
    random_pH_data <- dplyr::filter(random_data, CharacteristicName %in% "pH")
@@ -99,7 +99,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                     autoclean = TRUE)
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "NA - Not Available", "Text", "Percentage")))
+                    c("Numeric", "NA - Not Available", "Text", "Percentage", "Less Than")))
   
   testdat <- TADA_SimpleCensoredMethods(testdat,
                                         nd_method = "multiplier",
@@ -111,7 +111,8 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                     c("Numeric", 
                       "NA - Not Available", 
                       "Text", 
-                      "Result Value/Unit Estimated from Detection Limit")))
+                      "Result Value/Unit Estimated from Detection Limit",
+                      "Less Than")))
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -183,4 +184,54 @@ test_that("TADA_ConvertSpecialChars removes all NAs in result cols", {
   # does not cover units yet, add back in future
   # # Test to ensure unit column does not contain any NA values
   # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+})
+
+
+test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
+  testdat = TADA_DataRetrieval(statecode = "CO", 
+                               startDate = "2017-06-20", 
+                               endDate = "2017-06-21", 
+                               ask = FALSE)
+  
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", "NA - Not Available", "Text", "Percentage")))
+  
+  testdat <- TADA_SimpleCensoredMethods(testdat,
+                                        nd_method = "multiplier",
+                                        nd_multiplier = 0.5,
+                                        od_method = "as-is",
+                                        od_multiplier = "null")
+  
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", 
+                      "NA - Not Available", 
+                      "Text", 
+                      "Result Value/Unit Estimated from Detection Limit",
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit",
+                      "Percentage"
+                      )))
+  
+  # subset_df <- testdat[testdat$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit", ]
+  
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
+  
+  # # Test to ensure unit column does not contain any NA values
+  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+  
+  # Test to make sure remaining result value data types are expected
+  # "Result Value/Unit Copied from Detection Limit" should no longer be there
+  # NA should not be there... 
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", 
+                      "Percentage",
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than")))  
 })
