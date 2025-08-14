@@ -22,7 +22,14 @@ description: An example Module 2 workflow for creating an ATTAINS assessment uni
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = FALSE
+)
 ```
 
 ## Install and Load EPATADA Package

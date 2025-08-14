@@ -74,13 +74,9 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 })
 
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
-  today <- Sys.Date()
-  twoago <- as.character(today - 2 * 365)
-  testdat <- TADA_DataRetrieval(statecode = "UT", 
-                                startDate = twoago, 
-                                characteristicName = c("Nitrate", "Copper"), 
-                                sampleMedia = "Water", 
-                                ask = FALSE)
+  testdat <- TADA_RandomTestingData(number_of_days = 1,
+                                    choose_random_state = TRUE,
+                                    autoclean = TRUE)
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -110,7 +106,10 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                         od_multiplier = "null")
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "NA - Not Available", "Text", "Result Value/Unit Estimated from Detection Limit")))
+                    c("Numeric", 
+                      "NA - Not Available", 
+                      "Text", 
+                      "Result Value/Unit Estimated from Detection Limit")))
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -135,11 +134,9 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 
 
 test_that("TADA_ConvertSpecialChars removes NAs when clean = TRUE", {
-  testdat <- TADA_DataRetrieval(statecode = "UT", 
-                                startDate = "2024-08-11", 
-                                endDate = "2025-08-11",
-                                characteristicType = "Nutrient",
-                                ask = FALSE)
+  testdat <- TADA_RandomTestingData(number_of_days = 1,
+                                    choose_random_state = TRUE,
+                                    autoclean = TRUE)
 
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",

@@ -266,9 +266,10 @@ should contact the ATTAINS team (attains\@epa.gov) for assistance.
 For our first example, let's start of with a single organization. In
 this example TADA data frame, this spatial area consists of WQP data
 from several different states. We will specify Maryland "MDE_EASP" as
-our ATTAINS organization identifier of interest. By default, auto_assign =
-"None" which will not populate any entries for the ATTAINS.ParameterName
-column, and users will need to manually fill this crosswalk out.
+our ATTAINS organization identifier of interest. By default, auto_assign
+= "None" which will not populate any entries for the
+ATTAINS.ParameterName column, and users will need to manually fill this
+crosswalk out.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
@@ -286,11 +287,11 @@ TADA_TableExport(NCTC_ParamRef_None)
 ```
 
 Now, let's go through an example in which users auto-populate the
-crosswalk with exact matches. We will use auto_assign = 'All' to indicate we
-will use exact matches regardless of if your organization has used this
-"ATTAINS.ParameterName" domain value in the past. i.e. Your organization
-is fine with using an ATTAINS Parameter Name that has been submitted to
-ATTAINS outside of your organization.
+crosswalk with exact matches. We will use auto_assign = 'All' to
+indicate we will use exact matches regardless of if your organization
+has used this "ATTAINS.ParameterName" domain value in the past. i.e.
+Your organization is fine with using an ATTAINS Parameter Name that has
+been submitted to ATTAINS outside of your organization.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -307,9 +308,9 @@ NCTC_ParamRef_All <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_All)
 ```
 
-We can also use auto_assign = 'Org' to indicate we will use exact matches
-ONLY if your organization has used this "ATTAINS.ParameterName" domain
-value in the past.
+We can also use auto_assign = 'Org' to indicate we will use exact
+matches ONLY if your organization has used this "ATTAINS.ParameterName"
+domain value in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -369,10 +370,9 @@ NCTC_ParamRef_Manual <- TADA_CreateParamRef(
 TADA_TableExport(NCTC_ParamRef_Manual)
 ```
 
-We can now save and reuse NCTC_ParamRef_Manual as the
-paramRef argument input in TADA_CreateParamRef(). This is useful to 
-go through a review process if new WQX characteristic names are added
-as a domain value.
+We can now save and reuse NCTC_ParamRef_Manual as the paramRef argument
+input in TADA_CreateParamRef(). This is useful to go through a review
+process if new WQX characteristic names are added as a domain value.
 
 ```{r Auto-Create-ParamRef}
 NCTC_ParamRef_AutoCreate <- TADA_CreateParamRef(
@@ -447,9 +447,9 @@ associated with it.
 
 In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were
 the ATTAINS.ParameterNames done in prior assessment cycles for MDE_EASP
-(see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was not listed
-in ATTAINS for MDE_EASP in the prior assessment cycle, but was included
-in MDE_EASP paramRef argument input.
+(see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was not
+listed in ATTAINS for MDE_EASP in the prior assessment cycle, but was
+included in MDE_EASP paramRef argument input.
 
 ```{r useparamref-Manual}
 NCTC_UseParamRef_Manual <- TADA_CreateUseParamRef(
@@ -463,9 +463,10 @@ NCTC_UseParamRef_Manual <- TADA_CreateUseParamRef(
 )
 ```
 
-If desired, a user can manually assign this parameter to any applicable uses (disclaimer:
-this is for demonstration purposes only and does not reflect MDE_EASP's
-process).
+If desired, a user can manually assign this parameter to any applicable
+uses (disclaimer: this is for demonstration purposes only and does not
+reflect MDE_EASP's process).
+
 ```{r useparamref-Manual Update}
 add_data <- data.frame(
   "ATTAINS.OrganizationIdentifier" = "MDE_EASP",
@@ -520,8 +521,9 @@ If a user includes wants to include additional organizations beyond
 "MDE_EASP" , they will need to have defined those organizations in
 TADA_CreateParamRef with the org_id argument input. We will create
 another example paramRef from TADA_CreateParamRef that would allow us to
-pull in this information for more than one organization. We will also run
-TADA_CreateUseParamRef for multiple organizations using autoassign = TRUE.
+pull in this information for more than one organization. We will also
+run TADA_CreateUseParamRef for multiple organizations using autoassign =
+TRUE.
 
 ```{r useparamref-multipleorgs}
 # create TADA parameter reference table for specified organization
