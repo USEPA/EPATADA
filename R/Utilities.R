@@ -149,7 +149,20 @@ utils::globalVariables(c(
   "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
   "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
-  "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType"
+  "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType",
+  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New", 
+  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier", 
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK", 
+  "OLD_ATTAINS.MonitoringLocationIdentifier", "Shape_Area", "Shape_Length",
+  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname", 
+  "assmnt_joinkey", "catchmentistribal", "catchmentresolution", 
+  "catchmentstatecode", "has4bplan", "hasalternativeplan", "hasprotectionplan",
+  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened", 
+  "objectId", "on303dlist", "organizationid", "organizationname", "orgtype",
+  "overallstatus", "permid_joinkey", "region", "reportingCycle", 
+  "reportingcycle", "response.code", "return_sf", "state", "submissionid", 
+  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version", 
+  "xwalk_method"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

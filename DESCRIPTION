@@ -82,14 +82,14 @@ Imports:
     janitor,
     rExpertQuery,
     curl (>= 6.0.0),
-    xml2,
     readr (>= 1.4.0),
-    httr2,
-    whisker,
     spsUtil
 Depends: 
     R (>= 4.1.0)
 Suggests:
+    xml2,
+    whisker,
+    httr2,
     hydroloom,
     lwgeom,
     RColorBrewer,
