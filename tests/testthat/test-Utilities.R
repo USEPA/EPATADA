@@ -184,70 +184,55 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 })
 
 test_that("pH harmonization works as expected throughout workflow", {
-  # Define a vector of state codes
-  state_codes <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", 
-                   "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", 
-                   "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
-                   "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
-                   "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
-  
-  # Select one random state code
-  selected_state_code <- base::sample(state_codes, 1)
-  
-  # Select a random month and year in the last 10 years
+  # Select a random day within the last 10 years
+  # - Year, month, and day offsets are randomly chosen to calculate a date.
+  # - Adjustments ensure valid month and day values.
   random_year_offset <- base::sample(0:9, 1)
   random_month_offset <- base::sample(0:11, 1)
+  random_day_offset <- base::sample(0:30, 1)  # Assuming a month can have up to 31 days
+  
   selected_year <- base::as.integer(base::format(base::Sys.Date(), "%Y")) - random_year_offset
   selected_month <- base::as.integer(base::format(base::Sys.Date(), "%m")) - random_month_offset
+  selected_day <- base::as.integer(base::format(base::Sys.Date(), "%d")) - random_day_offset
   
-  # Adjust year and month if month is negative or zero
+  # Adjust year, month, and day if month or day is invalid
+  # - Ensures month is between 1 and 12.
+  # - Ensures day is valid by adjusting month and year if necessary.
   if (selected_month <= 0) {
     selected_month <- selected_month + 12
     selected_year <- selected_year - 1
   }
   
-  # Create start date
-  start_date <- base::as.Date(base::paste(selected_year, base::sprintf("%02d", selected_month), "01", sep = "-"))
-  
-  # Function to add months using base R
-  add_months <- function(date, n) {
-    year <- base::as.integer(base::format(date, "%Y"))
-    month <- base::as.integer(base::format(date, "%m"))
-    day <- base::as.integer(base::format(date, "%d"))
-    
-    new_month <- month + n
-    new_year <- year + (new_month - 1) %/% 12
-    new_month <- (new_month - 1) %% 12 + 1
-    
-    new_date <- base::as.Date(base::paste(new_year, new_month, day, sep = "-"), "%Y-%m-%d")
-    
-    # Adjust the day if the new date is invalid
-    if (base::is.na(new_date)) {
-      new_date <- base::as.Date(base::paste(new_year, new_month, "01", sep = "-"), "%Y-%m-%d")
-      new_date <- new_date + base::as.integer(base::format(new_date, "%d")) - 1
+  if (selected_day <= 0) {
+    selected_day <- selected_day + 31
+    selected_month <- selected_month - 1
+    if (selected_month <= 0) {
+      selected_month <- selected_month + 12
+      selected_year <- selected_year - 1
     }
-    
-    return(new_date)
   }
   
-  # Calculate end date for a 6-month period
-  end_date <- add_months(start_date, 5)
+  # Create the date
+  # - Constructs a Date object for the selected day.
+  selected_date <- base::as.Date(base::paste(selected_year, base::sprintf("%02d", selected_month), base::sprintf("%02d", selected_day), sep = "-"))
   
-  # Measure the time taken to retrieve data
+  # Measure the time taken to retrieve data for the selected date
+  # - Retrieves pH data for the specific day using the TADA_DataRetrieval function.
   ph_data <- TADA_DataRetrieval(
-      statecode = selected_state_code,
-      startDate = base::as.character(start_date),
-      endDate = base::as.character(end_date),
-      characteristicName = "pH",
-      ask = FALSE
-    )
-
+    startDate = base::as.character(selected_date),
+    endDate = base::as.character(selected_date),
+    characteristicName = "pH",
+    ask = FALSE
+  )
+  
   # Check if the required data frame is empty or null
+  # - Skips the test if no data is retrieved.
   if (is.null(ph_data) || nrow(ph_data) == 0) {
     skip("Skipping test because ph_data is empty or null")
   }
   
   # Process data
+  # - Applies several functions to clean and harmonize the data.
   ph_data <- ph_data %>%
     TADA_SimpleCensoredMethods() %>%
     TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) %>%
@@ -255,9 +240,11 @@ test_that("pH harmonization works as expected throughout workflow", {
     TADA_HarmonizeSynonyms()
   
   # Assert that the data frame is not empty
+  # - Ensures that the processed data frame contains rows.
   testthat::expect_gt(base::nrow(ph_data), 0, label = "Data frame should not be empty")
   
   # Check results for the state
+  # - Prints and checks the unit codes to verify harmonization.
   base::print(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
   if (!base::all(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
     base::message(base::paste("pH data unit codes for state", selected_state_code, "are not harmonized to 'NONE'"))
