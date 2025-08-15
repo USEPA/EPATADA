@@ -8,6 +8,8 @@ on:
 
 name: test-coverage
 
+# permissions: read-all ## this is now a default - TBD if required
+
 jobs:
   test-coverage:
     runs-on: ubuntu-latest
@@ -23,18 +25,19 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::covr
+          extra-packages: any::covr, any::xml2
           needs: coverage
 
       - name: Test coverage
-        run: |
-          covr::codecov(
+          cov <- covr::package_coverage(
             quiet = FALSE,
             clean = FALSE,
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
+          print(cov)
+          covr::to_cobertura(cov)
         shell: Rscript {0}
-
+#codecov/codecov-action@v5
       - name: Show testthat output
         if: always()
         run: |
