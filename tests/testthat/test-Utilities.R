@@ -99,7 +99,21 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                     autoclean = TRUE)
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "NA - Not Available", "Text", "Percentage", "Less Than")))
+                    c("Numeric", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit",
+                      "NA - Not Available",
+                      "Text",
+                      "Non-ASCII Character(s)",
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
   
   testdat <- TADA_SimpleCensoredMethods(testdat,
                                         nd_method = "multiplier",
@@ -109,10 +123,20 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
                     c("Numeric", 
-                      "NA - Not Available", 
-                      "Text", 
-                      "Result Value/Unit Estimated from Detection Limit",
-                      "Less Than")))
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit",
+                      "NA - Not Available",
+                      "Text",
+                      "Non-ASCII Character(s)",
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -131,7 +155,17 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   # "Result Value/Unit Copied from Detection Limit" should no longer be there
   # NA should not be there... 
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", "Result Value/Unit Estimated from Detection Limit", "Less Than")))  
+                    c("Numeric", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit")))  
 })
 
 
