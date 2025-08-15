@@ -15,31 +15,31 @@
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
-#' 
+#'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
 #' batch_upload = FALSE, the output column names will be consistent with the TADA
 #' workflow. Default is batch_upload = FALSE.
 #'
-#' @return When batch_upload = FALSE, A dataframe with six columns: 
+#' @return When batch_upload = FALSE, A dataframe with six columns:
 #' OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
 #' ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-#' ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned. 
-#' When batch_upload = TRUE, A dataframe with four columns: 
+#' ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
+#' When batch_upload = TRUE, A dataframe with four columns:
 #' MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
-#' is returned. This is the crosswalk between monitoring location identifiers 
-#' and assessment units that the state or tribal organization submitted 
-#' to ATTAINS (optional). If an ATTAINS organization has not submitted this 
+#' is returned. This is the crosswalk between monitoring location identifiers
+#' and assessment units that the state or tribal organization submitted
+#' to ATTAINS (optional). If an ATTAINS organization has not submitted this
 #' information in ATTAINS, the function will not return a dataframe.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Alaska example in 
+#' # Alaska example in
 #' AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ", batch_upload = TRUE)
-#' 
+#'
 #' # Alaska example with ATTAINS prefix compatible with TADA Analysis workflow
 #' AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
 #'   org_id = "AKDECWQ", batch_upload = FALSE)
@@ -170,7 +170,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' wqp_data_links = "none", no URLs will be created or added to the returned
 #' data frame. Default is wqp_data_links = "add".
 #'
-#' @param check_links. Boolean argument. When check_links = TRUE the function
+#' @param check_links Boolean argument. When check_links = TRUE the function
 #' will examine the response code of each MS_DATA_LINK URL and only retain those
 #' with a 200 response, which indicates the URL is valid.
 #'
@@ -207,14 +207,14 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' batch upload. When batch_upload = FALSE, the column names will match those in
 #' the TADA workflow. Default is batch_upload = FALSE.
 #'
-#' @return When batch_upload = FALSE, A dataframe with six columns: 
+#' @return When batch_upload = FALSE, A dataframe with six columns:
 #' OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
 #' ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-#' ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned. 
-#' When batch_upload = TRUE, A dataframe with four columns: 
+#' ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
+#' When batch_upload = TRUE, A dataframe with four columns:
 #' MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
-#' is returned. This is the crosswalk between monitoring location identifiers 
-#' and assessment units that the state or tribal organization submitted 
+#' is returned. This is the crosswalk between monitoring location identifiers
+#' and assessment units that the state or tribal organization submitted
 #' to ATTAINS (optional).
 #'
 #' @seealso [TADA_GetATTAINSAUMLCrosswalk()]
@@ -242,9 +242,9 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' )
 #'
 #' # example organization identifiers
-#' OrganizationIdentifier <- 
+#' OrganizationIdentifier <-
 #'   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
-#' ATTAINS.OrganizationIdentifier <- 
+#' ATTAINS.OrganizationIdentifier <-
 #'   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 #'
 #' # example assessment units
@@ -263,7 +263,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'
 #' # create example crosswalk data frame
 #' ex.user.cw <- data.frame(
-#'   ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, 
+#'   ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier,
 #'   ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
 #'   ATTAINS.WaterType, ATTAINS.MonitoringDataLinkText
 #' )
@@ -678,10 +678,10 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
     # select relevant column names and ordering for output in TADA workflow format.
     update.crosswalk <- update.crosswalk %>%
-      dplyr::select(OrganizationIdentifier, ATTAINS.OrganizationIdentifier,     
+      dplyr::select(OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
                     ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
                     ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType)
-    
+
     # If batch upload is desired, format the output in the required format.
     if (batch_upload == TRUE) {
       update.crosswalk <- update.crosswalk %>%
@@ -2149,7 +2149,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' # Pull a sample WQP data query
 #' TADA_AK_Example <- TADA_DataRetrieval(
 #'   startDate = "2022-01-01", endDate = "2022-12-31",
-#'   organization = "AKDECWQ", statecode = "AK", 
+#'   organization = "AKDECWQ", statecode = "AK",
 #'   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli"),
 #'   ask = FALSE
 #' )
@@ -2173,7 +2173,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #' )
 #'
 #' # example organization identifiers
-#' ATTAINS.OrganizationIdentifier <- 
+#' ATTAINS.OrganizationIdentifier <-
 #'   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 #'
 #' # example ML matched to new AUs, these are only examples
@@ -2189,9 +2189,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 #'
 #' # create example crosswalk data frame
 #' ex.user.cw <- data.frame(
-#'   ATTAINS.MonitoringLocationIdentifier, 
+#'   ATTAINS.MonitoringLocationIdentifier,
 #'   ATTAINS.OrganizationIdentifier,
-#'   OrganizationIdentifier = ATTAINS.OrganizationIdentifier, 
+#'   OrganizationIdentifier = ATTAINS.OrganizationIdentifier,
 #'   ATTAINS.AssessmentUnitIdentifier,
 #'   ATTAINS.MonitoringDataLinkText = NA, ATTAINS.WaterType
 #' )

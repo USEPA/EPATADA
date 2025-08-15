@@ -1177,14 +1177,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' the function will additionally return the raw catchment features associated
 #' with the observations in TADA_without_ATTAINS in a new shapefile called
 #' without_ATTAINS_catchments. Defaults to TRUE.
-#' @param au_ref Optional. A df containing the existing crosswalk of known
-#' AU and monitoring location identifier combinations. Can be created using
-#' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
-#' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
-#' ML.OrganizationIdentifier (OrganizationIdentifier for sampling org), and
-#' ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
-#' match those in the WQP, which may contain the organization and provider in
-#' the MonitoringLocationIdentifier.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
@@ -1679,6 +1671,12 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 #' match those in the WQP, which may contain the organization and provider in
 #' the MonitoringLocationIdentifier.
+#'
+#' @param add_catch Boolean argument. Specify whether catchment data should be queried
+#' and downloaded for the user-supplied assessment units. When add_catch = TRUE,
+#' the catchment data are included in the output. When add_catch = FALSE,
+#' catchment data are not included. Setting add_catch = TRUE, may increase the
+#' run time of the function significantly. Default is add_catch = FALSE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
