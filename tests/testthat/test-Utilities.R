@@ -8,36 +8,6 @@ test_that("TADA_AutoClean function does not grow dataset", {
   expect_true(dim(testautoclean1)[1] == dim(testautoclean2)[1])
 })
 
-test_that("TADA_AutoClean: pH harmonization works as expected", {
- # get random pH data
- random_data <- TADA_RandomTestingData(
-   choose_random_state = TRUE,
-   number_of_days = 1,
-   autoclean = FALSE
- )
- random_pH_data <- dplyr::filter(random_data, CharacteristicName %in% "pH")
-
- while (nrow(random_pH_data) < 2) {
-   random_data <- TADA_RandomTestingData(
-     choose_random_state = TRUE,
-     number_of_days = 1,
-     autoclean = FALSE
-   )
-   random_pH_data <- dplyr::filter(random_data, CharacteristicName %in% "pH")
-}
- # TADA_AutoClean harmonizes pH, and other mod 1 required functions remove nonsensical data
- pHtest <- TADA_AutoClean(random_data)
- pHtest2 <- TADA_SimpleCensoredMethods(pHtest)
- pHtest3 <- TADA_ConvertSpecialChars(pHtest2, col = "TADA.ResultMeasureValue", clean = TRUE)
- pHtest4 <- TADA_RunKeyFlagFunctions(pHtest3, clean = TRUE)
- pHtest5 <- TADA_HarmonizeSynonyms(pHtest4)
-
- # Is pH data harmonized after above mod 1 functions have run?
- pHtest6 <- dplyr::filter(pHtest5, CharacteristicName %in% "pH")
- print(unique(pHtest6$TADA.ResultMeasure.MeasureUnitCode))
- expect_true(unique(pHtest6$TADA.ResultMeasure.MeasureUnitCode) == "NONE")
-})
-
 test_that("Column names do not contain the pattern 'TADA.TADA.'", {
   test_TADA.TADA. <-
     TADA_ConvertSpecialChars(
@@ -268,3 +238,80 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                       "Approximate Value",
                       "Result Value/Unit Copied from Detection Limit")))  
 })
+
+test_that("TADA_AutoClean: pH harmonization works as expected", {
+  max_attempts <- 3  # Maximum number of attempts to find pH data
+  attempt <- 0
+  random_pH_data <- data.frame()  # Initialize as an empty data frame
+  
+  while (nrow(random_pH_data) < 2 && attempt < max_attempts) {
+    random_data <- TADA_RandomTestingData(
+      choose_random_state = TRUE,
+      number_of_days = 1,
+      autoclean = FALSE
+    )
+    random_pH_data <- dplyr::filter(random_data, CharacteristicName %in% "pH")
+    attempt <- attempt + 1
+  }
+  
+  if (nrow(random_pH_data) < 2) {
+    skip("Skipping test: Failed to generate sufficient pH data after maximum attempts")
+  }
+  
+  # Initial unit codes
+  initial_unit_codes <- unique(random_pH_data$TADA.ResultMeasure.MeasureUnitCode)
+  print(paste("Initial unit codes:", paste(initial_unit_codes, collapse = ", ")))
+  
+  # TADA_AutoClean harmonizes pH, and other mod 1 required functions remove nonsensical data
+  pHtest <- TADA_AutoClean(random_data)
+  expect_true(nrow(pHtest) > 0, info = "pHtest is empty after TADA_AutoClean")
+  
+  # Check for changes in unit codes
+  unit_codes_after_autoclean <- unique(pHtest$TADA.ResultMeasure.MeasureUnitCode)
+  if (!identical(initial_unit_codes, unit_codes_after_autoclean)) {
+    print(paste("Unit codes changed after TADA_AutoClean:", paste(unit_codes_after_autoclean, collapse = ", ")))
+  }
+  
+  pHtest2 <- TADA_SimpleCensoredMethods(pHtest)
+  expect_true(nrow(pHtest2) > 0, info = "pHtest2 is empty after TADA_SimpleCensoredMethods")
+  
+  # Check for changes in unit codes
+  unit_codes_after_censored_methods <- unique(pHtest2$TADA.ResultMeasure.MeasureUnitCode)
+  if (!identical(unit_codes_after_autoclean, unit_codes_after_censored_methods)) {
+    print(paste("Unit codes changed after TADA_SimpleCensoredMethods:", paste(unit_codes_after_censored_methods, collapse = ", ")))
+  }
+  
+  pHtest3 <- TADA_ConvertSpecialChars(pHtest2, col = "TADA.ResultMeasureValue", clean = TRUE)
+  expect_true(nrow(pHtest3) > 0, info = "pHtest3 is empty after TADA_ConvertSpecialChars")
+  
+  # Check for changes in unit codes
+  unit_codes_after_convert_special_chars <- unique(pHtest3$TADA.ResultMeasure.MeasureUnitCode)
+  if (!identical(unit_codes_after_censored_methods, unit_codes_after_convert_special_chars)) {
+    print(paste("Unit codes changed after TADA_ConvertSpecialChars:", paste(unit_codes_after_convert_special_chars, collapse = ", ")))
+  }
+  
+  pHtest4 <- TADA_RunKeyFlagFunctions(pHtest3, clean = TRUE)
+  expect_true(nrow(pHtest4) > 0, info = "pHtest4 is empty after TADA_RunKeyFlagFunctions")
+  
+  # Check for changes in unit codes
+  unit_codes_after_key_flag_functions <- unique(pHtest4$TADA.ResultMeasure.MeasureUnitCode)
+  if (!identical(unit_codes_after_convert_special_chars, unit_codes_after_key_flag_functions)) {
+    print(paste("Unit codes changed after TADA_RunKeyFlagFunctions:", paste(unit_codes_after_key_flag_functions, collapse = ", ")))
+  }
+  
+  pHtest5 <- TADA_HarmonizeSynonyms(pHtest4)
+  expect_true(nrow(pHtest5) > 0, info = "pHtest5 is empty after TADA_HarmonizeSynonyms")
+  
+  # Check for changes in unit codes
+  unit_codes_after_harmonize_synonyms <- unique(pHtest5$TADA.ResultMeasure.MeasureUnitCode)
+  if (!identical(unit_codes_after_key_flag_functions, unit_codes_after_harmonize_synonyms)) {
+    print(paste("Unit codes changed after TADA_HarmonizeSynonyms:", paste(unit_codes_after_harmonize_synonyms, collapse = ", ")))
+  }
+  
+  # Is pH data harmonized after above mod 1 functions have run?
+  pHtest6 <- dplyr::filter(pHtest5, CharacteristicName %in% "pH")
+  expect_true(nrow(pHtest6) > 0, info = "pHtest6 is empty after filtering for pH")
+  print(unique(pHtest6$TADA.ResultMeasure.MeasureUnitCode))
+  expect_true(unique(pHtest6$TADA.ResultMeasure.MeasureUnitCode) == "NONE")
+})
+
