@@ -25,7 +25,7 @@ test_that("np summation key matches nutrient harmonization ref", {
 
 
 
-test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result or unit cols", {
+test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result cols", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
@@ -45,40 +45,6 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
   # # Test to ensure unit column does not contain any NA values
   # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
 })
-
-
-
-test_that("TADA_CalculateTotalNP does not remove any original data", {
-  df <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
-  df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
-                                    nd_multiplier = 0.5, od_method = "as-is", 
-                                    od_multiplier = "null")
-  
-  df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-  
-  df2 <- TADA_HarmonizeSynonyms(df2)
-  
-  df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-  
-  # Check that all ResultIdentifier values from the original df2 are in df3
-  original_identifiers <- unique(df2$ResultIdentifier)
-  combined_identifiers <- unique(df3$ResultIdentifier)
-  
-  # Test that no identifiers are missing
-  missing_identifiers <- setdiff(original_identifiers, combined_identifiers)
-  
-  expect_true(length(missing_identifiers) == 0, 
-              info = paste("Missing identifiers:", paste(missing_identifiers, collapse = ", ")))
-  
-  # Test for duplicate ResultIdentifier values in df3
-  duplicate_ids <- df3$ResultIdentifier[duplicated(df3$ResultIdentifier)]
-  
-  expect_false(any(duplicated(df3$ResultIdentifier)), 
-               info = paste("Duplicate ResultIdentifier values found:", paste(duplicate_ids, collapse = ", ")))
-})
-
-
 
 test_that("TADA_CalculateTotalNP exclude data logic is not missing results", {
   df_original <- TADA_RandomTestingData(choose_random_state = TRUE)
@@ -157,4 +123,43 @@ test_that("TADA_CalculateTotalNP exclude data logic is not missing results", {
   # Check if the sum of rows in include_df and exclude_df equals the total rows in .data
   expect_equal(total_rows_include + total_rows_exclude, total_rows_data, 
                info = "The sum of rows in include_df and exclude_df should equal the total rows in .data.")
+})
+
+test_that("TADA package functions maintain ResultIdentifier integrity", {
+  # Generate random testing data
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
+  # Apply simple censored methods
+  df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
+                                    nd_multiplier = 0.5, od_method = "as-is", 
+                                    od_multiplier = "null")
+  
+  # Run key flag functions
+  df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
+  
+  # Harmonize synonyms
+  df2 <- TADA_HarmonizeSynonyms(df2)
+  
+  # Calculate total NP with daily aggregation
+  df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+  
+  # Check that all ResultIdentifier values from the original df2 are in df3
+  original_identifiers <- unique(df2$ResultIdentifier)
+  combined_identifiers <- unique(df3$ResultIdentifier)
+  
+  # Test that no identifiers are missing
+  missing_identifiers <- setdiff(original_identifiers, combined_identifiers)
+  expect_true(length(missing_identifiers) == 0, 
+              info = paste("Missing identifiers:", paste(missing_identifiers, collapse = ", ")))
+  
+  # Test for duplicate ResultIdentifier values in df3
+  duplicate_ids <- df3$ResultIdentifier[duplicated(df3$ResultIdentifier)]
+  expect_false(any(duplicated(df3$ResultIdentifier)), 
+               info = paste("Duplicate ResultIdentifier values found:", paste(duplicate_ids, collapse = ", ")))
+  
+  # Optionally verify column names
+  # print(names(df2))  # Uncomment to print column names for verification
+  
+  # Optionally subset df2 to include only rows with missing identifiers
+  # filtered_df2 <- df2[df2$ResultIdentifier %in% missing_identifiers, ]
 })

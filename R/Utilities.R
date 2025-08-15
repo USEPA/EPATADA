@@ -349,6 +349,16 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
                                      clean = FALSE, flaggedonly = FALSE) {
+  
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   if (!col %in% names(.data)) {
     stop("Suspect column name specified for input dataset.")
   }
@@ -576,6 +586,15 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 #' unique(df4$TADA.CharacteristicName)
 #' }
 TADA_SubstituteDeprecatedChars <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
@@ -634,6 +653,15 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   TADA_CheckColumns(.data,
     expected_cols = c(
       "TADA.CharacteristicName",
@@ -828,6 +856,15 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 #'   agg_fun = "mean", clean = FALSE
 #' )
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
@@ -1227,6 +1264,15 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 #' UniqueCharUnitSpecExample <-
 #'   TADA_UniqueCharUnitSpeciation(Data_Nutrients_UT)
 TADA_UniqueCharUnitSpeciation <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -1492,6 +1538,12 @@ TADA_CreateCSV <- function(.data) {
     stop("Input object must be of class 'data.frame'")
   }
 
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   df_name <- deparse(substitute(.data))
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))

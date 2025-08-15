@@ -111,14 +111,20 @@
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
 TADA_AutoClean <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   # need to specify this or throws error when trying to bind rows. Temporary fix for larger
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
@@ -336,6 +342,15 @@ TADA_AutoClean <- function(.data) {
 #' # Run flagging functions and remove and suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   if (clean == TRUE) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)

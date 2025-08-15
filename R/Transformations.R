@@ -65,6 +65,12 @@
 TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }
 
   # check .data has the required columns
   expected_cols <- c(
@@ -312,6 +318,16 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 TADA_CalculateTotalNP <- function(.data, 
                                   sum_ref, 
                                   daily_agg = c("max", "min", "mean")) {
+  
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }
+  
   # check to make sure daily_agg is populated with allowable value
   daily_agg <- match.arg(daily_agg)
 
@@ -389,7 +405,9 @@ TADA_CalculateTotalNP <- function(.data,
                           "Comma-Separated Numeric",
                           "Numeric Range - Averaged",
                           "Percentage Range - Averaged",
-                          "Approximate Value")) &
+                          "Approximate Value",
+                          "Result Value/Unit Copied from Detection Limit"
+                          )) &
                      (.data$TADA.ResultUnit.Flag %in% 
                         c("Pass", 
                           "Not Reviewed")) &
@@ -489,10 +507,17 @@ TADA_CalculateTotalNP <- function(.data,
   #     "TADA.ComparableDataIdentifier",
   #     "TADA.ResultValueAggregation.Flag")))
   
-  # add rows not selected back at end but do not include in TN/TP summation
-  dat_addback <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
-                        c(paste0("Considered in ", daily_agg, " aggregation function but not selected"))), ]
-  if( dim(dat_addback)[1] > 0){
+  # Add rows not selected back at end but do not include in TN/TP summation
+  # Define the condition for rows to be added back
+  condition <- paste0("Considered in ", daily_agg, " aggregation function but not selected")
+  # Initialize dat_addback as an empty data frame. This handles cases where no rows meet the condition
+  dat_addback <- data.frame()
+  # Check if the column exists and subset the rows to add back
+  if ("TADA.ResultValueAggregation.Flag" %in% names(dat)) {
+    dat_addback <- dat[dat$TADA.ResultValueAggregation.Flag %in% condition, ]
+  }
+  # Add flag to specify these are not used in TN and TP summation
+  if (dim(dat_addback)[1] > 0) {
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
   
@@ -746,6 +771,15 @@ TADA_AggregateMeasurements <- function(.data,
                                                          "TADA.ResultMeasure.MeasureUnitCode"), 
                                        agg_fun = c("max", "min", "mean"), 
                                        clean = FALSE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }
+  
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
   
