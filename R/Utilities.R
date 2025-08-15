@@ -524,7 +524,11 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit", "Coerced to NA"))
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available",
+                                                      "Text",
+                                                      "Non-ASCII Character(s)",
+                                                      "Result Value/Unit Cannot Be Estimated From Detection Limit",
+                                                      "Coerced to NA"))
 
       return(clean.data)
     }
@@ -536,7 +540,11 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available", "Text", "Result Value/Unit Cannot Be Estimated From Detection Limit", "Coerced to NA"))
+      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available",
+                                                 "Text",
+                                                 "Non-ASCII Character(s)",
+                                                 "Result Value/Unit Cannot Be Estimated From Detection Limit",
+                                                 "Coerced to NA"))
   }
 }
 

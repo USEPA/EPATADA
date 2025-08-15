@@ -226,12 +226,6 @@ Portal Query.*
 R5_nresults <- nrow(R5Profile)
 ```
 
-If you need to download a large amount of data from across a large area,
-and the **TADA_DataRetrieval** function is not working due to WQP
-timeout issues, then the **TADA_BigDataRetrieval** function may work
-better. See **?TADA_BigDataRetrieval** for more details or the TADA
-Module 1 vignette for more details.
-
 ## Review and Filter By Media Type
 
 TADA is primarily designed to accommodate water data from the WQP. Let's
