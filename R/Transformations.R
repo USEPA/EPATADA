@@ -424,7 +424,8 @@ TADA_CalculateTotalNP <- function(.data,
                            c("NA - Not Available",
                              "Text",
                              "Non-ASCII Character(s)",
-                             "Result Value/Unit Cannot Be Estimated From Detection Limit")) |
+                             "Result Value/Unit Cannot Be Estimated From Detection Limit",
+                             "Coerced to NA")) |
                         !(.data$TADA.ResultUnit.Flag %in% 
                             c("Pass",
                               "Not Reviewed")) |
