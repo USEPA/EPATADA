@@ -96,7 +96,7 @@ assessment is approved and completed.
 # Pull a sample WQP data query
 TADA_AK_Example <- TADA_DataRetrieval(
   startDate = "2022-01-01", endDate = "2022-12-31",
-  organization = "AKDECWQ", statecode = "AK", 
+  organization = "AKDECWQ", statecode = "AK",
   characteristicName = c("Enterococcus", "Escherichia", "Escherichia coli"),
   ask = FALSE
 )
@@ -120,7 +120,7 @@ ATTAINS.AssessmentUnitIdentifier <- c(
 )
 
 # example organization identifiers
-ATTAINS.OrganizationIdentifier <- 
+ATTAINS.OrganizationIdentifier <-
   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
 # example ML matched to new AUs, these are only examples
@@ -136,9 +136,9 @@ ATTAINS.WaterType <- c(
 
 # create example crosswalk data frame
 ex.user.cw <- data.frame(
-  ATTAINS.MonitoringLocationIdentifier, 
+  ATTAINS.MonitoringLocationIdentifier,
   ATTAINS.OrganizationIdentifier,
-  OrganizationIdentifier = ATTAINS.OrganizationIdentifier, 
+  OrganizationIdentifier = ATTAINS.OrganizationIdentifier,
   ATTAINS.AssessmentUnitIdentifier,
   ATTAINS.MonitoringDataLinkText = NA, ATTAINS.WaterType
 )

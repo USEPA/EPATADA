@@ -43,7 +43,7 @@ tribal nations record this information in ATTAINS but only a few states.
 }
 \examples{
 \dontrun{
-# Alaska example in 
+# Alaska example in
 AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "AKDECWQ", batch_upload = TRUE)
 

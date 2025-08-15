@@ -17,6 +17,12 @@ Must contain the columns ATTAINS.MonitoringLocationIdentifier,
 and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 match those in the WQP, which may contain the organization and provider in
 the MonitoringLocationIdentifier.}
+
+\item{add_catch}{Boolean argument. Specify whether catchment data should be queried
+and downloaded for the user-supplied assessment units. When add_catch = TRUE,
+the catchment data are included in the output. When add_catch = FALSE,
+catchment data are not included. Setting add_catch = TRUE, may increase the
+run time of the function significantly. Default is add_catch = FALSE.}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional

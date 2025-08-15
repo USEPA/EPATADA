@@ -65,7 +65,7 @@ names in the returned df will match the column names required for ATTAINS
 batch upload. When batch_upload = FALSE, the column names will match those in
 the TADA workflow. Default is batch_upload = FALSE.}
 
-\item{check_links.}{Boolean argument. When check_links = TRUE the function
+\item{check_links}{Boolean argument. When check_links = TRUE the function
 will examine the response code of each MS_DATA_LINK URL and only retain those
 with a 200 response, which indicates the URL is valid.}
 }
@@ -113,9 +113,9 @@ ATTAINS.AssessmentUnitIdentifier <- c(
 )
 
 # example organization identifiers
-OrganizationIdentifier <- 
+OrganizationIdentifier <-
   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
-ATTAINS.OrganizationIdentifier <- 
+ATTAINS.OrganizationIdentifier <-
   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
 # example assessment units
@@ -134,7 +134,7 @@ ATTAINS.MonitoringDataLinkText <- c(
 
 # create example crosswalk data frame
 ex.user.cw <- data.frame(
-  ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, 
+  ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier,
   ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
   ATTAINS.WaterType, ATTAINS.MonitoringDataLinkText
 )
