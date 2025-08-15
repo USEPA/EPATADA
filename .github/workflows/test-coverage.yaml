@@ -29,6 +29,7 @@ jobs:
           needs: coverage
 
       - name: Test coverage
+        run: |
           cov <- covr::package_coverage(
             quiet = FALSE,
             clean = FALSE,
