@@ -632,56 +632,75 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
                                  spatialSummary = c("groupedML", "individualML", "AU", NULL),
                                  #criteriaOutput = c("")
                                  excel = FALSE, overwrite = FALSE) {
+  # check to make sure summarizeBy is populated with allowable value
+  summarizeBy <- match.arg(summarizeBy)
   
   # Runs TADA_FlagDepthCategory if not already ran
   if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
     .data <- TADA_FlagDepthCategory(.data)
   }
   
-  if( length(is.na(criteriaMethods$MagnitudeValueLower)) > 0 ){
-    print(paste0("Warning: There are ", length(is.na(criteriaMethods$MagnitudeValueLower)), "rows with no magnitude values
-                 defined or specification of being an equation-based standards. Cannot compare these results to an NA value." ))
+  if ( sum(is.na(criteriaMethods$MagnitudeValueUpper) & is.na(criteriaMethods$MagnitudeValueLower)) > 0) {
+    print(
+    paste0(
+      "Warning: There are ", 
+      sum(is.na(criteriaMethods$MagnitudeValueUpper) & is.na(criteriaMethods$MagnitudeValueLower)), 
+      " row(s) with no magnitude values defined or specification of being an equation-based standards. Cannot compare these results to an NA value." ))
   }
   
   # Combine all and summarize by ONLY characteristic and ignore fraction and speciation
   # We can say "it's not recommended" - good question to ask to M3 subgroup - but would people find it useful?
   if( summarizeBy == "Char") {
-     char_only <- TADA_Example4 %>%
-      dplyr::left_join(myfileRef, by = c("TADA.CharacteristicName")) %>%
+     data_with_criteria <- .data %>%
+      dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName")) %>%
       dplyr::mutate(DurationPeriod = gsub("n-", paste0(DurationValue," "), DurationUnit)) %>%
-      mutate(
-        ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d %H:%M:%S"),
+      dplyr::mutate(
+        ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d"),
         ActivityStartDateTime = as.POSIXct(ActivityStartDateTime, format = "%Y-%m-%d %H:%M:%S")
         )
       #%>%
       # dplyr::mutate(Flag.CharOnly...) # will help to see if the logic makes sense
   }
   
+  # User will summarize only by defined WQP to ATTAINS Parameters in criteria table.
   if( summarizeBy == "Criteria") {
-    TADA_Example4.1 <- TADA_Example4 %>%
-      dplyr::left_join(TADA_CriteriaMethodology_AU_Final, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName"))
+    data_with_criteria <- .data %>%
+      dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")) %>%
+      dplyr::mutate(DurationPeriod = gsub("n-", paste0(DurationValue," "), DurationUnit)) %>%
+      dplyr::mutate(
+        ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d"),
+        ActivityStartDateTime = as.POSIXct(ActivityStartDateTime, format = "%Y-%m-%d %H:%M:%S")
+      )
   }
   
   # Split the joined .data by duration period.
-  Duration_splits <- split(TADA_Example4.1, TADA_Example4.1$DurationPeriod)
+  Duration_splits <- split(data_with_criteria, data_with_criteria$DurationPeriod)
   
   df_final <- list() # will contain raw data aggregated by Duration and CriteriaSummary
   df_raw_aggregated <- data.frame()
-  df_raw_aggregated_rolling <- data.frame()
+  # df_raw_aggregated_rolling <- data.frame()
   df_summary <- data.frame()
   
   for (i in 1:length(Duration_splits)) {
-    # For rolling summary calculations
+
     DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
-    DurationValue <- 
       
     DurationPeriod <- as.character(unique(Duration_splits[[i]]["DurationPeriod"]))
     
     # for each unique duration period perform aggregation. rbind in final df.
     df_raw <- Duration_splits[[i]]
     
-    start_date <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
-    end_date <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
+    start_date <- tryCatch(
+      min(df_raw$ActivityStartDateTime, na.rm = TRUE),
+      warning = function(w) {
+        min(df_raw$ActivityStartDate, na.rm = TRUE)
+                           })
+    end_date <- tryCatch(
+      max(df_raw$ActivityStartDateTime, na.rm = TRUE),
+      warning = function(w) {
+        max(df_raw$ActivityStartDate, na.rm = TRUE)
+      })
+    
     regular_timestamps <- seq(start_date, end_date, by = DurationPeriod)
     
     regular_timestamps_df <- data.frame(
@@ -691,13 +710,13 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
     
     df_start_end <- dplyr::left_join(
       df_raw, regular_timestamps_df, 
-      by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
+      by = dplyr::join_by(dplyr::between(ActivityStartDate, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
       )
     
-    df_aggregated <- df_start_end %>%
+      df_aggregated <- df_start_end %>%
       #tidyr::drop_na(ActivityStartDateTime) %>%
       dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-      dplyr::filter(!is.na(ActivityStartDateTime)) %>%
+      dplyr::filter(!is.na(ActivityStartDate)) %>%
       dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
       dplyr::group_by(
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
@@ -727,13 +746,18 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
         Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
         Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
         Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-        Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) 
+        Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98),
+        .groups = "drop"
+      )
     
     TADA_with_Summary <- df_start_end %>% 
       dplyr::select(-ActivityStartDate) %>% 
-      dplyr::left_join(df_aggregated, by = c("AggregatedActivityStartDateTime","AggregatedActivityEndDateTime","TADA.ComparableDataIdentifier")) %>% dplyr::rename(ActivityStartDate = AggregatedActivityStartDateTime)
-    
+      dplyr::left_join(
+        df_aggregated, 
+        by = c("AggregatedActivityStartDateTime","AggregatedActivityEndDateTime","TADA.ComparableDataIdentifier")
+        ) %>% 
+      dplyr::rename(ActivityStartDate = AggregatedActivityStartDateTime)
+  
     #TADA_Scatterplot(TADA_with_Summary)
     #####################################################
       # # For rolling summary calculations
@@ -888,310 +912,77 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
       ) %>%
       dplyr::summarize(
         n_Aggregatedsamples = dplyr::n(),
-        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper | geomean_TADA.ResultMeasureValue < MagnitudeValueLower), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
-        percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)  
+        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper, na.rm = TRUE) 
+        + sum(geomean_TADA.ResultMeasureValue < MagnitudeValueLower, na.rm = TRUE), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
+        percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3),
+        .groups = "drop"
       )
     
-    df_summary <- rbind(df_summary, df_aggregated_summary) %>% dplyr::distinct()
+    df_summary <- rbind(df_summary, df_aggregated_summary) %>% 
+      dplyr::distinct()
   }
   df_final <- list(TADA_with_Summary_Stats = df_raw_aggregated, CriteriaSummary = df_summary)
   
-  TADA_Summary_Scatter %>% TADA_Scatterplot(df_final$TADA_with_Summary_Stats) %>%
-    plotly::add_lines(
-      y = 6.5,
-      x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
-      inherit = FALSE,
-      showlegend = FALSE,
-      line = list(color = "red"),
-      hoverinfo = "none"
-    ) %>%
-    plotly::add_lines(
-      y = 9,
-      x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
-      inherit = FALSE,
-      showlegend = FALSE,
-      line = list(color = "red"),
-      hoverinfo = "none"
-    )
-  
-  # # Aggregates data by duration period, then provides summary stats on the aggregated data.
-  # TADA_Example4_Aggregated <- TADA_Example4.1 %>%
-  #   dplyr::mutate(DurationPeriod = gsub("n-", DurationValue, DurationUnit)) %>%
-  #   dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-  #   dplyr::filter(!is.na(ActivityStartDateTime)) %>%
-  #   dplyr::filter(!is.na(MagnitudeValueLower), !is.na(MagnitudeValueUpper)) %>%
-  #   dplyr::group_by(
-  #     DurationPeriod, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-  #     ATTAINS.ParameterName, ATTAINS.UseName,
-  #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-  #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-  #     ) %>%
-  #   dplyr::mutate(
-  #     beg = min(ActivityStartDateTime, na.rm = TRUE)) %>%
-  #   dplyr::ungroup() %>%
-  #   dplyr::group_by(
-  #     ActivityStartDateTime, beg,
-  #     #AggregatedActivityStartDateTime, 
-  #     DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-  #     ATTAINS.ParameterName, ATTAINS.UseName,
-  #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-  #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-  #   ) %>%
-  #   dplyr::summarize(
-  #     geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-  #     arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
-  #     count = dplyr::n(),
-  #     Min = min(TADA.ResultMeasureValue),
-  #     Max = max(TADA.ResultMeasureValue),
-  #     Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-  #     Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-  #     Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-  #     Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-  #     Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-  #     Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-  #     Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-  #     Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-  #     Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-  #   ) 
-  # 
-  # TADA_Example4_Aggregated_Rolling <- TADA_Example4_Aggregated %>%
-  #   dplyr::filter(!is.na(DurationPeriod)) %>%
-  #   dplyr::rowwise() %>% 
-  #   dplyr::mutate(
-  #     AggregatedActivityStartDateTime = dplyr::if_else(
-  #       is.na(DurationPeriod) | beg < lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod),
-  #       as.POSIXct(ActivityStartDateTime),
-  #       # If not based on a calendar period, then find the minimum start date and use that as our starting window.
-  #       lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod) + 
-  #         difftime(as.POSIXct(beg), lubridate::floor_date(as.POSIXct(ActivityStartDateTime), DurationPeriod))
-  #     )
-  #   )
-  #   %>% 
-  #   dplyr::ungroup()
-  
-  TADA_Example4_30day_NA <- TADA_Example4_30day %>%
-    dplyr::filter(is.na(DurationPeriod)) %>%
-    dplyr::rowwise() %>% 
-    dplyr::mutate(
-      AggregatedActivityStartDateTime = ActivityStartDateTime
-    )%>% 
-    dplyr::ungroup()
-    
-  TADA_Example4_30day_Final <- rbind(TADA_Example4_30day_Filled,TADA_Example4_30day_NA)
-  
-  # Compares the specified stat to the Magnitude Criteria. Count number of exceedance and percent exceedances by param and use
-  CriteriaSummary <- TADA_Example4_30day_Final %>%
-    dplyr::group_by(
-      #AggregatedActivityStartDateTime, 
-      DurationPeriod,
-      TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
-      ATTAINS.ParameterName, ATTAINS.UseName,
-      ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-      MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-    ) %>%
-    dplyr::summarize(
-      n_Aggregatedsamples = dplyr::n(),
-      n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
-      percent_exccedance = round(n_exceedance/n_Aggregatedsamples * 100, 3)  
-    )
-  
-  
-  if( rolling) {
-    TADA_Example4_30day2 <- TADA_Example4_30day %>%
-      group_by(time_window = floor_date(timestamp, "30 minutes")) %>%
-      summarize(total_value = sum(value))
-  }
-
-  
-  criteria <- dplyr::select(
-    TADA_CriteriaMethodology,
-    MagnitudeValueLower,	MagnitudeValueUpper,	MagnitudeUnit,	
-    DurationValue,	DurationUnit,	DurationAggregation,	
-    FrequencyCriteriaValue,	FrequencyCriteriaMethod
-  )
-  
-  data_with_criteria <- dplyr::left_join()
-  
-  StatsTable <- TADA_Stats(.data)
-  
-  StatsTable %>% dplyr::group_by()
-  
-  group_cols <- unique(c("TADA.ComparableDataIdentifier", 
-                         "ATTAINS.ParameterName",
-                         "ATTAINS.UseName",
-                         "ATTAINS.AssessmentUnitIdentifier",
-                         "TADA.MonitoringLocationIdentifier"
-                         
-  ))
-  
-  CriteriaSummaryTable <- criteriaMethods %>%
-    dplyr::left_join(StatsTable, by = "TADA.ComparableDataIdentifier")
-    
-    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) %>%
-    dplyr::summarize(
-      Location_Count = length(unique(TADA.MonitoringLocationIdentifier)),
-      Measurement_Count = length(unique(ResultIdentifier)),
-      Non_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]),
-      Non_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]) / length(TADA.CensoredData.Flag) * 100,
-      Non_Detect_Lvls = length(unique(DetectionQuantitationLimitTypeName[TADA.CensoredData.Flag %in% c("Non-Detect")])),
-      Over_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]),
-      Over_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]) / length(TADA.CensoredData.Flag) * 100,
-      # To build this fence we take 1.5 times the IQR and then subtract this value
-      # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
-      # posts that we compare each observation to. Any observations that are more than
-      # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
-      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75)) + (1.5 * stats::IQR(TADA.ResultMeasureValue))),
-      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25)) - (1.5 * stats::IQR(TADA.ResultMeasureValue))),
-      Min = min(TADA.ResultMeasureValue),
-      Mean = mean(TADA.ResultMeasureValue),
-      Max = max(TADA.ResultMeasureValue),
-      Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-      Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-      Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-      Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-      Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-      Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-      Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-      Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-      Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) %>%
-    dplyr::mutate(ND_Estimation_Method = dplyr::case_when(
-      Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
-      Non_Detect_Pct > 80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
-      Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
-      Non_Detect_Pct < 50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
-      Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
-      Measurement_Count < 50 ~ as.character("Robust Regression Order Statistics")
-    )) # 50%-80% censored, less than 50 measures
-  
-  # StatsTable = StatsTable[,!names(StatsTable)%in%c("Non_Detect_Pct","Non_Detect_Lvls","Over_Detect_Pct")]
-  
-  return(StatsTable)
-  
+  return(df_final)
 }
-#' #  # Attempt to pull in the ref files from the default Downloads location.
-#' #  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-#' #  if (is.null(StandardsRef)) {
-#' #    StandardsRef <- openxlsx::read.xlsx(downloads_path, sheet = "DefineCriteriaMethodology")
-#' #  }
-#' #  # check to see if user-supplied standards ref is a df with appropriate columns and filled out.
-#' #  if (!is.null(StandardsRef) & !is.character(StandardsRef)) {
-#' #    if (!is.data.frame(StandardsRef)) {
-#' #      stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#' #      ATTAINS.ParameterName,	ATTAINS.OrganizationIdentifier,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
-#' #    }
-#' #    if (is.data.frame(StandardsRef)) {
-#' #      col.names <- c(
-#' #        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName"
-#' #      )
-#' #      ref.names <- names(StandardsRef)
-#' #      if (length(setdiff(col.names, ref.names)) > 0) {
-#' #        stop("TADA_DefineStandards: 'StandardsRef' must be a data frame with at least six columns:
-#' #        ATTAINS.ParameterName,	ATTAINS.OrganizationIdentifier,	ATTAINS.UseName, StandardValue,	StandardUnit,	StandardLimit")
-#' #      }
-#' #    }
-#' #  }
-#' #  wb <- openxlsx::loadWorkbook(wb, downloads_path)
-#' #  tryCatch(
-#' #    {
-#' #      openxlsx::addWorksheet(wb, "MagnitudeExcursions")
-#' #    },
-#' #    error = function(e) {
-#' #      openxlsx::removeWorksheet(wb, "MagnitudeExcursions")
-#' #      openxlsx::addWorksheet(wb, "MagnitudeExcursions")
-#' #    }
-#' #  )
-#' #  # Format column header
-#' #  header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#' #  # Reference tables (required)
-#' #  ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-#' #  UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef")
-#' #  AURef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateAURef")
-#' #  # Contains all AU ref columns such as Site-specific names and User defined exclusions to be joined in the TADA dataframe.
-#' #  temp_AU <- .data %>%
-#' #    dplyr::right_join(AURef, by = c(
-#' #      "MonitoringLocationIdentifier", "MonitoringLocationName",
-#' #      "LongitudeMeasure", "LatitudeMeasure", "MonitoringLocationTypeName"
-#' #    ), relationship = "many-to-many")
-#' #  # Magnitude Excursion Summary
-#' #  TADA_MagnitudeExcursions <- StandardsRef %>%
-#' #    dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
-#' #    dplyr::mutate(dplyr::across(
-#' #      c(
-#' #        ATTAINS.WaterType,
-#' #        MonitoringLocationTypeName,
-#' #        AcuteChronic, SaltFresh, Season, EquationBased,
-#' #        ApplyUniqueSpatialCriteria, # Will depend on the user's crosswalk of ML to this criteria for filtering.
-#' #      ), as.factor
-#' #    )) %>%
-#' #    dplyr::left_join(temp_AU, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
-#' #    dplyr::distinct() %>%
-#' #    dplyr::mutate(across(MagnitudeValueLower, as.numeric)) %>%
-#' #    dplyr::group_by(.[, c(
-#' #      "TADA.ComparableDataIdentifier", "EPA304A.PollutantName", "ATTAINS.ParameterName",
-#' #      "ATTAINS.OrganizationIdentifier", "ATTAINS.UseName",
-#' #      "ATTAINS.assessmentunitidentifier", "MonitoringLocationIdentifier",
-#' #      "MonitoringLocationTypeName.y", "ATTAINS.WaterType.y", "AcuteChronic", "SaltFresh",
-#' #      "BegAssessDate", "EndAssessDate",
-#' #      "Season", "MinimumSample", "ApplyUniqueSpatialCriteria.y",
-#' #      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit"
-#' #    )]) %>%
-#' #    dplyr::summarise(
-#' #      n_MonitoringLocationID = length(unique(MonitoringLocationIdentifier)),
-#' #      n_discrete = sum(!is.na(TADA.ResultMeasureValue)),
-#' #      n_exceedance = sum(TADA.ResultMeasureValue < MagnitudeValueLower, na.rm = TRUE) + sum(TADA.ResultMeasureValue > MagnitudeValueUpper, na.rm = TRUE),
-#' #      .groups = "drop"
-#' #    )
-#' #  if (!is.null(UseAURef)) {
-#' #    # If a user provides UseAURef and UseParamRef, this creates a Use name to AU and Parameter crosswalk. This helps filter down the summary list further.
-#' #    UseParamAU <- UseAURef %>%
-#' #      dplyr::right_join(UseParamRef, by = c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
-#' #      dplyr::filter(!(!ATTAINS.OrganizationIdentifier %in% c("EPA304a") & is.na(ATTAINS.assessmentunitidentifier))) %>%
-#' #      dplyr::select(
-#' #        ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier,
-#' #        ATTAINS.assessmentunitname, TADA.ComparableDataIdentifier,
-#' #        EPA304A.PollutantName, ATTAINS.ParameterName, ATTAINS.UseName
-#' #      )
-#' #    UseParamAU2 <- UseParamAU %>%
-#' #      dplyr::group_by(ATTAINS.ParameterName, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname) %>%
-#' #      dplyr::summarize(.groups = "keep") %>%
-#' #      dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
-#' #      stats::na.omit() %>%
-#' #      dplyr::full_join(UseParamAU, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-#' #      dplyr::mutate(
-#' #        ATTAINS.assessmentunitidentifier = dplyr::coalesce(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y),
-#' #        ATTAINS.assessmentunitname = dplyr::coalesce(ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)
-#' #      ) %>%
-#' #      dplyr::select(-c(ATTAINS.assessmentunitidentifier.x, ATTAINS.assessmentunitidentifier.y, ATTAINS.assessmentunitname.x, ATTAINS.assessmentunitname.y)) %>%
-#' #      dplyr::distinct()
-#' #    TADA_MagnitudeExcursions <- TADA_MagnitudeExcursions %>%
-#' #      dplyr::right_join(UseParamAU2)
-#' #  }
-#' #  # set zoom size
-#' #  set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-#' #  sV <- wb$worksheets[[8]]$sheetViews
-#' #  wb$worksheets[[8]]$sheetViews <- set_zoom(90)
-#' #  # Format header and bodystyle
-#' #  header_st <- openxlsx::createStyle(textDecoration = "Bold")
-#' #  bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
-#' #  # Write column names in the excel spreadsheet under the tab [DefineStandards]
-#' #  # writeData(wb, "DefineStandards", startCol = 1, x = par, headerStyle = header_st)
-#' #  # Export DefineStandards dataframe into the excel spreadsheet tab
-#' #  openxlsx::writeData(wb, "MagnitudeExcursions", startCol = 1, x = TADA_MagnitudeExcursions, headerStyle = header_st)
-#' #  # Saving of the file if overwrite = TRUE or if the file is not found in the defined folder path. If is not saved, a dataframe is still returned.
-#' #  if (!is.null(downloads_path)) {
-#' #    # saveWorkbook(wb, "inst/extdata/myfileRef.xlsx", overwrite = F)
-#' #    downloads_path <- downloads_path
-#' #  }
-#' #  if (overwrite == TRUE) {
-#' #    openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-#' #  }
-#' #  if (overwrite == FALSE) {
-#' #    warning("If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef")
-#' #    openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-#' #  }
-#' #  cat("File saved to:", gsub("/", "\", downloads_path), "\n")
-#' #  MagnitudeExcursions <- openxlsx::read.xlsx(downloads_path, sheet = "MagnitudeExcursions")
-#' #  return(MagnitudeExcursions)
-# }
+
+#' Criteria Summary Plot
+#'
+#' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
+#' processing, harmonization and filtering functions prior to this step.
+#'
+#' @return A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
+#'
+#' @export
+#'
+#' @examples
+#' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
+#' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
+#'
+TADA_SummaryScatterplot <- function(summaryRef = df_final) {
+  
+  # unique TADA.ComparableDataIdentifier Names extracted from TADA_Scatterplot base function
+  # note: think of a better way to match each TADA comparabledataidentifier
+  param_names <- sort(unique(names(TADA_Scatterplot(df_final$TADA_with_Summary_Stats))))
+  param_names2 <- sort(unique(df_final$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier))
+  
+  TADA_Summary_Scatter <- list()
+  
+  for (i in 1:length(param_names)){
+  TADA_Summary_Scatter[[i]] <- TADA_Scatterplot(df_final$TADA_with_Summary_Stats)[[i]] %>%
+    plotly::add_trace(
+      # plots the criteria measure not to be exceeded. ex. geomean, arithimetic mean, median etc.
+      data = df_final$TADA_with_Summary_Stats[df_final$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i],],
+      x = ~ ActivityStartDate, 
+      y = ~ geomean_TADA.ResultMeasureValue, 
+      type = "scatter", mode = "markers", 
+      name = paste0(unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "DurationPeriod"]) ," geometric mean"), 
+      hoverinfo = "none",
+      marker = list(color = "green")) %>%
+    plotly::add_lines(
+      y = as.numeric(
+        c(
+          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]),
+          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]))
+        ),
+      x = c(min(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+      inherit = FALSE,
+      line = list(color = "red"),
+      name = "Lower Limit",
+      hoverinfo = "none"
+    )  %>%
+    plotly::add_lines(
+      y = as.numeric(
+        c(
+          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]),
+          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]))
+      ),
+      x = c(min(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+      inherit = FALSE,
+      line = list(color = "black"),
+      name = "Upper Limit",
+      hoverinfo = "none"
+    ) 
+  }
+  return(TADA_Summary_Scatter)
+}
