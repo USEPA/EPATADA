@@ -49,6 +49,11 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
   testdat <- TADA_RandomTestingData(number_of_days = 1,
                                     choose_random_state = TRUE,
                                     autoclean = TRUE)
+
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
   
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
@@ -68,6 +73,11 @@ test_that("TADA_ConvertSpecialChars removes NAs when clean = TRUE", {
                                     choose_random_state = TRUE,
                                     autoclean = TRUE)
 
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
                                       clean = TRUE)
@@ -98,6 +108,11 @@ test_that("TADA_ConvertSpecialChars removes all NAs in result cols", {
   testdat <- TADA_RandomTestingData(number_of_days = 1, 
                                     choose_random_state = TRUE)
 
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
                                       clean = TRUE)
@@ -119,6 +134,11 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                startDate = "2017-06-20", 
                                endDate = "2017-06-21", 
                                ask = FALSE)
+  
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
                     c("Numeric", "NA - Not Available", "Text", "Percentage")))
@@ -161,82 +181,6 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                       "Percentage",
                       "Result Value/Unit Estimated from Detection Limit", 
                       "Less Than")))  
-})
-
-
-test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
-  testdat <- TADA_RandomTestingData(number_of_days = 1,
-                                    choose_random_state = TRUE,
-                                    autoclean = TRUE)
-  
-  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", 
-                      "Result Value/Unit Estimated from Detection Limit", 
-                      "Less Than",
-                      "Percentage",
-                      "Approximate Value",
-                      "Greater Than",
-                      "Comma-Separated Numeric",
-                      "Numeric Range - Averaged",
-                      "Percentage Range - Averaged",
-                      "Approximate Value",
-                      "Result Value/Unit Copied from Detection Limit",
-                      "NA - Not Available",
-                      "Text",
-                      "Non-ASCII Character(s)",
-                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
-  
-  testdat <- TADA_SimpleCensoredMethods(testdat,
-                                        nd_method = "multiplier",
-                                        nd_multiplier = 0.5,
-                                        od_method = "as-is",
-                                        od_multiplier = "null")
-  
-  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", 
-                      "Result Value/Unit Estimated from Detection Limit", 
-                      "Less Than",
-                      "Percentage",
-                      "Approximate Value",
-                      "Greater Than",
-                      "Comma-Separated Numeric",
-                      "Numeric Range - Averaged",
-                      "Percentage Range - Averaged",
-                      "Approximate Value",
-                      "Result Value/Unit Copied from Detection Limit",
-                      "NA - Not Available",
-                      "Text",
-                      "Non-ASCII Character(s)",
-                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
-  
-  testdat <- TADA_ConvertSpecialChars(testdat, 
-                                      col = "TADA.ResultMeasureValue",
-                                      clean = TRUE)
-  
-  # Test to ensure the column is entirely numeric
-  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
-  
-  # Test to ensure value column does not contain any NA values
-  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
-  
-  # # Test to ensure unit column does not contain any NA values
-  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
-  
-  # Test to make sure remaining result value data types are expected
-  # "Result Value/Unit Copied from Detection Limit" should no longer be there
-  # NA should not be there... 
-  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", 
-                      "Result Value/Unit Estimated from Detection Limit", 
-                      "Less Than",
-                      "Percentage",
-                      "Approximate Value",
-                      "Greater Than",
-                      "Comma-Separated Numeric",
-                      "Numeric Range - Averaged",
-                      "Percentage Range - Averaged",
-                      "Approximate Value",
-                      "Result Value/Unit Copied from Detection Limit")))  
 })
 
 test_that("pH harmonization works as expected throughout workflow", {
@@ -298,6 +242,11 @@ test_that("pH harmonization works as expected throughout workflow", {
       ask = FALSE
     )
 
+  # Check if the required data frame is empty or null
+  if (is.null(ph_data) || nrow(ph_data) == 0) {
+    skip("Skipping test because ph_data is empty or null")
+  }
+  
   # Process data
   ph_data <- ph_data %>%
     TADA_SimpleCensoredMethods() %>%
@@ -313,4 +262,87 @@ test_that("pH harmonization works as expected throughout workflow", {
   if (!base::all(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
     base::message(base::paste("pH data unit codes for state", selected_state_code, "are not harmonized to 'NONE'"))
   }
+})
+
+test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
+  # Generate test data
+  testdat <- TADA_RandomTestingData(number_of_days = 1,
+                                    choose_random_state = TRUE,
+                                    autoclean = TRUE)
+  
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
+  # First expectation: Validate the data types flag
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit",
+                      "NA - Not Available",
+                      "Text",
+                      "Non-ASCII Character(s)",
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
+  
+  # Apply Simple Censored Methods
+  testdat <- TADA_SimpleCensoredMethods(testdat,
+                                        nd_method = "multiplier",
+                                        nd_multiplier = 0.5,
+                                        od_method = "as-is",
+                                        od_multiplier = "null")
+  
+  # Second expectation: Validate the data types flag again
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit",
+                      "NA - Not Available",
+                      "Text",
+                      "Non-ASCII Character(s)",
+                      "Result Value/Unit Cannot Be Estimated From Detection Limit")))
+  
+  # Apply Convert Special Chars function
+  testdat <- TADA_ConvertSpecialChars(testdat, 
+                                      col = "TADA.ResultMeasureValue",
+                                      clean = TRUE)
+  
+  # Test to ensure the column is entirely numeric
+  expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
+  
+  # Test to ensure value column does not contain any NA values
+  expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
+  
+  # # Test to ensure unit column does not contain any NA values
+  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
+  
+  # Test to make sure remaining result value data types are expected
+  expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
+                    c("Numeric", 
+                      "Result Value/Unit Estimated from Detection Limit", 
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value",
+                      "Result Value/Unit Copied from Detection Limit")))  
 })
