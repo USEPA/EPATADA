@@ -24,7 +24,10 @@ The FullPhysChem data input is required to run this function.
 \details{
 The WQP user interface assists users with constructing a web service query
 URL - for example:
-https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+https://www.waterqualitydata.us/#statecode=US\%3A09&
+characteristicType=Nutrient&startDateLo=04-01-2023&
+startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&
+providers=STORET
 }
 \examples{
 \dontrun{

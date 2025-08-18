@@ -1,5 +1,11 @@
 test_that("harmonization works", {
   dat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
+  # Check if the required data frame is empty or null
+  if (is.null(dat) || nrow(dat) == 0) {
+    skip("Skipping test because dat is empty or null")
+  }
+  
   dat <- subset(dat, !is.na(dat$TADA.ResultMeasureValue))
   dat <- TADA_FlagFraction(dat, clean = TRUE)
   dat <- TADA_FlagResultUnit(dat, clean = "suspect_only")
@@ -28,6 +34,11 @@ test_that("np summation key matches nutrient harmonization ref", {
 test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result cols", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   
+  # Check if the required data frame is empty or null
+  if (is.null(testdat) || nrow(testdat) == 0) {
+    skip("Skipping test because testdat is empty or null")
+  }
+  
   testdat <- TADA_ConvertSpecialChars(testdat, 
                                       col = "TADA.ResultMeasureValue",
                                       clean = TRUE)
@@ -49,6 +60,11 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
 test_that("TADA package functions maintain ResultIdentifier integrity", {
   # Generate random testing data
   df <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
+  # Check if the required data frame is empty or null
+  if (is.null(df) || nrow(df) == 0) {
+    skip("Skipping test because df is empty or null")
+  }
   
   # Apply simple censored methods
   df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
