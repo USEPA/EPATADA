@@ -16,11 +16,3 @@ The result of the executed code, with all print messages suppressed.
 This utility function executes the provided code while suppressing any print messages.
 It is useful for running code quietly, especially when print statements are not needed.
 }
-\examples{
-# Example: Silencing print messages from a function
-result <- quiet({
-  print("This message will not be displayed.")
-  2 + 2  # The result of this expression will be returned
-})
-print(result)  # Output: 4
-}

@@ -39,38 +39,23 @@ dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
 type <- "&mimeType=csv&zip=yes"
 providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 
-stationProfile <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_station,
-  filters,
-  dates,
-  type,
-  providers
-))
+stationProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_station, filters, dates, type, providers)
+)
 
-physchemProfile <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_result,
-  filters,
-  dates,
-  type,
-  profile_result_2,
-  providers
-))
+physchemProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_result, filters, dates, type, profile_result_2, providers)
+)
 
-projectProfile <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_project,
-  filters,
-  dates,
-  type,
-  providers
-))
+projectProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_project, filters, dates, type, providers)
+)
 
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(
   FullPhysChem = physchemProfile,
-  Sites = stationProfile, Projects = projectProfile
+  Sites = stationProfile,
+  Projects = projectProfile
 )
 }
 

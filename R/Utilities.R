@@ -33,13 +33,6 @@ NULL
 #' @param x Expression or code block to execute silently.
 #' @return The result of the executed code, with all print messages suppressed.
 #'
-#' @examples
-#' # Example: Silencing print messages from a function
-#' result <- quiet({
-#'   print("This message will not be displayed.")
-#'   2 + 2  # The result of this expression will be returned
-#' })
-#' print(result)  # Output: 4
 quiet <- function(x) {
   # Redirect output to a temporary file to suppress prints
   sink(tempfile())
@@ -698,27 +691,34 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Retrieve a random dataset for a single day across the entire nation
-#' random_data_national <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' # Example 1: Retrieve a random dataset for a single day 
+#' # across the entire nation
+#' random_data_national <- TADA_RandomTestingData(number_of_days = 1, 
+#' choose_random_state = FALSE)
 #' print(random_data_national)
 #'
-#' # Example 2: Retrieve a random dataset for a 10-day period within a randomly selected state
-#' random_data_state <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' # Example 2: Retrieve a random dataset for a 10-day period within 
+#' # a randomly selected state
+#' random_data_state <- TADA_RandomTestingData(number_of_days = 10, 
+#' choose_random_state = TRUE)
 #' print(random_data_state)
 #'
 #' # Example 3: Retrieve a random dataset for a 5-day period 
 #' # within a randomly selected state without auto-cleaning
-#' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+#' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, 
+#' choose_random_state = TRUE, autoclean = FALSE)
 #' print(random_data_state_no_clean)
 #'
 #' # Example 4: Retrieve a random dataset for a 30-day period 
 #' # across the entire nation with auto-cleaning
-#' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, choose_random_state = FALSE, autoclean = TRUE)
+#' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, 
+#' choose_random_state = FALSE, autoclean = TRUE)
 #' print(random_data_large_period)
 #'
 #' # Example 5: Retrieve a random dataset for a 15-day period 
 #' # across the entire nation without auto-cleaning
-#' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, choose_random_state = FALSE, autoclean = FALSE)
+#' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, 
+#' choose_random_state = FALSE, autoclean = FALSE)
 #' print(random_data_no_clean)
 #' }
 TADA_RandomTestingData <- function(number_of_days = 1, 

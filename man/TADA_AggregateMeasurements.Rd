@@ -79,7 +79,8 @@ Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   clean = TRUE
 )
 
-# Calculate a mean value per day, site, comparable data identifier, unit, result detection condition,
+# Calculate a mean value per day, site, comparable data identifier, unit, 
+# result detection condition,
 # and activity type code. Keep all measurements used to calculate mean measurement.
 Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   grouping_cols = c(
