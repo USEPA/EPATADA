@@ -167,43 +167,30 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 })
 
 test_that("pH harmonization works as expected throughout workflow", {
-  # Select a random day within the last 10 years
-  # - Year, month, and day offsets are randomly chosen to calculate a date.
-  # - Adjustments ensure valid month and day values.
-  random_year_offset <- base::sample(0:9, 1)
-  random_month_offset <- base::sample(0:11, 1)
-  random_day_offset <- base::sample(0:30, 1)  # Assuming a month can have up to 31 days
+  # Set the start and end dates
+  start_date <- as.Date("2020-01-01")
+  end_date <- as.Date("2025-08-01")
   
-  selected_year <- base::as.integer(base::format(base::Sys.Date(), "%Y")) - random_year_offset
-  selected_month <- base::as.integer(base::format(base::Sys.Date(), "%m")) - random_month_offset
-  selected_day <- base::as.integer(base::format(base::Sys.Date(), "%d")) - random_day_offset
+  # Calculate the number of days between the start and end dates
+  date_range <- as.numeric(end_date - start_date)
   
-  # Adjust year, month, and day if month or day is invalid
-  # - Ensures month is between 1 and 12.
-  # - Ensures day is valid by adjusting month and year if necessary.
-  if (selected_month <= 0) {
-    selected_month <- selected_month + 12
-    selected_year <- selected_year - 1
-  }
+  # Generate a random number of days to add to the start date
+  random_days <- sample(0:date_range, 1)
   
-  if (selected_day <= 0) {
-    selected_day <- selected_day + 31
-    selected_month <- selected_month - 1
-    if (selected_month <= 0) {
-      selected_month <- selected_month + 12
-      selected_year <- selected_year - 1
-    }
-  }
+  # Calculate the random date
+  random_date <- start_date + random_days
   
-  # Create the date
-  # - Constructs a Date object for the selected day.
-  selected_date <- base::as.Date(base::paste(selected_year, base::sprintf("%02d", selected_month), base::sprintf("%02d", selected_day), sep = "-"))
+  # Calculate the date that is two days before the random date
+  random_date_minus_2 <- random_date - 3
   
-  # Measure the time taken to retrieve data for the selected date
-  # - Retrieves pH data for the specific day using the TADA_DataRetrieval function.
+  # Store the dates as character strings
+  random_date_str <- format(random_date, "%Y-%m-%d")
+  random_date_minus_2_str <- format(random_date_minus_2, "%Y-%m-%d")
+
+  # Retrieves pH data using the TADA_DataRetrieval function.
   ph_data <- TADA_DataRetrieval(
-    startDate = base::as.character(selected_date),
-    endDate = base::as.character(selected_date),
+    startDate = random_date_minus_2_str,
+    endDate = random_date_str,
     characteristicName = "pH",
     ask = FALSE
   )
