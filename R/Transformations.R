@@ -525,9 +525,13 @@ TADA_CalculateTotalNP <- function(.data,
   # move forward with only max values selected for each grouping (dat_TNTP)
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
   # no longer need "Considered in max aggregation function but not selected"
-  dat_TNTP <- dat[(dat$TADA.ResultValueAggregation.Flag %in%
-                c("No aggregation needed",
-                  paste0("Selected as ", daily_agg," aggregate value"))), ]
+  # Initialize dat_TNTP as an empty dataframe with the same structure as dat
+  dat_TNTP <- dat[0, ]
+  # Define the condition for filtering
+  matching_rows <- dat$TADA.ResultValueAggregation.Flag %in% 
+    c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
+  # Filter dat based on the condition
+  dat_TNTP <- dat[matching_rows, ]
   
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)

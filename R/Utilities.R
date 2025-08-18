@@ -182,13 +182,6 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #' 
 #' @return An integer representing the number of decimal places in the numeric value.
 #' If the input is an integer or a numeric value with no decimal places, the function returns 0.
-#'
-#' @examples
-#' TADA_DecimalPlaces(3.14159)  # Returns 5
-#' TADA_DecimalPlaces(2.0)      # Returns 0
-#' TADA_DecimalPlaces(123)      # Returns 0
-#' TADA_DecimalPlaces(0.001)    # Returns 3
-#'
 TADA_DecimalPlaces <- function(x) {
   # Convert the number to a character string, remove trailing zeros, and split by the decimal point
   parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
@@ -211,25 +204,6 @@ TADA_DecimalPlaces <- function(x) {
 #' @param arg An input argument to check
 #' @param type Expected class of input argument
 #' @param paramName Optional name for argument to use in error message
-#'
-#' @examples
-#' # Example 1: Check if a numeric value is of class 'numeric'
-#' TADA_CheckType(42, "numeric") # No error
-#'
-#' # Example 2: Check if a character value is of class 'numeric'
-#' # This will stop execution and throw an error
-#' tryCatch({
-#'   TADA_CheckType("Hello", "numeric")
-#' }, error = function(e) {
-#'   print(e$message)
-#' })
-#'
-#' # Example 3: Check using a custom parameter name for error message
-#' tryCatch({
-#'   TADA_CheckType("Hello", "numeric", paramName = "inputValue")
-#' }, error = function(e) {
-#'   print(e$message)
-#' })
 TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
   if (!inherits(arg, type)) {
     errorMessage <- sprintf("%s must be of class '%s'", paramName, type)
@@ -251,26 +225,6 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 #' @param .data A dataframe
 #' @param expected_cols A vector of expected column names as strings
 #' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
-#' @examples
-#' # Example 1: All required columns are present
-#' df1 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
-#' expected_cols1 <- c("A", "B", "C")
-#' TADA_CheckColumns(df1, expected_cols1) # No error should be raised
-#'
-#' # Example 2: Some required columns are missing
-#' df2 <- data.frame(A = 1:5, B = 6:10)
-#' expected_cols2 <- c("A", "B", "C")
-#' tryCatch(
-#'   TADA_CheckColumns(df2, expected_cols2),
-#'   error = function(e) { print(e$message) }
-#' )
-#' # Should print: "The dataframe does not contain the required fields: C. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-#'
-#' # Example 3: No expected columns specified
-#' df3 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
-#' expected_cols3 <- character(0)
-#' TADA_CheckColumns(df3, expected_cols3) # No error should be raised
-#'
 TADA_CheckColumns <- function(.data, expected_cols) {
   if (!inherits(.data, "data.frame")) {
     stop("Input must be a dataframe.")

@@ -21,24 +21,3 @@ suitable (i.e. is either the full physical/chemical results profile
 downloaded from WQP or the TADA profile template downloaded from the EPA TADA
 webpage.)
 }
-\examples{
-# Example 1: All required columns are present
-df1 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
-expected_cols1 <- c("A", "B", "C")
-TADA_CheckColumns(df1, expected_cols1) # No error should be raised
-
-# Example 2: Some required columns are missing
-df2 <- data.frame(A = 1:5, B = 6:10)
-expected_cols2 <- c("A", "B", "C")
-tryCatch(
-  TADA_CheckColumns(df2, expected_cols2),
-  error = function(e) { print(e$message) }
-)
-# Should print: "The dataframe does not contain the required fields: C. Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
-
-# Example 3: No expected columns specified
-df3 <- data.frame(A = 1:5, B = 6:10, C = 11:15)
-expected_cols3 <- character(0)
-TADA_CheckColumns(df3, expected_cols3) # No error should be raised
-
-}

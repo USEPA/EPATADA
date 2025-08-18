@@ -17,10 +17,3 @@ If the input is an integer or a numeric value with no decimal places, the functi
 This function calculates the number of decimal places in a numeric value.
 It returns the number of digits to the right of the decimal point for numeric data.
 }
-\examples{
-TADA_DecimalPlaces(3.14159)  # Returns 5
-TADA_DecimalPlaces(2.0)      # Returns 0
-TADA_DecimalPlaces(123)      # Returns 0
-TADA_DecimalPlaces(0.001)    # Returns 3
-
-}
