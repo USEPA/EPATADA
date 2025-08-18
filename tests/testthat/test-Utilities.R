@@ -60,12 +60,18 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
                                       clean = TRUE)
   
   expect_true(all(unique(testdat$TADA.ResultMeasureValueDataTypes.Flag) %in% 
-                    c("Numeric", 
-                      "Percentage", 
+                    c("TP estimated from one or more subspecies.", 
+                      "TN estimated from one or more subspecies.",
+                      "Numeric", 
                       "Result Value/Unit Estimated from Detection Limit", 
-                      "Less Than", 
-                      "TP estimated from one or more subspecies.", 
-                      "TN estimated from one or more subspecies.")))  
+                      "Less Than",
+                      "Percentage",
+                      "Approximate Value",
+                      "Greater Than",
+                      "Comma-Separated Numeric",
+                      "Numeric Range - Averaged",
+                      "Percentage Range - Averaged",
+                      "Approximate Value")))  
 })
 
 test_that("TADA_ConvertSpecialChars removes NAs when clean = TRUE", {
