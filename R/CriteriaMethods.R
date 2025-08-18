@@ -78,7 +78,7 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = "none", # c("none", "paramRef", "useParamRef", "siteRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
@@ -939,50 +939,50 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL,
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_SummaryScatterplot <- function(summaryRef = df_final) {
+TADA_SummaryScatterplot <- function(summaryRef = NULL) {
   
   # unique TADA.ComparableDataIdentifier Names extracted from TADA_Scatterplot base function
   # note: think of a better way to match each TADA comparabledataidentifier
-  param_names <- sort(unique(names(TADA_Scatterplot(df_final$TADA_with_Summary_Stats))))
-  param_names2 <- sort(unique(df_final$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier))
+  param_names <- sort(unique(names(TADA_Scatterplot(summaryRef$TADA_with_Summary_Stats))))
+  param_names2 <- sort(unique(summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier))
   
   TADA_Summary_Scatter <- list()
   
   for (i in 1:length(param_names)){
-  TADA_Summary_Scatter[[i]] <- TADA_Scatterplot(df_final$TADA_with_Summary_Stats)[[i]] %>%
-    plotly::add_trace(
-      # plots the criteria measure not to be exceeded. ex. geomean, arithimetic mean, median etc.
-      data = df_final$TADA_with_Summary_Stats[df_final$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i],],
-      x = ~ ActivityStartDate, 
-      y = ~ geomean_TADA.ResultMeasureValue, 
-      type = "scatter", mode = "markers", 
-      name = paste0(unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "DurationPeriod"]) ," geometric mean"), 
-      hoverinfo = "none",
-      marker = list(color = "green")) %>%
-    plotly::add_lines(
-      y = as.numeric(
-        c(
-          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]),
-          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]))
+    TADA_Summary_Scatter[[i]] <- TADA_Scatterplot(summaryRef$TADA_with_Summary_Stats)[[i]] %>%
+      plotly::add_trace(
+        # plots the criteria measure not to be exceeded. ex. geomean, arithimetic mean, median etc.
+        data = summaryRef$TADA_with_Summary_Stats[summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i],],
+        x = ~ ActivityStartDate, 
+        y = ~ geomean_TADA.ResultMeasureValue, 
+        type = "scatter", mode = "markers", 
+        name = paste0(unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "DurationPeriod"]) ," geometric mean"), 
+        hoverinfo = "none",
+        marker = list(color = "green")) %>%
+      plotly::add_lines(
+        y = as.numeric(
+          c(
+            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]),
+            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]))
         ),
-      x = c(min(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-      inherit = FALSE,
-      line = list(color = "red"),
-      name = "Lower Limit",
-      hoverinfo = "none"
-    )  %>%
-    plotly::add_lines(
-      y = as.numeric(
-        c(
-          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]),
-          unique(df_final$CriteriaSummary[df_final$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]))
-      ),
-      x = c(min(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(df_final$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-      inherit = FALSE,
-      line = list(color = "black"),
-      name = "Upper Limit",
-      hoverinfo = "none"
-    ) 
+        x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+        inherit = FALSE,
+        line = list(color = "red"),
+        name = "Lower Limit",
+        hoverinfo = "none"
+      )  %>%
+      plotly::add_lines(
+        y = as.numeric(
+          c(
+            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]),
+            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]))
+        ),
+        x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+        inherit = FALSE,
+        line = list(color = "black"),
+        name = "Upper Limit",
+        hoverinfo = "none"
+      ) 
   }
   return(TADA_Summary_Scatter)
 }
