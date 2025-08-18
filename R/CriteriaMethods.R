@@ -78,7 +78,7 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL,  epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = "none", # c("none", "paramRef", "useParamRef", "siteRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
