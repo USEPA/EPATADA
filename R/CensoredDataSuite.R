@@ -37,7 +37,8 @@
 #' because user-supplied Result Measure Qualifier codes are also used to ID censored results.
 #'
 #' @export
-
+#' 
+#' 
 TADA_IDCensoredData <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -155,13 +156,26 @@ TADA_IDCensoredData <- function(.data) {
 
   ## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
   cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
+  
   cens_mq_flag <- data_mq_flag %>%
     dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")) %>%
     dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
+  
   cens <- cens_rm_flag %>%
     rbind(cens_mq_flag)
+  
+  # Perform the filtering operation
   not_cens <- data_mq_flag %>% dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
-  not_cens$TADA.CensoredData.Flag <- "Uncensored"
+  
+  # Check if the dataframe is empty
+  if (nrow(not_cens) > 0) {
+    # If not empty, assign "Uncensored" to the TADA.CensoredData.Flag column
+    not_cens$TADA.CensoredData.Flag <- "Uncensored"
+  } else {
+    # If empty, create an empty dataframe with the same columns as data_mq_flag
+    not_cens <- data_mq_flag[0, ]  # Selects zero rows but retains all columns
+    not_cens$TADA.CensoredData.Flag <- character(0)  # Ensure the column exists
+  }
 
   rm(cens_rm_flag, cens_mq_flag, data_mq_flag)
 

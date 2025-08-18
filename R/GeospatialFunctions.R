@@ -3462,7 +3462,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
 
   # TADA_CreateATTAINSAUMLCrosswalk section
 
-  print("TADA_CreateAUMLCrosswalk: checking to see if any unmatched MonitoringLocations reamin.")
+  print("TADA_CreateAUMLCrosswalk: checking to see if any unmatched MonitoringLocations remain")
 
   get.attains.mls <- .data %>%
     dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
