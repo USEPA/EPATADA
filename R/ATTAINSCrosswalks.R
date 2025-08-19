@@ -350,7 +350,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
           dplyr::rename(ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
                         ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
                         OrganizationIdentifier = MS_ORG_ID,
-                        ATTAINS.MonitoringDataLinkText = MS_DATA_LINK)
+                        ATTAINS.MonitoringDataLinkText = MS_DATA_LINK) %>%
+          dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id,
+                        ATTAINS.WaterType = NA)
       }
     }
 
