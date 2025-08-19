@@ -115,7 +115,11 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
-  match(
+  if (is.null(updateRef)) {
+    updateRef = "none"
+  }
+  
+  updateRef <- match.arg(updateRef)
   
   # Invalid function input combos
   if (auto_assign == FALSE && updateRef != "none") {

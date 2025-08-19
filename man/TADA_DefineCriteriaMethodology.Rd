@@ -6,24 +6,55 @@
 \usage{
 TADA_DefineCriteriaMethodology(
   .data,
-  siteRef = NULL,
   criteriaMethods = NULL,
+  MLSummaryRef = NULL,
   epa304a = FALSE,
   auto_assign = FALSE,
   org_id = NULL,
-  sitesAURef = NULL,
-  updateRef = "none",
+  MLAURef = NULL,
+  useAURef = NULL,
+  updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"),
   excel = TRUE,
   overwrite = FALSE
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. Users should run the appropriate data cleaning,
-processing, harmonization and filtering functions prior to this step.}
+\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
+processing, harmonization, filtering, and handling of censored data functions
+prior to running this function.}
 
-\item{siteRef}{An optional data frame which contains the completed spatial
+\item{criteriaMethods}{An optional data frame which contains the completed criteria
+and methodology table completed. This will be a user supplied table and any
+inputs in this table will be prioritized. Additional rows for any parameter(s)
+and use(s) combinations that are not found in the user supplied table will be
+included in the output. These rows will need the criteria and methodology inputs
+filled out accordingly.}
+
+\item{MLSummaryRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit.}
+or monitoring site/assessment unit. For any unique groupings of sites, this
+input is recommended.}
+
+\item{org_id}{The ATTAINS organization identifier must be supplied by the
+user. A list of organization identifiers can be found by downloading
+the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+organization identifiers are listed in the "OrgName" tab.
+The "code" column contains the organization identifiers that
+should be used for this param. If a user does not provide an org_id argument,
+the function attempts to identify which organization identifier(s) to include
+based on the unique ATTAINS organization identifiers found in the dataframe.}
+
+\item{MLAURef}{An optional data frame input. This data frame
+should contain a completed crosswalk of WQP Monitoring Locations
+associated with each ATTAINS Assessment Unit. Users will need to ensure
+this crosswalk contains the appropriate column names in order to run this function.
+See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
+
+\item{useAURef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with each assessment unit.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -33,34 +64,34 @@ The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.}
 
 \item{overwrite}{A Boolean value that ensures the function will not overwrite
-the user supplied crosswalk entered into this function via the paramRef
-function input. This helps prevent users from overwriting their progress.}
-
-\item{ref}{"TADA"}
+the user supplied crosswalk entered into this function.
+This helps prevent users from overwriting their progress.}
 }
 \value{
-A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
+A data frame with the criteria and methodology table in TADA format.
 }
 \description{
-Users will need to provide the completed reference tables from
-TADA_CreateSiteRef. This will generate a template for users to fill out
-and define either the full Criteria or magnitude only values associated with
-an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
-users will need to ensure they properly define any additional methods that will
-correctly reflect their assessment standards for that parameter and use.
-For example, if there are separate standards for acute versus chronic,
-rivers versus estuary, different seasons, etc. then a user will need to create
-additional rows to reflect this.
+It is recommended to run the three TADA reference table \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
+\link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef} to generate this
+Criteria and Methodology table. These three functions work in chronological order.
+However, users can choose to proceed with an 'auto_assign'
+option which will use default assignments during each of these three functions.
+If you would like to update any of these reference tables from the defaults,
+you can choose to do so in the excel spreadsheet file and then specify the starting
+reference table that you have updated with the argument input 'updateRef'
+This which will update the Criteria and Methodology table to reflect any changes made.
 }
 \details{
-Efforts have been made to pull in the EPA304a recommended standards
-automatically from the Criteria Search Tool (CST). Users should validate this
-final output if a user has decided to include the EPA304a standards.
-User will need to determine if any additional adjustments are needed.
-For example, does the crosswalk between the EPA304A.PollutantName
-and TADA.ComparableDataIdentifier seem valid for your organization's method?
-Is your organization only interested in providing the EPA304a recommended
-standards for certain seasons (Fall, Summer, Spring, Winter) etc.
+This criteria and methodology table will be in a TADA compatible format and
+contain a list of allowable values within each column to define the full
+criteria or magnitude only values associated with an ATTAINS parameter name
+and use name. For each criteria/magnitude value,
+users will need to ensure they properly define any additional methods that
+correctly reflects their water quality standards for a parameter and use.
+For example, if there are separate standards for acute versus chronic,
+rivers versus estuary, different seasons, etc., then a user will need to create
+additional rows to reflect this. Additional columns are included in this output
+to capture data sufficiency considerations.
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
@@ -82,18 +113,18 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-# Now, run TADA_CreateSiteRef()
-siteRef_UT <- TADA_CreateSiteRef(
+# Now, run TADA_CreateMLSummaryRef()
+MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+  waterUseParamRef = NULL, useAURef = NULL, MLAURef = NULL,
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )
 
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
-  siteRef = siteRef_UT,
+  MLSummaryRef = MLSummaryRef_UT,
   excel = FALSE
 )
 

@@ -7,7 +7,7 @@
 TADA_CreateUseAURef(
   .data,
   org_id = NULL,
-  sitesAURef = NULL,
+  MLAURef = NULL,
   waterUseRef = NULL,
   useAURef = NULL,
   excel = FALSE,
@@ -29,7 +29,7 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{sitesAURef}{A required data frame input. This data frame
+\item{MLAURef}{A required data frame input. This data frame
 should contain a completed crosswalk of water types found in ATTAINS associated
 with each assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
@@ -66,7 +66,7 @@ organization's assessment unit from the prior ATTAINS cycle.
 \details{
 This function requires a crosswalk of an organization's ML, AU and ATTAINS
 Water Type code.The output from TADA_GetATTAINS(.data, return_sf = FALSE)
-can be used directly as the sitesAURef argument input in this function.
+can be used directly as the MLAURef argument input in this function.
 
 Users must supply their own Use to AU crosswalk table if they would like
 to apply Uses to AUs that cannot be retrieved from the prior ATTAINS cycle.
@@ -154,14 +154,14 @@ AK_AU_Ref <- AK_appenduserdata \%>\%
 # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
 AK_CreateUseAURef <- TADA_CreateUseAURef(
   TADA_AK_Example, org_id = "AKDECWQ", 
-  sitesAURef = AK_AU_Ref,
+  MLAURef = AK_AU_Ref,
   excel = FALSE
   )
 
 # Let's use a wateruseRef now to fill in these values.
 AK_CreateUseAURef_auto_assign <- TADA_CreateUseAURef(
   TADA_AK_Example, org_id = "AKDECWQ", 
-  sitesAURef = AK_AU_Ref,
+  MLAURef = AK_AU_Ref,
   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
   excel = FALSE
   )
