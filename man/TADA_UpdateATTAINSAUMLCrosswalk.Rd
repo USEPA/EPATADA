@@ -105,7 +105,7 @@ AK_adddatalinks <- TADA_UpdateATTAINSAUMLCrosswalk(
 # Alaska example using a user supplied crosswalk to update entries in
 # ATTAINS by appending user supplied information to ATTAINS crosswalk
 
-# example monitoring location identifiers
+# example assessment unit identifiers
 ATTAINS.AssessmentUnitIdentifier <- c(
   "AK_M_1021211_000", "AK_M_1021008_000",
   "AK_M_1021109_013", "AK_M_1021109_013",
@@ -118,11 +118,18 @@ OrganizationIdentifier <-
 ATTAINS.OrganizationIdentifier <-
   c("AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ", "AKDECWQ")
 
-# example assessment units
+# example monitoring location identifiers
 ATTAINS.MonitoringLocationIdentifier <- c(
   "ExampleSite1", "ExampleSite2", "ExampleSite3",
   "ExampleSite4", "ExampleSite5"
 )
+
+# example water types
+ATTAINS.WaterType <- c(
+  "BEACH", "BAY", "CREEK",
+  "ESTUARY", "CREEK"
+)
+
 # example urls
 ATTAINS.MonitoringDataLinkText <- c(
   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
