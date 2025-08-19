@@ -46,7 +46,7 @@
 #' or monitoring site/assessment unit. For any unique groupings of sites, this 
 #' input is recommended.
 #'
-#' @param sitesAURef An optional data frame input. This data frame
+#' @param MLAURef An optional data frame input. This data frame
 #' should contain a completed crosswalk of WQP Monitoring Locations
 #' associated with each ATTAINS Assessment Unit. Users will need to ensure
 #' this crosswalk contains the appropriate column names in order to run this function.
@@ -96,7 +96,7 @@
 #' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
-#'   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
+#'   waterUseParamRef = NULL, useAURef = NULL, MLAURef = NULL,
 #'   useParamRef = UseParamRef_UT,
 #'   excel = FALSE
 #' )
@@ -109,7 +109,7 @@
 #'
 TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # required inputs
                                            MLSummaryRef = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+                                           auto_assign = FALSE, org_id = NULL, MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
@@ -156,7 +156,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        sitesAURef = sitesAURef,
+        MLAURef = MLAURef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
@@ -186,7 +186,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        sitesAURef = sitesAURef,
+        MLAURef = MLAURef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
@@ -217,7 +217,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        sitesAURef = sitesAURef,
+        MLAURef = MLAURef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
@@ -248,7 +248,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        sitesAURef = sitesAURef,
+        MLAURef = MLAURef,
         MLSummaryRef = myfile_MLSummaryRef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
