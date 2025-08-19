@@ -1,23 +1,61 @@
 #' Define Criteria and Methodology
 #'
-#' Users will need to provide the completed reference tables from
-#' TADA_CreateSiteRef. This will generate a template for users to fill out
-#' and define either the full Criteria or magnitude only values associated with
-#' an ATTAINS Parameter name and use name. For each Criteria/Magnitude value,
-#' users will need to ensure they properly define any additional methods that will
-#' correctly reflect their assessment standards for that parameter and use.
-#' For example, if there are separate standards for acute versus chronic,
-#' rivers versus estuary, different seasons, etc. then a user will need to create
-#' additional rows to reflect this.
+#' It is recommended to run the three TADA reference table [TADA_CreateParamRef()],
+#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef] to generate this 
+#' Criteria and Methodology table. These three functions work in chronological order.
+#' However, users can choose to proceed with an 'auto_assign'
+#' option which will use default assignments during each of these three functions.
+#' If you would like to update any of these reference tables from the defaults, 
+#' you can choose to do so in the excel spreadsheet file and then specify the starting 
+#' reference table that you have updated with the argument input 'updateRef' 
+#' This which will update the Criteria and Methodology table to reflect any changes made.
 #'
-#' Efforts have been made to pull in the EPA304a recommended standards
-#' automatically from the Criteria Search Tool (CST). Users should validate this
-#' final output if a user has decided to include the EPA304a standards.
-#' User will need to determine if any additional adjustments are needed.
-#' For example, does the crosswalk between the EPA304A.PollutantName
-#' and TADA.ComparableDataIdentifier seem valid for your organization's method?
-#' Is your organization only interested in providing the EPA304a recommended
-#' standards for certain seasons (Fall, Summer, Spring, Winter) etc.
+#' This criteria and methodology table will be in a TADA compatible format and 
+#' contain a list of allowable values within each column to define the full 
+#' criteria or magnitude only values associated with an ATTAINS parameter name 
+#' and use name. For each criteria/magnitude value,
+#' users will need to ensure they properly define any additional methods that
+#' correctly reflects their water quality standards for a parameter and use.
+#' For example, if there are separate standards for acute versus chronic,
+#' rivers versus estuary, different seasons, etc., then a user will need to create
+#' additional rows to reflect this. Additional columns are included in this output
+#' to capture data sufficiency considerations.
+#' @param .data A TADA dataframe. The user should run all desired data cleaning,
+#' processing, harmonization, filtering, and handling of censored data functions
+#' prior to running this function.
+#'
+#' @param org_id The ATTAINS organization identifier must be supplied by the
+#' user. A list of organization identifiers can be found by downloading
+#' the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' organization identifiers are listed in the "OrgName" tab.
+#' The "code" column contains the organization identifiers that
+#' should be used for this param. If a user does not provide an org_id argument,
+#' the function attempts to identify which organization identifier(s) to include
+#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#'
+#' @param criteriaMethods An optional data frame which contains the completed criteria
+#' and methodology table completed. This will be a user supplied table and any
+#' inputs in this table will be prioritized. Additional rows for any parameter(s)
+#' and use(s) combinations that are not found in the user supplied table will be 
+#' included in the output. These rows will need the criteria and methodology inputs
+#' filled out accordingly.
+#'
+#' @param MLSummaryRef An optional data frame which contains the completed spatial
+#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+#' or monitoring site/assessment unit. For any unique groupings of sites, this 
+#' input is recommended.
+#'
+#' @param sitesAURef An optional data frame input. This data frame
+#' should contain a completed crosswalk of WQP Monitoring Locations
+#' associated with each ATTAINS Assessment Unit. Users will need to ensure
+#' this crosswalk contains the appropriate column names in order to run this function.
+#' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
+#'
+#' @param useAURef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with each assessment unit.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -27,19 +65,10 @@
 #' the cells in which users should input information.
 #'
 #' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
+#' the user supplied crosswalk entered into this function. 
+#' This helps prevent users from overwriting their progress.
 #'
-#' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
-#' processing, harmonization and filtering functions prior to this step.
-#'
-#' @param siteRef An optional data frame which contains the completed spatial
-#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-#' or monitoring site/assessment unit.
-#' 
-#' @param ref "TADA"
-#'
-#' @return A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
+#' @return A data frame with the criteria and methodology table in TADA format.
 #'
 #' @export
 #'
@@ -63,8 +92,8 @@
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, run TADA_CreateSiteRef()
-#' siteRef_UT <- TADA_CreateSiteRef(
+#' # Now, run TADA_CreateMLSummaryRef()
+#' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
 #'   waterUseParamRef = NULL, useAURef = NULL, sitesAURef = NULL,
@@ -74,16 +103,19 @@
 #'
 #' DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT,
-#'   siteRef = siteRef_UT,
+#'   MLSummaryRef = MLSummaryRef_UT,
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethods = NULL,  epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, # Optional if auto_assign = TRUE
-                                           updateRef = "none", # c("none", "paramRef", "useParamRef", "siteRef"), # hierarchical dependency
+TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # required inputs
+                                           MLSummaryRef = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           auto_assign = FALSE, org_id = NULL, sitesAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+                                           updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+
+  match(
   
   # Invalid function input combos
   if (auto_assign == FALSE && updateRef != "none") {
@@ -91,10 +123,10 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
   }
   
   # Ensures you have used a valid auto_assign name
-  if (!updateRef %in% c("none", "paramRef", "useParamRef", "siteRef")) {
+  if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
     stop(paste0(
       "TADA_DefineCriteriaMethodology: ",
-      "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'siteRef' as a value."
+      "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
     ))
   }
   
@@ -119,8 +151,8 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      message(paste0("auto_assign = TRUE selected. Running TADA_CreateSiteRef with default assignment. Please review  this sites Ref table output."))
-      siteRef <- TADA_CreateSiteRef(  
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment. Please review  this sites Ref table output."))
+      MLSummaryRef <- TADA_CreateMLSummaryRef(  
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
@@ -129,7 +161,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
       )
     }
     
-    # user only updates paramRef. This will update paramRef, useParamRef, and siteRef based on these modifications.
+    # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
     if (updateRef == "paramRef") {
       message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
       myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef") 
@@ -150,7 +182,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      siteRef <- TADA_CreateSiteRef(  
+      MLSummaryRef <- TADA_CreateMLSummaryRef(  
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
@@ -159,7 +191,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
       )
     }
       
-    # user only updates useParamRef. This will update useParamRef, siteRef based on this modifications.
+    # user only updates useParamRef. This will update useParamRef, MLSummaryRef based on this modifications.
     if (updateRef == "useParamRef") {
       message(paste0("auto_assign = TRUE and updateRef = useParamRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
       myfile_UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef") 
@@ -181,7 +213,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      siteRef <- TADA_CreateSiteRef(  
+      MLSummaryRef <- TADA_CreateMLSummaryRef(  
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
@@ -190,15 +222,15 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
       )
     }
     
-    # user only updates siteRef in excel. This will update siteRef based on this modifications.
-    if (updateRef == "siteRef") {
-      message(paste0("auto_assign = TRUE and updateRef = siteRef selected. Running TADA_CreateSiteRef with use supplied paramRef assignment. Please review this paramRef table output."))
-      myfile_SiteRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateSiteRef") 
+    # user only updates MLSummaryRef in excel. This will update MLSummaryRef based on this modifications.
+    if (updateRef == "MLSummaryRef") {
+      message(paste0("auto_assign = TRUE and updateRef = MLSummaryRef selected. Running TADA_CreateMLSummaryRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      myfile_MLSummaryRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateMLSummaryRef") 
       
       TADA_ParamRef <- TADA_CreateParamRef(  
         .data, 
         org_id = org_id,
-        paramRef = myfile_SiteRef, # will update paramRef based on useParamRef
+        paramRef = myfile_MLSummaryRef, # will update paramRef based on useParamRef
         auto_assign = "All",
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
@@ -207,31 +239,31 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
         .data, 
         org_id = org_id,
         paramRef = TADA_ParamRef,
-        useParamRef = myfile_SiteRef,
+        useParamRef = myfile_MLSummaryRef,
         auto_assign = TRUE,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      siteRef <- TADA_CreateSiteRef(  
+      MLSummaryRef <- TADA_CreateMLSummaryRef(  
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
         sitesAURef = sitesAURef,
-        siteRef = myfile_SiteRef,
+        MLSummaryRef = myfile_MLSummaryRef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
   }
   
   # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
-  if (!is.null(siteRef) & !is.character(siteRef)) {
-    if (!is.data.frame(siteRef)) {
-      stop("TADA_DefineCriteriaMethodology: 'siteRef' must be a data frame with six columns:
+  if (!is.null(MLSummaryRef) & !is.character(MLSummaryRef)) {
+    if (!is.data.frame(MLSummaryRef)) {
+      stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
     }
     
-    if (is.data.frame(siteRef)) {
+    if (is.data.frame(MLSummaryRef)) {
       col.names <- c(
         "ATTAINS.ParameterName",
         "ATTAINS.UseName",
@@ -241,20 +273,20 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
         "ATTAINS.assessmentunitidentifier"
       )
       
-      ref.names <- names(siteRef)
+      ref.names <- names(MLSummaryRef)
       
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_DefineCriteriaMethodology: 'siteRef' must be a data frame with six columns:
+        stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
       }
     }
   }
   
-  siteRef$ATTAINS.WaterType <- as.character(siteRef$ATTAINS.WaterType)
-  siteRef$SaltFresh <- as.character(siteRef$SaltFresh)
+  MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
+  MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
   # Extracts the characteristic, speciation and fraction columns to join
-  siteRef <- siteRef %>%
+  MLSummaryRef <- MLSummaryRef %>%
     dplyr::left_join(
       .data[,c(
         "TADA.ComparableDataIdentifier",
@@ -275,8 +307,8 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
   #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
   #   dplyr::arrange(ATTAINS.ParameterName)
   
-  # Creates the DefineCriteriaMethodology table from the siteRef.
-  DefineCriteriaMethodology <- siteRef %>%
+  # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
+  DefineCriteriaMethodology <- MLSummaryRef %>%
     dplyr::select(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
       "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
@@ -446,7 +478,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
       startCol = 11, startRow = 1, 
       # ATTAINS.WaterType
       x = data.frame( 
-        ATTAINS.WaterType = c(unique(siteRef$ATTAINS.WaterType), "All", "NA")
+        ATTAINS.WaterType = c(unique(MLSummaryRef$ATTAINS.WaterType), "All", "NA")
         )
       ) 
     
@@ -472,7 +504,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
       startCol = 14, startRow = 1, 
       # ApplyUniqueSpatialCriteria
       x = data.frame(
-        ApplyUniqueSpatialCriteria = c(unique(siteRef$ApplyUniqueSpatialCriteria), "NA")
+        ApplyUniqueSpatialCriteria = c(unique(MLSummaryRef$ApplyUniqueSpatialCriteria), "NA")
         )
       ) 
     
@@ -561,7 +593,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateSiteRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
@@ -627,7 +659,7 @@ TADA_DefineCriteriaMethodology <- function(.data, siteRef = NULL, criteriaMethod
 #' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
 #' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
 #'
-TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, siteRef = NULL, 
+TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = NULL, 
                                  summarizeBy = c("All", "Criteria", "Char"), 
                                  spatialSummary = c("groupedML", "individualML", "AU", NULL),
                                  #criteriaOutput = c("")
