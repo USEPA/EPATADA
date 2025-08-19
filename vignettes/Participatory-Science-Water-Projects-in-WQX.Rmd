@@ -36,7 +36,13 @@ library(EPATADA)
 
 #### Find volunteer data in WQX
 
-Find volunteer monitoring organizations who have submitted data to EPA's Water Quality eXchange (WQX) by reviewing the `organization` domain table available [here](https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads).
+Let's explore [participatory science water
+projects](https://www.epa.gov/participatory-science/participatory-science-water-projects)
+using the Water Quality eXchange (WQX), Water Quality Portal (WQP), and
+the EPATADA R Package. To start, let's find volunteer monitoring
+organizations who have submitted data to EPA's Water Quality eXchange
+(WQX) by reviewing the `organization` domain table available
+[here](https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads).
 
 ```{r get org domain}
 # Get the WQX organizations domain
@@ -70,7 +76,9 @@ Prepare list for use in `TADA_DataRetrieval`:
 unlist(random_volunteer_orgIDs)
 ```
 
-Query the Water Quality Portal (WQP) using `TADA_DataRetrieval` and the 5 random volunteer organizations IDs. We will look for any data available from 2015 to present.
+Query the Water Quality Portal (WQP) using `TADA_DataRetrieval` and the
+5 random volunteer organizations IDs. We will look for any data
+available from 2015 to present.
 
 ```{r, eval = F}
 volunteer_data <- TADA_DataRetrieval(
@@ -83,7 +91,9 @@ volunteer_data <- TADA_DataRetrieval(
 
 #### Retrieve data from WQP
 
-Alternatively, choose 5 volunteer monitoring organizations and query WQP. We will move forward with this example of volunteer organizations in CT:
+Alternatively, choose 5 volunteer monitoring organizations and query
+WQP. We will move forward with this example of volunteer organizations
+in CT:
 
 ```{r}
 selected_orgs <- 
@@ -149,7 +159,8 @@ volunteer_data <- TADA_SimpleCensoredMethods(
   )
 ```
 
-Run key TADA quality control flagging functions and remove suspect results:
+Run key TADA quality control flagging functions and remove suspect
+results:
 
 ```{r}
 volunteer_data <- TADA_RunKeyFlagFunctions(
@@ -158,7 +169,8 @@ volunteer_data <- TADA_RunKeyFlagFunctions(
   )
 ```
 
-Flag results above and below thresholds. Review carefully and consider removing.
+Flag results above and below thresholds. Review carefully and consider
+removing.
 
 ```{r}
 volunteer_data <- TADA_FlagAboveThreshold(volunteer_data, 
