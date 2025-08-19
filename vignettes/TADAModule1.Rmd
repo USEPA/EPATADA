@@ -27,8 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
-  eval = F
+  message = FALSE
 )
 ```
 
@@ -657,7 +656,7 @@ continuous data.
 See function documentation for additional details by entering the
 following code in the console: ?TADA_FlagContinuousData
 
-```{r TADA_FlagContinuousData, eval = F}
+```{r TADA_FlagContinuousData}
 TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE,
   flaggedonly = FALSE,
@@ -1051,7 +1050,7 @@ concentrations. QA procedures should not bias statistical analyses of
 the data. Note that a modest error in a measurement will have a much
 smaller effect than implementing a QA process that builds in bias.
 
-```{r Run TADA_PairReplicates, eval = F}
+```{r Run TADA_PairReplicates}
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
 TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 
@@ -1122,7 +1121,7 @@ TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
 )
 
 # regenerate table and pie chart
-TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
+TADA_FieldValuesPie(TADAProfileClean4, field = "TADA.MeasureQualifierCode.Def")
 ```
 
 ```{r}
@@ -1548,4 +1547,4 @@ Go to:
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own script. Note:
 You must have a GitHub account to download TADAModule1.Rmd from
-GitHub](images/DownloadModule1.jpg)
+GitHub.](images/DownloadModule1.jpg)
