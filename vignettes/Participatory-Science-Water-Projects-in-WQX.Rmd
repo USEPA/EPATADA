@@ -237,3 +237,92 @@ Generate scatter plot for E. coli:
 ```{r}
 TADA_GroupedScatterplot(ecoli)
 ```
+
+Filter to a single site and continue exploring E. coli:
+
+```{r}
+ecoli <- dplyr::filter(
+  ecoli,
+  TADA.MonitoringLocationIdentifier %in% c(
+    "CONNRIVERCONSERVANCY-OXE1"
+  )
+)
+```
+
+Let's check if any results are above the EPA 304A recommended maximum
+criteria magnitude (see: [2012 Recreational Water Quality Criteria Fact
+Sheet](https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)).
+
+[![EPA 2012 recreational water quality criteria (RWQC) recommendations
+for protecting human health in all coastal and non-coastal waters
+designated for primary contact recreation use. EPA provides two sets of
+recommended criteria. The RWQC consist of three components: magnitude,
+duration and frequency. The magnitude of the bacterial indicators are
+described by both a geometric mean (GM) and a statistical threshold
+value (STV) for the bacteria samples. The waterbody GM should not be
+greater than the selected GM magnitude in any 30-day interval. The STV
+approximates the 90th percentile of the water quality distribution and
+is intended to be a value that should not be exceeded by more than 10
+percent of the samples in the same 30-day interval. The table summarizes
+the magnitude component of the
+recommendations.](images/bacteria.png)](chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf)
+
+If interested, you can find other state, tribal, and EPA 304A criteria
+in [EPA's Criteria Search
+Tool](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
+
+Let's check if any individual results exceed 320 CFU/100mL (the
+magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
+COLI).
+
+```{r}
+# add column with comparison to criteria mag (excursions)
+ecoli <- ecoli %>%
+  dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
+
+# review subset
+ecoli_subset_review <- ecoli %>%
+  dplyr::select(
+    MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
+    meets_criteria_mag
+  )
+
+TADA_TableExport(ecoli_subset_review)
+```
+
+Generate stats table. Review percentiles. Less than 5% of results fall
+above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m
+
+```{r stats}
+TADA_TableExport(TADA_Stats(ecoli))
+```
+
+Generate a scatterplot. One result value is above the threshold.
+
+```{r}
+TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%
+  plotly::add_lines(
+    y = 320,
+    x = c(min(ecoli$ActivityStartDate), max(ecoli$ActivityStartDate)),
+    inherit = FALSE,
+    showlegend = FALSE,
+    line = list(color = "red"),
+    hoverinfo = "none"
+  )
+```
+
+Generate a histogram.
+
+```{r boxplot and histogram}
+TADA_Histogram(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+```
+
+`TADA_Boxplot` can be useful for identifying skewness and percentiles.
+
+```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
+TADA_Boxplot(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+```
+
+Check out other example R workflows designed to work with WQP data under
+the [Articles](https://usepa.github.io/EPATADA/) tab on the EPATADA
+package website.
