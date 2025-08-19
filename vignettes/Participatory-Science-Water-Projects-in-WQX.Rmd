@@ -1,12 +1,30 @@
 ---
 title: "Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)"
+format: html
+editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE
+)
 ```
 
 #### Load the EPATADA R Package
@@ -202,7 +220,7 @@ ecoli <- dplyr::filter(
 )
 ```
 
-Generate scatter plot for ecoli:
+Generate scatter plot for E. coli:
 
 ```{r}
 TADA_GroupedScatterplot(ecoli)
