@@ -745,7 +745,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
       by = dplyr::join_by(dplyr::between(ActivityStartDate, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
       )
     
-      df_aggregated <- df_start_end %>%
+    df_aggregated <- df_start_end %>%
       #tidyr::drop_na(ActivityStartDateTime) %>%
       dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
       dplyr::filter(!is.na(ActivityStartDate)) %>%
@@ -753,16 +753,16 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
       dplyr::group_by(
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(
         AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::summarize(
         geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
@@ -939,8 +939,8 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
         DurationPeriod,
         TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
+        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::summarize(
         n_Aggregatedsamples = dplyr::n(),
