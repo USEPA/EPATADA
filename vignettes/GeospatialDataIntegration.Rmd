@@ -114,7 +114,7 @@ install.
 If desired, the development versions of dataRetrieval and StreamCatTools
 can be downloaded directly from GitHub (un-comment).
 
-```{r install_TADA, eval = F, results = 'hide'}
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -639,9 +639,9 @@ quality data is the WQP.
 
 #### **Matching WQP monitoring locations with ATTAINS assessment units**
 
--   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP monitoring locations
-    with ATTAINS assessment units that fall within (intersect) the same
-    NHDPlus catchment
+-   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP
+    monitoring locations with ATTAINS assessment units that fall within
+    (intersect) the same NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default
     because 80% of state submitted assessment units in ATTAINS were
@@ -675,12 +675,12 @@ but there are no existing Assessment Units in ATTAINS for them. If you
 are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
-TADA_CreateATTAINSAUMLCrosswalk() fill_catchments function input (leveraging USGS's
-nhdplusTools and TADA geospatial functions). This is included for
-exploratory purposes only. In theory, states and tribal nations could
-use the high res catchments as new assessment unit polygons to assess
-additional areas where there is WQP data but no Assessment Unit yet in
-ATTAINS, but that process is outside of TADA.
+TADA_CreateATTAINSAUMLCrosswalk() fill_catchments function input
+(leveraging USGS's nhdplusTools and TADA geospatial functions). This is
+included for exploratory purposes only. In theory, states and tribal
+nations could use the high res catchments as new assessment unit
+polygons to assess additional areas where there is WQP data but no
+Assessment Unit yet in ATTAINS, but that process is outside of TADA.
 
 For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature
 (neither ATTAINS NHDPlus high res catchment snap shot or state submitted
