@@ -672,9 +672,9 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
   summarizeBy <- match.arg(summarizeBy)
   
   # Runs TADA_FlagDepthCategory if not already ran
-  if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
-    .data <- TADA_FlagDepthCategory(.data)
-  }
+  # if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
+  #   .data <- TADA_FlagDepthCategory(.data)
+  # }
   
   if ( sum(is.na(criteriaMethods$MagnitudeValueUpper) & is.na(criteriaMethods$MagnitudeValueLower)) > 0) {
     print(
@@ -726,22 +726,23 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
     # for each unique duration period perform aggregation. rbind in final df.
     df_raw <- Duration_splits[[i]]
     
-    start_date <- tryCatch(
+    start_date <- as.POSIXct(tryCatch(
       min(df_raw$ActivityStartDateTime, na.rm = TRUE),
       warning = function(w) {
         min(df_raw$ActivityStartDate, na.rm = TRUE)
-                           })
-    end_date <- tryCatch(
+                           }))
+    
+    end_date <- as.POSIXct(tryCatch(
       max(df_raw$ActivityStartDateTime, na.rm = TRUE),
       warning = function(w) {
         max(df_raw$ActivityStartDate, na.rm = TRUE)
-      })
+      }))
     
     regular_timestamps <- seq(start_date, end_date, by = DurationPeriod)
     
     regular_timestamps_df <- data.frame(
-      AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps[-length(regular_timestamps)], format = "%Y-%m-%d %H:%M:%S"),
-      AggregatedActivityEndDateTime = regular_timestamps[2:length(regular_timestamps)]
+      AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps[-length(regular_timestamps)]),
+      AggregatedActivityEndDateTime = as.POSIXct( regular_timestamps[2:length(regular_timestamps)])
       )
     
     df_start_end <- dplyr::left_join(
