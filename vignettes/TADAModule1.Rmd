@@ -808,10 +808,9 @@ of potential duplicate rows is flagged with a unique ID. For more
 information, review the documentation by entering the following into the
 console:
 
--   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
 -   ?**TADA_FindPotentialDuplicatesSingleOrg**
 
-```{r FindPotentialDuplicates}
+```{r FindPotentialDuplicates_single}
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 
 # filter to keep only unique rows using TADA.SingleOrgDup.Flag
@@ -819,6 +818,11 @@ TADAProfileClean3 <- dplyr::filter(
   TADAProfileClean3,
   TADA.SingleOrgDup.Flag == "Unique"
 )
+```
+
+-   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
+
+```{r FindPotentialDuplicates_multiple, eval = F}
 
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(
   TADAProfileClean3,
