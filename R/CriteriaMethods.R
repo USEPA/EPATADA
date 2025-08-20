@@ -1,8 +1,8 @@
 #' Define Criteria and Methodology
 #'
-#' It is recommended to run the three TADA reference table [TADA_CreateParamRef()],
-#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef] to generate this 
-#' Criteria and Methodology table. These three functions work in chronological order.
+#' It is recommended to run the three TADA reference functions in order of
+#' [TADA_CreateParamRef()], [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef] 
+#' to generate the Criteria and Methodology table specific for your organization.
 #' However, users can choose to proceed with an 'auto_assign'
 #' option which will use default assignments during each of these three functions.
 #' If you would like to update any of these reference tables from the defaults, 
@@ -20,6 +20,7 @@
 #' rivers versus estuary, different seasons, etc., then a user will need to create
 #' additional rows to reflect this. Additional columns are included in this output
 #' to capture data sufficiency considerations.
+#' 
 #' @param .data A TADA dataframe. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
 #' prior to running this function.
@@ -747,7 +748,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
     
     df_start_end <- dplyr::left_join(
       df_raw, regular_timestamps_df, 
-      by = dplyr::join_by(dplyr::between(ActivityStartDate, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
+      by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
       )
     
     df_aggregated <- df_start_end %>%
@@ -758,16 +759,16 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
       dplyr::group_by(
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(
         AggregatedActivityStartDateTime, AggregatedActivityEndDateTime, 
         DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::summarize(
         geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
@@ -944,8 +945,8 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
         DurationPeriod,
         TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName, 
         ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper,
-        MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
+        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
+        #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
       ) %>%
       dplyr::summarize(
         n_Aggregatedsamples = dplyr::n(),
@@ -984,42 +985,66 @@ TADA_SummaryScatterplot <- function(summaryRef = NULL) {
   param_names2 <- sort(unique(summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier))
   
   TADA_Summary_Scatter <- list()
+  subplot_TADA_Summary_Scatter <- list()
+  #unique_Durations <- unique(TADA_SummaryOutput$CriteriaSummary[TADA_SummaryOutput$CriteriaSummary$DurationPeriod])
   
   for (i in 1:length(param_names)){
-    TADA_Summary_Scatter[[i]] <- TADA_Scatterplot(summaryRef$TADA_with_Summary_Stats)[[i]] %>%
-      plotly::add_trace(
+    temp_df <- summaryRef$TADA_with_Summary_Stats[summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i],]
+    
+    unique_Durations <- unique(temp_df$DurationPeriod.x)
+    
+    for (n in 1:length(unique_Durations)) {
+      subplot_TADA_Summary_Scatter[[n]] <- TADA_Scatterplot(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])) %>%
+        plotly::add_trace(
         # plots the criteria measure not to be exceeded. ex. geomean, arithimetic mean, median etc.
-        data = summaryRef$TADA_with_Summary_Stats[summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i],],
+        data = dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n]),
         x = ~ ActivityStartDate, 
         y = ~ geomean_TADA.ResultMeasureValue, 
         type = "scatter", mode = "markers", 
-        name = paste0(unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "DurationPeriod"]) ," geometric mean"), 
+        name = paste0(unique_Durations[n] ," geometric mean"), 
         hoverinfo = "none",
-        marker = list(color = "green")) %>%
-      plotly::add_lines(
-        y = as.numeric(
-          c(
-            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]),
-            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueLower"]))
-        ),
-        x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-        inherit = FALSE,
-        line = list(color = "red"),
-        name = "Lower Limit",
-        hoverinfo = "none"
-      )  %>%
-      plotly::add_lines(
-        y = as.numeric(
-          c(
-            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]),
-            unique(summaryRef$CriteriaSummary[summaryRef$CriteriaSummary$TADA.ComparableDataIdentifier == param_names2[i], "MagnitudeValueUpper"]))
-        ),
-        x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-        inherit = FALSE,
-        line = list(color = "black"),
-        name = "Upper Limit",
-        hoverinfo = "none"
-      ) 
+        marker = list(color = TADA_ColorPalette()[n])) 
+    
+      lowerMagnitudes <- unique(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])[, "MagnitudeValueLower.x"])
+      upperMagnitudes <- unique(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])[, "MagnitudeValueUpper.x"])
+
+      for (j in 1:nrow(lowerMagnitudes)) {
+        subplot_TADA_Summary_Scatter[[n]] <- subplot_TADA_Summary_Scatter[[n]] %>%
+          plotly::add_lines(
+            y = as.numeric(
+              c(
+                lowerMagnitudes[j,],
+                lowerMagnitudes[j,])
+            ),
+            x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+            inherit = FALSE,
+            line = list(color = "red"),
+            name = paste0("Lower Limit ", j),
+            hoverinfo = "none"
+          )
+      }
+
+      for (k in 1:nrow(upperMagnitudes)) {
+        subplot_TADA_Summary_Scatter[[n]] <- subplot_TADA_Summary_Scatter[[n]] %>%
+          plotly::add_lines(
+            y = as.numeric(
+              c(
+                upperMagnitudes[k,],
+                upperMagnitudes[k,])
+            ),
+            x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
+            inherit = FALSE,
+            line = list(color = "black"),
+            name = paste0("Upper Limit ", k),
+            hoverinfo = "none"
+          )
+      }
+      
+      
+
+    }
+    TADA_Summary_Scatter[[i]] <- plotly::subplot(subplot_TADA_Summary_Scatter, nrows = length(unique_Durations), shareX = T )  
+
   }
   return(TADA_Summary_Scatter)
 }

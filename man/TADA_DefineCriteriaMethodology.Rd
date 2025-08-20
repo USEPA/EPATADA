@@ -71,9 +71,9 @@ This helps prevent users from overwriting their progress.}
 A data frame with the criteria and methodology table in TADA format.
 }
 \description{
-It is recommended to run the three TADA reference table \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
-\link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef} to generate this
-Criteria and Methodology table. These three functions work in chronological order.
+It is recommended to run the three TADA reference functions in order of
+\code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}}, \link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef}
+to generate the Criteria and Methodology table specific for your organization.
 However, users can choose to proceed with an 'auto_assign'
 option which will use default assignments during each of these three functions.
 If you would like to update any of these reference tables from the defaults,
