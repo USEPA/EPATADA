@@ -411,6 +411,18 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
   }
   
+  if ( !is.null(criteriaMethods)){
+    DefineCriteriaMethodology <- criteriaMethods %>%
+      dplyr::left_join(DefineCriteriaMethodology, by = 
+                       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+                       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
+                       # Spatial Columns
+                       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria"
+                       )
+    
+    
+  }
+  
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
     tryCatch(
