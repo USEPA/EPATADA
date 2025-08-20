@@ -25,7 +25,9 @@ character string or a vector of strings."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -92,19 +94,21 @@ from figure titles and axis labels for the TADA package.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "NITRATE_DISSOLVED_NA_NA"             "NITROGEN_SUSPENDED_NA_MG/L"         </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "NITRATE_DISSOLVED_AS N_MG/L"         "NITRATE_DISSOLVED_AS NO3_MG/L"      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NITROGEN_SUSPENDED_NA_NA"            "NITROGEN_TOTAL_AS N_MG/L"           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN_DISSOLVED_AS N_MG/L"        "NITRATE_NONE_NA_MG/L"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN_DISSOLVED_AS N_MG/L"        "NITRATE_NONE_UNKNOWN_MG/L"          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "AMMONIA_TOTAL RECOVERABLE_AS N_MG/L" "AMMONIA_UNFILTERED_AS N_MG/L"       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [11] "NITRATE_UNFILTERED_AS N_MG/L"        "NITRATE_TOTAL_AS N_NA"              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE_UNFILTERED_AS N_NA"          "NITRATE_TOTAL_AS N_MG/L"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE_UNFILTERED_AS N_NA"          "AMMONIA_TOTAL_AS N_MG/L"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "NITRATE_TOTAL_AS N_MG/L"            </span>
 <span class="r-in"><span><span class="va">UT_Titles</span> <span class="op">&lt;-</span> <span class="fu">TADA_CharStringRemoveNA</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">UT_Titles</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "NITRATE DISSOLVED"                   "NITROGEN SUSPENDED MG/L"            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "NITRATE DISSOLVED AS N MG/L"         "NITRATE DISSOLVED AS NO3 MG/L"      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NITROGEN SUSPENDED"                  "NITROGEN TOTAL AS N MG/L"           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN DISSOLVED AS N MG/L"        "NITRATE NONE MG/L"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "NITROGEN DISSOLVED AS N MG/L"        "NITRATE NONE UNKNOWN MG/L"          </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "AMMONIA TOTAL RECOVERABLE AS N MG/L" "AMMONIA UNFILTERED AS N MG/L"       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [11] "NITRATE UNFILTERED AS N MG/L"        "NITRATE TOTAL AS N"                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE UNFILTERED AS N"             "NITRATE TOTAL AS N MG/L"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "NITRATE UNFILTERED AS N"             "AMMONIA TOTAL AS N MG/L"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "NITRATE TOTAL AS N MG/L"            </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

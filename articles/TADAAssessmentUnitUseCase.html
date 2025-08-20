@@ -36,7 +36,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -70,7 +72,7 @@
       <h1>TADA: Assessment Unit Use Case Demo</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-07-15</h4>
+            <h4 data-toc-skip class="date">2025-08-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAAssessmentUnitUseCase.Rmd" class="external-link"><code>vignettes/TADAAssessmentUnitUseCase.Rmd</code></a></small>
       <div class="d-none name"><code>TADAAssessmentUnitUseCase.Rmd</code></div>
@@ -247,14 +249,15 @@ about conditions in the Nation’s surface waters.</p>
 <strong>ATTAINS</strong> geospatial services to make geospatial
 information including catchment and assessment unit geometry easily
 accessible to R users.</p>
-<p>We can use the function, <code>TADA_GetATTAINS</code> to obtain
-geospatial data from <strong>ATTAINS</strong> relevant to the Monitoring
-Locations included in the <strong>WQP</strong> data set. See <a href="https://usepa.github.io/EPATADA/articles/TADAModule2.html">TADA
+<p>We can use the function, <code>TADA_CreateATTAINSAUMLCrosswalk</code>
+to obtain geospatial data from <strong>ATTAINS</strong> relevant to the
+Monitoring Locations included in the <strong>WQP</strong> data set. See
+<a href="https://usepa.github.io/EPATADA/articles/TADAModule2.html">TADA
 Module 2</a> for a much more detailed look at the logic behind this and
 the other TADA geospatial functions.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import data from ATTAINS geospatial services</span></span>
-<span><span class="va">ATTAINS_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">ATTAINS_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="view-geospatial-features">View Geospatial Features<a class="anchor" aria-label="anchor" href="#view-geospatial-features"></a>
@@ -291,10 +294,10 @@ the relative number of results contributed by each organization.</p>
 <code class="sourceCode R"><span><span class="co"># Filter data for specified assessment unit</span></span>
 <span></span>
 <span><span class="va">AUID_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.assessmentunitidentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.assessmentunitidentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">contains</a></span><span class="op">(</span><span class="st">"ATTAINS."</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/TADA_RetainRequired.html">TADA_RetainRequired</a></span><span class="op">(</span><span class="op">)</span></span>

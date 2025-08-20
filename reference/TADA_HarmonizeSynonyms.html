@@ -5,7 +5,7 @@ and visualization. Users may populate the function with a dataset-specific
 synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
-characteristic name, fraction, speciation, or unit is present, the function
+characteristic name, fraction, or speciation is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName to the target format. In cases where a target
 speciation differs from the existing speciation, the reference table will
@@ -15,7 +15,7 @@ and visualization. Users may populate the function with a dataset-specific
 synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
-characteristic name, fraction, speciation, or unit is present, the function
+characteristic name, fraction, or speciation is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName to the target format. In cases where a target
 speciation differs from the existing speciation, the reference table will
@@ -39,7 +39,9 @@ also apply multiplication conversion factors to the TADA.ResultMeasureValue."></
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -73,7 +75,7 @@ and visualization. Users may populate the function with a dataset-specific
 synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
-characteristic name, fraction, speciation, or unit is present, the function
+characteristic name, fraction, or speciation is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName to the target format. In cases where a target
 speciation differs from the existing speciation, the reference table will
@@ -111,8 +113,8 @@ NO3 will be converted to as N using molecular weight conversion factors.</p></dd
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>The input TADA dataframe with the TADA.CharacteristicName,
-TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
-TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
+TADA.ResultSampleFractionText, and TADA.MethodSpeciationName columns
+converted to the target values,
 if supplied. Also includes additional columns
 TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
 TADA.SpeciationAssumptions populated with additional notes about the conversion

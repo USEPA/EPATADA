@@ -36,7 +36,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -70,7 +72,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-07-15</h4>
+            <h4 data-toc-skip class="date">2025-08-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3a.Rmd" class="external-link"><code>vignettes/TADAModule3a.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3a.Rmd</code></div>
@@ -285,9 +287,9 @@ crosswalk out.</p>
 <p>Now, let’s go through an example in which users auto-populate the
 crosswalk with exact matches. We will use auto_assign = ‘All’ to
 indicate we will use exact matches regardless of if your organization
-has used this “ATTAINS.ParameterName” domain value in the past.
-i.e. Your organization is fine with using an ATTAINS Parameter Name that
-has been submitted to ATTAINS outside of your organization.</p>
+has used this “ATTAINS.ParameterName” domain value in the past. i.e.
+Your organization is fine with using an ATTAINS Parameter Name that has
+been submitted to ATTAINS outside of your organization.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create TADA parameter reference table for specified organization</span></span>
 <span><span class="va">NCTC_ParamRef_All</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>

@@ -27,7 +27,9 @@ visualization features in the TADA package or Shiny app."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -78,15 +80,25 @@ visualization features in the TADA package or Shiny app.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A dataframe containing all required fields for use with TADA as well as fields
-commonly used for filtering.</p>
+commonly used for filtering. Removes non-required columns containing only NA values.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This function also removes any columns not required for the TADA workflow
+where all values are equal to NA. It provides a warning message identifying
+any TADA required columns containing only NA values.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">reducedcols_Data_Nutrients_UT</span> <span class="op">&lt;-</span> <span class="fu">TADA_RetainRequired</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The following column(s) were removed as they contained only NAs and are not required for the TADA workflow: ActivityDepthAltitudeReferencePointText, ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, SampleAquifer, ResultWeightBasisText, ResultTemperatureBasisText, ResultParticleSizeBasisText, BinaryObjectFileName, BinaryObjectFileTypeCode, LabSamplePreparationUrl and ProjectMonitoringLocationWeightingUrl."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_RetainRequired: checking required columns for non-NA values."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_RetainRequired: TADA Required column(s) SubjectTaxonomicName, SampleTissueAnatomyName, ResultDepthHeightMeasure.MeasureValue, TADA.ResultDepthHeightMeasure.MeasureValue, ResultDepthHeightMeasure.MeasureUnitCode, TADA.ResultDepthHeightMeasure.MeasureUnitCode, ResultDepthAltitudeReferencePointText, ResultTimeBasisText, StatisticalBaseCode, ResultFileUrl, ResultAnalyticalMethod.MethodUrl, DataQuality.PrecisionValue, DataQuality.BiasValue, DataQuality.ConfidenceIntervalValue, DataQuality.UpperConfidenceLimitValue, DataQuality.LowerConfidenceLimitValue, ProjectFileUrl, QAPPApprovalAgencyName and LocalAqfrName contain only NA values. This may impact other TADA functions."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "The following non-required columns were removed: ActivityDepthAltitudeReferencePointText, ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityConductingOrganizationText, SampleAquifer, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, ResultWeightBasisText, ResultTemperatureBasisText, ResultParticleSizeBasisText, USGSPCode, BinaryObjectFileName, BinaryObjectFileTypeCode, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, LabSamplePreparationUrl, ActivityStartTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalAccuracyMeasure.MeasureValue, HorizontalAccuracyMeasure.MeasureUnitCode, HorizontalCollectionMethodName, VerticalMeasure.MeasureValue, VerticalMeasure.MeasureUnitCode, VerticalAccuracyMeasure.MeasureValue, VerticalAccuracyMeasure.MeasureUnitCode, VerticalCollectionMethodName, VerticalCoordinateReferenceSystemDatumName, FormationTypeText, ProjectMonitoringLocationWeightingUrl, DrainageAreaMeasure.MeasureValue, DrainageAreaMeasure.MeasureUnitCode, ContributingDrainageAreaMeasure.MeasureValue, ContributingDrainageAreaMeasure.MeasureUnitCode, ProviderName and LastUpdated."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, USGSPCode, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalAccuracyMeasure.MeasureValue, HorizontalAccuracyMeasure.MeasureUnitCode, HorizontalCollectionMethodName, VerticalMeasure.MeasureValue, VerticalMeasure.MeasureUnitCode, VerticalAccuracyMeasure.MeasureValue, VerticalAccuracyMeasure.MeasureUnitCode, VerticalCollectionMethodName, VerticalCoordinateReferenceSystemDatumName, FormationTypeText, DrainageAreaMeasure.MeasureValue, DrainageAreaMeasure.MeasureUnitCode, ContributingDrainageAreaMeasure.MeasureValue, ContributingDrainageAreaMeasure.MeasureUnitCode, ProviderName and LastUpdated."</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

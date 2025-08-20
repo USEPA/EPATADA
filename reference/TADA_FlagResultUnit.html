@@ -29,7 +29,9 @@ Default is flaggedonly = FALSE.'></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -146,7 +148,7 @@ The WQX team plans to review and update these new combinations quarterly.</p>
 <span class="r-in"><span><span class="co"># characteristic-media-result unit combinations in new column titled</span></span></span>
 <span class="r-in"><span><span class="co"># "TADA.ResultUnit.Flag":</span></span></span>
 <span class="r-in"><span><span class="va">SuspectUnit_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, clean <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagResultUnit: Rows with Suspect result value units have been flagged but retained. Review the TADA.ResultUnit.Flag column and remove rows as desired before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only Suspect characteristic-media-result unit combinations:</span></span></span>
 <span class="r-in"><span><span class="va">SuspectUnit_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagResultUnit</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>

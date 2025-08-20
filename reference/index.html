@@ -19,7 +19,9 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -105,12 +107,6 @@
         <dd>TADA_AutoClean</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_AutoFilter.html">TADA_AutoFilter()</a></code>
-
-        </dt>
-        <dd>AutoFilter</dd>
-      </dl><dl><dt>
-
           <code><a href="TADA_BigDataHelper.html">TADA_BigDataHelper()</a></code>
 
         </dt>
@@ -177,6 +173,18 @@
         <dd>TADA_ConvertSpecialChars</dd>
       </dl><dl><dt>
 
+          <code><a href="TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code>
+
+        </dt>
+        <dd>TADA_CreateATTAINSAUMLCrosswalk</dd>
+      </dl><dl><dt>
+
+          <code><a href="TADA_CreateAUMLCrosswalk.html">TADA_CreateAUMLCrosswalk()</a></code>
+
+        </dt>
+        <dd>TADA_CreateAUMLCrosswalk</dd>
+      </dl><dl><dt>
+
           <code><a href="TADA_CreateCSV.html">TADA_CreateCSV()</a></code>
 
         </dt>
@@ -213,10 +221,22 @@
         <dd>Generate A DataFrame of Units and Target by Characteristic Name</dd>
       </dl><dl><dt>
 
+          <code><a href="TADA_CreateUseAURef.html">TADA_CreateUseAURef()</a></code>
+
+        </dt>
+        <dd>ATTAINS Assessment Unit and Use Name Crosswalk</dd>
+      </dl><dl><dt>
+
           <code><a href="TADA_CreateUseParamRef.html">TADA_CreateUseParamRef()</a></code>
 
         </dt>
         <dd>Create or Update ATTAINS Parameter and Use crosswalk</dd>
+      </dl><dl><dt>
+
+          <code><a href="TADA_CreateWaterUseRef.html">TADA_CreateWaterUseRef()</a></code>
+
+        </dt>
+        <dd>Helper Function to Apply Uses to Unassigned Assessment Units by Water Type</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code>
@@ -228,7 +248,7 @@
           <code><a href="TADA_DecimalPlaces.html">TADA_DecimalPlaces()</a></code>
 
         </dt>
-        <dd>Decimal Places</dd>
+        <dd>Calculate Decimal Places</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_DepthProfilePlot.html">TADA_DepthProfilePlot()</a></code>
@@ -363,16 +383,16 @@
         <dd>Convert a delimited string to the format used by WQX 3.0 profiles for one-to-manys</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code>
-
-        </dt>
-        <dd>TADA_GetATTAINS</dd>
-      </dl><dl><dt>
-
-          <code><a href="TADA_GetATTAINSAUSiteCrosswalk.html">TADA_GetATTAINSAUSiteCrosswalk()</a></code>
+          <code><a href="TADA_GetATTAINSAUMLCrosswalk.html">TADA_GetATTAINSAUMLCrosswalk()</a></code>
 
         </dt>
         <dd>Get Monitoring Location Identifier and Assessment Unit Identifier Crosswalk from ATTAINS</dd>
+      </dl><dl><dt>
+
+          <code><a href="TADA_GetATTAINSByAUID.html">TADA_GetATTAINSByAUID()</a></code>
+
+        </dt>
+        <dd>TADA_GetATTAINSByAUID</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_GetATTAINSOrgIDsRef.html">TADA_GetATTAINSOrgIDsRef()</a></code>
@@ -633,10 +653,10 @@
         <dd>Create Characteristic/MeasureUnitCode/MethodSpeciation Ref</dd>
       </dl><dl><dt>
 
-          <code><a href="TADA_UpdateMonitoringLocationsInATTAINS.html">TADA_UpdateMonitoringLocationsInATTAINS()</a></code>
+          <code><a href="TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk()</a></code>
 
         </dt>
-        <dd>Create or Update Monitoring Location Identifier and Assessment Unit Identifier Crosswalk in ATTAINS</dd>
+        <dd>Update Monitoring Location Identifier and Assessment Unit Identifier Crosswalk in ATTAINS</dd>
       </dl><dl><dt>
 
           <code><a href="TADA_UpdateTribalLayers.html">TADA_UpdateTribalLayers()</a></code>
@@ -732,7 +752,7 @@
           <code><a href="quiet.html">quiet()</a></code>
 
         </dt>
-        <dd>Silence print messages</dd>
+        <dd>Silence Print Messages from Code Execution</dd>
       </dl><dl><dt>
 
           <code><a href="writeLayer.html">writeLayer()</a></code>

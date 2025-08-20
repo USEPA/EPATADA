@@ -25,7 +25,9 @@ TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information."></
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -61,7 +63,7 @@ TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">.data</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">.data</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -74,7 +76,7 @@ TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.</p>
 
 <dt id="arg-clean">clean<a class="anchor" aria-label="anchor" href="#arg-clean"></a></dt>
 <dd><p>Boolean. Determines whether to keep the suspect rows (or not).
-Defaults to TRUE.</p></dd>
+Defaults to <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -88,13 +90,13 @@ TADA.MeasureQualifierCode.Flag and TADA.ActivityType.Flag.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Run flagging functions but keep all results</span></span></span>
 <span class="r-in"><span><span class="va">keep_all</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect result value units have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect sample fractions have been flagged but retained. Review these rows before proceeding and/or set clean = TRUE."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Rows with Suspect speciations have been flagged but retained. Review these rows before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagResultUnit: Rows with Suspect result value units have been flagged but retained. Review the TADA.ResultUnit.Flag column and remove rows as desired before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run flagging functions and remove and suspect rows</span></span></span>
 <span class="r-in"><span><span class="va">remove_suspect</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

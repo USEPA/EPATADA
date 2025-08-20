@@ -2,7 +2,9 @@
 <url><loc>usepa.github.io/EPATADA/404.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/LICENSE.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/CONTRIBUTING.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/ExampleMod2Workflow.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/GeospatialDataIntegration.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/Participatory-Science-Water-Projects-in-WQX.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAAssessmentUnitUseCase.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADACybertown2025.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule1.html</loc></url>
@@ -23,7 +25,6 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AutoClean.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_AutoFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_BigDataHelper.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Boxplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.html</loc></url>
@@ -35,13 +36,17 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateCSV.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateDateTime.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUseAURef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUseParamRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateWaterUseRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DepthProfilePlot.html</loc></url>
@@ -66,8 +71,8 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FlaggedSitesMap.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FormatDelimitedString.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINS.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUSiteCrosswalk.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSByAUID.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParameterWQPCharRef.html</loc></url>
@@ -111,7 +116,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_TribalOptions.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_UpdateMonitoringLocationsInATTAINS.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ViewColorPalette.html</loc></url>

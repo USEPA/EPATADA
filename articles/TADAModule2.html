@@ -36,7 +36,9 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -70,7 +72,7 @@
       <h1>TADA Module 2: Geospatial Functions</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-07-15</h4>
+            <h4 data-toc-skip class="date">2025-08-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule2.Rmd" class="external-link"><code>vignettes/TADAModule2.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule2.Rmd</code></div>
@@ -234,8 +236,8 @@ additional information.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="tada_getattains">
-<code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#tada_getattains"></a>
+<h2 id="tada_createattainsaumlcrosswalk">
+<code>TADA_CreateATTAINSAUMLCrosswalk()</code><a class="anchor" aria-label="anchor" href="#tada_createattainsaumlcrosswalk"></a>
 </h2>
 <p>This function pulls in ATTAINS data from the EPA’s ATTAINS Assessment
 Geospatial Service and links it to TADA-pulled Water Quality Portal
@@ -243,29 +245,29 @@ observations. For the function to work properly, the input dataframe
 must have - at a minimum - WQP observation coordinates in
 “LongitudeMeasure” and “LatitudeMeasure” columns and a
 “HorizontalCoordinateReferenceSystemDatumName” column.</p>
-<p>By default, <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> returns a dataframe with
-ATTAINS-linked Water Quality Portal entries. Users have the added option
-of returning the intersecting ATTAINS geospatial shapefile objects with
-their ATTAINS-linked Water Quality Portal dataframe. If
-<code>return_sf = TRUE</code>, the function returns a list containing
-the dataframe and shapefile objects named
+<p>By default, <code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code> returns a
+dataframe with ATTAINS-linked Water Quality Portal entries. Users have
+the added option of returning the intersecting ATTAINS geospatial
+shapefile objects with their ATTAINS-linked Water Quality Portal
+dataframe. If <code>return_sf = TRUE</code>, the function returns a list
+containing the dataframe and shapefile objects named
 <code>ATTAINS_catchments</code>, <code>ATTAINS_lines</code>,
 <code>ATTAINS_points</code>, and <code>ATTAINS_polygons</code>. Note, if
 any of these shapefile objects are empty, this indicates that there are
 no ATTAINS objects of that type intersecting any WQP-linked ATTAINS
 catchment.</p>
 <p>Regardless of the user’s decision on returning the ATTAINS shapefile
-objects, <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> always returns a dataframe (or
-dataframes if <code>fill_catchments = TRUE</code>, see section
-<em><strong>Filling in missing ATTAINS assessment units</strong>)</em>
-containing the original TADA WQP dataframe, plus new columns
-representing the ATTAINS assessment unit(s) that fall within the same
-NHDPlus HiRes catchment as them. This means that it is possible for a
-single TADA WQP observation to have multiple ATTAINS assessment units
-linked to it. If the user would like to link all of these features, set
-<code>return_nearest = FALSE</code>. In these instances of multiple
-assessment units in the same catchment, the returned dataframe will have
-more than one row of data for each WQP observation. Such WQP
+objects, <code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code> always returns a
+dataframe (or dataframes if <code>fill_catchments = TRUE</code>, see
+section <em><strong>Filling in missing ATTAINS assessment
+units</strong>)</em> containing the original TADA WQP dataframe, plus
+new columns representing the ATTAINS assessment unit(s) that fall within
+the same NHDPlus HiRes catchment as them. This means that it is possible
+for a single TADA WQP observation to have multiple ATTAINS assessment
+units linked to it. If the user would like to link all of these
+features, set <code>return_nearest = FALSE</code>. In these instances of
+multiple assessment units in the same catchment, the returned dataframe
+will have more than one row of data for each WQP observation. Such WQP
 observations can be identified using the `ResultIdentifier`column (i.e.,
 multiple rows with the same `ResultIdentifier`value are the same
 observation).</p>
@@ -274,16 +276,16 @@ unit, set <code>return_nearest = TRUE</code>. This will return only the
 closest assessment unit to the WQP observation in instances where a
 catchment contains more than one assessment unit.</p>
 <div class="section level4">
-<h4 id="using-tada_getattains">Using <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_getattains"></a>
+<h4 id="using-tada_createattainsaumlcrosswalk">Using <code>TADA_CreateATTAINSAUMLCrosswalk()</code><a class="anchor" aria-label="anchor" href="#using-tada_createattainsaumlcrosswalk"></a>
 </h4>
 <p>Using either our original <code>TADA_dataframe</code> <em>or</em> the
 geospatial version <code>TADA_spatial</code>, we can pull in the ATTAINS
 catchment features that intersect our observations:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">TADA_dataframe</span>, return_sf <span class="op">=</span> <span class="cn">FALSE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">TADA_dataframe</span>, return_sf <span class="op">=</span> <span class="cn">FALSE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Can also be performed on the spatial data:</span></span>
-<span><span class="co"># TADA_with_ATTAINS &lt;- TADA_GetATTAINS(.data = TADA_spatial, return_sf = FALSE, return_nearest = FALSE)</span></span></code></pre></div>
+<span><span class="co"># TADA_with_ATTAINS &lt;- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = FALSE, return_nearest = FALSE)</span></span></code></pre></div>
 <p>This new <code>TADA_with_ATTAINS</code> object is a modification of
 the original TADA Water Quality Portal dataframe that now has additional
 columns associated with the ATTAINS assessment unit(s) that lie in the
@@ -293,10 +295,10 @@ contains more rows than the original TADA dataframe, we can deduce that
 some Water Quality Portal observations fall within an NHD catchment that
 contains more than one ATTAINS assessment unit.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">TADA_dataframe</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">TADA_dataframe</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># return only the closest ATTAINS AU for observations within a catchment with multiple AUs</span></span>
-<span><span class="co"># TADA_with_ATTAINS_list &lt;- TADA_GetATTAINS(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)</span></span></code></pre></div>
+<span><span class="co"># TADA_with_ATTAINS_list &lt;- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)</span></span></code></pre></div>
 <p>If we set <code>return_sf = TRUE</code> as done to create the
 <code>TADA_with_ATTAINS_list</code> object above, we also now have all
 the raw intersecting ATTAINS features associated with these ATTAINS
@@ -313,25 +315,25 @@ information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering
 <code>fill_catchments = TRUE</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS</a></span><span class="op">(</span><span class="va">TADA_dataframe</span>, fill_catchments <span class="op">=</span> <span class="cn">TRUE</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">TADA_with_ATTAINS_filled</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="va">TADA_dataframe</span>, fill_catchments <span class="op">=</span> <span class="cn">TRUE</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span>, return_nearest <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>When <code>fill_catchments = TRUE</code>, the returned list splits
 observations into two dataframes: WQP observations with ATTAINS
 catchment data, and WQP observations without ATTAINS catchment data.
 Instead of listing ATTAINS information in
 <code>TADA_without_ATTAINS</code>, it links basic information about the
 catchment including its unique identifier, catchment area, and the
-resolution of the NHD used. As a default, <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code>
-will use the NHD HiRes (<code>resolution = "Hi"</code>) for filling in
-missing ATTAINS catchments. However, the user can choose to change the
-resolution to the NHDPlus V2 by setting
-<code>resolution = "Med".</code></p>
+resolution of the NHD used. As a default,
+<code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code> will use the NHD HiRes
+(<code>resolution = "Hi"</code>) for filling in missing ATTAINS
+catchments. However, the user can choose to change the resolution to the
+NHDPlus V2 by setting <code>resolution = "Med".</code></p>
 <p>Moreover, when <code>return_sf = TRUE</code> as above, the function
 will additionally return the raw catchment features associated with the
 observations in <code>TADA_without_ATTAINS</code> in a new shapefile
 called <code>without_ATTAINS_catchments</code>.</p>
 </div>
 <div class="section level4">
-<h4 id="arguments-for-tada_getattains">Arguments for <code>TADA_GetATTAINS()</code><a class="anchor" aria-label="anchor" href="#arguments-for-tada_getattains"></a>
+<h4 id="arguments-for-tada_createattainsaumlcrosswalk">Arguments for <code>TADA_CreateATTAINSAUMLCrosswalk()</code><a class="anchor" aria-label="anchor" href="#arguments-for-tada_createattainsaumlcrosswalk"></a>
 </h4>
 <ul>
 <li><p><code>.data</code>: Your input TADA-style Water Quality Portal
@@ -347,8 +349,9 @@ ATTAINS feature to each WQP observation.</p></li>
 <li><p><code>return_sf</code>: If TRUE, returns spatial data in addition
 to tabular data.</p></li>
 </ul>
-<p>Enter <code><a href="../reference/TADA_GetATTAINS.html">?TADA_GetATTAINS</a></code> into the console to review
-another example of this function in use and additional information.</p>
+<p>Enter <code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">?TADA_CreateATTAINSAUMLCrosswalk</a></code> into the console
+to review another example of this function in use and additional
+information.</p>
 </div>
 </div>
 <div class="section level2">
@@ -357,11 +360,13 @@ another example of this function in use and additional information.</p>
 </h2>
 <p>This function visualizes the raw ATTAINS features that are linked to
 the TADA Water Quality Portal observations that are generated in
-<code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> when <code>return_sf = TRUE</code>. For
-the function to work properly, the input dataframe must be the list
-produced from <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code> with
+<code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code> when
+<code>return_sf = TRUE</code>. For the function to work properly, the
+input dataframe must be the list produced from
+<code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code> with
 <code>return_sf = TRUE</code>. The map also displays the Water Quality
-Portal monitoring locations used in <code><a href="../reference/TADA_GetATTAINS.html">TADA_GetATTAINS()</a></code>.</p>
+Portal monitoring locations used in
+<code><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code>.</p>
 <div class="section level4">
 <h4 id="using-tada_viewattains">Using <code>TADA_ViewATTAINS()</code><a class="anchor" aria-label="anchor" href="#using-tada_viewattains"></a>
 </h4>

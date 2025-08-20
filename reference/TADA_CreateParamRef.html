@@ -55,7 +55,9 @@ but both crosswalk to the same TADA.ComparableDataIdentifier, &quot;PH_NA_NA_STD
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
+    <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
     <li><a class="dropdown-item" href="../articles/TADACybertown2025.html">TADA Cybertown Workshop June 2025</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule1_AdvancedTraining.html">TADA Module 1: Training for Intermediate/Advanced R Users</a></li>
@@ -279,7 +281,7 @@ ATTAINS assessment cycles.</p>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># First, run key flag functions and harmonize synonyms across</span></span></span>
 <span class="r-in"><span><span class="co"># characteristic, fraction, and speciation columns</span></span></span>
-<span class="r-in"><span><span class="va">shepherdstown2</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="va">shepherdstown</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">shepherdstown2</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="va">shepherdstown</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">shepherdstown3</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="va">shepherdstown2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Create ATTAINS parameter crosswalk for MD, VA, and PA</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_shepherdstown</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateParamRef</span><span class="op">(</span><span class="va">shepherdstown3</span>,</span></span>
