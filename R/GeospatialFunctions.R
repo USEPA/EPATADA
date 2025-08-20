@@ -272,7 +272,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         f = "geojson"
       )
 
-      response <- httr2::GET(baseurls, query = query_params)
+      # response <- httr::GET(baseurls, query = query_params)
+      response <- httr2::request(baseurls) %>%
+        httr2::req_url_query(query_params) %>%
+        httr2::req_perform()
 
       if (httr2::status_code(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
@@ -300,9 +303,18 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     water_types <- vector("list", length = length(chunks))
 
     for (i in 1:length(chunks)) {
-      dat <- httr2::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
-        httr2::content(., as = "text", encoding = "UTF-8") %>%
-        jsonlite::fromJSON(.)
+      # dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
+      #   httr2::content(., as = "text", encoding = "UTF-8") %>%
+      #   jsonlite::fromJSON(.)
+      
+      url <- utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))
+      
+      response <- httr2::request(url) %>%
+        httr2::req_perform()
+      
+      dat <- response %>%
+        httr2::resp_body_string() %>%
+        jsonlite::fromJSON()
 
       water_types[[i]] <- dat[["items"]] %>%
         tidyr::unnest("assessmentUnits") %>%
@@ -1860,7 +1872,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         f = "geojson"
       )
 
-      response <- httr2::GET(baseurls, query = query_params)
+      # response <- httr::GET(baseurls, query = query_params)
+      
+      response <- httr2::request(baseurls) %>%
+        httr2::req_url_query(query_params) %>%
+        httr2::req_perform()
 
       if (httr2::status_code(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
