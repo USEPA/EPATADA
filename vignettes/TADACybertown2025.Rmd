@@ -67,7 +67,7 @@ we highly recommend that you update the package (and all of its
 dependencies) each time you use it.
 
 ```{r install EPATADA, results = 'hide'}
-remotes::install_github("USEPA/EPATADA", ref = "compatible_au_cols", dependencies = TRUE)
+remotes::install_github("USEPA/EPATADA", ref = "combined-review", dependencies = TRUE)
 ```
 
 Load the EPATADA R Package.
