@@ -67,7 +67,7 @@ TADA_UpdateExampleData <- function() {
 
   # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
-  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y)
+  y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
   rm(Data_6Tribes_5y)
   y <- TADA_FlagMethod(y, clean = TRUE)
   y <- TADA_FlagAboveThreshold(y, clean = TRUE)
@@ -186,29 +186,20 @@ TADA_UpdateExampleData <- function() {
     TADA.ResultSelectedMultipleOrgs == "Y"
   )
   # Filter out remaining irrelevant data, NA's and empty cols
-  # REQUIRED
-  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV$TADA.ResultMeasureValue))
-  Data_WV <- TADA_AutoFilter(Data_WV)
-  unique(Data_WV$TADA.ResultMeasureValueDataTypes.Flag)
-  sum(is.na(Data_WV$TADA.ResultMeasureValue))
+  Data_WV <- TADA_ConvertSpecialChars(Data_WV, 
+                                      col = "TADA.ResultMeasureValue", 
+                                      clean = TRUE)
   # Remove results with QC issues
   # REQUIRED
   Data_WV <- TADA_RunKeyFlagFunctions(
     Data_WV,
     clean = TRUE
   )
-  # CM note for team discussion: Should results with NA units be dealt with now as well within TADA_AutoFilter?
   # Flag above and below threshold. Do not remove
-  # OPTIONAL
   Data_WV <- TADA_FlagAboveThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
   Data_WV <- TADA_FlagBelowThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
   # Harmonize synonyms
-  # OPTIONAL
   Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
-  # Review
-  Data_WV <- dplyr::filter(Data_WV, TADA.CharacteristicName %in% c("ZINC", "PH", "NITRATE"))
-  TADA_FieldValuesTable(Data_WV, field = "TADA.ComparableDataIdentifier")
   # Save example data
   Data_HUC8_02070004_Mod1Output <- Data_WV
   print("Data_HUC8_02070004_Mod1Output:")

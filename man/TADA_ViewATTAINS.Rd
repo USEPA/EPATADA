@@ -7,18 +7,18 @@
 TADA_ViewATTAINS(.data)
 }
 \arguments{
-\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_GetATTAINS()} with the return_sf argument set to TRUE.}
+\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_CreateATTAINSAUMLCrosswalk()} with the return_sf argument set to TRUE.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 }
 \description{
-Visualizes the data returned from TADA_GetATTAINS if return_sf was set to TRUE.
+Visualizes the data returned from TADA_CreateAUMLCrosswalk or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
 }
 \details{
-This function visualizes the shapefile features generated with TADA_GetATTAINS and the associated
+This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
 TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-.data must be the list produced from \code{TADA_GetATTAINS()}
+.data must be the list produced from \code{TADA_CreateATTAINSAUMLCrosswalk()}
 with \code{return_sf = TRUE}. Check out the
 TADAModule2.Rmd for an example workflow.
 }
@@ -33,7 +33,7 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-attains_data <- TADA_GetATTAINS(tada_data,
+attains_data <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
   fill_catchments = TRUE,
   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 )
@@ -44,5 +44,5 @@ TADA_ViewATTAINS(attains_data)
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}
 
-\code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}
+\code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}
 }

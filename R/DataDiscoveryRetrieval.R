@@ -472,7 +472,12 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
 
     # Reformat returned info as sf
-    bbox_sites_sf <- TADA_MakeSpatial(quiet_bbox_sites$result, crs = 4326)
+    bbox_sites_sf <- quiet_bbox_sites$result %>%
+      dplyr::rename(TADA.LatitudeMeasure = LatitudeMeasure,
+                    TADA.LongitudeMeasure = LongitudeMeasure) %>%
+      TADA_MakeSpatial(crs = 4326) %>%
+      dplyr::rename(LatitudeMeasure = TADA.LatitudeMeasure,
+                     LongitudeMeasure = TADA.LongitudeMeasure)
 
     # Subset sites to only within shapefile and get IDs
     clipped_sites_sf <- bbox_sites_sf[aoi_sf, ]
@@ -1278,7 +1283,10 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #'
 #' The WQP user interface assists users with constructing a web service query
 #' URL - for example:
-#' https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' https://www.waterqualitydata.us/#statecode=US%3A09&
+#' characteristicType=Nutrient&startDateLo=04-01-2023&
+#' startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&
+#' providers=STORET
 #'
 #' @param FullPhysChem Full physical chemical data profile
 #' @param Sites Sites data profile
@@ -1301,38 +1309,23 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' type <- "&mimeType=csv&zip=yes"
 #' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 #'
-#' stationProfile <- TADA_ReadWQPWebServices(paste0(
-#'   baseurl,
-#'   profile_station,
-#'   filters,
-#'   dates,
-#'   type,
-#'   providers
-#' ))
+#' stationProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_station, filters, dates, type, providers)
+#' )
 #'
-#' physchemProfile <- TADA_ReadWQPWebServices(paste0(
-#'   baseurl,
-#'   profile_result,
-#'   filters,
-#'   dates,
-#'   type,
-#'   profile_result_2,
-#'   providers
-#' ))
+#' physchemProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_result, filters, dates, type, profile_result_2, providers)
+#' )
 #'
-#' projectProfile <- TADA_ReadWQPWebServices(paste0(
-#'   baseurl,
-#'   profile_project,
-#'   filters,
-#'   dates,
-#'   type,
-#'   providers
-#' ))
+#' projectProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_project, filters, dates, type, providers)
+#' )
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(
 #'   FullPhysChem = physchemProfile,
-#'   Sites = stationProfile, Projects = projectProfile
+#'   Sites = stationProfile,
+#'   Projects = projectProfile
 #' )
 #' }
 #'
