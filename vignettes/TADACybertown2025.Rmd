@@ -24,7 +24,8 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
                       warning = FALSE, 
-                      message = FALSE)
+                      message = FALSE,
+                      eval = F)
 ```
 
 ```{css, include = F}
@@ -48,13 +49,44 @@ format using the knit option on the top of the RStudio toolbar. Users
 can also access this vignette on the EPATADA Github page found
 ([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
 
-## Load libraries
+## Install and load packages
 
-First, please install the EPATADA R package by following the
-instructions [here](https://github.com/USEPA/EPATADA). Next, load the
-EPATADA R Package.
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
-```{r load EPATADA}
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -101,7 +133,7 @@ TADA_DataRetrieval. This allows us to download WQP data within the
 Assessment Unit (our area of interest/AOI).
 
 ```{r TADA_DataRetrieval}
-query.params <- list(
+query_params <- list(
   where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')",
   outFields = "*",
   f = "geojson"
@@ -109,16 +141,25 @@ query.params <- list(
 
 url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
 
-poly.response <- httr::GET(url, query = query.params)
+# Create a request object and set the query parameters
+request <- httr2::request(url) %>%
+  httr2::req_url_query(!!!query_params)
 
-poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
+# Perform the GET request
+poly_response <- request %>%
+  httr2::req_perform()
 
-poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
+# Extract the content as text
+poly_geojson <- poly_response %>%
+  httr2::resp_body_string()
+
+# Read the geojson into an sf object
+poly_sf <- sf::st_read(poly_geojson, quiet = TRUE)
 
 WQP_raw <- TADA_DataRetrieval(
   startDate = "null",
   endDate = "null",
-  aoi_sf = poly.sf,
+  aoi_sf = poly_sf,
   countrycode = "null",
   countycode = "null",
   huc = "null",
@@ -188,7 +229,7 @@ DT::datatable(sites, fillContainer = TRUE)
 
 Are there sites located within 100 meters of each other?
 
-```{r TADA_FlagCoordinates}
+```{r TADA_FlagCoordinates, eval = F}
 WQP_clean <- TADA_FindNearbySites(
   WQP_raw,
   dist_buffer = 100,

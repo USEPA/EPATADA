@@ -62,7 +62,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "combined-review",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
