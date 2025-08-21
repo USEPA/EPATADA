@@ -44,7 +44,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', message=FALSE}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -348,7 +348,7 @@ above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m.
 TADA_TableExport(TADA_Stats(ecoli))
 ```
 
-Generate a scatterplot. 
+Generate a scatterplot.
 
 ```{r}
 TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%
