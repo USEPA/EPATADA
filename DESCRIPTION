@@ -82,7 +82,7 @@ Imports:
     rExpertQuery,
     readr (>= 1.4.0),
     spsUtil,
-    httr2
+    httr
 Depends: 
     R (>= 4.1.0)
 Suggests:
