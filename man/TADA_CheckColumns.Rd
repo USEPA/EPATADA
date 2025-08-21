@@ -11,6 +11,9 @@ TADA_CheckColumns(.data, expected_cols)
 
 \item{expected_cols}{A vector of expected column names as strings}
 }
+\value{
+Invisible \code{NULL} if all expected columns are present; otherwise, an error is thrown.
+}
 \description{
 This function checks if the expected column names are in the dataframe. It is
 used at the beginning of TADA functions to ensure the input data frame is

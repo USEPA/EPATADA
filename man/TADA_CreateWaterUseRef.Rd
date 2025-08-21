@@ -4,12 +4,7 @@
 \alias{TADA_CreateWaterUseRef}
 \title{Helper Function to Apply Uses to Unassigned Assessment Units by Water Type}
 \usage{
-TADA_CreateWaterUseRef(
-  .data,
-  org_id = NULL,
-  waterUseRef = NULL,
-  auto_assign = FALSE
-)
+TADA_CreateWaterUseRef(.data, org_id = NULL, waterUseRef = NULL)
 }
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
@@ -26,22 +21,10 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
-\item{auto_assign}{A Boolean value. NOTE: Should we consider assignments of
-MonitoringLocationTypeName to ATTAINS WaterTypeCode here? THIS HAS NOT BEEN
-DEVELOPED BUT IS IT WORTHWHILE TO TRY TO ASSIGN USES TO SITES. PERHAPS A SITE
-DOES NOT GET MATCHED TO ANY AUS BUT USERS MAY BE INTERESTED IN CREATING A NEW
-AU FOR THESE NON-MATCHED SITES.}
-
-\item{excel}{A Boolean value that returns an excel spreadsheet if
-excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-If you have any trouble locating the file, please type the following into
-your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
-the cells in which users should input information.}
-
-\item{overwrite}{A Boolean value that ensures the function will not overwrite
-the user supplied crosswalk entered into this function via the paramRef
-function input. This helps prevent users from overwriting their progress.}
+\item{waterUseRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with a water type.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
@@ -50,7 +33,7 @@ A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 This is a helper function to TADA_CreateUseAURef and is meant to help users
 with reviewing all water type and use name combination from their org.
 This function will help to assign ATTAINS use names to any new or modified
-assessment unit provided from a user's MLAURef if there are any.
+assessment unit provided from a user's AUMLRef if there are any.
 }
 \details{
 This function will assume all use names applies to a water type from the
@@ -58,11 +41,9 @@ prior assessment cycles are being done for an organization's assessment.
 Users are expected to modify this ref file as needed.
 }
 \examples{
-WaterUseRef_UT <- TADA_CreateWaterUseRef(org_id = "UTAHDWQ")
+TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 
 }
 \seealso{
 \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
-
-\code{\link[=TADA_CreateMLSummaryRef]{TADA_CreateMLSummaryRef()}}
 }

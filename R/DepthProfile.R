@@ -89,8 +89,9 @@
 #'   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 #' )
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, surfacevalue = 2,
-                                   dailyagg = "none", aggregatedonly = FALSE, clean = FALSE) {
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, 
+                                   surfacevalue = 2, dailyagg = "none", 
+                                   aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # check aggregatedonly is boolean
@@ -319,7 +320,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
       dplyr::mutate(
-        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in averaging results ", cattype, " but not selected as aggregate value"), "No aggregation needed"),
+        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Considered in averaging results ", cattype, " but not selected as aggregate value"), "No aggregation needed"),
         TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.DepthProfileAggregation.Flag)
       )
 
@@ -363,7 +364,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
       dplyr::mutate(
-        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in minimum aggregation ", cattype, "but not selected"), "No aggregation needed"),
+        TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Considered in minimum aggregation ", cattype, "but not selected"), "No aggregation needed"),
         TADA.DepthProfileAggregation.Flag = ifelse(!TADA.DepthCategory.Flag %in% depthcat.list, "No aggregation needed", TADA.DepthProfileAggregation.Flag)
       )
 
@@ -413,7 +414,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
     orig.data <- .data %>%
       dplyr::group_by_at(group.list) %>%
       dplyr::mutate(DepthsByGroup = length(unique(TADA.ConsolidatedDepth))) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Used in maximum aggregation ", cattype, "but not selected"), "No aggregation needed"))
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = ifelse(DepthsByGroup > 1, paste("Considered in maximum aggregation ", cattype, "but not selected"), "No aggregation needed"))
 
     # add TADA.ResultValue.Aggregation.Flag, remove necessary columns, and select maximum result value per group.
     agg.data <- orig.data %>%
@@ -422,7 +423,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, su
         TADA.DepthCategory.Flag %in% depthcat.list
       ) %>%
       dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE) %>%
-      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("Selected as max aggregate value ", cattype)) %>%
+      dplyr::mutate(TADA.DepthProfileAggregation.Flag = paste0("TADA_FlagDepthCategory: Selecting maximum aggregate value.", cattype)) %>%
       dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier)) %>%
       dplyr::select(-DepthsByGroup) %>%
       dplyr::ungroup()

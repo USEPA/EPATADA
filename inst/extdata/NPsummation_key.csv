@@ -98,12 +98,12 @@ WATER,NITRATE + NITRITE,FILTERED,Assume filtered/filterable equals dissolved fra
 WATER,NITRATE + NITRITE,"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
 WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,NITRATE + NITRITE,3,NA,Nitrogen
 WATER,NITRATE + NITRITE,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS NO2+NO3,NA,NA,OTHER N,999,"Not used, speciation is ambiguous",Nitrogen
-WATER,NITRATE + NITRITE,INORGANIC,NA,AS N,NA,NA,OTHER N,999,"Not used, cannot infer fraction from ""INORGANIC"".",Nitrogen
+WATER,NITRATE + NITRITE,INORGANIC,"Assumes INORGANIC NITROGEN (NITRATE AND NITRITE) is synonymous to NITRATE + NITRITE, UNFILTERED.",AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
 WATER,NITRATE + NITRITE,NA,NA,AS N,NA,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
 WATER,NITRATE + NITRITE,NA,NA,NA,Assumed as N,NA,OTHER N,999,"Not used, fraction not reported and could not be inferred",Nitrogen
-WATER,NITRATE + NITRITE,TOTAL,NA,AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
-WATER,NITRATE + NITRITE,TOTAL,NA,NA,Assumed as N,NA,NITRATE + NITRITE,1,NA,Nitrogen
-WATER,NITRATE + NITRITE,TOTAL RECOVERABLE,NA,AS N,NA,NA,NITRATE + NITRITE,2,NA,Nitrogen
+WATER,NITRATE + NITRITE,TOTAL,"Assumes NITRATE + NITRITE, TOTAL is synonymous to NITRATE + NITRITE, UNFILTERED.",AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRATE + NITRITE,TOTAL,"Assumes NITRATE + NITRITE, TOTAL is synonymous to NITRATE + NITRITE, UNFILTERED.",NA,Assumed as N,NA,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,NITRATE + NITRITE,TOTAL RECOVERABLE,"Assumes NITRATE + NITRITE, TOTAL RECOVERABLE is synonymous to NITRATE + NITRITE, UNFILTERED.",AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
 WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,NITRATE + NITRITE,1,NA,Nitrogen
 WATER,NITRATE + NITRITE,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,NITRATE + NITRITE,1,NA,Nitrogen
 WATER,NITRITE,DISSOLVED,NA,AS N,NA,NA,NITRITE,3,NA,Nitrogen
@@ -217,8 +217,8 @@ WATER,TOTAL KJELDAHL NITROGEN,TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TKN,1,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN,UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,TKN,2,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),DISSOLVED,NA,AS N,NA,NA,TKN,7,NA,Nitrogen
-WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),FILTERED,Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
-WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),"FILTERED, FIELD",Assume filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),FILTERED,Assumes filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),"FILTERED, FIELD",Assumes filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),TOTAL,NA,AS N,NA,NA,TKN,1,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),TOTAL,NA,NA,Assumed as N,NA,TKN,2,NA,Nitrogen
 WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),UNFILTERED,Assumes Unfiltered is equivalent to Total,AS N,NA,NA,TKN,1,NA,Nitrogen
@@ -252,3 +252,10 @@ WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalen
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,AS PO4,Convert AS PO4 to AS P,0.326,PO4,7,"Not explicity included in Nutrient Aggregation Sheet, but similar enough to EDH to be given rank anyway. Expert review suggested.",Phosphorus
 WATER,"TOTAL PHOSPHORUS, MIXED FORMS",UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as P,NA,PHOSP,2,NA,Phosphorus
 WATER,AMMONIA-NITROGEN,"FILTERED, FIELD","Assumes FILTERED, FIELD is equals dissolved fraction",AS N,NA,NA,AMMON,12,"Not explicity included in Nutrient Aggregation Sheet, but similar enough CM to be given rank anyway. Expert review suggested.",Nitrogen
+WATER,KJELDAHL NITROGEN,TOTAL RECOVERABLE,NA,NA,Assumed as N,NA,TKN,6,NA,Nitrogen
+WATER,NITRATE + NITRITE,INORGANIC,"Assumes INORGANIC NITROGEN (NITRATE AND NITRITE) is synonymous to NITRATE + NITRITE, UNFILTERED.",AS NO3,Convert NO3 to N,0.225,NITRATE + NITRITE,1,NA,Nitrogen
+WATER,ORTHOPHOSPHATE,TOTAL RECOVERABLE,Assumes TOTAL RECOVERABLE is equivalent to UNFILTERED.,AS P,NA,NA,PHOSP,3,NA,Phosphorus
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),UNFILTERED,Assumes Unfiltered is equivalent to Total,NA,Assumed as N,NA,TKN,1,NA,Nitrogen
+WATER,TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3),"FILTERED, LAB",Assumes filtered/filterable equals dissolved fraction,AS N,NA,NA,TKN,7,NA,Nitrogen
+WATER,AMMONIA AND AMMONIUM,UNFILTERED,Assumes Unfiltered is equivalent to Total,AS NH3/NH4,NA,NA,AMMON,999,"Not used, speciation unclear, cannot be convereted to AS N",Nitrogen
+WATER,AMMONIA,"FILTERED, LAB",Assume filtered/filterable equals dissolved fraction,AS NH3,Convert NH3 to N,0.822,AMMON,9,NA,Nitrogen

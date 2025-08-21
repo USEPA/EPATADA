@@ -11,7 +11,9 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "EPATADA"))
+  ref <- utils::read.csv(system.file("extdata", 
+                                     "NPsummation_key.csv", 
+                                     package = "EPATADA"))
   return(ref)
 }
 

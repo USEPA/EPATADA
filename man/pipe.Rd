@@ -2,19 +2,30 @@
 % Please edit documentation in R/Utilities.R
 \name{\%>\%}
 \alias{\%>\%}
-\title{Pipe operator}
+\title{Pipe Operator}
 \usage{
 lhs \%>\% rhs
 }
 \arguments{
-\item{lhs}{A value or the magrittr placeholder.}
+\item{lhs}{A value or the magrittr placeholder, representing the initial input to the pipeline.}
 
-\item{rhs}{A function call using the magrittr semantics.}
+\item{rhs}{A function call or expression that operates on \code{lhs}, using magrittr semantics.}
 }
 \value{
-The result of calling \code{rhs(lhs)}.
+The result of evaluating \code{rhs(lhs)}, enabling seamless chaining of operations.
 }
 \description{
-See \code{magrittr::\link[magrittr:pipe]{\%>\%}} for details.
+The pipe operator (\verb{\%>\%}) is a powerful tool for chaining operations in a readable and concise manner.
+It allows you to pass the left-hand side (\code{lhs}) value into the right-hand side (\code{rhs}) function call.
+For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
+}
+\examples{
+# Example: Using the pipe operator to transform data
+library(magrittr)
+result <- iris \%>\%
+head(10) \%>\%
+subset(Species == "setosa") \%>\%
+summary()
+print(result)
 }
 \keyword{internal}

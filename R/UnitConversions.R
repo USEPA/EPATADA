@@ -103,7 +103,30 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   tada.char.ref$TADA.CharacteristicName <- toupper(tada.char.ref$TADA.CharacteristicName)
 
   # import TADA specific conversion reference, created by HRM on 4/30/2024
-  tada.unit.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "EPATADA"))
+  file_path <- system.file("extdata",
+                           "TADAPriorityCharConvertRef.csv",
+                           package = "EPATADA")
+  
+  if (file.exists(file_path)) {
+    # Specify all columns as character using readr
+    tada.unit.ref <- readr::read_csv(
+      file_path,
+      col_types = readr::cols(
+        Code = readr::col_character(),
+        Last.Change.Date = readr::col_character(),
+        Target.Unit = readr::col_character(),
+        Conversion.Factor = readr::col_double(),
+        Conversion.Coefficient = readr::col_double()
+      ),
+      show_col_types = FALSE # Suppress the column specification message
+    )
+    
+    # # Print column names to verify
+    # print(colnames(tada.unit.ref))
+  } else {
+    stop("File not found: TADAPriorityCharConvertRef.csv")
+  }
+  
   # make all codes and target units uppercase
   tada.unit.ref <- tada.unit.ref %>%
     dplyr::mutate(
@@ -958,9 +981,31 @@ TADA_ConvertDepthUnits <- function(.data,
     "TADA.WQXConversionFactor.ResultDepthHeightMeasure"
   )
 
-  # read in unit conversion reference table from extdata, created by HRM on 4/30/2024
-  length.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "EPATADA"))
-
+  # import TADA specific conversion reference, created by HRM on 4/30/2024
+  file_path <- system.file("extdata",
+                           "TADAPriorityCharConvertRef.csv",
+                           package = "EPATADA")
+  
+  if (file.exists(file_path)) {
+    # Specify all columns as character using readr
+    length.ref <- readr::read_csv(
+      file_path,
+      col_types = readr::cols(
+        Code = readr::col_character(),
+        Last.Change.Date = readr::col_character(),
+        Target.Unit = readr::col_character(),
+        Conversion.Factor = readr::col_double(),
+        Conversion.Coefficient = readr::col_double()
+      ),
+      show_col_types = FALSE # Suppress the column specification message
+    )
+    
+    # # Print column names to verify
+    # print(colnames(tada.unit.ref))
+  } else {
+    stop("File not found: TADAPriorityCharConvertRef.csv")
+  }
+  
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   length.ref <- length.ref %>%
     dplyr::filter(Code %in% c(
@@ -1029,26 +1074,23 @@ TADA_ConvertDepthUnits <- function(.data,
     # function to run through each depth column
     conv_unit <- function(.data, coln) {
       if (coln %in% colnames(.data)) {
-        .data$cf <- .data[, coln]
+        .data$cf <- as.numeric(.data[, coln])  # Convert to numeric
         colnv <- paste0(gsub("TADA.WQXConversionFactor", "TADA", coln), ".MeasureValue")
-        .data$val <- .data[, colnv]
+        .data$val <- as.numeric(.data[, colnv])  # Convert to numeric
         colnu <- paste0(gsub("TADA.WQXConversionFactor", "TADA", coln), ".MeasureUnitCode")
         .data$unit <- .data[, colnu]
-
-        # multiply .MeasureValue by TADA.WQXConversionFactor.
-        # if else added to deal with NA's in RV column, which throws error when NA multiplied by number.
+        
+        # Apply conversion factor, handling NA values
         .data$val <- ifelse(!is.na(.data$val), .data$val * .data$cf, .data$val)
-
-        # then replace unit values with the new unit argument
-        .data$unit[which(
-          !is.na(.data$unit)
-        )] <- unit
-
-        # replace TADA depth height columns and remove WQX conversion column
+        
+        # Update units
+        .data$unit[which(!is.na(.data$unit))] <- unit
+        
+        # Remove unnecessary columns and rename
         .data <- dplyr::select(.data, -cf, -dplyr::all_of(coln), -dplyr::all_of(colnv), -dplyr::all_of(colnu))
         names(.data)[names(.data) == "val"] <- colnv
         names(.data)[names(.data) == "unit"] <- colnu
-
+        
         return(.data)
       } else {
         return(.data)

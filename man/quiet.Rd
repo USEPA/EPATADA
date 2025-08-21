@@ -2,16 +2,17 @@
 % Please edit documentation in R/Utilities.R
 \name{quiet}
 \alias{quiet}
-\title{Silence print messages}
+\title{Silence Print Messages from Code Execution}
 \usage{
 quiet(x)
 }
 \arguments{
-\item{x}{Code to silence}
+\item{x}{Expression or code block to execute silently.}
 }
 \value{
-Function or code output with print messages silenced
+The result of the executed code, with all print messages suppressed.
 }
 \description{
-Silence print messages
+This utility function executes the provided code while suppressing any print messages.
+It is useful for running code quietly, especially when print statements are not needed.
 }
