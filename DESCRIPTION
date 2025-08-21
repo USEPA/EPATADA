@@ -70,6 +70,7 @@ Imports:
     rlang,
     nhdplusTools,
     arcgislayers,
+    httr,
     MESS,
     units,
     igraph,
@@ -80,15 +81,15 @@ Imports:
     dbscan,
     janitor,
     rExpertQuery,
+    curl (>= 6.0.0),
     readr (>= 1.4.0),
-    spsUtil,
-    httr2
+    spsUtil
 Depends: 
     R (>= 4.1.0)
 Suggests:
-    curl (>= 6.0.0),
     xml2,
     whisker,
+    httr2,
     hydroloom,
     lwgeom,
     RColorBrewer,

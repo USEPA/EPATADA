@@ -272,13 +272,13 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         f = "geojson"
       )
 
-      response <- httr2::GET(baseurls, query = query_params)
+      response <- httr::GET(baseurls, query = query_params)
 
-      if (httr2::status_code(response) != 200) {
+      if (httr::status_code(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
       }
 
-      geojson_data <- httr2::content(response, as = "text", encoding = "UTF-8")
+      geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
       sf_object <- sf::st_read(geojson_data, quiet = TRUE)
 
       return(sf_object)
@@ -300,8 +300,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     water_types <- vector("list", length = length(chunks))
 
     for (i in 1:length(chunks)) {
-      dat <- httr2::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
-        httr2::content(., as = "text", encoding = "UTF-8") %>%
+      dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
+        httr::content(., as = "text", encoding = "UTF-8") %>%
         jsonlite::fromJSON(.)
 
       water_types[[i]] <- dat[["items"]] %>%
@@ -1860,13 +1860,13 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         f = "geojson"
       )
 
-      response <- httr2::GET(baseurls, query = query_params)
+      response <- httr::GET(baseurls, query = query_params)
 
-      if (httr2::status_code(response) != 200) {
+      if (httr::status_code(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
       }
 
-      geojson_data <- httr2::content(response, as = "text", encoding = "UTF-8")
+      geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
       sf_object <- sf::st_read(geojson_data, quiet = TRUE)
 
       return(sf_object)
