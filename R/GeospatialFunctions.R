@@ -277,11 +277,16 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         httr2::req_url_query(query_params) %>%
         httr2::req_perform()
 
-      if (httr2::status_code(response) != 200) {
+      # if (httr::status_code(response) != 200) {
+      #   stop("Failed to retrieve data from EPA ATTAINS API.")
+      # }
+      
+      if (httr2::resp_status(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
       }
 
-      geojson_data <- httr2::content(response, as = "text", encoding = "UTF-8")
+      # geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
+      geojson_data <- httr2::resp_body_string(response)
       sf_object <- sf::st_read(geojson_data, quiet = TRUE)
 
       return(sf_object)
@@ -304,7 +309,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 
     for (i in 1:length(chunks)) {
       # dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
-      #   httr2::content(., as = "text", encoding = "UTF-8") %>%
+      #   httr::content(., as = "text", encoding = "UTF-8") %>%
       #   jsonlite::fromJSON(.)
       
       url <- utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))
@@ -1878,11 +1883,16 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         httr2::req_url_query(query_params) %>%
         httr2::req_perform()
 
-      if (httr2::status_code(response) != 200) {
+      # if (httr::status_code(response) != 200) {
+      #   stop("Failed to retrieve data from EPA ATTAINS API.")
+      # }
+
+      if (httr2::resp_status(response) != 200) {
         stop("Failed to retrieve data from EPA ATTAINS API.")
       }
-
-      geojson_data <- httr2::content(response, as = "text", encoding = "UTF-8")
+      
+      # geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
+      geojson_data <- httr2::resp_body_string(response)
       sf_object <- sf::st_read(geojson_data, quiet = TRUE)
 
       return(sf_object)
