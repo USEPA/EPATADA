@@ -22,28 +22,10 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
-```
-
-## Accessing vignette
-
-A [vignette](https://r-pkgs.org/vignettes.html) is a long-form guide to
-a package often written as a R Markdown document, such as this one. It
-provides detailed explanations of functions and showcases an example
-workflow. This vignette can be created as an html document or other
-format using the knit option on the top of the RStudio toolbar. Users
-can also access this vignette on the EPATADA Github page found
-([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
-
-## Install
-
-First, install and load the remotes package specifying the repo. This is
-needed before installing the *EPATADA* R package because it is only
-available on GitHub.
-
-```{r remotes, results = 'hide', eval = F}
-install.packages("remotes", repos = "http://cran.us.r-project.org")
-library(remotes)
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE, 
+                      message = FALSE,
+                      eval = F)
 ```
 
 ```{css, include = F}
@@ -57,26 +39,54 @@ pre[class] {
 }
 ```
 
-Next, install (or update) the *EPATADA* R package using the *remotes* R
-package. Additional dependency R packages that are used within *EPATADA*
-will be downloaded automatically. You may be prompted in the console to
-update dependency packages that have more recent versions available. If
-you see this prompt, it is recommended to update all of them (enter 1
-into the console). Our team is actively developing *EPATADA*, therefore
-we highly recommend that you update the package (and all of its
-dependencies) each time you use it.
+## Accessing vignette
 
-```{r install EPATADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE)
+A [vignette](https://r-pkgs.org/vignettes.html) is a long-form guide to
+a package often written as a R Markdown document, such as this one. It
+provides detailed explanations of functions and showcases an example
+workflow. This vignette can be created as an html document or other
+format using the knit option on the top of the RStudio toolbar. Users
+can also access this vignette on the EPATADA Github page found
+([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
+
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
 ```
 
-```{r dev install EPATADA, include = F}
-remotes::install_github("USEPA/EPATADA", ref = "596-tada_analysisdatafilter-removes-rows-when-clean-true-if-tadauseforanalysisflag-no---na", dependencies = TRUE)
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-Load the EPATADA R Package.
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
 
-```{r load EPATADA}
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -123,7 +133,7 @@ TADA_DataRetrieval. This allows us to download WQP data within the
 Assessment Unit (our area of interest/AOI).
 
 ```{r TADA_DataRetrieval}
-query.params <- list(
+query_params <- list(
   where = "assessmentunitidentifier IN ('CT6400-00-1-L5_01')",
   outFields = "*",
   f = "geojson"
@@ -131,16 +141,25 @@ query.params <- list(
 
 url <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
 
-poly.response <- httr::GET(url, query = query.params)
+# Create a request object and set the query parameters
+request <- httr2::request(url) %>%
+  httr2::req_url_query(!!!query_params)
 
-poly.geojson <- httr::content(poly.response, as = "text", encoding = "UTF-8")
+# Perform the GET request
+poly_response <- request %>%
+  httr2::req_perform()
 
-poly.sf <- sf::st_read(poly.geojson, quiet = TRUE)
+# Extract the content as text
+poly_geojson <- poly_response %>%
+  httr2::resp_body_string()
+
+# Read the geojson into an sf object
+poly_sf <- sf::st_read(poly_geojson, quiet = TRUE)
 
 WQP_raw <- TADA_DataRetrieval(
   startDate = "null",
   endDate = "null",
-  aoi_sf = poly.sf,
+  aoi_sf = poly_sf,
   countrycode = "null",
   countycode = "null",
   huc = "null",
@@ -210,7 +229,7 @@ DT::datatable(sites, fillContainer = TRUE)
 
 Are there sites located within 100 meters of each other?
 
-```{r TADA_FlagCoordinates}
+```{r TADA_FlagCoordinates, eval = F}
 WQP_clean <- TADA_FindNearbySites(
   WQP_raw,
   dist_buffer = 100,
@@ -344,22 +363,28 @@ WQP_clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
-`TADA_AutoFilter` removes rows where the result value is not numeric to
-prepare a dataframe for quantitative analyses. Specifically, this
-function removes rows with "Text" and "NA - Not Available" in the
+`TADA_FindQCActivities` removes results with QA/QC ActivityTypeCode's.
+
+```{r QCdata}
+WQP_clean <- TADA_FindQCActivities(WQP_clean, clean = TRUE)
+```
+
+`TADA_ConvertSpecialChars` removes rows where the result value is not
+numeric to prepare a dataframe for quantitative analyses. Specifically,
+this function removes rows with "Text" and "NA - Not Available" in the
 TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode's. This function also removes any
 columns not required for TADA workflow where all values are equal to NA.
 
-```{r autofilter}
-WQP_clean <- TADA_AutoFilter(WQP_clean)
+```{r SpecialChars}
+WQP_clean <- TADA_ConvertSpecialChars(WQP_clean, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
 flagging functions. See ?function documentation for TADA_FlagResultUnit,
-TADA_FlagFraction, TADA_FindQCActivities, TADA_FlagMeasureQualifierCode,
-and TADA_FlagSpeciation for more information.
+TADA_FlagFraction, TADA_FlagMeasureQualifierCode, and
+TADA_FlagSpeciation for more information.
 
 ```{r TADA_RunKeyFlagFunctions}
 WQP_clean <- TADA_RunKeyFlagFunctions(
@@ -463,9 +488,9 @@ additional ATTAINS meta data for this assessment unit. We can also
 generate a new table to give us some information about the individual
 monitoring locations within this assessment unit.
 
--   TADA_GetATTAINS() automates matching of WQP monitoring locations
-    with ATTAINS assessment units that fall within (intersect) the same
-    NHDPlus catchment
+-   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP
+    monitoring locations with ATTAINS assessment units that fall within
+    (intersect) the same NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default
     because 80% of state submitted assessment units in ATTAINS were
@@ -473,7 +498,7 @@ monitoring locations within this assessment unit.
     applicable to their use case
 
 ```{r Data Retrieval - Geospatial}
-WQP_clean_subset_spatial <- TADA_GetATTAINS(
+WQP_clean_subset_spatial <- TADA_CreateATTAINSAUMLCrosswalk(
   WQP_clean_subset,
   return_nearest = TRUE,
   fill_catchments = FALSE,
@@ -503,7 +528,7 @@ Create table of monitoring location identifiers and AUs.
 
 ```{r}
 ML_AU_crosswalk <- WQP_clean_subset %>%
-  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.assessmentunitidentifier, ATTAINS.assessmentunitname, TADA.CharacteristicName) %>%
+  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.AssessmentUnitName, TADA.CharacteristicName) %>%
   dplyr::distinct()
 ```
 
@@ -605,6 +630,13 @@ TADA_Histogram(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 TADA_Boxplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")
+```
+
+`TADA_RetainRequired` removes extra columns. Enter ?TADA_RetainRequired
+into the console for more details.
+
+```{r}
+WQP_clean_subset_final <- TADA_RetainRequired(WQP_clean_subset)
 ```
 
 ## Record end time

@@ -2,6 +2,16 @@
 title: "Geospatial Data Integration"
 format: html
 editor: visual
+authors: 
+  - name: "Cristina Mullin"
+    orcid: 0000-0002-0615-6087
+    affiliation: EPA
+  - name: "Marc Weber"
+    affiliation: EPA
+  - name: "Dave Blodgett"
+    affiliation: USGS
+  - name: "Michael Dumelle"
+    affiliation: EPA
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
@@ -17,32 +27,28 @@ editor_options:
   chunk_output_type: console
   markdown:
     wrap: 72
-authors: 
-  - name: "Cristina Mullin"
-    orcid: 0000-0002-0615-6087
-    affiliation: EPA
-  - name: "Hillary Marler"
-    affiliation: EPA
-  - name: "Marc Weber"
-    affiliation: EPA
-  - name: "Dave Blodgett"
-    affiliation: USGS
-  - name: "Michael Dumelle"
-    affiliation: EPA
-  - name: "Shelly Thawley"
-    affiliation: EPA
-  - name: "Kenny Wong"
-    affiliation: ORISE at EPA
 ---
 
-```{r knitsetup, include = FALSE}
+```{r knitsetup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  eval = F
 )
+```
+
+```{css, include = F}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 300px;
+}
 ```
 
 # Overview
@@ -100,34 +106,39 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load EPATADA using the remotes package. All other
-dependencies for this workflow will be downloaded automatically. We will
-also need to install StreamCatTools for some steps later in the
-workflow.
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval, EPA's StreamCatTools, and other TADA R Package
+dependencies will also be downloaded automatically with the TADA
+install.
+
+If desired, the development versions of dataRetrieval and StreamCatTools
+can be downloaded directly from GitHub (un-comment).
+
+```{r install_TADA, eval = T, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval",
+#                         dependencies=TRUE)
+#
+# remotes::install_github("USEPA/StreamCatTools",
+#                         dependencies = TRUE)
+```
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "569-tada_dataretrieval-test-failure",
+  ref = "usability-6.23.25",
   dependencies = TRUE
 )
-library(EPATADA)
 ```
 
-```{r usersetup, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE,
-  force = TRUE
-)
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
-remotes::install_github("USEPA/StreamCatTools",
-  ref = "master",
-  dependencies = TRUE,
-  force = TRUE
-)
-
+```{r library, results = 'hide'}
 library(EPATADA)
-library(StreamCatTools)
 ```
 
 # Start timer!
@@ -244,13 +255,18 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
-GreenBay_FoxRiver <- TADA_AutoFilter(GreenBay_FoxRiver)
+GreenBay_FoxRiver <- TADA_ConvertSpecialChars(GreenBay_FoxRiver, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 Check to make sure there are no more NA's in TADA.ResultMeasureValue.
 
 ```{r recheck}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
+
+sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
+
+GreenBay_FoxRiver <- GreenBay_FoxRiver %>%
+  dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 ```
@@ -383,7 +399,7 @@ GreenBay_FoxRiver_sf_locs <- GreenBay_FoxRiver_sf |>
 We use `StreamCatTools` function `sc_get_comid` (which uses an
 `nhdplusTools` web service client) to get the comid for each location.
 
-```{r}
+```{r, eval = F}
 GreenBay_FoxRiver_sf_locs$COMID <- as.integer(strsplit(StreamCatTools::sc_get_comid(GreenBay_FoxRiver_sf_locs), split = ",")[[1]])
 
 nhdplus_data <- nhdplusTools::subset_nhdplus(GreenBay_FoxRiver_sf_locs$COMID, nhdplus_data = "download")
@@ -400,7 +416,7 @@ Do a network navigation and get NHDPlus for our data. Note that the
 network navigation only includes flowline geometry. `nhdplusTools`
 subsets all of the NHDPlus.
 
-```{r}
+```{r, eval = F}
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
@@ -433,7 +449,7 @@ Note that hydroloom is compatible with nhdplus and other attribute
 systems. See [hydroloom documentation for
 more!](https://doi-usgs.github.io/hydroloom/articles/hydroloom.html)
 
-```{r}
+```{r, eval = F}
 GreenBay_FoxRiver_sf_locs <- sf::st_join(
   GreenBay_FoxRiver_sf_locs,
   hydroloom::st_compatibalize(
@@ -458,7 +474,7 @@ return here tells us what waterbody our locations are near or within.
 For on-network waterbodies, it will also include the outlet flowline for
 each waterbody.
 
-```{r}
+```{r, eval = F}
 all_wb <- dplyr::bind_rows(
   dplyr::select(nhdplus_data$NHDWaterbody, wbid = comid),
   dplyr::select(nhdplus_data$NHDArea, wbid = comid)
@@ -472,7 +488,7 @@ all_wb <- dplyr::bind_rows(
 ))
 ```
 
-```{r}
+```{r, eval = F}
 par(mar = c(0, 0, 0, 0))
 nhdplusTools::plot_nhdplus(
   bbox = sf::st_bbox(GreenBay_FoxRiver_sf),
@@ -504,7 +520,7 @@ watershed for each particular site using
 
 **Discover what StreamCat metrics we might want to use**
 
-```{r}
+```{r, eval = F}
 metrics <- StreamCatTools::sc_get_params(param = "metric_names")
 print(paste0("A selection of available StreamCat metrics include: ", paste(metrics[1:10], collapse = ", ")))
 ```
@@ -514,7 +530,7 @@ print(paste0("A selection of available StreamCat metrics include: ", paste(metri
 We'll pull in all the NLCD categories at the local catchment level for
 each location
 
-```{r}
+```{r, eval = F}
 GB_FR_NLCD <- StreamCatTools::sc_nlcd(year = "2019", aoi = "cat", comid = GreenBay_FoxRiver_sf_locs$COMID)
 
 
@@ -526,17 +542,17 @@ GB_FR_Urb
 
 **Visualize urbanization for local catchment for each location**
 
-```{r}
+```{r, eval = F}
 ggplot2::ggplot(GB_FR_Urb, ggplot2::aes(x = Pct_Urbanized)) +
   ggplot2::geom_density()
 ```
 
-### **Pull in data for modeling**
+### Pull in data for modeling
 
 Now we'll just demonstrate pulling in watershed data that we might use
 in a modeling exercise as spatial covariates
 
-```{r}
+```{r, eval = F}
 ws_data <- StreamCatTools::sc_get_data(metric = "fert,nsurp,nani,manure,IWI", aoi = "cat,ws", comid = GreenBay_FoxRiver_sf_locs$COMID)
 ```
 
@@ -623,9 +639,9 @@ quality data is the WQP.
 
 #### **Matching WQP monitoring locations with ATTAINS assessment units**
 
--   TADA_GetATTAINS() automates matching of WQP monitoring locations
-    with ATTAINS assessment units that fall within (intersect) the same
-    NHDPlus catchment
+-   TADA_CreateATTAINSAUMLCrosswalk() automates matching of WQP
+    monitoring locations with ATTAINS assessment units that fall within
+    (intersect) the same NHDPlus catchment
     ([details](https://usepa.github.io/EPATADA/articles/TADAModule2.html))
 -   The function uses high resolution NHDPlus catchments by default
     because 80% of state submitted assessment units in ATTAINS were
@@ -633,7 +649,7 @@ quality data is the WQP.
     applicable to their use case
 
 ```{r}
-WQP_with_ATTAINSonly <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```
@@ -651,7 +667,7 @@ TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 
 #### Analyzing areas outside of ATTAINS assessment unit areas
 
-*See: nhdplusTools, TADA::fetchNHD(), TADA_GetATTAINS(),
+*See: nhdplusTools, TADA::fetchNHD(), TADA_CreateATTAINSAUMLCrosswalk(),
 TADA_ViewATTAINS()*
 
 Some waterbodies have data available in the WQP or from other sources,
@@ -659,12 +675,12 @@ but there are no existing Assessment Units in ATTAINS for them. If you
 are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
-TADA_GetATTAINS() fill_catchments function input (leveraging USGS's
-nhdplusTools and TADA geospatial functions). This is included for
-exploratory purposes only. In theory, states and tribal nations could
-use the high res catchments as new assessment unit polygons to assess
-additional areas where there is WQP data but no Assessment Unit yet in
-ATTAINS, but that process is outside of TADA.
+TADA_CreateATTAINSAUMLCrosswalk() fill_catchments function input
+(leveraging USGS's nhdplusTools and TADA geospatial functions). This is
+included for exploratory purposes only. In theory, states and tribal
+nations could use the high res catchments as new assessment unit
+polygons to assess additional areas where there is WQP data but no
+Assessment Unit yet in ATTAINS, but that process is outside of TADA.
 
 For WQP monitoring sites that DO NOT overlap an existing ATTAINS feature
 (neither ATTAINS NHDPlus high res catchment snap shot or state submitted
@@ -678,7 +694,7 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ```{r}
-WQP_withATTAINSandNHDPluscatchments <- TADA_GetATTAINS(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ```

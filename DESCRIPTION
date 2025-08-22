@@ -58,7 +58,7 @@ Imports:
     stringi,
     utils, 
     stats, 
-    lubridate, 
+    lubridate (>= 1.5.0), 
     ggplot2, 
     sf,
     leaflet,
@@ -70,26 +70,29 @@ Imports:
     rlang,
     nhdplusTools,
     arcgislayers,
-    httr,
     MESS,
     units,
     igraph,
     jsonlite, 
     openxlsx,
-    rExpertQuery,
     DT,
     dataRetrieval,
     dbscan,
-    janitor
+    janitor,
+    rExpertQuery,
+    readr (>= 1.4.0),
+    spsUtil,
+    httr
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Suggests:
-    StreamCatTools, 
+    curl (>= 6.0.0),
+    xml2,
+    whisker,
     hydroloom,
     lwgeom,
     RColorBrewer,
     rmarkdown,
-    readr,
     tidyverse,
     knitr,
     testthat,
@@ -102,12 +105,12 @@ Suggests:
     tigris,
     yaml,
     rvest,
-    remotes
+    remotes,
+    covr
 Remotes:
-    DOI-USGS/dataRetrieval@develop,
-    USEPA/rExpertQuery@develop,
-    USEPA/StreamCatTools@master
+    USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
+BuildVignettes: true
 Language: en-US
 Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
@@ -115,3 +118,4 @@ URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
 LazyData: true
 LazyDataCompression: xz
 Config/Needs/website: rmarkdown
+BugReports: https://github.com/USEPA/EPATADA/issues

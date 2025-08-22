@@ -1,4 +1,4 @@
-#' TADA_listNWIS
+#' TADA_listNWIS (DRAFT - UNDER ACTIVE DEVELOPMENT)
 #'
 #' List USGS continuous monitoring sites with available daily statistics
 #'
@@ -396,7 +396,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 }
 
 
-#' Retrieve and tidy daily values from NWIS
+#' Retrieve and tidy daily values from NWIS (DRAFT - UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function interfaces with the USGS National Water Information System (NWIS) to
 #' retrieve daily values (DV) water quality data using the TADA (Tools for Automated
@@ -422,8 +422,6 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' @details Only one of the query arguments (`aoi_sf`, `statecode`, or `siteid`)
 #' should be provided. The function will stop if none or more than one are provided.
 #' Moreover, all sf features must be under 118,078 square miles (roughly the area of Nevada).
-#'
-#' @export
 #'
 #' @examples
 #' \dontrun{

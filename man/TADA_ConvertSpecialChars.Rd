@@ -4,7 +4,13 @@
 \alias{TADA_ConvertSpecialChars}
 \title{TADA_ConvertSpecialChars}
 \usage{
-TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
+TADA_ConvertSpecialChars(
+  .data,
+  col,
+  percent.ave = TRUE,
+  clean = FALSE,
+  flaggedonly = FALSE
+)
 }
 \arguments{
 \item{.data}{A TADA profile object}
@@ -14,6 +20,13 @@ TADA_ConvertSpecialChars(.data, col, percent.ave = TRUE)
 \item{percent.ave}{Boolean argument; default is percent.ave = TRUE. When
 clean = TRUE, any percent range values will be averaged. When
 percent.ave = FALSE, percent range values are not averaged, but are flagged.}
+
+\item{clean}{Boolean argument; removes non-numeric result values from the
+data frame when clean = TRUE. Default is clean = FALSE.}
+
+\item{flaggedonly}{Boolean argument; filters dataframe to show only
+non-numeric result values when flaggedonly = TRUE. Default is flaggedonly
+= FALSE.}
 }
 \value{
 Returns the original dataframe with two new columns: the input column
@@ -35,7 +48,10 @@ converting a result value to numeric. Result values in the format # - # are
 converted to an average of the two numbers. Result values
 containing any other text or non-numeric characters become NA in
 the newly created "TADA.COLUMN NAME" and labeled accordingly in "TADA.COLUMN
-NAME DataTypes.Flag".
+NAME DataTypes.Flag". When clean = TRUE, rows that cannot be converted to
+numeric are removed. When clean = FALSE, no rows are removed. Default is
+clean = FALSE. When flaggedonly = TRUE, data frame is filtered to show only
+rows with non-numeric result values. Default is flaggedonly = FALSE.
 }
 \examples{
 HandleSpecialChars_ResultMeasureValue <-

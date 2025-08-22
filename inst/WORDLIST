@@ -2,6 +2,7 @@ ANDs
 AOI
 ATTAINSOrgIDsRef
 ATTAINSParameterWQPCharRef
+AUS
 AUs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
@@ -67,6 +68,7 @@ CreateComparableID
 CreatePairRef
 CreateParamRef
 CreateUnitRef
+CreateUseAURef
 CreateUseParamRef
 Cybertown
 DV
@@ -343,6 +345,7 @@ WQXVal
 WQXcharValRef
 WQXunitRef
 WaterSciCon
+WaterTypeCode
 Waterbody
 WaterbodyReport
 WellDepthMeasure
@@ -412,7 +415,6 @@ geospatial
 geospatially
 getFeatureLayer
 getLayer
-getNWIS
 getPopup
 getenv
 ggplot
@@ -474,6 +476,7 @@ secchi
 shp
 siteType
 siteid
+sitesAURef
 sitetype
 speciation
 speciations
@@ -495,7 +498,6 @@ un
 uncategorized
 uncomment
 uncommenting
-uri
 useR
 usepa
 usgs
@@ -503,6 +505,7 @@ waterbodies
 waterbody
 waterdata
 waterqualitydata
+webservices
 webserviceurl
 wikipedia
 wqp
