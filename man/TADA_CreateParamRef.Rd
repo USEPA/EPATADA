@@ -184,7 +184,7 @@ shepherdstown <- TADA_DataRetrieval(
 )
 # First, run key flag functions and harmonize synonyms across
 # characteristic, fraction, and speciation columns
-shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown)
+shepherdstown2 <- TADA_RunKeyFlagFunctions(shepherdstown, clean = TRUE)
 shepherdstown3 <- TADA_HarmonizeSynonyms(shepherdstown2)
 # Create ATTAINS parameter crosswalk for MD, VA, and PA
 paramRef_shepherdstown <- TADA_CreateParamRef(shepherdstown3,

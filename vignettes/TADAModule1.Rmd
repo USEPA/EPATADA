@@ -414,7 +414,7 @@ as groundwater.
 
 This function identifies surface water, groundwater, and sediment
 results. Users can specify whether all results should be returned with a
-new column, *TADA.UseForAnalysis.Flag*,identifying if the result should
+new column, *TADA.UseForAnalysis.Flag*, identifying if the result should
 be included in further analysis or if only results that should be in
 included are returned.
 
@@ -534,10 +534,10 @@ user's decision to remove/correct sites that are outside the US.
 TADA_OverviewMap(TADAProfile)
 ```
 
-The TADA **TADA_FlagCoordinates** function identifies and flags
-potentially invalid coordinate data. While its functionality is
-showcased here, it is always important to review any invalid outputs
-before cleaning to reduce the risk of leaving out usable data/sites.
+The **TADA_FlagCoordinates** function identifies and flags potentially
+invalid coordinate data. While its functionality is showcased here, it
+is always important to review any invalid outputs before cleaning to
+reduce the risk of leaving out usable data/sites.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
 sign". The default is "no" which flags latitude and longitude
@@ -611,9 +611,13 @@ Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
 
 Unique_SuspectCoordinateFlags
 
-# if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also change FALSE to TRUE if you want to remove sites outside of the US or sites with imprecise lat/longs
+# if needed, un-comment below to change the sign for all data for sites flagged as outside the USA. You can also set clean_imprecise = TRUE if you want to remove sites with imprecise lat/longs. Enter ?TADA_FlagCoordinates into the console for more details.
 
-# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = FALSE, flaggedonly = FALSE)
+# TADAProfileClean1 <- TADA_FlagCoordinates(TADAProfile, clean_outsideUSA = "change sign", clean_imprecise = TRUE, flaggedonly = FALSE)
+```
+
+```{r, include = F}
+rm(Unique_SuspectCoordinateFlags)
 ```
 
 ## Depth unit conversions
@@ -652,7 +656,7 @@ continuous data.
 See function documentation for additional details by entering the
 following code in the console: ?TADA_FlagContinuousData
 
-```{r TADA_FlagContinuousData, eval = F}
+```{r TADA_FlagContinuousData}
 TADAProfileClean1 <- TADA_FlagContinuousData(TADAProfileClean1,
   clean = FALSE,
   flaggedonly = FALSE,
@@ -788,6 +792,10 @@ TADAProfileClean3 <- TADA_FlagAboveThreshold(TADAProfileClean2, clean = TRUE)
 TADAProfileClean3 <- TADA_FlagBelowThreshold(TADAProfileClean3, clean = TRUE)
 ```
 
+```{r}
+rm(TADAProfileClean1, TADAProfile_CharSummary)
+```
+
 ## Potential duplicates
 
 Sometimes multiple organizations submit the exact same data to Water
@@ -800,10 +808,9 @@ of potential duplicate rows is flagged with a unique ID. For more
 information, review the documentation by entering the following into the
 console:
 
--   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
 -   ?**TADA_FindPotentialDuplicatesSingleOrg**
 
-```{r FindPotentialDuplicates}
+```{r FindPotentialDuplicates_single}
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
 
 # filter to keep only unique rows using TADA.SingleOrgDup.Flag
@@ -811,6 +818,11 @@ TADAProfileClean3 <- dplyr::filter(
   TADAProfileClean3,
   TADA.SingleOrgDup.Flag == "Unique"
 )
+```
+
+-   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
+
+```{r FindPotentialDuplicates_multiple, eval = F}
 
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(
   TADAProfileClean3,
@@ -943,6 +955,10 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
+```{r}
+rm(TADAProfileClean2, fieldCounts_Table)
+```
+
 The *ActivityTypeCode* field has multiple unique values. Before we
 remove the QC samples/measurements from this dataset to prepare for
 analyses, lets review flagged Quality Control (QC) values using the
@@ -1038,7 +1054,7 @@ concentrations. QA procedures should not bias statistical analyses of
 the data. Note that a modest error in a measurement will have a much
 smaller effect than implementing a QA process that builds in bias.
 
-```{r Run TADA_PairReplicates, eval = F}
+```{r Run TADA_PairReplicates}
 # Run TADA_PairReplicates to add new TADA.ReplicateSampleID column
 TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 
@@ -1070,6 +1086,10 @@ TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
 ```
 
 We've completed our review of the ActivityTypeCode.
+
+```{r}
+rm(TADAProfileClean3, TADAProfileClean3a, TADAProfileClean3b)
+```
 
 Now, let's move on to a different field and see if there are any values
 that we want to remove.
@@ -1105,7 +1125,11 @@ TADAProfileClean4 <- TADA_FlagMeasureQualifierCode(TADAProfileClean4,
 )
 
 # regenerate table and pie chart
-TADA_FieldValuesPie(TADAProfileClean4, field = "MeasureQualifierCode")
+TADA_FieldValuesPie(TADAProfileClean4, field = "TADA.MeasureQualifierCode.Def")
+```
+
+```{r}
+rm(Review_TADAProfileClean4)
 ```
 
 ## Censored data
@@ -1202,15 +1226,12 @@ Count how many NA's remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only numeric data. Remove data where the
+Filter down to only include data that is numeric in the
+"TADA.ResultMeasureValue" column. This removes data where the
 TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
-You can also remove any columns not required for the TADA workflow that
-contain only NAs. The **TADA_AutoFilter()** function removes non-numeric
-data and optional columns containing only NAs.
 
 ```{r filter_out_NAs}
-# Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
-TADAProfileClean5 <- TADA_AutoFilter(TADAProfileClean4)
+TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 Double check to make sure no NA's or ND's remain.
@@ -1218,7 +1239,13 @@ Double check to make sure no NA's or ND's remain.
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 
+nrow(TADAProfileClean4)-nrow(TADAProfileClean5)
+
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
+```
+
+```{r}
+rm(TADAProfileClean4)
 ```
 
 ## Convert synonymous characteristic, fraction, speciation, and unit values to a consistent convention based on user-defined/TADA standards
@@ -1273,6 +1300,10 @@ TADAProfileClean5 <- TADA_HarmonizeSynonyms(TADAProfileClean5,
 )
 ```
 
+```{r}
+rm(UniqueHarmonizationRef)
+```
+
 ## Total Nitrogen and Total Phosphorus Calculations
 
 This section covers summing nutrient subspecies to estimate total
@@ -1298,6 +1329,10 @@ maximum value to use in summation calculations.
 
 ```{r, TADA_CalculateTotalNP}
 TADAProfileClean6 <- TADA_CalculateTotalNP(TADAProfileClean5, daily_agg = "max")
+```
+
+```{r}
+rm(TADAProfileClean5)
 ```
 
 ## Parameter Level Filtering
@@ -1400,16 +1435,37 @@ the characteristic-level to review a column of interest.
 ```{r TADA_FieldValuesTable_Pie_char, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # In this example we review values from the SampleCollectionMethod.MethodName field
 TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+
 TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
 ```
 
-Generate a scatterplot with two
+Review unique TADA.ComparableDataIdentifier's.
 
-```{r TADA_TwoCharacteristicScatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-# review unique identifiers
+```{r, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
+```
 
-# choose two and generate scatterplot
+Filter dataframe and generate scatterplots for each selected
+TADA.ComparableDataIdentifier:
+
+```{r}
+TADAProfileClean6_filtered <- TADAProfileClean6[
+  TADAProfileClean6$TADA.ComparableDataIdentifier %in% 
+    c("ARSENIC_TOTAL_NA_UG/L",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L", 
+      "PH_NONE_NONE_NONE", 
+      "TEMPERATURE_NA_NA_DEG C",
+      "IRON_TOTAL_NA_UG/L",
+      "SELENIUM_TOTAL_NA_UG/L",
+      "MERCURY_DISSOLVED_NA_UG/L",
+      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"), ]
+
+TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIdentifier"))
+```
+
+Choose two from TADAProfileClean6 and generate scatterplot:
+
+```{r}
 TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
 ```
 
@@ -1422,10 +1478,11 @@ group.
 
 ```{r ComparableDataIdentifier_stats_and_histogram, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
 # review TADA.ComparableDataIdentifier
-unique(TADAProfileClean5$TADA.ComparableDataIdentifier)
+unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, 
+                                    TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
@@ -1433,7 +1490,8 @@ TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = 
+                                 "TADA.ComparableDataIdentifier")
 
 # view histogram
 TP_Histogram
@@ -1442,22 +1500,10 @@ TP_Histogram
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = 
+                             "TADA.ComparableDataIdentifier")
 
 TP_Boxplot
-```
-
-Generate interactive scatterplot.
-
-```{r scatterplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TADAProfileCleanTP_dailymax <- TADA_AggregateMeasurements(TADAProfileCleanTP,
-  agg_fun = c("max"),
-  clean = TRUE
-)
-
-TP_Scatterplot <- TADA_Scatterplot(TADAProfileCleanTP_dailymax, id_cols = "TADA.ComparableDataIdentifier")
-
-TP_Scatterplot
 ```
 
 ## Retain TADA Required Columns
@@ -1505,4 +1551,4 @@ Go to:
 Open this file in R Studio to follow along. Alternatively, you can copy
 and paste desired lines of code from here into your own script. Note:
 You must have a GitHub account to download TADAModule1.Rmd from
-GitHub](images/DownloadModule1.jpg)
+GitHub.](images/DownloadModule1.jpg)

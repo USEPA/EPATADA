@@ -226,12 +226,6 @@ Portal Query.*
 R5_nresults <- nrow(R5Profile)
 ```
 
-If you need to download a large amount of data from across a large area,
-and the **TADA_DataRetrieval** function is not working due to WQP
-timeout issues, then the **TADA_BigDataRetrieval** function may work
-better. See **?TADA_BigDataRetrieval** for more details or the TADA
-Module 1 vignette for more details.
-
 ## Review and Filter By Media Type
 
 TADA is primarily designed to accommodate water data from the WQP. Let's
@@ -805,17 +799,16 @@ mqc <- R5ProfileClean5 %>%
 
 Next, we need to filter down to only numeric data. Remove data where the
 *TADA.ResultMeasureValueDataTypes.Flag* = "Text" or "NA - Not
-Available". You can also remove any columns not required for the TADA
-workflow that contain only NAs. The **TADA_AutoFilter** function removes
-non-numeric data and optional columns containing only NAs.
+Available". The **TADA_ConvertSpecialChars** function removes
+non-numeric data.
 
 ```{r filter_out_NAs}
 # Removes rows where the result value is not numeric. Specifically, removes rows with "Text" or "NA - Not Available" in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the TADA.ResultMeasureValue column. Removes optional columns containing only NAs.
-R5ProfileClean6 <- TADA_AutoFilter(R5ProfileClean5)
+R5ProfileClean6 <- TADA_ConvertSpecialChars(R5ProfileClean5, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 **Question 13: How many NAs remain in the data set for
-TADA.ResultMeasureValue after running TADA_Autofilter? How many
+TADA.ResultMeasureValue after running TADA_ConvertSpecialChars? How many
 non-numeric values in TADA.ResultMeasureValueDataTypes.Flag remain in
 the data set? How many rows were removed from the data set?**
 
