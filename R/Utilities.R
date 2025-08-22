@@ -1598,3 +1598,89 @@ TADA_CreateCSV <- function(.data) {
 
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
+
+
+#' TADA_RenametoLegacy
+#' 
+#' This function renames columns in a dataframe from WQX3.0 (beta) names to WQX2.0 (legacy) names.
+#'  Water Quality Portal data are retrieved using USGS dataRetrieval service = "ResultWQX3".
+#'  The purpose of this function is to aid in integrating and updating TADA dependencies
+#'  developed under WQX2.0 to function with data retrieved using WQX3.0 service.
+#'
+#'  TADA_RenametoLegacy function calls on EPA web services to read in the documented
+#'  WQX3.0 schema file (schema_outbound_wqx3.0.csv).The file crosswalks WQX3.0 column names
+#'  with equivalent WQX2.0 Legacy column names across profiles (e.g., PhysChem, ActivityMetric) where appropriate.
+#'  The function uses data.table::setnames() to rename columns in the dataframe
+#'  by reference - in this case where there are beta names, rename to legacy names, and skip where there are no matches.
+#'
+#'
+#' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services 
+#'
+#' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
+#' 
+#' @export
+#'
+#' @examples 
+#' DeWitt_wqx3 <- dataRetrieval::readWQPdata(statecode = "Illinois",
+#' countycode = "DeWitt", characteristicName = "Nitrogen",
+#' service = "ResultWQX3", dataProfile = "fullPhysChem", 
+#' ignore_attributes = TRUE)
+#' 
+#' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#' 
+TADA_RenametoLegacy  <- function(.data) {
+  ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
+  # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
+                              show_col_types = FALSE)
+  
+  # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
+  wqxnames_mod <- wqxnames |> 
+    dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
+      FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+      FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+      FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+      FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+      FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+      FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure",  # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+      FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+      FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+      FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+      FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileType" ~ NA,
+      TRUE ~ WqxV2.FieldName
+    )) |> 
+    # Remove rows without a legacy name in the crosswalk table
+    dplyr::filter(!is.na(WqxV2.FieldName)) |>
+    # Some elements in the crosswalk table have different special characters compared to 
+    # elements returned with dataRetrieval 
+    # Using stringr to identify special characters replacing "_" with "." and "/" with "."
+    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c('_' = '.', '/' = '.')))
+    
+  # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames 
+  # will overwrite original dataframe
+  df <- data.table::copy(.data)
+  beta_names_dr <- names(.data) # copy of original elements
+  
+  # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+  beta_names = wqxnames_mod$FieldName3.0
+  legacy_names = wqxnames_mod$WqxV2.FieldName
+  
+  if (length(beta_names) != length(legacy_names)) {
+    stop("`old names` and `new names` must be the same length", call. = FALSE)
+  }
+  
+  df <- data.table::setnames(df, old = beta_names,
+                             new = legacy_names, skip_absent = TRUE) 
+  
+  df = TADA_OrderCols(df)
+  
+  return(df)
+}

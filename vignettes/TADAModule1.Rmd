@@ -44,7 +44,7 @@ pre[class] {
 
 ## Overview
 
-This vignette walks through how to use the TADA R Package to discover
+This vignette walks through how to use the EPATADA R Package to discover
 and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
 harmonize) [Water Quality Portal
 (WQP)](https://www.waterqualitydata.us/) data from multiple

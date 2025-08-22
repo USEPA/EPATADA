@@ -1,0 +1,131 @@
+---
+title: "WQX 3.0 Migration"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{WQX3-Migration}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  eval = F
+)
+```
+
+```{css, include = F}
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 300px;
+}
+```
+
+This vignette walks through how to download WQX 3.0 data from the WQP
+and rename the columns back to their WQX 2.0 equivalents. Check out the
+[WQX3.0 Data Now Available on the Water Quality
+Portal](https://waterdata.usgs.gov/blog/wqx3/) blog for more information
+about the new WQX 3.0 profiles and WQP beta web services! In addition,
+USGS provides a summary of the current status of WQP functions in
+dataRetrieval
+[here](https://doi-usgs.github.io/dataRetrieval/articles/Status.html).
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide'}
+install.packages("remotes", repos = "http://cran.us.r-project.org")
+library(remotes)
+```
+
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
+
+```{r install_TADA, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+                        ref = "develop",
+                        dependencies = TRUE)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+Let's use USGS's dataRetrieval R package to query the [WQP
+beta](https://www.waterqualitydata.us/beta/) web services and retrieve
+the new WQX 3.0 full physical chemical profile.
+
+```{r WQPquery}
+wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
+  statecode = "Illinois",
+  countycode = "DeWitt",
+  characteristicName = "Nitrogen",
+  service = "ResultWQX3", 
+  dataProfile = "fullPhysChem",
+  ignore_attributes = TRUE)
+```
+
+We use the `readWQPdata` and `whatWQPsites` functions from the USGS
+`dataRetrieval` R package within `TADA_DataRetrieval`. Currently,
+`TADA_DataRetrieval` supports only WQX 2.2 (most recent legacy
+profiles). We are evaluating the new WQX 3.0 beta services and planning
+to transition the EPATADA R package to utilize these services soon.
+
+To facilitate this transition, we have developed a function that
+converts all column headers in a WQX 3.0 profile back to their WQX 2.2
+equivalents. This enables us to effectively test for backward
+compatibility. This new EPATADA function, `TADA_RenametoLegacy`,
+leverages a crosswalk file that is available on the [Water Quality
+Portal Quick Reference
+Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide).
+
+```{r WQX3schemafile}
+wqx3schema <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv", show_col_types = FALSE)
+```
+
+After retrieving the WQX 3.0 full physical chemical profile, we can use
+`TADA_RenametoLegacy` to change the column names back to WQX 2.2 where
+applicable.
+
+```{r rename}
+wqx3_legacynames <- EPATADA::TADA_RenametoLegacy(wqx3_fullPhysChem)
+```
+
+Now, we can test other EPATADA package functions as usual, for example,
+we can run `TADA_AutoClean`:
+
+```{r autoclean}
+wqx3_legacynames = TADA_AutoClean(wqx3_legacynames)
+```
+
+We are interested in hearing feedback from users on the new WQX 3.0
+profiles and WQP beta web services. In addition, please share feedback
+on how we can further assist you with your transition from WQX 2.2 to
+WQX 3.0. If you notice issues with TADA workflows when we start our
+updates to transition the package to WQX 3.0, please let us know.
