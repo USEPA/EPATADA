@@ -204,11 +204,11 @@ Additional resources:
     the console:
     -   ?TADA_CreateParamRef
     -   ?TADA_CreateUseParamRef
-    -   ?TADA_CreateSpatialRef
+    -   ?TADA_CreateMLSummaryRef
         -   ?TADA_CreateUseAURef
         -   ?TADA_CreateUseWaterParamRef
 
-### 'TADA_CreateSpatialRef()' on a ML sites Level
+### 'TADA_CreateMLSummaryRef()' on a ML sites Level
 
 For our first example, let's view what the TADA_CreateSpatial Summary
 output looks like.
@@ -220,18 +220,18 @@ to run, in this order:
 
 1)  TADA_CreateParamRef()
 2)  TADA_CreateUseParamRef()
-3)  TADA_CreateSpatialRef(): For this function, you **do not** need to
+3)  TADA_CreateMLSummaryRef(): For this function, you **do not** need to
     provide the argument inputs for **useAURef** or **waterUseParamRef**
 
 ```{r}
-NCTC_SpatialRef_ML <- TADA_CreateSpatialRef(
+NCTC_MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
   Data_NCTC,
   org_id = "WVDEP",
   useParamRef = NCTC_UseParamRef_Final,
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(NCTC_SpatialRef_ML)
+TADA_TableExport(NCTC_MLSummaryRef_ML)
 ```
 
 View the map and make decisions about your spatial area of interest
@@ -239,8 +239,8 @@ View the map and make decisions about your spatial area of interest
 ```{r}
 TADA_OverviewMap(Data_NCTC)
 
-NCTC_SpatialRef_ML2 <- dplyr::mutate(
-  NCTC_SpatialRef_ML,
+NCTC_MLSummaryRef_ML2 <- dplyr::mutate(
+  NCTC_MLSummaryRef_ML,
   IncludeOrExclude = dplyr::case_when(
     MonitoringLocationIdentifier %in% c(
       "USGS-01613030", "WVDEP_WQX-18323", "WVDEP_WQX-5621", "WVDEP_WQX-18305", "USGS-01614000"
@@ -263,25 +263,25 @@ add_data_spatial_ML <- data.frame(
   ApplyUniqueSpatialCriteria = c("Upper-Stream", "Lower-Stream", "Warm-Water", "Cold-water")
 )
 
-NCTC_SpatialRef_ML_Modified <- dplyr::left_join(
-  NCTC_SpatialRef_ML2, add_data_spatial_ML,
+NCTC_MLSummaryRef_ML_Modified <- dplyr::left_join(
+  NCTC_MLSummaryRef_ML2, add_data_spatial_ML,
   by = c("MonitoringLocationTypeName", "ATTAINS.ParameterName"), relationship = "many-to-many"
 ) %>%
   dplyr::mutate(ApplyUniqueSpatialCriteria = dplyr::coalesce(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y)) %>%
   dplyr::select(-c(ApplyUniqueSpatialCriteria.x, ApplyUniqueSpatialCriteria.y))
 
-NCTC_SpatialRef_ML_Final <- TADA_CreateSpatialRef(
+NCTC_MLSummaryRef_ML_Final <- TADA_CreateMLSummaryRef(
   Data_NCTC,
   org_id = "WVDEP",
   useParamRef = NCTC_UseParamRef_Final,
-  spatialRef = NCTC_SpatialRef_ML_Modified
+  MLSummaryRef = NCTC_MLSummaryRef_ML_Modified
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(NCTC_SpatialRef_ML_Final)
+TADA_TableExport(NCTC_MLSummaryRef_ML_Final)
 ```
 
-### 'TADA_CreateSpatialRef()' on an Assessment Unit Level
+### 'TADA_CreateMLSummaryRef()' on an Assessment Unit Level
 
 Now, if you are interested in summarizing results on an assessment unit
 level, it is highly recommended to run the two helper function to run
@@ -301,7 +301,7 @@ TADA_TableExport(sitesAURef)
 ```
 
 In this example, we demonstrate what your output table will look like in
-TADA_CreateSpatialRef() if you decide to not run the two helper
+TADA_CreateMLSummaryRef() if you decide to not run the two helper
 functions: TADA_CreateUseAURef() and TADA_CreateWaterUseParamRef().
 
 These helper functions are not required, but will help to further review
@@ -316,7 +316,7 @@ cases such as no ML to AU matches, no ATTAINS.UseNames associated with
 your AUs and more! (Still in development)
 
 ```{r}
-NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
+NCTC_MLSummaryRef_No_Helper <- TADA_CreateMLSummaryRef(
   Data_NCTC,
   org_id = "WVDEP",
   sitesAURef = sitesAURef,
@@ -327,7 +327,7 @@ NCTC_SpatialRef_No_Helper <- TADA_CreateSpatialRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(NCTC_SpatialRef_No_Helper)
+TADA_TableExport(NCTC_MLSummaryRef_No_Helper)
 ```
 
 Now, lets run through an example with the helper functions. We must run
@@ -424,7 +424,7 @@ filter our flags by only "Pass" as we have determined these additional
 WQP sites fall outside of our spatial area of interest.
 
 ```{r}
-NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
+NCTC_MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
   Data_NCTC,
   org_id = "WVDEP",
   sitesAURef = sitesAURef,
@@ -434,19 +434,19 @@ NCTC_SpatialRef_AU <- TADA_CreateSpatialRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-NCTC_SpatialRef_AU_Final <- dplyr::filter(NCTC_SpatialRef_AU, Flag.AssessmentNote == "Pass")
+NCTC_MLSummaryRef_AU_Final <- dplyr::filter(NCTC_MLSummaryRef_AU, Flag.AssessmentNote == "Pass")
 
-TADA_TableExport(NCTC_SpatialRef_AU_Final)
+TADA_TableExport(NCTC_MLSummaryRef_AU_Final)
 ```
 
 As another case if a user is interested, if a user has only filled out
 TADA_CreateUseAURef() and want to skip running
 TADA_CreateWaterUseParamRef, what will our Spatial Ref table look like?
-In this scenario, we will assume user does not need to modify the
-TADA_CreateWaterUseParamRef() and run it in TADA_CreateSpatialRef().
+In this scenario, we will assume the user does not need to modify the
+TADA_CreateWaterUseParamRef() and run it in TADA_CreateMLSummaryRef().
 
 ```{r}
-NCTC_SpatialRef_AU_No_WaterUseParam <- TADA_CreateSpatialRef(
+NCTC_MLSummaryRef_AU_No_WaterUseParam <- TADA_CreateMLSummaryRef(
   Data_NCTC,
   org_id = "WVDEP",
   sitesAURef = sitesAURef,
@@ -457,12 +457,12 @@ NCTC_SpatialRef_AU_No_WaterUseParam <- TADA_CreateSpatialRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(NCTC_SpatialRef_AU_No_WaterUseParam)
+TADA_TableExport(NCTC_MLSummaryRef_AU_No_WaterUseParam)
 ```
 
 # Defining Criteria - Magnitude Methodology
 
-Finally, users will use the output of TADA_CreateSpatialRef reference
+Finally, users will use the output of TADA_CreateMLSummaryRef reference
 tables in order to define the associated Criteria and methods for each
 parameter and use combination that they have defined.
 
@@ -471,7 +471,7 @@ parameter and use combination that they have defined.
 #   Data_NCTC,
 #   paramRef = NCTC_ParamRef_Final,
 #   UseParamRef = NCTC_UseParamRef_Final,
-#   AURef = NCTC_SpatialRef,
+#   AURef = NCTC_MLSummaryRef,
 #   excel=FALSE,
 #   #excel = TRUE, overwrite = TRUE
 #   )
