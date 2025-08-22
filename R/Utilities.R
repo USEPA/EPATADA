@@ -1540,6 +1540,7 @@ TADA_CreateCSV <- function(.data) {
 #' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services 
 #'
 #' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
+#' 
 #' @export
 #'
 #' @examples 
