@@ -122,7 +122,10 @@ user.supplied.cw <- clean.existing.attains.MT %>%
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02", 
     "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54")) %>%
   dplyr::rename(AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-                MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier)
+                               MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier) %>%
+  # Add an example new assessment unit for demonstration purposes.
+  dplyr::bind_rows(c(AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX", 
+                   MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184"))
 
 rm(attains.existing.MT, clean.existing.attains.MT)
 ```
@@ -190,12 +193,77 @@ TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.
 ```{r add.links}
 
 batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
-  TADA_UpdateATTAINSAUMLCrosswalk(# selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new                                          crosswalk
-                                  attains_replace =TRUE,
+    TADA_UpdateATTAINSAUMLCrosswalk(# selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new crosswalk
+                                  attains_replace = TRUE,
                                   batch_upload = TRUE,
                                   wqp_data_links = "add",
                                   #ml ids have already  been corrected if needed
                                   update_mlid = FALSE,
                                   org_id = "MTDEQ")
 
+```
+
+## TADA_CreateUseAURef
+
+After assigning ML sites to AU, we will use TADA_CreateUseAURef to assign uses
+to these AUs. First, convert the ML sites to AU reference table to the appropriate 
+format for TADA workflow. We will also assign the NEW:EX_MDEQ_WQ_WQX assessment 
+unit example to the water type "LAKE, FRESHWATER" for demonstration on how to auto_assign
+uses to a new AU that is not yet in ATTAINS nor has been assigned uses to it yet.
+
+```{r get.MLAURef}
+Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
+  TADA_UpdateATTAINSAUMLCrosswalk(# selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new crosswalk
+                                  attains_replace = TRUE,
+                                  batch_upload = FALSE,
+                                  wqp_data_links = "add",
+                                  #ml ids have already  been corrected if needed
+                                  update_mlid = FALSE,
+                                  org_id = "MTDEQ") %>%
+  dplyr::mutate(
+    ATTAINS.WaterType = dplyr::case_when(
+    ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
+    TRUE ~ ATTAINS.WaterType))
+```
+
+Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and proceed with
+assigning uses for each unique AU. The assignment of uses to AU are prioritized as follows:
+
+1) (optional) User supplied uses to AU
+
+2) Imports existing uses by AU from ExpertQuery
+
+
+```{r assign.use.to.AU}
+MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
+```
+
+# Assign uses to new AUs
+
+For any new AU, users will need to determine how to assign uses to them. 
+
+1) TADA has developed a function called TADA_CreateWaterUseRef which imports 
+existing uses by water type from ExpertQuery, and will assign any new AU these uses. 
+Users may choose to edit the TADA_CreateWaterUseRef according to their preference.
+
+```{r assign.use.to.new.AU.with.waterUseRef}
+MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
+  waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+  AUMLRef = Final.MT.AUMLRef, 
+  org_id = "MTDEQ")
+```
+
+2) User may also proceed to do a manual assignment of use names to these new AUs if 
+desired rather than using TADA_CreateWaterUseRef.
+
+```{r assign.use.to.new.AU.manual}
+MT.UseAURef_manual <- MT.UseAURef %>%
+    dplyr::left_join(
+      data.frame(
+        ATTAINS.UseName = c("Aquatic Life", "Drinking Water"), 
+        ATTAINS.AssessmentUnitIdentifier = c("NEW:EX_MDEQ_WQ_WQX", "NEW:EX_MDEQ_WQ_WQX")),
+      by = ("ATTAINS.AssessmentUnitIdentifier")
+      ) %>%
+    dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+    dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
