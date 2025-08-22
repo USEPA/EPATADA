@@ -1,5 +1,5 @@
 ---
-title: "WQX3-Review"
+title: "WQX 3.0 Migration"
 format: html
 editor: visual
 author: "TADA Team"
@@ -12,7 +12,7 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{WQX3-Review}
+  %\VignetteIndexEntry{WQX3-Migration}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options:
   chunk_output_type: console
@@ -38,14 +38,14 @@ pre[class] {
 }
 ```
 
-## Overview
-
-This vignette walks through how to download WQX 3.0 data fom the WQP and rename the columns back to their WQX 2.0 equivalents. 
-
-Check out the [WQX3.0 Data Now Available on the Water Quality Portal](https://waterdata.usgs.gov/blog/wqx3/) blog for more information about the new WQX 3.0 profiles and WQP beta web services! In addition, USGS provides a summary of the current state of WQP functions in dataRetrieval [here](https://doi-usgs.github.io/dataRetrieval/articles/Status.html).
-
-
-## Install and load packages
+This vignette walks through how to download WQX 3.0 data fom the WQP and
+rename the columns back to their WQX 2.0 equivalents. Check out the
+[WQX3.0 Data Now Available on the Water Quality
+Portal](https://waterdata.usgs.gov/blog/wqx3/) blog for more information
+about the new WQX 3.0 profiles and WQP beta web services! In addition,
+USGS provides a summary of the current state of WQP functions in
+dataRetrieval
+[here](https://doi-usgs.github.io/dataRetrieval/articles/Status.html).
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -82,7 +82,9 @@ your R session.
 library(EPATADA)
 ```
 
-Let's use USGS's dataRetrieval R package to query the [WQP Beta](https://www.waterqualitydata.us/beta/) web services and retrieve the new WQX3 full physical chemical profile.
+Let's use USGS's dataRetrieval R package to query the [WQP
+Beta](https://www.waterqualitydata.us/beta/) web services and retrieve
+the new WQX3 full physical chemical profile.
 
 ```{r WQPquery}
 wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
@@ -94,24 +96,34 @@ wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
   ignore_attributes = TRUE)
 ```
 
-We use the `readWQPdata` and `whatWQPsites` functions from the USGS `dataRetrieval` R package within `TADA_DataRetrieval`. Currently, `TADA_DataRetrieval` supports only WQX2 (legacy profiles). We are evaluating the new WQX3 beta services and planning to transition the EPATADA R package to utilize these services soon.
+We use the `readWQPdata` and `whatWQPsites` functions from the USGS
+`dataRetrieval` R package within `TADA_DataRetrieval`. Currently,
+`TADA_DataRetrieval` supports only WQX2 (legacy profiles). We are
+evaluating the new WQX3 beta services and planning to transition the
+EPATADA R package to utilize these services soon.
 
-To facilitate this transition, we have developed a function that converts all column headers in a WQX3.0 profile back to their WQX2.0 equivalents. This enables us to effectively test for backward compatibility. This new EPATADA function, `TADA_RenametoLegacy`, leverages a crosswalk file that is available on the [Water Quality Portal Quick Reference Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide).
+To facilitate this transition, we have developed a function that
+converts all column headers in a WQX3.0 profile back to their WQX2.0
+equivalents. This enables us to effectively test for backward
+compatibility. This new EPATADA function, `TADA_RenametoLegacy`,
+leverages a crosswalk file that is available on the [Water Quality
+Portal Quick Reference
+Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide).
 
 ```{r WQX3schemafile}
 wqx3schema <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv", show_col_types = FALSE)
 ```
 
-After retrieving the WQX3.0 full physical chemical profile, we can 
-use `TADA_RenametoLegacy` to change the column names back to WQX2.0 where 
+After retrieving the WQX3.0 full physical chemical profile, we can use
+`TADA_RenametoLegacy` to change the column names back to WQX2.0 where
 applicable.
 
 ```{r rename}
 wqx3_legacynames <- EPATADA::TADA_RenametoLegacy(wqx3_fullPhysChem)
 ```
 
-Now, we can use other EPATADA package functions as usual, for example, we can 
-run `TADA_AutoClean`:
+Now, we can use other EPATADA package functions as usual, for example,
+we can run `TADA_AutoClean`:
 
 ```{r autoclean}
 wqx3_legacynames = TADA_AutoClean(wqx3_legacynames)
