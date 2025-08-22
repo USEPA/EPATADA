@@ -56,7 +56,8 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and flaggedonly are not TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
-    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
+    message("Function not executed because clean and flaggedonly cannot both be TRUE")
+    return(.data)
   }
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -722,11 +723,13 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
-      stop("Function not executed because no replicates found in dataframe.")
+      message("Function not executed because no replicates found in dataframe.")
+      return(.data)
     }
   } else {
     if (nrow(dplyr::filter(.data, .data$ActivityTypeCode %in% type)) == 0) {
-      stop(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
+      message(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
+      return(.data)
     }
   }
   # check type is character

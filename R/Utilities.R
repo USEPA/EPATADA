@@ -1542,16 +1542,23 @@ TADA_CreateCSV <- function(.data) {
 #' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
 #' @export
 #'
-#' @examples TADA_RenametoLegacy(dat)
+#' @examples 
+#' DeWitt_wqx3 <- dataRetrieval::readWQPdata(statecode = "Illinois",
+#' countycode = "DeWitt", characteristicName = "Nitrogen",
+#' service = "ResultWQX3", dataProfile = "fullPhysChem", 
+#' ignore_attributes = TRUE)
+#' 
+#' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
 #' 
 TADA_RenametoLegacy  <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
-  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv")
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
+                              show_col_types = FALSE)
   
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |> 
-    mutate(WqxV2.FieldName = case_when( # 3.0 element ~ change to in 2.0 element
+    dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
       FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
       FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
       FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
@@ -1573,13 +1580,12 @@ TADA_RenametoLegacy  <- function(.data) {
       TRUE ~ WqxV2.FieldName
     )) |> 
     # Remove rows without a legacy name in the crosswalk table
-    filter(!is.na(WqxV2.FieldName)) |> 
-    
+    dplyr::filter(!is.na(WqxV2.FieldName)) |>
     # Some elements in the crosswalk table have different special characters compared to 
     # elements returned with dataRetrieval 
     # Using stringr to identify special characters replacing "_" with "." and "/" with "."
-    mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c('_' = '\\.', '/' = '\\.')))
-  
+    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c('_' = '.', '/' = '.')))
+    
   # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames 
   # will overwrite original dataframe
   df <- data.table::copy(.data)
@@ -1595,6 +1601,8 @@ TADA_RenametoLegacy  <- function(.data) {
   
   df <- data.table::setnames(df, old = beta_names,
                              new = legacy_names, skip_absent = TRUE) 
+  
+  df = TADA_OrderCols(df)
   
   return(df)
 }

@@ -76,7 +76,7 @@ Imports:
     jsonlite, 
     openxlsx,
     DT,
-    dataRetrieval,
+    dataRetrieval (>= 2.7.21),
     dbscan,
     janitor,
     rExpertQuery,
@@ -86,7 +86,7 @@ Imports:
 Depends: 
     R (>= 4.1.0)
 Suggests:
-    curl (>= 6.0.0),
+    curl (>= 7.0.0),
     xml2,
     whisker,
     hydroloom,
@@ -106,7 +106,8 @@ Suggests:
     yaml,
     rvest,
     remotes,
-    covr
+    covr,
+    httr2 (>= 1.2.1)
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
