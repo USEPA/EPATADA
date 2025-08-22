@@ -884,8 +884,11 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' )
 #' }
 #'
-TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = "None", # c("None", "All", "Org"),
+TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = "None",
                                 excel = FALSE, overwrite = FALSE) {
+  
+  auto_assign = match.arg("None", "All", "Org")
+  
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (missing(.data) && missing(org_id) && missing(auto_assign) && missing(excel) && missing(overwrite)) {
     message("All arguments are blank, returning an empty dataframe with column names only.")
