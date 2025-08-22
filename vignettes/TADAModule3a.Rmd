@@ -446,10 +446,10 @@ ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.
 
 In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were
-the ATTAINS.ParameterNames done in prior assessment cycles for MDE_EASP
-(see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was not
-listed in ATTAINS for MDE_EASP in the prior assessment cycle, but was
-included in MDE_EASP paramRef argument input.
+the ATTAINS.ParameterNames assessed in prior assessment cycles for
+MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was
+not listed in ATTAINS for MDE_EASP in the prior assessment cycle, but
+was included in MDE_EASP paramRef argument input.
 
 ```{r useparamref-Manual}
 NCTC_UseParamRef_Manual <- TADA_CreateUseParamRef(
