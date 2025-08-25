@@ -204,8 +204,12 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the column
 #' names in the returned df will match the column names required for ATTAINS
-#' batch upload. When batch_upload = FALSE, the column names will match those in
-#' the TADA workflow. Default is batch_upload = FALSE.
+#' batch upload and all WQP Monitoring Locations that have not been matched to
+#' an existing Assessment Unit from the user-specified organiztion are removed
+#' from the dataframe. When batch_upload = FALSE, the column names will match
+#' those in the TADA workflow and Monitoring Locations not assigned to existing
+#' Assessment Units from the user-specified organization will be retained.
+#' Default is batch_upload = FALSE.
 #'
 #' @return When batch_upload = FALSE, A dataframe with six columns:
 #' OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
@@ -252,13 +256,13 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'   "ExampleSite1", "ExampleSite2", "ExampleSite3",
 #'   "ExampleSite4", "ExampleSite5"
 #' )
-#' 
+#'
 #' # example water types
 #' ATTAINS.WaterType <- c(
 #'   "BEACH", "BAY", "CREEK",
 #'   "ESTUARY", "CREEK"
 #' )
-#' 
+#'
 #' # example urls
 #' ATTAINS.MonitoringDataLinkText <- c(
 #'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
@@ -360,7 +364,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
                         ATTAINS.MonitoringDataLinkText = MS_DATA_LINK) %>%
           dplyr::rowwise() %>%
           dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id,
-                        ATTAINS.WaterType = 
+                        ATTAINS.WaterType =
                           ifelse(
                             "ATTAINS.WaterType" %in% names(.), ATTAINS.WaterType,
                             NA_character_ ))
@@ -698,6 +702,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
     # If batch upload is desired, format the output in the required format.
     if (batch_upload == TRUE) {
       update.crosswalk <- update.crosswalk %>%
+        dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) %>%
         dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                       MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
