@@ -205,7 +205,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the column
 #' names in the returned df will match the column names required for ATTAINS
 #' batch upload and all WQP Monitoring Locations that have not been matched to
-#' an existing Assessment Unit from the user-specified organiztion are removed
+#' an existing Assessment Unit from the user-specified organization are removed
 #' from the dataframe. When batch_upload = FALSE, the column names will match
 #' those in the TADA workflow and Monitoring Locations not assigned to existing
 #' Assessment Units from the user-specified organization will be retained.
@@ -2524,8 +2524,8 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
-#' This is a helper function to TADA_CreateUseAURef and is meant to help users
-#' with reviewing all water type and use name combination from their org.
+#' This is a helper function to TADA_CreateUseAURef and is meant to assist users
+#' with reviewing all water type and use name combinations from their organization.
 #' This function will help to assign ATTAINS use names to any new or modified
 #' assessment unit provided from a user's AUMLRef if there are any.
 #'
