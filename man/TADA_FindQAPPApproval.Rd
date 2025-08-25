@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{TADA_FindQAPPApproval}
 \alias{TADA_FindQAPPApproval}
-\title{Check data for an approved QAPP}
+\title{Check Data for an Approved QAPP}
 \usage{
 TADA_FindQAPPApproval(
   .data,
@@ -12,59 +12,57 @@ TADA_FindQAPPApproval(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{A dataframe containing the QAPP data.}
 
-\item{clean}{Boolean argument with two possible values called "TRUE" and
-"FALSE". When clean=TRUE, rows of data where the QAPPApprovedIndicator equals
-"N" will be removed. When, clean=FALSE, rows of data where the
-QAPPApprovedIndicator equals "N" will be retained.}
+\item{clean}{Logical. If \code{TRUE}, removes rows where \code{QAPPApprovedIndicator}
+equals 'N'. Default is \code{FALSE}.}
 
-\item{cleanNA}{Boolean argument with two possible values called "TRUE" and
-"FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator
-equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the
-the QAPPApprovedIndicator equals "NA" will be retained.}
+\item{cleanNA}{Logical. If \code{TRUE}, removes rows where \code{QAPPApprovedIndicator}
+is NA. Default is \code{FALSE}.}
 
-\item{flaggedonly}{Boolean argument; when flaggedonly = TRUE, the dataframe will
-be filtered to remove any rows where the QAPPApprovedIndicator equals "Y".}
+\item{flaggedonly}{Logical. If \code{TRUE}, filters out rows where
+\code{QAPPApprovedIndicator} equals 'Y'. Default is \code{FALSE}.}
 }
 \value{
-Several combinations of inputs are possible:
-When clean = TRUE, cleanNA = FALSE, and flaggedonly = FALSE, the dataframe will
-be filtered to show only rows where QAPPAprrovedIndicator is "Y" or "NA";
-When clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
-be filtered to show only rows where QAPPApprovedIndicator is "Y";
-When clean = FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
-be filtered to show only rows where QAPPApprovedIndicator is "Y" or "N";
-When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no rows are
-removed from the dataframe;
-When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, the function will
-not execute and an error message will be returned;
-When clean = TRUE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
-be filtered to show only rows where QAPPApprovedIndicator is "NA";
-When clean = FALSE, cleanNA = TRUE, and flaggedonly = TRUE, the dataframe will
-be filtered to show only rows where QAPPApprovedIndicator is "N";
-When clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
-be filtered to show only rows where QAPPApprovedIndicator is "N" or "NA"
+A filtered dataframe based on the combination of input parameters:
+\itemize{
+\item \code{clean = TRUE}, \code{cleanNA = FALSE}, \code{flaggedonly = FALSE}: Returns rows where \code{QAPPApprovedIndicator} is 'Y' or NA.
+\item \code{clean = TRUE}, \code{cleanNA = TRUE}, \code{flaggedonly = FALSE}: Returns rows where \code{QAPPApprovedIndicator} is 'Y'.
+\item \code{clean = FALSE}, \code{cleanNA = TRUE}, \code{flaggedonly = FALSE}: Returns rows where \code{QAPPApprovedIndicator} is 'Y' or 'N'.
+\item \code{clean = FALSE}, \code{cleanNA = FALSE}, \code{flaggedonly = FALSE}: Returns the original dataframe without changes.
+\item \code{clean = TRUE}, \code{cleanNA = TRUE}, \code{flaggedonly = TRUE}: Returns an error message.
+\item \code{clean = TRUE}, \code{cleanNA = FALSE}, \code{flaggedonly = TRUE}: Returns rows where \code{QAPPApprovedIndicator} is NA.
+\item \code{clean = FALSE}, \code{cleanNA = TRUE}, \code{flaggedonly = TRUE}: Returns rows where \code{QAPPApprovedIndicator} is 'N'.
+\item \code{clean = FALSE}, \code{cleanNA = FALSE}, \code{flaggedonly = TRUE}: Returns rows where \code{QAPPApprovedIndicator} is 'N' or NA.
+}
 }
 \description{
-Function checks data submitted under the column "QAPPApprovedIndicator".
-Some organizations submit data for this field to indicate if the data
-produced has an approved Quality Assurance Project Plan (QAPP) or not.
-Y indicates yes, N indicates no.  This function has three default inputs:
-clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default flags
-rows of data where the QAPPApprovedIndicator equals "N". Users could
-remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
-and flaggedonly = FALSE. If flaggedonly = TRUE, the function will filter out all
-rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE,
-and flaggedonly = FALSE, the function will not make any changes to the data.
+This function evaluates the data submitted under the "QAPPApprovedIndicator"
+column to determine if it has an approved Quality Assurance Project Plan (QAPP).
+Organizations use this field to indicate approval status,
+where 'Y' denotes approval and 'N' denotes non-approval.
+The function provides flexibility through three
+boolean arguments: \code{clean}, \code{cleanNA}, and \code{flaggedonly}, which control the
+filtering behavior of the data.
 }
 \details{
-Note: This is not a required field, so it is often left blank (NA) even if
-the data has an associated QAPP. All states and tribes that collect
-monitoring data using 106 funding (almost all state and tribal data in WQX)
-are required to have an EPA approved QAPP to receive 106 funding. Therefore,
-most of these organizations data has an approved QAPP even if the data
-submitted to WQP is NA.
+The function operates based on the following default settings:
+\itemize{
+\item \code{clean = TRUE}: Removes rows where \code{QAPPApprovedIndicator} equals 'N'.
+\item \code{cleanNA = FALSE}: Retains rows with \code{QAPPApprovedIndicator} as NA.
+\item \code{flaggedonly = FALSE}: Flags but does not remove rows with \code{QAPPApprovedIndicator} as 'N'.
+}
+
+Users can adjust these settings to tailor the output:
+\itemize{
+\item Set \code{cleanNA = TRUE} to remove rows with NA values.
+\item Set \code{flaggedonly = TRUE} to filter out rows where \code{QAPPApprovedIndicator} equals 'Y'.
+}
+
+Note: The \code{QAPPApprovedIndicator} field is optional and often left blank (NA),
+even if the data is associated with a QAPP. Most organizations collecting
+monitoring data using 106 funding are required to have an EPA-approved QAPP,
+hence most data should have an approved QAPP even if submitted as NA.
 }
 \examples{
 # Load example dataset:
