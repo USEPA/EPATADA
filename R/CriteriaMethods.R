@@ -108,24 +108,21 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # required inputs
-                                           MLSummaryRef = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           auto_assign = FALSE, org_id = NULL, MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # required inputs for the recommended workflow
+                                           criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           auto_fill = FALSE, org_id = NULL, MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
                                            excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-
+  
+  # updateRef defaults to "none" if one is not entered
   if (is.null(updateRef)) {
     updateRef = "none"
   }
   
+  # ensures updateRef is an allowable entry
   updateRef <- match.arg(updateRef)
-  
-  # Invalid function input combos
-  if (auto_assign == FALSE && updateRef != "none") {
-    stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE and updateRef = 'none' is an invalid function input.")
-  }
   
   # Ensures you have used a valid auto_assign name
   if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
@@ -135,11 +132,68 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
     ))
   }
   
-  # If user wants to create a prepopulated CriteriaMethods table, it will run all crosswalk tables and use the default.
-  if (auto_assign == TRUE) {
+  # Invalid function input combos - can only use updateRef =  none with auto_fill = FALSE
+  if (auto_fill == FALSE && updateRef != "none") {
+    stop("TADA_DefineCriteriaMethodology: auto_fill = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_fill == TRUE")
+  }
+  
+  # Generates a blank Criteria and Methods file
+  if (auto_fill == FALSE && is.null(MLSummaryRef) && epa304a == FALSE) {
+    desired_cols <- c(
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      # Spatial Columns
+      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      # Criteria Columns
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "DurationValue",	"DurationUnit", "DurationAggregation",
+      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      # Data Sufficiency Columns
+      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
+      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate",
+      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+    )
+    
+    DefineCriteriaMethodology <- data.frame(matrix(ncol = length(desired_cols), nrow = 0))
+    
+    names(DefineCriteriaMethodology) <- desired_cols
+    
+    cols_to_convert <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+                         "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+                         # Spatial Columns
+                         "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria")
+    
+    DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(DefineCriteriaMethodology[cols_to_convert], as.character)
+    
+    TADA_ParamRef <- TADA_CreateParamRef(
+      .data = .data, 
+      org_id = org_id, 
+      excel = excel, 
+      overwrite = overwrite
+    )
+    
+    TADA_UseParamRef <- TADA_CreateUseParamRef(
+      .data,
+      paramRef = TADA_ParamRef,
+      org_id = org_id, 
+      excel = excel, 
+      overwrite = overwrite
+    )
+    
+    TADA_MLSummaryRef <- TADA_CreateMLSummaryRef(
+      .data,
+      useParamRef = TADA_UseParamRef,
+      org_id = org_id, 
+      excel = excel, 
+      overwrite = overwrite)
+  }
+  
+  # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
+  # Users can edit one or more of the ref files which will update all accordingly.
+  if (auto_fill == TRUE) {
     # default, runs all reference tables with no user edits
     if(updateRef == "none") {
-      message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
       TADA_ParamRef <- TADA_CreateParamRef(  
         .data, 
         org_id = org_id,
@@ -147,7 +201,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
       TADA_UseParamRef <- TADA_CreateUseParamRef(  
         .data, 
         org_id = org_id,
@@ -156,7 +210,7 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
-      message(paste0("auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment. Please review  this sites Ref table output."))
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment. Please review  this sites Ref table output."))
       MLSummaryRef <- TADA_CreateMLSummaryRef(  
         .data, 
         org_id = org_id,
@@ -168,14 +222,14 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
     
     # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
     if (updateRef == "paramRef") {
-      message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      message(paste0("auto_fill = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
       myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef") 
       
       TADA_ParamRef <- TADA_CreateParamRef(  
         .data, 
         org_id = org_id,
         paramRef = myfile_ParamRef,
-        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+        auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_CreateParamRef
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
       
@@ -288,99 +342,106 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
     }
   }
   
-  MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
-  MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
-  # Extracts the characteristic, speciation and fraction columns to join
-  MLSummaryRef <- MLSummaryRef %>%
-    dplyr::left_join(
-      .data[,c(
-        "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName"
-        #"TADA.ResultSampleFractionText",
-        #"TADA.MethodSpeciationName"
-        )] %>%
-      dplyr::distinct(),
-      by = "TADA.ComparableDataIdentifier"
-      )
-
-  # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
-  # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-  # metal_list <- data.frame(
-  #   ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
-  # ) %>%
-  #   cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
-  #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
-  #   dplyr::arrange(ATTAINS.ParameterName)
+  # User has went through the recommended workflow. Criteria table is generated
+  # from the MLSummaryRef file. This file also contains unique spatial criteria
+  # as an option and will include these values if they have been populated.
+  if(!is.null(MLSummaryRef)) {
+    MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
+    MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
+    # Extracts the characteristic, speciation and fraction columns to join
+    MLSummaryRef <- MLSummaryRef %>%
+      dplyr::left_join(
+        .data[,c(
+          "TADA.ComparableDataIdentifier",
+          "TADA.CharacteristicName"
+          #"TADA.ResultSampleFractionText",
+          #"TADA.MethodSpeciationName"
+          )] %>%
+        dplyr::distinct(),
+        by = "TADA.ComparableDataIdentifier"
+        )
   
-  # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
-  DefineCriteriaMethodology <- MLSummaryRef %>%
-    dplyr::select(
-      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-      "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.WaterType"
-    ) %>%
-    # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
-    dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-      is.na(ApplyUniqueSpatialCriteria),
-      as.character(NA),
-      as.character(ATTAINS.WaterType)
-    )) %>%
-    dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-      is.na(ApplyUniqueSpatialCriteria),
-      as.character(NA),
-      as.character(SaltFresh)
-    )) %>%
-    dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-      is.na(ApplyUniqueSpatialCriteria),
-      as.character(NA),
-      as.character(TADA.DepthCategory.Flag)
-    )) %>%
-    # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
-    dplyr::bind_cols(
-      data.frame(
-        TADA.ResultSampleFractionText = as.character(NA), 
-        TADA.MethodSpeciationName = as.character(NA), AcuteChronic = as.character(NA),
+    # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
+    # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
+    # metal_list <- data.frame(
+    #   ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
+    # ) %>%
+    #   cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
+    #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
+    #   dplyr::arrange(ATTAINS.ParameterName)
+    
+    # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
+    DefineCriteriaMethodology <- MLSummaryRef %>%
+      dplyr::select(
+        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+        "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
+        "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.WaterType"
+      ) %>%
+      # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
+      dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
+        is.na(ApplyUniqueSpatialCriteria),
+        as.character(NA),
+        as.character(ATTAINS.WaterType)
+      )) %>%
+      dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
+        is.na(ApplyUniqueSpatialCriteria),
+        as.character(NA),
+        as.character(SaltFresh)
+      )) %>%
+      dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
+        is.na(ApplyUniqueSpatialCriteria),
+        as.character(NA),
+        as.character(TADA.DepthCategory.Flag)
+      )) %>%
+      # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
+      dplyr::bind_cols(
+        data.frame(
+          TADA.ResultSampleFractionText = as.character(NA), 
+          TADA.MethodSpeciationName = as.character(NA), AcuteChronic = as.character(NA),
+          # Criteria Columns
+          EquationBased = as.character(NA),
+          MagnitudeValueLower = as.numeric(NA), MagnitudeValueUpper = as.numeric(NA), MagnitudeUnit = as.character(NA),
+          DurationValue = as.numeric(NA),	DurationUnit = as.character(NA), DurationAggregation = as.character(NA),
+          FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
+          # Data Sufficiency Columns
+          DataSufficiency.AssessPeriod = as.character(NA), DataSufficiency.BegAssessDate = as.Date(NA), DataSufficiency.EndAssessDate = as.Date(NA), Season = as.character(NA),
+          DataSufficiency.Season = as.character(NA), DataSufficiency.SeasonBegDate = as.Date(NA), DataSufficiency.SeasonEndDate = as.Date(NA),
+          DataSufficiency.CountSamplingDistribution = as.numeric(NA), DataSufficiency.SamplingDistribution = as.character(NA), DataSufficiency.MinSamplePerDistribution = as.numeric(NA)
+        )
+      ) %>%
+      #dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
+      #dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
+      #dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
+      #dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
+      #dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
+      tidyr::drop_na(ATTAINS.ParameterName) %>%
+      dplyr::select(
+        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
+        # Spatial Columns
+        "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
         # Criteria Columns
-        EquationBased = as.character(NA),
-        MagnitudeValueLower = as.numeric(NA), MagnitudeValueUpper = as.numeric(NA), MagnitudeUnit = as.character(NA),
-        DurationValue = as.numeric(NA),	DurationUnit = as.character(NA), DurationAggregation = as.character(NA),
-        FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
+        "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+        "DurationValue",	"DurationUnit", "DurationAggregation",
+        "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
         # Data Sufficiency Columns
-        DataSufficiency.AssessPeriod = as.character(NA), DataSufficiency.BegAssessDate = as.Date(NA), DataSufficiency.EndAssessDate = as.Date(NA), Season = as.character(NA),
-        DataSufficiency.Season = as.character(NA), DataSufficiency.SeasonBegDate = as.Date(NA), DataSufficiency.SeasonEndDate = as.Date(NA),
-        DataSufficiency.CountSamplingDistribution = as.numeric(NA), DataSufficiency.SamplingDistribution = as.character(NA), DataSufficiency.MinSamplePerDistribution = as.numeric(NA)
-      )
-    ) %>%
-    #dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-    #dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
-    #dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
-    #dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
-    #dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
-    tidyr::drop_na(ATTAINS.ParameterName) %>%
-    dplyr::select(
-      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
-      # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
-      # Criteria Columns
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit", "DurationAggregation",
-      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
-      # Data Sufficiency Columns
-      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
-      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
-      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
-    ) %>%
-  dplyr::distinct()
+        "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
+        "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
+        "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+      ) %>%
+    dplyr::distinct()
+  }
   
-  # Handling of auto populating EPA304a Criteria in the future if desired.
-  CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-    dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
-    dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
-  
+  # User wants to populate the Criteria table using the EPA304a standards
+  # joins the epa304a standards to the current Criteria Table.
   if (epa304a == TRUE) {
+    # Handling of auto populating EPA304a Criteria in the future if desired.
+    CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+      dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
+    
     DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
-      dplyr::left_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
+      dplyr::full_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
       dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
       dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
@@ -411,18 +472,61 @@ TADA_DefineCriteriaMethodology <- function(.data, criteriaMethods = NULL,  # req
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
   }
   
-  if ( !is.null(criteriaMethods)){
+  # User wants to populate the Criteria table using a user supplied table.
+  # This option will prioritize a user-supplied table, but may include 
+  # all rows generated from this function either from 1) auto_fill default values,
+  # 2) epa 304a values, 3) any updated ref values from the updateRef functions,
+  # 4) from the recommended workflow based on MLSummaryRef, or 5) a blank template 
+  # which will only include rows relevant to all unique TADA.CharacteristicName in 
+  # the TADA data frame.
+  if (!is.null(criteriaMethods)) {
+    desired_cols <- c(
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      # Spatial Columns
+      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      # Criteria Columns
+      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "DurationValue",	"DurationUnit", "DurationAggregation",
+      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      # Data Sufficiency Columns
+      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
+      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate",
+      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+    )
+    
+    unique_param <- unique(.data$TADA.CharacteristicName)
+    
     DefineCriteriaMethodology <- criteriaMethods %>%
-      dplyr::left_join(DefineCriteriaMethodology, by = 
-                       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
-                       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
-                       # Spatial Columns
-                       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria"
-                       )
-    
-    
+      dplyr::full_join(
+        dplyr::select(
+          DefineCriteriaMethodology, "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", 
+          "ATTAINS.UseName", "TADA.CharacteristicName"), 
+        by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.CharacteristicName")) %>%
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
+      dplyr::filter(TADA.CharacteristicName %in%  unique_param) %>%
+      dplyr::select(
+        dplyr::any_of(desired_cols)
+        )
+      
+      # 2. Identify missing columns
+      missing_cols <- setdiff(desired_cols, names(DefineCriteriaMethodology))
+      
+      # 3. Add missing columns with NA values using mutate()
+      if (length(missing_cols) > 0) {
+        for (col in missing_cols) {
+          DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
+            dplyr::mutate(!!col := NA)
+        }
+      }
+      
+      # should not be a problem if we control what column names are allowed,
+      # but including this for the case if edits are made to the function to ensure
+      # excel allowable values are still in the correct order.
+      DefineCriteriaMethodology <- dplyr::select(DefineCriteriaMethodology, desired_cols)
   }
   
+  # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
     tryCatch(

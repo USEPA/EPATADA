@@ -6,10 +6,10 @@
 \usage{
 TADA_DefineCriteriaMethodology(
   .data,
-  criteriaMethods = NULL,
   MLSummaryRef = NULL,
+  criteriaMethods = NULL,
   epa304a = FALSE,
-  auto_assign = FALSE,
+  auto_fill = FALSE,
   org_id = NULL,
   MLAURef = NULL,
   useAURef = NULL,
@@ -23,17 +23,17 @@ TADA_DefineCriteriaMethodology(
 processing, harmonization, filtering, and handling of censored data functions
 prior to running this function.}
 
+\item{MLSummaryRef}{An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit. For any unique groupings of sites, this
+input is recommended.}
+
 \item{criteriaMethods}{An optional data frame which contains the completed criteria
 and methodology table completed. This will be a user supplied table and any
 inputs in this table will be prioritized. Additional rows for any parameter(s)
 and use(s) combinations that are not found in the user supplied table will be
 included in the output. These rows will need the criteria and methodology inputs
 filled out accordingly.}
-
-\item{MLSummaryRef}{An optional data frame which contains the completed spatial
-crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit. For any unique groupings of sites, this
-input is recommended.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading

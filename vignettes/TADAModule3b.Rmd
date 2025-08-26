@@ -466,30 +466,86 @@ Finally, users will use the output of TADA_CreateMLSummaryRef reference
 tables in order to define the associated Criteria and methods for each
 parameter and use combination that they have defined.
 
-```{r}
-# NCTC_magnitude_Final <- TADA_DefineMagnitude(
-#   Data_NCTC,
-#   paramRef = NCTC_ParamRef_Final,
-#   UseParamRef = NCTC_UseParamRef_Final,
-#   AURef = NCTC_MLSummaryRef,
-#   excel=FALSE,
-#   #excel = TRUE, overwrite = TRUE
-#   )
-# # If user makes update in excel file
-# downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-# # NCTC_magnitude_Final <- openxlsx::read.xlsx(downloads_path, sheet = "DefineMagnitude")
+A blank template is generated. This can be generated and filled out in the excel file (recommended).
 
-# NCTC_Excursions <- TADA_MagnitudeSummary(
-#   Data_NCTC,
-#   #UseAURef = NCTC_UseAURef,
-#   StandardsRef = NCTC_magnitude_Final,
-#   overwrite = FALSE
-# )
-#
-# NCTC_Excursions2 <- TADA_MagnitudeSummary(
-#   Data_NCTC,
-#   UseAURef = NCTC_UseAURef,
-#   StandardsRef = NCTC_magnitude_Final,
-#   overwrite = TRUE
-# )
+```{r blank template output}
+MT.Criteria <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ", 
+  # auto_fill = FALSE, 
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+A user has a completed file, let's use MTDEQ as our example org. MTDEQ should thoroughly review this table and determine if there are values that needs to be fixed or if there are missing WQP Char to consider that isn't defined in their criteria and methods table that they have supplied.
+
+Question: How should TADA handle invalid values? (see units for example). What happens if TADA makes an update to column names or allowable value(s) and a state uses an old filled out template?
+
+```{r user supplied and blank output}
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria2 <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  auto_fill = FALSE, 
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+A user can also choose to supply their own table and choose to compare it to the default autofill option that TADA does. For any TADA.CharacteristicName, ATTAINS.ParameterName and ATTAINS.UseName combinations that are not found in the user supplied tables, these rows will still be displayed and shown with blank value(s). Users would need to fill in these values if they want these combinations summarized, or leave blank to exclude them.
+
+```{r user supplied and autofill output}
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria3 <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+Users who are starting from scratch can proceed with an  autofill option only, without supplying any tables. Thus, they can generate a default table and review for any necessary changes.
+
+```{r autofill output}
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria4 <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+Now, let's continue with this example. A user is reviewing this table and decides to edit the CreateParamRef file. We will reflect changes to the DefineCriteriaMethodology file with the edit the user made.
+```{r autofill and update output}
+
+# will need to open up the excel file and edit to showcase example.
+
+MT.Criteria4_Edit <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ",
+  criteriaMethods = MT.Criteria4,
+  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
+  updateRef = "paramRef",
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+Users are recommended to go through each of the 3 reference files one at a time though in their review process. In this case, a user should provide a MLSummaryRef file function input and turn the auto_fill option to FALSE.
+
+```{r step-by-step output}
+
+# will need to open up the excel file and edit to showcase example.
+
+MT.Criteria5 <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ",
+  MLSummaryRef = EXAMPLE,
+  auto_fill = FALSE,
+  excel = TRUE, overwrite = TRUE, 
+  )
+```
+
+A user can now save the file and re-use it in the future
 ```

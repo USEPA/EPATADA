@@ -888,10 +888,10 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' )
 #' }
 #'
-TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = "None",
+TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = c("None", "All", "Org"),
                                 excel = FALSE, overwrite = FALSE) {
   
-  auto_assign = match.arg("None", "All", "Org")
+  auto_assign = match.arg(auto_assign)
   
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (missing(.data) && missing(org_id) && missing(auto_assign) && missing(excel) && missing(overwrite)) {
@@ -2769,9 +2769,6 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #'
 TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
                                     MLAURef = NULL,  useAURef = NULL, MLSummaryRef = NULL,
-                                    # applyUniqueSpatial = NULL, applyToWater = NULL,
-                                    # applyToParam = NULL, applyToUse = NULL,
-                                    # applyToAU = NULL, applyToML = NULL,
                                     excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
@@ -3057,7 +3054,15 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
     )
     
     # data validation drop down list created below.
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "CreateMLSummaryRef", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index'!$B$2:$B$5"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(
+      openxlsx::dataValidation(
+        wb, sheet = "CreateMLSummaryRef", 
+        cols = 9, rows = 2:1000, 
+        type = "list", 
+        value = sprintf("'Index'!$B$2:$B$5"), 
+        allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
+        )
+      )
     
     
     # Conditional Formatting

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateMLSummaryRef}
 \alias{TADA_CreateMLSummaryRef}
-\title{Apply Uses and Unique Site Criteria to Monitoring Location Sites or Assessment Units}
+\title{Analysis Summary and Apply Uses and Unique Site Criteria to Monitoring Location Sites or Assessment Units}
 \usage{
 TADA_CreateMLSummaryRef(
   .data,
@@ -73,7 +73,8 @@ A data frame with any unique spatial descriptions defined for
 }
 \description{
 This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
-and MonitoringLocationIdentifier from the TADA dataframe. Users are not required
+and MonitoringLocationIdentifier from the TADA dataframe and join it to TADA_CreateUseParamRef
+Users are not required
 to provide a crosswalk between WQP Monitoring locations and Assessment units
 if they are only interested in summarizing assessments on a monitoring location level.
 }
