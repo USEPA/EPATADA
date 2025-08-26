@@ -4,10 +4,19 @@
 \alias{TADA_ViewATTAINS}
 \title{TADA_ViewATTAINS}
 \usage{
-TADA_ViewATTAINS(.data)
+TADA_ViewATTAINS(.data, ref_icons = TRUE)
 }
 \arguments{
-\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_CreateATTAINSAUMLCrosswalk()} with the return_sf argument set to TRUE.}
+\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_CreateATTAINSAUMLCrosswalk()}
+or \code{TADA_CreateAUMLCrosswalk()} with the return_sf argument set to TRUE.}
+
+\item{ref_icons}{Boolean argument. Determines whether custom icons are displayed to differentiate between
+different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
+information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
+ref_icons = TRUE three different icons will be used for the map. The plain circle represents matches
+made with TADA_CreateATTAINSAUMLCrosswalk. The circle with the user icon is for matches from the user supplied
+ref. The circle with a check mark is for matches from ATTAINS. When rec_icons = FALSE or the source is not
+provided in .data, all Monitoring Locations are show with a plain circle.}
 }
 \value{
 A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
@@ -18,7 +27,7 @@ Visualizes the data returned from TADA_CreateAUMLCrosswalk or TADA_CreateATTAINS
 \details{
 This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
 TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-.data must be the list produced from \code{TADA_CreateATTAINSAUMLCrosswalk()}
+.data must be the list produced from \code{TADA_CreateATTAINSAUMLCrosswalk()} or \code{TADA_CreateAUMLCrosswalk()}
 with \code{return_sf = TRUE}. Check out the
 TADAModule2.Rmd for an example workflow.
 }

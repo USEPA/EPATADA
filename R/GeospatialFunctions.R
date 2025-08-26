@@ -2069,11 +2069,20 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'
 #' This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
 #' TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-#' .data must be the list produced from `TADA_CreateATTAINSAUMLCrosswalk()`
+#' .data must be the list produced from `TADA_CreateATTAINSAUMLCrosswalk()` or `TADA_CreateAUMLCrosswalk()`
 #' with `return_sf = TRUE`. Check out the
 #' TADAModule2.Rmd for an example workflow.
 #'
-#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_CreateATTAINSAUMLCrosswalk()` with the return_sf argument set to TRUE.
+#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_CreateATTAINSAUMLCrosswalk()`
+#' or `TADA_CreateAUMLCrosswalk()` with the return_sf argument set to TRUE.
+#'
+#' @param ref_icons Boolean argument. Determines whether custom icons are displayed to differentiate between
+#' different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
+#' information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
+#' ref_icons = TRUE three different icons will be used for the map. The plain circle represents matches
+#' made with TADA_CreateATTAINSAUMLCrosswalk. The circle with the user icon is for matches from the user supplied
+#' ref. The circle with a check mark is for matches from ATTAINS. When rec_icons = FALSE or the source is not
+#' provided in .data, all Monitoring Locations are show with a plain circle.
 #'
 #' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
 #'
@@ -2100,7 +2109,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'
 #' TADA_ViewATTAINS(attains_data)
 #' }
-TADA_ViewATTAINS <- function(.data) {
+TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   if (!any(c(
     "ATTAINS_catchments", "ATTAINS_points",
     "ATTAINS_lines", "ATTAINS_polygons"
@@ -2327,7 +2336,7 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% names(ATTAINS_table)) {
+      if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
 
       # set shapes for different ref sources
 
@@ -2355,7 +2364,7 @@ TADA_ViewATTAINS <- function(.data) {
 
       }
 
-      if(!"TADA.AURefSource" %in% names(ATTAINS_table)) {
+      if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
 
         refIcons <- leaflet::icons(
           iconUrl = "inst/extdata/icons/circle-solid-full.svg",
