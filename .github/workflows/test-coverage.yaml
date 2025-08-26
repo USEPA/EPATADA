@@ -53,3 +53,9 @@ jobs:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
           if-no-files-found: ignore  # Suppress warnings if no files are found
+      
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ runner.temp }}/package
