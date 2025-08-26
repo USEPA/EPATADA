@@ -29,9 +29,9 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   # # run required flagging/cleaning functions
   # if ("TADA.UseForAnalysis.Flag" %in% colnames(.data)) {
   #   .data <- .data
@@ -195,9 +195,9 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   if (!field %in% names(.data)) {
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
   }
@@ -300,13 +300,13 @@ TADA_AnalysisDataFilter <- function(.data,
                                     other = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   # *Need to add fish tissue to this function once using WQX 3.0 profiles
 
   # import MonitoringLocationTypeNames and TADA.Media.Flags

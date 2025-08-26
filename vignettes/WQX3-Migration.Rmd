@@ -65,8 +65,9 @@ GitHub (un-comment).
 
 ```{r install_TADA, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-                        ref = "develop",
-                        dependencies = TRUE)
+  ref = "develop",
+  dependencies = TRUE
+)
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
@@ -86,9 +87,10 @@ wqx3_fullPhysChem <- dataRetrieval::readWQPdata(
   statecode = "Illinois",
   countycode = "DeWitt",
   characteristicName = "Nitrogen",
-  service = "ResultWQX3", 
+  service = "ResultWQX3",
   dataProfile = "fullPhysChem",
-  ignore_attributes = TRUE)
+  ignore_attributes = TRUE
+)
 ```
 
 We use the `readWQPdata` and `whatWQPsites` functions from the USGS
@@ -121,7 +123,7 @@ Now, we can test other EPATADA package functions as usual, for example,
 we can run `TADA_AutoClean`:
 
 ```{r autoclean}
-wqx3_legacynames = TADA_AutoClean(wqx3_legacynames)
+wqx3_legacynames <- TADA_AutoClean(wqx3_legacynames)
 ```
 
 We are interested in hearing feedback from users on the new WQX 3.0

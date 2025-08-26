@@ -298,8 +298,10 @@ last.cols <- c(
 #'
 #' # Construct URLs for different profiles
 #' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-#' result_url <- paste0(baseurl, "/data/Result", filters, dates, type,
-#'                      "&dataProfile=resultPhysChem", providers)
+#' result_url <- paste0(
+#'   baseurl, "/data/Result", filters, dates, type,
+#'   "&dataProfile=resultPhysChem", providers
+#' )
 #' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 #'
 #' # Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles
@@ -471,7 +473,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' other TADA functions or are commonly used filters. Using this function allows the user to accept
 #' all TADA created changes and reduce the size of the data set before using TADA mapping or data
 #' visualization features in the TADA package or Shiny app.
-#' 
+#'
 #' This function also removes any columns not required for the TADA workflow
 #' where all values are equal to NA. It provides a warning message identifying
 #' any TADA required columns containing only NA values.
@@ -488,42 +490,41 @@ TADA_CheckRequiredFields <- function(.data) {
 #' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
 TADA_RetainRequired <- function(.data) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
   # execute function after TADA_CheckType passes
-  
+
   ############################
   # first, remove columns that are not required for TADA workflow and contain only NA
   print("TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs.")
-  
+
   # create list of columns containing all NA values.
   na.cols <- .data %>%
     purrr::keep(~ all(is.na(.x))) %>%
     names()
-  
+
   # create list of columns to be removed by comparing columns containing all NA
   # values to required columns.
   # any required columns with all NA values will be excluded from the list of
   # columns to remove.
   remove.cols <- setdiff(na.cols, require.cols)
-  
+
   # remove not required columns containing all NA values from dataframe.
   .data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
-  
+
   # check to make sure required columns contain some data that is not NA
   req.check <- intersect(require.cols, na.cols)
-  
+
   # create character string for list of required columns containing only NAs
   req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
-  
+
   # remove column name lists
   rm(na.cols)
-  
+
   # create character string for list of removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
-  
+
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
     print(paste0(
@@ -533,10 +534,10 @@ TADA_RetainRequired <- function(.data) {
   } else {
     print("All columns contained some non-NA values and were retained in the dataframe.")
   }
-  
+
   # remove columns that are not required for TADA workflow
   print("TADA_RetainRequired: checking required columns for non-NA values.")
-  
+
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
     print(paste0(
@@ -546,12 +547,12 @@ TADA_RetainRequired <- function(.data) {
   } else {
     print("TADA_RetainRequired: All TADA Required columns contain some non-NA values.")
   }
-  
+
   # remove intermediate objects
   rm(req.paste, remove.cols, remove.paste, req.check)
-  
+
   ######################
-  
+
   # Now removing any columns not required for the TADA workflow where all values are equal to NA
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
 
@@ -575,7 +576,7 @@ TADA_RetainRequired <- function(.data) {
   print(paste("TADA_RetainRequired: The following non-required columns were removed: ", remove.paste, ".", sep = ""))
 
   return(.data)
-  
+
   # remove intermediate objects
   rm(keep.cols, original.cols, remove.cols, remove.paste)
 }
@@ -599,37 +600,37 @@ TADA_RetainRequired <- function(.data) {
 #' TADA_AutoFilter <- function(.data) {
 #'   # check .data is data.frame
 #'   TADA_CheckType(.data, "data.frame", "Input object")
-#'   
+#'
 #'   # remove columns that are not required for TADA workflow
 #'   print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
-#'   
+#'
 #'   # create list of columns containing all NA values.
 #'   na.cols <- .data %>%
 #'     purrr::keep(~ all(is.na(.x))) %>%
 #'     names()
-#'   
+#'
 #'   # create list of columns to be removed by comparing columns containing all NA
 #'   # values to required columns.
 #'   # any required columns with all NA values will be excluded from the list of
 #'   # columns to remove.
 #'   remove.cols <- setdiff(na.cols, require.cols)
-#'   
+#'
 #'   # remove not required columns containing all NA values from dataframe.
 #'   .data <- .data %>%
 #'     dplyr::select(-dplyr::contains(remove.cols))
-#'   
+#'
 #'   # check to make sure required columns contain some data that is not NA
 #'   req.check <- intersect(require.cols, na.cols)
-#'   
+#'
 #'   # create character string for list of required columns containing only NAs
 #'   req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
-#'   
+#'
 #'   # remove column name lists
 #'   rm(na.cols)
-#'   
+#'
 #'   # create character string for list of removed columns
 #'   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
-#'   
+#'
 #'   # print list of columns removed from data frame
 #'   if (length(remove.cols) > 0) {
 #'     print(paste0(
@@ -639,10 +640,10 @@ TADA_RetainRequired <- function(.data) {
 #'   } else {
 #'     print("All columns contained some non-NA values and were retained in the dataframe.")
 #'   }
-#'   
+#'
 #'   # remove columns that are not required for TADA workflow
 #'   print("TADA_AutoFilter: checking required columns for non-NA values.")
-#'   
+#'
 #'   # if some required columns contain only NA values print a warning message.
 #'   if (length(req.check) > 0) {
 #'     print(paste0(
@@ -652,9 +653,9 @@ TADA_RetainRequired <- function(.data) {
 #'   } else {
 #'     print("TADA_AutoFilter: All TADA Required columns contain some non-NA values.")
 #'   }
-#'   
+#'
 #'   # remove intermediate objects
 #'   rm(req.paste, remove.cols, remove.paste, req.check)
-#'   
+#'
 #'   return(.data)
 #' }

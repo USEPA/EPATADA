@@ -43,9 +43,10 @@ test_that("TADA_CheckColumns catches non-character expected columns", {
 test_that("TADA_CheckColumns catches missing columns", {
   # Drop required column by name
   TADAProfile2 <- dplyr::select(TADAProfile, -ActivityDepthHeightMeasure.MeasureValue)
-  # pass a regular expression to expect_error() since error message can change 
+  # pass a regular expression to expect_error() since error message can change
   expect_error(TADA_CheckColumns(TADAProfile2, c("ActivityDepthHeightMeasure.MeasureValue")),
-               regexp = "The dataframe does not contain the required field\\(s\\): ActivityDepthHeightMeasure.MeasureValue")
+    regexp = "The dataframe does not contain the required field\\(s\\): ActivityDepthHeightMeasure.MeasureValue"
+  )
 })
 
 # Test: All required columns are present

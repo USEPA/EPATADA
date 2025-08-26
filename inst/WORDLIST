@@ -2,7 +2,8 @@ ANDs
 AOI
 ATTAINSOrgIDsRef
 ATTAINSParameterWQPCharRef
-AUS
+AU's
+AUMLRef
 AUs
 ActivityBottomDepthHeightMeasure
 ActivityCommentText
@@ -11,6 +12,7 @@ ActivityDepthHeightMeasure
 ActivityGroup
 ActivityMediaName
 ActivityMediaSubdivisionName
+ActivityMetric
 ActivityRelativeDepthName
 ActivityStartDate
 ActivityStartDateTime
@@ -26,9 +28,8 @@ Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
+AssessmentUnitIdentifier
 AutoClean
-AutoFilter
-Autofilter
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -64,12 +65,16 @@ ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
 CountyCode
+CreateATTAINSAUML
+CreateATTAINSAUMLCrosswalk
+CreateAUMLCrosswalk
 CreateComparableID
 CreatePairRef
 CreateParamRef
 CreateUnitRef
 CreateUseAURef
 CreateUseParamRef
+CreateWaterUseRef
 Cybertown
 DV
 DataFrame
@@ -90,6 +95,7 @@ EASP
 EASP's
 ECHO's
 EMEF
+ExpertQuery
 FONDULAC
 Farmington
 FieldCounts
@@ -116,7 +122,8 @@ FlagUseName
 FractionAssumptions
 FullPhysChem
 Geospatial
-GetATTAINS
+GetATTAINSAUMLCrosswalk
+GetATTAINSByAUID
 GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
@@ -150,6 +157,7 @@ LatitudeMeasure
 LocalAqfrName
 LongitudeMeasure
 MDE
+MDEQ
 MakeSpatial
 MapServer
 MeasureQualiferCode
@@ -168,6 +176,7 @@ MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
+Missoula
 MonitoringDataLinkText
 MonitoringLocation
 MonitoringLocationIdentifier
@@ -218,6 +227,7 @@ ParamRef
 ParameterName
 ParameterNames
 PartB
+PhysChem
 Pojoaque
 ProjectFileUrl
 ProjectName
@@ -225,7 +235,6 @@ ProviderName
 ProviderNames
 QAPP
 QAPPApprovedIndicator
-QAPPAprrovedIndicator
 QAPPDocAvailable
 QAQC
 QAQC'd
@@ -244,6 +253,7 @@ RProj
 RStudio
 RWQC
 Rancherias
+RenametoLegacy
 ReplicateSampleID
 Repo
 ResultAggregation
@@ -269,6 +279,7 @@ ResultValueAboveUpperThreshold
 ResultValueAggregation
 ResultValueBelowLowerThreshold
 ResultValueTypeName
+ResultWQX
 ResultWeightBasisText
 RetainRequired
 Rmd
@@ -305,8 +316,10 @@ TADAModule
 TADAPackageDemo
 TADAPriorityCharUnitRef
 TADAProfile
+TADAProfileClean
 TADAShiny
 TMDL
+TP
 TargetUnit
 Tesuque
 Thawley
@@ -320,6 +333,7 @@ Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
 UnitCode
+UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
 UseForAnalysis
 UseName
@@ -329,6 +343,7 @@ UseParamRef
 VCS
 ViewATTAINS
 WGS
+WQ
 WQC
 WQP
 WQX
@@ -345,7 +360,7 @@ WQXVal
 WQXcharValRef
 WQXunitRef
 WaterSciCon
-WaterTypeCode
+WaterType
 Waterbody
 WaterbodyReport
 WellDepthMeasure
@@ -361,11 +376,11 @@ aoi
 applyautoclean
 arcgis
 asNO
-assessmentunitidentifier
 autoassign
 autoclean
 autocleaned
 bBox
+batchupload
 bbox
 bnd
 bottomvalue
@@ -376,6 +391,7 @@ characteristicName
 characteristicType
 charactersitic
 cleanNA
+coli
 comid
 countrycode
 countycode
@@ -429,7 +445,6 @@ hydrography
 hydrologic
 hydroloom
 importWQP
-interoperable
 io
 lessthan
 listNWIS
@@ -439,12 +454,14 @@ manys
 mapviewer
 maxrecs
 mimeType
+mlid
 mlt
 myfileRef
 nd
 nhdplus
 nhdplusTools
 nondetections
+nondetects
 nonstandardized
 np
 nresults
@@ -453,6 +470,7 @@ offsetLibrary
 orgs
 ousideUSA
 outsideUSA
+overdetects
 param
 paramRef
 params
@@ -473,10 +491,10 @@ resultCount
 sampleMedia
 sd
 secchi
+setnames
 shp
 siteType
 siteid
-sitesAURef
 sitetype
 speciation
 speciations

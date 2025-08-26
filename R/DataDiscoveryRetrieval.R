@@ -473,11 +473,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     # Reformat returned info as sf
     bbox_sites_sf <- quiet_bbox_sites$result %>%
-      dplyr::rename(TADA.LatitudeMeasure = LatitudeMeasure,
-                    TADA.LongitudeMeasure = LongitudeMeasure) %>%
+      dplyr::rename(
+        TADA.LatitudeMeasure = LatitudeMeasure,
+        TADA.LongitudeMeasure = LongitudeMeasure
+      ) %>%
       TADA_MakeSpatial(crs = 4326) %>%
-      dplyr::rename(LatitudeMeasure = TADA.LatitudeMeasure,
-                     LongitudeMeasure = TADA.LongitudeMeasure)
+      dplyr::rename(
+        LatitudeMeasure = TADA.LatitudeMeasure,
+        LongitudeMeasure = TADA.LongitudeMeasure
+      )
 
     # Subset sites to only within shapefile and get IDs
     clipped_sites_sf <- bbox_sites_sf[aoi_sf, ]
@@ -1052,7 +1056,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
 #' with all your selected data filters. See example below.
-#' 
+#'
 #' **Extra tip:** Note that the web service call built using the Water
 #' Quality Portal uses the inputs startDateLo and startDateHi rather than
 #' startDate and endDate, and dates are in the format MM-DD-YYYY rather
@@ -1069,7 +1073,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #' @return WQP Data Profile
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Define base URL and common components
@@ -1289,8 +1293,10 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #'
 #' # Construct URLs for different profiles
 #' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-#' result_url <- paste0(baseurl, "/data/Result", filters, 
-#' dates, type, "&dataProfile=resultPhysChem", providers)
+#' result_url <- paste0(
+#'   baseurl, "/data/Result", filters,
+#'   dates, type, "&dataProfile=resultPhysChem", providers
+#' )
 #' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 #'
 #' # Retrieve data from Water Quality Portal web services
@@ -1479,7 +1485,7 @@ make_groups <- function(x, maxrecs) {
 #'   baseurl, "/data/Project", filters, dates, type, providers
 #' )
 #'
-#' # Use TADA_ReadWQPWebServices to load Station, Project, 
+#' # Use TADA_ReadWQPWebServices to load Station, Project,
 #' # and Phys-Chem Result profiles
 #' stationProfile <- TADA_ReadWQPWebServices(station_url)
 #' physchemProfile <- TADA_ReadWQPWebServices(result_url)
