@@ -51,7 +51,7 @@ project_url <- paste0(
   baseurl, "/data/Project", filters, dates, type, providers
 )
 
-# Use TADA_ReadWQPWebServices to load Station, Project, 
+# Use TADA_ReadWQPWebServices to load Station, Project,
 # and Phys-Chem Result profiles
 stationProfile <- TADA_ReadWQPWebServices(station_url)
 physchemProfile <- TADA_ReadWQPWebServices(result_url)

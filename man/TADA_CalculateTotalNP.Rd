@@ -88,12 +88,16 @@ be used to represent a TOTAL N value for that site/day/depth.
 }
 \examples{
 \dontrun{
-df <- TADA_DataRetrieval(statecode = "UT", startDate = "2024-06-01", 
-endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE, 
-ask = FALSE)
+df <- TADA_DataRetrieval(
+  statecode = "UT", startDate = "2024-06-01",
+  endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
+  ask = FALSE
+)
 
-df2 <- TADA_SimpleCensoredMethods(df, nd_method = "multiplier",
-nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null")
+df2 <- TADA_SimpleCensoredMethods(df,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
+)
 
 df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
 
