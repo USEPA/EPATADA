@@ -3542,14 +3542,15 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       sf::st_drop_geometry() %>%
       dplyr::select(TADA.MonitoringLocationIdentifier,
                     ATTAINS.AssessmentUnitIdentifier,
-                    OrganizationIdentifier) %>%
+                    OrganizationIdentifier,
+                    ATTAINS.WaterType) %>%
       dplyr::distinct() %>%
       dplyr::rename(MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
                     ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                     MS_ORG_ID = OrganizationIdentifier) %>%
       dplyr::mutate(MS_DATA_LINK = NA) %>%
       dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
-                    MS_DATA_LINK)
+                    MS_DATA_LINK, ATTAINS.WaterType)
 
     final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
   }

@@ -62,8 +62,12 @@ update_mlid = TRUE.}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, the column
 names in the returned df will match the column names required for ATTAINS
-batch upload. When batch_upload = FALSE, the column names will match those in
-the TADA workflow. Default is batch_upload = FALSE.}
+batch upload and all WQP Monitoring Locations that have not been matched to
+an existing Assessment Unit from the user-specified organization are removed
+from the dataframe. When batch_upload = FALSE, the column names will match
+those in the TADA workflow and Monitoring Locations not assigned to existing
+Assessment Units from the user-specified organization will be retained.
+Default is batch_upload = FALSE.}
 
 \item{check_links}{Boolean argument. When check_links = TRUE the function
 will examine the response code of each MS_DATA_LINK URL and only retain those
