@@ -26,6 +26,12 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   # # run required flagging/cleaning functions
   # if ("TADA.UseForAnalysis.Flag" %in% colnames(.data)) {
   #   .data <- .data
@@ -186,6 +192,12 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   if (!field %in% names(.data)) {
     stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
   }
@@ -286,6 +298,15 @@ TADA_AnalysisDataFilter <- function(.data,
                                     ground_water = FALSE,
                                     sediment = FALSE,
                                     other = TRUE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   # *Need to add fish tissue to this function once using WQX 3.0 profiles
 
   # import MonitoringLocationTypeNames and TADA.Media.Flags
@@ -408,82 +429,4 @@ TADA_AnalysisDataFilter <- function(.data,
 
     return(.data)
   }
-}
-
-#' AutoFilter
-#'
-#' This function also removes any columns not required for the TADA workflow
-#' where all values are equal to NA. It provides a warning message identifying
-#' any TADA required columns containing only NA values.
-#'
-#' @param .data TADA dataframe
-#'
-#' @return .data with any non-required columns containing only NA values
-#' removed.
-#'
-#' @export
-#'
-#' @examples
-#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
-TADA_AutoFilter <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # remove columns that are not required for TADA workflow
-  print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
-
-  # create list of columns containing all NA values.
-  na.cols <- .data %>%
-    purrr::keep(~ all(is.na(.x))) %>%
-    names()
-
-  # create list of columns to be removed by comparing columns containing all NA
-  # values to required columns.
-  # any required columns with all NA values will be excluded from the list of
-  # columns to remove.
-  remove.cols <- setdiff(na.cols, require.cols)
-
-  # remove not required columns containing all NA values from dataframe.
-  .data <- .data %>%
-    dplyr::select(-dplyr::contains(remove.cols))
-
-  # check to make sure required columns contain some data that is not NA
-  req.check <- intersect(require.cols, na.cols)
-
-  # create character string for list of required columns containing only NAs
-  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
-
-  # remove column name lists
-  rm(na.cols)
-
-  # create character string for list of removed columns
-  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
-
-  # print list of columns removed from data frame
-  if (length(remove.cols) > 0) {
-    print(paste0(
-      "The following column(s) were removed as they contained only NAs ",
-      "and are not required for the TADA workflow: ", remove.paste, "."
-    ))
-  } else {
-    print("All columns contained some non-NA values and were retained in the dataframe.")
-  }
-
-  # remove columns that are not required for TADA workflow
-  print("TADA_AutoFilter: checking required columns for non-NA values.")
-
-  # if some required columns contain only NA values print a warning message.
-  if (length(req.check) > 0) {
-    print(paste0(
-      "TADA_AutoFilter: TADA Required column(s) ", req.paste,
-      " contain only NA values. This may impact other TADA functions."
-    ))
-  } else {
-    print("TADA_AutoFilter: All TADA Required columns contain some non-NA values.")
-  }
-
-  # remove intermediate objects
-  rm(req.paste, remove.cols, remove.paste, req.check)
-
-  return(.data)
 }

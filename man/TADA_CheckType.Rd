@@ -4,7 +4,7 @@
 \alias{TADA_CheckType}
 \title{Check Type}
 \usage{
-TADA_CheckType(arg, type, paramName)
+TADA_CheckType(arg, type, paramName = deparse(substitute(arg)))
 }
 \arguments{
 \item{arg}{An input argument to check}
@@ -15,6 +15,5 @@ TADA_CheckType(arg, type, paramName)
 }
 \description{
 This function checks if the inputs to a function are of the expected type. It
-is used at the beginning of TADA functions to ensure the
-inputs are suitable.
+is used at the beginning of TADA functions to ensure the inputs are suitable.
 }

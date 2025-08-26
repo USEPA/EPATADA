@@ -1,81 +1,90 @@
 #' TADA_AutoClean
 #'
-#' This function performs the following tasks:
-#' 1) Creates new columns with the TADA prefix "TADA." and capitalizes all
-#' letters within them so that they're interoperable with the WQX validation
-#' reference tables and to reduce issues with case-sensitivity when joining
-#' data: CharacteristicName, ResultSampleFractionText, MethodSpeciationName,
-#' ResultMeasure.MeasureUnitCode, ActivityMediaName, and
-#' DetectionQuantitationLimitMeasure.MeasureUnitCode.
-#' 2) This function runs "TADA_ConvertSpecialChars" on these columns:
-#' ResultMeasureValue and DetectionQuantitationLimitMeasure.MeasureValue.
-#' Creates new versions of these columns with the TADA prefix "TADA."
-#' 3) Converts the column type of LatitudeMeasure and LongitudeMeasure to
-#' numeric (double) and creates new columns with the “TADA” prefix.
-#' 4) Replace meters" with “m” in the following columns:
-#' TADA.ResultMeasure.MeasureUnitCode,
-#' ActivityDepthHeightMeasure.MeasureUnitCode,
-#' ActivityTopDepthHeightMeasure.MeasureUnitCode,
-#' ActivityBottomDepthHeightMeasure.MeasureUnitCode, and
-#' ResultDepthHeightMeasure.MeasureUnitCode.
-#' 5) Runs TADA_SubstituteDeprecatedChars to replace deprecated characteristic
-#' names based on Water Quality Exchange (WQX) Characteristic domain table.
-#' 6) Runs TADA_ConvertResultUnits to harmonize result and detection limit
-#' units to WQX and TADA or user supplied target units. Enter
-#' ?TADA_ConvertResultUnits and ?TADA_CreateUnitRef() into the console for more
-#' details.
-#' 7) Runs TADA_ConvertDepthUnits to convert the depth units to meters on the
-#' following columns: ResultDepthHeightMeasure.MeasureValue,
-#' ActivityDepthHeightMeasure.MeasureValue,
-#' ActivityTopDepthHeightMeasure.MeasureValue,
-#' and ActivityBottomDepthHeightMeasure.MeasureValue, and add new columns
-#' with the “TADA” prefix.
-#' 8) Runs TADA_CreateComparableID to create a comparable data group by
-#' concatenating TADA.CharacteristicName, TADA.ResultSampleFractionText,
-#' TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
+#' This function performs several cleaning tasks on a TADA dataframe:
+#' 
+#' 1. **Column Creation and Capitalization**: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
+#'    - CharacteristicName
+#'    - ResultSampleFractionText
+#'    - MethodSpeciationName
+#'    - ResultMeasure.MeasureUnitCode
+#'    - ActivityMediaName
+#'    - DetectionQuantitationLimitMeasure.MeasureUnitCode
+#' 
+#' 2. **Special Character Conversion**: Runs `TADA_ConvertSpecialChars` on the following columns and creates new versions with the TADA prefix:
+#'    - ResultMeasureValue
+#'    - DetectionQuantitationLimitMeasure.MeasureValue
 #'
-#' Original columns are not changed: new columns are added to the end of the
-#' dataframe with the prefix "TADA.". TADA_AutoClean can be run as a stand
-#' alone function but is primarily used by the TADA_dataRetrieval function.
+#' 3. **Latitude and Longitude Conversion**: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
+#'
+#' 4. **Unit Code Replacement**: Replaces `meters` with `m` in the following columns:
+#'    - TADA.ResultMeasure.MeasureUnitCode
+#'    - ActivityDepthHeightMeasure.MeasureUnitCode
+#'    - ActivityTopDepthHeightMeasure.MeasureUnitCode
+#'    - ActivityBottomDepthHeightMeasure.MeasureUnitCode
+#'    - ResultDepthHeightMeasure.MeasureUnitCode
+#'
+#' 5. **Deprecated Characteristic Replacement**: Runs `TADA_SubstituteDeprecatedChars` to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
+#'
+#' 6. **Result Unit Harmonization**: Runs `TADA_ConvertResultUnits` to harmonize
+#'  result and detection limit units to WQX and TADA or user-supplied target units. 
+#'  For more details, see `?TADA_ConvertResultUnits` and `?TADA_CreateUnitRef()`.
+#'
+#' 7. **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert depth 
+#' units to meters on the following columns, adding new columns with the TADA prefix:
+#'    - ResultDepthHeightMeasure.MeasureValue
+#'    - ActivityDepthHeightMeasure.MeasureValue
+#'    - ActivityTopDepthHeightMeasure.MeasureValue
+#'    - ActivityBottomDepthHeightMeasure.MeasureValue
+#'
+#' 8. **Comparable ID Creation**: Runs `TADA_CreateComparableID` to create a 
+#' comparable data group by concatenating:
+#'    - TADA.CharacteristicName
+#'    - TADA.ResultSampleFractionText
+#'    - TADA.MethodSpeciationName
+#'    - TADA.ResultMeasure.MeasureUnitCode
+#'
+#' Original columns are not changed. New columns are appended to the dataframe 
+#' with the prefix `TADA.`. `TADA_AutoClean` can be run as a standalone function
+#'  but is primarily used by the `TADA_dataRetrieval` function.
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Input dataframe with several added TADA-specific columns, including:
+#' 
+#' - TADA.ActivityMediaName (character)
+#' - TADA.ResultSampleFractionText (character)
+#' - TADA.CharacteristicName (character)
+#' - TADA.MethodSpeciationName (character)
+#' - TADA.ComparableDataIdentifier (character)
+#' - TADA.ResultMeasureValue (numeric)
+#' - TADA.ResultMeasureValueDataTypes.Flag (character)
+#' - TADA.ResultMeasure.MeasureUnitCode (character)
+#' - TADA.WQXResultUnitConversion (character)
+#' - TADA.DetectionQuantitationLimitMeasure.MeasureValue (numeric)
+#' - TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag (character)
+#' - TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode (character)
+#' - TADA.ResultDepthHeightMeasure.MeasureValue (numeric)
+#' - TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
+#' - TADA.ResultDepthHeightMeasure.MeasureUnitCode (character)
+#' - TADA.ActivityDepthHeightMeasure.MeasureValue (numeric)
+#' - TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
+#' - TADA.ActivityDepthHeightMeasure.MeasureUnitCode (character)
+#' - TADA.ActivityTopDepthHeightMeasure.MeasureValue (numeric)
+#' - TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
+#' - TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode (character)
+#' - TADA.ActivityBottomDepthHeightMeasure.MeasureValue (numeric)
+#' - TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
+#' - TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
+#' - TADA.LatitudeMeasure (numeric)
+#' - TADA.LongitudeMeasure (numeric)
+#' - TADA.MonitoringLocationIdentifier (character)
+#' - TADA.MonitoringLocationName (character)
+#' - TADA.MonitoringLocationTypeName (character)
 #'
-#' TADA.ActivityMediaName (character)
-#' TADA.ResultSampleFractionText (character)
-#' TADA.CharacteristicName (character)
-#' TADA.MethodSpeciationName (character)
-#' TADA.ComparableDataIdentifier (character)
-#' TADA.ResultMeasureValue (numeric)
-#' TADA.ResultMeasureValueDataTypes.Flag (character)
-#' TADA.ResultMeasure.MeasureUnitCode	(character)
-#' TADA.WQXResultUnitConversion	(character)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValue (numeric)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag (character)
-#' TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode	(character)
-#' TADA.ResultDepthHeightMeasure.MeasureValue	(numeric)
-#' TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ResultDepthHeightMeasure.MeasureUnitCode (character)
-#' TADA.ActivityDepthHeightMeasure.MeasureValue	(numeric)
-#' TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityDepthHeightMeasure.MeasureUnitCode (character)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValue (numeric)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag (character)
-#' TADA.ActivityTopDepthHeightMeasure.MeasureUnitCode	(character)
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureValue	(numeric)
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag	(character)
-#' TADA.ActivityBottomDepthHeightMeasure.MeasureUnitCode (character)
-#' TADA.LatitudeMeasure	(numeric)
-#' TADA.LongitudeMeasure (numeric)
-#' TADA.MonitoringLocationIdentifier (character)
-#' TADA.MonitoringLocationName (character)
-#' TADA.MonitoringLocationTypeName (character)
-#'
-#' Please note that the number of TADA-specific depth columns in the returned
-#' dataframe depends upon the number of depth columns with one or more results
-#' populated with a numeric value. If all depth columns contain only NA's, no
-#' conversion is necessary and no TADA depth columns are created.
+#' Note: The number of TADA-specific depth columns in the returned dataframe 
+#' depends on the number of depth columns with one or more results populated 
+#' with a numeric value. If all depth columns contain only NA's, no conversion
+#' is necessary and no TADA depth columns are created.
 #'
 #' @export
 #'
@@ -102,14 +111,20 @@
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
 TADA_AutoClean <- function(.data) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   # need to specify this or throws error when trying to bind rows. Temporary fix for larger
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
@@ -312,7 +327,7 @@ TADA_AutoClean <- function(.data) {
 #'
 #' @param .data A TADA dataframe.
 #' @param clean Boolean. Determines whether to keep the suspect rows (or not).
-#' Defaults to TRUE.
+#' Defaults to `FALSE`.
 #'
 #' @return A TADA dataframe with the following flagging columns:
 #' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag,
@@ -326,7 +341,16 @@ TADA_AutoClean <- function(.data) {
 #'
 #' # Run flagging functions and remove and suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
-TADA_RunKeyFlagFunctions <- function(.data, clean = TRUE) {
+TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
+  # check .data is data.frame
+  TADA_CheckType(.data, "data.frame", "Input object")
+  
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL)  # Exit the function early
+  }  
+  
   if (clean == TRUE) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)
