@@ -205,11 +205,12 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
 
 ## TADA_CreateUseAURef
 
-After assigning ML sites to AU, we will use TADA_CreateUseAURef to assign uses
-to these AUs. First, convert the ML sites to AU reference table to the appropriate 
-format for TADA workflow. We will also assign the NEW:EX_MDEQ_WQ_WQX assessment 
-unit example to the water type "LAKE, FRESHWATER" for demonstration on how to auto_assign
-uses to a new AU that is not yet in ATTAINS nor has been assigned uses to it yet.
+After assigning ML sites to AU, we will use TADA_CreateUseAURef to
+assign uses to these AUs. First, convert the ML sites to AU reference
+table to the appropriate format for TADA workflow. We will also assign
+the NEW:EX_MDEQ_WQ_WQX assessment unit example to the water type "LAKE,
+FRESHWATER" for demonstration on how to auto_assign uses to a new AU
+that is not yet in ATTAINS nor has been assigned uses to it yet.
 
 ```{r get.MLAURef}
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
@@ -226,13 +227,13 @@ Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
     TRUE ~ ATTAINS.WaterType))
 ```
 
-Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and proceed with
-assigning uses for each unique AU. The assignment of uses to AU are prioritized as follows:
+Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and
+proceed with assigning uses for each unique AU. The assignment of uses
+to AU are prioritized as follows:
 
-1) (optional) User supplied uses to AU
+1)  (optional) User supplied uses to AU
 
-2) Imports existing uses by AU from ExpertQuery
-
+2)  Imports existing uses by AU from ExpertQuery
 
 ```{r assign.use.to.AU}
 MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
@@ -240,11 +241,12 @@ MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
 
 # Assign uses to new AUs
 
-For any new AU, users will need to determine how to assign uses to them. 
+For any new AU, users will need to determine how to assign uses to them.
 
-1) TADA has developed a function called TADA_CreateWaterUseRef which imports 
-existing uses by water type from ExpertQuery, and will assign any new AU these uses. 
-Users may choose to edit the TADA_CreateWaterUseRef according to their preference.
+1)  TADA has developed a function called TADA_CreateWaterUseRef which
+    imports existing uses by water type from ExpertQuery, and will
+    assign any new AU these uses. Users may choose to edit the
+    TADA_CreateWaterUseRef according to their preference.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
 MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
@@ -253,8 +255,8 @@ MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
   org_id = "MTDEQ")
 ```
 
-2) User may also proceed to do a manual assignment of use names to these new AUs if 
-desired rather than using TADA_CreateWaterUseRef.
+2)  User may also proceed to do a manual assignment of use names to
+    these new AUs if desired rather than using TADA_CreateWaterUseRef.
 
 ```{r assign.use.to.new.AU.manual}
 MT.UseAURef_manual <- MT.UseAURef %>%
