@@ -1289,7 +1289,8 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #'
 #' # Construct URLs for different profiles
 #' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-#' result_url <- paste0(baseurl, "/data/Result", filters, dates, type, "&dataProfile=resultPhysChem", providers)
+#' result_url <- paste0(baseurl, "/data/Result", filters, 
+#' dates, type, "&dataProfile=resultPhysChem", providers)
 #' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 #'
 #' # Retrieve data from Water Quality Portal web services
