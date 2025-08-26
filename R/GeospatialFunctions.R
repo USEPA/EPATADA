@@ -2394,6 +2394,25 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         silent = TRUE
       )
 
+      if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
+
+        images <- c("inst/extdata/icons/circle-user-solid-full.png",
+                    "inst/extdata/icons/circle-check-solid-full.png",
+                    "inst/extdata/icons/circle-solid-full.png")
+
+        map <- map %>%
+          leaflegend::addLegendImage(images = images,
+                                               labels = c("user", "check", "circle"),
+                                               width = 133/236 * 50,
+                                               height = 50,
+                                               orientation = 'vertical',
+                                               title = htmltools::tags$div('Crosswalk Source',
+                                                                           style = 'font-size: 24px;
+                                             text-align: center;'),
+                                               position = 'topright')
+
+      }
+
       if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
         message("No ATTAINS data associated with this Water Quality Portal data.")
       }
