@@ -1694,7 +1694,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' @examples
 #' \dontrun{
 #' # Example 1: Basic usage with default settings
-#' # Assume `my_data` is a TADA data frame with some monitoring 
+#' # Assume `my_data` is a TADA data frame with some monitoring
 #' # location results
 #' # Assume `my_au_ref` is a data frame containing known AU and monitoring
 #' # location combinations
@@ -1702,11 +1702,11 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #'
 #' # Example 2: Fetching ATTAINS data with catchment information
 #' # Set `add_catch` to TRUE to include catchment data in the output
-#' result_with_catch <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref, 
+#' result_with_catch <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref,
 #' add_catch = TRUE)
 #'
 #' # Example 3: Handling empty data frames
-#' # If the input data frame has no observations, the function returns an 
+#' # If the input data frame has no observations, the function returns an
 #' # empty data frame with ATTAINS columns
 #' empty_data <- data.frame()
 #' empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
@@ -1714,7 +1714,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' # Example 4: Custom AU reference data from an external file
 #' # Load AU reference data from a CSV file and use it in the function
 #' au_ref_from_file <- read.csv("path/to/au_ref.csv")
-#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data, 
+#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
 #' au_ref = au_ref_from_file)
 #' }
 #'
@@ -2329,12 +2329,18 @@ TADA_ViewATTAINS <- function(.data) {
 
       if("TADA.AURefSource" %in% names(ATTAINS_table)) {
 
-      # if TADA_AUSourceRef col exists in data
-      set.fill <- leaflet::colorFactor(
-        palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
-        domain =  c("User-supplied Ref",
-          "ATTAINS crosswalk",
-          "TADA_CreateATTAINSAUMLCrosswalk"))
+      # set shapes for different ref sources
+
+        # Make a list of icons. We'll index into it based on name.
+        refIcons <- leaflet::icons(
+          iconUrl = dplyr::case_when(
+          sumdat$TADA.AURefSource == "ATTAINS crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
+          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "inst/extdata/icons/circle-solid-full.svg",
+          sumdat$TADA.AURefSource == "User-supplied Ref" ~ "inst/extdata/icons/circle-user-solid-full.svg"
+        ),
+        iconWidth = 24,
+        iconHeight = 24)
+
 
       set.popup <- paste0(
         "Site ID: ", sumdat$MonitoringLocationIdentifier,
@@ -2351,10 +2357,10 @@ TADA_ViewATTAINS <- function(.data) {
 
       if(!"TADA.AURefSource" %in% names(ATTAINS_table)) {
 
-        # if TADA_AUSourceRef col exists in data
-        set.fill <- leaflet::colorFactor(
-          palette = c(tada.pal[1]),
-          domain = sumdat$TADA.AURefSource)
+        refIcons <- leaflet::icons(
+          iconUrl = "inst/extdata/icons/circle-solid-full.svg",
+          iconWidth = 24,
+          iconHeight = 24)
 
         set.popup <- paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
@@ -2370,11 +2376,10 @@ TADA_ViewATTAINS <- function(.data) {
              # Add WQP observation features (should always exist):
       try(
         map <- map %>%
-          leaflet::addCircleMarkers(
+          leaflet::addMarkers(
             data = sumdat,
             lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            color = "grey", fillColor = ~set.fill(TADA.AURefSource),
-            fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
+            icon = refIcons,
             popup = set.popup
             ),
         silent = TRUE
