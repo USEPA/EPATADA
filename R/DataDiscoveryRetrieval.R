@@ -1187,16 +1187,43 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
         smallsitesgrp$MonitoringLocationIdentifier,
         smallsitesgrp$group == i
       )
-      # Query result data
-      results_small <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          siteid = small_site_chunk,
-          WQPquery,
-          dataProfile = "resultPhysChem",
-          ignore_attributes = TRUE
-        )
-      ) %>%
-        dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
+      query_data_with_retry <- function(site_chunk, query, max_attempts = 3) {
+        attempt <- 1
+        while (attempt <= max_attempts) {
+          tryCatch(
+            {
+              # Query result data
+              results_small <- suppressMessages(
+                dataRetrieval::readWQPdata(
+                  siteid = site_chunk,
+                  query,
+                  dataProfile = "resultPhysChem",
+                  ignore_attributes = TRUE
+                )
+              ) %>%
+                dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
+              
+              # Return the results if successful
+              return(results_small)
+            },
+            error = function(e) {
+              # Check if the error is an HTTP 500 error
+              if (grepl("HTTP 500", e$message)) {
+                message("HTTP 500 error encountered. Retrying... (Attempt ", attempt, " of ", max_attempts, ")")
+                attempt <- attempt + 1
+                Sys.sleep(2) # Optional: wait for a few seconds before retrying
+              } else {
+                stop("An unexpected error occurred: ", e$message)
+              }
+            }
+          )
+        }
+        # If max attempts reached, stop with an error message
+        stop("Failed to retrieve data after ", max_attempts, " attempts due to repeated HTTP 500 errors.")
+      }
+      
+      # Use the function to query data
+      results_small <- query_data_with_retry(small_site_chunk, WQPquery)
 
       # If data is returned, stack with what's already been retrieved
       if (dim(results_small)[1] > 0) {
