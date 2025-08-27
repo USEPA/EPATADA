@@ -63,6 +63,7 @@ Imports:
     sf,
     leaflet,
     leaflet.extras,
+    leaflegend,
     plotly,
     urltools,
     geojsonsf,

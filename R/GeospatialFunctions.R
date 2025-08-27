@@ -2343,7 +2343,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         # Make a list of icons. We'll index into it based on name.
         refIcons <- leaflet::icons(
           iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
+          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
           sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "inst/extdata/icons/circle-solid-full.svg",
           sumdat$TADA.AURefSource == "User-supplied Ref" ~ "inst/extdata/icons/circle-user-solid-full.svg"
         ),
@@ -2402,13 +2402,16 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
         map <- map %>%
           leaflegend::addLegendImage(images = images,
-                                               labels = c("user", "check", "circle"),
-                                               width = 133/236 * 50,
-                                               height = 50,
+                                               labels = c("User-supplied Ref",
+                                                          "ATTAINS Crosswalk",
+                                                          "TADA_CreateATTAINSAUMLCrosswalk"),
+                                               labelStyle = 'font-size: 14px;',
+                                               width = 20,
+                                               height = 20,
                                                orientation = 'vertical',
-                                               title = htmltools::tags$div('Crosswalk Source',
-                                                                           style = 'font-size: 24px;
-                                             text-align: center;'),
+                                               title = htmltools::tags$div('WQP/ATTAINS Crosswalk Source',
+                                                                           style = 'font-size: 14px;
+                                             text-align: left; font-weight: bold;'),
                                                position = 'topright')
 
       }
@@ -3485,7 +3488,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     attains.cw.mls <- .data %>%
       dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
                     TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier) %>%
-      dplyr::mutate(TADA.AURefSource = "ATTAINS crosswalk")
+      dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
     print("TADA_CreateAUMLCrosswalk: fetching geospatial data for crosswalk from ATTAINS.")
     # get geospatial data for attains cw monitoring locations
