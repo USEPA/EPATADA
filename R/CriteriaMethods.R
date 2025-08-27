@@ -350,7 +350,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
     # Extracts the characteristic, speciation and fraction columns to join
     MLSummaryRef <- MLSummaryRef %>%
-      dplyr::left_join(
+      dplyr::right_join(
         .data[,c(
           "TADA.ComparableDataIdentifier",
           "TADA.CharacteristicName"
@@ -416,7 +416,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
       #dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
       tidyr::drop_na(ATTAINS.ParameterName) %>%
       dplyr::select(
-        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+        "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
         "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
         # Spatial Columns
         "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
@@ -481,7 +481,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   # the TADA data frame.
   if (!is.null(criteriaMethods)) {
     desired_cols <- c(
-      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
@@ -496,13 +496,25 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     )
     
     unique_param <- unique(.data$TADA.CharacteristicName)
+    # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
+    TADA_param <- dplyr::distinct(
+      .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+    ) 
+    
+    criteriaMethods <- criteriaMethods %>%
+      dplyr::select(-TADA.ComparableDataIdentifier) %>%
+      dplyr::full_join(
+        TADA_param, 
+        by = c("TADA.CharacteristicName")
+        )
     
     DefineCriteriaMethodology <- criteriaMethods %>%
+      #dplyr::select(-TADA.ComparableDataIdentifier) %>% # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
       dplyr::full_join(
         dplyr::select(
-          DefineCriteriaMethodology, "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", 
-          "ATTAINS.UseName", "TADA.CharacteristicName"), 
-        by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.CharacteristicName")) %>%
+          DefineCriteriaMethodology, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, TADA.ComparableDataIdentifier, 
+          ATTAINS.UseName, TADA.CharacteristicName), 
+        by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) %>%
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
       dplyr::filter(TADA.CharacteristicName %in%  unique_param) %>%
       dplyr::select(
@@ -554,7 +566,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     }
     
     columns <- c(
-      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
@@ -580,9 +592,9 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     # Creates the Index-Criteria List of allowable values under each column
     openxlsx::writeData(
       wb, "Index-Criteria", 
-      startCol = 7, startRow = 1, 
+      startCol = 6, startRow = 1, 
       # AcuteChronic
-      x = unique(.data[,c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
+      x = unique(.data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
     ) 
     
     openxlsx::writeData(

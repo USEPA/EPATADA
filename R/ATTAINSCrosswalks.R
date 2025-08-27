@@ -1139,6 +1139,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         dplyr::distinct()
     }
 
+    # User provides their own user supplied parameter crosswalk
     if (!is.null(paramRef)) {
       # Identifies NEW rows in your current CreateParamRef data frame that are missing from your paramRef input -
       # i.e. current WQP Characteristics that you have not defined a crosswalk for
@@ -1168,7 +1169,18 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         dplyr::mutate(
           Flag.ParameterInput =
             "This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier."
-        )
+        ) %>%
+        dplyr::mutate(
+          ATTAINS.FlagParameterName = dplyr::case_when(
+            ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
+              "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
+            !ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName ~
+              "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
+            ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName & !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
+              "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+            paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
+              "Parameter name is listed as a prior cause in ATTAINS for this organization."
+          ))
 
       CreateParamRef <- paramRef %>%
         dplyr::select("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName") %>%
