@@ -544,21 +544,24 @@ TADA_CalculateTotalNP <- function(.data,
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
 
-  # move forward with only max values selected for each grouping (dat_TNTP)
-  # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
-  # no longer need "Considered in max aggregation function but not selected"
-  # Define the condition for filtering
-  matching_rows <- dat$TADA.ResultValueAggregation.Flag %in%
-    c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
-  # Check if matching_rows is not empty
-  if (length(matching_rows) > 0) {
-    # Filter dat based on the condition
+  # Move forward with this subset of data (dat_TNTP)
+  # Define the valid flags for aggregation
+  valid_flags <- c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
+  
+  # Check if the flag column exists in the data frame and if any rows match the condition
+  if ("TADA.ResultValueAggregation.Flag" %in% names(dat) && any(dat$TADA.ResultValueAggregation.Flag %in% valid_flags)) {
+    # Filter rows based on valid flags
+    matching_rows <- dat$TADA.ResultValueAggregation.Flag %in% valid_flags
+    
+    # Filter the data
     dat_TNTP <- dat[matching_rows, ]
   } else {
-    # Stop function execution and return a message
+    # Handle the case where the column does not exist or no rows match the condition
     message("There is no applicable data to calculate TN or TP. Returning data unchanged.")
-    return(.data)
+    return(.data)  # Stop execution and return the original data
   }
+  
+  # If execution reaches here, dat_TNTP contains the filtered data
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)
