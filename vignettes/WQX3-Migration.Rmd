@@ -126,8 +126,16 @@ we can run `TADA_AutoClean`:
 wqx3_legacynames <- TADA_AutoClean(wqx3_legacynames)
 ```
 
-We are interested in hearing feedback from users on the new WQX 3.0
-profiles and WQP beta web services. In addition, please share feedback
-on how we can further assist you with your transition from WQX 2.2 to
-WQX 3.0. If you notice issues with TADA workflows when we start our
-updates to transition the package to WQX 3.0, please let us know.
+The WQP and WQX teams (USGS and EPA) are interested in hearing feedback
+from users on the new WQX 3.0 schema (data profiles) and WQP beta web
+services (Contact WQX Helpdesk
+[WQX\@epa.gov](mailto:WQX@epa.gov){.email}). In addition, please reach
+out if you run into any issues or questions related to the WQX 2.2 to
+3.0 crosswalk file (available on the [Water Quality Portal Quick
+Reference
+Guide](https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide))
+we developed to assist you with your transition to the new services or
+data profiles. This EPATADA R package function, , `TADA_RenametoLegacy`,
+is provided for WQX 3.0 schema and WQP beta service testing purposes
+only. We plan to transition the EPATADA R Package to use the WQX 3.0
+schema and new WQP services soon. Stay tuned.
