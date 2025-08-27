@@ -1196,7 +1196,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
           ignore_attributes = TRUE
         )
       ) %>%
-        dplyr::mutate(dplyr::across(everything(), as.character))
+        dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
       # If data is returned, stack with what's already been retrieved
       if (dim(results_small)[1] > 0) {
@@ -1239,7 +1239,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
           ignore_attributes = TRUE
         )
       ) %>%
-        dplyr::mutate(dplyr::across(everything(), as.character))
+        dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
       if (dim(results_big)[1] > 0) {
         df_big <- dplyr::bind_rows(df_big, results_big)
