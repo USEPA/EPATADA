@@ -234,7 +234,7 @@ test_that("pH harmonization works as expected throughout workflow", {
   # - Prints and checks the unit codes to verify harmonization.
   base::print(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
   if (!base::all(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
-    base::message(base::paste("pH data unit codes for state", selected_state_code, "are not harmonized to 'NONE'"))
+    base::message(base::paste("pH data unit codes for dates", random_date_minus_2_str, random_date_str, "are not harmonized to 'NONE'"))
   }
 })
 
