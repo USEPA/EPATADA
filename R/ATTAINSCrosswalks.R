@@ -1845,6 +1845,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     }
 
     if (!is.null(useParamRef)) {
+      
+      useParamRef$ATTAINS.FlagUseName <- as.character(useParamRef$ATTAINS.FlagUseName)
       # identifies if a user has excluded any useParam rows. This row is showing up as a new entry but has not been defined.
       # This should flag users that they need to review this entry and if they
       # truly want to exclude it or not. What should the default be?

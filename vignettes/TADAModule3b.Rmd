@@ -511,11 +511,11 @@ Note: Users should also be aware that the auto fill option may not capture all A
 
 ```{r user supplied and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria3 <- TADA_DefineCriteriaMethodology(
+MT.Criteria3.1 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
-  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. These rows will show up as all NAs if a user has not filled these values out.
+  auto_fill = F, # user chooses to also autopopulate the crosswalk reference file generation. These rows will show up as all NAs if a user has not filled these values out.
   displayUniqueId = FALSE,
   excel = FALSE 
   )
@@ -529,7 +529,8 @@ MT.Criteria4 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ", 
   auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
-  excel = TRUE, overwrite = TRUE, 
+  displayUniqueId = FALSE,
+  excel = TRUE, overwrite = TRUE
   )
 ```
 

@@ -194,30 +194,49 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     # default, runs all reference tables with no user edits
     if(updateRef == "none") {
       message(paste0("auto_fill = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
-      TADA_ParamRef <- TADA_CreateParamRef(  
-        .data, 
-        org_id = org_id,
-        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
-        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        suppressMessages(
+        TADA_ParamRef <- TADA_CreateParamRef(  
+          .data, 
+          org_id = org_id,
+          auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+          excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        )
       )
       
       message(paste0("auto_fill = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
-      TADA_UseParamRef <- TADA_CreateUseParamRef(  
-        .data, 
-        org_id = org_id,
-        paramRef = TADA_ParamRef,
-        auto_assign = TRUE,
-        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      suppressMessages(
+        TADA_UseParamRef <- TADA_CreateUseParamRef(  
+          .data, 
+          org_id = org_id,
+          paramRef = TADA_ParamRef,
+          auto_assign = TRUE,
+          excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        )
       )
       
       message(paste0("auto_fill = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment. Please review  this sites Ref table output."))
-      MLSummaryRef <- TADA_CreateMLSummaryRef(  
-        .data, 
-        org_id = org_id,
-        useParamRef = TADA_UseParamRef,
-        MLAURef = MLAURef,
-        excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      suppressMessages(
+        MLSummaryRef <- TADA_CreateMLSummaryRef(  
+          .data, 
+          org_id = org_id,
+          useParamRef = TADA_UseParamRef,
+          MLAURef = MLAURef,
+          excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        )
       )
+      
+      unique_param <- unique(.data$TADA.CharacteristicName)
+      # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
+      TADA_param <- dplyr::distinct(
+        .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+      ) %>%
+        tidyr::uncount(weights = length(org_id)) %>%
+        dplyr::select(-TADA.CharacteristicName) %>%
+        dplyr::distinct() %>%
+        dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id)))) 
+      
+      MLSummaryRef <- TADA_param %>%
+        dplyr::left_join(MLSummaryRef)
     }
     
     # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
@@ -576,7 +595,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         dplyr::filter(TADA.CharacteristicName %in% unique_param) %>%
         dplyr::select(
           dplyr::any_of(desired_cols)
-        )
+        ) %>%
+        dplyr::distinct()
       
       # should not be a problem if we control what column names are allowed,
       # but including this for the case if edits are made to the function to ensure
