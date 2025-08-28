@@ -2395,24 +2395,46 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       )
 
       if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
+# the commented out code creates the legend images using the TADA color palette
+# if the color palette is ever edited, this section needs to be uncommented and run again
+        square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
 
-        images <- c("inst/extdata/icons/circle-user-solid-full.png",
+        notsupport <- magick::image_fill(test, tada.pal[3], "+500+500")
+
+        magick::image_write(notsupport, path = "inst/extdata/icons/square-ns.png")
+
+        fullsupport <- magick::image_fill(test,tada.pal[4], "+500+500")
+
+        magick::image_write(fullsupport, path = "inst/extdata/icons/square-fs.png")
+
+        notassessed <- magick::image_fill(test, tada.pal[7], "+500+500")
+
+        magick::image_write(notassessed, path = "inst/extdata/icons/square-na.png")
+
+
+        images <- c("inst/extdata/icons/square-ns.png",
+                    "inst/extdata/icons/square-fs.png",
+                    "inst/extdata/icons/square-na.png",
+                    "inst/extdata/icons/circle-user-solid-full.png",
                     "inst/extdata/icons/circle-check-solid-full.png",
                     "inst/extdata/icons/circle-solid-full.png")
 
         map <- map %>%
           leaflegend::addLegendImage(images = images,
-                                               labels = c("User-supplied Ref",
-                                                          "ATTAINS Crosswalk",
-                                                          "TADA_CreateATTAINSAUMLCrosswalk"),
+                                               labels = c( "ATTAINS: Not Supporting",
+                                                           "ATTAINS: Supporting",
+                                                           "ATTAINS: Not Assessed",
+                                                           "WQP: User-supplied Ref",
+                                                          "WQP: ATTAINS Crosswalk",
+                                                          "WQP: TADA_CreateATTAINSAUMLCrosswalk"),
                                                labelStyle = 'font-size: 14px;',
                                                width = 20,
                                                height = 20,
                                                orientation = 'vertical',
-                                               title = htmltools::tags$div('WQP/ATTAINS Crosswalk Source',
+                                               title = htmltools::tags$div('Legend',
                                                                            style = 'font-size: 14px;
                                              text-align: left; font-weight: bold;'),
-                                               position = 'topright')
+                                               position = 'bottomright')
 
       }
 
@@ -2541,18 +2563,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           lng2 = max(sumdat$LongitudeMeasure),
           lat2 = max(sumdat$LatitudeMeasure)
         ) %>%
-        leaflet.extras::addResetMapButton() %>%
-        leaflet::addLegend(
-          position = "bottomright",
-          colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA, NA),
-          labels = c(
-            "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
-            "NHDPlus HiRes catchments containing a WQP site + ATTAINS feature(s) are represented as clear polygons.",
-            "Intersecting grey catchments are those without an ATTAINS feature if fill_catchments = TRUE."
-          ),
-          opacity = 1,
-          title = "Legend"
-        )
+        leaflet.extras::addResetMapButton() #%>%
+        # leaflet::addLegend(
+        #   position = "bottomleft",
+        #   colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA, NA),
+        #   labels = c(
+        #     "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
+        #     "NHDPlus HiRes catchments containing a WQP site + ATTAINS feature(s) are represented as clear polygons.",
+        #     "Intersecting grey catchments are those without an ATTAINS feature if fill_catchments = TRUE."
+        #   ),
+        #   opacity = 1,
+        #   title = "Legend"
+        # )
 
       # Add ATTAINS catchment outlines (if they exist):
       try(
