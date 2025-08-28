@@ -112,7 +112,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
                                            criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            auto_fill = FALSE, org_id = NULL, MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
-                                           excel = TRUE, overwrite = FALSE) {
+                                           displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
@@ -140,7 +140,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   # Generates a blank Criteria and Methods file
   if (auto_fill == FALSE && is.null(MLSummaryRef) && epa304a == FALSE) {
     desired_cols <- c(
-      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
@@ -158,7 +158,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     
     names(DefineCriteriaMethodology) <- desired_cols
     
-    cols_to_convert <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+    cols_to_convert <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                          "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                          # Spatial Columns
                          "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria")
@@ -180,7 +180,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
       overwrite = overwrite
     )
     
-    TADA_MLSummaryRef <- TADA_CreateMLSummaryRef(
+    MLSummaryRef <- TADA_CreateMLSummaryRef(
       .data,
       useParamRef = TADA_UseParamRef,
       org_id = org_id, 
@@ -314,7 +314,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     }
   }
   
-  # check to see if user-supplied parameter ref is a df with appropriate columns and filled out.
+  # check to see if user-supplied MLSummary ref is a df with appropriate columns and filled out.
   if (!is.null(MLSummaryRef) & !is.character(MLSummaryRef)) {
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
@@ -348,6 +348,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   if(!is.null(MLSummaryRef)) {
     MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
     MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
+    MLSummaryRef$TADA.ComparableDataIdentifier <- as.character(MLSummaryRef$TADA.ComparableDataIdentifier)
+    MLSummaryRef$ATTAINS.OrganizationIdentifier <- as.character(MLSummaryRef$ATTAINS.OrganizationIdentifier)
     # Extracts the characteristic, speciation and fraction columns to join
     MLSummaryRef <- MLSummaryRef %>%
       dplyr::right_join(
@@ -360,16 +362,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         dplyr::distinct(),
         by = "TADA.ComparableDataIdentifier"
         )
-  
-    # Handles Dissolved Metals Criteria and Method Splits by Acute/Chronic and Salt/Fresh
-    # Need to consider cases in which some orgs may not have separate criteria splits for dissolved metals.
-    # metal_list <- data.frame(
-    #   ATTAINS.ParameterName = c("ARSENIC", "ZINC", "CADMIUM", "COPPER", "LEAD", "MERCURY", "NICKEL")
-    # ) %>%
-    #   cbind(AcuteChronic = rep(c("Acute", "Chronic", "Acute", "Chronic"), each = 7)) %>%
-    #   cbind(SaltFresh = rep(c("Salt", "Fresh", "Fresh", "Salt"), each = 7)) %>%
-    #   dplyr::arrange(ATTAINS.ParameterName)
-    
+
     # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
     DefineCriteriaMethodology <- MLSummaryRef %>%
       dplyr::select(
@@ -430,6 +423,13 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
       ) %>%
     dplyr::distinct()
+    
+    col_names_MLSummary <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
+                             "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+                             # Spatial Columns
+                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria")
+    
+    DefineCriteriaMethodology[c(col_names_MLSummary)] <- lapply(DefineCriteriaMethodology[col_names_MLSummary], as.character)
   }
   
   # User wants to populate the Criteria table using the EPA304a standards
@@ -499,43 +499,105 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-    ) 
+    ) %>%
+      tidyr::uncount(weights = length(org_id)) %>%
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
     
     criteriaMethods <- criteriaMethods %>%
-      dplyr::select(-TADA.ComparableDataIdentifier) %>%
+      dplyr::select(-TADA.ComparableDataIdentifier) %>% # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
       dplyr::full_join(
         TADA_param, 
-        by = c("TADA.CharacteristicName")
-        )
-    
-    DefineCriteriaMethodology <- criteriaMethods %>%
-      #dplyr::select(-TADA.ComparableDataIdentifier) %>% # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
-      dplyr::full_join(
-        dplyr::select(
-          DefineCriteriaMethodology, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, TADA.ComparableDataIdentifier, 
-          ATTAINS.UseName, TADA.CharacteristicName), 
-        by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.CharacteristicName", "TADA.ComparableDataIdentifier")) %>%
-      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
-      dplyr::filter(TADA.CharacteristicName %in%  unique_param) %>%
-      dplyr::select(
-        dplyr::any_of(desired_cols)
+        by = c("ATTAINS.OrganizationIdentifier","TADA.CharacteristicName")
         )
       
       # 2. Identify missing columns
-      missing_cols <- setdiff(desired_cols, names(DefineCriteriaMethodology))
+      missing_cols <- setdiff(desired_cols, names(criteriaMethods))
       
       # 3. Add missing columns with NA values using mutate()
       if (length(missing_cols) > 0) {
         for (col in missing_cols) {
-          DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
+          criteriaMethods <- criteriaMethods %>%
             dplyr::mutate(!!col := NA)
         }
       }
+      
+      non_definedCriteria <- criteriaMethods  %>%
+        dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
+        dplyr::select(dplyr::all_of(desired_cols)) %>%
+        as.data.frame()
+      
+      non_definedCriteria2 <- criteriaMethods  %>%
+        dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
+        dplyr::select("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName") %>%
+        dplyr::right_join(DefineCriteriaMethodology) %>% 
+        dplyr::select(dplyr::all_of(desired_cols)) %>%
+        as.data.frame()
+      
+      ifelse(
+        nrow(non_definedCriteria2) == 0, 
+        non_definedCriteria <- non_definedCriteria,
+        non_definedCriteria <- non_definedCriteria2
+      )
+      
+      if (nrow(non_definedCriteria) > 0) {
+        warning(paste0("Your user supplied criteriaMethods file contains ", 
+                     length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
+                     " unique TADA.ComparableDataIdentifier without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
+                     "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis. "
+                     ))
+      }
+        
+      definedCriteria <- criteriaMethods  %>%
+        dplyr::filter(!is.na(ATTAINS.ParameterName)) %>% 
+        dplyr::select(dplyr::all_of(desired_cols)) %>%
+        as.data.frame()
+      
+      # Must now match the data types
+      desired_types <- sapply(DefineCriteriaMethodology, class)
+      
+      for (i in 1:ncol(non_definedCriteria)) {
+        if (desired_types[[i]] == "numeric") {
+          non_definedCriteria[, i] <- as.numeric(non_definedCriteria[, i])
+          definedCriteria[, i] <- as.numeric(definedCriteria[, i])
+        } else if (desired_types[[i]] == "character") {
+          non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
+          definedCriteria[, i] <- as.character(definedCriteria[, i])
+        } else if (desired_types[[i]] == "Date") {
+          non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i])
+          definedCriteria[, i] <- as.Date(definedCriteria[, i])
+        }
+      }
+      
+      # Finally, join the user supplied criteria Methods table with any pre-filled values 
+      # from either the recommended workflow or auto-fill options. 
+      DefineCriteriaMethodology <- definedCriteria %>%
+        dplyr::bind_rows(non_definedCriteria) %>%
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
+        dplyr::filter(TADA.CharacteristicName %in% unique_param) %>%
+        dplyr::select(
+          dplyr::any_of(desired_cols)
+        )
       
       # should not be a problem if we control what column names are allowed,
       # but including this for the case if edits are made to the function to ensure
       # excel allowable values are still in the correct order.
       DefineCriteriaMethodology <- dplyr::select(DefineCriteriaMethodology, desired_cols)
+  }
+  
+  # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
+  # Helps a user identifies all WQP data if they do not fill out the reference tables when TRUE 
+  # FALSE is recommended if a user has gone through a step by step review process to 
+  # determine what they would like summarized in their final output.
+  if (displayUniqueId == FALSE) {
+    print(paste0(
+      "displayUniqueId was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed.",
+      "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+    ))
+    
+    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
+      dplyr::mutate(TADA.ComparableDataIdentifier = NA) %>%
+      #tidyr::drop_na(ATTAINS.ParameterName) %>%
+      dplyr::distinct()
   }
   
   # Generates the excel function (HIGHLY Recommended for users to export)

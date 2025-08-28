@@ -14,6 +14,7 @@ TADA_DefineCriteriaMethodology(
   MLAURef = NULL,
   useAURef = NULL,
   updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"),
+  displayUniqueId = FALSE,
   excel = TRUE,
   overwrite = FALSE
 )

@@ -466,6 +466,17 @@ TADA_TableExport(NCTC_MLSummaryRef_AU_No_WaterUseParam)
 <!-- tables in order to define the associated Criteria and methods for each -->
 <!-- parameter and use combination that they have defined. -->
 
+Users can proceed with a few different options for generating their criteria table
+
+1) Provide a user-supplied criteria and methods table partially/fully filled out.
+  A.) The default option in this scenario will display all unique TADA.ComparableDataIdentifiers
+  in your TADA/WQP data frame to ensure you review any mi
+  
+2) Generate a blank criteria and methods table and fill it out from scratch.
+  
+2) Go through the step-by-step review process with the 3 TADA crosswalk reference file generation
+for TADA_CreateParamRef, TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef.
+
 A blank template is generated. This can be generated and filled out in the excel file.
 
 ```{r blank template output}
@@ -473,7 +484,8 @@ MT.Criteria <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ", 
   # auto_fill = FALSE, 
-  excel = TRUE, overwrite = TRUE, 
+  # displayUniqueId = TRUE
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
@@ -488,7 +500,8 @@ MT.Criteria2 <- TADA_DefineCriteriaMethodology(
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
   auto_fill = FALSE, # indicates a blank template was used, the returning table only contains user supplied criteria
-  excel = TRUE, overwrite = TRUE, 
+  displayUniqueId = FALSE,
+  excel = FALSE, 
   )
 ```
 
@@ -503,7 +516,8 @@ MT.Criteria3 <- TADA_DefineCriteriaMethodology(
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
   auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. These rows will show up as all NAs if a user has not filled these values out.
-  excel = TRUE, overwrite = TRUE, 
+  displayUniqueId = FALSE,
+  excel = FALSE 
   )
 ```
 
