@@ -2123,6 +2123,37 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
+  # load images that are required for all legends
+
+  # the commented out code creates the legend images using the TADA color palette
+  # if the color palette is ever edited, this section needs to be uncommented and run again
+  # square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
+  #
+  # notsupport <- magick::image_fill(square, tada.pal[3], "+500+500")
+  #
+  # magick::image_write(notsupport, path = "inst/extdata/icons/square-ns.png")
+  #
+  # fullsupport <- magick::image_fill(square, tada.pal[4], "+500+500")
+  #
+  # magick::image_write(fullsupport, path = "inst/extdata/icons/square-fs.png")
+  #
+  # notassessed <- magick::image_fill(square, tada.pal[7], "+500+500")
+  #
+  # magick::image_write(notassessed, path = "inst/extdata/icons/square-na.png")
+  #
+  # outline.square <- magick::image_read("inst/extdata/icons/square-regular-full.png")
+  #
+  # catchment <- magick::image_fill(outline.square, "black", "+500+500")
+  #
+  # magick::image_write(catchment, path = "inst/extdata/icons/square-catchment.png")
+
+  images <- c("inst/extdata/icons/square-ns.png",
+              "inst/extdata/icons/square-fs.png",
+              "inst/extdata/icons/square-na.png",
+              "inst/extdata/icons/circle-solid-full.png",
+              "inst/extdata/icons/square-catchment.png")
+
+
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
   missing_raw_features <- NULL
@@ -2236,19 +2267,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           lng2 = max(sumdat$LongitudeMeasure),
           lat2 = max(sumdat$LatitudeMeasure)
         ) %>%
-        leaflet.extras::addResetMapButton() %>%
-        leaflet::addLegend(
-          position = "bottomright",
-          colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA),
-          labels = c(
-            "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
-            "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
-          ),
-          opacity = 1,
-          title = "Legend"
-        )
+        leaflet.extras::addResetMapButton()
 
-      # Add ATTAINS catchment outlines (if they exist):
       try(
         map <- map %>%
           leaflet::addPolygons(
@@ -2395,47 +2415,54 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       )
 
       if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-# the commented out code creates the legend images using the TADA color palette
-# if the color palette is ever edited, this section needs to be uncommented and run again
-        square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
 
-        notsupport <- magick::image_fill(test, tada.pal[3], "+500+500")
+        images.ref <- c(images[1:3],
+                        "inst/extdata/icons/circle-user-solid-full.png",
+                        "inst/extdata/icons/circle-check-solid-full.png",
+                        images[4:5])
 
-        magick::image_write(notsupport, path = "inst/extdata/icons/square-ns.png")
-
-        fullsupport <- magick::image_fill(test,tada.pal[4], "+500+500")
-
-        magick::image_write(fullsupport, path = "inst/extdata/icons/square-fs.png")
-
-        notassessed <- magick::image_fill(test, tada.pal[7], "+500+500")
-
-        magick::image_write(notassessed, path = "inst/extdata/icons/square-na.png")
-
-
-        images <- c("inst/extdata/icons/square-ns.png",
-                    "inst/extdata/icons/square-fs.png",
-                    "inst/extdata/icons/square-na.png",
-                    "inst/extdata/icons/circle-user-solid-full.png",
-                    "inst/extdata/icons/circle-check-solid-full.png",
-                    "inst/extdata/icons/circle-solid-full.png")
 
         map <- map %>%
-          leaflegend::addLegendImage(images = images,
+          leaflegend::addLegendImage(images = images.ref,
                                                labels = c( "ATTAINS: Not Supporting",
                                                            "ATTAINS: Supporting",
                                                            "ATTAINS: Not Assessed",
                                                            "WQP: User-supplied Ref",
                                                           "WQP: ATTAINS Crosswalk",
-                                                          "WQP: TADA_CreateATTAINSAUMLCrosswalk"),
+                                                          "WQP: TADA_CreateATTAINSAUMLCrosswalk",
+                                                          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
                                                labelStyle = 'font-size: 14px;',
-                                               width = 20,
-                                               height = 20,
+                                               width = 14,
+                                               height = 14,
                                                orientation = 'vertical',
                                                title = htmltools::tags$div('Legend',
                                                                            style = 'font-size: 14px;
                                              text-align: left; font-weight: bold;'),
                                                position = 'bottomright')
 
+        rm(images.ref, images)
+
+      }
+
+      if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
+
+        map <- map %>%
+          leaflegend::addLegendImage(images = images,
+                                     labels = c( "ATTAINS: Not Supporting",
+                                                 "ATTAINS: Supporting",
+                                                 "ATTAINS: Not Assessed",
+                                                 "WQP: Monitoring Location",
+                                                 "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
+                                     labelStyle = 'font-size: 14px;',
+                                     width = 14,
+                                     height = 14,
+                                     orientation = 'vertical',
+                                     title = htmltools::tags$div('Legend',
+                                                                 style = 'font-size: 14px;
+                                             text-align: left; font-weight: bold;'),
+                                     position = 'bottomright')
+
+        rm(images)
       }
 
       if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
@@ -2563,18 +2590,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           lng2 = max(sumdat$LongitudeMeasure),
           lat2 = max(sumdat$LatitudeMeasure)
         ) %>%
-        leaflet.extras::addResetMapButton() #%>%
-        # leaflet::addLegend(
-        #   position = "bottomleft",
-        #   colors = c(tada.pal[3], tada.pal[4], tada.pal[7], "black", NA, NA),
-        #   labels = c(
-        #     "ATTAINS: Not Supporting", "ATTAINS: Supporting", "ATTAINS: Not Assessed", "Water Quality Observation(s)",
-        #     "NHDPlus HiRes catchments containing a WQP site + ATTAINS feature(s) are represented as clear polygons.",
-        #     "Intersecting grey catchments are those without an ATTAINS feature if fill_catchments = TRUE."
-        #   ),
-        #   opacity = 1,
-        #   title = "Legend"
-        # )
+        leaflet.extras::addResetMapButton() %>%
+        leaflegend::addLegendImage(images = images,
+                                   labels = c( "ATTAINS: Not Supporting",
+                                               "ATTAINS: Supporting",
+                                               "ATTAINS: Not Assessed",
+                                               "WQP: Monitoring Location",
+                                               "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
+                                   labelStyle = 'font-size: 14px;',
+                                   width = 14,
+                                   height = 14,
+                                   orientation = 'vertical',
+                                   title = htmltools::tags$div('Legend',
+                                                               style = 'font-size: 14px;
+                                             text-align: left; font-weight: bold;'),
+                                   position = 'bottomright')
+
+      rm(images)
 
       # Add ATTAINS catchment outlines (if they exist):
       try(

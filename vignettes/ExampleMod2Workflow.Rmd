@@ -171,9 +171,14 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
 
 The TADA_ViewATTAINS() map function shows the results from all three
 different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
-and ATTAINS catchments/geospatial join) using different color circle
-markers (not final colors, we are very open to suggestions). The source
-has also been added to the popup window.
+and ATTAINS catchments/geospatial join) by using different circle
+markers. The user icon indicates the monitoring location was from a user
+supplied ref. The circle with a check mark signifies a match from the
+crosswalk downloaded from ATTAINS. Matches found by comparing monitoring
+locations with ATTAINS catchment and assessment geometry with
+TADA_CreateATTAINSAUMLCrosswalk are represented by solid fill circle
+markesr. The source is also displayed in the pop up window that appears
+when a user clicks on each circle marker.
 
 ```{r view.map}
 
@@ -199,3 +204,4 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
                                   org_id = "MTDEQ")
 
 ```
+
