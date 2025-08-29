@@ -137,8 +137,13 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     stop("TADA_DefineCriteriaMethodology: auto_fill = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_fill == TRUE")
   }
   
+  # Invalid function input combos - supply one or the other.
+  if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
+    stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one or none of these options provided.")
+  }
+  
   # Generates a blank Criteria and Methods file
-  if (auto_fill == FALSE && is.null(MLSummaryRef) && epa304a == FALSE) {
+  if (auto_fill == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
@@ -165,27 +170,31 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     
     DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(DefineCriteriaMethodology[cols_to_convert], as.character)
     
-    TADA_ParamRef <- TADA_CreateParamRef(
-      .data = .data, 
-      org_id = org_id, 
-      excel = excel, 
-      overwrite = overwrite
-    )
+    suppressMessages(
+      TADA_ParamRef <- TADA_CreateParamRef(
+        .data = .data, 
+        org_id = org_id, 
+        excel = excel, 
+        overwrite = overwrite
+    ))
     
-    TADA_UseParamRef <- TADA_CreateUseParamRef(
-      .data,
-      paramRef = TADA_ParamRef,
-      org_id = org_id, 
-      excel = excel, 
-      overwrite = overwrite
-    )
+    suppressWarnings(
+      TADA_UseParamRef <- TADA_CreateUseParamRef(
+        .data,
+        paramRef = TADA_ParamRef,
+        org_id = org_id, 
+        excel = excel, 
+        overwrite = overwrite
+    ))
     
-    MLSummaryRef <- TADA_CreateMLSummaryRef(
-      .data,
-      useParamRef = TADA_UseParamRef,
-      org_id = org_id, 
-      excel = excel, 
-      overwrite = overwrite)
+    suppressMessages(
+      MLSummaryRef <- TADA_CreateMLSummaryRef(
+        .data,
+        useParamRef = TADA_UseParamRef,
+        org_id = org_id, 
+        excel = excel, 
+        overwrite = overwrite
+    ))
   }
   
   # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
@@ -446,49 +455,11 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     col_names_MLSummary <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                              "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                              # Spatial Columns
-                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria")
+                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+                             "MagnitudeUnit", "DurationUnit", "DurationAggregation",
+                             "FrequencyCriteriaMethod")
     
     DefineCriteriaMethodology[c(col_names_MLSummary)] <- lapply(DefineCriteriaMethodology[col_names_MLSummary], as.character)
-  }
-  
-  # User wants to populate the Criteria table using the EPA304a standards
-  # joins the epa304a standards to the current Criteria Table.
-  if (epa304a == TRUE) {
-    # Handling of auto populating EPA304a Criteria in the future if desired.
-    CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-      dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, ATTAINS.UseName = use_name, CRITERIATYPE_ACUTECHRONIC, CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, UNIT_NAME) %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a")
-    
-    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
-      dplyr::full_join(CST_param, c("EPA304A.PollutantName", "ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"), relationship = "many-to-many") %>%
-      dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) %>%
-      dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) %>%
-      dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
-        stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
-        ""
-      )) %>%
-      dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
-        stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
-        CRITERION_VALUE
-      )) %>%
-      dplyr::mutate(dplyr::across(
-        c(
-          MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FrequencyCriteriaValue,	
-          MinimumSampleSize, MinimumSamplingPeriod,	TADA.DepthCategory.Flag
-        ), as.numeric)) %>%
-      dplyr::mutate(dplyr::across(
-        c(
-          ATTAINS.WaterType,
-          MonitoringLocationTypeName,
-          AcuteChronic, SaltFresh, Season, EquationBased,
-          ApplyUniqueSpatialCriteria # Will depend on the user's crosswalk of ML to this criteria for filtering.
-        ), as.factor
-      )) %>%
-      dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
-      dplyr::select(-c(CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC, CRITERION_VALUE, UNIT_NAME)) %>%
-      dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
   }
   
   # User wants to populate the Criteria table using a user supplied table.
@@ -540,11 +511,13 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         }
       }
       
+      # What WQP Characteristic names did the user supplied table miss? 
       non_definedCriteria <- criteriaMethods  %>%
         dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
         dplyr::select(dplyr::all_of(desired_cols)) %>%
         as.data.frame()
       
+      # Are any of these missed WQP characteristic names defined from an autofill = T
       non_definedCriteria2 <- criteriaMethods  %>%
         dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
         dplyr::select("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName") %>%
@@ -558,12 +531,20 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         non_definedCriteria <- non_definedCriteria2
       )
       
-      if (nrow(non_definedCriteria) > 0) {
+      if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         warning(paste0("Your user supplied criteriaMethods file contains ", 
                      length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-                     " unique TADA.ComparableDataIdentifier without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
-                     "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis. "
+                     " unique TADA.ComparableDataIdentifier(s) without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
+                     "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
                      ))
+      }
+      
+      if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
+        warning(paste0("Your user supplied criteriaMethods file contains ", 
+                       length(unique(non_definedCriteria$TADA.CharacteristicName)),
+                       " unique TADA.CharacteristicName(s) without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
+                       "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+        ))
       }
         
       definedCriteria <- criteriaMethods  %>%
@@ -604,13 +585,67 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
       DefineCriteriaMethodology <- dplyr::select(DefineCriteriaMethodology, desired_cols)
   }
   
+  # User wants to populate the Criteria table using the EPA304a standards
+  # joins the epa304a standards to the current Criteria Table.
+  if (epa304a == TRUE) {
+    print(paste0(
+      "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+    ))
+    
+    # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
+    TADA_param <- dplyr::distinct(
+      .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+    ) %>%
+      tidyr::uncount(weights = length(org_id)) %>%
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
+    
+    # Handling of auto populating EPA304a Criteria in the future if desired.
+    suppressWarnings(
+      CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+        dplyr::select(TADA.CharacteristicName, ATTAINS.ParameterName = POLLUTANT_NAME, ATTAINS.UseName = use_name, AcuteChronic = CRITERIATYPE_ACUTECHRONIC, SaltFresh = CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, MagnitudeUnit = UNIT_NAME) %>%
+        dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
+        dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
+          stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
+          ""
+        )) %>%
+        dplyr::mutate(MagnitudeValueUpper = dplyr::if_else(
+          stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
+          CRITERION_VALUE
+        )) %>%
+        dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
+        dplyr::mutate(dplyr::across(MagnitudeUnit, as.character)) %>%
+        dplyr::mutate(dplyr::across(c(MagnitudeValueLower,MagnitudeValueUpper), as.numeric)) %>%
+        dplyr::select(- CRITERION_VALUE ) %>%
+        dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName)
+    )
+    
+    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
+      dplyr::full_join(CST_param, relationship = "many-to-many") %>%
+      # dplyr::mutate(dplyr::across(
+      #   c(
+      #     MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FrequencyCriteriaValue,	
+      #     MinimumSampleSize, MinimumSamplingPeriod,	TADA.DepthCategory.Flag
+      #   ), as.numeric)) %>%
+      # dplyr::mutate(dplyr::across(
+      #   c(
+      #     ATTAINS.WaterType,
+      #     MonitoringLocationTypeName,
+      #     AcuteChronic, SaltFresh, Season, EquationBased,
+      #     ApplyUniqueSpatialCriteria # Will depend on the user's crosswalk of ML to this criteria for filtering.
+      #   ), as.factor
+      # )) %>%
+      # dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
+  }
+  
   # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
   # Helps a user identifies all WQP data if they do not fill out the reference tables when TRUE 
   # FALSE is recommended if a user has gone through a step by step review process to 
   # determine what they would like summarized in their final output.
   if (displayUniqueId == FALSE) {
     print(paste0(
-      "displayUniqueId was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed.",
+      "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. ",
       "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
     ))
     
@@ -636,6 +671,15 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       }
     )
+    
+    # Set visibility
+    openxlsx::sheetVisibility(wb)[1] <- FALSE
+    openxlsx::sheetVisibility(wb)[2] <- FALSE
+    openxlsx::sheetVisibility(wb)[3] <- FALSE
+    openxlsx::sheetVisibility(wb)[4] <- FALSE
+    openxlsx::sheetVisibility(wb)[5] <- FALSE
+    openxlsx::sheetVisibility(wb)[7] <- FALSE
+    openxlsx::sheetVisibility(wb)[6] <- TRUE 
     
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")

@@ -501,7 +501,7 @@ MT.Criteria2 <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ", 
   auto_fill = FALSE, # indicates a blank template was used, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
-  excel = FALSE, 
+  excel = FALSE, epa304a = T
   )
 ```
 
@@ -543,8 +543,9 @@ MT.Criteria4_Edit <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ",
   criteriaMethods = MT.Criteria4,
-  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
-  updateRef = "useParamRef",
+  auto_fill = TRUE, # user can choose to autopopulate any missing criteria from their user supplied criteriaMethods table
+  # updateRef = "useParamRef", # Exclude for now. 
+  displayUniqueId = TRUE, # Recommended for display if we do not provide the 3 reference files w/ criteriaMethods populated
   excel = TRUE, overwrite = TRUE, 
   )
 ```
@@ -559,7 +560,8 @@ MT.Criteria4_Edit_w_User_Supplied <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   criteriaMethods = MT.Criteria2,
   auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation.
-  updateRef = "useParamRef",
+  #updateRef = "useParamRef",
+  displayUniqueId = TRUE,
   excel = TRUE, overwrite = TRUE,
   )
 ```
