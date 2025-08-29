@@ -477,31 +477,109 @@ Users can proceed with a few different options for generating their criteria tab
 2) Go through the step-by-step review process with the 3 TADA crosswalk reference file generation
 for TADA_CreateParamRef, TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef.
 
+## Option A: Fully blank template
+
 A blank template is generated. This can be generated and filled out in the excel file.
 
 ```{r blank template output}
-MT.Criteria <- TADA_DefineCriteriaMethodology(
+MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ", 
   # auto_fill = FALSE, 
-  # displayUniqueId = TRUE
   excel = TRUE, overwrite = TRUE 
   )
 ```
 
-A user has a completed file, let's use MTDEQ as our example org. MTDEQ should thoroughly review this table and determine if there are values that needs to be fixed or if there are missing WQP Char to consider that isn't defined in their criteria and methods table that they have supplied.
+## Auto Fill option (Intermediate Tabs are Hidden)
+
+You can also generate auto_filled value(s) of ATTAINS.ParameterName, ATTAINS.UseName to
+TADA.CharacteristicName using default options. Users should be aware that this will only
+return rows for any matching values that has been matched by initial efforts. It is likely
+that these value(s) will require a thorough review process during each step of the process with
+the recommended workflow of TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
+
+Users can view the output of these 3 functions in the excel spreadsheet if desired. They
+are hidden as default (NOTE TO CONSIDER: Should these be kept hidden? The goal of this
+output has been to focus on an autofill option as a quick get around to needing to fill
+out the table from scratch, but if users may find it worthwhile, we can always show these
+hidden tabs and allow for easier review process.)
+
+```{r auto fill output}
+MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, 
+  # displayUniqueId = FALSE,
+  excel = FALSE 
+  )
+```
+
+Users who would like to ensure all Characteristic, Speciation and Fractions are being
+considered, can use displayUniqueId = TRUE to show all unique TADA.ComparableDataIdentifier(s)
+shown as explicit crosswalk. Note: This may generate many additional rows if your
+WQP data results are not harmonized or if there are many different combinations of 
+Characteristic, Speciation and Fractions to consider.
+
+```{r auto fill - show all unique TADA.ComparableDataIdentifier in output}
+MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, 
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, 
+  displayUniqueId = TRUE,
+  excel = FALSE 
+  )
+```
+
+## User Supplied Table
+
+A user has a completed or partially filled criteria file, let's use MTDEQ as our example org. MTDEQ should thoroughly review this table and determine if there are values that needs to be fixed or if there are missing WQP Char to consider that isn't defined in their criteria and methods table that they have supplied. Users will be warned how many WQP
+Char values are not defined from their user supplied table.
 
 Question: How should TADA handle invalid values? (see units for example). What happens if TADA makes an update to column names or allowable value(s) and a state uses an old filled out template?
 
-```{r user supplied and blank output}
+In this first example, a user supplies their own criteria table. Any undefined TADA.CharacteristicName will be left to the user to determine the proper handling of this value - whether it is applicable to your analysis need or not.
+
+```{r user supplied and epa304a}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria2 <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
+  .data = tada.MT.clean, 
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
-  auto_fill = FALSE, # indicates a blank template was used, the returning table only contains user supplied criteria
+  auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
-  excel = FALSE, epa304a = T
+  excel = FALSE, 
+  epa304a = TRUE
+  )
+```
+
+A user can combine options. The user supplied table is prioritized. Any missing TADA.CharacteristicName will be matched 
+based on the auto_fill option (if it was successfully crosswalked.).
+
+```{r user supplied, epa304a and autofill output}
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria2.1 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean, 
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  displayUniqueId = FALSE,
+  excel = FALSE, 
+  epa304a = TRUE
+  )
+```
+
+Users will need to determine their level of desired grouping of TADA.CharacteristicName by aggregation. If a user has not gone through the review process with the 3 crosswalk reference files, they need to specify what combinations of fraction and speciations falls under an ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying displayUniqueId = TRUE, this will display all combinations in the criteria table output.
+
+```{r user supplied, epa304a and autofill output}
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria2.2 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean, 
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
+  excel = FALSE, 
+  epa304a = TRUE
   )
 ```
 
@@ -539,30 +617,15 @@ Now, let's continue with this example. A user is reviewing this table and decide
 
 # will need to open up the excel file and edit to showcase example.
 
-MT.Criteria4_Edit <- TADA_DefineCriteriaMethodology(
+MT.Criteria4 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ",
-  criteriaMethods = MT.Criteria4,
+  # criteriaMethods = MT.Criteria4,
   auto_fill = TRUE, # user can choose to autopopulate any missing criteria from their user supplied criteriaMethods table
   # updateRef = "useParamRef", # Exclude for now. 
   displayUniqueId = TRUE, # Recommended for display if we do not provide the 3 reference files w/ criteriaMethods populated
+  epa304a = TRUE,
   excel = TRUE, overwrite = TRUE, 
-  )
-```
-
-Now, let's continue with this example. A user is reviewing this table and decides to edit the CreateParamRef file. We will reflect changes to the DefineCriteriaMethodology file with the edit the user made.
-```{r autofill and update output}
-
-# will need to open up the excel file and edit to showcase example.
-
-MT.Criteria4_Edit_w_User_Supplied <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean,
-  org_id = "MTDEQ",
-  criteriaMethods = MT.Criteria2,
-  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation.
-  #updateRef = "useParamRef",
-  displayUniqueId = TRUE,
-  excel = TRUE, overwrite = TRUE,
   )
 ```
 

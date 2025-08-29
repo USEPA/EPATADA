@@ -108,11 +108,11 @@
 #'   excel = FALSE
 #' )
 #'
-TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # required inputs for the recommended workflow
-                                           criteriaMethods = NULL, epa304a = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           auto_fill = FALSE, org_id = NULL, MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id = NULL, # required inputs for the recommended workflow
+                                           criteriaMethods = NULL, auto_fill = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
-                                           displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
+                                           epa304a = FALSE, displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
@@ -139,10 +139,16 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   
   # Invalid function input combos - supply one or the other.
   if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
-    stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one or none of these options provided.")
+    stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
   }
   
-  # Generates a blank Criteria and Methods file
+  # Invalid function input combos - MLSummaryRef and autofill = TRUE cannot be used together
+  if ( !is.null(MLSummaryRef) && auto_fill == TRUE ) {
+    stop("TADA_DefineCriteriaMethodology: MLSummaryRef is provided and autofill = TRUE are not valid function argument input combinations.")
+  }
+  
+  # Generates a blank Criteria and Methods file. 
+  # Users can still append a user supplied criteriaMethods table or the epa304a recommended standards if desired.
   if (auto_fill == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
@@ -202,7 +208,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   if (auto_fill == TRUE) {
     # default, runs all reference tables with no user edits
     if(updateRef == "none") {
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateParamRef with default assignment. Please review this paramRef table output."))
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateParamRef with default assignment."))
         suppressMessages(
         TADA_ParamRef <- TADA_CreateParamRef(  
           .data, 
@@ -212,8 +218,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         )
       )
       
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateUseParamRef with default assignment. Please review this Use to paramRef table output."))
-      suppressMessages(
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateUseParamRef with default assignment."))
+      suppressWarnings(
         TADA_UseParamRef <- TADA_CreateUseParamRef(  
           .data, 
           org_id = org_id,
@@ -223,7 +229,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         )
       )
       
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment. Please review  this sites Ref table output."))
+      message(paste0("auto_fill = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."))
       suppressMessages(
         MLSummaryRef <- TADA_CreateMLSummaryRef(  
           .data, 
@@ -244,6 +250,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
         dplyr::distinct() %>%
         dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id)))) 
       
+      # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
+      # User can turn this off using displayUniqueId = FALSE
       MLSummaryRef <- TADA_param %>%
         dplyr::left_join(MLSummaryRef)
     }
@@ -373,7 +381,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
   # User has went through the recommended workflow. Criteria table is generated
   # from the MLSummaryRef file. This file also contains unique spatial criteria
   # as an option and will include these values if they have been populated.
-  if(!is.null(MLSummaryRef)) {
+  if (!is.null(MLSummaryRef)) {
     MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
     MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
     MLSummaryRef$TADA.ComparableDataIdentifier <- as.character(MLSummaryRef$TADA.ComparableDataIdentifier)
@@ -534,17 +542,33 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         warning(paste0("Your user supplied criteriaMethods file contains ", 
                      length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-                     " unique TADA.ComparableDataIdentifier(s) without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
+                     " unique TADA.ComparableDataIdentifier(s) without a valid ",
+                     "ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
+                     "when compared to the domain value of ATTAINS from the prior ",
+                     "ATTAINS assessment cycle for your organization(s). ",
                      "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
                      ))
+        if ( auto_fill == TRUE){
+          warning(paste0("You selected auto_fill == TRUE. ", 
+                         "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
+                         "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          ))
+        }
       }
       
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
         warning(paste0("Your user supplied criteriaMethods file contains ", 
                        length(unique(non_definedCriteria$TADA.CharacteristicName)),
-                       " unique TADA.CharacteristicName(s) without any ATTAINS.ParameterName and ATTAINS.UseName crosswalk. ",
+                       " unique TADA.CharacteristicName(s) without a valid ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
+                       "when compared to the domain value of ATTAINS from the prior ATTAINS assessment cycle for your organization(s). ",
                        "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
+        if ( auto_fill == TRUE){
+          warning(paste0("You selected auto_fill == TRUE. ", 
+                         "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
+                         "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+          ))
+        }
       }
         
       definedCriteria <- criteriaMethods  %>%
@@ -555,18 +579,20 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
       # Must now match the data types
       desired_types <- sapply(DefineCriteriaMethodology, class)
       
-      for (i in 1:ncol(non_definedCriteria)) {
-        if (desired_types[[i]] == "numeric") {
-          non_definedCriteria[, i] <- as.numeric(non_definedCriteria[, i])
-          definedCriteria[, i] <- as.numeric(definedCriteria[, i])
-        } else if (desired_types[[i]] == "character") {
-          non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
-          definedCriteria[, i] <- as.character(definedCriteria[, i])
-        } else if (desired_types[[i]] == "Date") {
-          non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i])
-          definedCriteria[, i] <- as.Date(definedCriteria[, i])
+      suppressWarnings(
+        for (i in 1:ncol(non_definedCriteria)) {
+          if (desired_types[[i]] == "numeric") {
+            non_definedCriteria[, i] <- as.numeric(non_definedCriteria[, i])
+            definedCriteria[, i] <- as.numeric(definedCriteria[, i])
+          } else if (desired_types[[i]] == "character") {
+            non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
+            definedCriteria[, i] <- as.character(definedCriteria[, i])
+          } else if (desired_types[[i]] == "Date") {
+            non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i])
+            definedCriteria[, i] <- as.Date(definedCriteria[, i])
+          }
         }
-      }
+      )
       
       # Finally, join the user supplied criteria Methods table with any pre-filled values 
       # from either the recommended workflow or auto-fill options. 
@@ -602,7 +628,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     # Handling of auto populating EPA304a Criteria in the future if desired.
     suppressWarnings(
       CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-        dplyr::select(TADA.CharacteristicName, ATTAINS.ParameterName = POLLUTANT_NAME, ATTAINS.UseName = use_name, AcuteChronic = CRITERIATYPE_ACUTECHRONIC, SaltFresh = CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, MagnitudeUnit = UNIT_NAME) %>%
+        dplyr::full_join(TADA_param, by = c("TADA.CharacteristicName")) %>%
+        dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.ParameterName = POLLUTANT_NAME, ATTAINS.UseName = use_name, AcuteChronic = CRITERIATYPE_ACUTECHRONIC, SaltFresh = CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, MagnitudeUnit = UNIT_NAME) %>%
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
         dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
           stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),
@@ -719,7 +746,6 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     openxlsx::writeData(
       wb, "Index-Criteria", 
       startCol = 6, startRow = 1, 
-      # AcuteChronic
       x = unique(.data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
     ) 
     
@@ -844,28 +870,30 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, # requir
     )
     
     # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index-Criteria] tab
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$G$2:$G$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$F$2:$F$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$G$2:$G$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 6, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$H$2:$H$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 7, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$I$2:$I$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 8, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$J$2:$J$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 17, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 20, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 18, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$T$2:$T$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 20, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$U$2:$U$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 24, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 21, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$W$2:$W$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 24, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$X$2:$X$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 28, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 28, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AA$2:$AA$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 29, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$AE$2:$AE$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
