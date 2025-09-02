@@ -10,33 +10,41 @@ test_that("TADA_SimpleCensoredMethods doesn't drop data", {
 })
 
 test_that("TADA_IDCensoredData copies det lim values to result values if applicable", {
+  # Generate random testing data
   copycheck <- TADA_RandomTestingData(choose_random_state = TRUE)
-
-  if (nrow(copycheck) > 0) {
-    copycheck1 <- TADA_IDCensoredData(copycheck)
-
-    # let's look only at rows where the original result value = NA
-    copycheck2 <- subset(copycheck1, subset = is.na(copycheck1$ResultMeasureValue))
-
-    # the TADA.ResultMeasureValueDataTypes.Flag should = one of these three options
-    expect_true(all(copycheck2$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit" |
-      copycheck2$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Cannot Be Estimated From Detection Limit" |
-      copycheck2$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"))
-
-    # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue = NA or None
-    copycheck_NAs <- subset(copycheck2, subset = (!is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
-
-    # for this subset, the TADA.ResultMeasureValueDataTypes.Flag should equal "Result Value/Unit Copied from Detection Limit"
-    expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit" &
-      !is.na(copycheck_NAs$TADA.ResultMeasureValue)))
-
-    # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue does NOT = NA or None
-    copycheck_copies <- subset(copycheck2, subset = (is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
-
-    # for this subset, the TADA.ResultMeasureValueDataTypes.Flag should equal "NA - Not Available"
-    expect_true(all((copycheck_copies$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available") &
-      is.na(copycheck_copies$TADA.ResultMeasureValue)))
+  
+  # Skip the test if there are no rows in copycheck
+  if (nrow(copycheck) == 0) {
+    skip("No rows in copycheck; test skipped.")
   }
+  
+  # Process the data with TADA_IDCensoredData
+  copycheck1 <- TADA_IDCensoredData(copycheck)
+  
+  # Subset rows where the original result value is NA
+  copycheck2 <- subset(copycheck1, subset = is.na(copycheck1$ResultMeasureValue))
+  
+  # Validate the ResultMeasureValueDataTypes.Flag
+  valid_flags <- c(
+    "Result Value/Unit Copied from Detection Limit",
+    "Result Value/Unit Cannot Be Estimated From Detection Limit",
+    "NA - Not Available"
+  )
+  expect_true(all(copycheck2$TADA.ResultMeasureValueDataTypes.Flag %in% valid_flags))
+  
+  # Subset data where DetectionQuantitationLimitMeasure.MeasureValue is not NA
+  copycheck_NAs <- subset(copycheck2, subset = !is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+  
+  # Check flags and result measure values for non-NA detection limit measure values
+  expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit"))
+  expect_true(all(!is.na(copycheck_NAs$TADA.ResultMeasureValue)))
+  
+  # Subset data where DetectionQuantitationLimitMeasure.MeasureValue is NA
+  copycheck_copies <- subset(copycheck2, subset = is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+  
+  # Check flags for NA detection limit measure values
+  expect_true(all(copycheck_copies$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"))
+  expect_true(all(is.na(copycheck_copies$TADA.ResultMeasureValue)))
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
