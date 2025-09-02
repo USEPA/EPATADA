@@ -36,6 +36,7 @@ TADA.ResultMeasureValue to a minimum, maximum, or average value."></head><body>
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule3a.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
+    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX 3.0 Migration</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -129,19 +130,19 @@ to indicate which rows have been aggregated.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># Select maximum value per day, site, comparable data identifier, </span></span></span>
+<span class="r-in"><span><span class="co"># Select maximum value per day, site, comparable data identifier,</span></span></span>
 <span class="r-in"><span><span class="co"># unit, result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Clean all non-maximum measurements from grouped data.</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_max</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>,</span></span>
 <span class="r-in"><span>  grouping_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="st">"ActivityStartDate"</span>, </span></span>
+<span class="r-in"><span>    <span class="st">"ActivityStartDate"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"TADA.MonitoringLocationIdentifier"</span>,</span></span>
-<span class="r-in"><span>    <span class="st">"TADA.ComparableDataIdentifier"</span>, </span></span>
+<span class="r-in"><span>    <span class="st">"TADA.ComparableDataIdentifier"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"ResultDetectionConditionText"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"ActivityTypeCode"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  agg_fun <span class="op">=</span> <span class="st">"max"</span>, </span></span>
+<span class="r-in"><span>  agg_fun <span class="op">=</span> <span class="st">"max"</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Aggregation results:"</span>
@@ -149,7 +150,7 @@ to indicate which rows have been aggregated.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           No aggregation needed Selected as max aggregate value </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                           54061                           10659 </span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Calculate a mean value per day, site, comparable data identifier, unit, </span></span></span>
+<span class="r-in"><span><span class="co"># Calculate a mean value per day, site, comparable data identifier, unit,</span></span></span>
 <span class="r-in"><span><span class="co"># result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Keep all measurements used to calculate mean measurement.</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_mean</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>,</span></span>
@@ -158,7 +159,7 @@ to indicate which rows have been aggregated.</p>
 <span class="r-in"><span>    <span class="st">"TADA.ComparableDataIdentifier"</span>, <span class="st">"ResultDetectionConditionText"</span>,</span></span>
 <span class="r-in"><span>    <span class="st">"ActivityTypeCode"</span>, <span class="st">"TADA.ResultMeasure.MeasureUnitCode"</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span>,</span></span>
-<span class="r-in"><span>  agg_fun <span class="op">=</span> <span class="st">"mean"</span>, </span></span>
+<span class="r-in"><span>  agg_fun <span class="op">=</span> <span class="st">"mean"</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Aggregation results:"</span>

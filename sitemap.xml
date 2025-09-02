@@ -13,6 +13,7 @@
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule2.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAModule3a.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAWaterSciConWorkshopDemo.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/WQX3-Migration.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/WQXValidationService.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/index.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/authors.html</loc></url>
@@ -105,6 +106,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_PairReplicates.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_RandomTestingData.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ReadWQPWebServices.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_RenametoLegacy.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_RetainRequired.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_Scatterplot.html</loc></url>

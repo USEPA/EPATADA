@@ -47,6 +47,7 @@
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule3a.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
+    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX 3.0 Migration</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul>
 </li>
@@ -113,24 +114,27 @@ your R session.</p>
 </h2>
 <p>Get bacteria and pH data from Missoula County, Montana.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># get MT data </span></span>
+<code class="sourceCode R"><span><span class="co"># get MT data</span></span>
 <span><span class="va">tada.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span></span>
-<span>   startDate <span class="op">=</span> <span class="st">"2020-01-01"</span>, </span>
-<span>   endDate <span class="op">=</span> <span class="st">"2022-12-31"</span>,</span>
-<span>   statecode <span class="op">=</span> <span class="st">"MT"</span>,</span>
-<span>   characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Escherichia"</span>, </span>
-<span>                          <span class="st">"Escherichia coli"</span>, </span>
-<span>                          <span class="st">"pH"</span><span class="op">)</span>,</span>
-<span>   county <span class="op">=</span> <span class="st">"Missoula County"</span>,</span>
-<span>   ask <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  startDate <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span>
+<span>  endDate <span class="op">=</span> <span class="st">"2022-12-31"</span>,</span>
+<span>  statecode <span class="op">=</span> <span class="st">"MT"</span>,</span>
+<span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Escherichia"</span>,</span>
+<span>    <span class="st">"Escherichia coli"</span>,</span>
+<span>    <span class="st">"pH"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  county <span class="op">=</span> <span class="st">"Missoula County"</span>,</span>
+<span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># clean up data set (minimal)</span></span>
-<span>  <span class="va">tada.MT.clean</span> <span class="op">&lt;-</span> <span class="va">tada.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span>
+<span><span class="va">tada.MT.clean</span> <span class="op">&lt;-</span> <span class="va">tada.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># remove intermediate objects</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tada.MT</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tada.MT</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="create-an-example-user-supplied-attains-assessment-unit-and-wqp-monitoring-location-crosswalk">Create An Example User-Supplied ATTAINS Assessment Unit and WQP
@@ -170,10 +174,11 @@ assessed WQP monitoring locations only.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use TADA get attains to make AU assignments for unassigned MLs</span></span>
 <span><span class="va">MT.AUMLRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateAUMLCrosswalk.html">TADA_CreateAUMLCrosswalk</a></span><span class="op">(</span><span class="va">tada.MT.clean</span>,</span>
-<span>                                 au_ref <span class="op">=</span> <span class="va">user.supplied.cw</span>,</span>
-<span>                                 org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>, </span>
-<span>                                 add_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                                 batch_upload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>  au_ref <span class="op">=</span> <span class="va">user.supplied.cw</span>,</span>
+<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
+<span>  add_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="generate-a-map-with-tada_viewattains">Generate a Map with TADA_ViewATTAINS<a class="anchor" aria-label="anchor" href="#generate-a-map-with-tada_viewattains"></a>
@@ -195,13 +200,14 @@ frame generated by TADA_CreateAUMLCrosswalk, run
 TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">batch.upload.MT</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="co"># selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new crosswalk</span></span>
-<span>                                  attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                                  batch_upload <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                                  wqp_data_links <span class="op">=</span> <span class="st">"add"</span>,</span>
-<span>                                  <span class="co">#ml ids have already  been corrected if needed</span></span>
-<span>                                  update_mlid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                                  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span> <span class="co"># selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new crosswalk</span></span>
+<span>    attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    batch_upload <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    wqp_data_links <span class="op">=</span> <span class="st">"add"</span>,</span>
+<span>    <span class="co"># ml ids have already  been corrected if needed</span></span>
+<span>    update_mlid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="assign-uses-to-aus-with-tada_createuseauref">Assign uses to AUs with TADA_CreateUseAURef<a class="anchor" aria-label="anchor" href="#assign-uses-to-aus-with-tada_createuseauref"></a>
@@ -214,17 +220,20 @@ FRESHWATER” for demonstration on how to auto_assign uses to a new AU
 that is not yet in ATTAINS nor has been assigned uses to it yet.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Final.MT.AUMLRef</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="co"># selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk</span></span>
-<span>                                  attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                                  batch_upload <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                                  wqp_data_links <span class="op">=</span> <span class="st">"add"</span>,</span>
-<span>                                  <span class="co"># ml ids have already  been corrected if needed</span></span>
-<span>                                  update_mlid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>                                  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span> <span class="co"># selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk</span></span>
+<span>    attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    batch_upload <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    wqp_data_links <span class="op">=</span> <span class="st">"add"</span>,</span>
+<span>    <span class="co"># ml ids have already  been corrected if needed</span></span>
+<span>    update_mlid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>    org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    ATTAINS.WaterType <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
-<span>    <span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span> <span class="op">~</span> <span class="st">"LAKE, FRESHWATER"</span>,</span>
-<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">ATTAINS.WaterType</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>      <span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span> <span class="op">~</span> <span class="st">"LAKE, FRESHWATER"</span>,</span>
+<span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">ATTAINS.WaterType</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and
 proceed with assigning uses for each unique AU. The assignment of uses
 to AU are prioritized as follows:</p>
@@ -251,22 +260,24 @@ choose to edit the TADA_CreateWaterUseRef crosswalk if needed.</li>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseAURef.WaterUseRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseAURef.html">TADA_CreateUseAURef</a></span><span class="op">(</span></span>
 <span>  waterUseRef <span class="op">=</span> <span class="fu"><a href="../reference/TADA_CreateWaterUseRef.html">TADA_CreateWaterUseRef</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span>,</span>
-<span>  AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>, </span>
-<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span></code></pre></div>
+<span>  AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>,</span>
+<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Users may manually assign use names to any new AUs if desired rather
 than using TADA_CreateWaterUseRef. For example:</li>
 </ol>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseAURef.manual</span> <span class="op">&lt;-</span> <span class="va">MT.UseAURef</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>        ATTAINS.UseName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Aquatic Life"</span>, <span class="st">"Drinking Water"</span><span class="op">)</span>, </span>
-<span>        ATTAINS.AssessmentUnitIdentifier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NEW:EX_MDEQ_WQ_WQX"</span>, <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      by <span class="op">=</span> <span class="op">(</span><span class="st">"ATTAINS.AssessmentUnitIdentifier"</span><span class="op">)</span></span>
-<span>      <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">ATTAINS.UseName.x</span>, <span class="op">-</span><span class="va">ATTAINS.UseName.y</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>      ATTAINS.UseName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Aquatic Life"</span>, <span class="st">"Drinking Water"</span><span class="op">)</span>,</span>
+<span>      ATTAINS.AssessmentUnitIdentifier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NEW:EX_MDEQ_WQ_WQX"</span>, <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    by <span class="op">=</span> <span class="op">(</span><span class="st">"ATTAINS.AssessmentUnitIdentifier"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">ATTAINS.UseName.x</span>, <span class="op">-</span><span class="va">ATTAINS.UseName.y</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
