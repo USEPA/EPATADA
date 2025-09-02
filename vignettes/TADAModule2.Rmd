@@ -27,8 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
 ```
 
@@ -72,7 +71,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -81,7 +80,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "646-legend-for-color-coding-of-wqp-observations-and-what-they-correspond-to-in-tada_viewattains",
   dependencies = TRUE
 )
 ```
