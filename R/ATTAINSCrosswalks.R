@@ -2894,18 +2894,17 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
     print("No AUMLRef was provided. Creating MLSummaryRef table on a monitoring sites level. NAs are generated for any ATTAINS AU columns.")
     CreateMLSummaryRef <- useParamRef %>%
       dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
-      dplyr::mutate(ATTAINS.assessmentunitname = NA) %>%
-      dplyr::mutate(ATTAINS.assessmentunitidentifier = NA) %>%
+      dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
       dplyr::mutate(ATTAINS.WaterType = NA) %>%
       dplyr::mutate(SaltFresh = NA) %>%
       dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
       dplyr::mutate(IncludeOrExclude = "Include") %>%
       dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
       dplyr::select(
-        ATTAINS.OrganizationIdentifier, ATTAINS.assessmentunitidentifier, 
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, 
         MonitoringLocationIdentifier, MonitoringLocationTypeName,
         TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
-        LongitudeMeasure, LatitudeMeasure, Flag.AssessmentNote, IncludeOrExclude, ApplyUniqueSpatialCriteria
+        LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
         ) %>%
       dplyr::distinct()
   }

@@ -47,7 +47,7 @@
 #' or monitoring site/assessment unit. For any unique groupings of sites, this 
 #' input is recommended.
 #'
-#' @param MLAURef An optional data frame input. This data frame
+#' @param AUMLRef An optional data frame input. This data frame
 #' should contain a completed crosswalk of WQP Monitoring Locations
 #' associated with each ATTAINS Assessment Unit. Users will need to ensure
 #' this crosswalk contains the appropriate column names in order to run this function.
@@ -97,7 +97,7 @@
 #' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
-#'   waterUseParamRef = NULL, useAURef = NULL, MLAURef = NULL,
+#'   waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
 #'   useParamRef = UseParamRef_UT,
 #'   excel = FALSE
 #' )
@@ -110,7 +110,7 @@
 #'
 TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id = NULL, # required inputs for the recommended workflow
                                            criteriaMethods = NULL, auto_fill = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           MLAURef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+                                           AUMLRef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
                                            epa304a = FALSE, displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
@@ -138,9 +138,9 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
   }
   
   # Invalid function input combos - supply one or the other.
-  if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
-    stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
-  }
+  # if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
+  #   stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
+  # }
   
   # Invalid function input combos - MLSummaryRef and autofill = TRUE cannot be used together
   if ( !is.null(MLSummaryRef) && auto_fill == TRUE ) {
@@ -235,7 +235,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
           .data, 
           org_id = org_id,
           useParamRef = TADA_UseParamRef,
-          MLAURef = MLAURef,
+          AUMLRef = AUMLRef,
           excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
         )
       )
@@ -281,7 +281,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        MLAURef = MLAURef,
+        AUMLRef = AUMLRef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
@@ -312,7 +312,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        MLAURef = MLAURef,
+        AUMLRef = AUMLRef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     }
@@ -343,7 +343,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         .data, 
         org_id = org_id,
         useParamRef = TADA_UseParamRef,
-        MLAURef = MLAURef,
+        AUMLRef = AUMLRef,
         MLSummaryRef = myfile_MLSummaryRef,
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
@@ -355,7 +355,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
-        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
+        ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier")
     }
     
     if (is.data.frame(MLSummaryRef)) {
@@ -365,7 +365,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         "ATTAINS.OrganizationIdentifier",
         "ApplyUniqueSpatialCriteria",
         "ATTAINS.WaterType",
-        "ATTAINS.assessmentunitidentifier"
+        "ATTAINS.AssessmentUnitIdentifier"
       )
       
       ref.names <- names(MLSummaryRef)
@@ -373,7 +373,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
         ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
-        ATTAINS.WaterType, ATTAINS.assessmentunitidentifier")
+        ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier")
       }
     }
   }

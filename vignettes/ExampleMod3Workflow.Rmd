@@ -347,7 +347,7 @@ name.
 #   excel = TRUE, overwrite = TRUE
 #   )
 
-ParamRef_Manual <- MT.ParamRef_None %>%
+ParamRef <- MT.ParamRef_None %>%
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
   grepl("PH_NA_NA_NONE", TADA.ComparableDataIdentifier) ~ "PH",
   grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)")) %>% 
@@ -356,7 +356,7 @@ ParamRef_Manual <- MT.ParamRef_None %>%
 MT.ParamRef_Manual <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = ParamRef_Manual,
+  paramRef = ParamRef,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -397,6 +397,11 @@ TADA_TableExport(MT.ParamRef_Final)
 
 Once the parameter reference table has been reviewed and modified, it
 can be saved and reused for analysis of future TADA data frames.
+
+remove intermediate variable, keep only the crosswalk table that we will continue to use in the workflow.
+```{r remove intermediate variables}
+rm(ParamRef, MT.ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_User_Supplied)
+```
 
 # TADA_CreateUseParamRef() Basics
 
@@ -479,9 +484,14 @@ MT.UseParamRef_AutoAssign <- TADA_CreateUseParamRef(
 TADA_TableExport(MT.UseParamRef_AutoAssign)
 ```
 
-Users can also choose to supply their own UseParamRef as an argument input. This may be useful if your organization has made significant changes to use names in the current cycle that cannot be retrieved from the prior ATTAINS assessment cycle or if there are just additional use names that were unable to be retrieved from the prior assessment cycle. (Note: TADA functions leverages the ATTAINS assessment profiles which will not reflect any submitted use name changes to ATTAINS until the next assessment cycle is approved. In addition, it may not be possible to retrieve every use and parameter name combination from ATTAINS as it is dependent on what each organization has submitted to ATTAINS as only those uses that are impaired may have been submitted.) In this example, let's use a filled out criteria table for MTDEQ. We can see that MTDEQ has additonal rows for E. Coli that was unable to be retrieved from ATTAINS. We also see PH was not found in the user supplied useParamRef table. We will assume MTDEQ has forgotten to include PH in their table and showcase the importance of considering all readily available data from your WQP data retrieval that you may need to consider. We will change this table to "Include" for all PH values.
+Users can also choose to supply their own UseParamRef as an argument input. This may be useful if your organization has made significant changes to use names in the current cycle that cannot be retrieved from the prior ATTAINS assessment cycle or if there are just additional use names that were unable to be retrieved from the prior assessment cycle. (Note: TADA functions leverages the ATTAINS assessment profiles which will not reflect any submitted use name changes to ATTAINS until the next assessment cycle is approved. In addition, it may not be possible to retrieve every use and parameter name combination from ATTAINS as it is dependent on what each organization has submitted to ATTAINS as only those uses that are impaired may have been submitted.) 
+
+In this example, let's use a filled out criteria table for MTDEQ and extract the use and parameters from their crosswalk. We can see that MTDEQ has additonal rows for E. Coli that was unable to be retrieved from ATTAINS. We also see PH was not found in the user supplied useParamRef table. We will assume MTDEQ has forgotten to include PH in their table and showcase the importance of considering all readily available data from your WQP data retrieval that you may need to consider. We will change this table to "Include" for all PH values.
 
 ```{r useparamref-User-Supplied}
+# write code to save MTDEQ criteria table into TADA as .Rda and then load it into the R environment.
+# load(criteria_table)
+
 MT.UseParamRef_User_Supplied <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
@@ -499,7 +509,10 @@ MT.UseParamRef_User_Supplied <-
 TADA_TableExport(MT.UseParamRef_AutoAssign)
 ```
 
-
+remove intermediate variable, keep only the crosswalk table that we will continue to use in the workflow.
+```{r remove intermediate variables}
+rm(MT.UseParamRef_AutoAssign, MT.UseParamRef_Manual, MT.UseParamRef_Manual_Update)
+```
 
 # TADA_CreateMLSummaryRef()
 
@@ -531,4 +544,30 @@ Compare the nrow for each of the ML versus AU level of summary. The AU level of 
 ```{r compare AU versus ML Summary}
 nrow(MT.MLSummaryRef_AU)
 nrow(MT.MLSummaryRef_ML)
+```
+
+# TADA DefineCriteriaMethodology()
+
+Now, lets get to generating the criteria and methodology file for MTDEQ to fill out. We will showcase how this table will be generated for the first time using the recommended step-by-step workflow and showcase how a user can go about updating their criteria and methodology file as needed.
+
+First, let's show how our step-by-step process all come together.
+```{r step-by-step output}
+MT.CriteriaMethods_Blank <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "MTDEQ",
+  MLSummaryRef = MT.MLSummaryRef_AU,
+  excel = FALSE
+)
+```
+
+Now, if MTDEQ, already has a filled out/partially filled out criteria methods table, let's provide this as an argument input. Users will be warned if there are additional WQP characteristics that are not captured in their user supplied table.
+
+```{r step-by-step output}
+MT.CriteriaMethods_User_Supplied <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "MTDEQ",
+  MLSummaryRef = MT.MLSummaryRef_AU,
+  criteriaMethods = criteria_table,
+  excel = FALSE
+)
 ```

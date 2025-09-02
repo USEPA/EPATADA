@@ -10,7 +10,7 @@ TADA_DefineCriteriaMethodology(
   org_id = NULL,
   criteriaMethods = NULL,
   auto_fill = FALSE,
-  MLAURef = NULL,
+  AUMLRef = NULL,
   useAURef = NULL,
   updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"),
   epa304a = FALSE,
@@ -46,7 +46,7 @@ and use(s) combinations that are not found in the user supplied table will be
 included in the output. These rows will need the criteria and methodology inputs
 filled out accordingly.}
 
-\item{MLAURef}{An optional data frame input. This data frame
+\item{AUMLRef}{An optional data frame input. This data frame
 should contain a completed crosswalk of WQP Monitoring Locations
 associated with each ATTAINS Assessment Unit. Users will need to ensure
 this crosswalk contains the appropriate column names in order to run this function.
@@ -118,7 +118,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  waterUseParamRef = NULL, useAURef = NULL, MLAURef = NULL,
+  waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )
