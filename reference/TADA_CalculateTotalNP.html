@@ -176,43 +176,20 @@ be used to represent a TOTAL N value for that site/day/depth.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, startDate <span class="op">=</span> <span class="st">"2024-06-01"</span>, </span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span>statecode <span class="op">=</span> <span class="st">"UT"</span>, startDate <span class="op">=</span> <span class="st">"2024-06-01"</span>, </span></span>
 <span class="r-in"><span>endDate <span class="op">=</span> <span class="st">"2024-07-01"</span>, characteristicType <span class="op">=</span> <span class="st">"Nutrient"</span>, applyautoclean <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
 <span class="r-in"><span>ask <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking what data is available. This may take a moment.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> The number of sites and/or records matched by the query terms is large, so the download may take some time.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Downloading data from sites with fewer than 350000 results by grouping them together."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================================| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Data successfully downloaded. Running TADA_AutoClean function."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA-specific columns."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No deprecated characteristic names found in dataset."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: harmonizing result and depth units."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="va">df</span>, nd_method <span class="op">=</span> <span class="st">"multiplier"</span>,</span></span>
 <span class="r-in"><span>nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>, od_method <span class="op">=</span> <span class="st">"as-is"</span>, od_multiplier <span class="op">=</span> <span class="st">"null"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_IDCensoredData: There are 2 results in your dataframe that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="va">df2</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagResultUnit: All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">df2</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="va">df2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">df3</span> <span class="op">&lt;-</span> <span class="fu">TADA_CalculateTotalNP</span><span class="op">(</span><span class="va">df2</span>, daily_agg <span class="op">=</span> <span class="st">"max"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "Aggregation results:"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Considered in max aggregation function but not selected </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                     461 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                   No aggregation needed </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                    1413 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                         Selected as max aggregate value </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                     313 </span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

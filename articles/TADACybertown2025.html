@@ -72,7 +72,7 @@
       <h1>TADA Cybertown Workshop June 2025</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-08-21</h4>
+            <h4 data-toc-skip class="date">2025-09-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADACybertown2025.Rmd" class="external-link"><code>vignettes/TADACybertown2025.Rmd</code></a></small>
       <div class="d-none name"><code>TADACybertown2025.Rmd</code></div>
@@ -350,9 +350,10 @@ ActivityTypeCode’s.</p>
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindQCActivities.html">TADA_FindQCActivities</a></span><span class="op">(</span><span class="va">WQP_clean</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_ConvertSpecialChars</code> removes rows where the result
 value is not numeric to prepare a dataframe for quantitative analyses.
-Specifically, this function removes rows with “Text” and “NA - Not
-Available” in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in
-the TADA.ResultMeasureValue column. In addition, this function removes
+Specifically, this function removes rows with <code>Text</code> and
+<code>NA - Not Available</code> in the
+TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
+TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode’s. This function also removes any
 columns not required for TADA workflow where all values are equal to
 NA.</p>

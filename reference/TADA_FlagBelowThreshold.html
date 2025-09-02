@@ -89,9 +89,9 @@ flagged as below the lower WQX threshold. Default is flaggedonly = FALSE.</p></d
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The input TADA dataset with the added "TADA.ResultValueBelowLowerThreshold.Flag"
-column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
-"NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
+    <p>The input TADA dataset with the added <code>TADA.ResultValueBelowLowerThreshold.Flag</code>
+column which is populated with the values: <code>Pass</code>, <code>Suspect</code>, <code>Not Reviewed</code>, or
+<code>NA - Not Available</code>. Defaults are clean = FALSE and flaggedonly = FALSE.
 When clean = FALSE and flaggedonly = TRUE, the dataframe
 is filtered to show only data found below the WQX threshold. When clean = TRUE
 and flaggedonly = FALSE, rows with values that are below the lower WQX threshold
@@ -108,13 +108,13 @@ that are below the upper WQX threshold are removed from the dataframe and no
 column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
 is not executed and an error message is returned. Defaults are clean = FALSE
 and flaggedonly = FALSE.</p>
-<p>This function will add the column "TADA.ResultValueBelowLowerThreshold.Flag" which
-will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
-"NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
+<p>This function will add the column <code>TADA.ResultValueBelowLowerThreshold.Flag</code> which
+will be populated with the values: <code>Pass</code>, <code>Suspect</code>, <code>Not Reviewed</code>,
+or <code>NA - Not Available</code>. The “Not Reviewed” value means that the EPA WQX team
 has not yet reviewed the range yet for the characteristic and unit combination combination
 in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-The WQX team plans to review and update these new combinations quarterly. The
-"NA - Not Available" flag means that the characteristic, media, and/or unit combination
+The WQX team plans to review and update these new combinations quarterly.
+The <code>NA - Not Available</code> flag means that the characteristic, media, and/or unit combination
 for that row is not fully populated (is NA or does not match the WQX data standard)
 or the result value is NA.</p>
 <p>If this function is run more than once on the same dataframe,
@@ -134,7 +134,7 @@ the flag column will be deleted and regenerated.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, data that is below the lower WQX threshold in</span></span></span>
-<span class="r-in"><span><span class="co"># new column titled "TADA.ResultValueBelowLowerThreshold.Flag":</span></span></span>
+<span class="r-in"><span><span class="co"># new column titled `TADA.ResultValueBelowLowerThreshold.Flag`:</span></span></span>
 <span class="r-in"><span><span class="va">WQXLowerThreshold_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagBelowThreshold</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>

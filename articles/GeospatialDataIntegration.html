@@ -69,7 +69,7 @@
 
       <h1>Geospatial Data Integration</h1>
             
-            <h4 data-toc-skip class="date">2025-08-21</h4>
+            <h4 data-toc-skip class="date">2025-09-02</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/GeospatialDataIntegration.Rmd" class="external-link"><code>vignettes/GeospatialDataIntegration.Rmd</code></a></small>
       <div class="d-none name"><code>GeospatialDataIntegration.Rmd</code></div>
@@ -386,7 +386,7 @@ filter to just the 25 unique locations.</p>
 (which uses an <code>nhdplusTools</code> web service client) to get the
 comid for each location.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/StreamCatTools/reference/sc_get_comid.html" class="external-link">sc_get_comid</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">)</span>, split <span class="op">=</span> <span class="st">","</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strsplit.html" class="external-link">strsplit</a></span><span class="op">(</span><span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu">sc_get_comid</span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">)</span>, split <span class="op">=</span> <span class="st">","</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span><span class="op">)</span></span>
 <span></span>
@@ -499,13 +499,13 @@ watershed for each particular site using <a href="https://usepa.github.io/Stream
 <p><strong>Discover what StreamCat metrics we might want to
 use</strong></p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/StreamCatTools/reference/sc_get_params.html" class="external-link">sc_get_params</a></span><span class="op">(</span>param <span class="op">=</span> <span class="st">"metric_names"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">metrics</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu">sc_get_params</span><span class="op">(</span>param <span class="op">=</span> <span class="st">"metric_names"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"A selection of available StreamCat metrics include: "</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">metrics</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">]</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Discover land cover of watersheds for sites</strong></p>
 <p>We’ll pull in all the NLCD categories at the local catchment level
 for each location</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">GB_FR_NLCD</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/StreamCatTools/reference/sc_nlcd.html" class="external-link">sc_nlcd</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"2019"</span>, aoi <span class="op">=</span> <span class="st">"cat"</span>, comid <span class="op">=</span> <span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">GB_FR_NLCD</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu">sc_nlcd</span><span class="op">(</span>year <span class="op">=</span> <span class="st">"2019"</span>, aoi <span class="op">=</span> <span class="st">"cat"</span>, comid <span class="op">=</span> <span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="va">GB_FR_Urb</span> <span class="op">&lt;-</span> <span class="va">GB_FR_NLCD</span> <span class="op">|&gt;</span></span>
@@ -524,7 +524,7 @@ location</strong></p>
 <p>Now we’ll just demonstrate pulling in watershed data that we might
 use in a modeling exercise as spatial covariates</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ws_data</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu"><a href="https://usepa.github.io/StreamCatTools/reference/sc_get_data.html" class="external-link">sc_get_data</a></span><span class="op">(</span>metric <span class="op">=</span> <span class="st">"fert,nsurp,nani,manure,IWI"</span>, aoi <span class="op">=</span> <span class="st">"cat,ws"</span>, comid <span class="op">=</span> <span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">ws_data</span> <span class="op">&lt;-</span> <span class="fu">StreamCatTools</span><span class="fu">::</span><span class="fu">sc_get_data</span><span class="op">(</span>metric <span class="op">=</span> <span class="st">"fert,nsurp,nani,manure,IWI"</span>, aoi <span class="op">=</span> <span class="st">"cat,ws"</span>, comid <span class="op">=</span> <span class="va">GreenBay_FoxRiver_sf_locs</span><span class="op">$</span><span class="va">COMID</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 </div>
