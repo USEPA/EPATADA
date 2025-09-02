@@ -193,13 +193,14 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     latest.params <- latest.assessments %>%
     dplyr::select(organizationId, organizationName,
                   organizationType, parameterName,
-                  useName) %>%
+                  useName, waterType) %>%
     dplyr::rename( ATTAINS.OrganizationIdentifier = organizationId,
                    ATTAINS.OrganizationName = organizationName,
                    ATTAINS.OrganizationType = organizationType,
                    ATTAINS.ParameterName = parameterName,
-                   ATTAINS.UseName = useName) %>%
-      dplyr::distinct()
+                   ATTAINS.UseName = useName,
+                   ATTAINS.WaterType = waterType) %>%
+    dplyr::distinct()
 
   # remove intermediate variables
   rm(nat.assessments, latest.assessments)

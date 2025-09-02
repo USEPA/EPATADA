@@ -1677,7 +1677,18 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS.
     ATTAINS_param_all <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
 
-    # Considers if we want to separate speciation, fraction, units as seprate columns in the future for crosswalk.
+    # If a user provides a useAURef, We will use the uses in this table
+    if (!is.null(useAURef)) {
+      ATTAINS_param_all <- ATTAINS_param_all %>%
+        dplyr::select(-ATTAINS.UseName) %>%
+        dplyr::distinct() %>%
+        dplyr::left_join(
+          useAURef, 
+          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType")
+          ) 
+    }
+    
+    # Considers if we want to separate speciation, fraction, units as separate columns in the future for crosswalk.
     if (!is.null(paramRef) & !("TADA.ComparableDataIdentifier" %in% names(paramRef))) {
       paramRef <- paramRef %>%
         dplyr::left_join(
@@ -1753,48 +1764,6 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         Flag.UseInput =
           "Default: no modification was made to this row."
       )
-
-    # If users want the EPA304a criteria. This pulls in the CST reference file.
-    # Extracts the associated EPA304a pollutant names and its use_names.
-    # if (tolower("epa304a") %in% tolower(org_id)) {
-    #
-    #   # handles case-insensitive inclusion of "epa304a" to "EPA304a" to pull in its magnitude
-    #   org_id = c(org_id[tolower(org_id) != tolower("EPA304a")],"EPA304a")
-    #
-    #   CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
-    #     dplyr::select(EPA304A.PollutantName = POLLUTANT_NAME, use_name) %>%
-    #     dplyr::mutate(organization_identifier = "EPA304a")
-    #
-    #   EPA_param <- CreateUseParamRef %>%
-    #     dplyr::left_join(CST_param, c("EPA304A.PollutantName"), relationship = "many-to-many") %>%
-    #     dplyr::select(
-    #       TADA.ComparableDataIdentifier,
-    #       organization_identifier = organization_identifier.y,
-    #       ATTAINS.ParameterName, EPA304A.PollutantName, use_name = use_name.y
-    #     ) %>%
-    #     dplyr::distinct()
-    #
-    #   # remove intermediate object CST_param
-    #   rm(CST_param)
-    #
-    #   CreateUseParamRef <- CreateUseParamRef %>%
-    #     dplyr::ungroup() %>%
-    #     dplyr::full_join(
-    #       EPA_param,
-    #       by = c(
-    #         "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName",
-    #         "ATTAINS.OrganizationIdentifier", "EPA304A.PollutantName", "use_name"
-    #       )
-    #     ) %>%
-    #     dplyr::select(
-    #       TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
-    #       EPA304A.PollutantName, ATTAINS.ParameterName, use_name
-    #     ) %>%
-    #     dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
-    #
-    #   # remove intermediate object EPA_param
-    #   rm(EPA_param)
-    # }
 
     if (auto_assign == TRUE) {
       print(paste0(

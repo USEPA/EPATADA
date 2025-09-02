@@ -469,13 +469,16 @@ TADA_TableExport(NCTC_MLSummaryRef_AU_No_WaterUseParam)
 Users can proceed with a few different options for generating their criteria table
 
 1) Provide a user-supplied criteria and methods table partially/fully filled out.
-  A.) The default option in this scenario will display all unique TADA.ComparableDataIdentifiers
-  in your TADA/WQP data frame to ensure you review any mi
+  A.) The default option in this scenario will display all unique TADA.ComparableDataIdentifiers (or WQP CharacteristicName) 
+  in your TADA/WQP data frame to ensure you review any missing WQP Characteristic, speciation and fraction combinations.
+  B.) Users can also choose to provide a 
   
 2) Generate a blank criteria and methods table and fill it out from scratch.
   
-2) Go through the step-by-step review process with the 3 TADA crosswalk reference file generation
+3) Go through the step-by-step review process with the 3 TADA crosswalk reference file generation
 for TADA_CreateParamRef, TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef.
+
+Each option will allow the option to append additional rows to summarize EPA304a recommended standards, if one is found.
 
 ## Option A: Fully blank template
 
