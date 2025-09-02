@@ -18,7 +18,7 @@ editor_options:
   chunk_output_type: console
   markdown:
     wrap: 72
-description: An example Module 2 workflow for creating an ATTAINS assessment unit/WQP monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any WQP monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
+description: An example Module 2 workflow focused on using TADA_CreateAUMLCrosswalk to create an ATTAINS assessment unit/WQP monitoring location crosswalk. This function workflow considers (1) an optional user-supplied crosswalk, (2) the results of TADA_GetATTAINSAUMLCrosswalk which brings in any WQP monitoring location information stored in ATTAINS by participating organizations, and (3) the results of TADA_CreateATTAINSAUMLCrosswalk which leverages the ATTAINS catchments to join monitoring locations to assessment units via a geospatial join. The three potential crosswalk data sources are prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
 ---
 
 ```{r setup, include=FALSE}
@@ -107,7 +107,7 @@ rm(tada.MT)
 Get existing data from ATTAINS and subset a few rows to create an
 example user-supplied crosswalk for demonstration purposes.
 
-```{r demo.user, echo = FALSE}
+```{r demo.user, results = 'hide'}
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
@@ -147,7 +147,7 @@ Run TADA_CreateAUMLCrosswalk which can incorporate any combination of:
 
 3.  results from TADA_CreateATTAINSAUMLCrosswalk which leverages the
     ATTAINS catchments to join monitoring locations to assessment units
-    via a geospatial join .
+    via a geospatial join.
 
 The assignments are prioritized in the order listed. Any WQP monitoring
 locations which remain unassigned after checking the user-supplied
