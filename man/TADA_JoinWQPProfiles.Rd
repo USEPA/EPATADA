@@ -31,28 +31,23 @@ providers=STORET
 }
 \examples{
 \dontrun{
-# construct the WQP web service URL for each profile
+# Define base URL and common components
 baseurl <- "https://www.waterqualitydata.us"
-profile_station <- "/data/Station"
-profile_result <- "/data/Result"
-profile_result_2 <- "&dataProfile=resultPhysChem"
-profile_project <- "/data/Project"
 filters <- "/search?statecode=US\%3A09&characteristicType=Nutrient"
 dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
 type <- "&mimeType=csv&zip=yes"
 providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 
-stationProfile <- TADA_ReadWQPWebServices(
-  paste0(baseurl, profile_station, filters, dates, type, providers)
-)
+# Construct URLs for different profiles
+station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
+result_url <- paste0(baseurl, "/data/Result", filters, 
+dates, type, "&dataProfile=resultPhysChem", providers)
+project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 
-physchemProfile <- TADA_ReadWQPWebServices(
-  paste0(baseurl, profile_result, filters, dates, type, profile_result_2, providers)
-)
-
-projectProfile <- TADA_ReadWQPWebServices(
-  paste0(baseurl, profile_project, filters, dates, type, providers)
-)
+# Retrieve data from Water Quality Portal web services
+stationProfile <- TADA_ReadWQPWebServices(station_url)
+physchemProfile <- TADA_ReadWQPWebServices(result_url)
+projectProfile <- TADA_ReadWQPWebServices(project_url)
 
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(

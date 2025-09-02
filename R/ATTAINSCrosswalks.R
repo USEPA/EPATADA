@@ -204,8 +204,12 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the column
 #' names in the returned df will match the column names required for ATTAINS
-#' batch upload. When batch_upload = FALSE, the column names will match those in
-#' the TADA workflow. Default is batch_upload = FALSE.
+#' batch upload and all WQP Monitoring Locations that have not been matched to
+#' an existing Assessment Unit from the user-specified organization are removed
+#' from the dataframe. When batch_upload = FALSE, the column names will match
+#' those in the TADA workflow and Monitoring Locations not assigned to existing
+#' Assessment Units from the user-specified organization will be retained.
+#' Default is batch_upload = FALSE.
 #'
 #' @return When batch_upload = FALSE, A dataframe with six columns:
 #' OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
@@ -252,13 +256,13 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'   "ExampleSite1", "ExampleSite2", "ExampleSite3",
 #'   "ExampleSite4", "ExampleSite5"
 #' )
-#' 
+#'
 #' # example water types
 #' ATTAINS.WaterType <- c(
 #'   "BEACH", "BAY", "CREEK",
 #'   "ESTUARY", "CREEK"
 #' )
-#' 
+#'
 #' # example urls
 #' ATTAINS.MonitoringDataLinkText <- c(
 #'   "https://www.waterqualitydata.us/provider/STORET/AKDECWQ/",
@@ -358,8 +362,12 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
                         ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
                         OrganizationIdentifier = MS_ORG_ID,
                         ATTAINS.MonitoringDataLinkText = MS_DATA_LINK) %>%
+          dplyr::rowwise() %>%
           dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id,
-                        ATTAINS.WaterType = NA)
+                        ATTAINS.WaterType =
+                          ifelse(
+                            "ATTAINS.WaterType" %in% names(.), ATTAINS.WaterType,
+                            NA_character_ ))
       }
     }
 
@@ -694,6 +702,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
     # If batch upload is desired, format the output in the required format.
     if (batch_upload == TRUE) {
       update.crosswalk <- update.crosswalk %>%
+        dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) %>%
         dplyr::rename(ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
                       MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
@@ -2515,8 +2524,8 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
-#' This is a helper function to TADA_CreateUseAURef and is meant to help users
-#' with reviewing all water type and use name combination from their org.
+#' This is a helper function to TADA_CreateUseAURef and is meant to assist users
+#' with reviewing all water type and use name combinations from their organization.
 #' This function will help to assign ATTAINS use names to any new or modified
 #' assessment unit provided from a user's AUMLRef if there are any.
 #'
@@ -2550,7 +2559,9 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
+#' }
 #'
 TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
   # If org_id argument is not provided, this will attempt to pull in org_id from TADA_GetATTAINS.

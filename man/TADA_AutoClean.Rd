@@ -49,11 +49,10 @@ with a numeric value. If all depth columns contain only NA's, no conversion
 is necessary and no TADA depth columns are created.
 }
 \description{
-This function performs several cleaning tasks on a TADA dataframe:
+This function performs several cleaning tasks on a TADA dataframe.
 }
 \details{
-\enumerate{
-\item \strong{Column Creation and Capitalization}: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
+\strong{Column Creation and Capitalization}: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with USGS data and the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
 \itemize{
 \item CharacteristicName
 \item ResultSampleFractionText
@@ -62,13 +61,16 @@ This function performs several cleaning tasks on a TADA dataframe:
 \item ActivityMediaName
 \item DetectionQuantitationLimitMeasure.MeasureUnitCode
 }
-\item \strong{Special Character Conversion}: Runs \code{TADA_ConvertSpecialChars} on the following columns and creates new versions with the TADA prefix:
+
+\strong{Special Character Conversion}: Runs \code{TADA_ConvertSpecialChars} on the following columns and creates new versions with the TADA prefix:
 \itemize{
 \item ResultMeasureValue
 \item DetectionQuantitationLimitMeasure.MeasureValue
 }
-\item \strong{Latitude and Longitude Conversion}: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
-\item \strong{Unit Code Replacement}: Replaces \code{meters} with \code{m} in the following columns:
+
+\strong{Latitude and Longitude Conversion}: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
+
+\strong{Unit Code Replacement}: Replaces \code{meters} with \code{m} in the following columns:
 \itemize{
 \item TADA.ResultMeasure.MeasureUnitCode
 \item ActivityDepthHeightMeasure.MeasureUnitCode
@@ -76,11 +78,15 @@ This function performs several cleaning tasks on a TADA dataframe:
 \item ActivityBottomDepthHeightMeasure.MeasureUnitCode
 \item ResultDepthHeightMeasure.MeasureUnitCode
 }
-\item \strong{Deprecated Characteristic Replacement}: Runs \code{TADA_SubstituteDeprecatedChars} to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
-\item \strong{Result Unit Harmonization}: Runs \code{TADA_ConvertResultUnits} to harmonize
-result and detection limit units to WQX and TADA or user-supplied target units.
-For more details, see \code{?TADA_ConvertResultUnits} and \code{?TADA_CreateUnitRef()}.
-\item \strong{Depth Unit Conversion}: Runs \code{TADA_ConvertDepthUnits} to convert depth
+
+\strong{Deprecated Characteristic Replacement}: Runs \code{TADA_SubstituteDeprecatedChars} to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
+
+\strong{Result Unit Harmonization}: Runs \code{TADA_ConvertResultUnits} to harmonize
+result and detection limit units to WQX and TADA target units.
+For more details, including how to convert units to user supplied targets,
+see \code{?TADA_ConvertResultUnits} and \code{?TADA_CreateUnitRef()}.
+
+\strong{Depth Unit Conversion}: Runs \code{TADA_ConvertDepthUnits} to convert depth
 units to meters on the following columns, adding new columns with the TADA prefix:
 \itemize{
 \item ResultDepthHeightMeasure.MeasureValue
@@ -88,18 +94,18 @@ units to meters on the following columns, adding new columns with the TADA prefi
 \item ActivityTopDepthHeightMeasure.MeasureValue
 \item ActivityBottomDepthHeightMeasure.MeasureValue
 }
-\item \strong{Comparable ID Creation}: Runs \code{TADA_CreateComparableID} to create a
-comparable data group by concatenating:
+
+\strong{Comparable ID Creation}: Runs \code{TADA_CreateComparableID} to create a
+\code{TADA.ComparableDataIdentifier} by concatenating:
 \itemize{
 \item TADA.CharacteristicName
 \item TADA.ResultSampleFractionText
 \item TADA.MethodSpeciationName
 \item TADA.ResultMeasure.MeasureUnitCode
 }
-}
 
 Original columns are not changed. New columns are appended to the dataframe
-with the prefix \code{TADA.}. \code{TADA_AutoClean} can be run as a standalone function
+with the prefix \code{TADA}. \code{TADA_AutoClean} can be run as a standalone function
 but is primarily used by the \code{TADA_dataRetrieval} function.
 }
 \examples{
@@ -108,20 +114,37 @@ but is primarily used by the \code{TADA_dataRetrieval} function.
 # https://www.waterqualitydata.us/
 
 # Example WQP URL:
-# https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+# https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&
+# startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+# providers=STEWARDS&providers=STORET
 
-# Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+# Define base URL and common components
+baseurl <- "https://www.waterqualitydata.us"
+filters <- "/search?statecode=US\%3A09&characteristicType=Nutrient"
+dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+type <- "&mimeType=csv&zip=yes"
+providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+
+# Construct URLs for different profiles
+station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
+result_url <- paste0(baseurl, "/data/Result", filters, dates, type,
+                     "&dataProfile=resultPhysChem", providers)
+project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
+
+# Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles
+stationProfile <- TADA_ReadWQPWebServices(station_url)
+physchemProfile <- TADA_ReadWQPWebServices(result_url)
+projectProfile <- TADA_ReadWQPWebServices(project_url)
 
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(
   FullPhysChem = physchemProfile,
-  Sites = stationProfile, Projects = projectProfile
+  Sites = stationProfile,
+  Projects = projectProfile
 )
 
 # Run TADA_AutoClean
 Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 }
+
 }

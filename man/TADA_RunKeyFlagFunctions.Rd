@@ -24,9 +24,12 @@ TADA_FlagResultUnit, TADA_FlagFraction, TADA_FindQCActivities,
 TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 }
 \examples{
+\dontrun{
 # Run flagging functions but keep all results
 keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
 
 # Run flagging functions and remove and suspect rows
 remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
+}
+
 }

@@ -301,6 +301,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' @export
 #' 
 #' @examples
+#' \dontrun{
 #' df <- TADA_DataRetrieval(statecode = "UT", startDate = "2024-06-01", 
 #' endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE, 
 #' ask = FALSE)
@@ -313,8 +314,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' df2 <- TADA_HarmonizeSynonyms(df2)
 #' 
 #' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+#' }
 #' 
-
 TADA_CalculateTotalNP <- function(.data, 
                                   sum_ref, 
                                   daily_agg = c("max", "min", "mean")) {

@@ -1226,9 +1226,8 @@ Count how many NA's remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only include data that is numeric in the
-"TADA.ResultMeasureValue" column. This removes data where the
-TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
+Filter down to only include data that is numeric in the `TADA.ResultMeasureValue` column. This removes data where the `TADA.ResultMeasureValueDataTypes.Flag` = `Text` or 
+`NA - Not Available`.
 
 ```{r filter_out_NAs}
 TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
