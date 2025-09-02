@@ -45,11 +45,13 @@ tribal nations record this information in ATTAINS but only a few states.
 \dontrun{
 # Alaska example in
 AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = TRUE)
+  org_id = "AKDECWQ", batch_upload = TRUE
+)
 
 # Alaska example with ATTAINS prefix compatible with TADA Analysis workflow
 AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = FALSE)
+  org_id = "AKDECWQ", batch_upload = FALSE
+)
 
 # Pueblo of Tesuque example
 PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(

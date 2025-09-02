@@ -23,9 +23,9 @@ For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
 # Example: Using the pipe operator to transform data
 library(magrittr)
 result <- iris \%>\%
-head(10) \%>\%
-subset(Species == "setosa") \%>\%
-summary()
+  head(10) \%>\%
+  subset(Species == "setosa") \%>\%
+  summary()
 print(result)
 }
 \keyword{internal}

@@ -35,9 +35,7 @@ join the three dataframes into a single dataframe.
 
 Note: It may be useful to save the Query URL from the WQP as well as a
 comment within your code. This URL let's you return to the WQP query page
-with all your selected data filters. For example, this is the query used
-in the examples for this function:
-https://www.waterqualitydata.us/#statecode=US\%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&startDateHi=02-01-2021&mimeType=csv&providers=NWIS&providers=STORET
+with all your selected data filters. See example below.
 
 \strong{Extra tip:} Note that the web service call built using the Water
 Quality Portal uses the inputs startDateLo and startDateHi rather than
@@ -52,44 +50,28 @@ stick with YYYY-MM-DD.
 }
 \examples{
 \dontrun{
-# construct the WQP web service URL for each profile
+# Define base URL and common components
 baseurl <- "https://www.waterqualitydata.us"
-profile_station <- "/data/Station"
-profile_result <- "/data/Result"
-profile_result_2 <- "&dataProfile=biological"
-profile_project <- "/data/Project"
 filters <- "/search?statecode=US\%3A09&sampleMedia=water&sampleMedia=Water"
 dates <- "&startDateLo=01-01-2021&startDateHi=02-01-2021"
 type <- "&mimeType=csv&zip=yes"
 providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 
-physchemresults1 <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_station,
-  filters,
-  dates,
-  type,
-  providers
-))
+# Construct URLs for different profiles
+station_url <- paste0(
+  baseurl, "/data/Station", filters, dates, type, providers
+)
+result_url <- paste0(
+  baseurl, "/data/Result", filters, dates, type, "&dataProfile=biological", providers
+)
+project_url <- paste0(
+  baseurl, "/data/Project", filters, dates, type, providers
+)
 
-sites1 <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_result,
-  filters,
-  dates,
-  type,
-  profile_result_2,
-  providers
-))
-
-projects1 <- TADA_ReadWQPWebServices(paste0(
-  baseurl,
-  profile_project,
-  filters,
-  dates,
-  type,
-  providers
-))
+# Retrieve data from Water Quality Portal web services
+physchemresults1 <- TADA_ReadWQPWebServices(station_url)
+sites1 <- TADA_ReadWQPWebServices(result_url)
+projects1 <- TADA_ReadWQPWebServices(project_url)
 }
 
 }

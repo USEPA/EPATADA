@@ -22,10 +22,12 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning = FALSE, 
-                      message = FALSE,
-                      eval = F)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = F
+)
 ```
 
 ```{css, include = F}
@@ -371,7 +373,7 @@ WQP_clean <- TADA_FindQCActivities(WQP_clean, clean = TRUE)
 
 `TADA_ConvertSpecialChars` removes rows where the result value is not
 numeric to prepare a dataframe for quantitative analyses. Specifically,
-this function removes rows with "Text" and "NA - Not Available" in the
+this function removes rows with `Text` and `NA - Not Available` in the
 TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
 TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode's. This function also removes any
