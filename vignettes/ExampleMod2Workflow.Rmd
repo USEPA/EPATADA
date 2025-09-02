@@ -222,7 +222,7 @@ Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
                                   update_mlid = FALSE,
                                   org_id = "MTDEQ") %>%
   dplyr::mutate(
-    ATTAINS.WaterType = case_when(
+    ATTAINS.WaterType = dplyr::case_when(
     ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
     TRUE ~ ATTAINS.WaterType))
 ```

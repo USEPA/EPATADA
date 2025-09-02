@@ -8,7 +8,7 @@ TADA_CreateMLSummaryRef(
   .data,
   org_id = NULL,
   useParamRef = NULL,
-  MLAURef = NULL,
+  AUMLRef = NULL,
   useAURef = NULL,
   MLSummaryRef = NULL,
   excel = FALSE,
@@ -36,7 +36,7 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
-\item{MLAURef}{An optional data frame input. If provided, this data frame
+\item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
@@ -121,7 +121,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  waterUseParamRef = NULL, useAURef = NULL, MLAURef = NULL,
+  waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )
