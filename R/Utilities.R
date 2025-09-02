@@ -155,7 +155,7 @@ utils::globalVariables(c(
   "overallstatus", "permid_joinkey", "region", "reportingCycle",
   "reportingcycle", "response.code", "return_sf", "state", "submissionid",
   "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method"
+  "xwalk_method", "WqxV2.FieldName"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1611,6 +1611,8 @@ TADA_RenametoLegacy <- function(.data) {
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
+  
+  rm(WqxV2.FieldName)
 
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
