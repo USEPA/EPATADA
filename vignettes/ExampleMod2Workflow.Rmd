@@ -108,6 +108,9 @@ Get existing data from ATTAINS and subset a few rows to create an
 example user-supplied crosswalk for demonstration purposes.
 
 ```{r demo.user, results = 'hide'}
+# review valid ATTAINS org IDs
+ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
+
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
