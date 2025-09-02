@@ -127,8 +127,10 @@ providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 
 # Construct URLs for different profiles
 station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-result_url <- paste0(baseurl, "/data/Result", filters, dates, type,
-                     "&dataProfile=resultPhysChem", providers)
+result_url <- paste0(
+  baseurl, "/data/Result", filters, dates, type,
+  "&dataProfile=resultPhysChem", providers
+)
 project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 
 # Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles

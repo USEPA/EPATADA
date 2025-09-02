@@ -22,7 +22,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <-spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
+      attainsParamRef <- spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
@@ -190,16 +190,20 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     dplyr::distinct() %>%
     dplyr::ungroup()
 
-    latest.params <- latest.assessments %>%
-    dplyr::select(organizationId, organizationName,
-                  organizationType, parameterName,
-                  useName) %>%
-    dplyr::rename( ATTAINS.OrganizationIdentifier = organizationId,
-                   ATTAINS.OrganizationName = organizationName,
-                   ATTAINS.OrganizationType = organizationType,
-                   ATTAINS.ParameterName = parameterName,
-                   ATTAINS.UseName = useName) %>%
-      dplyr::distinct()
+  latest.params <- latest.assessments %>%
+    dplyr::select(
+      organizationId, organizationName,
+      organizationType, parameterName,
+      useName
+    ) %>%
+    dplyr::rename(
+      ATTAINS.OrganizationIdentifier = organizationId,
+      ATTAINS.OrganizationName = organizationName,
+      ATTAINS.OrganizationType = organizationType,
+      ATTAINS.ParameterName = parameterName,
+      ATTAINS.UseName = useName
+    ) %>%
+    dplyr::distinct()
 
   # remove intermediate variables
   rm(nat.assessments, latest.assessments)

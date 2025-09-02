@@ -427,11 +427,11 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' and flaggedonly = FALSE.
 #'
 #' This function will add the column `TADA.ResultValueAboveUpperThreshold.Flag` which
-#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`, 
+#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`,
 #' or `NA - Not Available`. The `Not Reviewed` value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly. 
+#' The WQX team plans to review and update these new combinations quarterly.
 #' The `NA - Not Available` flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
 #' or the result value is NA.
@@ -635,11 +635,11 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' and flaggedonly = FALSE.
 #'
 #' This function will add the column `TADA.ResultValueBelowLowerThreshold.Flag` which
-#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`, 
+#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`,
 #' or `NA - Not Available`. The “Not Reviewed” value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly. 
+#' The WQX team plans to review and update these new combinations quarterly.
 #' The `NA - Not Available` flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
 #' or the result value is NA.
@@ -827,18 +827,18 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 #' Check Data for an Approved QAPP
 #'
-#' This function evaluates the data submitted under the "QAPPApprovedIndicator" 
-#' column to determine if it has an approved Quality Assurance Project Plan (QAPP). 
-#' Organizations use this field to indicate approval status, 
-#' where 'Y' denotes approval and 'N' denotes non-approval. 
-#' The function provides flexibility through three 
-#' boolean arguments: `clean`, `cleanNA`, and `flaggedonly`, which control the 
+#' This function evaluates the data submitted under the "QAPPApprovedIndicator"
+#' column to determine if it has an approved Quality Assurance Project Plan (QAPP).
+#' Organizations use this field to indicate approval status,
+#' where 'Y' denotes approval and 'N' denotes non-approval.
+#' The function provides flexibility through three
+#' boolean arguments: `clean`, `cleanNA`, and `flaggedonly`, which control the
 #' filtering behavior of the data.
 #'
 #' @param .data A dataframe containing the QAPP data.
-#' @param clean Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator` 
+#' @param clean Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator`
 #' equals 'N'. Default is `FALSE`.
-#' @param cleanNA Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator` 
+#' @param cleanNA Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator`
 #' is NA. Default is `FALSE`.
 #' @param flaggedonly Logical. If `TRUE`, filters out rows where
 #' `QAPPApprovedIndicator` equals 'Y'. Default is `FALSE`.
@@ -853,9 +853,9 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' - Set `cleanNA = TRUE` to remove rows with NA values.
 #' - Set `flaggedonly = TRUE` to filter out rows where `QAPPApprovedIndicator` equals 'Y'.
 #'
-#' Note: The `QAPPApprovedIndicator` field is optional and often left blank (NA), 
-#' even if the data is associated with a QAPP. Most organizations collecting 
-#' monitoring data using 106 funding are required to have an EPA-approved QAPP, 
+#' Note: The `QAPPApprovedIndicator` field is optional and often left blank (NA),
+#' even if the data is associated with a QAPP. Most organizations collecting
+#' monitoring data using 106 funding are required to have an EPA-approved QAPP,
 #' hence most data should have an approved QAPP even if submitted as NA.
 #'
 #' @return A filtered dataframe based on the combination of input parameters:

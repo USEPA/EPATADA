@@ -1,7 +1,7 @@
 #' TADA_AutoClean
 #'
 #' This function performs several cleaning tasks on a TADA dataframe.
-#' 
+#'
 #' **Column Creation and Capitalization**: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with USGS data and the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
 #'    - CharacteristicName
 #'    - ResultSampleFractionText
@@ -9,7 +9,7 @@
 #'    - ResultMeasure.MeasureUnitCode
 #'    - ActivityMediaName
 #'    - DetectionQuantitationLimitMeasure.MeasureUnitCode
-#' 
+#'
 #' **Special Character Conversion**: Runs `TADA_ConvertSpecialChars` on the following columns and creates new versions with the TADA prefix:
 #'    - ResultMeasureValue
 #'    - DetectionQuantitationLimitMeasure.MeasureValue
@@ -27,31 +27,31 @@
 #'
 #' **Result Unit Harmonization**: Runs `TADA_ConvertResultUnits` to harmonize
 #'  result and detection limit units to WQX and TADA target units.
-#'  For more details, including how to convert units to user supplied targets, 
+#'  For more details, including how to convert units to user supplied targets,
 #'  see `?TADA_ConvertResultUnits` and `?TADA_CreateUnitRef()`.
 #'
-#' **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert depth 
+#' **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert depth
 #' units to meters on the following columns, adding new columns with the TADA prefix:
 #'    - ResultDepthHeightMeasure.MeasureValue
 #'    - ActivityDepthHeightMeasure.MeasureValue
 #'    - ActivityTopDepthHeightMeasure.MeasureValue
 #'    - ActivityBottomDepthHeightMeasure.MeasureValue
 #'
-#' **Comparable ID Creation**: Runs `TADA_CreateComparableID` to create a 
+#' **Comparable ID Creation**: Runs `TADA_CreateComparableID` to create a
 #' `TADA.ComparableDataIdentifier` by concatenating:
 #'    - TADA.CharacteristicName
 #'    - TADA.ResultSampleFractionText
 #'    - TADA.MethodSpeciationName
 #'    - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' Original columns are not changed. New columns are appended to the dataframe 
+#' Original columns are not changed. New columns are appended to the dataframe
 #' with the prefix `TADA`. `TADA_AutoClean` can be run as a standalone function
 #' but is primarily used by the `TADA_dataRetrieval` function.
 #'
 #' @param .data TADA dataframe
 #'
 #' @return Input dataframe with several added TADA-specific columns, including:
-#' 
+#'
 #' - TADA.ActivityMediaName (character)
 #' - TADA.ResultSampleFractionText (character)
 #' - TADA.CharacteristicName (character)
@@ -82,8 +82,8 @@
 #' - TADA.MonitoringLocationName (character)
 #' - TADA.MonitoringLocationTypeName (character)
 #'
-#' Note: The number of TADA-specific depth columns in the returned dataframe 
-#' depends on the number of depth columns with one or more results populated 
+#' Note: The number of TADA-specific depth columns in the returned dataframe
+#' depends on the number of depth columns with one or more results populated
 #' with a numeric value. If all depth columns contain only NA's, no conversion
 #' is necessary and no TADA depth columns are created.
 #'
@@ -108,8 +108,10 @@
 #'
 #' # Construct URLs for different profiles
 #' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-#' result_url <- paste0(baseurl, "/data/Result", filters, dates, type,
-#'                      "&dataProfile=resultPhysChem", providers)
+#' result_url <- paste0(
+#'   baseurl, "/data/Result", filters, dates, type,
+#'   "&dataProfile=resultPhysChem", providers
+#' )
 #' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 #'
 #' # Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles
@@ -127,22 +129,22 @@
 #' # Run TADA_AutoClean
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
-#' 
+#'
 TADA_AutoClean <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   # need to specify this or throws error when trying to bind rows. Temporary fix for larger
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-  
+
   # .data required columns
   required_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
@@ -361,17 +363,17 @@ TADA_AutoClean <- function(.data) {
 #' # Run flagging functions and remove and suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
 #' }
-#' 
+#'
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   if (clean == TRUE) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)
