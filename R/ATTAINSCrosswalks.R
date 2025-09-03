@@ -2868,7 +2868,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::mutate(SaltFresh = NA) %>%
       dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
       dplyr::mutate(IncludeOrExclude = "Include") %>%
-      dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
+      #dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
       dplyr::select(
         ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, 
         MonitoringLocationIdentifier, MonitoringLocationTypeName,

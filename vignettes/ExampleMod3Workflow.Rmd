@@ -400,7 +400,7 @@ can be saved and reused for analysis of future TADA data frames.
 
 remove intermediate variable, keep only the crosswalk table that we will continue to use in the workflow.
 ```{r remove intermediate variables}
-rm(ParamRef, MT.ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_User_Supplied)
+rm(ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_User_Supplied)
 ```
 
 # TADA_CreateUseParamRef() Basics
@@ -582,8 +582,33 @@ Note: Whenever a criteriaMethods argument input value is provided, users will be
 MT.CriteriaMethods_User_Supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef_AU,
+  MLSummaryRef = MT.MLSummaryRef_ML,
   criteriaMethods = criteria_table,
+  excel = FALSE
+)
+```
+
+Note: When a user provides a MLSummaryRef, it is assumed their criteria tables parameter crosswalk is based on the paramRef and useParamRef crosswalk done. However, whenever a criteriaMethods table is provided, all unique WQP Characteristic (or TADA.ComprableDataIdentifier) will be shown in the table.
+```{r step-by-step output with displayUniqueId}
+MT.CriteriaMethods_User_Supplied2 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "MTDEQ",
+  MLSummaryRef = MT.MLSummaryRef_ML,
+  criteriaMethods = criteria_table,
+  displayUniqueId = TRUE,
+  excel = FALSE
+)
+```
+
+You can append epa304a recommended standards (if there is one found for a TADA.CharacteristicName)
+```{r append epa304a recommended standards}
+MT.CriteriaMethods_User_Supplied3 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "MTDEQ",
+  MLSummaryRef = MT.MLSummaryRef_ML,
+  criteriaMethods = criteria_table,
+  displayUniqueId = TRUE,
+  epa304a = TRUE,
   excel = FALSE
 )
 ```

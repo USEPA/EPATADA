@@ -469,9 +469,8 @@ TADA_TableExport(NCTC_MLSummaryRef_AU_No_WaterUseParam)
 Users can proceed with a few different options for generating their criteria table
 
 1) Provide a user-supplied criteria and methods table partially/fully filled out.
-  A.) The default option in this scenario will display all unique TADA.ComparableDataIdentifiers (or WQP CharacteristicName) 
-  in your TADA/WQP data frame to ensure you review any missing WQP Characteristic, speciation and fraction combinations.
-  B.) Users can also choose to provide a 
+  A.) The default option in this scenario will display all unique TADA.ComparableDataIdentifiers (or WQP CharacteristicName) in your TADA/WQP data frame to ensure you review any missing WQP Characteristic, speciation and fraction combinations.
+  B.) Users can also choose to provide an autofill option, which will help to fill out any missing rows with ATTAINS.ParameterName and ATTAINS.UseName that are pulled in from ATTAINS.
   
 2) Generate a blank criteria and methods table and fill it out from scratch.
   
@@ -486,8 +485,8 @@ A blank template is generated. This can be generated and filled out in the excel
 
 ```{r blank template output}
 MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
+  tada.MT.clean, # remove this as an arg input
+  org_id = "MTDEQ", # can remove this too
   # auto_fill = FALSE, 
   excel = TRUE, overwrite = TRUE 
   )
@@ -513,7 +512,7 @@ MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ", 
   auto_fill = TRUE, 
   # displayUniqueId = FALSE,
-  excel = FALSE 
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
@@ -529,7 +528,7 @@ MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ", 
   auto_fill = TRUE, 
   displayUniqueId = TRUE,
-  excel = FALSE 
+  excel = TRUE, overwrite = TRUE 
   )
 ```
 
@@ -549,8 +548,8 @@ MT.Criteria2 <- TADA_DefineCriteriaMethodology(
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
   auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
-  displayUniqueId = FALSE,
-  excel = FALSE, 
+  displayUniqueId = TRUE,
+  excel = TRUE, overwrite = TRUE,
   epa304a = TRUE
   )
 ```
@@ -560,11 +559,11 @@ based on the auto_fill option (if it was successfully crosswalked.).
 
 ```{r user supplied, epa304a and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria2.1 <- TADA_DefineCriteriaMethodology(
+MT.Criteria2.2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean, 
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
-  auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_fill = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
   excel = FALSE, 
   epa304a = TRUE
