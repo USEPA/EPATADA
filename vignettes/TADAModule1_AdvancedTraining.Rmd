@@ -173,14 +173,18 @@ WQP profiles.
 
 If you are interested in reviewing the column headers and formats
 required to run TADA, use the function below, which saves an example
-spreadsheet to the user's working directory. You can also take a look at
+spreadsheet to the user's working directory. 
+
+```{r template, eval = F}
+getwd() # find your working directory
+template <- TADA_GetTemplate() # download template to working directory
+```
+
+You can also take a look at
 an example dataframe, like `Data_Nutrients_UT` to get an idea of the
 data structure and format.
 
-```{r template}
-getwd() # find your working directory
-template <- TADA_GetTemplate() # download template to working directory
-
+```{r}
 # review example dataframe
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
