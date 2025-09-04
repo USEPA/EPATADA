@@ -3508,6 +3508,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     if (is.data.frame(au_ref)) {
       print("TADA_CreateAUMLCrosswalk: fetching geospatial data for user-supplied crosswalk.")
 
+      # some errors may be happening here? HRM 9/4/25
       req.cols <- c(
         "AssessmentUnitIdentifier",
         "MonitoringLocationIdentifier"
