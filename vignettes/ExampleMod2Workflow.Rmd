@@ -65,10 +65,11 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-Finally, use the library() function to load the TADA R Package into your R session.
+Finally, use the library() function to load the EPATADA R Package and other required packages/
 
 ```{r library, results = 'hide'}
 library(EPATADA)
+library(dplyr)
 ```
 
 ### Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
