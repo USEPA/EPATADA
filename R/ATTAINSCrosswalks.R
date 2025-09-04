@@ -2901,11 +2901,14 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::filter(IncludeOrExclude == "Include") %>%
       dplyr::select(-IncludeOrExclude)
     
+    # Identify all unique monitoring location id in the .data data frame to filter by.
+    unique_ML <- unique(.data$MonitoringLocationIdentifier)
+    
     # Joins the crosswalk tables for CreateMLSummaryRef
     CreateMLSummaryRef <- useParamRef %>%
       dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::right_join(useAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) %>%
-      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier", "ATTAINS.WaterType")) %>%
+      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier")) %>%
       # dplyr::mutate(
       #   Flag.AssessmentNote =
       #     dplyr::case_when(
@@ -2930,7 +2933,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
         TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
         LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
-      dplyr::filter(MonitoringLocationIdentifier %in% .data$MonitoringLocationIdentifier) %>%
+      dplyr::filter(MonitoringLocationIdentifier %in% unique_ML) %>%
       dplyr::distinct()
   }
   

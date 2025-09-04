@@ -3386,7 +3386,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
 
     if(!is.data.frame(au_ref)) {
       stop(paste0("TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
-                  "containg the columns AssessmentUnitIdentifier and MonitoringLocationIdentifier.",
+                  "containing the columns AssessmentUnitIdentifier and MonitoringLocationIdentifier.",
                   "MonitoringLocationIdentifiers must be WQP compatible."))
     }
 
@@ -3395,12 +3395,13 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       print("TADA_CreateAUMLCrosswalk: fetching geospatial data for user-supplied crosswalk.")
 
       req.cols <- c("AssessmentUnitIdentifier",
-                    "MonitoringLocationIdentifier")
+                    "MonitoringLocationIdentifier",
+                    "ATTAINS.WaterType")
 
       # should this be using a more generic function?
       TADA_CheckColumns(au_ref, req.cols)
 
-      # rename au_ref cols for nex function
+      # rename au_ref cols for next function
       au_ref <- au_ref %>%
         dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
                       ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier)

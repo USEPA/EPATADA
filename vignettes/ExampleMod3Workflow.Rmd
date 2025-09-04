@@ -532,6 +532,8 @@ rm(MT.UseParamRef_AutoAssign, MT.UseParamRef_Manual, MT.UseParamRef_Manual_Updat
 
 Now, we will proceed with generating a final summary of analyzing your WQP data and specifying the spatial level of summary. In this example, we will showcase an example of an AU and ML level of summary for MTDEQ analysis and compare the two outputs.
 
+## Define Spatial Summary by Monitoring Location (ML)
+
 Let's start off with a ML summary of MTDEQ data frame.
 ```{r ML_Summary}
 MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
@@ -540,6 +542,8 @@ MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
   org_id = "MTDEQ"
   )
 ```
+
+## Define Spatial Summary by Monitoring Location (AU)
 
 Now let's compare this to the AU level of summary. To provide the ML to AU level of summary, this requires an AUML crosswalk, we recommend you to review the ExampleMod2Workflow vignette for more in depth information on this crosswalk.
 
