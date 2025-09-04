@@ -2893,8 +2893,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
     # Otherwise, if a user has already customized this and provided this useAURef, then use that table.
     if (is.null(useAURef)) {
       # Pulls in UseAURef
-      print("A AUMLRef was provided, but no UseAURef was provided. Running TADA_CreateUseAURef to pull in all prior use names for your AU.")
-      useAURef <- TADA_CreateUseAURef(.data, AUMLRef = AUMLRef, org_id = org_id, excel = FALSE)
+      stop("An AUMLRef was provided, but no UseAURef was provided. Please provide this as an argument input.")
     }
     
     # Only keep rows that have include
