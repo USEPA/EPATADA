@@ -3549,6 +3549,25 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
         dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
         dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
         dplyr::bind_rows(user.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
+    
+      # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
+      # existing AU that was retrieved from ATTAINS and included in the user supplied table.
+      if( add_catch == TRUE) {
+        test_mismatch <- dplyr::anti_join(
+          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>% 
+            dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+            dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
+            dplyr::distinct(),
+          au_ref,
+          by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
+          )
+        
+        if (nrow(test_mismatch) > 0){
+          # We can change the warning and choose to prioritize user-supplied crosswalk instead if desired. - KW
+          warning(paste0("Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
+                         "Prioritizing what has been submitted to ATTAINS for the ATTAINS.WaterType."))
+        }
+      }
     }
   }
 
@@ -3601,8 +3620,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
     )
     
-    # If we do not add the catchments or if a user supplied table has a new AU that 
-    # can't be retrieved yet from ATTAINS, we must still include the ATTAINS.WaterType
+    # If we do not add the catchments, we must still include the ATTAINS.WaterType
     # to these AUs. Added by KW 9/5/2025.
     attains.matches_WaterType_NA <- attains.matches$TADA_with_ATTAINS %>%
       dplyr::filter(is.na(ATTAINS.WaterType) ) %>%
