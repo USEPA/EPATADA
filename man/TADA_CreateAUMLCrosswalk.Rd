@@ -21,7 +21,7 @@ and MonitoringLocationIdentifier.}
 \item{org_id}{Organization id to match AUs.}
 
 \item{add_catch}{Optional. When add_catch = TRUE, catchments are matched to monitoring
-locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
+locations from the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
 and matching these additional geospatial data will increase the run time of this function
 significantly. Default is add_catch = FALSE.}
 
