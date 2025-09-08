@@ -15,8 +15,8 @@ TADA_CreateAUMLCrosswalk(
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
 
-\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-and MonitoringLocationIdentifier.}
+\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+MonitoringLocationIdentifier and WaterType.}
 
 \item{org_id}{Organization id to match AUs.}
 
