@@ -1789,11 +1789,27 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     }
   }
 
-  # drop provider from au_ref
+  req.cols <- c("AssessmentUnitIdentifier",
+                "MonitoringLocationIdentifier",
+                "WaterType")
+
+  # get column names by using internal function checkColName (in Utilities.R)
+  col.ids <- purrr::map_dfr(req.cols, ~checkColName(au_ref, .x))
+
+  # assign values to col.id variables - might be possible to rewrite with purrr function
+  assign(col.ids$col.id[1], col.ids$select.col[1])
+
+  assign(col.ids$col.id[2], col.ids$select.col[2])
+
+  assign(col.ids$col.id[3], col.ids$select.col[3])
+
+
+  # rename au_ref cols for next function
   au_ref <- au_ref %>%
-    dplyr::select(
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.MonitoringLocationIdentifier
+    dplyr::rename(
+      ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
+      ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
+      ATTAINS.WaterType = paste0(type.col)
     )
 
   # filter detain to retain only results with known AUIDs
@@ -3454,8 +3470,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
-#' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-#' and MonitoringLocationIdentifier.
+#' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+#' MonitoringLocationIdentifier and WaterType.
 #' @param org_id Organization id to match AUs.
 #' @param add_catch Optional. When add_catch = TRUE, catchments are matched to monitoring
 #' locations from the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
@@ -3508,21 +3524,31 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     if (is.data.frame(au_ref)) {
       print("TADA_CreateAUMLCrosswalk: fetching geospatial data for user-supplied crosswalk.")
 
-      # some errors may be happening here? HRM 9/4/25
+
+      # list of partial string matches for columns in au_ref
       req.cols <- c(
         "AssessmentUnitIdentifier",
         "MonitoringLocationIdentifier",
-        "ATTAINS.WaterType"
+        "WaterType"
       )
 
-      # should this be using a more generic function?
-      TADA_CheckColumns(au_ref, req.cols)
+      # get column names by using internal function checkColName (in Utilities.R)
+       col.ids <- purrr::map_dfr(req.cols, ~checkColName(au_ref, .x))
+
+      # assign values to col.id variables - might be possible to rewrite with purrr function
+       assign(col.ids$col.id[1], col.ids$select.col[1])
+
+       assign(col.ids$col.id[2], col.ids$select.col[2])
+
+       assign(col.ids$col.id[3], col.ids$select.col[3])
+
 
       # rename au_ref cols for next function
       au_ref <- au_ref %>%
         dplyr::rename(
-          ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier
+          ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
+          ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
+          ATTAINS.WaterType = paste0(type.col)
         )
 
       # subset data for au_ref
@@ -3534,35 +3560,37 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       user.matches <- spsUtil::quiet(
         TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch)
       )
-      
-      # If we do not add the catchments or if a user supplied table has a new AU that 
-      # can't be retrieved yet from ATTAINS, we must still include the ATTAINS.WaterType
-      # to these AUs. Added by KW 9/5/2025.
+
+      # check for user ref entries that cannot pull info from ATTAINS to ensure water type is retained
       user.matches_WaterType_NA <- user.matches$TADA_with_ATTAINS %>%
         dplyr::filter(is.na(ATTAINS.WaterType) ) %>%
         dplyr::select(-ATTAINS.WaterType) %>%
         dplyr::left_join(
           au_ref,
           by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier")
-          )
-      
+        )
+
+      # add the user assigned water types as necessary
       user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
         dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
         dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
         dplyr::bind_rows(user.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
-    
+
+      rm(user.matches_WaterType_NA)
+    }
+
       # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
       # existing AU that was retrieved from ATTAINS and included in the user supplied table.
       if( add_catch == TRUE) {
         test_mismatch <- dplyr::anti_join(
-          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>% 
+          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
             dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
             dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
             dplyr::distinct(),
           au_ref,
           by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
           )
-        
+
         if (nrow(test_mismatch) > 0){
           # We can change the warning and choose to prioritize user-supplied crosswalk instead if desired. - KW
           warning(paste0("Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
@@ -3570,7 +3598,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
         }
       }
     }
-  }
+
 
   # ATTAINS supplied ref section
   # get attains crosswalk
@@ -3620,7 +3648,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     attains.matches <- spsUtil::quiet(
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
     )
-    
+
     # If we do not add the catchments, we must still include the ATTAINS.WaterType
     # to these AUs. Added by KW 9/5/2025.
     attains.matches_WaterType_NA <- attains.matches$TADA_with_ATTAINS %>%
@@ -3630,12 +3658,12 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
         attains.cw %>% dplyr::select(-ATTAINS.MonitoringDataLinkText, -ATTAINS.OrganizationIdentifier),
         by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "OrganizationIdentifier")
       )
-    
+
     attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS %>%
       dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
       dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
       dplyr::bind_rows(attains.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
-    
+
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section

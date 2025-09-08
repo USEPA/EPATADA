@@ -1611,7 +1611,7 @@ TADA_RenametoLegacy <- function(.data) {
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
-  
+
   rm(WqxV2.FieldName)
 
   if (length(beta_names) != length(legacy_names)) {
@@ -1626,4 +1626,49 @@ TADA_RenametoLegacy <- function(.data) {
   df <- TADA_OrderCols(df)
 
   return(df)
+}
+
+#' checkColNames
+#'
+#' This function checks column names using partial string matches. It is designed
+#' to faciliate the use of user-supplied refs with differently prefixed columns
+#' in Module 2 and 3 functions.
+#'
+#' @param .data A user-supplied ref data farme containing AssessmentUnitIdentifier,
+#' MonitoringLocationIdentifier, and WaterType columns. It is permitted (but not
+#' required) for these columns to use ATTAINS, TADA or other prefixes.
+#'
+#' @return A data frame with two columns identifying the exact column names for the
+#' AssessmentUnitIdentifier, MonitoringLocationIdentifier, and WaterType columns in
+#' a user-supplied ref file.
+#'
+checkColName <- function(.data, partial.string = NULL) {
+
+  col.id <- dplyr::case_when(partial.string ==  "AssessmentUnitIdentifier" ~ "auid.col",
+                             partial.string ==  "MonitoringLocationIdentifier" ~ "ml.col",
+                             partial.string ==  "WaterType" ~ "type.col")
+
+  if(any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
+
+    stop(paste0("TADA_CreateAUMLCrosswalk: The ",
+                partial.string, " column is missing from the user-supplied reference (au_ref)."))
+  }
+
+  if(any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
+
+    select.col <- .data %>%
+      dplyr::select(dplyr::contains(partial.string)) %>%
+      names()
+
+    if(length(select.col) > 1) {
+
+      stop(paste0("TADA_CreateAUMLCrosswalk: There cannot be more than one ",
+                  partial.string, " column in the user-supplied reference (au_ref)."))
+    }
+
+    col.lab <- data.frame(col.id, select.col)
+
+    rm(col.id, select.col)
+  }
+  return(col.lab)
 }
