@@ -122,7 +122,8 @@ clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::select(
     ATTAINS.AssessmentUnitIdentifier,
-    ATTAINS.MonitoringLocationIdentifier
+    ATTAINS.MonitoringLocationIdentifier,
+    ATTAINS.WaterType
   ) %>%
   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
@@ -130,16 +131,17 @@ user.supplied.cw <- clean.existing.attains.MT %>%
   )) %>%
   dplyr::rename(
     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
+    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+    WaterType = ATTAINS.WaterType
   ) %>%
   # Add an example new assessment unit for demonstration purposes.
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184"
-  )) %>%
-  dplyr::mutate(WaterType = c("RIVER", "RIVER", "RIVER", "RIVER", "LAKE,FRESHWATER"))
+    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
+    WaterType = "LAKE, FRESHWATER"
+  )) 
 
-rm(attains.existing.MT, clean.existing.attains.MT)
+rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ```
 
 ## Step A: Discover matches with TADA_CreateAUMLCrosswalk()

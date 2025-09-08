@@ -1746,6 +1746,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     "ATTAINS.ShapeArea"
   )
 
+  # should ATTAINS prefixed cols already present stop this function?
   if (any(attains_names %in% colnames(.data))) {
     stop("Your data has already been joined with ATTAINS data.")
   }
@@ -1816,6 +1817,13 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   .data <- .data %>%
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
 
+  # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
+  if(dim(.data)[1] < 1) {
+
+    stop(paste0("TADA_GetATTAINSByAUID: No records in the TADA data frame are associated with ",
+                "MonitoringLocationIdentifiers in the user-supplied ref."))
+  }
+
   filt.data <- .data %>%
     dplyr::select(
       TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
@@ -1870,6 +1878,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
 
   # function to download ATTAINS features API based on their name
+
   fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
     # Split the assessment_unit_ids into chunks of 1000
     # API cannot handle more than 1000 features
@@ -2029,8 +2038,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         ATTAINS.CatchmentIsTribal = catchmentistribal,
         ATTAINS.CatchmentResolution = catchmentresolution,
         ATTAINS.ShapeLength = Shape_Length,
-        ATTAINS.ShapeArea = Shape_Area,
-        ATTAINS.WaterType = waterType
+        ATTAINS.ShapeArea = Shape_Area
       )
   }
 
@@ -3655,8 +3663,9 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       dplyr::filter(is.na(ATTAINS.WaterType) ) %>%
       dplyr::select(-ATTAINS.WaterType) %>%
       dplyr::left_join(
-        attains.cw %>% dplyr::select(-ATTAINS.MonitoringDataLinkText, -ATTAINS.OrganizationIdentifier),
-        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "OrganizationIdentifier")
+        attains.cw %>% dplyr::select(-ATTAINS.MonitoringDataLinkText),
+        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier",
+               "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.OrganizationIdentifier")
       )
 
     attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS %>%
