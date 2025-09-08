@@ -3543,7 +3543,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       # get column names by using internal function checkColName (in Utilities.R)
        col.ids <- purrr::map_dfr(req.cols, ~checkColName(au_ref, .x))
 
-      # assign values to col.id variables - might be possible to rewrite with purrr function
+      # assign values to col.id variables - might be possible to rewrite with purrr function (HRM 9/8/25)
        assign(col.ids$col.id[1], col.ids$select.col[1])
 
        assign(col.ids$col.id[2], col.ids$select.col[2])
