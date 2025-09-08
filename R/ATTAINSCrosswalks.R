@@ -1816,13 +1816,15 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     if (!is.null(useParamRef)) {
       # user may have only supplied a useParamRef table with TADA.CharacteristicName rather than TADA.ComparableDataIdentifier
       # This also validates the TADA.ComparableDataIdentifier crosswalk to ensure it is up to date (drops and re-join)
-      useParamRef <- useParamRef %>%
-        dplyr::select(-TADA.ComparableDataIdentifier) %>%
-        dplyr::left_join(
-        .data %>% 
-          dplyr::select(TADA.ComparableDataIdentifier, TADA.CharacteristicName),
-        by = ("TADA.CharacteristicName")
-        )
+      if ("TADA.CharacteristicName" %in% names(UseParamRef)) {
+        useParamRef <- useParamRef %>%
+          dplyr::select(-TADA.ComparableDataIdentifier) %>%
+          dplyr::left_join(
+          .data %>% 
+            dplyr::select(TADA.ComparableDataIdentifier, TADA.CharacteristicName),
+          by = ("TADA.CharacteristicName")
+          )
+      }
       
       # check if users have specified an include or exclude column. If not, assume it is all 'include'
       if ("IncludeOrExclude" %in% names(useParamRef) ) {
@@ -2908,7 +2910,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
     CreateMLSummaryRef <- useParamRef %>%
       dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::right_join(useAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) %>%
-      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier")) %>%
+      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier")) %>% #,"ATTAINS.WaterType")) %>%
       # dplyr::mutate(
       #   Flag.AssessmentNote =
       #     dplyr::case_when(
@@ -2930,7 +2932,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
       dplyr::select(
         ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, 
         MonitoringLocationIdentifier, MonitoringLocationTypeName,
-        TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
+        TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, TADA.DepthCategory.Flag,
         LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
       ) %>%
       dplyr::filter(MonitoringLocationIdentifier %in% unique_ML) %>%
