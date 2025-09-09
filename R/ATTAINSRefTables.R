@@ -185,7 +185,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 
   latest.assessments <- nat.assessments %>%
     dplyr::group_by(organizationId) %>%
-    dplyr::slice_max(reportingCycle) %>%
+    #dplyr::slice_max(reportingCycle) %>%
     dplyr::select(-objectId) %>%
     dplyr::distinct() %>%
     dplyr::ungroup()

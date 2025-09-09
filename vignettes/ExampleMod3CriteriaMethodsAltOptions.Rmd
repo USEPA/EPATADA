@@ -126,11 +126,12 @@ Get bacteria and pH data from Missoula County, Montana.
 tada.MT <- TADA_DataRetrieval(
    startDate = "2020-01-01", 
    endDate = "2022-12-31",
-   statecode = "MT",
+   #statecode = "MT",
+   organization = "MTDEQ"
    characteristicName = c("Escherichia", 
                           "Escherichia coli", 
                           "pH"),
-   county = "Missoula County",
+   #county = "Missoula County",
    ask = FALSE)
 
 # clean up data set (minimal)
@@ -291,7 +292,7 @@ MT.Criteria2.2 <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ", 
   auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
-  excel = FALSE, 
+  excel = TRUE, overwrite = TRUE,
   epa304a = TRUE
   )
 ```
@@ -330,7 +331,7 @@ MT.Criteria4 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, 
   org_id = "MTDEQ", 
   auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
-  displayUniqueId = FALSE,
+  displayUniqueId = TRUE,
   excel = TRUE, overwrite = TRUE
   )
 ```

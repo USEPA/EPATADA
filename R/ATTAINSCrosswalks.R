@@ -2773,7 +2773,7 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #'   excel = FALSE
 #' )
 #'
-TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
+TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, includeNA = FALSE,
                                     AUMLRef = NULL,  useAURef = NULL, MLSummaryRef = NULL,
                                     excel = FALSE, overwrite = FALSE) {
   # overwrite argument should only be used when creating an excel file.
@@ -2860,11 +2860,36 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
   
   useParamRef <- dplyr::filter(useParamRef, IncludeOrExclude == "Include")
   
-  # If there are no siteAURef, this will return the Spatial Ref Table on a monitoring sites level.
-  if (is.null(AUMLRef)) {
-    print("No AUMLRef was provided. Creating MLSummaryRef table on a monitoring sites level. NAs are generated for any ATTAINS AU columns.")
+  # Identify all unique monitoring location id in the .data data frame to filter by.
+  unique_ML <- unique(.data$MonitoringLocationIdentifier)
+  
+  # Applies all unique combos of param and uses to each monitoring location.
+  # 
+  if(includeNA == TRUE) {
     CreateMLSummaryRef <- useParamRef %>%
-      dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+      tidyr::uncount(weights = length(unique_ML)) %>% 
+      dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
+      dplyr::full_join(.data, by = c("MonitoringLocationIdentifier"), relationship = "many-to-many") %>%
+      dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
+      dplyr::mutate(ATTAINS.WaterType = NA) %>%
+      dplyr::mutate(SaltFresh = NA) %>%
+      dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      #dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, 
+        MonitoringLocationIdentifier, MonitoringLocationTypeName,
+        TADA.ComparableDataIdentifier = TADA.ComparableDataIdentifier.x, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
+        LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
+      ) %>%
+      dplyr::distinct()
+  }
+  
+  if(includeNA == FALSE) {
+    CreateMLSummaryRef <- useParamRef %>%
+      tidyr::uncount(weights = length(unique_ML)) %>% 
+      #dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
+      dplyr::full_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
       dplyr::mutate(ATTAINS.WaterType = NA) %>%
       dplyr::mutate(SaltFresh = NA) %>%
@@ -2876,9 +2901,29 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
         MonitoringLocationIdentifier, MonitoringLocationTypeName,
         TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
         LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
-        ) %>%
+      ) %>%
       dplyr::distinct()
   }
+  
+  # If there are no siteAURef, this will return the Spatial Ref Table on a monitoring sites level.
+  # if (is.null(AUMLRef)) {
+  #   print("No AUMLRef was provided. Creating MLSummaryRef table on a monitoring sites level. NAs are generated for any ATTAINS AU columns.")
+  #   CreateMLSummaryRef <- useParamRef %>%
+  #     dplyr::full_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+  #     dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
+  #     dplyr::mutate(ATTAINS.WaterType = NA) %>%
+  #     dplyr::mutate(SaltFresh = NA) %>%
+  #     dplyr::mutate(ApplyUniqueSpatialCriteria = NA) %>%
+  #     dplyr::mutate(IncludeOrExclude = "Include") %>%
+  #     #dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
+  #     dplyr::select(
+  #       ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, 
+  #       MonitoringLocationIdentifier, MonitoringLocationTypeName,
+  #       TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
+  #       LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, ApplyUniqueSpatialCriteria
+  #       ) %>%
+  #     dplyr::distinct()
+  # }
   
   # If a user DOES provide a AUMLRef, this will create the Spatial Table on an AU level
   if (!is.null(AUMLRef)) {
@@ -2908,9 +2953,9 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL,
     
     # Joins the crosswalk tables for CreateMLSummaryRef
     CreateMLSummaryRef <- useParamRef %>%
-      dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+      # dplyr::left_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
       dplyr::right_join(useAURef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.UseName")) %>%
-      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier")) %>% #,"ATTAINS.WaterType")) %>%
+      dplyr::right_join(AUMLRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier")) %>% #,"ATTAINS.WaterType")) %>%
       # dplyr::mutate(
       #   Flag.AssessmentNote =
       #     dplyr::case_when(

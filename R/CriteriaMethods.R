@@ -704,13 +704,14 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     )
     
     # Set visibility
+    openxlsx::sheetVisibility(wb)[6] <- TRUE 
     openxlsx::sheetVisibility(wb)[1] <- FALSE
     openxlsx::sheetVisibility(wb)[2] <- FALSE
     openxlsx::sheetVisibility(wb)[3] <- FALSE
     openxlsx::sheetVisibility(wb)[4] <- FALSE
     openxlsx::sheetVisibility(wb)[5] <- FALSE
-    openxlsx::sheetVisibility(wb)[7] <- FALSE
-    openxlsx::sheetVisibility(wb)[6] <- TRUE 
+    #openxlsx::sheetVisibility(wb)[7] <- FALSE
+    
     
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
@@ -914,7 +915,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     openxlsx::groupColumns(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 21:30,
+      cols = 22:30,
       hidden = FALSE, 
       level = -1
       )
