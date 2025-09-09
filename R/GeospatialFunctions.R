@@ -2421,16 +2421,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
         "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
       )
-
-       set.popup <- paste0(
-          "Site ID: ", sumdat$MonitoringLocationIdentifier,
-          "<br> Site Name: ", sumdat$MonitoringLocationName,
-          "<br> Measurement Count: ", sumdat$Sample_Count,
-          "<br> Visit Count: ", sumdat$Visit_Count,
-          "<br> Characteristic Count: ", sumdat$Parameter_Count,
-          "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
-          "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
-        )
       }
 
       if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
