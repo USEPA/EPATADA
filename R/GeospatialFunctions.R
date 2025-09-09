@@ -2302,12 +2302,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           )
         ) %>%
         leaflet::clearShapes() %>%
-        leaflet::fitBounds(
-          lng1 = min(sumdat$LongitudeMeasure),
-          lat1 = min(sumdat$LatitudeMeasure),
-          lng2 = max(sumdat$LongitudeMeasure),
-          lat2 = max(sumdat$LatitudeMeasure)
-        ) %>%
+         leaflet::fitBounds(
+           lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
+           lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
+           lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
+           lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
+         ) %>%
         leaflet.extras::addResetMapButton()
 
       try(
