@@ -1492,26 +1492,26 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
       # Calculate distances
       try(distances <- subset %>%
-        # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
-        # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
-        purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
-        dplyr::bind_rows() %>%
-        sf::st_drop_geometry() %>%
-        dplyr::select(
-          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
-          TADA.DistanceAway.Meters
-        ) %>%
-        dplyr::distinct(), silent = TRUE)
+            # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
+            # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
+            purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
+            dplyr::bind_rows() %>%
+            sf::st_drop_geometry() %>%
+            dplyr::select(
+              ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
+              TADA.DistanceAway.Meters
+            ) %>%
+            dplyr::distinct(), silent = TRUE)
 
       try(result <- sub_tada %>%
-        data.table::data.table() %>%
-        dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
-        dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
-        sf::st_drop_geometry() %>%
-        # for AUs with multiple features, only assess the one closest:
-        dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
-        dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
-        dplyr::ungroup(), silent = TRUE)
+            data.table::data.table() %>%
+            dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+            dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
+            sf::st_drop_geometry() %>%
+            # for AUs with multiple features, only assess the one closest:
+            dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+            dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
+            dplyr::ungroup(), silent = TRUE)
 
       return(result)
     }

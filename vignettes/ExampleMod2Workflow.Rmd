@@ -163,7 +163,7 @@ To make this function run more efficiently, and because we already have assessme
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
-  add_catch = FALSE,
+  add_catch = TRUE,
   batch_upload = TRUE
 )
 ```
