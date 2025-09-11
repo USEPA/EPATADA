@@ -155,7 +155,7 @@ utils::globalVariables(c(
   "overallstatus", "permid_joinkey", "region", "reportingCycle",
   "reportingcycle", "response.code", "return_sf", "state", "submissionid",
   "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method", "WqxV2.FieldName"
+  "xwalk_method", "WqxV2.FieldName", "auid.col", "ml.col", "type.col"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
