@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSCrosswalks.R
 \name{TADA_CreateMLSummaryRef}
 \alias{TADA_CreateMLSummaryRef}
-\title{Analysis Summary and Apply Uses and Unique Site Criteria to Monitoring Location Sites or Assessment Units}
+\title{Review and Apply Any Site-specific Criteria to Monitoring Location Sites or Assessment Units}
 \usage{
 TADA_CreateMLSummaryRef(
   .data,
@@ -74,29 +74,24 @@ A data frame with any unique spatial descriptions defined for
 }
 \description{
 This function will pull in all unique MonitoringLocationName, MonitoringLocationType,
-and MonitoringLocationIdentifier from the TADA dataframe and join it to TADA_CreateUseParamRef
-Users are not required
-to provide a crosswalk between WQP Monitoring locations and Assessment units
-if they are only interested in summarizing assessments on a monitoring location level.
+and MonitoringLocationIdentifier from the TADA dataframe and join it to
+TADA_CreateUseParamRef. Users are not required to provide a crosswalk between
+WQP Monitoring locations and Assessment units if they are only interested in
+summarizing assessments on a monitoring location level.
 }
 \details{
-If users are interested in summarizing water quality data results by Assessment Units,
-users should utilize TADA Module 2 tools to assist in their monitoring location
-to assessment unit crosswalk prior to this step (see TADA_CreateWaterUseParamRef
-and TADA_CreateUseAURef).
-Users can choose to submit a TADA dataframe that contains
-the concatenated columns from TADA_GetATTAINS and will utilize the crosswalk of
-monitoring locations to assessment units performed in this function (please check out
-the TADAModule2.Rmd for an example workflow for TADA_GetATTAINS.)
+If users are interested in summarizing water quality data results by Assessment
+Units, users will need to provide an AUMLRef and useAURef file which
+(see TADA Module 2 tools) to assist in their monitoring location to assessment
+unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
+and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
+(see TADA_CreateWaterUseParamRef and TADA_CreateUseAURef) prior to this step.
 
-Users may also submit their own monitoring location to assessment unit crosswalk
-reference file which contains the appropriate column names as an argument input. This
-reference file will be prioritized as a crosswalk
-
-Users are expected to modify this AU ref table with the appropriate AU and
-MonitoringLocationName, MonitoringLocationType, and MonitoringLocationId crosswalk
-for the current Assessment cycle. Users will decide to "Include" or "Exclude"
-a MonitoringLocation in the "IncludeOrExclude" column. for an AU.
+Users can apply any unique site-specific criteria (for example, warm waters,
+cold waters, water classifications, species-based waters, ecoregions etc.) to
+any monitoring location sites or assessment units as needed. Users are recommended
+to utilize the excel file for easy filtering across columns to apply any
+site specific criteria as needed.
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
