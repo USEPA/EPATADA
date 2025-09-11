@@ -1492,26 +1492,26 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
       # Calculate distances
       try(distances <- subset %>%
-            # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
-            # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
-            purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
-            dplyr::bind_rows() %>%
-            sf::st_drop_geometry() %>%
-            dplyr::select(
-              ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
-              TADA.DistanceAway.Meters
-            ) %>%
-            dplyr::distinct(), silent = TRUE)
+        # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
+        # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
+        purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
+        dplyr::bind_rows() %>%
+        sf::st_drop_geometry() %>%
+        dplyr::select(
+          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
+          TADA.DistanceAway.Meters
+        ) %>%
+        dplyr::distinct(), silent = TRUE)
 
       try(result <- sub_tada %>%
-            data.table::data.table() %>%
-            dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
-            dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
-            sf::st_drop_geometry() %>%
-            # for AUs with multiple features, only assess the one closest:
-            dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
-            dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
-            dplyr::ungroup(), silent = TRUE)
+        data.table::data.table() %>%
+        dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+        dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
+        sf::st_drop_geometry() %>%
+        # for AUs with multiple features, only assess the one closest:
+        dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+        dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
+        dplyr::ungroup(), silent = TRUE)
 
       return(result)
     }
@@ -1718,7 +1718,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' # Load AU reference data from a CSV file and use it in the function
 #' au_ref_from_file <- read.csv("path/to/au_ref.csv")
 #' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
-#' au_ref = au_ref_from_file)
+#'   au_ref = au_ref_from_file
+#' )
 #' }
 #'
 TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
@@ -1790,12 +1791,14 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     }
   }
 
-  req.cols <- c("AssessmentUnitIdentifier",
-                "MonitoringLocationIdentifier",
-                "WaterType")
+  req.cols <- c(
+    "AssessmentUnitIdentifier",
+    "MonitoringLocationIdentifier",
+    "WaterType"
+  )
 
   # get column names by using internal function checkColName (in Utilities.R)
-  col.ids <- purrr::map_dfr(req.cols, ~checkColName(au_ref, .x))
+  col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
 
   # assign values to col.id variables - might be possible to rewrite with purrr function
   assign(col.ids$col.id[1], col.ids$select.col[1])
@@ -1818,10 +1821,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
 
   # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
-  if(dim(.data)[1] < 1) {
-
-    stop(paste0("TADA_GetATTAINSByAUID: No records in the TADA data frame are associated with ",
-                "MonitoringLocationIdentifiers in the user-supplied ref."))
+  if (dim(.data)[1] < 1) {
+    stop(paste0(
+      "TADA_GetATTAINSByAUID: No records in the TADA data frame are associated with ",
+      "MonitoringLocationIdentifiers in the user-supplied ref."
+    ))
   }
 
   filt.data <- .data %>%
@@ -2187,11 +2191,15 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   #
   # magick::image_write(catchment, path = "inst/extdata/icons/square-catchment.png")
 
-  images <- c("inst/extdata/icons/square-ns.png",
-              "inst/extdata/icons/square-fs.png",
-              "inst/extdata/icons/square-na.png",
-              "inst/extdata/icons/circle-solid-full.png",
-              "inst/extdata/icons/square-catchment.png")
+  images <- c(
+    "inst/extdata/icons/square-ns.png",
+    "inst/extdata/icons/square-fs.png",
+    "inst/extdata/icons/square-na.png",
+    "inst/extdata/icons/circle-solid-full.png",
+    "inst/extdata/icons/square-catchment.png"
+  )
+
+
 
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
@@ -2302,12 +2310,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           )
         ) %>%
         leaflet::clearShapes() %>%
-         leaflet::fitBounds(
-           lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
-           lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
-           lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
-           lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
-         ) %>%
+        leaflet::fitBounds(
+          lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
+          lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
+          lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
+          lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
+        ) %>%
         leaflet.extras::addResetMapButton()
 
       try(
@@ -2397,38 +2405,38 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-
-      # set shapes for different ref sources
+      if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
+        # set shapes for different ref sources
 
         # Make a list of icons. We'll index into it based on name.
         refIcons <- leaflet::icons(
           iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
-          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "inst/extdata/icons/circle-solid-full.svg",
-          sumdat$TADA.AURefSource == "User-supplied Ref" ~ "inst/extdata/icons/circle-user-solid-full.svg"
-        ),
-        iconWidth = 24,
-        iconHeight = 24)
+            sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
+            sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "inst/extdata/icons/circle-solid-full.svg",
+            sumdat$TADA.AURefSource == "User-supplied Ref" ~ "inst/extdata/icons/circle-user-solid-full.svg"
+          ),
+          iconWidth = 24,
+          iconHeight = 24
+        )
 
 
-      set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
-        "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
-      )
+        set.popup <- paste0(
+          "Site ID: ", sumdat$MonitoringLocationIdentifier,
+          "<br> Site Name: ", sumdat$MonitoringLocationName,
+          "<br> Measurement Count: ", sumdat$Sample_Count,
+          "<br> Visit Count: ", sumdat$Visit_Count,
+          "<br> Characteristic Count: ", sumdat$Parameter_Count,
+          "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
+          "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
+        )
       }
 
-      if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-
+      if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
         refIcons <- leaflet::icons(
           iconUrl = "inst/extdata/icons/circle-solid-full.svg",
           iconWidth = 24,
-          iconHeight = 24)
+          iconHeight = 24
+        )
 
         set.popup <- paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
@@ -2453,53 +2461,62 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-
-        images.ref <- c(images[1:3],
-                        "inst/extdata/icons/circle-user-solid-full.png",
-                        "inst/extdata/icons/circle-check-solid-full.png",
-                        images[4:5])
+      if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
+        images.ref <- c(
+          images[1:3],
+          "inst/extdata/icons/circle-user-solid-full.png",
+          "inst/extdata/icons/circle-check-solid-full.png",
+          images[4:5]
+        )
 
 
         map <- map %>%
-          leaflegend::addLegendImage(images = images.ref,
-                                               labels = c( "ATTAINS: Not Supporting",
-                                                           "ATTAINS: Supporting",
-                                                           "ATTAINS: Not Assessed",
-                                                           "WQP: User-supplied Ref",
-                                                          "WQP: ATTAINS Crosswalk",
-                                                          "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-                                                          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
-                                               labelStyle = 'font-size: 14px;',
-                                               width = 14,
-                                               height = 14,
-                                               orientation = 'vertical',
-                                               title = htmltools::tags$div('Legend',
-                                                                           style = 'font-size: 14px;
-                                             text-align: left; font-weight: bold;'),
-                                               position = 'bottomright')
+          leaflegend::addLegendImage(
+            images = images.ref,
+            labels = c(
+              "ATTAINS: Not Supporting",
+              "ATTAINS: Supporting",
+              "ATTAINS: Not Assessed",
+              "WQP: User-supplied Ref",
+              "WQP: ATTAINS Crosswalk",
+              "WQP: TADA_CreateATTAINSAUMLCrosswalk",
+              "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+            ),
+            labelStyle = "font-size: 14px;",
+            width = 14,
+            height = 14,
+            orientation = "vertical",
+            title = htmltools::tags$div("Legend",
+              style = "font-size: 14px;
+                                             text-align: left; font-weight: bold;"
+            ),
+            position = "bottomright"
+          )
 
         rm(images.ref, images)
-
       }
 
-      if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-
+      if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
         map <- map %>%
-          leaflegend::addLegendImage(images = images,
-                                     labels = c( "ATTAINS: Not Supporting",
-                                                 "ATTAINS: Supporting",
-                                                 "ATTAINS: Not Assessed",
-                                                 "WQP: Monitoring Location",
-                                                 "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
-                                     labelStyle = 'font-size: 14px;',
-                                     width = 14,
-                                     height = 14,
-                                     orientation = 'vertical',
-                                     title = htmltools::tags$div('Legend',
-                                                                 style = 'font-size: 14px;
-                                             text-align: left; font-weight: bold;'),
-                                     position = 'bottomright')
+          leaflegend::addLegendImage(
+            images = images,
+            labels = c(
+              "ATTAINS: Not Supporting",
+              "ATTAINS: Supporting",
+              "ATTAINS: Not Assessed",
+              "WQP: Monitoring Location",
+              "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+            ),
+            labelStyle = "font-size: 14px;",
+            width = 14,
+            height = 14,
+            orientation = "vertical",
+            title = htmltools::tags$div("Legend",
+              style = "font-size: 14px;
+                                             text-align: left; font-weight: bold;"
+            ),
+            position = "bottomright"
+          )
 
         rm(images)
       }
@@ -2624,26 +2641,31 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) %>%
         leaflet::clearShapes() %>%
         leaflet::fitBounds(
-          lng1 = min(sumdat$LongitudeMeasure),
-          lat1 = min(sumdat$LatitudeMeasure),
-          lng2 = max(sumdat$LongitudeMeasure),
-          lat2 = max(sumdat$LatitudeMeasure)
+          lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
+          lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
+          lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
+          lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
         ) %>%
         leaflet.extras::addResetMapButton() %>%
-        leaflegend::addLegendImage(images = images,
-                                   labels = c( "ATTAINS: Not Supporting",
-                                               "ATTAINS: Supporting",
-                                               "ATTAINS: Not Assessed",
-                                               "WQP: Monitoring Location",
-                                               "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."),
-                                   labelStyle = 'font-size: 14px;',
-                                   width = 14,
-                                   height = 14,
-                                   orientation = 'vertical',
-                                   title = htmltools::tags$div('Legend',
-                                                               style = 'font-size: 14px;
-                                             text-align: left; font-weight: bold;'),
-                                   position = 'bottomright')
+        leaflegend::addLegendImage(
+          images = images,
+          labels = c(
+            "ATTAINS: Not Supporting",
+            "ATTAINS: Supporting",
+            "ATTAINS: Not Assessed",
+            "WQP: Monitoring Location",
+            "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+          ),
+          labelStyle = "font-size: 14px;",
+          width = 14,
+          height = 14,
+          orientation = "vertical",
+          title = htmltools::tags$div("Legend",
+            style = "font-size: 14px;
+                                             text-align: left; font-weight: bold;"
+          ),
+          position = "bottomright"
+        )
 
       rm(images)
 
@@ -3531,14 +3553,14 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       )
 
       # get column names by using internal function checkColName (in Utilities.R)
-       col.ids <- purrr::map_dfr(req.cols, ~checkColName(au_ref, .x))
+      col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
 
       # assign values to col.id variables - might be possible to rewrite with purrr function (HRM 9/8/25)
-       assign(col.ids$col.id[1], col.ids$select.col[1])
+      assign(col.ids$col.id[1], col.ids$select.col[1])
 
-       assign(col.ids$col.id[2], col.ids$select.col[2])
+      assign(col.ids$col.id[2], col.ids$select.col[2])
 
-       assign(col.ids$col.id[3], col.ids$select.col[3])
+      assign(col.ids$col.id[3], col.ids$select.col[3])
 
 
       # rename au_ref cols for next function
@@ -3561,7 +3583,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
 
       # check for user ref entries that cannot pull info from ATTAINS to ensure water type is retained
       user.matches_WaterType_NA <- user.matches$TADA_with_ATTAINS %>%
-        dplyr::filter(is.na(ATTAINS.WaterType) ) %>%
+        dplyr::filter(is.na(ATTAINS.WaterType)) %>%
         dplyr::select(-ATTAINS.WaterType) %>%
         dplyr::left_join(
           au_ref,
@@ -3577,25 +3599,27 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       rm(user.matches_WaterType_NA)
     }
 
-      # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
-      # existing AU that was retrieved from ATTAINS and included in the user supplied table.
-      if( add_catch == TRUE) {
-        test_mismatch <- dplyr::anti_join(
-          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
-            dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
-            dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
-            dplyr::distinct(),
-          au_ref,
-          by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
-          )
+    # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
+    # existing AU that was retrieved from ATTAINS and included in the user supplied table.
+    if (add_catch == TRUE) {
+      test_mismatch <- dplyr::anti_join(
+        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
+          dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+          dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
+          dplyr::distinct(),
+        au_ref,
+        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
+      )
 
-        if (nrow(test_mismatch) > 0){
-          # We can change the warning and choose to prioritize user-supplied crosswalk instead if desired. - KW
-          warning(paste0("Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
-                         "Prioritizing what has been submitted to ATTAINS for the ATTAINS.WaterType."))
-        }
+      if (nrow(test_mismatch) > 0) {
+        # We can change the warning and choose to prioritize user-supplied crosswalk instead if desired. - KW
+        warning(paste0(
+          "Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
+          "Prioritizing what has been submitted to ATTAINS for the ATTAINS.WaterType."
+        ))
       }
     }
+  }
 
 
   # ATTAINS supplied ref section
@@ -3637,8 +3661,10 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     )
 
     attains.cw.mls <- .data %>%
-      dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-                    TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier) %>%
+      dplyr::filter(
+        !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+      ) %>%
       dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
     print("TADA_CreateAUMLCrosswalk: fetching geospatial data for crosswalk from ATTAINS.")
@@ -3650,19 +3676,20 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     # If we do not add the catchments, we must still include the ATTAINS.WaterType
     # to these AUs. Added by KW 9/5/2025.
     attains.matches_WaterType_NA <- attains.matches$TADA_with_ATTAINS %>%
-      dplyr::filter(is.na(ATTAINS.WaterType) ) %>%
+      dplyr::filter(is.na(ATTAINS.WaterType)) %>%
       dplyr::select(-ATTAINS.WaterType) %>%
       dplyr::left_join(
         attains.cw %>% dplyr::select(-ATTAINS.MonitoringDataLinkText),
-        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier",
-               "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.OrganizationIdentifier")
+        by = c(
+          "TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier",
+          "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.OrganizationIdentifier"
+        )
       )
 
     attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS %>%
       dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
       dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
       dplyr::bind_rows(attains.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
-
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section
