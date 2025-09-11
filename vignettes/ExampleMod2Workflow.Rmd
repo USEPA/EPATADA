@@ -72,7 +72,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "646-legend-for-color-coding-of-wqp-observations-and-what-they-correspond-to-in-tada_viewattains",
   dependencies = TRUE
 )
 ```
@@ -323,4 +323,3 @@ MT.UseAURef.manual <- MT.UseAURef %>%
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
-
