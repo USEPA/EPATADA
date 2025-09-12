@@ -94,7 +94,8 @@ tada.MT <- TADA_DataRetrieval(
 # clean up data set (minimal)
   tada.MT.clean <- tada.MT %>%
     TADA_RunKeyFlagFunctions() %>%
-    TADA_SimpleCensoredMethods()
+    TADA_SimpleCensoredMethods() %>%
+    TADA_HarmonizeSynonyms()
   
 # remove intermediate objects
   rm(tada.MT)
@@ -270,4 +271,11 @@ MT.UseAURef_manual <- MT.UseAURef %>%
       ) %>%
     dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
     dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
+```
+
+We will save the final sites to AU and uses to AU as a .rda file
+and load it back in the ExampleMod3Workflow.Rmd vignette.
+```{r save.as.rda}
+save(Final.MT.AUMLRef, file = "C:/Users/kwong01/EPATADA/inst/extdata/Final.MT.AUMLRef.rda")
+save(Final.MT.AUMLRef, file = "C:/Users/kwong01/EPATADA/inst/extdata/Final.MT.AUMLRef.rda")
 ```
