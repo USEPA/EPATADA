@@ -1643,27 +1643,29 @@ TADA_RenametoLegacy <- function(.data) {
 #' a user-supplied ref file.
 #'
 checkColName <- function(.data, partial.string = NULL) {
+  col.id <- dplyr::case_when(
+    partial.string == "AssessmentUnitIdentifier" ~ "auid.col",
+    partial.string == "MonitoringLocationIdentifier" ~ "ml.col",
+    partial.string == "WaterType" ~ "type.col"
+  )
 
-  col.id <- dplyr::case_when(partial.string ==  "AssessmentUnitIdentifier" ~ "auid.col",
-                             partial.string ==  "MonitoringLocationIdentifier" ~ "ml.col",
-                             partial.string ==  "WaterType" ~ "type.col")
-
-  if(any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
-
-    stop(paste0("TADA_CreateAUMLCrosswalk: The ",
-                partial.string, " column is missing from the user-supplied reference (au_ref)."))
+  if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
+    stop(paste0(
+      "TADA_CreateAUMLCrosswalk: The ",
+      partial.string, " column is missing from the user-supplied reference (au_ref)."
+    ))
   }
 
-  if(any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
-
+  if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
     select.col <- .data %>%
       dplyr::select(dplyr::contains(partial.string)) %>%
       names()
 
-    if(length(select.col) > 1) {
-
-      stop(paste0("TADA_CreateAUMLCrosswalk: There cannot be more than one ",
-                  partial.string, " column in the user-supplied reference (au_ref)."))
+    if (length(select.col) > 1) {
+      stop(paste0(
+        "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
+        partial.string, " column in the user-supplied reference (au_ref)."
+      ))
     }
 
     col.lab <- data.frame(col.id, select.col)
@@ -1671,4 +1673,91 @@ checkColName <- function(.data, partial.string = NULL) {
     rm(col.id, select.col)
   }
   return(col.lab)
+}
+
+#' renameATTAINSCols
+#'
+#' This function adds the ATTAINS prefix and changes column name capitalization to
+#' match the TADA format.
+#'
+#' @param .data A data frame containing columns from ATTAINS geospatial web services.
+#'
+#' @param return_list Boolean argument. When return_list = TRUE, the function returns
+#' a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
+#' the input .data data frame is updated so column names from ATTAINS geospatial web
+#' services match the TADA format. Defualt is return_list = FALSE.
+#'
+#' @param format Character argument. The format the user wants to switch the column
+#' names too. When format = "tada", the ATTAINS prefix and TADA capitalization will
+#' be applied. When format = "attains", TADA formatted columns will be renamed to the
+#' original ATTAINS names. Default = "tada".
+#'
+#' @return A data frame with column name from ATTAINS geospatial web service updated
+#' to match the TADA format. Or when return_list = TRUE, a list of all TADA
+#' formatted ATTAINS column names.
+#'
+renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+  # list of TADA formatted column names
+  attains.tada <- c(
+    "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+    "ATTAINS.ShapeArea"
+  )
+
+  # if return list equals TRUE, return the list of tada formatted column names
+  if (return_list == TRUE) {
+    return(attains.tada)
+  }
+
+  # if return equals FALSE, proceed with renaming columns
+  if (return_list == FALSE) {
+    # list of original ATTAINS column names
+    attains.orig <- c(
+      "organizationid", "submissionid", "hasprotectionplan",
+      "assessmentunitname", "nhdplusid", "tas303d",
+      "isthreatened", "state", "on303dlist",
+      "organizationname", "region", "Shape_Length",
+      "reportingcycle", "assmnt_joinkey", "hastmdl",
+      "orgtype", "permid_joinkey", "catchmentistribal",
+      "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+      "overallstatus", "isassessed", "isimpaired",
+      "has4bplan", "huc12", "hasalternativeplan",
+      "visionpriority303d", "areasqkm", "catchmentareasqkm",
+      "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+      "Shape_Area"
+    )
+
+    # assign old and new name vectors based on format selected by user
+    old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
+      format == "attains" ~ attains.tada
+    )
+
+    new.names <- dplyr::case_when(format == "tada" ~ attains.tada,
+      format == "attains" ~ attains.orig
+    )
+
+
+    .data <- .data %>%
+      data.table::setnames(
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
+    )
+
+    # remove intermediate objects
+    rm(attains.tada, attains.orig, old.names, new.names)
+
+
+    # return data frame with changed column names
+    return(.data)
+  }
 }

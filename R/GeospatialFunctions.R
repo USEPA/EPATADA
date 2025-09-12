@@ -1459,30 +1459,33 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
         dplyr::bind_rows() %>%
         sf::st_drop_geometry() %>%
         dplyr::select(
-          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
+          assessmentunitidentifier,
           TADA.DistanceAway.Meters
         ) %>%
         dplyr::distinct(), silent = TRUE)
 
       try(result <- sub_tada %>%
         data.table::data.table() %>%
-        dplyr::select(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
-        dplyr::left_join(., distances, by = "ATTAINS.AssessmentUnitIdentifier") %>%
+        dplyr::select(ResultIdentifier, assessmentunitidentifier) %>%
+        dplyr::left_join(distances, by = "assessmentunitidentifier",
+                         relationship = "many-to-many") %>%
         sf::st_drop_geometry() %>%
         # for AUs with multiple features, only assess the one closest:
-        dplyr::group_by(ResultIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
+        dplyr::group_by(ResultIdentifier, assessmentunitidentifier) %>%
         dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
+        #dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) %>%
         dplyr::ungroup(), silent = TRUE)
 
       return(result)
     }
 
-    distances_table <- as.character(unique(TADA_with_ATTAINS$geometry)) %>%
-      purrr::map_dfr(~ find_distances(location = .))
+    geo.list <- as.character(unique(TADA_with_ATTAINS$geometry))
+
+    distances_table <- purrr::map_dfr(geo.list, find_distances)
 
     TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
       data.table::data.table() %>%
-      dplyr::left_join(., distances_table, by = c("ResultIdentifier", "ATTAINS.AssessmentUnitIdentifier")) %>%
+      dplyr::left_join(., distances_table, by = c("ResultIdentifier", "assessmentunitidentifier")) %>%
       dplyr::distinct() %>%
       sf::st_as_sf()
 
