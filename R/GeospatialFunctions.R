@@ -1249,20 +1249,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
   on.exit(options(timeout = original_timeout), add = TRUE)
   on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
 
-  attains_names <- c(
-    "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
-    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
-    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
-    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
-    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
-    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
-    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
-    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
-    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
-    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
-    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
-    "ATTAINS.ShapeArea"
-  )
+  attains_names <- renameATTAINSCols(return_list = TRUE)
 
   if (any(attains_names %in% colnames(.data))) {
     stop("Your data has already been joined with ATTAINS data.")
@@ -1479,10 +1466,10 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
       return(result)
     }
 
-    geo.list <- as.character(unique(TADA_with_ATTAINS$geometry))
+    # create a df of all distances
+    distances_table <- purrr::map_dfr(as.character(TADA_with_ATTAINS$geometry), find_distances)
 
-    distances_table <- purrr::map_dfr(geo.list, find_distances)
-
+    # add distance data to TADA df
     TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
       data.table::data.table() %>%
       dplyr::left_join(., distances_table, by = c("ResultIdentifier", "assessmentunitidentifier")) %>%
@@ -1502,22 +1489,17 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
     if (return_sf == TRUE) {
       # CATCHMENT FEATURES
-      # use original catchment pull, but return column names to original
+      # use original catchment pull
       ATTAINS_catchments <- nearby_catchments %>%
-        dplyr::filter(ATTAINS.AssessmentUnitIdentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
+        dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
         dplyr::distinct(.keep_all = TRUE)
-
-      colnames(ATTAINS_catchments) <- gsub("ATTAINS.", "", colnames(ATTAINS_catchments))
-
-      # due to the rename, must re-set geometry column:
-      sf::st_geometry(ATTAINS_catchments) <- "geometry"
 
       # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
       ATTAINS_points <- NULL
       try(
         ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
           # subset to only ATTAINS point features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
           # make sure no duplicate features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1531,7 +1513,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
       try(
         ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
           # subset to only ATTAINS line features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
           # make sure no duplicate line features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1545,7 +1527,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
       try(
         ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
           # subset to only ATTAINS polygon features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$ATTAINS.AssessmentUnitIdentifier) %>%
+          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
           # make sure no duplicate polygon features exist
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
@@ -1557,7 +1539,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
       if (fill_catchments == FALSE) {
         # If there are ATTAINS catchments, return_sf = TRUE, fill_catchments = FALSE:
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
+            renameATTAINSCols(),
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
           "ATTAINS_lines" = ATTAINS_lines,
@@ -1569,7 +1552,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
       if (fill_catchments == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.AssessmentUnitIdentifier)) %>% dplyr::pull(ResultIdentifier)))
+          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
 
         nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
@@ -1579,7 +1562,9 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
         # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)),
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
+            dplyr::filter(!is.na(assessmentunitidentifier)) %>%
+            renameATTAINSCols(),
           "TADA_without_ATTAINS" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
@@ -1594,7 +1579,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
       if (fill_catchments == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(ATTAINS.AssessmentUnitIdentifier)) %>% dplyr::pull(ResultIdentifier)))
+          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
 
         nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
@@ -1604,7 +1589,9 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
         # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>% dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)),
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
+            dplyr::filter(!is.na(assessmentunitidentifier)) %>%
+            renameATTAINSCols(),
           "TADA_without_ATTAINS" = TADA_without_ATTAINS
         )
 
@@ -1696,20 +1683,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   on.exit(options(timeout = original_timeout), add = TRUE)
   on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
 
-  attains_names <- c(
-    "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
-    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
-    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
-    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
-    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
-    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
-    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
-    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
-    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
-    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
-    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
-    "ATTAINS.ShapeArea"
-  )
+  attains_names <- renameATTAINSCols(return_list = TRUE)
 
   # should ATTAINS prefixed cols already present stop this function?
   if (any(attains_names %in% colnames(.data))) {
@@ -1972,42 +1946,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         )
       ) %>%
       dplyr::select(-OBJECTID) %>%
-      dplyr::rename(
-        ATTAINS.SubmissionId = submissionid,
-        ATTAINS.NhdPlusId = nhdplusid,
-        ATTAINS.State = state,
-        ATTAINS.Region = region,
-        ATTAINS.OrganizationId = organizationid,
-        ATTAINS.OrgType = orgtype,
-        ATTAINS.Tas303d = tas303d,
-        ATTAINS.OrganizationName = organizationname,
-        ATTAINS.ReportingCycle = reportingcycle,
-        ATTAINS.AssessmentUnitName = assessmentunitname,
-        ATTAINS.WaterbodyReportLink = waterbodyreportlink,
-        ATTAINS.AssmntJoinKey = assmnt_joinkey,
-        ATTAINS.PermIdJoinKey = permid_joinkey,
-        ATTAINS.IrCategory = ircategory,
-        ATTAINS.OverallStatus = overallstatus,
-        ATTAINS.IsAssessed = isassessed,
-        ATTAINS.IsImpaired = isimpaired,
-        ATTAINS.IsThreatened = isthreatened,
-        ATTAINS.On303dList = on303dlist,
-        ATTAINS.HasTmdl = hastmdl,
-        ATTAINS.Has4bPlan = has4bplan,
-        ATTAINS.HasAlternativePlan = hasalternativeplan,
-        ATTAINS.HasProtectionPlan = hasprotectionplan,
-        ATTAINS.VisionPriority303d = visionpriority303d,
-        ATTAINS.AreaSqkm = areasqkm,
-        ATTAINS.Huc12 = huc12,
-        ATTAINS.XwalkMethod = xwalk_method,
-        ATTAINS.WwalkHuc12Version = xwalk_huc12_version,
-        ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
-        ATTAINS.CatchmentStateCode = catchmentstatecode,
-        ATTAINS.CatchmentIsTribal = catchmentistribal,
-        ATTAINS.CatchmentResolution = catchmentresolution,
-        ATTAINS.ShapeLength = Shape_Length,
-        ATTAINS.ShapeArea = Shape_Area
-      )
+      renameATTAINSCols()
   }
 
   if (add_catch == FALSE) {
