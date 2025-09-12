@@ -154,7 +154,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue",	"DurationUnit", "DurationAggregation",
@@ -172,7 +172,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     cols_to_convert <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                          "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                          # Spatial Columns
-                         "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria")
+                         "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria")
     
     DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(DefineCriteriaMethodology[cols_to_convert], as.character)
     
@@ -354,7 +354,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
   if (!is.null(MLSummaryRef) & !is.character(MLSummaryRef)) {
     if (!is.data.frame(MLSummaryRef)) {
       stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
-        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, UniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier")
     }
     
@@ -363,7 +363,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         "ATTAINS.ParameterName",
         "ATTAINS.UseName",
         "ATTAINS.OrganizationIdentifier",
-        "ApplyUniqueSpatialCriteria",
+        "UniqueSpatialCriteria",
         "ATTAINS.WaterType",
         "ATTAINS.AssessmentUnitIdentifier"
       )
@@ -372,7 +372,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       
       if (length(setdiff(col.names, ref.names)) > 0) {
         stop("TADA_DefineCriteriaMethodology: 'MLSummaryRef' must be a data frame with six columns:
-        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, ApplyUniqueSpatialCriteria,
+        ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.OrganizationIdentifier, UniqueSpatialCriteria,
         ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier")
       }
     }
@@ -382,6 +382,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
   # from the MLSummaryRef file. This file also contains unique spatial criteria
   # as an option and will include these values if they have been populated.
   if (!is.null(MLSummaryRef)) {
+    MLSummaryRef$ATTAINS.ParameterName <- toupper(MLSummaryRef$ATTAINS.ParameterName)
+    MLSummaryRef$TADA.ComparableDataIdentifier <- toupper(MLSummaryRef$TADA.ComparableDataIdentifier)
     MLSummaryRef$ATTAINS.WaterType <- as.character(MLSummaryRef$ATTAINS.WaterType)
     MLSummaryRef$SaltFresh <- as.character(MLSummaryRef$SaltFresh)
     MLSummaryRef$TADA.ComparableDataIdentifier <- as.character(MLSummaryRef$TADA.ComparableDataIdentifier)
@@ -404,25 +406,25 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       dplyr::select(
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
         "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-        "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria", "ATTAINS.WaterType"
+        "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria", "ATTAINS.WaterType"
       ) %>%
       # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
       dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-        is.na(ApplyUniqueSpatialCriteria),
+        is.na(UniqueSpatialCriteria),
         as.character(NA),
         as.character(ATTAINS.WaterType)
       )) %>%
       dplyr::mutate(SaltFresh = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-        is.na(ApplyUniqueSpatialCriteria),
+        is.na(UniqueSpatialCriteria),
         as.character(NA),
         as.character(SaltFresh)
       )) %>%
       dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
-        is.na(ApplyUniqueSpatialCriteria),
+        is.na(UniqueSpatialCriteria),
         as.character(NA),
         as.character(TADA.DepthCategory.Flag)
       )) %>%
-      # dplyr::filter(!dplyr::if_all(c(ApplyUniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
+      # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
       dplyr::bind_cols(
         data.frame(
           TADA.ResultSampleFractionText = as.character(NA), 
@@ -448,7 +450,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
         "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
         # Spatial Columns
-        "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+        "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
         # Criteria Columns
         "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
         "DurationValue",	"DurationUnit", "DurationAggregation",
@@ -463,7 +465,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     col_names_MLSummary <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                              "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                              # Spatial Columns
-                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
                              "MagnitudeUnit", "DurationUnit", "DurationAggregation",
                              "FrequencyCriteriaMethod")
     
@@ -482,7 +484,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue",	"DurationUnit", "DurationAggregation",
@@ -493,6 +495,15 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
     )
     
+    criteriaMethods$ATTAINS.ParameterName <- toupper(criteriaMethods$ATTAINS.ParameterName)
+     
+    # # checks to see if a user supplied criteria table contains ATTAINS.ParameterName found in ATTAINS domain value
+    # ATTAINS_param <- rExpertQuery::EQ_DomainValues(domain = "param_name")
+    # if (any(!criteriaMethods$ATTAINS.ParameterName %in% ATTAINS_param$name)) {
+    #   warning(paste0("Your user supplied criteria table contains a parameter under ATTAINS.ParameterName which is not found as an ATTAINS domain value."))
+    # }
+    
+    # identifies all unique TADA.CharacteristicName in data frame
     unique_param <- unique(.data$TADA.CharacteristicName)
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
@@ -520,34 +531,20 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       }
       
       # What WQP Characteristic names did the user supplied table miss? 
-      non_definedCriteria <- criteriaMethods  %>%
+      non_definedCriteria <- criteriaMethods %>%
         dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
         dplyr::select(dplyr::all_of(desired_cols)) %>%
         as.data.frame()
-      
-      # Are any of these missed WQP characteristic names defined from an autofill = T
-      non_definedCriteria2 <- criteriaMethods  %>%
-        dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
-        dplyr::select("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName") %>%
-        dplyr::right_join(DefineCriteriaMethodology) %>% 
-        dplyr::select(dplyr::all_of(desired_cols)) %>%
-        as.data.frame()
-      
-      ifelse(
-        nrow(non_definedCriteria2) == 0, 
-        non_definedCriteria <- non_definedCriteria,
-        non_definedCriteria <- non_definedCriteria2
-      )
       
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
         warning(paste0("Your user supplied criteriaMethods file contains ", 
-                     length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-                     " unique TADA.ComparableDataIdentifier(s) without a valid ",
-                     "ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
-                     "when compared to the domain value of ATTAINS from the prior ",
-                     "ATTAINS assessment cycle for your organization(s). ",
-                     "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
-                     ))
+                       length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
+                       " unique TADA.ComparableDataIdentifier(s) without a valid ",
+                       "ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
+                       "when compared to the domain value of ATTAINS from the prior ",
+                       "ATTAINS assessment cycle for your organization(s). ",
+                       "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+        ))
         if ( auto_fill == TRUE){
           warning(paste0("You selected auto_fill == TRUE. ", 
                          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
@@ -570,11 +567,27 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
           ))
         }
       }
+      
+      # Are any of the meta data for the missed WQP characteristic names defined from the MLSummaryRef (if provided)
+      # non_definedCriteria2 <- criteriaMethods %>%
+      #   dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
+      #   dplyr::select("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName") %>%
+      #   dplyr::right_join(DefineCriteriaMethodology) %>% 
+      #   dplyr::select(dplyr::all_of(desired_cols)) %>%
+      #   as.data.frame()
+      # 
+      # ifelse(
+      #   nrow(non_definedCriteria2) == 0, 
+      #   non_definedCriteria <- non_definedCriteria,
+      #   non_definedCriteria <- non_definedCriteria2
+      # )
         
-      definedCriteria <- criteriaMethods  %>%
+      # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
+      definedCriteria <- criteriaMethods %>%
         dplyr::filter(!is.na(ATTAINS.ParameterName)) %>% 
+        dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName) %>%
         dplyr::select(dplyr::all_of(desired_cols)) %>%
-        as.data.frame()
+        as.data.frame() 
       
       # Must now match the data types
       desired_types <- sapply(DefineCriteriaMethodology, class)
@@ -596,17 +609,30 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       
       # Finally, join the user supplied criteria Methods table with any pre-filled values 
       # from either the recommended workflow or auto-fill options. 
-      DefineCriteriaMethodology_User_supplied <- definedCriteria %>%
-        dplyr::bind_rows(non_definedCriteria) %>%
-        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
-        dplyr::filter(TADA.CharacteristicName %in% unique_param) %>%
-        dplyr::select(
-          dplyr::any_of(desired_cols)
-        ) %>%
-        dplyr::distinct()
+      
+      
+      # DefineCriteriaMethodology_User_supplied <- definedCriteria %>%
+      #   dplyr::bind_rows(non_definedCriteria) %>%
+      #   dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
+      #   dplyr::filter(TADA.CharacteristicName %in% unique_param) %>%
+      #   dplyr::select(
+      #     dplyr::any_of(desired_cols)
+      #   ) %>%
+      #   dplyr::distinct()
+      # 
+      # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
+      if(nrow(DefineCriteriaMethodology) == 0 && auto_fill == FALSE) {
+        DefineCriteriaMethodology <- criteriaMethods %>%
+          dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName) %>%
+          dplyr::distinct()
+      }
       
       DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
-        dplyr::bind_rows(DefineCriteriaMethodology_User_supplied) %>%
+        dplyr::select(
+          ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, 
+          TADA.ComparableDataIdentifier, TADA.CharacteristicName
+          ) %>%
+        dplyr::full_join(definedCriteria) %>%
         dplyr::distinct()
       
       # should not be a problem if we control what column names are allowed,
@@ -662,7 +688,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       #     ATTAINS.WaterType,
       #     MonitoringLocationTypeName,
       #     AcuteChronic, SaltFresh, Season, EquationBased,
-      #     ApplyUniqueSpatialCriteria # Will depend on the user's crosswalk of ML to this criteria for filtering.
+      #     UniqueSpatialCriteria # Will depend on the user's crosswalk of ML to this criteria for filtering.
       #   ), as.factor
       # )) %>%
       # dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
@@ -727,7 +753,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "ApplyUniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue",	"DurationUnit", "DurationAggregation",
@@ -792,9 +818,9 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     openxlsx::writeData(
       wb, "Index-Criteria", 
       startCol = 14, startRow = 1, 
-      # ApplyUniqueSpatialCriteria
+      # UniqueSpatialCriteria
       x = data.frame(
-        ApplyUniqueSpatialCriteria = c(unique(MLSummaryRef$ApplyUniqueSpatialCriteria), "NA")
+        UniqueSpatialCriteria = c(unique(MLSummaryRef$UniqueSpatialCriteria), "NA")
         )
       ) 
     
