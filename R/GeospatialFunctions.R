@@ -1343,45 +1343,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
         dplyr::select(-c(OBJECTID, GLOBALID)) %>%
         # select only catchments that have WQP observations in them:
         .[TADA_DataRetrieval_data, ] %>%
-        # add prefix "ATTAINS" to ATTAINS data
-        dplyr::rename(
-          ATTAINS.SubmissionId = submissionid,
-          ATTAINS.NhdPlusId = nhdplusid,
-          ATTAINS.State = state,
-          ATTAINS.Region = region,
-          ATTAINS.OrganizationId = organizationid,
-          ATTAINS.OrgType = orgtype,
-          ATTAINS.Tas303d = tas303d,
-          ATTAINS.OrganizationName = organizationname,
-          ATTAINS.ReportingCycle = reportingcycle,
-          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
-          ATTAINS.AssessmentUnitName = assessmentunitname,
-          ATTAINS.WaterbodyReportLink = waterbodyreportlink,
-          ATTAINS.AssmntJoinKey = assmnt_joinkey,
-          ATTAINS.PermIdJoinKey = permid_joinkey,
-          ATTAINS.IrCategory = ircategory,
-          ATTAINS.OverallStatus = overallstatus,
-          ATTAINS.IsAssessed = isassessed,
-          ATTAINS.IsImpaired = isimpaired,
-          ATTAINS.IsThreatened = isthreatened,
-          ATTAINS.On303dList = on303dlist,
-          ATTAINS.HasTmdl = hastmdl,
-          ATTAINS.Has4bPlan = has4bplan,
-          ATTAINS.HasAlternativePlan = hasalternativeplan,
-          ATTAINS.HasProtectionPlan = hasprotectionplan,
-          ATTAINS.VisionPriority303d = visionpriority303d,
-          ATTAINS.AreaSqkm = areasqkm,
-          ATTAINS.Huc12 = huc12,
-          ATTAINS.XwalkMethod = xwalk_method,
-          ATTAINS.WwalkHuc12Version = xwalk_huc12_version,
-          ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
-          ATTAINS.CatchmentStateCode = catchmentstatecode,
-          ATTAINS.CatchmentIsTribal = catchmentistribal,
-          ATTAINS.CatchmentResolution = catchmentresolution,
-          ATTAINS.ShapeLength = Shape_Length,
-          ATTAINS.ShapeArea = Shape_Area,
-          ATTAINS.WaterType = waterTypeCode
-        ) %>%
         # get rid of dupes (as a precaution)
         dplyr::distinct(.keep_all = TRUE),
       silent = TRUE
@@ -1481,7 +1442,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 
       subset <- attains_features[-1] %>%
         purrr::map(~ tryCatch(
-          dplyr::filter(., assessmentunitidentifier %in% sub_tada$ATTAINS.AssessmentUnitIdentifier),
+          dplyr::filter(., assessmentunitidentifier %in% sub_tada$assessmentunitidentifier),
           error = function(e) data.frame(),
           warning = function(w) data.frame()
         )) %>%
@@ -2196,10 +2157,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "inst/extdata/icons/square-fs.png",
     "inst/extdata/icons/square-na.png",
     "inst/extdata/icons/circle-solid-full.png",
-    "inst/extdata/icons/square-catchment.png"
+    "inst/extdata/icons/square-catchment.png",
+    "inst/extdata/icons/square-catchment-gray.png"
   )
-
-
 
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
