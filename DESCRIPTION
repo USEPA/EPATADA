@@ -44,7 +44,7 @@ Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     plyr, 
     data.table, 
@@ -108,7 +108,8 @@ Suggests:
     rvest,
     remotes,
     covr,
-    httr2 (>= 1.2.1)
+    httr2 (>= 1.2.1),
+    roxygen2
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
