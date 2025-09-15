@@ -57,6 +57,14 @@ should contain a completed crosswalk of use names associated with each assessmen
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
+\item{updateRef}{Default is none. NOTE TO TADA DEV: We can consider removing
+this as an argument input if we do not wish to facilitate updating the crosswalk
+reference table when generating the criteria and methods table for input. Keeping
+this in the function for now as it could be useful to consider having.}
+
+\item{epa304a}{A Boolean value to return epa304a recommended standards for any
+WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
+
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
@@ -76,7 +84,7 @@ It is recommended to run the three TADA reference functions in order of
 \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}}, \link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef}
 to generate the Criteria and Methodology table specific for your organization.
 However, users can choose to proceed with an 'auto_assign'
-option which will use default assignments during each of these three functions.
+option which will use default assignments for each of these three functions.
 If you would like to update any of these reference tables from the defaults,
 you can choose to do so in the excel spreadsheet file and then specify the starting
 reference table that you have updated with the argument input 'updateRef'
@@ -85,14 +93,15 @@ This which will update the Criteria and Methodology table to reflect any changes
 \details{
 This criteria and methodology table will be in a TADA compatible format and
 contain a list of allowable values within each column to define the full
-criteria or magnitude only values associated with an ATTAINS parameter name
+criteria, or magnitude only, values associated with an ATTAINS parameter name
 and use name. For each criteria/magnitude value,
 users will need to ensure they properly define any additional methods that
 correctly reflects their water quality standards for a parameter and use.
 For example, if there are separate standards for acute versus chronic,
 rivers versus estuary, different seasons, etc., then a user will need to create
 additional rows to reflect this. Additional columns are included in this output
-to capture data sufficiency considerations.
+to capture data sufficiency considerations such as minimum sample sizes,
+assessment period dates, and seasonality components.
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
@@ -118,7 +127,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
+  useAURef = NULL, AUMLRef = NULL,
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )
@@ -126,6 +135,7 @@ MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   Data_Nutrients_UT,
   MLSummaryRef = MLSummaryRef_UT,
+  displayUniqueId = TRUE,
   excel = FALSE
 )
 

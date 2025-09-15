@@ -411,13 +411,14 @@ MT.ParamRef_User_Supplied <- TADA_CreateParamRef(
 TADA_TableExport(MT.ParamRef_User_Supplied)
 ```
 
-QUESTION: Initially, we were thinking we would include all combinations of 
-crosswalks (from user supplied and from an auto_assign method), but now we
-are leaning towards full prioritization of the user-supplied crosswalk. 
+QUESTION: Initially, we were thinking we would include all combinations
+of crosswalks (from user supplied and from an auto_assign method), but
+now we are leaning towards full prioritization of the user-supplied
+crosswalk.
 
 Your user supplied 'paramRef' is prioritized over the 'auto_assign'
 argument inputs. The auto_assign option will allow you to fill in any
-remaining blanks that you have not filled in. 
+remaining blanks that you have not filled in.
 
 ```{r finalize-paramRef}
 MT.ParamRef_Final <- TADA_CreateParamRef(
@@ -654,11 +655,11 @@ level of summary is further filtered down by the AU to ML crosswalk, the
 use to AU crosswalk, and the use to parameter crosswalk based on what
 TADA.ComparableDataIdentifier has been collected at those sites and
 taking into consideration of what parameter(s) and use(s) have been
-assessed for each assessment unit. (Note: Would users find it useful to still include a
-parameter and use for a site even if the site does not contain that
-TADA.ComparableDataIdentifier - the ATTAINS.ParameterName? This could be
-included in the final summary table and labeled as NA or insufficient
-data.)
+assessed for each assessment unit. (Note: Would users find it useful to
+still include a parameter and use for a site even if the site does not
+contain that TADA.ComparableDataIdentifier - the ATTAINS.ParameterName?
+This could be included in the final summary table and labeled as NA or
+insufficient data.)
 
 ```{r compare-AU-versus-ML-Summary,, eval = FALSE}
 nrow(MT.MLSummaryRef_AU)

@@ -4,7 +4,7 @@
 #' [TADA_CreateParamRef()], [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef] 
 #' to generate the Criteria and Methodology table specific for your organization.
 #' However, users can choose to proceed with an 'auto_assign'
-#' option which will use default assignments during each of these three functions.
+#' option which will use default assignments for each of these three functions.
 #' If you would like to update any of these reference tables from the defaults, 
 #' you can choose to do so in the excel spreadsheet file and then specify the starting 
 #' reference table that you have updated with the argument input 'updateRef' 
@@ -12,14 +12,15 @@
 #'
 #' This criteria and methodology table will be in a TADA compatible format and 
 #' contain a list of allowable values within each column to define the full 
-#' criteria or magnitude only values associated with an ATTAINS parameter name 
+#' criteria, or magnitude only, values associated with an ATTAINS parameter name 
 #' and use name. For each criteria/magnitude value,
 #' users will need to ensure they properly define any additional methods that
 #' correctly reflects their water quality standards for a parameter and use.
 #' For example, if there are separate standards for acute versus chronic,
 #' rivers versus estuary, different seasons, etc., then a user will need to create
 #' additional rows to reflect this. Additional columns are included in this output
-#' to capture data sufficiency considerations.
+#' to capture data sufficiency considerations such as minimum sample sizes,
+#' assessment period dates, and seasonality components.
 #' 
 #' @param .data A TADA dataframe. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
@@ -57,6 +58,14 @@
 #' should contain a completed crosswalk of use names associated with each assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
+#' 
+#' @param updateRef Default is none. NOTE TO TADA DEV: We can consider removing 
+#' this as an argument input if we do not wish to facilitate updating the crosswalk
+#' reference table when generating the criteria and methods table for input. Keeping
+#' this in the function for now as it could be useful to consider having.
+#' 
+#' @param epa304a A Boolean value to return epa304a recommended standards for any
+#' WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -97,7 +106,7 @@
 #' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
-#'   waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
+#'   useAURef = NULL, AUMLRef = NULL,
 #'   useParamRef = UseParamRef_UT,
 #'   excel = FALSE
 #' )
@@ -105,6 +114,7 @@
 #' DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 #'   Data_Nutrients_UT,
 #'   MLSummaryRef = MLSummaryRef_UT,
+#'   displayUniqueId = TRUE,
 #'   excel = FALSE
 #' )
 #'
@@ -154,15 +164,15 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit", "DurationAggregation",
-      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      "DurationValue",	"DurationUnit", "DurationMethod",
+      "FreqValue",	"FreqMethod",
       # Data Sufficiency Columns
-      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
-      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate",
-      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+      "AssessPeriod", "AssessPeriodStartDate", "AssessPeriodEndDate",
+      "Season", "SeasonStartDate", "SeasonEndDate",
+      "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
     )
     
     DefineCriteriaMethodology <- data.frame(matrix(ncol = length(desired_cols), nrow = 0))
@@ -172,7 +182,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     cols_to_convert <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                          "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                          # Spatial Columns
-                         "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria")
+                         "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria")
     
     DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(DefineCriteriaMethodology[cols_to_convert], as.character)
     
@@ -406,7 +416,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       dplyr::select(
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", 
         "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
-        "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria", "ATTAINS.WaterType"
+        "SaltFresh", "DepthCategory" = "TADA.DepthCategory.Flag", "UniqueSpatialCriteria", "ATTAINS.WaterType"
       ) %>%
       # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
       dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
@@ -419,10 +429,10 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         as.character(NA),
         as.character(SaltFresh)
       )) %>%
-      dplyr::mutate(TADA.DepthCategory.Flag = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
+      dplyr::mutate(DepthCategory = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
         is.na(UniqueSpatialCriteria),
         as.character(NA),
-        as.character(TADA.DepthCategory.Flag)
+        as.character(DepthCategory)
       )) %>%
       # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
       dplyr::bind_cols(
@@ -432,12 +442,12 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
           # Criteria Columns
           EquationBased = as.character(NA),
           MagnitudeValueLower = as.numeric(NA), MagnitudeValueUpper = as.numeric(NA), MagnitudeUnit = as.character(NA),
-          DurationValue = as.numeric(NA),	DurationUnit = as.character(NA), DurationAggregation = as.character(NA),
-          FrequencyCriteriaValue = as.numeric(NA), FrequencyCriteriaMethod = as.character(NA),
+          DurationValue = as.numeric(NA),	DurationUnit = as.character(NA), DurationMethod = as.character(NA),
+          FreqValue = as.numeric(NA), FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          DataSufficiency.AssessPeriod = as.character(NA), DataSufficiency.BegAssessDate = as.Date(NA), DataSufficiency.EndAssessDate = as.Date(NA), Season = as.character(NA),
-          DataSufficiency.Season = as.character(NA), DataSufficiency.SeasonBegDate = as.Date(NA), DataSufficiency.SeasonEndDate = as.Date(NA),
-          DataSufficiency.CountSamplingDistribution = as.numeric(NA), DataSufficiency.SamplingDistribution = as.character(NA), DataSufficiency.MinSamplePerDistribution = as.numeric(NA)
+          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA), Season = as.character(NA),
+          Season = as.character(NA), SeasonStartDate = as.Date(NA), SeasonEndDate = as.Date(NA),
+          DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
       ) %>%
       #dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
@@ -450,24 +460,24 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
         "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic", 
         # Spatial Columns
-        "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
+        "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
         # Criteria Columns
         "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-        "DurationValue",	"DurationUnit", "DurationAggregation",
-        "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+        "DurationValue",	"DurationUnit", "DurationMethod",
+        "FreqValue",	"FreqMethod",
         # Data Sufficiency Columns
-        "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
-        "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
-        "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+        "AssessPeriod", "AssessPeriodStartDate", "AssessPeriodEndDate",
+        "Season", "SeasonStartDate", "SeasonEndDate", 
+        "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
       ) %>%
     dplyr::distinct()
     
     col_names_MLSummary <- c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
                              "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
                              # Spatial Columns
-                             "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
-                             "MagnitudeUnit", "DurationUnit", "DurationAggregation",
-                             "FrequencyCriteriaMethod")
+                             "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
+                             "MagnitudeUnit", "DurationUnit", "DurationMethod",
+                             "FreqMethod")
     
     DefineCriteriaMethodology[c(col_names_MLSummary)] <- lapply(DefineCriteriaMethodology[col_names_MLSummary], as.character)
   }
@@ -484,15 +494,15 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit", "DurationAggregation",
-      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      "DurationValue",	"DurationUnit", "DurationMethod",
+      "FreqValue",	"FreqMethod",
       # Data Sufficiency Columns
-      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
-      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate",
-      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+      "AssessPeriod", "AssessPeriodStartDate", "AssessPeriodEndDate",
+      "Season", "SeasonStartDate", "SeasonEndDate",
+      "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
     )
     
     criteriaMethods$ATTAINS.ParameterName <- toupper(criteriaMethods$ATTAINS.ParameterName)
@@ -680,8 +690,8 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       dplyr::full_join(CST_param, relationship = "many-to-many") %>%
       # dplyr::mutate(dplyr::across(
       #   c(
-      #     MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FrequencyCriteriaValue,	
-      #     MinimumSampleSize, MinimumSamplingPeriod,	TADA.DepthCategory.Flag
+      #     MagnitudeValueLower, MagnitudeValueUpper, DurationValue,	FreqValue,	
+      #     MinimumSampleSize, MinimumSamplingPeriod,	DepthCategory
       #   ), as.numeric)) %>%
       # dplyr::mutate(dplyr::across(
       #   c(
@@ -753,15 +763,15 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName","AcuteChronic",  
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "TADA.DepthCategory.Flag", "UniqueSpatialCriteria",
+      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
       "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
-      "DurationValue",	"DurationUnit", "DurationAggregation",
-      "FrequencyCriteriaValue",	"FrequencyCriteriaMethod",
+      "DurationValue",	"DurationUnit", "DurationMethod",
+      "FreqValue",	"FreqMethod",
       # Data Sufficiency Columns
-      "DataSufficiency.AssessPeriod", "DataSufficiency.BegAssessDate", "DataSufficiency.EndAssessDate",
-      "DataSufficiency.Season", "DataSufficiency.SeasonBegDate", "DataSufficiency.SeasonEndDate", 
-      "DataSufficiency.CountSamplingDistribution", "DataSufficiency.SamplingDistribution", "DataSufficiency.MinSamplePerDistribution"
+      "AssessPeriod", "AssessPeriodStartDate", "AssessPeriodEndDate",
+      "Season", "SeasonStartDate", "SeasonEndDate", 
+      "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
     )
     
     # Format column header
@@ -815,7 +825,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       wb, "Index-Criteria", 
       startCol = 13, startRow = 1, 
       x = data.frame(
-        TADA.DepthCategory.Flag = c("No depth info", "Epilimnion-surface", "Surface", "Bottom", "Middle")
+        DepthCategory = c("No depth info", "Epilimnion-surface", "Surface", "Bottom", "Middle")
       )
     )
     
@@ -858,9 +868,9 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     openxlsx::writeData(
       wb, "Index-Criteria", 
       startCol = 21, startRow = 1, 
-      # DurationAggregation
+      # DurationMethod
       x = data.frame(
-        DurationAggregation = c(
+        DurationMethod = c(
           "arithmetic mean", "arithmetic median", "arithmetic max", "arithmetic min", 
           "geometric mean", "rolling geometric mean", "rolling arithmetric mean"
           )
@@ -870,9 +880,9 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     openxlsx::writeData(
       wb, "Index-Criteria", 
       startCol = 23, startRow = 1, 
-      # FrequencyCriteriaMethod
+      # FreqMethod
       x = data.frame(
-        FrequencyCriteriaMethod = c(
+        FreqMethod = c(
           "Percent of samples not meeting", "percentile",
           "n-samples in 3 years", "n-samples in 4 years", "n-samples in 5 years", 
           "binomial test", "NumberNotMeeting" 
@@ -884,7 +894,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       wb, "Index-Criteria", 
       startCol = 24, startRow = 1, 
       x = data.frame(
-        DataSufficiency.AssessPeriod = c("Last 30 years", "Last 10 years", "Last 5 years", "Last 3 years", "Last year", "NA")
+        AssessPeriod = c("Last 30 years", "Last 10 years", "Last 5 years", "Last 3 years", "Last year", "NA")
         )
       )
         
@@ -892,7 +902,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       wb, "Index-Criteria", 
       startCol = 27, startRow = 1, 
       x = data.frame(
-        DataSufficiency.Season = c("Summer", "Fall", "Spring", "Winter", "NA")
+        Season = c("Summer", "Fall", "Spring", "Winter", "NA")
       )
     )
     
@@ -900,7 +910,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
       wb, "Index-Criteria", 
       startCol = 31, startRow = 1, 
       x = data.frame(
-        DataSufficiency.SamplingDistribution = c("Seasonal", "Annual", "Semi-Annual", "Quarterly", "Monthly", "Bi-weekly", "Weekly", "10 days", "NA")
+        DistrPeriod = c("Seasonal", "Annual", "Semi-Annual", "Quarterly", "Monthly", "Bi-weekly", "Weekly", "10 days", "NA")
       )
     )
     
@@ -945,7 +955,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     openxlsx::groupColumns(
       wb,
       sheet = "DefineCriteriaMethodology",
-      cols = 22:30,
+      cols = 22:31,
       hidden = FALSE, 
       level = -1
       )
@@ -990,7 +1000,7 @@ TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = N
   summarizeBy <- match.arg(summarizeBy)
   
   # Runs TADA_FlagDepthCategory if not already ran
-  # if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
+  # if (!"DepthCategory" %in% names(.data)) {
   #   .data <- TADA_FlagDepthCategory(.data)
   # }
   
