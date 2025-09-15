@@ -789,14 +789,18 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
         )
       ) 
     
+    # get list of ATTAINS Water Types from ATTAINS
+    All.WaterTypeList <- utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA"))
+    
+    Org.WaterTypeList <- dplyr::filter(All.WaterTypeList, ATTAINS.OrganizationIdentifier %in% org_id)
+    
+    
     openxlsx::writeData(
       wb, "Index-Criteria", 
       startCol = 11, startRow = 1, 
       # ATTAINS.WaterType
-      x = data.frame( 
-        ATTAINS.WaterType = c(unique(MLSummaryRef$ATTAINS.WaterType), "All", "NA")
-        )
-      ) 
+      x = unique(Org.WaterTypeList$ATTAINS.WaterType)
+    )
     
     openxlsx::writeData(
       wb, "Index-Criteria", 
@@ -912,7 +916,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 15, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
