@@ -2321,7 +2321,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           iconHeight = 24
         )
 
-
         set.popup <- paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
           "<br> Site Name: ", sumdat$MonitoringLocationName,
@@ -2371,19 +2370,29 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           images[4:5]
         )
 
+        leg.labels <- c(
+          "ATTAINS: Not Supporting",
+          "ATTAINS: Supporting",
+          "ATTAINS: Not Assessed",
+          "WQP: User-supplied Ref",
+          "WQP: ATTAINS Crosswalk",
+          "WQP: TADA_CreateATTAINSAUMLCrosswalk",
+          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+        )
+
+        if("without_ATTAINS_catchments" %in% names(.data)) {
+
+          images.ref <- append(images.ref, images[6])
+
+          leg.labels <- append(leg.labels,
+                               "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines.")
+        }
+
 
         map <- map %>%
           leaflegend::addLegendImage(
             images = images.ref,
-            labels = c(
-              "ATTAINS: Not Supporting",
-              "ATTAINS: Supporting",
-              "ATTAINS: Not Assessed",
-              "WQP: User-supplied Ref",
-              "WQP: ATTAINS Crosswalk",
-              "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-              "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
-            ),
+            labels = leg.labels,
             labelStyle = "font-size: 14px;",
             width = 14,
             height = 14,
@@ -2399,16 +2408,31 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       }
 
       if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
+
+        images.ref <- c(
+          images[1:5]
+        )
+
+        leg.labels <-  c(
+          "ATTAINS: Not Supporting",
+          "ATTAINS: Fully Supporting",
+          "ATTAINS: Not Assessed",
+          "WQP: Monitoring Location",
+          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+        )
+
+        if("without_ATTAINS_catchments" %in% names(.data)) {
+
+          images.ref <- append(images.ref, images[6])
+
+          leg.labels <- append(leg.labels,
+                               "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines.")
+        }
+
         map <- map %>%
           leaflegend::addLegendImage(
             images = images,
-            labels = c(
-              "ATTAINS: Not Supporting",
-              "ATTAINS: Supporting",
-              "ATTAINS: Not Assessed",
-              "WQP: Monitoring Location",
-              "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
-            ),
+            labels = leg.labels,
             labelStyle = "font-size: 14px;",
             width = 14,
             height = 14,
