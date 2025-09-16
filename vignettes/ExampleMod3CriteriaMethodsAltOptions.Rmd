@@ -184,7 +184,9 @@ MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
   # auto_fill = FALSE,
-  excel = TRUE, overwrite = TRUE
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -212,7 +214,9 @@ MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_fill = TRUE,
   # displayUniqueId = FALSE,
-  excel = TRUE, overwrite = TRUE
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -229,7 +233,9 @@ MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_fill = TRUE,
   displayUniqueId = TRUE,
-  excel = TRUE, overwrite = TRUE
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -240,8 +246,12 @@ found.
 ```{r auto fill, epa304a and display TADA.ComparableDataIdentifier}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = "MTDEQ", auto_fill = TRUE, displayUniqueId =
-    TRUE, excel = TRUE, overwrite = TRUE
+  org_id = "MTDEQ", 
+  auto_fill = TRUE, 
+  displayUniqueId = TRUE, 
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -275,8 +285,10 @@ MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE,
-  excel = TRUE, overwrite = TRUE,
-  epa304a = TRUE
+  epa304a = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -295,8 +307,10 @@ MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_fill = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
-  excel = FALSE,
-  epa304a = TRUE
+  epa304a = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -316,8 +330,10 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
-  excel = TRUE, overwrite = TRUE,
-  epa304a = TRUE
+  epa304a = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -335,6 +351,8 @@ MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
   auto_fill = FALSE,
   displayUniqueId = FALSE,
   excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
