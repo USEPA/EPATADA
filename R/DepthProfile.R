@@ -89,8 +89,8 @@
 #'   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 #' )
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, 
-                                   surfacevalue = 2, dailyagg = "none", 
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
+                                   surfacevalue = 2, dailyagg = "none",
                                    aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")

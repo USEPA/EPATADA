@@ -1238,8 +1238,8 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' )
 #' }
 TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
-                            fill_catchments = FALSE, resolution = "Hi",
-                            return_sf = TRUE) {
+                                            fill_catchments = FALSE, resolution = "Hi",
+                                            return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1344,42 +1344,43 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
         # select only catchments that have WQP observations in them:
         .[TADA_DataRetrieval_data, ] %>%
         # add prefix "ATTAINS" to ATTAINS data
-        dplyr::rename(ATTAINS.SubmissionId = submissionid,
-                      ATTAINS.NhdPlusId = nhdplusid,
-                      ATTAINS.State = state,
-                      ATTAINS.Region = region,
-                      ATTAINS.OrganizationId = organizationid,
-                      ATTAINS.OrgType = orgtype,
-                      ATTAINS.Tas303d = tas303d,
-                      ATTAINS.OrganizationName = organizationname,
-                      ATTAINS.ReportingCycle = reportingcycle,
-                      ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
-                      ATTAINS.AssessmentUnitName = assessmentunitname,
-                      ATTAINS.WaterbodyReportLink = waterbodyreportlink,
-                      ATTAINS.AssmntJoinKey = assmnt_joinkey,
-                      ATTAINS.PermIdJoinKey = permid_joinkey,
-                      ATTAINS.IrCategory = ircategory,
-                      ATTAINS.OverallStatus = overallstatus,
-                      ATTAINS.IsAssessed = isassessed,
-                      ATTAINS.IsImpaired = isimpaired,
-                      ATTAINS.IsThreatened = isthreatened,
-                      ATTAINS.On303dList = on303dlist,
-                      ATTAINS.HasTmdl = hastmdl,
-                      ATTAINS.Has4bPlan = has4bplan,
-                      ATTAINS.HasAlternativePlan = hasalternativeplan,
-                      ATTAINS.HasProtectionPlan = hasprotectionplan,
-                      ATTAINS.VisionPriority303d =  visionpriority303d,
-                      ATTAINS.AreaSqkm = areasqkm,
-                      ATTAINS.Huc12 = huc12,
-                      ATTAINS.XwalkMethod = xwalk_method,
-                      ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
-                      ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
-                      ATTAINS.CatchmentStateCode = catchmentstatecode,
-                      ATTAINS.CatchmentIsTribal = catchmentistribal,
-                      ATTAINS.CatchmentResolution = catchmentresolution,
-                      ATTAINS.ShapeLength = Shape_Length,
-                      ATTAINS.ShapeArea = Shape_Area,
-                      ATTAINS.WaterType = waterTypeCode
+        dplyr::rename(
+          ATTAINS.SubmissionId = submissionid,
+          ATTAINS.NhdPlusId = nhdplusid,
+          ATTAINS.State = state,
+          ATTAINS.Region = region,
+          ATTAINS.OrganizationId = organizationid,
+          ATTAINS.OrgType = orgtype,
+          ATTAINS.Tas303d = tas303d,
+          ATTAINS.OrganizationName = organizationname,
+          ATTAINS.ReportingCycle = reportingcycle,
+          ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier,
+          ATTAINS.AssessmentUnitName = assessmentunitname,
+          ATTAINS.WaterbodyReportLink = waterbodyreportlink,
+          ATTAINS.AssmntJoinKey = assmnt_joinkey,
+          ATTAINS.PermIdJoinKey = permid_joinkey,
+          ATTAINS.IrCategory = ircategory,
+          ATTAINS.OverallStatus = overallstatus,
+          ATTAINS.IsAssessed = isassessed,
+          ATTAINS.IsImpaired = isimpaired,
+          ATTAINS.IsThreatened = isthreatened,
+          ATTAINS.On303dList = on303dlist,
+          ATTAINS.HasTmdl = hastmdl,
+          ATTAINS.Has4bPlan = has4bplan,
+          ATTAINS.HasAlternativePlan = hasalternativeplan,
+          ATTAINS.HasProtectionPlan = hasprotectionplan,
+          ATTAINS.VisionPriority303d = visionpriority303d,
+          ATTAINS.AreaSqkm = areasqkm,
+          ATTAINS.Huc12 = huc12,
+          ATTAINS.XwalkMethod = xwalk_method,
+          ATTAINS.WwalkHuc12Version = xwalk_huc12_version,
+          ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
+          ATTAINS.CatchmentStateCode = catchmentstatecode,
+          ATTAINS.CatchmentIsTribal = catchmentistribal,
+          ATTAINS.CatchmentResolution = catchmentresolution,
+          ATTAINS.ShapeLength = Shape_Length,
+          ATTAINS.ShapeArea = Shape_Area,
+          ATTAINS.WaterType = waterTypeCode
         ) %>%
         # get rid of dupes (as a precaution)
         dplyr::distinct(.keep_all = TRUE),
@@ -1694,7 +1695,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' @examples
 #' \dontrun{
 #' # Example 1: Basic usage with default settings
-#' # Assume `my_data` is a TADA data frame with some monitoring 
+#' # Assume `my_data` is a TADA data frame with some monitoring
 #' # location results
 #' # Assume `my_au_ref` is a data frame containing known AU and monitoring
 #' # location combinations
@@ -1702,11 +1703,13 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #'
 #' # Example 2: Fetching ATTAINS data with catchment information
 #' # Set `add_catch` to TRUE to include catchment data in the output
-#' result_with_catch <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref, 
-#' add_catch = TRUE)
+#' result_with_catch <- TADA_GetATTAINSByAUID(my_data,
+#'   au_ref = my_au_ref,
+#'   add_catch = TRUE
+#' )
 #'
 #' # Example 3: Handling empty data frames
-#' # If the input data frame has no observations, the function returns an 
+#' # If the input data frame has no observations, the function returns an
 #' # empty data frame with ATTAINS columns
 #' empty_data <- data.frame()
 #' empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
@@ -1714,8 +1717,9 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' # Example 4: Custom AU reference data from an external file
 #' # Load AU reference data from a CSV file and use it in the function
 #' au_ref_from_file <- read.csv("path/to/au_ref.csv")
-#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data, 
-#' au_ref = au_ref_from_file)
+#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
+#'   au_ref = au_ref_from_file
+#' )
 #' }
 #'
 TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
@@ -1788,16 +1792,20 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
   # drop provider from au_ref
   au_ref <- au_ref %>%
-    dplyr::select(ATTAINS.AssessmentUnitIdentifier,
-                  ATTAINS.MonitoringLocationIdentifier)
+    dplyr::select(
+      ATTAINS.AssessmentUnitIdentifier,
+      ATTAINS.MonitoringLocationIdentifier
+    )
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
 
   filt.data <- .data %>%
-    dplyr::select(TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
-                  TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName) %>%
+    dplyr::select(
+      TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName
+    ) %>%
     dplyr::distinct() %>%
     TADA_MakeSpatial()
 
@@ -1814,7 +1822,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
   # get water type info using EQ
   get_wb_type <- function(au_list) {
-
     au_list <- unique(au_list)
 
     # split the au_list into chunks
@@ -1826,7 +1833,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     wat_type <- function(chunk) {
       results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
         api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
-        auid = chunk))
+        auid = chunk
+      ))
     }
 
     results <- purrr::map_dfr(.x = chunks, .f = wat_type)
@@ -1842,7 +1850,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   # get water types
   water_types <- try(
     get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
-    silent = TRUE)
+    silent = TRUE
+  )
 
 
   # function to download ATTAINS features API based on their name
@@ -1911,19 +1920,18 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   )
 
   try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
-      silent = TRUE
+    silent = TRUE
   )
 
   try(lines <- lines %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
-      silent = TRUE
+    silent = TRUE
   )
 
   try(polygons <- polygons %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
-      silent = TRUE
+    silent = TRUE
   )
 
-  if(add_catch == TRUE) {
-
+  if (add_catch == TRUE) {
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
@@ -1951,103 +1959,113 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       dplyr::distinct()
 
     try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
-        silent = TRUE
+      silent = TRUE
     )
 
     # create internal function to rename cols coming from ATTAINS geospatial
     TADA_with_ATTAINS <- .data %>%
-      dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =
-                                        "ATTAINS.MonitoringLocationIdentifier")) %>%
-      dplyr::left_join(catchments.cw,
-                       dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+      dplyr::left_join(au_ref, by = c(
+        "TADA.MonitoringLocationIdentifier" =
+          "ATTAINS.MonitoringLocationIdentifier"
+      )) %>%
+      dplyr::left_join(
+        catchments.cw,
+        dplyr::join_by(TADA.MonitoringLocationIdentifier)
+      ) %>%
       dplyr::left_join(catchments.no.geo,
-                       by = c("nhdplusid" = "nhdplusid",
-                              "ATTAINS.AssessmentUnitIdentifier" =
-                                "assessmentunitidentifier")) %>%
+        by = c(
+          "nhdplusid" = "nhdplusid",
+          "ATTAINS.AssessmentUnitIdentifier" =
+            "assessmentunitidentifier"
+        )
+      ) %>%
       dplyr::select(-OBJECTID) %>%
-      dplyr::rename(ATTAINS.SubmissionId = submissionid,
-                    ATTAINS.NhdPlusId = nhdplusid,
-                    ATTAINS.State = state,
-                    ATTAINS.Region = region,
-                    ATTAINS.OrganizationId = organizationid,
-                    ATTAINS.OrgType = orgtype,
-                    ATTAINS.Tas303d = tas303d,
-                    ATTAINS.OrganizationName = organizationname,
-                    ATTAINS.ReportingCycle = reportingcycle,
-                    ATTAINS.AssessmentUnitName = assessmentunitname,
-                    ATTAINS.WaterbodyReportLink = waterbodyreportlink,
-                    ATTAINS.AssmntJoinKey = assmnt_joinkey,
-                    ATTAINS.PermIdJoinKey = permid_joinkey,
-                    ATTAINS.IrCategory = ircategory,
-                    ATTAINS.OverallStatus = overallstatus,
-                    ATTAINS.IsAssessed = isassessed,
-                    ATTAINS.IsImpaired = isimpaired,
-                    ATTAINS.IsThreatened = isthreatened,
-                    ATTAINS.On303dList = on303dlist,
-                    ATTAINS.HasTmdl = hastmdl,
-                    ATTAINS.Has4bPlan = has4bplan,
-                    ATTAINS.HasAlternativePlan = hasalternativeplan,
-                    ATTAINS.HasProtectionPlan = hasprotectionplan,
-                    ATTAINS.VisionPriority303d =  visionpriority303d,
-                    ATTAINS.AreaSqkm = areasqkm,
-                    ATTAINS.Huc12 = huc12,
-                    ATTAINS.XwalkMethod = xwalk_method,
-                    ATTAINS.WwalkHuc12Version= xwalk_huc12_version,
-                    ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
-                    ATTAINS.CatchmentStateCode = catchmentstatecode,
-                    ATTAINS.CatchmentIsTribal = catchmentistribal,
-                    ATTAINS.CatchmentResolution = catchmentresolution,
-                    ATTAINS.ShapeLength = Shape_Length,
-                    ATTAINS.ShapeArea = Shape_Area,
-                    ATTAINS.WaterType = waterType
+      dplyr::rename(
+        ATTAINS.SubmissionId = submissionid,
+        ATTAINS.NhdPlusId = nhdplusid,
+        ATTAINS.State = state,
+        ATTAINS.Region = region,
+        ATTAINS.OrganizationId = organizationid,
+        ATTAINS.OrgType = orgtype,
+        ATTAINS.Tas303d = tas303d,
+        ATTAINS.OrganizationName = organizationname,
+        ATTAINS.ReportingCycle = reportingcycle,
+        ATTAINS.AssessmentUnitName = assessmentunitname,
+        ATTAINS.WaterbodyReportLink = waterbodyreportlink,
+        ATTAINS.AssmntJoinKey = assmnt_joinkey,
+        ATTAINS.PermIdJoinKey = permid_joinkey,
+        ATTAINS.IrCategory = ircategory,
+        ATTAINS.OverallStatus = overallstatus,
+        ATTAINS.IsAssessed = isassessed,
+        ATTAINS.IsImpaired = isimpaired,
+        ATTAINS.IsThreatened = isthreatened,
+        ATTAINS.On303dList = on303dlist,
+        ATTAINS.HasTmdl = hastmdl,
+        ATTAINS.Has4bPlan = has4bplan,
+        ATTAINS.HasAlternativePlan = hasalternativeplan,
+        ATTAINS.HasProtectionPlan = hasprotectionplan,
+        ATTAINS.VisionPriority303d = visionpriority303d,
+        ATTAINS.AreaSqkm = areasqkm,
+        ATTAINS.Huc12 = huc12,
+        ATTAINS.XwalkMethod = xwalk_method,
+        ATTAINS.WwalkHuc12Version = xwalk_huc12_version,
+        ATTAINS.CatchmentAreaSqkm = catchmentareasqkm,
+        ATTAINS.CatchmentStateCode = catchmentstatecode,
+        ATTAINS.CatchmentIsTribal = catchmentistribal,
+        ATTAINS.CatchmentResolution = catchmentresolution,
+        ATTAINS.ShapeLength = Shape_Length,
+        ATTAINS.ShapeArea = Shape_Area,
+        ATTAINS.WaterType = waterType
       )
   }
 
-  if(add_catch == FALSE) {
-
+  if (add_catch == FALSE) {
     catchments <- NULL
 
-  TADA_with_ATTAINS <- .data %>%
-    dplyr::left_join(au_ref, by = c("TADA.MonitoringLocationIdentifier" =
-                                      "ATTAINS.MonitoringLocationIdentifier")) %>%
-    # when catchment/monitoring location crosswalk is available, that info can be added here
-    # can add the assessment related info sooner via rExpertQuery functions (HRM 8/7/25)
-    dplyr::mutate(ATTAINS.SubmissionId = NA,
-                  ATTAINS.NhdPlusId = NA,
-                  ATTAINS.State = NA,
-                  ATTAINS.Region = NA,
-                  ATTAINS.OrganizationId = NA,
-                  ATTAINS.OrgType = NA,
-                  ATTAINS.Tas303d = NA,
-                  ATTAINS.OrganizationName = NA,
-                  ATTAINS.ReportingCycle = NA,
-                  ATTAINS.AssessmentUnitName = NA,
-                  ATTAINS.WaterbodyReportLink = NA,
-                  ATTAINS.AssmntJoinKey = NA,
-                  ATTAINS.PermIdJoinKey = NA,
-                  ATTAINS.IrCategory = NA,
-                  ATTAINS.OverallStatus = NA,
-                  ATTAINS.IsAssessed = NA,
-                  ATTAINS.IsImpaired = NA,
-                  ATTAINS.IsThreatened = NA,
-                  ATTAINS.On303dList = NA,
-                  ATTAINS.HasTmdl = NA,
-                  ATTAINS.Has4bPlan = NA,
-                  ATTAINS.HasAlternativePlan = NA,
-                  ATTAINS.HasProtectionPlan = NA,
-                  ATTAINS.VisionPriority303d =  NA,
-                  ATTAINS.AreaSqkm = NA,
-                  ATTAINS.Huc12 = NA,
-                  ATTAINS.XwalkMethod = NA,
-                  ATTAINS.WwalkHuc12Version= NA,
-                  ATTAINS.CatchmentAreaSqkm = NA,
-                  ATTAINS.CatchmentStateCode = NA,
-                  ATTAINS.CatchmentIsTribal = NA,
-                  ATTAINS.CatchmentResolution = NA,
-                  ATTAINS.ShapeLength = NA,
-                  ATTAINS.ShapeArea = NA,
-                  ATTAINS.WaterType = NA
-    )
+    TADA_with_ATTAINS <- .data %>%
+      dplyr::left_join(au_ref, by = c(
+        "TADA.MonitoringLocationIdentifier" =
+          "ATTAINS.MonitoringLocationIdentifier"
+      )) %>%
+      # when catchment/monitoring location crosswalk is available, that info can be added here
+      # can add the assessment related info sooner via rExpertQuery functions (HRM 8/7/25)
+      dplyr::mutate(
+        ATTAINS.SubmissionId = NA,
+        ATTAINS.NhdPlusId = NA,
+        ATTAINS.State = NA,
+        ATTAINS.Region = NA,
+        ATTAINS.OrganizationId = NA,
+        ATTAINS.OrgType = NA,
+        ATTAINS.Tas303d = NA,
+        ATTAINS.OrganizationName = NA,
+        ATTAINS.ReportingCycle = NA,
+        ATTAINS.AssessmentUnitName = NA,
+        ATTAINS.WaterbodyReportLink = NA,
+        ATTAINS.AssmntJoinKey = NA,
+        ATTAINS.PermIdJoinKey = NA,
+        ATTAINS.IrCategory = NA,
+        ATTAINS.OverallStatus = NA,
+        ATTAINS.IsAssessed = NA,
+        ATTAINS.IsImpaired = NA,
+        ATTAINS.IsThreatened = NA,
+        ATTAINS.On303dList = NA,
+        ATTAINS.HasTmdl = NA,
+        ATTAINS.Has4bPlan = NA,
+        ATTAINS.HasAlternativePlan = NA,
+        ATTAINS.HasProtectionPlan = NA,
+        ATTAINS.VisionPriority303d = NA,
+        ATTAINS.AreaSqkm = NA,
+        ATTAINS.Huc12 = NA,
+        ATTAINS.XwalkMethod = NA,
+        ATTAINS.WwalkHuc12Version = NA,
+        ATTAINS.CatchmentAreaSqkm = NA,
+        ATTAINS.CatchmentStateCode = NA,
+        ATTAINS.CatchmentIsTribal = NA,
+        ATTAINS.CatchmentResolution = NA,
+        ATTAINS.ShapeLength = NA,
+        ATTAINS.ShapeArea = NA,
+        ATTAINS.WaterType = NA
+      )
   }
 
   final_features <- list(
@@ -2058,9 +2076,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     "ATTAINS_polygons" = polygons
   )
 
-    return(final_features)
-
-  }
+  return(final_features)
+}
 
 
 #' TADA_ViewATTAINS
@@ -2202,8 +2219,9 @@ TADA_ViewATTAINS <- function(.data) {
           Organization_Count = length(unique(OrganizationIdentifier)),
           ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
           TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
-                                    as.character(TADA.AURefSource),
-                                    "not provided")
+            as.character(TADA.AURefSource),
+            "not provided"
+          )
         ) %>%
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
@@ -2327,34 +2345,34 @@ TADA_ViewATTAINS <- function(.data) {
         silent = TRUE
       )
 
-      if("TADA.AURefSource" %in% names(ATTAINS_table)) {
+      if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
+        # if TADA_AUSourceRef col exists in data
+        set.fill <- leaflet::colorFactor(
+          palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
+          domain = c(
+            "User-supplied Ref",
+            "ATTAINS crosswalk",
+            "TADA_CreateATTAINSAUMLCrosswalk"
+          )
+        )
 
-      # if TADA_AUSourceRef col exists in data
-      set.fill <- leaflet::colorFactor(
-        palette = c(tada.pal[1], tada.pal[12], tada.pal[13]),
-        domain =  c("User-supplied Ref",
-          "ATTAINS crosswalk",
-          "TADA_CreateATTAINSAUMLCrosswalk"))
-
-      set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
-        "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
-      )
-
-
+        set.popup <- paste0(
+          "Site ID: ", sumdat$MonitoringLocationIdentifier,
+          "<br> Site Name: ", sumdat$MonitoringLocationName,
+          "<br> Measurement Count: ", sumdat$Sample_Count,
+          "<br> Visit Count: ", sumdat$Visit_Count,
+          "<br> Characteristic Count: ", sumdat$Parameter_Count,
+          "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
+          "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
+        )
       }
 
-      if(!"TADA.AURefSource" %in% names(ATTAINS_table)) {
-
+      if (!"TADA.AURefSource" %in% names(ATTAINS_table)) {
         # if TADA_AUSourceRef col exists in data
         set.fill <- leaflet::colorFactor(
           palette = c(tada.pal[1]),
-          domain = sumdat$TADA.AURefSource)
+          domain = sumdat$TADA.AURefSource
+        )
 
         set.popup <- paste0(
           "Site ID: ", sumdat$MonitoringLocationIdentifier,
@@ -2367,16 +2385,16 @@ TADA_ViewATTAINS <- function(.data) {
       }
 
 
-             # Add WQP observation features (should always exist):
+      # Add WQP observation features (should always exist):
       try(
         map <- map %>%
           leaflet::addCircleMarkers(
             data = sumdat,
             lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            color = "grey", fillColor = ~set.fill(TADA.AURefSource),
+            color = "grey", fillColor = ~ set.fill(TADA.AURefSource),
             fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
             popup = set.popup
-            ),
+          ),
         silent = TRUE
       )
 
@@ -2816,7 +2834,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # subset nearby sites
   near.sites <- unique.mls %>%
     dplyr::filter(TADA.MonitoringLocationIdentifier %in%
-                    group.sites$TADA.MonitoringLocationIdentifier) %>%
+      group.sites$TADA.MonitoringLocationIdentifier) %>%
     dplyr::left_join(group.sites, by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
 
   # break into multiple dfs
@@ -2826,7 +2844,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # fetch nhdplus catchment information
   nhd.catch <- near.dfs %>%
     purrr::map(~ .x %>%
-                 fetchNHD(resolution = nhd_res))
+      fetchNHD(resolution = nhd_res))
 
   # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
   nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
@@ -2948,7 +2966,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
         "TADA_FindNearbySites: ", length(missing.orgs),
         " organization identifiers are missing from org_hierarchy (",
         stringi::stri_replace_last(paste(missing.orgs, collapse = ", "),
-                                   fixed = ", ", " and "
+          fixed = ", ", " and "
         ), ").",
         " Function will continue to run using partial org_hierarchy."
       ))
@@ -3007,7 +3025,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     random.meta <- org.ranks.added %>%
       dplyr::ungroup() %>%
       dplyr::filter(!TADA.NearbySiteGroup %in%
-                      org.meta.filter$TADA.NearbySiteGroup) %>%
+        org.meta.filter$TADA.NearbySiteGroup) %>%
       dplyr::group_by(TADA.NearbySiteGroup) %>%
       dplyr::slice_min(OrgRank) %>%
       dplyr::select(
@@ -3052,7 +3070,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
         OrganizationIdentifier
       )) %>%
       dplyr::filter(!TADA.MonitoringLocationIdentifier.New %in%
-                      org.meta.filter$TADA.MonitoringLocationIdentifier.New) %>%
+        org.meta.filter$TADA.MonitoringLocationIdentifier.New) %>%
       dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) %>%
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New)
 
@@ -3148,24 +3166,24 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     dplyr::ungroup() %>%
     dplyr::mutate(
       TADA.MonitoringLocationName = ifelse(!is.na(TADA.MonitoringLocationName.New),
-                                           TADA.MonitoringLocationName.New,
-                                           TADA.MonitoringLocationName
+        TADA.MonitoringLocationName.New,
+        TADA.MonitoringLocationName
       ),
       TADA.LatitudeMeasure = ifelse(!is.na(TADA.LatitudeMeasure.New),
-                                    TADA.LatitudeMeasure.New,
-                                    TADA.LatitudeMeasure
+        TADA.LatitudeMeasure.New,
+        TADA.LatitudeMeasure
       ),
       TADA.LongitudeMeasure = ifelse(!is.na(TADA.LongitudeMeasure.New),
-                                     TADA.LongitudeMeasure.New,
-                                     TADA.LongitudeMeasure
+        TADA.LongitudeMeasure.New,
+        TADA.LongitudeMeasure
       ),
       TADA.MonitoringLocationTypeName = ifelse(!is.na(TADA.MonitoringLocationTypeName.New),
-                                               TADA.MonitoringLocationTypeName.New,
-                                               TADA.MonitoringLocationTypeName
+        TADA.MonitoringLocationTypeName.New,
+        TADA.MonitoringLocationTypeName
       ),
       TADA.MonitoringLocationIdentifier = ifelse(!is.na(TADA.MonitoringLocationIdentifier.New),
-                                                 TADA.MonitoringLocationIdentifier.New,
-                                                 TADA.MonitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier.New,
+        TADA.MonitoringLocationIdentifier
       )
     ) %>%
     dplyr::select(
@@ -3181,8 +3199,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   # add flag for any ungrouped sites and order columns correctly
   .data <- TADA_OrderCols(.data) %>%
     dplyr::mutate(TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySiteGroup),
-                                                 "No nearby sites detected using input buffer distance.",
-                                                 TADA.NearbySites.Flag
+      "No nearby sites detected using input buffer distance.",
+      TADA.NearbySites.Flag
     ))
 
   # return TADA df with added columns for tracking
@@ -3366,13 +3384,12 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @export
 #'
 TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
-                               org_id = NULL, add_catch = FALSE,
-                               batch_upload = TRUE) {
+                                     org_id = NULL, add_catch = FALSE,
+                                     batch_upload = TRUE) {
   # need to write checks for each component
 
   # check for user supplied ref
-  if(is.null(au_ref)) {
-
+  if (is.null(au_ref)) {
     user.matches <- list(
       "TADA_with_ATTAINS" = NULL,
       "ATTAINS_catchments" = NULL,
@@ -3382,29 +3399,33 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     )
   }
 
-  if(!is.null(au_ref)) {
-
-    if(!is.data.frame(au_ref)) {
-      stop(paste0("TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
-                  "containing the columns AssessmentUnitIdentifier and MonitoringLocationIdentifier.",
-                  "MonitoringLocationIdentifiers must be WQP compatible."))
+  if (!is.null(au_ref)) {
+    if (!is.data.frame(au_ref)) {
+      stop(paste0(
+        "TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
+        "containing the columns AssessmentUnitIdentifier and MonitoringLocationIdentifier.",
+        "MonitoringLocationIdentifiers must be WQP compatible."
+      ))
     }
 
-    if(is.data.frame(au_ref)) {
-
+    if (is.data.frame(au_ref)) {
       print("TADA_CreateAUMLCrosswalk: fetching geospatial data for user-supplied crosswalk.")
 
-      req.cols <- c("AssessmentUnitIdentifier",
-                    "MonitoringLocationIdentifier",
-                    "ATTAINS.WaterType")
+      req.cols <- c(
+        "AssessmentUnitIdentifier",
+        "MonitoringLocationIdentifier",
+        "ATTAINS.WaterType"
+      )
 
       # should this be using a more generic function?
       TADA_CheckColumns(au_ref, req.cols)
 
       # rename au_ref cols for next function
       au_ref <- au_ref %>%
-        dplyr::rename(ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
-                      ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier)
+        dplyr::rename(
+          ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier = AssessmentUnitIdentifier
+        )
 
       # subset data for au_ref
       au.ref.mls <- .data %>%
@@ -3413,7 +3434,8 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
 
       # get geospatial data for au_ref monitoring locations
       user.matches <- spsUtil::quiet(
-        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch))
+        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch)
+      )
     }
   }
 
@@ -3423,12 +3445,14 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
   print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
   attains.cw <- spsUtil::quiet(
-    TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
+    TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
+  )
 
-  if(is.null(attains.cw)) {
-
-    print(paste0("TADA_CreateAUMLCrosswalk: There are no MonitoringLocation records ",
-                 "in ATTAINS for ", org_id, "."))
+  if (is.null(attains.cw)) {
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: There are no MonitoringLocation records ",
+      "in ATTAINS for ", org_id, "."
+    ))
 
     attains.matches <- list(
       "TADA_with_ATTAINS" = NULL,
@@ -3439,26 +3463,32 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     )
   }
 
-  if(!is.null(attains.cw)) {
+  if (!is.null(attains.cw)) {
     # we could remove or make this step optional, but it is very helpful for making sure
     # monitoring location identifiers are WQP compatible
 
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
     attains.cw <- spsUtil::quiet(
-      TADA_UpdateATTAINSAUMLCrosswalk(crosswalk = attains.cw,
-                                                          org_id = org_id,
-                                                          attains_replace = TRUE))
+      TADA_UpdateATTAINSAUMLCrosswalk(
+        crosswalk = attains.cw,
+        org_id = org_id,
+        attains_replace = TRUE
+      )
+    )
 
     attains.cw.mls <- .data %>%
-      dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-                    TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier) %>%
+      dplyr::filter(
+        !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+      ) %>%
       dplyr::mutate(TADA.AURefSource = "ATTAINS crosswalk")
 
     print("TADA_CreateAUMLCrosswalk: fetching geospatial data for crosswalk from ATTAINS.")
     # get geospatial data for attains cw monitoring locations
     attains.matches <- spsUtil::quiet(
-      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch))
+      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
+    )
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section
@@ -3466,13 +3496,14 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
   print("TADA_CreateAUMLCrosswalk: checking to see if any unmatched MonitoringLocations remain")
 
   get.attains.mls <- .data %>%
-    dplyr::filter(!TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-                  !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier) %>%
+    dplyr::filter(
+      !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
+      !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier
+    ) %>%
     dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
   # add code here for if there are no remaning mls to match
-  if(dim(get.attains.mls)[1] == 0) {
-
+  if (dim(get.attains.mls)[1] == 0) {
     print("TADA_CreateAUMLCrosswalk: all MonitoringLocations have already been matched by user or ATTAINS.")
 
     get.attains.matches <- list(
@@ -3482,20 +3513,19 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       "ATTAINS_lines" = NULL,
       "ATTAINS_polygons" = NULL
     )
-
   }
 
-  if(dim(get.attains.mls)[1] > 0) {
-
+  if (dim(get.attains.mls)[1] > 0) {
     print("TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining MonitoringLocations.")
 
     # use get attains for matching remaining monitoring locations
-    get.attains.matches <-  spsUtil::quiet(
-      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls, return_nearest = TRUE))
+    get.attains.matches <- spsUtil::quiet(
+      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls, return_nearest = TRUE)
+    )
   }
 
   # join all the resulting tables within each list to return as one large list
-  #TADA_with_ATTAINS
+  # TADA_with_ATTAINS
 
   print("TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
 
@@ -3538,24 +3568,29 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     "ATTAINS_polygons" = ATTAINS_polygons
   )
 
-  if(batch_upload == TRUE) {
+  if (batch_upload == TRUE) {
     ATTAINS_batchupload <- TADA_with_ATTAINS %>%
       sf::st_drop_geometry() %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier,
-                    ATTAINS.AssessmentUnitIdentifier,
-                    OrganizationIdentifier,
-                    ATTAINS.WaterType) %>%
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier,
+        OrganizationIdentifier,
+        ATTAINS.WaterType
+      ) %>%
       dplyr::distinct() %>%
-      dplyr::rename(MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
-                    ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-                    MS_ORG_ID = OrganizationIdentifier) %>%
+      dplyr::rename(
+        MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
+        ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+        MS_ORG_ID = OrganizationIdentifier
+      ) %>%
       dplyr::mutate(MS_DATA_LINK = NA) %>%
-      dplyr::select(ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
-                    MS_DATA_LINK, ATTAINS.WaterType)
+      dplyr::select(
+        ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
+        MS_DATA_LINK, ATTAINS.WaterType
+      )
 
     final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
   }
 
   return(final_list)
 }
-

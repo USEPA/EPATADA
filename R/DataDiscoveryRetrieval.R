@@ -473,11 +473,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     # Reformat returned info as sf
     bbox_sites_sf <- quiet_bbox_sites$result %>%
-      dplyr::rename(TADA.LatitudeMeasure = LatitudeMeasure,
-                    TADA.LongitudeMeasure = LongitudeMeasure) %>%
+      dplyr::rename(
+        TADA.LatitudeMeasure = LatitudeMeasure,
+        TADA.LongitudeMeasure = LongitudeMeasure
+      ) %>%
       TADA_MakeSpatial(crs = 4326) %>%
-      dplyr::rename(LatitudeMeasure = TADA.LatitudeMeasure,
-                     LongitudeMeasure = TADA.LongitudeMeasure)
+      dplyr::rename(
+        LatitudeMeasure = TADA.LatitudeMeasure,
+        LongitudeMeasure = TADA.LongitudeMeasure
+      )
 
     # Subset sites to only within shapefile and get IDs
     clipped_sites_sf <- bbox_sites_sf[aoi_sf, ]

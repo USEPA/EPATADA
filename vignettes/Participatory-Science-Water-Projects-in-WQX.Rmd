@@ -49,17 +49,22 @@ organizations who have submitted data to EPA's Water Quality eXchange
 organizations <- read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Organization.CSV"))
 
 # Subset to include only "Volunteer" organizations and exclude WQX test/training orgs
-volunteer_orgs <- subset(organizations, 
-                         Type == "Volunteer" &
-                           !grepl("training", 
-                                  Name, 
-                                  ignore.case = TRUE) &
-                           !grepl("test", 
-                                  Name, 
-                                  ignore.case = TRUE) &
-                           !grepl("\\*", 
-                                  Name, 
-                                  ignore.case = TRUE))
+volunteer_orgs <- subset(
+  organizations,
+  Type == "Volunteer" &
+    !grepl("training",
+      Name,
+      ignore.case = TRUE
+    ) &
+    !grepl("test",
+      Name,
+      ignore.case = TRUE
+    ) &
+    !grepl("\\*",
+      Name,
+      ignore.case = TRUE
+    )
+)
 
 unique(volunteer_orgs$Name)
 ```
@@ -96,12 +101,14 @@ WQP. We will move forward with this example of volunteer organizations
 in CT:
 
 ```{r}
-selected_orgs <- 
-  c("CONNRIVERCONSERVANCY",
+selected_orgs <-
+  c(
+    "CONNRIVERCONSERVANCY",
     "CT_NERR",
     "BANTAMLAKE_WQX",
     "CTVOLMON",
-    "CT_NERR")
+    "CT_NERR"
+  )
 
 volunteer_data <- TADA_DataRetrieval(
   # startDate = "2022-01-01",
@@ -128,10 +135,11 @@ TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
 Review and remove sites if coordinates are imprecise or outside US:
 
 ```{r, results=F}
-volunteer_data <- TADA_FlagCoordinates(volunteer_data, 
-                                       clean_outsideUSA = "remove", 
-                                       clean_imprecise = TRUE, 
-                                       flaggedonly = FALSE)
+volunteer_data <- TADA_FlagCoordinates(volunteer_data,
+  clean_outsideUSA = "remove",
+  clean_imprecise = TRUE,
+  flaggedonly = FALSE
+)
 ```
 
 Use `TADA_OverviewMap` to generate a map:
@@ -156,7 +164,7 @@ volunteer_data <- TADA_SimpleCensoredMethods(
   nd_multiplier = 0.5,
   od_method = "as-is",
   od_multiplier = "null"
-  )
+)
 ```
 
 Run key TADA quality control flagging functions and remove suspect
@@ -166,20 +174,22 @@ results:
 volunteer_data <- TADA_RunKeyFlagFunctions(
   volunteer_data,
   clean = TRUE
-  )
+)
 ```
 
 Flag results above and below thresholds. Review carefully and consider
 removing.
 
 ```{r}
-volunteer_data <- TADA_FlagAboveThreshold(volunteer_data, 
-                                   clean = FALSE, 
-                                   flaggedonly = FALSE)
+volunteer_data <- TADA_FlagAboveThreshold(volunteer_data,
+  clean = FALSE,
+  flaggedonly = FALSE
+)
 
-volunteer_data <- TADA_FlagBelowThreshold(volunteer_data, 
-                                   clean = FALSE, 
-                                   flaggedonly = FALSE)
+volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
+  clean = FALSE,
+  flaggedonly = FALSE
+)
 ```
 
 Harmonize synonyms if found:
@@ -210,9 +220,10 @@ Remove non-numeric results:
 
 ```{r}
 volunteer_data <- TADA_ConvertSpecialChars(
-  volunteer_data, 
+  volunteer_data,
   col = "TADA.ResultMeasureValue",
-  clean = TRUE)
+  clean = TRUE
+)
 ```
 
 Review the number of sites and records for each characteristic:

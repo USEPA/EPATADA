@@ -121,27 +121,28 @@ their decision making processes. Use of EPATADA is not required.
 Get bacteria and pH data from Missoula County, Montana.
 
 ```{r tada.data}
-
-# get MT data 
+# get MT data
 tada.MT <- TADA_DataRetrieval(
-   startDate = "2020-01-01", 
-   endDate = "2022-12-31",
-   statecode = "MT",
-   characteristicName = c("Escherichia", 
-                          "Escherichia coli", 
-                          "pH"),
-   county = "Missoula County",
-   ask = FALSE)
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c(
+    "Escherichia",
+    "Escherichia coli",
+    "pH"
+  ),
+  county = "Missoula County",
+  ask = FALSE
+)
 
 # clean up data set (minimal)
-  tada.MT.clean <- tada.MT %>%
-    TADA_RunKeyFlagFunctions() %>%
-    TADA_SimpleCensoredMethods() %>%
-    TADA_HarmonizeSynonyms()
-  
-# remove intermediate objects
-  rm(tada.MT)
+tada.MT.clean <- tada.MT %>%
+  TADA_RunKeyFlagFunctions() %>%
+  TADA_SimpleCensoredMethods() %>%
+  TADA_HarmonizeSynonyms()
 
+# remove intermediate objects
+rm(tada.MT)
 ```
 
 # Defining Criteria - Magnitude Methodology
@@ -182,9 +183,9 @@ the excel file.
 MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
-  # auto_fill = FALSE, 
-  excel = TRUE, overwrite = TRUE 
-  )
+  # auto_fill = FALSE,
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 ## Option B: Auto Fill option (Intermediate Tabs are Hidden)
@@ -207,12 +208,12 @@ tables directly in the excel file.)
 
 ```{r auto fill output}
 MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
-  auto_fill = TRUE, 
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_fill = TRUE,
   # displayUniqueId = FALSE,
-  excel = TRUE, overwrite = TRUE 
-  )
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 Users who would like to ensure all Characteristic, Speciation and
@@ -224,12 +225,12 @@ Characteristic, Speciation and Fractions to consider.
 
 ```{r auto fill - show all unique TADA.ComparableDataIdentifier in output}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
-  auto_fill = TRUE, 
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_fill = TRUE,
   displayUniqueId = TRUE,
-  excel = TRUE, overwrite = TRUE 
-  )
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 We can also choose to append epa304a recommended standards into the
@@ -238,8 +239,10 @@ found.
 
 ```{r auto fill, epa304a and display TADA.ComparableDataIdentifier}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
-tada.MT.clean, org_id = "MTDEQ", auto_fill = TRUE, displayUniqueId =
-TRUE, excel = TRUE, overwrite = TRUE )
+  tada.MT.clean,
+  org_id = "MTDEQ", auto_fill = TRUE, displayUniqueId =
+    TRUE, excel = TRUE, overwrite = TRUE
+)
 ```
 
 ## Option C: User Supplied Table
@@ -267,14 +270,14 @@ load("C:/Users/kwong01/EPATADA/inst/extdata/criteria_table.rda")
 
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE,
   excel = TRUE, overwrite = TRUE,
   epa304a = TRUE
-  )
+)
 ```
 
 ## Option D: Combined User Supplied and Auto-Fill
@@ -287,14 +290,14 @@ Note: If a user has an updated list of use names that have been applied to and h
 
 ```{r user supplied, epa304a and autofill output}
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
-  excel = FALSE, 
+  excel = FALSE,
   epa304a = TRUE
-  )
+)
 ```
 
 Users will need to determine their level of desired grouping of
@@ -308,14 +311,14 @@ criteria table output.
 ```{r user supplied, epa304a and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
   excel = TRUE, overwrite = TRUE,
   epa304a = TRUE
-  )
+)
 ```
 
 ## Choose a Final Criteria Template, Save and Re-use
@@ -326,13 +329,13 @@ TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 
 # We can now reuse this criteria table
 MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
+  tada.MT.clean,
   criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = FALSE,
   displayUniqueId = FALSE,
-  excel = FALSE 
-  )
+  excel = FALSE
+)
 ```
 
 Users are recommended to go through each of the 3 reference files one at

@@ -186,9 +186,10 @@ TADA_UpdateExampleData <- function() {
     TADA.ResultSelectedMultipleOrgs == "Y"
   )
   # Filter out remaining irrelevant data, NA's and empty cols
-  Data_WV <- TADA_ConvertSpecialChars(Data_WV, 
-                                      col = "TADA.ResultMeasureValue", 
-                                      clean = TRUE)
+  Data_WV <- TADA_ConvertSpecialChars(Data_WV,
+    col = "TADA.ResultMeasureValue",
+    clean = TRUE
+  )
   # Remove results with QC issues
   # REQUIRED
   Data_WV <- TADA_RunKeyFlagFunctions(

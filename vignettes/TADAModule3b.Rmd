@@ -499,9 +499,9 @@ the excel file.
 MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
-  # auto_fill = FALSE, 
-  excel = TRUE, overwrite = TRUE 
-  )
+  # auto_fill = FALSE,
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 ## Option B: Auto Fill option (Intermediate Tabs are Hidden)
@@ -523,12 +523,12 @@ hidden tabs and allow for easier review process.)
 
 ```{r auto fill output}
 MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
-  auto_fill = TRUE, 
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_fill = TRUE,
   # displayUniqueId = FALSE,
-  excel = TRUE, overwrite = TRUE 
-  )
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 Users who would like to ensure all Characteristic, Speciation and
@@ -540,12 +540,12 @@ Characteristic, Speciation and Fractions to consider.
 
 ```{r auto fill - show all unique TADA.ComparableDataIdentifier in output}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
-  auto_fill = TRUE, 
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_fill = TRUE,
   displayUniqueId = TRUE,
-  excel = TRUE, overwrite = TRUE 
-  )
+  excel = TRUE, overwrite = TRUE
+)
 ```
 
 ## Option C: User Supplied Table
@@ -569,14 +569,14 @@ analysis need or not.
 ```{r user supplied and epa304a}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE,
   excel = TRUE, overwrite = TRUE,
   epa304a = TRUE
-  )
+)
 ```
 
 ##Option D: Combined User Supplied and Auto-Fill
@@ -588,14 +588,14 @@ option (if it was successfully crosswalked.).
 ```{r user supplied, epa304a and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria2.2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
-  excel = FALSE, 
+  excel = FALSE,
   epa304a = TRUE
-  )
+)
 ```
 
 Users will need to determine their level of desired grouping of
@@ -609,14 +609,14 @@ criteria table output.
 ```{r user supplied, epa304a and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria2.2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
-  excel = FALSE, 
+  excel = FALSE,
   epa304a = TRUE
-  )
+)
 ```
 
 A user can also choose to supply their own table and choose to compare
@@ -634,13 +634,13 @@ recommended to review each crosswalk reference table to ensure accuracy.
 ```{r user supplied and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria3.1 <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
+  tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   auto_fill = F, # user chooses to also autopopulate the crosswalk reference file generation. These rows will show up as all NAs if a user has not filled these values out.
   displayUniqueId = FALSE,
-  excel = FALSE 
-  )
+  excel = FALSE
+)
 ```
 
 Users who are starting from scratch can proceed with an auto fill option
@@ -650,12 +650,12 @@ table and review for any necessary changes.
 ```{r autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria4 <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
-  org_id = "MTDEQ", 
-  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation. 
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_fill = TRUE, # user chooses to also autopopulate the crosswalk reference file generation.
   displayUniqueId = FALSE,
   excel = TRUE, overwrite = TRUE
-  )
+)
 ```
 
 Now, let's continue with this example. A user is reviewing this table
@@ -663,19 +663,18 @@ and decides to edit the CreateParamRef file. We will reflect changes to
 the DefineCriteriaMethodology file with the edit the user made.
 
 ```{r autofill and update output}
-
 # will need to open up the excel file and edit to showcase example.
 
 MT.Criteria4 <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
+  tada.MT.clean,
   org_id = "MTDEQ",
   # criteriaMethods = MT.Criteria4,
   auto_fill = TRUE, # user can choose to autopopulate any missing criteria from their user supplied criteriaMethods table
-  # updateRef = "useParamRef", # Exclude for now. 
+  # updateRef = "useParamRef", # Exclude for now.
   displayUniqueId = TRUE, # Recommended for display if we do not provide the 3 reference files w/ criteriaMethods populated
   epa304a = TRUE,
-  excel = TRUE, overwrite = TRUE, 
-  )
+  excel = TRUE, overwrite = TRUE,
+)
 ```
 
 Users are recommended to go through each of the 3 reference files one at
@@ -684,16 +683,15 @@ provide a MLSummaryRef file function input and turn the auto_fill option
 to FALSE.
 
 ```{r step-by-step output}
-
 # will need to open up the excel file and edit to showcase example.
 
 MT.Criteria5 <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, 
+  tada.MT.clean,
   org_id = "MTDEQ",
   MLSummaryRef = EXAMPLE,
   auto_fill = FALSE,
-  excel = TRUE, overwrite = TRUE, 
-  )
+  excel = TRUE, overwrite = TRUE,
+)
 ```
 
 A user can now save the file and re-use it in the future \`\`\`

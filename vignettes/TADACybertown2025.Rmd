@@ -22,9 +22,11 @@ description: An introduction to using the EPATADA R package to retrieve, clean, 
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, 
-                      warning = FALSE, 
-                      message = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE
+)
 ```
 
 ```{css, include = F}

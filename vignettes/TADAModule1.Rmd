@@ -823,7 +823,6 @@ TADAProfileClean3 <- dplyr::filter(
 -   ?**TADA_FindPotentialDuplicatesMultipleOrgs**
 
 ```{r FindPotentialDuplicates_multiple, eval = F}
-
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesMultipleOrgs(
   TADAProfileClean3,
   dist_buffer = 100,
@@ -1239,7 +1238,7 @@ Double check to make sure no NA's or ND's remain.
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 
-nrow(TADAProfileClean4)-nrow(TADAProfileClean5)
+nrow(TADAProfileClean4) - nrow(TADAProfileClean5)
 
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
 ```
@@ -1450,15 +1449,18 @@ TADA.ComparableDataIdentifier:
 
 ```{r}
 TADAProfileClean6_filtered <- TADAProfileClean6[
-  TADAProfileClean6$TADA.ComparableDataIdentifier %in% 
-    c("ARSENIC_TOTAL_NA_UG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L", 
-      "PH_NONE_NONE_NONE", 
+  TADAProfileClean6$TADA.ComparableDataIdentifier %in%
+    c(
+      "ARSENIC_TOTAL_NA_UG/L",
+      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
+      "PH_NONE_NONE_NONE",
       "TEMPERATURE_NA_NA_DEG C",
       "IRON_TOTAL_NA_UG/L",
       "SELENIUM_TOTAL_NA_UG/L",
       "MERCURY_DISSOLVED_NA_UG/L",
-      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"), ]
+      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"
+    ),
+]
 
 TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIdentifier"))
 ```
@@ -1481,8 +1483,10 @@ group.
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
-TADAProfileCleanTP <- dplyr::filter(TADAProfileClean6, 
-                                    TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+TADAProfileCleanTP <- dplyr::filter(
+  TADAProfileClean6,
+  TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+)
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
@@ -1490,8 +1494,10 @@ TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
 TADAProfileCleanTP_stats
 
 # generate a histogram
-TP_Histogram <- TADA_Histogram(TADAProfileCleanTP, id_cols = 
-                                 "TADA.ComparableDataIdentifier")
+TP_Histogram <- TADA_Histogram(TADAProfileCleanTP,
+  id_cols =
+    "TADA.ComparableDataIdentifier"
+)
 
 # view histogram
 TP_Histogram
@@ -1500,8 +1506,10 @@ TP_Histogram
 Generate interactive box plot.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP, id_cols = 
-                             "TADA.ComparableDataIdentifier")
+TP_Boxplot <- TADA_Boxplot(TADAProfileCleanTP,
+  id_cols =
+    "TADA.ComparableDataIdentifier"
+)
 
 TP_Boxplot
 ```

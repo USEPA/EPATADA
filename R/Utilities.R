@@ -18,9 +18,9 @@
 #' # Example: Using the pipe operator to transform data
 #' library(magrittr)
 #' result <- iris %>%
-#' head(10) %>%
-#' subset(Species == "setosa") %>%
-#' summary()
+#'   head(10) %>%
+#'   subset(Species == "setosa") %>%
+#'   summary()
 #' print(result)
 NULL
 
@@ -143,18 +143,18 @@ utils::globalVariables(c(
   "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
   "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType",
-  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New", 
-  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier", 
-  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK", 
+  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New",
+  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK",
   "OLD_ATTAINS.MonitoringLocationIdentifier", "Shape_Area", "Shape_Length",
-  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname", 
-  "assmnt_joinkey", "catchmentistribal", "catchmentresolution", 
+  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname",
+  "assmnt_joinkey", "catchmentistribal", "catchmentresolution",
   "catchmentstatecode", "has4bplan", "hasalternativeplan", "hasprotectionplan",
-  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened", 
+  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened",
   "objectId", "on303dlist", "organizationid", "organizationname", "orgtype",
-  "overallstatus", "permid_joinkey", "region", "reportingCycle", 
-  "reportingcycle", "response.code", "return_sf", "state", "submissionid", 
-  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version", 
+  "overallstatus", "permid_joinkey", "region", "reportingCycle",
+  "reportingcycle", "response.code", "return_sf", "state", "submissionid",
+  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
   "xwalk_method"
 ))
 
@@ -168,17 +168,17 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 
 #' Calculate Decimal Places
 #'
-#' This function calculates the number of decimal places in a numeric value. 
+#' This function calculates the number of decimal places in a numeric value.
 #' It returns the number of digits to the right of the decimal point for numeric data.
 #'
 #' @param x A numeric value or vector from the TADA profile.
-#' 
+#'
 #' @return An integer representing the number of decimal places in the numeric value.
 #' If the input is an integer or a numeric value with no decimal places, the function returns 0.
 TADA_DecimalPlaces <- function(x) {
   # Convert the number to a character string, remove trailing zeros, and split by the decimal point
   parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
-  
+
   # If there is a decimal part, return its length; otherwise, return 0
   if (length(parts) > 1) {
     return(nchar(parts[[2]]))
@@ -222,13 +222,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
   if (!inherits(.data, "data.frame")) {
     stop("Input must be a dataframe.")
   }
-  
+
   if (!is.vector(expected_cols) || !is.character(expected_cols)) {
     stop("Expected columns must be a character vector.")
   }
-  
+
   missing_cols <- setdiff(expected_cols, colnames(.data))
-  
+
   if (length(missing_cols) > 0) {
     stop(paste(
       "The dataframe does not contain the required field(s):",
@@ -236,7 +236,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
       ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
     ))
   }
-  
+
   invisible(NULL)
 }
 
@@ -296,16 +296,15 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
                                      clean = FALSE, flaggedonly = FALSE) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   if (!col %in% names(.data)) {
     stop("Suspect column name specified for input dataset.")
   }
@@ -316,36 +315,35 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
   }
 
   if (!any(grepl("TADA.", col))) {
-
     # Define new column names
     numcol <- paste0("TADA.", col)
     flagcol <- paste0("TADA.", col, "DataTypes.Flag")
-    
+
     # Create dummy columns for easy handling in function
     chars.data <- .data
     names(chars.data)[names(chars.data) == col] <- "orig"
     chars.data <- chars.data %>%
       dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
     chars.data$masked <- chars.data$orig
-    
+
     # Add percentage character to dissolved oxygen saturation ResultMeasureValue
     # so percentage and percentage - range averaged can be identified correctly
     if (col == "ResultMeasureValue") {
       do.units <- c("%", "% SATURATN")
-      
+
       chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-                                  paste(chars.data$masked, "%"), chars.data$masked
+        paste(chars.data$masked, "%"), chars.data$masked
       )
-      
+
       # updates percentage units where NA
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
         grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
       )
-      
+
       # TADA.ResultMeasure.MeasureUnitCode to uppercase
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
     }
-    
+
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
       clean.data <- chars.data %>%
@@ -377,22 +375,22 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
             TRUE ~ "Coerced to NA"
           ),
           flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-                        "Percentage Range - Averaged", flag
+            "Percentage Range - Averaged", flag
           ),
           flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-                        "Percentage Range - Averaged", flag
+            "Percentage Range - Averaged", flag
           )
         )
     }
-    
+
     if (percent.ave == FALSE) {
       num.range.filter <- c("Numeric Range - Averaged")
     }
-    
+
     if (percent.ave == TRUE) {
       num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
     }
-    
+
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
@@ -409,73 +407,76 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-      
+
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
-    
+
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", 
-                           ">" = "", 
-                           "~" = "", 
-                           "%" = "", 
-                           "\\*" = "", 
-                           "1\\)" = "",
-                           "\\+" = "")
+      clean.data$masked, c(
+        "<" = "",
+        ">" = "",
+        "~" = "",
+        "%" = "",
+        "\\*" = "",
+        "1\\)" = "",
+        "\\+" = ""
+      )
     )))
- 
+
     # this updates the DataTypes.Flag to "NA - Not Available" if flag is NA
     clean.data$flag <- ifelse(
       is.na(clean.data$flag),
       "NA - Not Available",
       clean.data$flag
     )
-    
+
     # remove columns to be replaced
     clean.data <- clean.data %>%
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-    
+
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-    
+
     clean.data <- TADA_OrderCols(clean.data)
   } else {
     flagcol <- paste0(col, "DataTypes.Flag")
     numcol <- col
-    
-    clean.data = .data
-    
+
+    clean.data <- .data
+
     # this updates the flagcol to "NA - Not Available" if numcol is NA
     clean.data[[flagcol]] <- ifelse(
       is.na(clean.data[[numcol]]),
       "NA - Not Available",
       clean.data[[flagcol]]
     )
-    
+
     # remove columns to be replaced
     clean.data <- clean.data %>%
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-    
+
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-    
+
     clean.data <- TADA_OrderCols(clean.data)
-    
   }
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available",
-                                                      "Text",
-                                                      "Non-ASCII Character(s)",
-                                                      "Result Value/Unit Cannot Be Estimated From Detection Limit",
-                                                      "Coerced to NA"))
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c(
+          "NA - Not Available",
+          "Text",
+          "Non-ASCII Character(s)",
+          "Result Value/Unit Cannot Be Estimated From Detection Limit",
+          "Coerced to NA"
+        ))
 
       return(clean.data)
     }
@@ -487,11 +488,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available",
-                                                 "Text",
-                                                 "Non-ASCII Character(s)",
-                                                 "Result Value/Unit Cannot Be Estimated From Detection Limit",
-                                                 "Coerced to NA"))
+      dplyr::filter(!!rlang::sym(flagcol) %in% c(
+        "NA - Not Available",
+        "Text",
+        "Non-ASCII Character(s)",
+        "Result Value/Unit Cannot Be Estimated From Detection Limit",
+        "Coerced to NA"
+      ))
   }
 }
 
@@ -550,13 +553,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 TADA_SubstituteDeprecatedChars <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
@@ -617,13 +620,13 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 TADA_CreateComparableID <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   TADA_CheckColumns(.data,
     expected_cols = c(
       "TADA.CharacteristicName",
@@ -691,37 +694,47 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Retrieve a random dataset for a single day 
+#' # Example 1: Retrieve a random dataset for a single day
 #' # across the entire nation
-#' random_data_national <- TADA_RandomTestingData(number_of_days = 1, 
-#' choose_random_state = FALSE)
+#' random_data_national <- TADA_RandomTestingData(
+#'   number_of_days = 1,
+#'   choose_random_state = FALSE
+#' )
 #' print(random_data_national)
 #'
-#' # Example 2: Retrieve a random dataset for a 10-day period within 
+#' # Example 2: Retrieve a random dataset for a 10-day period within
 #' # a randomly selected state
-#' random_data_state <- TADA_RandomTestingData(number_of_days = 10, 
-#' choose_random_state = TRUE)
+#' random_data_state <- TADA_RandomTestingData(
+#'   number_of_days = 10,
+#'   choose_random_state = TRUE
+#' )
 #' print(random_data_state)
 #'
-#' # Example 3: Retrieve a random dataset for a 5-day period 
+#' # Example 3: Retrieve a random dataset for a 5-day period
 #' # within a randomly selected state without auto-cleaning
-#' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, 
-#' choose_random_state = TRUE, autoclean = FALSE)
+#' random_data_state_no_clean <- TADA_RandomTestingData(
+#'   number_of_days = 5,
+#'   choose_random_state = TRUE, autoclean = FALSE
+#' )
 #' print(random_data_state_no_clean)
 #'
-#' # Example 4: Retrieve a random dataset for a 30-day period 
+#' # Example 4: Retrieve a random dataset for a 30-day period
 #' # across the entire nation with auto-cleaning
-#' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, 
-#' choose_random_state = FALSE, autoclean = TRUE)
+#' random_data_large_period <- TADA_RandomTestingData(
+#'   number_of_days = 30,
+#'   choose_random_state = FALSE, autoclean = TRUE
+#' )
 #' print(random_data_large_period)
 #'
-#' # Example 5: Retrieve a random dataset for a 15-day period 
+#' # Example 5: Retrieve a random dataset for a 15-day period
 #' # across the entire nation without auto-cleaning
-#' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, 
-#' choose_random_state = FALSE, autoclean = FALSE)
+#' random_data_no_clean <- TADA_RandomTestingData(
+#'   number_of_days = 15,
+#'   choose_random_state = FALSE, autoclean = FALSE
+#' )
 #' print(random_data_no_clean)
 #' }
-TADA_RandomTestingData <- function(number_of_days = 1, 
+TADA_RandomTestingData <- function(number_of_days = 1,
                                    choose_random_state = FALSE,
                                    autoclean = TRUE) {
   # Internal function to retrieve random data
@@ -730,7 +743,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-    
+
     # Determine if a random state should be selected
     if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
@@ -738,14 +751,14 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     } else {
       state <- "null"
     }
-    
+
     # Print the selected date range and state code
     print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-    
+
     # Retrieve data with or without auto-cleaning
     dat <- TADA_DataRetrieval(
       startDate = as.character(random_start_date),
@@ -754,10 +767,10 @@ TADA_RandomTestingData <- function(number_of_days = 1,
       applyautoclean = ac,
       ask = FALSE
     )
-    
+
     return(dat)
   }
-  
+
   # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
     repeat {
@@ -766,7 +779,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     }
     return(df)
   }
-  
+
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
@@ -827,13 +840,13 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
@@ -1235,13 +1248,13 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -1510,9 +1523,9 @@ TADA_CreateCSV <- function(.data) {
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   df_name <- deparse(substitute(.data))
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))

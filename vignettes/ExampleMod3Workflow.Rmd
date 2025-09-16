@@ -789,7 +789,7 @@ MT.CriteriaMethods_Final <- MT.CriteriaMethods_User_Supplied3 %>% dplyr::mutate(
     TRUE ~ MagnitudeValueUpper))
 ```
 
-We will supply this final crosswalk table to ensure everything accuracy.
+We will supply this final crosswalk table to be reused and validated.
 
 ```{r re-use criteria table}
 MT.CriteriaMethods_Final2 <- TADA_DefineCriteriaMethodology(
@@ -799,6 +799,4 @@ MT.CriteriaMethods_Final2 <- TADA_DefineCriteriaMethodology(
   displayUniqueId = TRUE,
   excel = FALSE
 )
-
-nrow(MT.CriteriaMethods_Final) nrow(MT.CriteriaMethods_Final2)
 ```

@@ -22,7 +22,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
-      attainsParamRef <-spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
+      attainsParamRef <- spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
 
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
 
@@ -185,21 +185,25 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 
   latest.assessments <- nat.assessments %>%
     dplyr::group_by(organizationId) %>%
-    #dplyr::slice_max(reportingCycle) %>%
+    # dplyr::slice_max(reportingCycle) %>%
     dplyr::select(-objectId) %>%
     dplyr::distinct() %>%
     dplyr::ungroup()
 
-    latest.params <- latest.assessments %>%
-    dplyr::select(organizationId, organizationName,
-                  organizationType, parameterName,
-                  useName, waterType) %>%
-    dplyr::rename( ATTAINS.OrganizationIdentifier = organizationId,
-                   ATTAINS.OrganizationName = organizationName,
-                   ATTAINS.OrganizationType = organizationType,
-                   ATTAINS.ParameterName = parameterName,
-                   ATTAINS.UseName = useName,
-                   ATTAINS.WaterType = waterType) %>%
+  latest.params <- latest.assessments %>%
+    dplyr::select(
+      organizationId, organizationName,
+      organizationType, parameterName,
+      useName, waterType
+    ) %>%
+    dplyr::rename(
+      ATTAINS.OrganizationIdentifier = organizationId,
+      ATTAINS.OrganizationName = organizationName,
+      ATTAINS.OrganizationType = organizationType,
+      ATTAINS.ParameterName = parameterName,
+      ATTAINS.UseName = useName,
+      ATTAINS.WaterType = waterType
+    ) %>%
     dplyr::distinct()
 
   # remove intermediate variables
