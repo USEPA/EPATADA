@@ -15,7 +15,7 @@
 #' criteria, or magnitude only, values associated with an ATTAINS parameter name 
 #' and use name. For each criteria/magnitude value,
 #' users will need to ensure they properly define any additional methods that
-#' correctly reflects their water quality standards for a parameter and use.
+#' reflects their water quality standards for a parameter and use.
 #' For example, if there are separate standards for acute versus chronic,
 #' rivers versus estuary, different seasons, etc., then a user will need to create
 #' additional rows to reflect this. Additional columns are included in this output
@@ -925,7 +925,7 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
-    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
+    #suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
     
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE)) 
@@ -943,11 +943,11 @@ TADA_DefineCriteriaMethodology <- function(.data,  MLSummaryRef = NULL, org_id =
     # Conditional Formatting
     openxlsx::freezePane(wb, "DefineCriteriaMethodology", firstActiveRow = 2, firstActiveCol = 4)
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 1:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 1:31, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "notBlanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     ) # default values or indicates good to go cells.
     openxlsx::conditionalFormatting(wb, "DefineCriteriaMethodology",
-                                    cols = 1:30, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
+                                    cols = 1:31, rows = 2:(nrow(DefineCriteriaMethodology) + 1),
                                     type = "blanks", style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     ) # modified cells.
     

@@ -1648,25 +1648,25 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     if (!is.null(useParamRef) & !is.character(useParamRef)) {
       if (!is.data.frame(useParamRef)) {
         stop(paste0(
-          "TADA_CreateUseParamRef: 'UseParamRef' must be a data frame with these 5 columns:",
-          "TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ",
-          "ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude"
+          "TADA_CreateUseParamRef: 'useParamRef' must be a data frame with these 3 columns:",
+          "ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier,",
+          "ATTAINS.ParameterName, ATTAINS.UseName"
         ))
       }
 
       if (is.data.frame(useParamRef)) {
         col.names <- c(
-          "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier",
-          "ATTAINS.ParameterName", "ATTAINS.UseName", "IncludeOrExclude"
+          "ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier",
+          "ATTAINS.ParameterName", "ATTAINS.UseName"
         )
 
         ref.names <- names(useParamRef)
 
         if (length(setdiff(col.names, ref.names)) > 0 && !("TADA.ComparableDataIdentifier" %in% names(useParamRef))) {
           stop(paste0(
-            "TADA_CreateUseParamRef: 'useParamRef' must be a data frame with these 5 columns:",
-            "TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ",
-            "ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude"
+            "TADA_CreateUseParamRef: 'useParamRef' must be a data frame with these 3 columns:",
+            "ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ",
+            "ATTAINS.ParameterName, ATTAINS.UseName"
           ))
         }
       }
@@ -1816,7 +1816,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     if (!is.null(useParamRef)) {
       # user may have only supplied a useParamRef table with TADA.CharacteristicName rather than TADA.ComparableDataIdentifier
       # This also validates the TADA.ComparableDataIdentifier crosswalk to ensure it is up to date (drops and re-join)
-      if ("TADA.CharacteristicName" %in% names(UseParamRef)) {
+      if ("TADA.CharacteristicName" %in% names(useParamRef)) {
         useParamRef <- useParamRef %>%
           dplyr::select(-TADA.ComparableDataIdentifier) %>%
           dplyr::left_join(
@@ -1851,8 +1851,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         dplyr::mutate(
           Flag.UseInput =
             "Suspect: Your useParamRef argument did not include this TADA.ComparableDataIdentifier. Please ensure you have provided all ATTAINS.UseName and ATTAINS.ParameterName combinations in your input."
-        ) %>%
-        dplyr::mutate(IncludeOrExclude = "Exclude")
+        )
+        #dplyr::mutate(IncludeOrExclude = "Exclude")
 
       # identifies if a user has MODIFIED any useParam rows.
       Flag2 <- useParamRef %>%
@@ -2858,6 +2858,9 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   # Identify all unique monitoring location id in the .data data frame to filter by.
   unique_ML <- unique(.data$MonitoringLocationIdentifier)
   
+  print(paste0("displayNA = TRUE:",
+               "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."))
+  
   # Applies all unique combos of param and uses to each monitoring location.
   CreateMLSummaryRef <- useParamRef %>%
     tidyr::uncount(weights = length(unique_ML)) %>% 
@@ -2917,6 +2920,9 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   
   # If we want to exclude rows of sites with no specified parameters 
   if (displayNA == FALSE) {
+    print(paste0("displayNA = FALSE:",
+                 "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."))
+    
     CreateMLSummaryRef <- CreateMLSummaryRef2 %>%
       dplyr::arrange(MonitoringLocationIdentifier)
   }
@@ -2965,6 +2971,10 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
     
     # Only join the AU to the CreateMLSummaryRef
     if (displayNA == TRUE) {
+      print(paste0("displayNA = TRUE:",
+                   "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."))
+      
+      
     CreateMLSummaryRef <- CreateMLSummaryRef %>%
       dplyr::left_join(
         useParamAUMLRef, 
@@ -2976,7 +2986,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
         ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier.y, 
         MonitoringLocationIdentifier, MonitoringLocationTypeName,
         TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, TADA.DepthCategory.Flag,
-        TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, UniqueSpatialCriteria
+        TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
       ) %>% 
       # dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
       dplyr::arrange(MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
@@ -2985,6 +2995,9 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
     
     # Filters your MLSummaryRef based on your defined uses, param, sites and AU crosswalks.
     if (displayNA == FALSE) {
+      print(paste0("displayNA = FALSE:",
+                   "This MLSummaryRef table will only display parameters and uses for a ML/AU if it contains data collected for that TADA.CharacteristicName in your WQP data query."))
+      
       CreateMLSummaryRef <- CreateMLSummaryRef %>%
       dplyr::right_join(
         useParamAUMLRef, 
@@ -2996,7 +3009,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
           ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier.y, 
           MonitoringLocationIdentifier, MonitoringLocationTypeName,
           TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, TADA.DepthCategory.Flag,
-          TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, UniqueSpatialCriteria
+          TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
         ) %>% 
         dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::filter(!is.na(MonitoringLocationIdentifier)) %>%

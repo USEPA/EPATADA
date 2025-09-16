@@ -96,7 +96,7 @@ contain a list of allowable values within each column to define the full
 criteria, or magnitude only, values associated with an ATTAINS parameter name
 and use name. For each criteria/magnitude value,
 users will need to ensure they properly define any additional methods that
-correctly reflects their water quality standards for a parameter and use.
+reflects their water quality standards for a parameter and use.
 For example, if there are separate standards for acute versus chronic,
 rivers versus estuary, different seasons, etc., then a user will need to create
 additional rows to reflect this. Additional columns are included in this output
