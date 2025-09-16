@@ -266,7 +266,7 @@ analysis need or not.
 
 ```{r user supplied and epa304a}
 # Load the example MTDEQ criteria table
-load("C:/Users/kwong01/EPATADA/inst/extdata/criteria_table.rda")
+load(system.file("data", "criteria_table.rda", package = "EPATADA"))
 
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
@@ -308,7 +308,7 @@ ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
 displayUniqueId = TRUE, this will display all combinations in the
 criteria table output.
 
-```{r user supplied, epa304a and autofill output}
+```{r display comparable id, user supplied, epa304a and autofill output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
