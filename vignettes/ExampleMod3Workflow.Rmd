@@ -76,7 +76,7 @@ update all of them (enter 1 into the console).
 
 ```{r install-develop-branch, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```
@@ -105,6 +105,16 @@ can also access function help pages from RStudio by entering
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
+
+# Module 3 Functions in TADA
+
+Disclaimer: The EPATADA Module 3 functions were designed to: (1) assist
+users with associating Water Quality Portal monitoring locations with
+assessment units and designated uses from ATTAINS and (2) compare Water
+Quality Portal results with numeric water quality criteria. EPATADA
+functions do not constitute current EPA policy or regulatory
+requirements. Organizations may choose to use EPATADA as a a tool in
+their decision making processes. Use of EPATADA is not required.
 
 # Introduction to TADA Module 3
 
@@ -153,11 +163,10 @@ load(system.file("data", "MT.UseAURef.rda", package = "EPATADA"))
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-
 Let's start with an example data frame that has gone through data cleaning, wrangling, harmonization, handling of censored data, removal
 of suspect results, and other important TADA Module 1 functions. This process should be completed by users before utilizing Module 3 functions, but we will go through some minimal cleaning with an example data set from Montana. Get bacteria and pH data from Missoula County, Montana.
 
-```{r tada.data}
+```{r tada-data}
 # get MT data 
 tada.MT <- TADA_DataRetrieval(
    startDate = "2020-01-01", 
@@ -639,12 +648,22 @@ continue to use in the workflow.
 rm(MT.UseParamRef_AutoAssign, MT.UseParam_user_supplied, MT.UseParamRef_Manual, MT.UseParamRef_Manual_Update)
 ```
 
-# TADA_CreateMLSummaryRef()
+# TADA_CreateMLSummaryRef(): Create and Define Spatial Reference Tables
 
-Now, we will proceed with generating a final summary of analyzing your
-WQP data and specifying the spatial level of summary. In this example,
-we will showcase an example of an AU and ML level of summary for MTDEQ
-analysis and compare the two outputs.
+We can define your WQP data retrieval on either an assessment unit level
+summary or monitoring location sites level. Please refer to EPATADA
+Module 2 on more information on the geospatial functions to assist with
+your assessment unit and monitoring location sites overlay.
+
+The general workflow of running module 3 functions for CWA water quality
+data analysis is shown below.
+
+TADA_CreateParamRef requires a crosswalk between ATTAINS parameter names
+and WQP characteristic names/TADA comparable data identifiers.
+
+![Monitoring Location Summary](images/FlowChartMLModule3.jpg)
+
+![Assessment Unit Level Summary](images/FlowChartAUModule3.jpg)
 
 ## Define Spatial Summary by Monitoring Location (ML)
 
@@ -679,6 +698,23 @@ MT.MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
   org_id = "MTDEQ"
   # displayNA = FALSE
   )
+```
+
+## Assign site-specific spatial criteria
+
+We can apply any unique spatial criteria on a monitoring location sites
+level. This view allows us to determine whether there are certain sites
+that needs a unique site-specific criteria, certain water types, or
+certain combination of characteristics that have site-specific criteria.
+Let's go through an example of how a user may modify this table.
+
+```{r apply-site-specific-criteria}
+MT.MLSummaryRef_AU2 <- MT.MLSummaryRef_AU %>%
+  dplyr::mutate(
+    UniqueSpatialCriteria = dplyr::case_when(
+      MonitoringLocationIdentifier == "MTVOLWQM_WQX-CLEARWATERR_1" ~ "Example Site Specific"
+      )
+    )
 ```
 
 Compare the nrow for each of the ML versus AU level of summary. The AU

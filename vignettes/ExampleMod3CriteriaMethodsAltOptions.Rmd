@@ -120,7 +120,7 @@ their decision making processes. Use of EPATADA is not required.
 
 Get bacteria and pH data from Missoula County, Montana.
 
-```{r tada.data}
+```{r tada-data}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -208,7 +208,7 @@ from scratch, but if users may find it worthwhile, we can always show
 these hidden tabs to allow for an easier review process and updating of
 tables directly in the excel file.)
 
-```{r auto fill output}
+```{r auto-fill-output}
 MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -227,7 +227,7 @@ Note: This may generate many additional rows if your WQP data results
 are not harmonized or if there are many different combinations of
 Characteristic, Speciation and Fractions to consider.
 
-```{r auto fill - show all unique TADA.ComparableDataIdentifier in output}
+```{r auto-fill-display-TADA.ComparableDataIdentifier}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -243,7 +243,7 @@ We can also choose to append epa304a recommended standards into the
 criteria table for any WQP characteristics in your data frame that are
 found.
 
-```{r auto fill, epa304a and display TADA.ComparableDataIdentifier}
+```{r auto-fill-epa304a-and-display-TADA.ComparableDataIdentifier}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ", 
@@ -274,7 +274,7 @@ undefined TADA.CharacteristicName will be left to the user to determine
 the proper handling of this value - whether it is applicable to your
 analysis need or not.
 
-```{r user supplied and epa304a}
+```{r user-supplied-and-epa304a}
 # Load the example MTDEQ criteria table
 load(system.file("data", "criteria_table.rda", package = "EPATADA"))
 
@@ -300,7 +300,7 @@ on the auto_fill option (if it was successfully crosswalked.).
 
 Note: If a user has an updated list of use names that have been applied to and have chosen to apply the auto_fill = TRUE input, they should also provide a useAURef input. Otherwises the uses will be pulled in from the prior ATTAINS assessment cycle.
 
-```{r user supplied, epa304a and autofill output}
+```{r user-supplied-epa304a-and-autofill-output}
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
@@ -322,7 +322,7 @@ ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
 displayUniqueId = TRUE, this will display all combinations in the
 criteria table output.
 
-```{r display comparable id, user supplied, epa304a and autofill output}
+```{r display-TADA.ComparableDataIdentifier-user-supplied-epa304a-and-autofill-output}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
@@ -339,7 +339,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
 
 ## Choose a Final Criteria Template, Save and Re-use
 
-```{r save and re-use your most up to date criteria table}
+```{r save-and-re-use-your-most-up-to-date-criteria-table}
 # Save the criteria table of your likings to be used for your next analysis needs.
 TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 
