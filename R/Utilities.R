@@ -1637,6 +1637,8 @@ TADA_RenametoLegacy <- function(.data) {
 #' @param .data A user-supplied ref data frame containing AssessmentUnitIdentifier,
 #' MonitoringLocationIdentifier, and WaterType columns. It is permitted (but not
 #' required) for these columns to use ATTAINS, TADA or other prefixes.
+#' @param partial.string The character string used for partial string matching when
+#' checking column names.
 #'
 #' @return A data frame with two columns identifying the exact column names for the
 #' AssessmentUnitIdentifier, MonitoringLocationIdentifier, and WaterType columns in
