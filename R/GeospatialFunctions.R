@@ -2379,7 +2379,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "WQP: User-supplied Ref",
           "WQP: ATTAINS Crosswalk",
           "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
         )
 
         if ("without_ATTAINS_catchments" %in% names(.data)) {
@@ -2387,7 +2387,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
           leg.labels <- append(
             leg.labels,
-            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines."
+            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
           )
         }
 
@@ -2420,7 +2420,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "ATTAINS: Fully Supporting",
           "ATTAINS: Not Assessed",
           "WQP: Monitoring Location",
-          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with gray outlines."
         )
 
         if ("without_ATTAINS_catchments" %in% names(.data)) {
@@ -2428,7 +2428,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
           leg.labels <- append(
             leg.labels,
-            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines."
+            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
           )
         }
 
@@ -2559,6 +2559,27 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           LongitudeMeasure = as.numeric(LongitudeMeasure)
         )
 
+      images.ref <- c(
+        images[1:5]
+      )
+
+      leg.labels <- c(
+        "ATTAINS: Not Supporting",
+        "ATTAINS: Supporting",
+        "ATTAINS: Not Assessed",
+        "WQP: Monitoring Locations",
+        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
+      )
+
+      if ("without_ATTAINS_catchments" %in% names(.data)) {
+        images.ref <- append(images.ref, images[6])
+
+        leg.labels <- append(
+          leg.labels,
+          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
+        )
+      }
+
       # Basemap for AOI:
       map <- leaflet::leaflet() %>%
         leaflet::addProviderTiles("Esri.WorldTopoMap",
@@ -2577,14 +2598,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) %>%
         leaflet.extras::addResetMapButton() %>%
         leaflegend::addLegendImage(
-          images = images[1:5],
-          labels = c(
-            "ATTAINS: Not Supporting",
-            "ATTAINS: Supporting",
-            "ATTAINS: Not Assessed",
-            "WQP: Monitoring Location",
-            "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
-          ),
+          images = images.ref,
+          labels = leg.labels,
           labelStyle = "font-size: 14px;",
           width = 14,
           height = 14,
