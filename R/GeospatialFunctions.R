@@ -3682,7 +3682,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     get.attains.matches <- spsUtil::quiet(
       TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls,
         return_nearest = return_nearest,
-        fill_catchments = nhd_catch
+        fill_catchments = nhd_catch,
+        return_sf = TRUE
       )
     )
   }
@@ -3761,13 +3762,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       final_list,
       list(
         "without_ATTAINS_catchments" =
-          get.attains.matches$without_ATTAINS_catchments
-      ),
-      list(
-        "without_ATTAINS_table" =
-          get.attains.matches$without_ATTAINS_table
+          get.attains.matches$without_ATTAINS_catchment),
+      list(final_list,
+           "TADA_without_ATTAINS" =
+             get.attains.matches$TADA_without_ATTAINS)
       )
-    )
   }
 
   return(final_list)
