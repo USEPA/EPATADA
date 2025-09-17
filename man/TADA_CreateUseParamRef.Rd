@@ -45,6 +45,11 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
+\item{useAURef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with each assessment unit.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
+
 \item{auto_assign}{NOTE: this has not been developed, will this be helpful?
 A boolean value. If TRUE, this will assign all unique
 use names to an ATTAINS.ParameterName that has not been defined by your

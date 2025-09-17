@@ -155,7 +155,13 @@ utils::globalVariables(c(
   "overallstatus", "permid_joinkey", "region", "reportingCycle",
   "reportingcycle", "response.code", "return_sf", "state", "submissionid",
   "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method"
+  "xwalk_method",
+  "AggregatedActivityEndDateTime", "AggregatedActivityStartDateTime",
+  "ATTAINS.AssessmentUnitIdentifier.y", "ATTAINS.WaterType.y DepthCategory",
+  "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
+  "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
+  "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
+  "UniqueSpatialCriteria"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

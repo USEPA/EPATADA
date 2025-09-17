@@ -37,6 +37,8 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
+\item{displayNA}{A boolean value}
+
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. Users will need to ensure this crosswalk contains the
@@ -63,11 +65,7 @@ the cells in which users should input information.}
 the user supplied crosswalk entered into this function via the paramRef
 function input. This helps prevent users from overwriting their progress.}
 
-\item{waterUseParamRef}{An option data frame input. If provided, this data frame
-should contain a completed crosswalk of any unique spatial criteria applied to
-a water body, use, or parameter and by any combinations if needed. Users will
-need to ensure this crosswalk contains the appropriate column names in order to
-run the function. See output of \code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}} for column names.}
+\item{waterUseParamRef}{A}
 }
 \value{
 A data frame with any unique spatial descriptions defined for
@@ -117,7 +115,7 @@ UseParamRef_UT <- TADA_CreateUseParamRef(
 MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
+  useAURef = NULL, AUMLRef = NULL,
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )

@@ -58,6 +58,8 @@
 #' should contain a completed crosswalk of use names associated with each assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
+#' 
+#' @param auto_assign
 #'
 #' @param updateRef Default is none. NOTE TO TADA DEV: We can consider removing
 #' this as an argument input if we do not wish to facilitate updating the crosswalk
@@ -119,7 +121,7 @@
 #' )
 #'
 TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = NULL, # required inputs for the recommended workflow
-                                           criteriaMethods = NULL, auto_fill = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           criteriaMethods = NULL, auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            AUMLRef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
                                            epa304a = FALSE, displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
@@ -142,9 +144,9 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     ))
   }
 
-  # Invalid function input combos - can only use updateRef =  none with auto_fill = FALSE
-  if (auto_fill == FALSE && updateRef != "none") {
-    stop("TADA_DefineCriteriaMethodology: auto_fill = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_fill == TRUE")
+  # Invalid function input combos - can only use updateRef =  none with auto_assign = FALSE
+  if (auto_assign == FALSE && updateRef != "none") {
+    stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
   }
 
   # Invalid function input combos - supply one or the other.
@@ -153,13 +155,13 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   # }
 
   # Invalid function input combos - MLSummaryRef and autofill = TRUE cannot be used together
-  if (!is.null(MLSummaryRef) && auto_fill == TRUE) {
+  if (!is.null(MLSummaryRef) && auto_assign == TRUE) {
     stop("TADA_DefineCriteriaMethodology: MLSummaryRef is provided and autofill = TRUE are not valid function argument input combinations.")
   }
 
   # Generates a blank Criteria and Methods file.
   # Users can still append a user supplied criteriaMethods table or the epa304a recommended standards if desired.
-  if (auto_fill == FALSE && is.null(MLSummaryRef)) {
+  if (auto_assign == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
       "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
@@ -220,10 +222,10 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
   # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
   # Users can edit one or more of the ref files which will update all accordingly.
-  if (auto_fill == TRUE) {
+  if (auto_assign == TRUE) {
     # default, runs all reference tables with no user edits
     if (updateRef == "none") {
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateParamRef with default assignment."))
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment."))
       suppressMessages(
         TADA_ParamRef <- TADA_CreateParamRef(
           .data,
@@ -233,7 +235,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         )
       )
 
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateUseParamRef with default assignment."))
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment."))
       suppressWarnings(
         TADA_UseParamRef <- TADA_CreateUseParamRef(
           .data,
@@ -244,7 +246,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         )
       )
 
-      message(paste0("auto_fill = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."))
+      message(paste0("auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."))
       suppressMessages(
         MLSummaryRef <- TADA_CreateMLSummaryRef(
           .data,
@@ -273,7 +275,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
     if (updateRef == "paramRef") {
-      message(paste0("auto_fill = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
+      message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
       myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
 
       TADA_ParamRef <- TADA_CreateParamRef(
@@ -492,7 +494,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
   # User wants to populate the Criteria table using a user supplied table.
   # This option will prioritize a user-supplied table, but may include
-  # all rows generated from this function either from 1) auto_fill default values,
+  # all rows generated from this function either from 1) auto_assign default values,
   # 2) epa 304a values, 3) any updated ref values from the updateRef functions,
   # 4) from the recommended workflow based on MLSummaryRef, or 5) a blank template
   # which will only include rows relevant to all unique TADA.CharacteristicName in
@@ -564,9 +566,9 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         "ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
-      if (auto_fill == TRUE) {
+      if (auto_assign == TRUE) {
         warning(paste0(
-          "You selected auto_fill == TRUE. ",
+          "You selected auto_assign == TRUE. ",
           "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
           "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
@@ -581,9 +583,9 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         "when compared to the domain value of ATTAINS from the prior ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
-      if (auto_fill == TRUE) {
+      if (auto_assign == TRUE) {
         warning(paste0(
-          "You selected auto_fill == TRUE. ",
+          "You selected auto_assign == TRUE. ",
           "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
           "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
@@ -643,7 +645,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     #   dplyr::distinct()
     #
     # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
-    if (nrow(DefineCriteriaMethodology) == 0 && auto_fill == FALSE) {
+    if (nrow(DefineCriteriaMethodology) == 0 && auto_assign == FALSE) {
       DefineCriteriaMethodology <- criteriaMethods %>%
         dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName) %>%
         dplyr::distinct()
@@ -986,405 +988,4 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   }
 
   return(DefineCriteriaMethodology)
-}
-
-
-
-#' Criteria Summary
-#'
-#' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
-#' processing, harmonization and filtering functions prior to this step.
-#'
-#' @return A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
-#'
-#' @export
-#'
-#' @examples
-#' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
-#' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
-#'
-TADA_CriteriaSummary <- function(.data, criteriaMethods = NULL, MLSummaryRef = NULL,
-                                 summarizeBy = c("All", "Criteria", "Char"),
-                                 spatialSummary = c("groupedML", "individualML", "AU", NULL),
-                                 # criteriaOutput = c("")
-                                 excel = FALSE, overwrite = FALSE) {
-  # check to make sure summarizeBy is populated with allowable value
-  summarizeBy <- match.arg(summarizeBy)
-
-  # Runs TADA_FlagDepthCategory if not already ran
-  # if (!"DepthCategory" %in% names(.data)) {
-  #   .data <- TADA_FlagDepthCategory(.data)
-  # }
-
-  if (sum(is.na(criteriaMethods$MagnitudeValueUpper) & is.na(criteriaMethods$MagnitudeValueLower)) > 0) {
-    print(
-      paste0(
-        "Warning: There are ",
-        sum(is.na(criteriaMethods$MagnitudeValueUpper) & is.na(criteriaMethods$MagnitudeValueLower)),
-        " row(s) with no magnitude values defined or specification of being an equation-based standards. Cannot compare these results to an NA value."
-      )
-    )
-  }
-
-  # Combine all and summarize by ONLY characteristic and ignore fraction and speciation
-  # We can say "it's not recommended" - good question to ask to M3 subgroup - but would people find it useful?
-  if (summarizeBy == "Char") {
-    data_with_criteria <- .data %>%
-      dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName")) %>%
-      dplyr::mutate(DurationPeriod = gsub("n-", paste0(DurationValue, " "), DurationUnit)) %>%
-      dplyr::mutate(
-        ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d"),
-        ActivityStartDateTime = as.POSIXct(ActivityStartDateTime, format = "%Y-%m-%d %H:%M:%S")
-      )
-    # %>%
-    # dplyr::mutate(Flag.CharOnly...) # will help to see if the logic makes sense
-  }
-
-  # User will summarize only by defined WQP to ATTAINS Parameters in criteria table.
-  if (summarizeBy == "Criteria") {
-    data_with_criteria <- .data %>%
-      dplyr::left_join(criteriaMethods, by = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")) %>%
-      dplyr::mutate(DurationPeriod = gsub("n-", paste0(DurationValue, " "), DurationUnit)) %>%
-      dplyr::mutate(
-        ActivityStartDate = as.POSIXct(ActivityStartDate, format = "%Y-%m-%d"),
-        ActivityStartDateTime = as.POSIXct(ActivityStartDateTime, format = "%Y-%m-%d %H:%M:%S")
-      )
-  }
-
-  # Split the joined .data by duration period.
-  Duration_splits <- split(data_with_criteria, data_with_criteria$DurationPeriod)
-
-  df_final <- list() # will contain raw data aggregated by Duration and CriteriaSummary
-  df_raw_aggregated <- data.frame()
-  # df_raw_aggregated_rolling <- data.frame()
-  df_summary <- data.frame()
-
-  for (i in 1:length(Duration_splits)) {
-    DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
-
-    DurationPeriod <- as.character(unique(Duration_splits[[i]]["DurationPeriod"]))
-
-    # for each unique duration period perform aggregation. rbind in final df.
-    df_raw <- Duration_splits[[i]]
-
-    start_date <- as.POSIXct(tryCatch(
-      min(df_raw$ActivityStartDateTime, na.rm = TRUE),
-      warning = function(w) {
-        min(df_raw$ActivityStartDate, na.rm = TRUE)
-      }
-    ))
-
-    end_date <- as.POSIXct(tryCatch(
-      max(df_raw$ActivityStartDateTime, na.rm = TRUE),
-      warning = function(w) {
-        max(df_raw$ActivityStartDate, na.rm = TRUE)
-      }
-    ))
-
-    regular_timestamps <- seq(start_date, end_date, by = DurationPeriod)
-
-    regular_timestamps_df <- data.frame(
-      AggregatedActivityStartDateTime = as.POSIXct(regular_timestamps[-length(regular_timestamps)]),
-      AggregatedActivityEndDateTime = as.POSIXct(regular_timestamps[2:length(regular_timestamps)])
-    )
-
-    df_start_end <- dplyr::left_join(
-      df_raw, regular_timestamps_df,
-      by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
-    )
-
-    df_aggregated <- df_start_end %>%
-      # tidyr::drop_na(ActivityStartDateTime) %>%
-      dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-      dplyr::filter(!is.na(ActivityStartDate)) %>%
-      dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
-      dplyr::group_by(
-        DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-        ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        # MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-      ) %>%
-      dplyr::ungroup() %>%
-      dplyr::group_by(
-        AggregatedActivityStartDateTime, AggregatedActivityEndDateTime,
-        DurationPeriod, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-        ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        # MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-      ) %>%
-      dplyr::summarize(
-        geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-        arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
-        count = dplyr::n(),
-        Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
-        Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
-        Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-        Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-        Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-        Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-        Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-        Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-        Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-        Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-        Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98),
-        .groups = "drop"
-      )
-
-    TADA_with_Summary <- df_start_end %>%
-      dplyr::select(-ActivityStartDate) %>%
-      dplyr::left_join(
-        df_aggregated,
-        by = c("AggregatedActivityStartDateTime", "AggregatedActivityEndDateTime", "TADA.ComparableDataIdentifier")
-      ) %>%
-      dplyr::rename(ActivityStartDate = AggregatedActivityStartDateTime)
-
-    # TADA_Scatterplot(TADA_with_Summary)
-    #####################################################
-    # # For rolling summary calculations
-    # DurationValue <- as.numeric(unique(Duration_splits[[i]]["DurationValue"]))
-    # DurationUnit <- gsub("n-", "", as.character(unique(Duration_splits[[i]]["DurationUnit"])))
-    #
-    # df_raw <- Duration_splits[[i]]
-    #
-    # start_date_roll <- min(df_raw$ActivityStartDateTime, na.rm = TRUE)
-    # end_date_roll <- max(df_raw$ActivityStartDateTime, na.rm = TRUE)
-    # regular_timestamps_roll <- seq(start_date_roll, end_date_roll, by = DurationUnit)
-    #
-    # regular_timestamps_df_roll <- data.frame(
-    #   AggregatedActivityStartDateTime = as.POSIXct( regular_timestamps_roll[-length(regular_timestamps_roll)], format = "%Y-%m-%d %H:%M:%S"),
-    #   AggregatedActivityEndDateTime = regular_timestamps_roll[2:length(regular_timestamps_roll)]
-    # )
-    #
-    # df_start_end_roll <- dplyr::right_join(
-    #   df_raw, regular_timestamps_df_roll,
-    #   by = dplyr::join_by(dplyr::between(ActivityStartDateTime, AggregatedActivityStartDateTime, AggregatedActivityEndDateTime))
-    # )
-    #
-    # df_aggregated_roll <- df_start_end_roll %>%
-    #   tidyr::drop_na(ActivityStartDateTime) %>%
-    #   dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-    #   dplyr::filter(!is.na(ActivityStartDateTime)) %>%
-    #   dplyr::filter(!is.na(MagnitudeValueLower) | !is.na(MagnitudeValueUpper)) %>%
-    #   dplyr::group_by(
-    #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-    #     ATTAINS.ParameterName, ATTAINS.UseName,
-    #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-    #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-    #   ) %>%
-    #   dplyr::ungroup() %>%
-    #   dplyr::group_by(
-    #     AggregatedActivityStartDateTime, AggregatedActivityEndDateTime,
-    #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-    #     ATTAINS.ParameterName, ATTAINS.UseName,
-    #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-    #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-    #   ) %>%
-    #   dplyr::summarize(
-    #     geomean_TADA.ResultMeasureValue = exp(mean(log(TADA.ResultMeasureValue), na.rm = TRUE)),
-    #     arithmetic_mean_TADA.ResultMeasureValue = mean(TADA.ResultMeasureValue, na.rm = TRUE),
-    #     count = dplyr::n(),
-    #     Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
-    #     Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
-    #     Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05),
-    #     Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10),
-    #     Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15),
-    #     Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25),
-    #     Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50),
-    #     Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75),
-    #     Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
-    #     Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
-    #     Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    #   )
-    #
-    #
-    # # rolling_mean_custom <- function(x, k, na_rm = TRUE) {
-    # #   if (k == 1) {
-    # #     return(x) # For a window of 1, the average is just the value itself
-    # #   }
-    # #
-    # #   n <- length(x)
-    # #   result <- numeric(n)
-    # #
-    # #   for (i in 1:n) {
-    # #     start_index <- max(1, i - k + 1)
-    # #     window_values <- x[start_index:i]
-    # #
-    # #     # if (na_rm) {
-    # #     #   window_values <- window_values[!is.na(window_values)]
-    # #     # }
-    # #
-    # #     if (length(window_values) > 0) { # Ensure there are non-NA values to average
-    # #       result[i] <- mean(tail(na.omit(window_values, k, na.rm = TRUE)))
-    # #     } else {
-    # #       result[i] <- NA # If all values in window are NA or empty after na_rm
-    # #     }
-    # #   }
-    # #   return(result)
-    # # }
-    # #
-    # # df_aggregated_rolling <- regular_timestamps_df_roll %>%
-    # #   dplyr::left_join(df_aggregated_roll) %>%
-    # #   dplyr::filter(TADA.ComparableDataIdentifier == "DISSOLVED OXYGEN (DO) MG/L") %>%
-    # #   tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-    # #               ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down")  %>%
-    # #   dplyr::group_by(
-    # #     AggregatedActivityStartDateTime, AggregatedActivityEndDateTime,
-    # #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-    # #     ATTAINS.ParameterName, ATTAINS.UseName,
-    # #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-    # #     #MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-    # #   ) %>%
-    # #   dplyr::mutate(rolling_avg_geomean = rolling_mean_custom( geomean_TADA.ResultMeasureValue, k = 4, na_rm = TRUE))
-    # #
-    #
-    # # calculates rolling average by specified k window size
-    # rolling_mean_na_rm <- function(x, y, k) {
-    #   if (k == 1) {
-    #     return(x) # For a window of 1, the average is just the value itself
-    #   }
-    #
-    #   if (length(x) < k) {
-    #     return(NA_real_) # Return NA if window size is larger than available data
-    #   }
-    #   # Calculate weighted mean of the last 'k' non-NA values
-    #   return(sum(tail(na.omit(x * y), k), na.rm = TRUE) / sum(tail(na.omit(y), k)) )
-    # }
-    #
-    # unique_parameters_use <- unique(df_aggregated_roll$TADA.ComparableDataIdentifier)
-    # df_aggregated_rolling <- data.frame()
-    #
-    # for (i in 1:length(unique_parameters)){
-    # temp_df <- regular_timestamps_df_roll %>%
-    #   dplyr::left_join(df_aggregated_roll[df_aggregated_roll$TADA.ComparableDataIdentifier == unique_parameters[i],]) %>%
-    #   tidyr::fill(DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-    #               ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper, .direction = "down") %>%
-    #   dplyr::select(
-    #     DurationValue, DurationUnit, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
-    #     ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper) %>%
-    #   dplyr::mutate(
-    #     rolling_avg = purrr::map_dbl(dplyr::row_number(), ~{
-    #       current_index <- .x
-    #       start_index <- max(1, current_index - as.numeric(unique(Duration_splits[[i]]["DurationValue"])) + 1) # Adjust for window size
-    #       window_data <- geomean_TADA.ResultMeasureValue[start_index:current_index]
-    #       window_weights <- count[start_index:current_index]
-    #       rolling_mean_na_rm(window_data, window_weights, as.numeric(unique(Duration_splits[[i]]["DurationValue"])))
-    #     })
-    #   )
-    #
-    # df_aggregated_rolling <- rbind(df_aggregated_rolling, temp_df)
-    # }
-    ####################
-
-    # non rolling raw data
-    df_raw_aggregated <- rbind(df_raw_aggregated, TADA_with_Summary)
-    # rolling raw data
-    # df_raw_aggregated_rolling <- rbind(df_raw_aggregated_rolling, df_aggregated_rolling)
-
-    # For Non-Rolling Summary
-    df_aggregated_summary <- df_aggregated %>%
-      dplyr::group_by(
-        # AggregatedActivityStartDateTime,
-        DurationPeriod,
-        TADA.ComparableDataIdentifier, # TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-        ATTAINS.ParameterName, ATTAINS.UseName,
-        ActivityTypeCode, MagnitudeValueLower, MagnitudeValueUpper
-        # MonitoringLocationName, MonitoringLocationIdentifier, MonitoringLocationTypeName
-      ) %>%
-      dplyr::summarize(
-        n_Aggregatedsamples = dplyr::n(),
-        n_exceedance = sum(geomean_TADA.ResultMeasureValue > MagnitudeValueUpper, na.rm = TRUE)
-        + sum(geomean_TADA.ResultMeasureValue < MagnitudeValueLower, na.rm = TRUE), # Will need to know what is being compared - geomean, arithmetic mean, max, min etc.
-        percent_exccedance = round(n_exceedance / n_Aggregatedsamples * 100, 3),
-        .groups = "drop"
-      )
-
-    df_summary <- rbind(df_summary, df_aggregated_summary) %>%
-      dplyr::distinct()
-  }
-  df_final <- list(TADA_with_Summary_Stats = df_raw_aggregated, CriteriaSummary = df_summary)
-
-  return(df_final)
-}
-
-#' Criteria Summary Plot
-#'
-#' @param .data A TADA dataframe. Users should run the appropriate data cleaning,
-#' processing, harmonization and filtering functions prior to this step.
-#'
-#' @return A data frame with all allowable ATTAINS designated use values for an ATTAINS Parameter
-#'
-#' @export
-#'
-#' @examples
-#' Data_Nutrients_UT_GetATTAINS <- load("data.Rda")
-#' Data_Nutrients_Param_Ref <- TADA_CreateUseParamRef(Data_Nutrients_UT)
-#'
-TADA_SummaryScatterplot <- function(summaryRef = NULL) {
-  # unique TADA.ComparableDataIdentifier Names extracted from TADA_Scatterplot base function
-  # note: think of a better way to match each TADA comparabledataidentifier
-  param_names <- sort(unique(names(TADA_Scatterplot(summaryRef$TADA_with_Summary_Stats))))
-  param_names2 <- sort(unique(summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier))
-
-  TADA_Summary_Scatter <- list()
-  subplot_TADA_Summary_Scatter <- list()
-  # unique_Durations <- unique(TADA_SummaryOutput$CriteriaSummary[TADA_SummaryOutput$CriteriaSummary$DurationPeriod])
-
-  for (i in 1:length(param_names)) {
-    temp_df <- summaryRef$TADA_with_Summary_Stats[summaryRef$TADA_with_Summary_Stats$TADA.ComparableDataIdentifier == param_names2[i], ]
-
-    unique_Durations <- unique(temp_df$DurationPeriod.x)
-
-    for (n in 1:length(unique_Durations)) {
-      subplot_TADA_Summary_Scatter[[n]] <- TADA_Scatterplot(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])) %>%
-        plotly::add_trace(
-          # plots the criteria measure not to be exceeded. ex. geomean, arithimetic mean, median etc.
-          data = dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n]),
-          x = ~ActivityStartDate,
-          y = ~geomean_TADA.ResultMeasureValue,
-          type = "scatter", mode = "markers",
-          name = paste0(unique_Durations[n], " geometric mean"),
-          hoverinfo = "none",
-          marker = list(color = TADA_ColorPalette()[n])
-        )
-
-      lowerMagnitudes <- unique(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])[, "MagnitudeValueLower.x"])
-      upperMagnitudes <- unique(dplyr::filter(temp_df, DurationPeriod.x == unique_Durations[n])[, "MagnitudeValueUpper.x"])
-
-      for (j in 1:nrow(lowerMagnitudes)) {
-        subplot_TADA_Summary_Scatter[[n]] <- subplot_TADA_Summary_Scatter[[n]] %>%
-          plotly::add_lines(
-            y = as.numeric(
-              c(
-                lowerMagnitudes[j, ],
-                lowerMagnitudes[j, ]
-              )
-            ),
-            x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-            inherit = FALSE,
-            line = list(color = "red"),
-            name = paste0("Lower Limit ", j),
-            hoverinfo = "none"
-          )
-      }
-
-      for (k in 1:nrow(upperMagnitudes)) {
-        subplot_TADA_Summary_Scatter[[n]] <- subplot_TADA_Summary_Scatter[[n]] %>%
-          plotly::add_lines(
-            y = as.numeric(
-              c(
-                upperMagnitudes[k, ],
-                upperMagnitudes[k, ]
-              )
-            ),
-            x = c(min(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE), max(summaryRef$TADA_with_Summary_Stats$ActivityStartDate, na.rm = TRUE)),
-            inherit = FALSE,
-            line = list(color = "black"),
-            name = paste0("Upper Limit ", k),
-            hoverinfo = "none"
-          )
-      }
-    }
-    TADA_Summary_Scatter[[i]] <- plotly::subplot(subplot_TADA_Summary_Scatter, nrows = length(unique_Durations), shareX = T)
-  }
-  return(TADA_Summary_Scatter)
 }

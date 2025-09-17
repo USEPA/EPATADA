@@ -162,7 +162,7 @@ criteria table
 
 3)  Users can also choose to provide an autofill option, which will help to fill out any missing rows with ATTAINS.ParameterName and ATTAINS.UseName that are pulled in from ATTAINS as the default.
 
-    A.) If a user has supplied a list of new or updated use names to AU that may not be retrievable from the prior ATTAINS assessment cycle, they should provide a useAURef crosswalk table in this function. This should only be provided when auto_fill = TRUE.
+    A.) If a user has supplied a list of new or updated use names to AU that may not be retrievable from the prior ATTAINS assessment cycle, they should provide a useAURef crosswalk table in this function. This should only be provided when auto_assign = TRUE.
 
 3)  (Recommended) Go through the step-by-step review process with the 3
     TADA crosswalk reference file generation for TADA_CreateParamRef,
@@ -184,7 +184,7 @@ the excel file.
 MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
-  # auto_fill = FALSE,
+  # auto_assign = FALSE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -193,7 +193,7 @@ MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
 
 ## Option B: Auto Fill option (Intermediate Tabs are Hidden)
 
-You can also generate auto_filled value(s) of ATTAINS.ParameterName,
+You can also generate auto_assigned value(s) of ATTAINS.ParameterName,
 ATTAINS.UseName to TADA.CharacteristicName using default options. Users
 should be aware that this will only return rows for any matching values
 from a WQP characteristic to ATTAINS parameter alias table. It is likely
@@ -204,7 +204,7 @@ TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
 Users can view the output of these 3 functions in the excel spreadsheet
 if desired. They are hidden as default (NOTE TO CONSIDER: Should these
 be kept hidden? The goal of this output has been to focus on an
-auto_fill option as a quick get around to needing to fill out the table
+auto_assign option as a quick get around to needing to fill out the table
 from scratch, but if users may find it worthwhile, we can always show
 these hidden tabs to allow for an easier review process and updating of
 tables directly in the excel file.)
@@ -213,7 +213,7 @@ tables directly in the excel file.)
 MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
-  auto_fill = TRUE,
+  auto_assign = TRUE,
   # displayUniqueId = FALSE,
   excel = FALSE
   # uncomment to run the excel file
@@ -232,7 +232,7 @@ Characteristic, Speciation and Fractions to consider.
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
-  auto_fill = TRUE,
+  auto_assign = TRUE,
   displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
@@ -248,7 +248,7 @@ found.
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ", 
-  auto_fill = TRUE, 
+  auto_assign = TRUE, 
   displayUniqueId = TRUE, 
   excel = FALSE
   # uncomment to run the excel file
@@ -281,7 +281,7 @@ MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_fill = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE,
   epa304a = TRUE,
   excel = FALSE
@@ -294,16 +294,16 @@ MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
 
 A user can combine options. The user supplied table is prioritized. Any
 missing WQP/TADA.CharacteristicName will be matched from ATTAINS based
-on the auto_fill option (if it was successfully crosswalked.).
+on the auto_assign option (if it was successfully crosswalked.).
 
-Note: If a user has an updated list of use names that have been applied to and have chosen to apply the auto_fill = TRUE input, they should also provide a useAURef input. Otherwises the uses will be pulled in from the prior ATTAINS assessment cycle.
+Note: If a user has an updated list of use names that have been applied to and have chosen to apply the auto_assign = TRUE input, they should also provide a useAURef input. Otherwises the uses will be pulled in from the prior ATTAINS assessment cycle.
 
 ```{r user-supplied-epa304a-and-autofill-output}
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_fill = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE
@@ -326,7 +326,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_fill = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
   epa304a = TRUE,
   excel = FALSE
@@ -346,7 +346,7 @@ MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_fill = FALSE,
+  auto_assign = FALSE,
   displayUniqueId = FALSE,
   excel = FALSE
   # uncomment to run the excel file
@@ -356,6 +356,6 @@ MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
 
 Users are recommended to go through each of the 3 reference files one at
 a time though in their review process. In this case, a user should
-provide a MLSummaryRef file function input and turn the auto_fill option
+provide a MLSummaryRef file function input and turn the auto_assign option
 to FALSE. Please see ExampleMod3Workflow.Rmd vignette for the step by
 step process.

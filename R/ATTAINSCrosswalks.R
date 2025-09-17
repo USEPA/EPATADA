@@ -1527,6 +1527,11 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
+#' 
+#' @param useAURef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with each assessment unit.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
 #'
 #' @param auto_assign NOTE: this has not been developed, will this be helpful?
 #' A boolean value. If TRUE, this will assign all unique
@@ -2740,28 +2745,32 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' should contain a completed crosswalk of any unique spatial criteria applied to
 #' a water body, use, or parameter and by any combinations if needed. Users will
 #' need to ensure this crosswalk contains the appropriate column names in order to
-#' run the function. See output of [EPATADA::TADA_CreateWaterUseParamRef()] for column names.
+#' run the function. See output of [TADA_CreateWaterUseParamRef()] for column names.
 #'
 #' @param useAURef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with an assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function. See output of [EPATADA::TADA_CreateUseAURef()] for column names.
+#' order to run the function. See output of [TADA_CreateUseAURef()] for column names.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
 #' with an assessment unit. Users will need to ensure this crosswalk contains the
 #' appropriate column names in order to run the function.
-#' See module 2 vignette and sample output of [EPATADA::TADA_GetATTAINS()].
+#' See module 2 vignette and sample output of [TADA_GetATTAINS()].
 #'
 #' @param MLSummaryRef An optional data frame which contains the completed spatial
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
+#' 
+#' @param displayNA A boolean value
+#' 
+#' @param waterUseParamRef A
 #'
 #' @return A data frame with any unique spatial descriptions defined for
 #'
-#' @seealso [EPATADA::TADA_CreateUseParamRef()]
-#' @seealso [EPATADA::TADA_CreateUseAURef()]
-#' @seealso [EPATADA::TADA_CreateWaterUseParamRef()]
+#' @seealso [TADA_CreateUseParamRef()]
+#' @seealso [TADA_CreateUseAURef()]
+#' @seealso [TADA_CreateWaterUseParamRef()]
 #'
 #' @export
 #'
@@ -2789,7 +2798,7 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
-#'   waterUseParamRef = NULL, useAURef = NULL, AUMLRef = NULL,
+#'   useAURef = NULL, AUMLRef = NULL,
 #'   useParamRef = UseParamRef_UT,
 #'   excel = FALSE
 #' )

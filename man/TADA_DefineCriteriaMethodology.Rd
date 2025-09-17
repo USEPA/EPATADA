@@ -9,7 +9,7 @@ TADA_DefineCriteriaMethodology(
   MLSummaryRef = NULL,
   org_id = NULL,
   criteriaMethods = NULL,
-  auto_fill = FALSE,
+  auto_assign = FALSE,
   AUMLRef = NULL,
   useAURef = NULL,
   updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"),
@@ -45,6 +45,8 @@ inputs in this table will be prioritized. Additional rows for any parameter(s)
 and use(s) combinations that are not found in the user supplied table will be
 included in the output. These rows will need the criteria and methodology inputs
 filled out accordingly.}
+
+\item{auto_assign}{}
 
 \item{AUMLRef}{An optional data frame input. This data frame
 should contain a completed crosswalk of WQP Monitoring Locations
