@@ -2101,8 +2101,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "inst/extdata/icons/square-fs.png",
     "inst/extdata/icons/square-na.png",
     "inst/extdata/icons/circle-solid-full.png",
-    "inst/extdata/icons/square-catchment.png",
-    "inst/extdata/icons/square-catchment-gray.png"
+    "inst/extdata/icons/square-catchment-gray.png",
+    "inst/extdata/icons/square-catchment.png"
   )
 
 
@@ -2577,13 +2577,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) %>%
         leaflet.extras::addResetMapButton() %>%
         leaflegend::addLegendImage(
-          images = images,
+          images = images[1:5],
           labels = c(
             "ATTAINS: Not Supporting",
             "ATTAINS: Supporting",
             "ATTAINS: Not Assessed",
             "WQP: Monitoring Location",
-            "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
+            "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
           ),
           labelStyle = "font-size: 14px;",
           width = 14,
@@ -3741,15 +3741,18 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   # add nhd catchments without ATTAINS matches if user has selected this option
-  if(nhd_catch == TRUE) {
-
-    final_list <- c(final_list,
-                    list("without_ATTAINS_catchments" =
-                           get.attains.matches$without_ATTAINS_catchments),
-                    list("without_ATTAINS_table" =
-                           get.attains.matches$without_ATTAINS_table
-                           )
-                    )
+  if (nhd_catch == TRUE) {
+    final_list <- c(
+      final_list,
+      list(
+        "without_ATTAINS_catchments" =
+          get.attains.matches$without_ATTAINS_catchments
+      ),
+      list(
+        "without_ATTAINS_table" =
+          get.attains.matches$without_ATTAINS_table
+      )
+    )
   }
 
   return(final_list)
