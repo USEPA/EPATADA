@@ -74,16 +74,18 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install-develop-branch, eval = T, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-AURef",
-  dependencies = TRUE
-)
-```
-
-```{r install-current-branch, results = 'hide', include = F}
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```

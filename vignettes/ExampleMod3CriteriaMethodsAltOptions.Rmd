@@ -70,17 +70,18 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA_dev, eval = T, include = F}
-# helps with development (knit and checks), this chunk should not appear on website
-remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-AURef",
-  dependencies = TRUE
-)
-```
-
-```{r install_TADA, eval = F, results = 'hide'}
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```
@@ -341,7 +342,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
 
 ```{r save-and-re-use-your-most-up-to-date-criteria-table}
 # Save the criteria table of your likings to be used for your next analysis needs.
-TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
+# TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 
 # We can now reuse this criteria table
 MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
