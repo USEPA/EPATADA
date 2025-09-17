@@ -1454,13 +1454,15 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
       try(result <- sub_tada %>%
         data.table::data.table() %>%
         dplyr::select(ResultIdentifier, assessmentunitidentifier) %>%
-        dplyr::left_join(distances, by = "assessmentunitidentifier",
-                         relationship = "many-to-many") %>%
+        dplyr::left_join(distances,
+          by = "assessmentunitidentifier",
+          relationship = "many-to-many"
+        ) %>%
         sf::st_drop_geometry() %>%
         # for AUs with multiple features, only assess the one closest:
         dplyr::group_by(ResultIdentifier, assessmentunitidentifier) %>%
         dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
-        #dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) %>%
+        # dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) %>%
         dplyr::ungroup(), silent = TRUE)
 
       return(result)
@@ -2380,12 +2382,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
         )
 
-        if("without_ATTAINS_catchments" %in% names(.data)) {
-
+        if ("without_ATTAINS_catchments" %in% names(.data)) {
           images.ref <- append(images.ref, images[6])
 
-          leg.labels <- append(leg.labels,
-                               "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines.")
+          leg.labels <- append(
+            leg.labels,
+            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines."
+          )
         }
 
 
@@ -2408,12 +2411,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       }
 
       if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-
         images.ref <- c(
           images[1:5]
         )
 
-        leg.labels <-  c(
+        leg.labels <- c(
           "ATTAINS: Not Supporting",
           "ATTAINS: Fully Supporting",
           "ATTAINS: Not Assessed",
@@ -2421,12 +2423,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with black outlines."
         )
 
-        if("without_ATTAINS_catchments" %in% names(.data)) {
-
+        if ("without_ATTAINS_catchments" %in% names(.data)) {
           images.ref <- append(images.ref, images[6])
 
-          leg.labels <- append(leg.labels,
-                               "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines.")
+          leg.labels <- append(
+            leg.labels,
+            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented a gray polygons with black outlines."
+          )
         }
 
         map <- map %>%
@@ -2600,8 +2603,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         map <- map %>%
           leaflet::addPolygons(
             data = ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
+            color = "black", fillColor = "grey",
+            weight = 1, fillOpacity = 0.3,
             popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
           ),
         silent = TRUE
@@ -2612,8 +2615,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         map <- map %>%
           leaflet::addPolygons(
             data = without_ATTAINS_catchments,
-            color = "black", fillColor = "grey",
-            weight = 1, fillOpacity = 0.3,
+            color = "black",
+            weight = 1, fillOpacity = 0,
             popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
           ),
         silent = TRUE
@@ -3419,10 +3422,23 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 #' MonitoringLocationIdentifier and WaterType.
 #' @param org_id Organization id to match AUs.
-#' @param add_catch Optional. When add_catch = TRUE, catchments are matched to monitoring
-#' locations from the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
-#' and matching these additional geospatial data will increase the run time of this function
-#' significantly. Default is add_catch = FALSE.
+#' @param add_catch Boolean argument. When add_catch = TRUE, catchments
+#' are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
+#' monitoring locations by retrieving catchment data from ATTAINS geospatial web
+#' services. Fetching and matching these additional geospatial data will increase
+#' the run time of this function significantly. Default is add_catch = FALSE.
+#' @param nhd_catch Boolean argument. Whether the user would like to return
+#' NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
+#' with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+#' the returned list splits observations into two dataframes: WQP observations
+#' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
+#' observations without ATTAINS catchment data. Defaults to FALSE. This param
+#' applies only to WQP observations that do not have matches in the user-supplied ref
+#' or ATTAINS.
+#' @param return_nearest  If a WQP observation falls within more than one AU,
+#' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+#' (return_nearest = FALSE). This param applies only to WQP observations that do
+#' not have matches in the user-supplied ref or ATTAINS.
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, an additional data frame
 #' which matches the format required for batch upload to ATTAINS is included in the
 #' output. When batch_upload = FALSE, this df is not included in the output.
@@ -3442,8 +3458,10 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'
 #' @export
 #'
-TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
+TADA_CreateAUMLCrosswalk <- function(.data,
+                                     au_ref = NULL,
                                      org_id = NULL, add_catch = FALSE,
+                                     nhd_catch = FALSE, return_nearest = FALSE,
                                      batch_upload = TRUE) {
   # need to write checks for each component
 
@@ -3600,7 +3618,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     )
 
     # If we do not add the catchments, we must still include the ATTAINS.WaterType
-    # to these AUs. Added by KW 9/5/2025.
+    # to these AUs.
     attains.matches_WaterType_NA <- attains.matches$TADA_with_ATTAINS %>%
       dplyr::filter(is.na(ATTAINS.WaterType)) %>%
       dplyr::select(-ATTAINS.WaterType) %>%
@@ -3647,7 +3665,10 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- spsUtil::quiet(
-      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls, return_nearest = TRUE)
+      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls,
+        return_nearest = return_nearest,
+        fill_catchments = nhd_catch
+      )
     )
   }
 
@@ -3695,6 +3716,7 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     "ATTAINS_polygons" = ATTAINS_polygons
   )
 
+  # add batch upload df to list for output if user has selected this option
   if (batch_upload == TRUE) {
     ATTAINS_batchupload <- TADA_with_ATTAINS %>%
       sf::st_drop_geometry() %>%
@@ -3716,6 +3738,18 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
       )
 
     final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
+  }
+
+  # add nhd catchments without ATTAINS matches if user has selected this option
+  if(nhd_catch == TRUE) {
+
+    final_list <- c(final_list,
+                    list("without_ATTAINS_catchments" =
+                           get.attains.matches$without_ATTAINS_catchments),
+                    list("without_ATTAINS_table" =
+                           get.attains.matches$without_ATTAINS_table
+                           )
+                    )
   }
 
   return(final_list)
