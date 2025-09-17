@@ -276,9 +276,6 @@ the proper handling of this value - whether it is applicable to your
 analysis need or not.
 
 ```{r user-supplied-and-epa304a}
-# Load the example MTDEQ criteria table
-load(system.file("data", "criteria_table.rda", package = "EPATADA"))
-
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
