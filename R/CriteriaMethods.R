@@ -67,6 +67,11 @@
 #' this as an argument input if we do not wish to facilitate updating the crosswalk
 #' reference table when generating the criteria and methods table for input. Keeping
 #' this in the function for now as it could be useful to consider having.
+#' 
+#' @param displayUniqueId A Boolean value. If TRUE, this will print all unique 
+#' TADA.ComparableDataIdentifier in the criteria and methods table output. This is 
+#' useful in the alternative options to generate the criteria and methods table
+#' without the reference tables.
 #'
 #' @param epa304a A Boolean value to return epa304a recommended standards for any
 #' WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.

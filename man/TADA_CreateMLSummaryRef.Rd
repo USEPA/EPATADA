@@ -72,12 +72,6 @@ the cells in which users should input information.}
 \item{overwrite}{A Boolean value that ensures the function will not overwrite
 the user supplied crosswalk entered into this function via the paramRef
 function input. This helps prevent users from overwriting their progress.}
-
-\item{waterUseParamRef}{An option data frame input. If provided, this data frame
-should contain a completed crosswalk of any unique spatial criteria applied to
-a water body, use, or parameter and by any combinations if needed. Users will
-need to ensure this crosswalk contains the appropriate column names in order to
-run the function. See output of \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}} for column names.}
 }
 \value{
 A data frame with any unique spatial descriptions defined for

@@ -69,6 +69,11 @@ this in the function for now as it could be useful to consider having.}
 \item{epa304a}{A Boolean value to return epa304a recommended standards for any
 WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
 
+\item{displayUniqueId}{A Boolean value. If TRUE, this will print all unique
+TADA.ComparableDataIdentifier in the criteria and methods table output. This is
+useful in the alternative options to generate the criteria and methods table
+without the reference tables.}
+
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 If you have any trouble locating the file, please type the following into
