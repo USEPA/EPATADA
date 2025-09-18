@@ -48,6 +48,7 @@ Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
     attains_replace = TRUE,
     batch_upload = FALSE,
     wqp_data_links = "add",
+   # ml ids have already  been corrected if needed
     update_mlid = FALSE,
     org_id = "MTDEQ"
   ) %>%
