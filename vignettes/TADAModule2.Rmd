@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  eval = FALSE
+  eval = F
 )
 ```
 
@@ -58,7 +58,7 @@ information is available at:**
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, eval = F, results = 'hide'}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -72,7 +72,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -80,16 +80,13 @@ remotes::install_github("USEPA/EPATADA",
 ```
 
 ```{r dev_install, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
+devtools::load_all()
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r, results = 'hide'}
+```{r load TADA, eval = F, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -348,14 +345,14 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r, fig.height=7}
+```{r ATTAINS catchments, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
 ```
 
 When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
 `without_ATTAINS_catchments`:
 
-```{r, fig.height=7}
+```{r ATTAINS and NHDPlus catchments, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
 ```
 

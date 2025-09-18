@@ -155,7 +155,7 @@ utils::globalVariables(c(
   "overallstatus", "permid_joinkey", "region", "reportingCycle",
   "reportingcycle", "response.code", "return_sf", "state", "submissionid",
   "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method",
+  "xwalk_method", "WqxV2.FieldName", "auid.col", "ml.col", "type.col",
   "AggregatedActivityEndDateTime", "AggregatedActivityStartDateTime",
   "ATTAINS.AssessmentUnitIdentifier.y", "ATTAINS.WaterType.y DepthCategory",
   "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
@@ -1539,4 +1539,232 @@ TADA_CreateCSV <- function(.data) {
   utils::write.csv(.data, file = downloads_path, row.names = FALSE)
 
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+}
+
+#' TADA_RenametoLegacy
+#'
+#' This function renames columns in a dataframe from WQX3.0 (beta) names to WQX2.0 (legacy) names.
+#'  Water Quality Portal data are retrieved using USGS dataRetrieval service = "ResultWQX3".
+#'  The purpose of this function is to aid in integrating and updating TADA dependencies
+#'  developed under WQX2.0 to function with data retrieved using WQX3.0 service.
+#'
+#'  TADA_RenametoLegacy function calls on EPA web services to read in the documented
+#'  WQX3.0 schema file (schema_outbound_wqx3.0.csv).The file crosswalks WQX3.0 column names
+#'  with equivalent WQX2.0 Legacy column names across profiles (e.g., PhysChem, ActivityMetric) where appropriate.
+#'  The function uses data.table::setnames() to rename columns in the dataframe
+#'  by reference - in this case where there are beta names, rename to legacy names, and skip where there are no matches.
+#'
+#'
+#' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services
+#'
+#' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
+#'
+#' @export
+#'
+#' @examples
+#' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
+#'   statecode = "Illinois",
+#'   countycode = "DeWitt", characteristicName = "Nitrogen",
+#'   service = "ResultWQX3", dataProfile = "fullPhysChem",
+#'   ignore_attributes = TRUE
+#' )
+#'
+#' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#'
+TADA_RenametoLegacy <- function(.data) {
+  ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
+  # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
+    show_col_types = FALSE
+  )
+
+  # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
+  wqxnames_mod <- wqxnames |>
+    dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
+      FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+      FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+      FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+      FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+      FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+      FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+      FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+      FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+      FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+      FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileType" ~ NA,
+      TRUE ~ WqxV2.FieldName
+    )) |>
+    # Remove rows without a legacy name in the crosswalk table
+    dplyr::filter(!is.na(WqxV2.FieldName)) |>
+    # Some elements in the crosswalk table have different special characters compared to
+    # elements returned with dataRetrieval
+    # Using stringr to identify special characters replacing "_" with "." and "/" with "."
+    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c("_" = ".", "/" = ".")))
+
+  # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames
+  # will overwrite original dataframe
+  df <- data.table::copy(.data)
+  beta_names_dr <- names(.data) # copy of original elements
+
+  # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
+  beta_names <- wqxnames_mod$FieldName3.0
+  legacy_names <- wqxnames_mod$WqxV2.FieldName
+
+  rm(WqxV2.FieldName)
+
+  if (length(beta_names) != length(legacy_names)) {
+    stop("`old names` and `new names` must be the same length", call. = FALSE)
+  }
+
+  df <- data.table::setnames(df,
+    old = beta_names,
+    new = legacy_names, skip_absent = TRUE
+  )
+
+  df <- TADA_OrderCols(df)
+
+  return(df)
+}
+
+#' checkColNames
+#'
+#' This function checks column names using partial string matches. It is designed
+#' to facilitate the use of user-supplied refs with differently prefixed columns
+#' in Module 2 and 3 functions.
+#'
+#' @param .data A user-supplied ref data frame containing AssessmentUnitIdentifier,
+#' MonitoringLocationIdentifier, and WaterType columns. It is permitted (but not
+#' required) for these columns to use ATTAINS, TADA or other prefixes.
+#' @param partial.string The character string used for partial string matching when
+#' checking column names.
+#'
+#' @return A data frame with two columns identifying the exact column names for the
+#' AssessmentUnitIdentifier, MonitoringLocationIdentifier, and WaterType columns in
+#' a user-supplied ref file.
+#'
+checkColName <- function(.data, partial.string = NULL) {
+  col.id <- dplyr::case_when(
+    partial.string == "AssessmentUnitIdentifier" ~ "auid.col",
+    partial.string == "MonitoringLocationIdentifier" ~ "ml.col",
+    partial.string == "WaterType" ~ "type.col"
+  )
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
+    stop(paste0(
+      "TADA_CreateAUMLCrosswalk: The ",
+      partial.string, " column is missing from the user-supplied reference (au_ref)."
+    ))
+  }
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
+    select.col <- .data %>%
+      dplyr::select(dplyr::contains(partial.string)) %>%
+      names()
+
+    if (length(select.col) > 1) {
+      stop(paste0(
+        "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
+        partial.string, " column in the user-supplied reference (au_ref)."
+      ))
+    }
+
+    col.lab <- data.frame(col.id, select.col)
+
+    rm(col.id, select.col)
+  }
+  return(col.lab)
+}
+
+#' renameATTAINSCols
+#'
+#' This function adds the ATTAINS prefix and changes column name capitalization to
+#' match the TADA format.
+#'
+#' @param .data A data frame containing columns from ATTAINS geospatial web services.
+#'
+#' @param return_list Boolean argument. When return_list = TRUE, the function returns
+#' a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
+#' the input .data data frame is updated so column names from ATTAINS geospatial web
+#' services match the TADA format. Defualt is return_list = FALSE.
+#'
+#' @param format Character argument. The format the user wants to switch the column
+#' names too. When format = "tada", the ATTAINS prefix and TADA capitalization will
+#' be applied. When format = "attains", TADA formatted columns will be renamed to the
+#' original ATTAINS names. Default = "tada".
+#'
+#' @return A data frame with column name from ATTAINS geospatial web service updated
+#' to match the TADA format. Or when return_list = TRUE, a list of all TADA
+#' formatted ATTAINS column names.
+#'
+renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+  # list of TADA formatted column names
+  attains.tada <- c(
+    "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+    "ATTAINS.ShapeArea"
+  )
+
+  # if return list equals TRUE, return the list of tada formatted column names
+  if (return_list == TRUE) {
+    return(attains.tada)
+  }
+
+  # if return equals FALSE, proceed with renaming columns
+  if (return_list == FALSE) {
+    # list of original ATTAINS column names
+    attains.orig <- c(
+      "organizationid", "submissionid", "hasprotectionplan",
+      "assessmentunitname", "nhdplusid", "tas303d",
+      "isthreatened", "state", "on303dlist",
+      "organizationname", "region", "Shape_Length",
+      "reportingcycle", "assmnt_joinkey", "hastmdl",
+      "orgtype", "permid_joinkey", "catchmentistribal",
+      "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+      "overallstatus", "isassessed", "isimpaired",
+      "has4bplan", "huc12", "hasalternativeplan",
+      "visionpriority303d", "areasqkm", "catchmentareasqkm",
+      "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+      "Shape_Area"
+    )
+
+    # assign old and new name vectors based on format selected by user
+    old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
+      format == "attains" ~ attains.tada
+    )
+
+    new.names <- dplyr::case_when(format == "tada" ~ attains.tada,
+      format == "attains" ~ attains.orig
+    )
+
+
+    .data <- .data %>%
+      data.table::setnames(
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
+    )
+
+    # remove intermediate objects
+    rm(attains.tada, attains.orig, old.names, new.names)
+
+
+    # return data frame with changed column names
+    return(.data)
+  }
 }
