@@ -166,6 +166,7 @@
 "Measurement Unit(MeasureUnitCode)",116,"cm3/sec","Flow, Cubic centimeters per second","7/26/2006 10:57:47 AM","cfs",3.531467e-05,0
 "Measurement Unit(MeasureUnitCode)",355,"code","()Picklist or Choicelist, Please see http://waterdata.usgs.gov/nwis/qwdata?codes_table26_help#62955","9/10/2014 12:00:00 AM","code",1,0
 "Measurement Unit(MeasureUnitCode)",728,"copies","()Concentration Solution, copies (ie viral load)","10/3/2022 12:00:00 AM","copies",1,0
+"Measurement Unit(MeasureUnitCode)",731,"copies/100mL","Concentration Solution, copies per 100 milliliters (ie viral load)","9/5/2025 9:46:28 AM","copies/mL",0.01,0
 "Measurement Unit(MeasureUnitCode)",730,"copies/250mL","Concentration Solution, copies per 250 milliliters (ie viral load)","2/2/2024 9:10:45 AM","copies/mL",0.004,0
 "Measurement Unit(MeasureUnitCode)",727,"copies/mL","()Concentration Solution, copies per milliliters (ie viral load)","10/3/2022 12:00:00 AM","copies/mL",1,0
 "Measurement Unit(MeasureUnitCode)",145,"count","()Quantity, Count","7/26/2006 10:57:47 AM","count",1,0

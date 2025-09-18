@@ -70,9 +70,8 @@ pre[class] {
 
 Next, install and load the EPATADA R Package using the remotes package.
 Dependency packages will also be downloaded automatically from CRAN. You
-may be prompted in the console to update dependencies that have more
-recent versions available. If you see this prompt, it is recommended to
-update all of them (enter 1 into the console).
+may be prompted in the console to update dependencies. It is recommended
+to update all dependencies (enter 1 into the console).
 
 ```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -121,10 +120,10 @@ their decision making processes. Use of EPATADA is not required.
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-prior to defining and capturing organization specific water quality
-analysis criteria and methodologies. This is a continuation of an
-example workflow with ExampleMod2Workflow.Rmd.
+users through how to create WQP and ATTAINS crosswalks that are neede to
+define and capture organization specific water quality analysis criteria
+and methodologies. This is a continuation of an example TADA workflow
+which began with ExampleMod2Workflow.Rmd.
 
 Specifically, this vignette provides an overview of three functions that
 can assist users with:
@@ -136,30 +135,28 @@ can assist users with:
     ATTAINS uses and parameters applicable to your analysis needs.
 
 -   Define and summarize your spatial level of analysis for uses and
-    parameters to sites (in addition to to assessment units if desired).
-    and capture any unique site-specfic WQS criteria needs for your
-    organization.
+    parameters to locations(monitoring locations or assessment units)
+    and capture any unique site-specfic WQS criteria.
 
-These Module 3 functions are being designed with the flexibility for
-users from states, tribes, or territories to input organization-specific
-information (and link directly to information in ATTAINS). While TADA
-functions can help generate these crosswalks and filling in some values,
-users must review and modify the tables generated in each step of the
-process to ensure accuracy. Additionally, the TADA team has also
-incorporated national recommended Clean Water Act (CWA) 304(a) numeric
-criteria for optional use in Module 3 functions by leveraging data from
-EPA's [Criteria Search Tool
+These functions are designed to be flexibley so users from states,
+tribes, or territories can input organization-specific information and
+link it information from ATTAINS. While TADA functions can help generate
+these crosswalks and fill in some values, users must review and modify
+the tables generated in each step to ensure accuracy. The TADA team has
+also incorporated national recommended Clean Water Act (CWA) 304(a)
+numeric criteria for optional use in Module 3 functions by leveraging
+data from EPA's [Criteria Search Tool
 (CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
-This will allow users to analyze their data against the 304(a) criteria;
-and to easily compare results when when using 304(a) criteria vs. their
-own organization's criteria.
+This allows users to analyze their data against the 304(a) criteria; and
+to easily compare results when when using 304(a) criteria vs. their own
+criteria.
 
 # Getting Started
 
-First, we will load in some internal data sets created for TADA workflow
-example purposes. These data sets are loaded in from the
-ExampleMod2Workflow and contains a ML to AU crosswalk and a Uses to AU
-crosswalk table.
+First, we will load example reference tables (crosswalks) created for
+TADA workflow example purposes. These are (1) a ML to AU crosswalk and
+(2) a Uses to AU crosswalk. If you would like to learn how these
+reference tables were created, see the ExampleMod2Workflow vignette.
 
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
@@ -172,11 +169,11 @@ MT.UseAURef <- Data_MT_UseAURef
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-Let's start with an example data frame that has gone through data
-cleaning, wrangling, harmonization, handling of censored data, removal
-of suspect results, and other important TADA Module 1 functions. This
-process should be completed by users before utilizing Module 3
-functions, but we will go through some minimal cleaning with an example
+Let's start with an example data frame that has already been through the
+data cleaning, wrangling, harmonization, handling of censored data,
+removal of suspect results, and other important TADA Module 1 functions.
+This process should be completed by users before utilizing Module 2 or 3
+functions, so we will go through some minimal cleaning with an example
 data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
@@ -235,17 +232,6 @@ functions for downloading tidy data from the ATTAINS public web services
 (<https://github.com/USEPA/rExpertQuery>), we can review all ATTAINS
 domains (see example below).
 
-```{r ATTAINS-domains}
-# return ATTAINS domain names
-rExpertQuery::EQ_DomainValues()
-```
-
-ParameterName is one of the ATTAINS domains that has a specific list of
-allowable values. Keep in mind that the ATTAINS parameters domain list
-only includes parameters that have been listed as causes (of water
-quality impairment) in prior ATTAINS CWA assessment cycles. Let's review
-the complete list:
-
 ```{r ATTAINS-params}
 # return ATTAINS parameter domain values
 TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
@@ -253,9 +239,9 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_CreateParamRef() function, we must
-first review the ATTAINS organization domain list to get the ATTAINS
-organization id's to use for the function input.
+specific organization in the TADA_CreateParamRef() function, we need to
+identify the organization id used in ATTAINS. The organization id for
+Montana is "MTDEQ".
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
@@ -265,39 +251,36 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 # TADA_CreateParamRef() Basics
 
 ATTAINS Parameter Names are more general than the TADA Comparable Data
-Identifiers. Therefore, we recommend users manually provide a crosswalk
-between each WQP/TADA.ComparableDataIdentifier and
-ATTAINS.ParameterName. TADA_CreateParamRef() can provide a pre-filled
-crosswalk with the required column names
-("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName").
-TADA_CreateParamRef() includes an argument input 'auto_assign' to assist
-users in doing an exact match between TADA Characteristic Names to
-ATTAINS Parameter Name. There are roughly 598/1180 unique ATTAINS
-Parameter Names that have an exact match. \*\*It is important to note
-that even with these exact matches, there are additional complexities
-related to the fraction, speciation and units that may be unique to your
-organization. For example, some organizations may consider any of Total
-Nitrogen, Nitrate/Nitrite, Ammonia as "Nitrogen" as the
-ATTAINS.ParameterName and may not consider the fraction or speciation.
-
-Let's go through a few examples.
-
+Identifiers. Therefore, we recommend users provide a crosswalk between
+each TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 TADA_CreateParamRef() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and provides a
 blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name.
 
+TADA_CreateParamRef() includes an argument input 'auto_assign' to assist
+users in doing an exact match between TADA Characteristic Names to
+ATTAINS Parameter Name. There are roughly 598 unique ATTAINS Parameter
+Names that have an exact match. \*\*It is important to note that even
+with these exact matches, there are additional complexities related to
+fraction, speciation and units that may be unique to your organization.
+For example, some organizations may consider Total Nitrogen,
+Nitrate/Nitrite, and Ammonia all to match the ATTAINS parameter
+"Nitrogen", while other organizations may cosnider only some
+fraction/speciation combinations analagous to the ATTAINS parameter
+"Nitrogen".
+
 Setting "excel = TRUE" in TADA_CreateParamRef tells the function to
-create an Excel spreadsheet of the reference table for easy user review
-and editing. The excel output includes logic to help a user select
-ATTAINS parameter names that have been used in the past by the selected
+create an Excel spreadsheet of the reference table for review and
+editing. The excel output includes logic to help a user select ATTAINS
+parameter names that have been used in the past by the selected
 organization. If users do not want to work in Excel, they can use "excel
 = FALSE" to return a data frame. The data frame can be edited directly
 in R if desired, although there are no TADA-specific functions designed
 to facilitate this.
 
 When using TADA_CreateParamRef(), users should specify the
-organization(s) of interested in the "org_names" argument. This ensures
+organization(s) of interest in the "org_names" argument. This ensures
 that the correct number of rows will be created in the reference table.
 When "excel = TRUE", specifying the organization(s) also creates a
 separate tab in the Excel file which contains the parameter names used
@@ -305,17 +288,22 @@ in prior assessment cycles by the specified ATTAINS organization(s).
 This will allow users to decide whether to continue to use the same
 ATTAINS parameter names from prior assessments that their
 organizations(s) have used in the past, or to use other valid parameter
-names from the entire ATTAINS domain list. If there is not a suitable
-ATTAINS parameter name to match a TADA.ComparableDataIdentifier, users
-should contact the ATTAINS team (attains\@epa.gov) for assistance.
+names from the entire ATTAINS domain list.
 
-For our first example, let's start of with a single organization. In
-this example TADA data frame, this spatial area consists of WQP data
-from several different states. We will specify Maryland "MDE_EASP" as
-our ATTAINS organization identifier of interest. By default, auto_assign
-= "None" which will not populate any entries for the
-ATTAINS.ParameterName column, and users will need to manually fill this
-crosswalk out.
+Keep in mind that only parameter names previously entered in ATTAINS by
+the selected organization(s) will be returned. Many organization only
+input parameters that are causes in ATTAINS. This means that
+TADA_CreateParamRef() may not return all parameters required by an
+organization's assessment methodology if some parameters have never been
+listed as a cause. If there is not a suitable ATTAINS parameter name to
+match a TADA.ComparableDataIdentifier, users should contact the ATTAINS
+team (attains\@epa.gov) for assistance.
+
+For our first example, we will specify Montana's organization identifier
+("MTDEQ") as our ATTAINS organization identifier of interest. By
+default, auto_assign = "None" which will not populate any entries for
+the ATTAINS.ParameterName column, and users will need to manually fill
+this crosswalk out.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
@@ -331,12 +319,11 @@ MT.ParamRef_None <- TADA_CreateParamRef(
 
 ### Auto_assign Options
 
-Now, let's go through an example in which users auto-populate the
-crosswalk with exact matches. We will use auto_assign = 'All' to
-indicate we will use exact matches regardless of if your organization
-has used this "ATTAINS.ParameterName" domain value in the past. i.e.
-Your organization is fine with using an ATTAINS Parameter Name that has
-been submitted to ATTAINS outside of your organization.
+Now, let's see what happens we we use auto_assign = 'All' to
+autopopulate exact matches. The auto assignment will create exact
+matches based on the entire list of allowable ATTAINS parameters. This
+means that parameter names your organization has not previously record
+in ATTAINS may be included in the assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -350,9 +337,9 @@ MT.ParamRef_All <- TADA_CreateParamRef(
 )
 ```
 
-We can also use auto_assign = 'Org' to indicate we will use exact
-matches ONLY if your organization has used this "ATTAINS.ParameterName"
-domain value in the past.
+Another option is to set auto_assign = 'Org'. This limits the exact
+matches returned to only ATTAINS.ParameterNames the selected
+organization has used in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -412,10 +399,9 @@ MT.ParamRef_Manual <- TADA_CreateParamRef(
 
 We can now save and reuse MT.ParamRef_Manual as the user-supplied
 paramRef argument input in TADA_CreateParamRef(). When this reference
-file is used for the next assessment or analysis cycle, this process of
-reusing your pre-filled paramRef table will assist in reviewing new WQX
-characteristic names, if any are added, and determine the appropriate
-crosswalk for these new entries if needed.
+file is used for the next assessment or analysis cycle, this function
+will determine if any new WQX characteristic names are included in the
+TADA data frame and add additional rows to the crosswalk if needed.
 
 ```{r User-Supplied-ParamRef}
 MT.ParamRef_user_supplied <- TADA_CreateParamRef(

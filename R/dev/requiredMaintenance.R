@@ -275,15 +275,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
                                        batch_upload = TRUE
 )
 
-Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
-  TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
-    attains_replace = TRUE,
-    batch_upload = FALSE,
-    wqp_data_links = "add",
-    # ml ids have already  been corrected if needed
-    update_mlid = FALSE,
-    org_id = "MTDEQ"
-  ) %>%
+Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
   dplyr::mutate(
     ATTAINS.WaterType = dplyr::case_when(
       ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
@@ -292,7 +284,7 @@ Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
   )
 
   print("Data_MT_AUMLRef")
-  print(dim(Data_MT.AUMLRef))
+  print(dim(Data_MT_AUMLRef))
   usethis::use_data(Data_MT_AUMLRef,
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
