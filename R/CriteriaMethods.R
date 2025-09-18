@@ -59,7 +59,9 @@
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #' 
-#' @param auto_assign
+#' @param auto_assign A Boolean value to generate the criteria and methods table
+#' using auto_assign methods for the 3 crosswalk reference table without the need 
+#' for users to run beforehand. The default value is FALSE.
 #'
 #' @param updateRef Default is none. NOTE TO TADA DEV: We can consider removing
 #' this as an argument input if we do not wish to facilitate updating the crosswalk
@@ -85,6 +87,7 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
 #' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -119,6 +122,7 @@
 #'   displayUniqueId = TRUE,
 #'   excel = FALSE
 #' )
+#' }
 #'
 TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = NULL, # required inputs for the recommended workflow
                                            criteriaMethods = NULL, auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?

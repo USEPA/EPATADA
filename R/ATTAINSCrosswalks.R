@@ -2762,9 +2762,15 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
 #' 
-#' @param displayNA A boolean value
+#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef 
+#' for all uses and parameter assigned to a ML or AU regardless if that site contains
+#' WQP data for that parameter. This is useful if a user is interested in an explicit
+#' list of everything that will be analyzed. Default is FALSE.
 #' 
-#' @param waterUseParamRef A
+#' An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of use names associated with a water type.
+#' Users will need to ensure this crosswalk contains the appropriate column names in
+#' order to run the function.
 #'
 #' @return A data frame with any unique spatial descriptions defined for
 #'
