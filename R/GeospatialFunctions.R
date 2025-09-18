@@ -3731,7 +3731,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         ATTAINS.WaterType,
         TADA.AURefSource
       ) %>%
-      dplyr::distinct()
+      dplyr::distinct() %>%
+      dplyr::rename(ATTAINS.OrganizationIdentifier = OrganizationIdentifier)
 
 
   final_list <- list(
