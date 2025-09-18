@@ -92,6 +92,7 @@ to utilize the excel file for easy filtering across columns to apply any
 site specific criteria as needed.
 }
 \examples{
+\dontrun{
 # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -119,6 +120,7 @@ MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
   useParamRef = UseParamRef_UT,
   excel = FALSE
 )
+}
 
 }
 \seealso{

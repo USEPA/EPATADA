@@ -2775,6 +2775,7 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
 #' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -2802,6 +2803,7 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #'   useParamRef = UseParamRef_UT,
 #'   excel = FALSE
 #' )
+#' }
 #'
 TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, displayNA = FALSE,
                                     AUMLRef = NULL, useAURef = NULL, MLSummaryRef = NULL,
