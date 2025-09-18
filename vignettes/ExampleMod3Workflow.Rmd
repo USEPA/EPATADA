@@ -135,38 +135,50 @@ can assist users with:
 -   Creating a crosswalk (reference table) of all unique combinations of
     ATTAINS uses and parameters applicable to your analysis needs.
 
--   Define and summarize your spatial level of analysis for uses and parameters to sites (in addition to to assessment units if desired).
+-   Define and summarize your spatial level of analysis for uses and
+    parameters to sites (in addition to to assessment units if desired).
     and capture any unique site-specfic WQS criteria needs for your
     organization.
 
 These Module 3 functions are being designed with the flexibility for
 users from states, tribes, or territories to input organization-specific
 information (and link directly to information in ATTAINS). While TADA
-functions can help generate these crosswalks and filling in some values, users must review and modify
-the tables generated in each step of the process to ensure accuracy. Additionally, the TADA team has also incorporated national
-recommended Clean Water Act (CWA) 304(a) numeric criteria for optional
-use in Module 3 functions by leveraging data from EPA's [Criteria Search
-Tool
+functions can help generate these crosswalks and filling in some values,
+users must review and modify the tables generated in each step of the
+process to ensure accuracy. Additionally, the TADA team has also
+incorporated national recommended Clean Water Act (CWA) 304(a) numeric
+criteria for optional use in Module 3 functions by leveraging data from
+EPA's [Criteria Search Tool
 (CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
-This will allow users to analyze their data against the 304(a) criteria; and
-to easily compare results when when using 304(a) criteria vs. their own
-organization's criteria.
+This will allow users to analyze their data against the 304(a) criteria;
+and to easily compare results when when using 304(a) criteria vs. their
+own organization's criteria.
 
 # Getting Started
 
-First, we will load in some internal data sets created for TADA workflow example purposes. These data sets are loaded in from the ExampleMod2Workflow and contains a ML to AU crosswalk and a Uses to AU crosswalk table.
+First, we will load in some internal data sets created for TADA workflow
+example purposes. These data sets are loaded in from the
+ExampleMod2Workflow and contains a ML to AU crosswalk and a Uses to AU
+crosswalk table.
 
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
-load(system.file("data", "Final.MT.AUMLRef.rda", package = "EPATADA"))
 
-load(system.file("data", "MT.UseAURef.rda", package = "EPATADA"))
+Final.MT.AUMLRef <- Data_MT_AUMLRef
+
+
+MT.UseAURef.rda <- Data_MT_Use
 ```
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-Let's start with an example data frame that has gone through data cleaning, wrangling, harmonization, handling of censored data, removal
-of suspect results, and other important TADA Module 1 functions. This process should be completed by users before utilizing Module 3 functions, but we will go through some minimal cleaning with an example data set from Montana. Get bacteria and pH data from Missoula County, Montana.
+Let's start with an example data frame that has gone through data
+cleaning, wrangling, harmonization, handling of censored data, removal
+of suspect results, and other important TADA Module 1 functions. This
+process should be completed by users before utilizing Module 3
+functions, but we will go through some minimal cleaning with an example
+data set from Montana. Get bacteria and pH data from Missoula County,
+Montana.
 
 ```{r tada-data}
 # get MT data 
@@ -188,10 +200,14 @@ tada.MT <- TADA_DataRetrieval(
   
 # remove intermediate objects
   rm(tada.MT)
-
+  
+# if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
+  
+  # tada.mt.clean <- Data_MT_MissoulaCounty
 ```
 
-This example will focus only on Montana. The remainder of this vignette will walk through how to fill out two crosswalk tables
+This example will focus only on Montana. The remainder of this vignette
+will walk through how to fill out two crosswalk tables
 (TADA_CreateParamRef and TADA_CreateUseParamRef) that are needed before
 we can start assigning applicable criteria and methodologies information
 for this specific ATTAINS organization (MTDEQ).
@@ -249,8 +265,10 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("org_id"))
 # TADA_CreateParamRef() Basics
 
 ATTAINS Parameter Names are more general than the TADA Comparable Data
-Identifiers. Therefore, we recommend users manually provide a crosswalk between each WQP/TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
-TADA_CreateParamRef() can provide a pre-filled crosswalk with the required column names
+Identifiers. Therefore, we recommend users manually provide a crosswalk
+between each WQP/TADA.ComparableDataIdentifier and
+ATTAINS.ParameterName. TADA_CreateParamRef() can provide a pre-filled
+crosswalk with the required column names
 ("TADA.ComparableDataIdentifier" and "ATTAINS.ParameterName").
 TADA_CreateParamRef() includes an argument input 'auto_assign' to assist
 users in doing an exact match between TADA Characteristic Names to
@@ -258,9 +276,9 @@ ATTAINS Parameter Name. There are roughly 598/1180 unique ATTAINS
 Parameter Names that have an exact match. \*\*It is important to note
 that even with these exact matches, there are additional complexities
 related to the fraction, speciation and units that may be unique to your
-organization. For example, some organizations may consider any of
-Total Nitrogen, Nitrate/Nitrite, Ammonia as "Nitrogen" as the ATTAINS.ParameterName and
-may not consider the fraction or speciation.
+organization. For example, some organizations may consider any of Total
+Nitrogen, Nitrate/Nitrite, Ammonia as "Nitrogen" as the
+ATTAINS.ParameterName and may not consider the fraction or speciation.
 
 Let's go through a few examples.
 
@@ -455,12 +473,18 @@ rm(ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_
 
 # TADA_CreateUseParamRef() Basics
 
-Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames) and parameter names (ATTAINS.ParameterName) specific to the specified
-ATTAINS organization (defined by the org_names function argument for TADA_CreateUseParamRef), which in this case is "MTDEQ" (Montana) using
-ExpertQuery from the ATTAINS data system. Users will review the output and choose which ATTAINS.UseName(s) are applicable to their analysis.
-The default functionality is to "Include" all ATTAINS use_names (see the "IncludeOrExclude" column) that has an ATTAINS.UseName associated with
-it. Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use_name
-and parameter name labeled as "Include". If an ATTAINS.UseName is not applicable, users should choose "Exclude" for that ATTAINS parameter
+Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames)
+and parameter names (ATTAINS.ParameterName) specific to the specified
+ATTAINS organization (defined by the org_names function argument for
+TADA_CreateUseParamRef), which in this case is "MTDEQ" (Montana) using
+ExpertQuery from the ATTAINS data system. Users will review the output
+and choose which ATTAINS.UseName(s) are applicable to their analysis.
+The default functionality is to "Include" all ATTAINS use_names (see the
+"IncludeOrExclude" column) that has an ATTAINS.UseName associated with
+it. Later in the data analysis process, users will be asked to define
+criteria and methodologies that is applicable to each ATTAINS use_name
+and parameter name labeled as "Include". If an ATTAINS.UseName is not
+applicable, users should choose "Exclude" for that ATTAINS parameter
 name and use name.
 
 ### Manual Uses to Parameter Assignment
@@ -533,8 +557,12 @@ TADA_TableExport(MT.UseParamRef_Manual_Update)
 
 ### Auto_assign Option
 
-Alternatively, We can choose to assign all unique use names found in your current useParamRef table, by your organization to those ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
-need to review this assignment carefully and choose include or exclude appropriately or include additional rows as needed if there are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
+Alternatively, We can choose to assign all unique use names found in
+your current useParamRef table, by your organization to those
+ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
+need to review this assignment carefully and choose include or exclude
+appropriately or include additional rows as needed if there are more
+ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
 captured by the auto_assign method.
 
 ```{r useparamref-AutoAssign}
@@ -584,17 +612,17 @@ names that were unable to be retrieved from the prior assessment cycle.
 will not reflect any submitted use name changes to ATTAINS until the
 next assessment cycle is approved. In addition, it may not be possible
 to retrieve every use and parameter name combination from ATTAINS as it
-is dependent on what information each organization has submitted to ATTAINS.)
+is dependent on what information each organization has submitted to
+ATTAINS.)
 
 In this example, let's use a filled out criteria table for MTDEQ and
 extract the use and parameters from their crosswalk.
 
-We can see that
-MTDEQ has additonal rows for E. Coli that was unable to be retrieved
-from ATTAINS. We also see PH was not found in the user supplied
-useParamRef table. We will assume MTDEQ has forgotten to include PH in
-their table and showcase the importance of considering all readily
-available data from your WQP data retrieval that you may need to
+We can see that MTDEQ has additonal rows for E. Coli that was unable to
+be retrieved from ATTAINS. We also see PH was not found in the user
+supplied useParamRef table. We will assume MTDEQ has forgotten to
+include PH in their table and showcase the importance of considering all
+readily available data from your WQP data retrieval that you may need to
 consider for analysis.
 
 ```{r useparamref-User-Supplied}
@@ -617,13 +645,19 @@ MT.UseParamRef_user_supplied_Edit <- TADA_CreateUseParamRef(
 
 ### Review, Save and Re-Use useParamRef
 
-Once the uses to parameter reference table has been reviewed and modified, it can be saved and reused for analysis of future TADA data frames. This
-process is useful to help identify if any new WQP characteristics (or new fraction/speciations) are being queried in your most up to date WQP query and to allow you to review how to handle assigning ATTAINS uses to these new additions.
+Once the uses to parameter reference table has been reviewed and
+modified, it can be saved and reused for analysis of future TADA data
+frames. This process is useful to help identify if any new WQP
+characteristics (or new fraction/speciations) are being queried in your
+most up to date WQP query and to allow you to review how to handle
+assigning ATTAINS uses to these new additions.
 
 If new WQP characteristics (or new fraction/speciations) do show up,
-your user supplied 'useParamRef' is prioritized over the 'auto_assign' argument inputs. Thus, the auto_assign option will allow you to fill in
-any remaining blank ATTAINS.UseName to an ATTAINS.Parametername that you have not filled in
-but will not replace any cross walk that you have defined in your user supplied crosswalk. 
+your user supplied 'useParamRef' is prioritized over the 'auto_assign'
+argument inputs. Thus, the auto_assign option will allow you to fill in
+any remaining blank ATTAINS.UseName to an ATTAINS.Parametername that you
+have not filled in but will not replace any cross walk that you have
+defined in your user supplied crosswalk.
 
 ```{r finalize-useParamRef}
 MT.UseParamRef_Final <- TADA_CreateUseParamRef(
@@ -669,7 +703,11 @@ and WQP characteristic names/TADA comparable data identifiers.
 
 ## Define Spatial Summary by Monitoring Location (ML)
 
-Let's start off with a ML summary of MTDEQ data frame. By default, we will only display rows for parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query. If you would like to display all information even for sites with no WQP data, please choose displayNA = TRUE
+Let's start off with a ML summary of MTDEQ data frame. By default, we
+will only display rows for parameters and uses for a ML if it contains
+data collected for that TADA.CharacteristicName in your WQP data query.
+If you would like to display all information even for sites with no WQP
+data, please choose displayNA = TRUE
 
 ```{r ML_Summary}
 MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
@@ -683,13 +721,19 @@ MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
 ## Define Spatial Summary by Monitoring Location (AU)
 
 Now let's compare this to the AU level of summary. To provide the ML to
-AU level of summary, this requires an AUML crosswalk and a UseAURef, we recommend you
-to review the ExampleMod2Workflow vignette for more in depth information
-on this crosswalk. We will load these example reference tables into this vignette.
+AU level of summary, this requires an AUML crosswalk and a UseAURef, we
+recommend you to review the ExampleMod2Workflow vignette for more in
+depth information on this crosswalk. We will load these example
+reference tables into this vignette.
 
-We now have all assignments of ATTAINS Uses, ATTAINS Parameters, and WQP Monitoring Location Sites to each AU defined. Users can do a final review to ensure all assignments are correct.
+We now have all assignments of ATTAINS Uses, ATTAINS Parameters, and WQP
+Monitoring Location Sites to each AU defined. Users can do a final
+review to ensure all assignments are correct.
 
-Note: By default, we will only display rows for parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query. If you would like to display all information even for sites with no WQP data, please choose displayNA = TRUE
+Note: By default, we will only display rows for parameters and uses for
+a ML if it contains data collected for that TADA.CharacteristicName in
+your WQP data query. If you would like to display all information even
+for sites with no WQP data, please choose displayNA = TRUE
 
 ```{r AU_Summary, eval = FALSE}
 MT.MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
@@ -743,7 +787,10 @@ first time using the recommended step-by-step workflow and showcase how
 a user can go about updating their criteria and methodology file as
 needed.
 
-First, let's show how our step-by-step process all come together. Users will need to fill out this template that is generated. It is highly recommended to export this to the excel spreadsheet to show the allowable values and easy interface for inputs to the table.
+First, let's show how our step-by-step process all come together. Users
+will need to fill out this template that is generated. It is highly
+recommended to export this to the excel spreadsheet to show the
+allowable values and easy interface for inputs to the table.
 
 ```{r step-by-step-output}
 MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
@@ -774,7 +821,10 @@ MT.CriteriaMethods_user_supplied <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-Note: When a user provides a MLSummaryRef, it is assumed their criteria tables parameter crosswalk is based on the paramRef and useParamRef crosswalk done. However, whenever a criteriaMethods table is provided, all unique WQP Characteristic (or TADA.ComprableDataIdentifier) will be
+Note: When a user provides a MLSummaryRef, it is assumed their criteria
+tables parameter crosswalk is based on the paramRef and useParamRef
+crosswalk done. However, whenever a criteriaMethods table is provided,
+all unique WQP Characteristic (or TADA.ComprableDataIdentifier) will be
 shown in the table.
 
 ```{r step-by-step-output-with-displayUniqueId}
@@ -805,10 +855,16 @@ MT.CriteriaMethods_User_Supplied3 <- TADA_DefineCriteriaMethodology(
 
 ### Review, Save and Re-Use Criteria and Methodology Table
 
-Once the criteria and methodology table has been reviewed and modified, it can be saved and reused for analysis of future TADA data frames. This
-process is useful to help identify if any new WQP characteristics (or new fraction/speciations) are being queried in your most up to date WQP query and to allow you to determine if an assessment magnitude value should be developed.
+Once the criteria and methodology table has been reviewed and modified,
+it can be saved and reused for analysis of future TADA data frames. This
+process is useful to help identify if any new WQP characteristics (or
+new fraction/speciations) are being queried in your most up to date WQP
+query and to allow you to determine if an assessment magnitude value
+should be developed.
 
-For our example, we will use MT.CriteriaMethods_User_Supplied3 and fill in the remaining blank PH magnitude values with a range between 6.5 and 8.5 as MTDEQ criteria of interest.
+For our example, we will use MT.CriteriaMethods_User_Supplied3 and fill
+in the remaining blank PH magnitude values with a range between 6.5 and
+8.5 as MTDEQ criteria of interest.
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example

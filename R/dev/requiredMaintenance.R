@@ -214,9 +214,107 @@ TADA_UpdateExampleData <- function() {
   )
   rm(Data_HUC8_02070004_Mod1Output)
   rm(Data_WV)
-}
 
+  # Generate Data_MT_MissoulaCounty
+  Data_MT_MissoulaCounty <- TADA_DataRetrieval(
+     startDate = "2020-01-01",
+     endDate = "2022-12-31",
+     statecode = "MT",
+     characteristicName = c(
+     "Escherichia",
+     "Escherichia coli",
+     "pH"
+     ),
+     county = "Missoula County",
+     ask = FALSE) %>%
+     TADA_RunKeyFlagFunctions() %>%
+     TADA_SimpleCensoredMethods() %>%
+     TADA_HarmonizeSynonyms()
+
+  print("Data_MT_MissoulaCounty")
+  print(dim(Data_MT_MissoulaCounty))
+  usethis::use_data(Data_MT_MissoulaCounty,
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
+  )
+  rm(Data_MT_MissoulaCounty)
+
+# Generate Data_MT_AUMLRef
+ # get crosswalk from ATTAINS
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+
+# clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+
+# create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
+user.supplied.cw <- clean.existing.attains.MT %>%
+  dplyr::select(
+    ATTAINS.AssessmentUnitIdentifier,
+    ATTAINS.MonitoringLocationIdentifier,
+    ATTAINS.WaterType
+  ) %>%
+  dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
+    "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
+    "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
+  )) %>%
+  dplyr::rename(
+    AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
+    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
+  ) %>%
+  # Add an example new assessment unit for demonstration purposes.
+  dplyr::bind_rows(c(
+    AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
+    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
+    ATTAINS.WaterType = "LAKE, FRESHWATER"
+  ))
+
+MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
+                                       au_ref = user.supplied.cw,
+                                       org_id = "MTDEQ",
+                                       add_catch = FALSE,
+                                       batch_upload = TRUE
+)
+
+Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
+  TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
+    attains_replace = TRUE,
+    batch_upload = FALSE,
+    wqp_data_links = "add",
+    # ml ids have already  been corrected if needed
+    update_mlid = FALSE,
+    org_id = "MTDEQ"
+  ) %>%
+  dplyr::mutate(
+    ATTAINS.WaterType = dplyr::case_when(
+      ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
+      TRUE ~ ATTAINS.WaterType
+    )
+  )
+
+  print("Data_MT_AUMLRef")
+  print(dim(Data_MT.AUMLRef))
+  usethis::use_data(Data_MT_AUMLRef,
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
+  )
+  rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw,
+     MT.AUMLRef, Data_MT_AUMLRef)
+
+  # Generate Data_MT_UseAURef
+
+  Data_MT_UseAURef <- TADA_CreateUseAURef(AUMLRef = Data_MT_AUMLRef, org_id = "MTDEQ")
+
+  print("Data_MT_UseAURef")
+  print(dim(Data_MT_UseAURef))
+  usethis::use_data(Data_MT_UseAURef,
+                    internal = FALSE, overwrite = TRUE,
+                    compress = "xz", version = 3, ascii = FALSE
+  )
+  rm(Data_MT_UseAURef)
+}
 ###########################################################
+
+
 
 # spell check
 library(spelling)
