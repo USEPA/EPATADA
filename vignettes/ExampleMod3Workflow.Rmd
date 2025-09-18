@@ -70,9 +70,8 @@ pre[class] {
 
 Next, install and load the EPATADA R Package using the remotes package.
 Dependency packages will also be downloaded automatically from CRAN. You
-may be prompted in the console to update dependencies that have more
-recent versions available. If you see this prompt, it is recommended to
-update all of them (enter 1 into the console).
+may be prompted in the console to update dependencies. It is recommended
+to update all dependencies (enter 1 into the console).
 
 ```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -121,10 +120,10 @@ their decision making processes. Use of EPATADA is not required.
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-prior to defining and capturing organization specific water quality
-analysis criteria and methodologies. This is a continuation of an
-example workflow with ExampleMod2Workflow.Rmd.
+users through how to create WQP and ATTAINS crosswalks that are neede to
+define and capture organization specific water quality analysis criteria
+and methodologies. This is a continuation of an example TADA workflow
+which began with ExampleMod2Workflow.Rmd.
 
 Specifically, this vignette provides an overview of three functions that
 can assist users with:
@@ -136,30 +135,28 @@ can assist users with:
     ATTAINS uses and parameters applicable to your analysis needs.
 
 -   Define and summarize your spatial level of analysis for uses and
-    parameters to sites (in addition to to assessment units if desired).
-    and capture any unique site-specfic WQS criteria needs for your
-    organization.
+    parameters to locations(monitoring locations or assessment units)
+    and capture any unique site-specfic WQS criteria.
 
-These Module 3 functions are being designed with the flexibility for
-users from states, tribes, or territories to input organization-specific
-information (and link directly to information in ATTAINS). While TADA
-functions can help generate these crosswalks and filling in some values,
-users must review and modify the tables generated in each step of the
-process to ensure accuracy. Additionally, the TADA team has also
-incorporated national recommended Clean Water Act (CWA) 304(a) numeric
-criteria for optional use in Module 3 functions by leveraging data from
-EPA's [Criteria Search Tool
+These functions are designed to be flexibley so users from states,
+tribes, or territories can input organization-specific information and
+link it information from ATTAINS. While TADA functions can help generate
+these crosswalks and fill in some values, users must review and modify
+the tables generated in each step to ensure accuracy. The TADA team has
+also incorporated national recommended Clean Water Act (CWA) 304(a)
+numeric criteria for optional use in Module 3 functions by leveraging
+data from EPA's [Criteria Search Tool
 (CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
-This will allow users to analyze their data against the 304(a) criteria;
-and to easily compare results when when using 304(a) criteria vs. their
-own organization's criteria.
+This allows users to analyze their data against the 304(a) criteria; and
+to easily compare results when when using 304(a) criteria vs. their own
+criteria.
 
 # Getting Started
 
-First, we will load in some internal data sets created for TADA workflow
-example purposes. These data sets are loaded in from the
-ExampleMod2Workflow and contains a ML to AU crosswalk and a Uses to AU
-crosswalk table.
+First, we will load example reference tables (crosswalks) created for
+TADA workflow example purposes. These are (1) a ML to AU crosswalk and
+(2) a Uses to AU crosswalk. If you would like to learn how these
+reference tables were created, see the ExampleMod2Workflow vignette.
 
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
@@ -172,10 +169,10 @@ MT.UseAURef <- Data_MT_UseAURef
 
 ## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
-Let's start with an example data frame that has gone through data
-cleaning, wrangling, harmonization, handling of censored data, removal
-of suspect results, and other important TADA Module 1 functions. This
-process should be completed by users before utilizing Module 3
+Let's start with an example data frame that has already been through the
+data cleaning, wrangling, harmonization, handling of censored data,
+removal of suspect results, and other important TADA Module 1 functions.
+This process should be completed by users before utilizing Module 2 or 3
 functions, but we will go through some minimal cleaning with an example
 data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
