@@ -106,9 +106,9 @@ NULL
 #' @keywords data frame
 #' @name Data_MT_MissoulaCounty
 #' @usage data(Data_MT_MissoulaCounty)
-#' @format A data frame with 426 rows and 161 variables with minimal data cleaning
-#' functions applied (TADA_AutoClean, TADA_RunKeyFlagFunctions, TADA_SimpleCensored,
-#' and TADA_HarmonizeSynonyms) to the original WQP query.
+#' @format A data frame with 426 rows and 161 variables 
+#' @details with minimal data cleaning functions applied 
+#' (TADA_AutoClean, TADA_RunKeyFlagFunctions, TADA_SimpleCensored, and TADA_HarmonizeSynonyms) to the original WQP query.
 #'
 #' # get MT data
 #'

@@ -2741,12 +2741,6 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' the user supplied crosswalk entered into this function via the paramRef
 #' function input. This helps prevent users from overwriting their progress.
 #'
-#' @param waterUseParamRef An option data frame input. If provided, this data frame
-#' should contain a completed crosswalk of any unique spatial criteria applied to
-#' a water body, use, or parameter and by any combinations if needed. Users will
-#' need to ensure this crosswalk contains the appropriate column names in order to
-#' run the function. See output of [TADA_CreateWaterUseRef()] for column names.
-#'
 #' @param useAURef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with an assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
