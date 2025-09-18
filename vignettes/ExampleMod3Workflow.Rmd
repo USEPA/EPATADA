@@ -426,7 +426,6 @@ MT.ParamRef_user_supplied <- TADA_CreateParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(MT.ParamRef_User_Supplied)
 ```
 
 ### Review, Save and Re-Use paramRef
@@ -468,7 +467,7 @@ remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ```{r remove-intermediate-variables}
-rm(ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_User_Supplied)
+rm(ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_user_supplied)
 ```
 
 # TADA_CreateUseParamRef() Basics
@@ -713,8 +712,8 @@ data, please choose displayNA = TRUE
 MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean, 
   useParamRef = MT.UseParamRef_Final,
-  org_id = "MTDEQ"
-  # displayNA = FALSE
+  org_id = "MTDEQ",
+  displayNA = FALSE
   )
 ```
 

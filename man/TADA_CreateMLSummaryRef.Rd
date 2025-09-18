@@ -37,13 +37,21 @@ Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
-\item{displayNA}{A boolean value}
+\item{displayNA}{A boolean value. If TRUE, this allows user to view MLSummaryRef
+for all uses and parameter assigned to a ML or AU regardless if that site contains
+WQP data for that parameter. This is useful if a user is interested in an explicit
+list of everything that will be analyzed. Default is FALSE.
+
+An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of use names associated with a water type.
+Users will need to ensure this crosswalk contains the appropriate column names in
+order to run the function.}
 
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. Users will need to ensure this crosswalk contains the
 appropriate column names in order to run the function.
-See module 2 vignette and sample output of \code{\link[=TADA_GetATTAINS]{TADA_GetATTAINS()}}.}
+See module 2 vignette and sample output of \code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}}.}
 
 \item{useAURef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with an assessment unit.
@@ -65,7 +73,11 @@ the cells in which users should input information.}
 the user supplied crosswalk entered into this function via the paramRef
 function input. This helps prevent users from overwriting their progress.}
 
-\item{waterUseParamRef}{A}
+\item{waterUseParamRef}{An option data frame input. If provided, this data frame
+should contain a completed crosswalk of any unique spatial criteria applied to
+a water body, use, or parameter and by any combinations if needed. Users will
+need to ensure this crosswalk contains the appropriate column names in order to
+run the function. See output of \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}} for column names.}
 }
 \value{
 A data frame with any unique spatial descriptions defined for
@@ -128,5 +140,5 @@ MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
 
 \code{\link[=TADA_CreateUseAURef]{TADA_CreateUseAURef()}}
 
-\code{\link[=TADA_CreateWaterUseParamRef]{TADA_CreateWaterUseParamRef()}}
+\code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}}
 }

@@ -550,7 +550,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     if (length(missing_cols) > 0) {
       for (col in missing_cols) {
         criteriaMethods <- criteriaMethods %>%
-          dplyr::mutate(!!col := NA)
+          dplyr::mutate(!!col <- NA)
       }
     }
 

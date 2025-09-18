@@ -46,7 +46,9 @@ and use(s) combinations that are not found in the user supplied table will be
 included in the output. These rows will need the criteria and methodology inputs
 filled out accordingly.}
 
-\item{auto_assign}{}
+\item{auto_assign}{A Boolean value to generate the criteria and methods table
+using auto_assign methods for the 3 crosswalk reference table without the need
+for users to run beforehand. The default value is FALSE.}
 
 \item{AUMLRef}{An optional data frame input. This data frame
 should contain a completed crosswalk of WQP Monitoring Locations
@@ -106,6 +108,7 @@ to capture data sufficiency considerations such as minimum sample sizes,
 assessment period dates, and seasonality components.
 }
 \examples{
+\dontrun{
 # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
 paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -140,5 +143,6 @@ DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   displayUniqueId = TRUE,
   excel = FALSE
 )
+}
 
 }
