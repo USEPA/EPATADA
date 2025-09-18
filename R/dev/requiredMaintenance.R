@@ -275,7 +275,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
                                        batch_upload = TRUE
 )
 
-Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
+Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
     attains_replace = TRUE,
     batch_upload = FALSE,
@@ -292,7 +292,7 @@ Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
   )
 
   print("Data_MT_AUMLRef")
-  print(dim(Data_MT.AUMLRef))
+  print(dim(Data_MT_AUMLRef))
   usethis::use_data(Data_MT_AUMLRef,
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
