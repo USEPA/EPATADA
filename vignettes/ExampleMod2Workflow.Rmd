@@ -216,18 +216,13 @@ assign uses to these AUs. First, convert the ML sites to AU reference
 table to the appropriate format for TADA workflow. We will also assign
 the NEW:EX_MDEQ_WQ_WQX assessment unit example to the water type "LAKE,
 FRESHWATER" for demonstration on how to auto_assign uses to a new AU
-that is not yet in ATTAINS nor has been assigned uses to it yet.
+that is not yet in ATTAINS nor has been assigned uses to it yet. To
+create the final AU/ML reference will use MT.AUMLRef\$ATTAINS_crosswalk
+as it contains ATTAINS.WaterType which is required farther along in the
+assessment process.
 
 ```{r get.MLAURef}
-Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
-  TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
-    attains_replace = TRUE,
-    batch_upload = FALSE,
-    wqp_data_links = "add",
-    # ml ids have already  been corrected if needed
-    update_mlid = FALSE,
-    org_id = "MTDEQ"
-  ) %>%
+Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
   dplyr::mutate(
     ATTAINS.WaterType = dplyr::case_when(
       ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",

@@ -3559,13 +3559,25 @@ TADA_CreateAUMLCrosswalk <- function(.data, au_ref = NULL,
     dplyr::distinct() %>%
     sf::st_as_sf()
 
+  ATTAINS_crosswalk <- TADA_with_ATTAINS %>%
+      sf::st_drop_geometry() %>%
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier,
+        OrganizationIdentifier,
+        ATTAINS.WaterType,
+        TADA.AURefSource
+      ) %>%
+      dplyr::distinct()
+
 
   final_list <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
     "ATTAINS_catchments" = ATTAINS_catchments,
     "ATTAINS_points" = ATTAINS_points,
     "ATTAINS_lines" = ATTAINS_lines,
-    "ATTAINS_polygons" = ATTAINS_polygons
+    "ATTAINS_polygons" = ATTAINS_polygons,
+    "ATTAINS_crosswalk" = ATTAINS_crosswalk
   )
 
   if (batch_upload == TRUE) {
