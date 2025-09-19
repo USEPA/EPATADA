@@ -151,7 +151,7 @@ user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
     MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-    ATTAINS.WaterType = "LAKE, FRESHWATER"
+    WaterType = "LAKE, FRESHWATER"
   ))
 
 
@@ -253,7 +253,6 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
   )
 ```
 
-
 ## TADA_CreateUseAURef
 
 After assigning ML sites to AU, we will use TADA_CreateUseAURef to
@@ -275,6 +274,7 @@ Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
     )
   )
 ```
+
 ## Step D: Assign uses to AUs with TADA_CreateUseAURef
 
 After assigning WQP MLs to ATTAINS AUs, we will use
@@ -297,7 +297,6 @@ are prioritized as follows:
 MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
 ```
 
-
 # Assign uses to new AUs
 
 For any new AU, users will need to determine how to assign uses to them.
@@ -315,10 +314,8 @@ MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
 )
 ```
 
-
 2)  User may also proceed to do a manual assignment of use names to
     these new AUs if desired rather than using `TADA_CreateWaterUseRef`.
-
 
 ```{r assign.use.to.new.AU.manual}
 MT.UseAURef_manual <- MT.UseAURef %>%

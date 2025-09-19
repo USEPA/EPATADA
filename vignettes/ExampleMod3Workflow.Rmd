@@ -200,7 +200,7 @@ tada.MT <- TADA_DataRetrieval(
   
 # if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
   
-  # tada.mt.clean <- Data_MT_MissoulaCounty
+  # tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 This example will focus only on Montana. The remainder of this vignette

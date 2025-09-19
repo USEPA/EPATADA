@@ -1930,7 +1930,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       silent = TRUE
     )
 
-    # create internal function to rename cols coming from ATTAINS geospatial
+    # create TADA_with_ATTAINS
     TADA_with_ATTAINS <- .data %>%
       dplyr::left_join(au_ref, by = c(
         "TADA.MonitoringLocationIdentifier" =
@@ -1941,15 +1941,17 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         dplyr::join_by(TADA.MonitoringLocationIdentifier)
       ) %>%
       dplyr::left_join(catchments.no.geo,
-        by = c(
-          "nhdplusid" = "nhdplusid",
-          "ATTAINS.AssessmentUnitIdentifier" =
-            "assessmentunitidentifier"
-        )
+                       by = c(
+                         "nhdplusid" = "nhdplusid",
+                         "ATTAINS.AssessmentUnitIdentifier" =
+                           "assessmentunitidentifier"
+                       )
       ) %>%
       dplyr::select(-OBJECTID) %>%
       renameATTAINSCols()
   }
+
+
 
   if (add_catch == FALSE) {
     catchments <- NULL
@@ -1958,46 +1960,31 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       dplyr::left_join(au_ref, by = c(
         "TADA.MonitoringLocationIdentifier" =
           "ATTAINS.MonitoringLocationIdentifier"
-      )) %>%
-      # when catchment/monitoring location crosswalk is available, that info can be added here
-      # can add the assessment related info sooner via rExpertQuery functions (HRM 8/7/25)
-      dplyr::mutate(
-        ATTAINS.SubmissionId = NA,
-        ATTAINS.NhdPlusId = NA,
-        ATTAINS.State = NA,
-        ATTAINS.Region = NA,
-        ATTAINS.OrganizationId = NA,
-        ATTAINS.OrgType = NA,
-        ATTAINS.Tas303d = NA,
-        ATTAINS.OrganizationName = NA,
-        ATTAINS.ReportingCycle = NA,
-        ATTAINS.AssessmentUnitName = NA,
-        ATTAINS.WaterbodyReportLink = NA,
-        ATTAINS.AssmntJoinKey = NA,
-        ATTAINS.PermIdJoinKey = NA,
-        ATTAINS.IrCategory = NA,
-        ATTAINS.OverallStatus = NA,
-        ATTAINS.IsAssessed = NA,
-        ATTAINS.IsImpaired = NA,
-        ATTAINS.IsThreatened = NA,
-        ATTAINS.On303dList = NA,
-        ATTAINS.HasTmdl = NA,
-        ATTAINS.Has4bPlan = NA,
-        ATTAINS.HasAlternativePlan = NA,
-        ATTAINS.HasProtectionPlan = NA,
-        ATTAINS.VisionPriority303d = NA,
-        ATTAINS.AreaSqkm = NA,
-        ATTAINS.Huc12 = NA,
-        ATTAINS.XwalkMethod = NA,
-        ATTAINS.WwalkHuc12Version = NA,
-        ATTAINS.CatchmentAreaSqkm = NA,
-        ATTAINS.CatchmentStateCode = NA,
-        ATTAINS.CatchmentIsTribal = NA,
-        ATTAINS.CatchmentResolution = NA,
-        ATTAINS.ShapeLength = NA,
-        ATTAINS.ShapeArea = NA,
-        ATTAINS.WaterType = NA
-      )
+      ))
+
+    if(dim(lines)[1] > 0) {
+      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+        dplyr::left_join(lines,
+                         by= c("ATTAINS.AssessmentUnitIdentifier" =
+                                 "assessmentunitidentifier"))
+    }
+
+    if(dim(points)[1] > 0) {
+      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+        dplyr::left_join(points,
+                         by= c("ATTAINS.AssessmentUnitIdentifier" =
+                                 "assessmentunitidentifier"))
+    }
+
+    if(dim(polygons)[1] > 0) {
+      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+        dplyr::left_join(polygons,
+                         by= c("ATTAINS.AssessmentUnitIdentifier" =
+                                 "assessmentunitidentifier"))
+    }
+
+    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+      renameATTAINSCols()
   }
 
   final_features <- list(
