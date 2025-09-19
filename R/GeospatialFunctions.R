@@ -3706,7 +3706,33 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   print("TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
 
- # function to prep output after binding rows
+# # internal function to prep output by binding rows from different crosswalk sources
+#   bindCrosswalk <- function(df.name, user, attains, get.attains) {
+#
+#     user <- user.matches
+#
+#     user2 <- attains.matches[[df.name]]
+#
+#     attains <- paste0("attains.matches$", df.name)
+#     get.attains <- paste0("get.attains.matches$", df.name)
+#
+#     eval(as.name(get.attains))
+#
+#     df <- get(user)
+#
+#
+#     %>%
+#       plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
+#       plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
+#       outputPrep()
+#
+#
+#     ssign(df.name, NULL)
+#
+#   }
+
+
+ # internal function to prep output after binding rows
   outputPrep <- function(.data) {
 
    if(!is.null(.data)) {
@@ -3715,6 +3741,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
        sf::st_as_sf()
    }
  }
+
 
   TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
     plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
