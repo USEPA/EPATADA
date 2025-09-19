@@ -706,7 +706,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         dplyr::mutate(dplyr::across(MagnitudeUnit, as.character)) %>%
         dplyr::mutate(dplyr::across(c(MagnitudeValueLower, MagnitudeValueUpper), as.numeric)) %>%
         dplyr::select(-CRITERION_VALUE) %>%
-        dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName)
+        dplyr::filter(TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName) %>%
+        dplyr::filter(TADA.CharacteristicName %in% DefineCriteriaMethodology$TADA.CharacteristicName)
     )
 
     DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
@@ -763,15 +764,17 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       }
     )
     
+    # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
+    activeSheet(wb) <- "DefineCriteriaMethodology" 
+    
     # Set visibility
-    openxlsx::sheetVisibility(wb)[6] <- TRUE
+    names(wb)
     openxlsx::sheetVisibility(wb)[1] <- "hidden"
     openxlsx::sheetVisibility(wb)[2] <- "hidden"
     openxlsx::sheetVisibility(wb)[3] <- "hidden"
     openxlsx::sheetVisibility(wb)[4] <- "hidden"
     openxlsx::sheetVisibility(wb)[5] <- "hidden"
-    #openxlsx::sheetVisibility(wb)[7] <- TRUE
-
+    openxlsx::sheetVisibility(wb)[6] <- TRUE
 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
@@ -1079,17 +1082,17 @@ TADA_CriteriaDataDictionary <- function() {
     borderColour = "#000000"
   )
   
-  # Apply the header style to the first row (header)
+  # Apply the header style to the second row (header)
   addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
   # Create a style for borders on all data cells
   data_border_style <- createStyle(
     border = "TopBottomLeftRight",
-    borderColour = "#CCCCCC" # Light grey border
+    borderColour = "#000000" # Light grey border
   )
   
   # Apply data border style to all data rows and columns
-  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 2:ncol(data_to_write), gridExpand = TRUE)
+  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
   # Description text gets wrapped
   wrapStyle <- createStyle(wrapText = TRUE)
