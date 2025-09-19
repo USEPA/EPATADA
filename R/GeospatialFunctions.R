@@ -3546,7 +3546,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
     # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
     # existing AU that was retrieved from ATTAINS and included in the user supplied table.
-    if (add_catch == TRUE) {
+
       test_mismatch <- dplyr::anti_join(
         user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
           dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
@@ -3562,7 +3562,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
           "Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
           "Prioritizing what has been submitted to ATTAINS for the ATTAINS.WaterType."
         ))
-      }
     }
   }
 
@@ -3617,24 +3616,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains.matches <- spsUtil::quiet(
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
     )
-
-    # If we do not add the catchments, we must still include the ATTAINS.WaterType
-    # to these AUs.
-    attains.matches_WaterType_NA <- attains.matches$TADA_with_ATTAINS %>%
-      dplyr::filter(is.na(ATTAINS.WaterType)) %>%
-      dplyr::select(-ATTAINS.WaterType) %>%
-      dplyr::left_join(
-        attains.cw %>% dplyr::select(-ATTAINS.MonitoringDataLinkText),
-        by = c(
-          "TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier",
-          "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.OrganizationIdentifier"
-        )
-      )
-
-    attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS %>%
-      dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
-      dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
-      dplyr::bind_rows(attains.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section
@@ -3682,7 +3663,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
     plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
     plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
-    plyr::rbind.fill() %>%
+    dplyr::distinct() %>%
     sf::st_as_sf()
 
   ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
@@ -3694,7 +3675,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   ATTAINS_lines <- user.matches$ATTAINS_lines %>%
     plyr::rbind.fill(attains.matches$ATTAINS_lines) %>%
     plyr::rbind.fill(get.attains.matches$ATTAINS_lines) %>%
-    plyr::rbind.fill() %>%
+    dplyr::distinct() %>%
     sf::st_as_sf()
 
   ATTAINS_points <- user.matches$ATTAINS_points %>%
@@ -3757,12 +3738,12 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # add nhd catchments without ATTAINS matches if user has selected this option
   if (nhd_catch == TRUE) {
-    final_list <- c(
+    final_list2 <- c(
       final_list,
       list(
         "without_ATTAINS_catchments" =
           get.attains.matches$without_ATTAINS_catchment),
-      list(final_list,
+      list(
            "TADA_without_ATTAINS" =
              get.attains.matches$TADA_without_ATTAINS)
       )
