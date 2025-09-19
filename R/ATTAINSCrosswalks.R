@@ -963,7 +963,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA"))
 
     if (!sum(org_id %in% org.ref$code) == length(org_id)) {
-      stop(paste0(
+      warning(paste0(
         "TADA_CreateParamRef: ",
         "One or more organization identifier(s) entered by user is not found in ATTAINS."
       ))
@@ -1033,9 +1033,9 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
       dplyr::arrange(ATTAINS.ParameterName)
 
-    # Should we stop or warn users in this step? We have chose to stop
+    # Should we stop or warn users in this step? 
     if (sum(!org_id %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0) {
-      stop(paste0(
+      warning(paste0(
         "TADA_CreateParamRef: ",
         "One or more organization identifiers entered by user is not found in ATTAINS."
       ))
@@ -1263,7 +1263,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       colnames(par) <- columns
 
       wb <- openxlsx::createWorkbook()
-      openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = TRUE)
+      openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = FALSE)
       openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
       openxlsx::addWorksheet(wb, "Index", visible = FALSE)
 
@@ -1740,18 +1740,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (sum(!org_id[tolower(org_id) != tolower("EPA304a")] %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0) {
-      stop(paste0(
+      warning(paste0(
         "TADA_CreateuseParamRef: ",
         "One or more organization identifiers entered by user is not found in ATTAINS. "
-      ))
-    }
-
-    # Checks if org_id are found in the user supplied paramRef argument.
-    if (sum(!org_id[tolower(org_id) != tolower("EPA304a")] %in% paramRef$ATTAINS.OrganizationIdentifier) > 0) {
-      stop(paste0(
-        "TADA_CreateUseParamRef: ",
-        "One or more organization identifiers entered by user is not found in your paramRef argument input. ",
-        "Excluding those missing organization identifier(s) from output."
       ))
     }
 
@@ -2895,11 +2886,14 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   # Identify all unique monitoring location id in the .data data frame to filter by.
   unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
-  print(paste0(
-    "displayNA = TRUE:",
-    "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-  ))
+  if (displayNA == TRUE){
+    print(paste0(
+      "displayNA = TRUE:",
+      "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ))
+  }
 
+    
   # Applies all unique combos of param and uses to each monitoring location.
   CreateMLSummaryRef <- useParamRef %>%
     tidyr::uncount(weights = length(unique_ML)) %>%
