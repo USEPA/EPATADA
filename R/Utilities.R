@@ -1753,9 +1753,11 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     )
 
 
-    .data <-
+    .data
+
+    view <-
       data.table::setnames(
-      data = .data,
+      .data,
       old = old.names,
       new = new.names,
       skip_absent = TRUE

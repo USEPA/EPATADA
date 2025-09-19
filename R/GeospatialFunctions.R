@@ -1983,7 +1983,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
                                  "assessmentunitidentifier"))
     }
 
-    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+    TADA_with_ATTAINS2 <- TADA_with_ATTAINS %>%
       renameATTAINSCols()
   }
 
@@ -3423,7 +3423,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 #' MonitoringLocationIdentifier and WaterType.
-#' @param org_id Organization id to match AUs.
+#' @param org_id Character string. ATTAINS organization id to select Assessment Unit/
+#' Monitoring Location data
 #' @param add_catch Boolean argument. When add_catch = TRUE, catchments
 #' are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
 #' monitoring locations by retrieving catchment data from ATTAINS geospatial web
@@ -3465,10 +3466,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
                                      org_id = NULL, add_catch = FALSE,
                                      nhd_catch = FALSE, return_nearest = FALSE,
                                      batch_upload = TRUE) {
-  # need to write checks for each component
 
-  # check for user supplied ref
+  # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
+
+    # if no user supplied ref exists create a list where all required outputs are set to NULL
     user.matches <- list(
       "TADA_with_ATTAINS" = NULL,
       "ATTAINS_catchments" = NULL,
@@ -3478,8 +3480,12 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     )
   }
 
+  # check to see if user supplied ref is not NULL
   if (!is.null(au_ref)) {
+
+    # check to see if user supplied ref is not a data frame
     if (!is.data.frame(au_ref)) {
+      # stop function with printed message if the user supplied ref is not a data frame
       stop(paste0(
         "TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
         "containing the columns AssessmentUnitIdentifier, MonitoringLocationIdentifier, and ATTAINS.WaterType.",
@@ -3487,6 +3493,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       ))
     }
 
+    # check to see if user supplied ref is a data frame
     if (is.data.frame(au_ref)) {
       print("TADA_CreateAUMLCrosswalk: fetching geospatial data for user-supplied crosswalk.")
 
@@ -3569,6 +3576,20 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   # ATTAINS supplied ref section
   # get attains crosswalk
 
+  attains.matches <- list(
+    "TADA_with_ATTAINS" = NULL,
+    "ATTAINS_catchments" = NULL,
+    "ATTAINS_points" = NULL,
+    "ATTAINS_lines" = NULL,
+    "ATTAINS_polygons" = NULL
+  )
+
+  if(is.null(org_id)) {
+    print("TADA_CreateAUMLCrosswalk: No org_id provided. No crosswalk will be imported from ATTAINS.")
+  }
+
+  if(!is.null(org_id)) {
+
   print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
   attains.cw <- spsUtil::quiet(
@@ -3580,15 +3601,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       "TADA_CreateAUMLCrosswalk: There are no MonitoringLocation records ",
       "in ATTAINS for ", org_id, "."
     ))
-
-    attains.matches <- list(
-      "TADA_with_ATTAINS" = NULL,
-      "ATTAINS_catchments" = NULL,
-      "ATTAINS_points" = NULL,
-      "ATTAINS_lines" = NULL,
-      "ATTAINS_polygons" = NULL
-    )
-  }
+}
+}
 
   if (!is.null(attains.cw)) {
     # we could remove or make this step optional, but it is very helpful for making sure
@@ -3604,11 +3618,25 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       )
     )
 
+    # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
+    if (!is.null(au_ref)) {
     attains.cw.mls <- .data %>%
       dplyr::filter(
         !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
         TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
-      ) %>%
+      )
+    }
+
+    # if au_ref was not provided  by user, retain all records that match ATTAINS ref
+    if (is.null(au_ref)) {
+      attains.cw.mls <- .data %>%
+      dplyr::filter(
+        TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+      )
+    }
+
+    # add source column for ATTAINS Crosswalk matched records
+    attains.cw.mls <- attains.cw.mls %>%
       dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
     print("TADA_CreateAUMLCrosswalk: fetching geospatial data for crosswalk from ATTAINS.")
@@ -3622,12 +3650,22 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   print("TADA_CreateAUMLCrosswalk: checking to see if any unmatched MonitoringLocations remain")
 
-  get.attains.mls <- .data %>%
+  get.attains.mls <- .data
+
+  if(!is.null(attains.matches$TADA_with_ATTAINS)) {
+
+  get.attains.mls <- get.attains.mls %>%
     dplyr::filter(
-      !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
       !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier
-    ) %>%
-    dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
+    )
+  }
+
+  if(!is.null(user.matches$TADA_with_ATTAINS)) {
+    get.attains.mls <- get.attains.mls %>%
+      dplyr::filter(
+        !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier
+      )
+  }
 
   # add code here for if there are no remaining mls to match
   if (dim(get.attains.mls)[1] == 0) {
@@ -3644,6 +3682,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   if (dim(get.attains.mls)[1] > 0) {
     print("TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining MonitoringLocations.")
+
+    # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
+    get.attains.mls <- get.attains.mls %>%
+      dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- spsUtil::quiet(
