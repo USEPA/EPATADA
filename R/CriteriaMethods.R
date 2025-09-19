@@ -762,17 +762,15 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       }
     )
-
-    TADA_CriteriaDataDictionary()
     
     # Set visibility
     openxlsx::sheetVisibility(wb)[6] <- TRUE
-    openxlsx::sheetVisibility(wb)[1] <- FALSE
-    openxlsx::sheetVisibility(wb)[2] <- FALSE
-    openxlsx::sheetVisibility(wb)[3] <- FALSE
-    openxlsx::sheetVisibility(wb)[4] <- FALSE
-    openxlsx::sheetVisibility(wb)[5] <- FALSE
-    openxlsx::sheetVisibility(wb)[7] <- TRUE
+    openxlsx::sheetVisibility(wb)[1] <- "hidden"
+    openxlsx::sheetVisibility(wb)[2] <- "hidden"
+    openxlsx::sheetVisibility(wb)[3] <- "hidden"
+    openxlsx::sheetVisibility(wb)[4] <- "hidden"
+    openxlsx::sheetVisibility(wb)[5] <- "hidden"
+    #openxlsx::sheetVisibility(wb)[7] <- TRUE
 
 
     # Format column header
@@ -996,6 +994,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
     }
 
+    TADA_CriteriaDataDictionary()
+    
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
 
@@ -1014,6 +1014,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 #' @export
 #'
 TADA_CriteriaDataDictionary <- function() {
+  library(openxlsx)
+  
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
   
@@ -1052,17 +1054,20 @@ TADA_CriteriaDataDictionary <- function() {
       "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"Methodology",	
       "Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	
       "Methodology",	"Methodology",	"Methodology"
+      ),
+    Description = c(
+      "From the ATTAINS domain value, this is the id of your organization that gets submitted to ATTAINS.",
+      "From the ATTAINS domain value, this is the name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
+      "From the ATTAINS domain value, this is the name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
+      "From your TADA/WQP data frame. If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. It is recommended to have perform this crosswalk in TADA_CreateParamRef and avoid any duplicated definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",	"required when displayUniqueId = T and criteriaMethods = T. This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",
+      "",	"required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      "required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
       )
-    # Definition = c(
-    #   "",	"",	"",	"",	"required when displayUniqueId = T and auto_assign = T and/or criteriaMethods = T. This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",	
-    #   "",	"required when displatUniqueId = F and when auto_assign = T and/or criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",	
-    #   "when auto_assign = T and/or criteriaMethods = T",	
-    #   "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",
-      
   )
   
-  # Write the data frame to the worksheet, starting at cell A1
-  openxlsx::writeData(wb, "DataDictionary", data_to_write, startCol = 1, startRow = 1)
+  # Write the data frame to the worksheet, starting at cell B2
+  openxlsx::writeData(wb, "DataDictionary", data_to_write, startCol = 2, startRow = 2)
   
   # Create a style for the header row
   header_style <- createStyle(
@@ -1075,7 +1080,7 @@ TADA_CriteriaDataDictionary <- function() {
   )
   
   # Apply the header style to the first row (header)
-  addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:ncol(data_to_write)+1, gridExpand = TRUE)
+  addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
   # Create a style for borders on all data cells
   data_border_style <- createStyle(
@@ -1084,10 +1089,18 @@ TADA_CriteriaDataDictionary <- function() {
   )
   
   # Apply data border style to all data rows and columns
-  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 1:ncol(data_to_write), gridExpand = TRUE)
+  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 2:ncol(data_to_write), gridExpand = TRUE)
   
-  # Set column widths to automatically fit content
-  setColWidths(wb, "DataDictionary", cols = 1:ncol(data_to_write), widths = "auto")
+  # Description text gets wrapped
+  wrapStyle <- createStyle(wrapText = TRUE)
+
+  # only applies to the last column. We shifted the table to B2, adjust accordingly
+  addStyle(wb, "DataDictionary", wrapStyle, rows = 2:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
+
+  setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
+  
+  # Set column widths to automatically fit content, except last column
+  setColWidths(wb, "DataDictionary", cols = 1:(ncol(data_to_write) - 1), widths = "auto")
   
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
