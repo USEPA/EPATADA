@@ -748,6 +748,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
@@ -762,6 +763,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       }
     )
 
+    TADA_CriteriaDataDictionary()
+    
     # Set visibility
     openxlsx::sheetVisibility(wb)[6] <- TRUE
     openxlsx::sheetVisibility(wb)[1] <- FALSE
@@ -769,7 +772,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     openxlsx::sheetVisibility(wb)[3] <- FALSE
     openxlsx::sheetVisibility(wb)[4] <- FALSE
     openxlsx::sheetVisibility(wb)[5] <- FALSE
-    # openxlsx::sheetVisibility(wb)[7] <- FALSE
+    openxlsx::sheetVisibility(wb)[7] <- TRUE
 
 
     # Format column header
@@ -998,3 +1001,96 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
   return(DefineCriteriaMethodology)
 }
+
+
+
+#' Data Dictionary for Criteria and Methodology
+#'
+#' Defines and summarizes the column names found in the TADA format for the
+#' Criteria and Methodology table for users to fill out.
+#'
+#' @return An excel data frame tab
+#'
+#' @export
+#'
+TADA_CriteriaDataDictionary <- function() {
+  # Excel ref files to be stored in the Downloads folder location.
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  
+  wb <- openxlsx::loadWorkbook(wb, downloads_path)
+  tryCatch(
+    {
+      openxlsx::addWorksheet(wb, "DataDictionary")
+    },
+    error = function(e) {
+      openxlsx::removeWorksheet(wb, "DataDictionary")
+      openxlsx::addWorksheet(wb, "DataDictionary")
+    }
+  )
+  
+  # Example data frame
+  data_to_write <- data.frame(
+    ColumnName = c(
+      "ATTAINS.OrganizationIdentifier",	"ATTAINS.ParameterName",	
+      "ATTAINS.UseName", "TADA.ComparableDataIdentifier",	"TADA.CharacteristicName",	"TADA.ResultSampleFractionText",	"TADA.MethodSpeciationName",	
+      "AcuteChronic",	"ATTAINS.WaterType",	"SaltFresh",	"DepthCategory",	"UniqueSpatialCriteria",	
+      "EquationBased",	"MagnitudeValueLower",	"MagnitudeValueUpper",	"MagnitudeUnit",	
+      "DurationValue",	"DurationUnit",	"DurationMethod",	"FreqValue",	"FreqMethod",	
+      "AssessPeriod",	"AssessPeriodStartDate",	"AssessPeriodEndDate",	
+      "Season",	"SeasonStartDate",	"SeasonEndDate",	"DistrCount",	"DistrPeriod",	"DistrMinSample",	"Notes"
+      ),
+    Requirement = c(
+      "Required",	"Required",	"Required",	"Conditional",	"Required",	
+      "Conditional",	"Conditional",	"Optional",	"Optional",	"Optional",	"Optional",	
+      "Optional",	"Optional",	"Required",	"Required",	"Required",	"Optional",	"Optional",	
+      "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	
+      "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional"
+    ),
+    Source= c(
+      "ATTAINS",	"ATTAINS",	"ATTAINS",	"TADA",	"TADA",	"TADA",	"TADA",	"Methodology",	
+      "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
+      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"Methodology",	
+      "Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	
+      "Methodology",	"Methodology",	"Methodology"
+      )
+    # Definition = c(
+    #   "",	"",	"",	"",	"required when displayUniqueId = T and auto_assign = T and/or criteriaMethods = T. This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",	
+    #   "",	"required when displatUniqueId = F and when auto_assign = T and/or criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",	
+    #   "when auto_assign = T and/or criteriaMethods = T",	
+    #   "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",
+      
+  )
+  
+  # Write the data frame to the worksheet, starting at cell A1
+  openxlsx::writeData(wb, "DataDictionary", data_to_write, startCol = 1, startRow = 1)
+  
+  # Create a style for the header row
+  header_style <- createStyle(
+    fontSize = 12,
+    textDecoration = "bold",
+    halign = "center",
+    fgFill = "#DCE6F1", # Light blue background
+    border = "TopBottomLeftRight",
+    borderColour = "#000000"
+  )
+  
+  # Apply the header style to the first row (header)
+  addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:ncol(data_to_write)+1, gridExpand = TRUE)
+  
+  # Create a style for borders on all data cells
+  data_border_style <- createStyle(
+    border = "TopBottomLeftRight",
+    borderColour = "#CCCCCC" # Light grey border
+  )
+  
+  # Apply data border style to all data rows and columns
+  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 1:ncol(data_to_write), gridExpand = TRUE)
+  
+  # Set column widths to automatically fit content
+  setColWidths(wb, "DataDictionary", cols = 1:ncol(data_to_write), widths = "auto")
+  
+  # Save the workbook to an Excel file
+  openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+  
+}
+

@@ -5,7 +5,17 @@
 \alias{Data_MT_MissoulaCounty}
 \title{Data_MT_MissoulaCounty}
 \format{
-A data frame with 426 rows and 161 variables.
+A data frame with 426 rows and 161 variables
+}
+\usage{
+data(Data_MT_MissoulaCounty)
+}
+\description{
+See Module 2 and 3 workflows for examples of this data set can be used in the
+TADA analysis workflow.
+}
+\details{
+with minimal data cleaning functions applied to the original WQP query.
 
 Data_MT_MissoulaCounty <- TADA_DataRetrieval(
 startDate = "2020-01-01",
@@ -21,13 +31,6 @@ ask = FALSE) \%>\%
 TADA_RunKeyFlagFunctions() \%>\%
 TADA_SimpleCensoredMethods() \%>\%
 TADA_HarmonizeSynonyms()
-}
-\usage{
-data(Data_MT_MissoulaCounty)
-}
-\description{
-See Module 2 and 3 workflows for examples of this data set can be used in the
-TADA analysis workflow.
 }
 \keyword{data}
 \keyword{frame}
