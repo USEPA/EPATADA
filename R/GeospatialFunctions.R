@@ -1469,7 +1469,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
     }
 
     # create a df of all distances
-    distances_table <- purrr::map_dfr(as.character(TADA_with_ATTAINS$geometry), find_distances)
+    distances_table <- purrr::map_dfr(as.character(unique(TADA_with_ATTAINS$geometry)), find_distances)
 
     # add distance data to TADA df
     TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
@@ -3509,10 +3509,13 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
 
       # assign values to col.id variables - might be possible to rewrite with purrr function (HRM 9/8/25)
+      # assign assessment unit id
       assign(col.ids$col.id[1], col.ids$select.col[1])
 
+      # assign monitoring location identifier
       assign(col.ids$col.id[2], col.ids$select.col[2])
 
+      # assign water type
       assign(col.ids$col.id[3], col.ids$select.col[3])
 
       # rename au_ref cols for next function
@@ -3548,6 +3551,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
         dplyr::bind_rows(user.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
 
+      # remove intermediate objects
       rm(user.matches_WaterType_NA)
     }
 
@@ -3702,35 +3706,40 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   print("TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
 
+ # function to prep output after binding rows
+  outputPrep <- function(.data) {
+
+   if(!is.null(.data)) {
+     .data <- .data %>%
+       dplyr::distinct() %>%
+       sf::st_as_sf()
+   }
+ }
+
   TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
     plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
     plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
-    dplyr::distinct() %>%
-    sf::st_as_sf()
+    outputPrep()
 
   ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
     plyr::rbind.fill(attains.matches$ATTAINS_catchments) %>%
     plyr::rbind.fill(get.attains.matches$ATTAINS_catchments) %>%
-    dplyr::distinct() %>%
-    sf::st_as_sf()
+    outputPrep()
 
   ATTAINS_lines <- user.matches$ATTAINS_lines %>%
     plyr::rbind.fill(attains.matches$ATTAINS_lines) %>%
     plyr::rbind.fill(get.attains.matches$ATTAINS_lines) %>%
-    dplyr::distinct() %>%
-    sf::st_as_sf()
+    outputPrep()
 
   ATTAINS_points <- user.matches$ATTAINS_points %>%
     plyr::rbind.fill(attains.matches$ATTAINS_points) %>%
     plyr::rbind.fill(get.attains.matches$ATTAINS_points) %>%
-    dplyr::distinct() %>%
-    sf::st_as_sf()
+    outputPrep()
 
   ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
     plyr::rbind.fill(attains.matches$ATTAINS_polygons) %>%
     plyr::rbind.fill(get.attains.matches$ATTAINS_polygons) %>%
-    dplyr::distinct() %>%
-    sf::st_as_sf()
+    outputPrep()
 
   ATTAINS_crosswalk <- TADA_with_ATTAINS %>%
       sf::st_drop_geometry() %>%
