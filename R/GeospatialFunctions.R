@@ -1689,8 +1689,16 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
   # should ATTAINS prefixed cols already present stop this function?
   if (any(attains_names %in% colnames(.data))) {
+
+    # remove intermediate object
+    rm(attains_names)
+
+    # print message and stop function
     stop("Your data has already been joined with ATTAINS data.")
   }
+
+  # remove intermediate object
+  rm(attains_names)
 
   if (nrow(.data) == 0) {
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
@@ -1905,78 +1913,105 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     silent = TRUE
   )
 
-  if (add_catch == TRUE) {
-    try(
-      catchments <- fetch_au(
-        baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
-        chunk_n = 10
-      ),
-      silent = TRUE
-    )
-
-    # get one catchment per WQP location
-    catchments.cw <- filt.data %>%
-      dplyr::distinct() %>%
-      sf::st_join(catchments, join = sf::st_nearest_feature) %>%
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
-      dplyr::mutate(catchCount = dplyr::n()) %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
-      dplyr::distinct() %>%
-      sf::st_drop_geometry()
-
-    catchments.filt <- catchments %>%
-      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
-
-    catchments.no.geo <- catchments %>%
-      sf::st_drop_geometry() %>%
-      dplyr::distinct()
-
-    try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
-      silent = TRUE
-    )
-
-    # create TADA_with_ATTAINS
-    TADA_with_ATTAINS <- .data %>%
-      dplyr::left_join(au_ref, by = c(
-        "TADA.MonitoringLocationIdentifier" =
-          "ATTAINS.MonitoringLocationIdentifier"
-      )) %>%
-      dplyr::left_join(
-        catchments.cw,
-        dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      ) %>%
-      dplyr::left_join(catchments.no.geo,
-                       by = c(
-                         "nhdplusid" = "nhdplusid",
-                         "ATTAINS.AssessmentUnitIdentifier" =
-                           "assessmentunitidentifier"
-                       )
-      ) %>%
-      dplyr::select(-OBJECTID) %>%
-      renameATTAINSCols()
-  }
-
-
-
   if (add_catch == FALSE) {
     catchments <- NULL
+  }
 
+    # create TADA_with_ATTAINS df for list output
     TADA_with_ATTAINS <- .data %>%
       dplyr::left_join(au_ref, by = dplyr::join_by(
         TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier))
 
+    # create list of tada prefix columns
     tada.cols <- colnames(TADA_with_ATTAINS)
 
+    # create list of attains prefix cols
     attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
 
+    # create a combined list of tada and attains prefix cols
     comb.cols <- append(tada.cols, attains.cols) %>% unique()
 
+    # create empty attains.geo df
     attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
 
+    # change col names of attains.geo to match tada and attains prefix cols
     colnames(attains.geo) <- comb.cols
 
+    # remove intermediate objects
+    rm(tada.cols, attains.cols, comb.cols)
+
+    if (add_catch == TRUE) {
+      try(
+        catchments <- fetch_au(
+          baseurls = baseurls[1],
+          assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+          chunk_n = 10
+        ),
+        silent = TRUE
+      )
+
+      # get one catchment per WQP location
+      catchments.cw <- filt.data %>%
+        dplyr::distinct() %>%
+        sf::st_join(catchments, join = sf::st_nearest_feature) %>%
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
+        dplyr::mutate(catchCount = dplyr::n()) %>%
+        dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
+        dplyr::distinct() %>%
+        sf::st_drop_geometry()
+
+      catchments.filt <- catchments %>%
+        dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+
+      catchments.no.geo <- catchments %>%
+        sf::st_drop_geometry() %>%
+        dplyr::distinct()
+
+      try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+          silent = TRUE
+      )
+
+      # modify TADA_with_ATTAINS
+      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+        dplyr::left_join(
+          catchments.cw,
+          dplyr::join_by(TADA.MonitoringLocationIdentifier)
+        ) %>%
+        dplyr::left_join(catchments.no.geo,
+                         by = c(
+                           "nhdplusid" = "nhdplusid",
+                           "ATTAINS.AssessmentUnitIdentifier" =
+                             "assessmentunitidentifier"
+                         )
+        ) %>%
+        dplyr::select(-OBJECTID)
+    }
+
+    # # internal function to combine attains.geo data
+    # combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
+    #
+    #   df <- .data %>%
+    #     dplyr::left_join(geo.data,
+    #                      by= c("ATTAINS.AssessmentUnitIdentifier" =
+    #                              "assessmentunitidentifier")) %>%
+    #     dplyr::filter(!is.na(OBJECTID))
+    #
+    #   common.cols <- intersect(colnames(geo.data), colnames(.data))
+    #
+    #   attains.geo <- rbind(attains.geo[common.cols], df[common.cols])
+    #
+    #   rm(geo.data, common.cols, .data)
+    #
+    #   return(attains.geo)
+    # }
+
+
     if(dim(lines)[1] > 0) {
+
+      # lines.geo <- combineATTAINSGeo(.data = TADA_with_ATTAINS,
+      #                                geo.data = lines,
+      #                                attains.geo = attains.geo)
+
       lines.geo <- TADA_with_ATTAINS %>%
         dplyr::left_join(lines,
                          by= c("ATTAINS.AssessmentUnitIdentifier" =
@@ -2023,11 +2058,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     TADA_with_ATTAINS <- attains.geo %>%
       dplyr::filter(!is.na(ResultIdentifier)) %>%
       renameATTAINSCols() %>%
-      dplyr::full_join(.data)
+      dplyr::full_join(.data, by = names(.data))
 
     # remove intermediate object
     rm(attains.geo)
-  }
+
 
   final_features <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
