@@ -20,7 +20,8 @@ TADA_CreateAUMLCrosswalk(
 \item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 MonitoringLocationIdentifier and WaterType.}
 
-\item{org_id}{Organization id to match AUs.}
+\item{org_id}{Character string. ATTAINS organization id to select Assessment Unit/
+Monitoring Location data}
 
 \item{add_catch}{Boolean argument. When add_catch = TRUE, catchments
 are matched to monitoring locations from the user-supplied and ATTAINS crosswalk

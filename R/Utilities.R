@@ -1733,7 +1733,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
     "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
     "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
-    "ATTAINS.WaterType"
+    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version"
   )
 
   # list of original ATTAINS column names
@@ -1761,7 +1761,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
     "sediment", "taste_color_and_odor", "temperature", "total_toxics",
     "toxic_inorganics", "toxic_organics", "trash", "turbidity",
-    "cyclestatus", "orig_fid", "waterType")
+    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version")
 
   # if return list equals TRUE, return the list of tada formatted column names
   if (return_list == TRUE & format == "tada") {

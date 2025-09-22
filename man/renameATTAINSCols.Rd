@@ -12,7 +12,7 @@ renameATTAINSCols(.data, return_list = FALSE, format = "tada")
 \item{return_list}{Boolean argument. When return_list = TRUE, the function returns
 a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
 the input .data data frame is updated so column names from ATTAINS geospatial web
-services match the TADA format. Defualt is return_list = FALSE.}
+services match the TADA format. Default is return_list = FALSE.}
 
 \item{format}{Character argument. The format the user wants to switch the column
 names too. When format = "tada", the ATTAINS prefix and TADA capitalization will

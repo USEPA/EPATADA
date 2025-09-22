@@ -3568,6 +3568,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
           ATTAINS.WaterType = paste0(type.col)
         )
 
+      rm(col.ids, req.cols, auid.col, ml.col, type.col)
+
       # subset data for au_ref
       au.ref.mls <- .data %>%
         dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
@@ -3604,15 +3606,17 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
     # existing AU that was retrieved from ATTAINS and included in the user supplied table.
 
+    # subset user supplied ref for this step
     sub.au_ref <- au_ref %>%
       dplyr::rename(User.WaterType = ATTAINS.WaterType) %>%
       dplyr::distinct()
 
+    # create df to test mistmatches between water types from user supplied ref and ATTAINS
     test_mismatch <- user.matches$TADA_with_ATTAINS %>%
         dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
         dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
         dplyr::distinct() %>%
-        dplyr::left_join(sub.au_ref, relationship = "many-to-many") %>%
+        dplyr::left_join(sub.au_ref, relationship = "many-to-many", dplyr::join_by(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::filter(ATTAINS.WaterType != User.WaterType)
 
       if (nrow(test_mismatch) > 0) {
@@ -3639,10 +3643,12 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     "ATTAINS_polygons" = NULL
   )
 
+  # if no org id is provided, no crosswalk is imported from ATTAINS
   if(is.null(org_id)) {
     print("TADA_CreateAUMLCrosswalk: No org_id provided. No crosswalk will be imported from ATTAINS.")
   }
 
+  # if an org id is provided, ATTAINS is checked for a crosswalk
   if(!is.null(org_id)) {
 
   print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
@@ -3700,6 +3706,9 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains.matches <- spsUtil::quiet(
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
     )
+
+    # remove intermediate objects
+    rm(attains.cw)
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section
@@ -3753,73 +3762,62 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     )
   }
 
+  # remove intermediate objects
+  rm(attains.cw.mls, au.ref.mls, get.attains.mls)
+
   # join all the resulting tables within each list to return as one large list
   # TADA_with_ATTAINS
 
   print("TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
 
-# # internal function to prep output by binding rows from different crosswalk sources
-#   bindCrosswalk <- function(df.name, user, attains, get.attains) {
-#
-#     user <- user.matches
-#
-#     user2 <- attains.matches[[df.name]]
-#
-#     attains <- paste0("attains.matches$", df.name)
-#     get.attains <- paste0("get.attains.matches$", df.name)
-#
-#     eval(as.name(get.attains))
-#
-#     df <- get(user)
-#
-#
-#     %>%
-#       plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
-#       plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
-#       outputPrep()
-#
-#
-#     ssign(df.name, NULL)
-#
-#   }
+# internal function to prep output by binding rows from different crosswalk sources
+  outputPrep <- function(df.name, user, attains, get.attains) {
 
+    user <-user[[df.name]]
+    attains <- attains[[df.name]]
+    get.attains <- get.attains[[df.name]]
 
- # internal function to prep output after binding rows
-  outputPrep <- function(.data) {
+    df <- user %>%
+      plyr::rbind.fill(attains) %>%
+      plyr::rbind.fill(get.attains) %>%
+      dplyr::distinct() %>%
+      sf::st_as_sf()
 
-   if(!is.null(.data)) {
-     .data <- .data %>%
-       dplyr::distinct() %>%
-       sf::st_as_sf()
-   }
- }
+  return(df)
 
+  }
 
-  TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
-    plyr::rbind.fill(attains.matches$TADA_with_ATTAINS) %>%
-    plyr::rbind.fill(get.attains.matches$TADA_with_ATTAINS) %>%
-    outputPrep()
+  # create TADA_with_ATTAINS for output list
+  TADA_with_ATTAINS <- outputPrep(df.name = "TADA_with_ATTAINS",
+                                     user = user.matches,
+                                     attains = attains.matches,
+                                     get.attains = get.attains.matches)
 
-  ATTAINS_catchments <- user.matches$ATTAINS_catchments %>%
-    plyr::rbind.fill(attains.matches$ATTAINS_catchments) %>%
-    plyr::rbind.fill(get.attains.matches$ATTAINS_catchments) %>%
-    outputPrep()
+  # create ATTAINS_catchments for output list
+  ATTAINS_catchments <- outputPrep(df.name = "ATTAINS_catchments",
+                                  user = user.matches,
+                                  attains = attains.matches,
+                                  get.attains = get.attains.matches)
 
-  ATTAINS_lines <- user.matches$ATTAINS_lines %>%
-    plyr::rbind.fill(attains.matches$ATTAINS_lines) %>%
-    plyr::rbind.fill(get.attains.matches$ATTAINS_lines) %>%
-    outputPrep()
+  # create ATTAINS_lines for output list
+  ATTAINS_lines <- outputPrep(df.name = "ATTAINS_lines",
+                              user = user.matches,
+                              attains = attains.matches,
+                              get.attains = get.attains.matches)
 
-  ATTAINS_points <- user.matches$ATTAINS_points %>%
-    plyr::rbind.fill(attains.matches$ATTAINS_points) %>%
-    plyr::rbind.fill(get.attains.matches$ATTAINS_points) %>%
-    outputPrep()
+  # create ATTAINS_points for output list
+  ATTAINS_points <- outputPrep(df.name = "ATTAINS_points",
+                               user = user.matches,
+                               attains = attains.matches,
+                               get.attains = get.attains.matches)
 
-  ATTAINS_polygons <- user.matches$ATTAINS_polygons %>%
-    plyr::rbind.fill(attains.matches$ATTAINS_polygons) %>%
-    plyr::rbind.fill(get.attains.matches$ATTAINS_polygons) %>%
-    outputPrep()
+  # create ATTAINS_polygons for output list
+  ATTAINS_polygons <- outputPrep(df.name = "ATTAINS_polygons",
+                              user = user.matches,
+                              attains = attains.matches,
+                              get.attains = get.attains.matches)
 
+  # create ATTAINS_crosswalk for output list
   ATTAINS_crosswalk <- TADA_with_ATTAINS %>%
       sf::st_drop_geometry() %>%
       dplyr::select(
@@ -3833,6 +3831,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
 
 
+  # create final output list of all dfs
   final_list <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
     "ATTAINS_catchments" = ATTAINS_catchments,
@@ -3844,6 +3843,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # add batch upload df to list for output if user has selected this option
   if (batch_upload == TRUE) {
+
+    # create batch upload for ATTAINS df
     ATTAINS_batchupload <- TADA_with_ATTAINS %>%
       sf::st_drop_geometry() %>%
       dplyr::select(
@@ -3864,12 +3865,22 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       ) %>%
       dplyr::filter(!is.na(ASSESSMENT_UNIT_ID))
 
+    # add batch upload df to list for output
     final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
+
+    # remove intermediate objects
+    rm(ATTAINS_batchupload)
   }
+
+  # remove intermediate objects
+  rm(TADA_with_ATTAINS, ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, ATTAINS_polygons,
+     ATTAINS_crosswalk)
 
   # add nhd catchments without ATTAINS matches if user has selected this option
   if (nhd_catch == TRUE) {
-    final_list2 <- c(
+
+    # add nhd catchment related dfs to output if required
+    final_list <- c(
       final_list,
       list(
         "without_ATTAINS_catchments" =
@@ -3880,5 +3891,9 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       )
   }
 
+  # remove intermediate objects
+  rm(attains.matches, user.matches, get.attains.matches)
+
+  # return final list of dfs based on user inputs
   return(final_list)
 }
