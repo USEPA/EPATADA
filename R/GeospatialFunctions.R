@@ -1755,7 +1755,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
       ATTAINS.WaterType = paste0(type.col)
     ) %>%
-    dplyr::select(-ATTAINS.WaterType)
+    dplyr::select(-ATTAINS.WaterType) %>%
+    dplyr::select(TADA.MonitoringLocationIdentifier,
+                  ATTAINS.AssessmentUnitIdentifier)
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
@@ -1961,32 +1963,70 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     catchments <- NULL
 
     TADA_with_ATTAINS <- .data %>%
-      dplyr::left_join(au_ref, dplyr::join_by(ATTAINS.AssessmentUnitIdentifier,
-                                              TADA.MonitoringLocationIdentifier))
+      dplyr::left_join(au_ref, by = dplyr::join_by(
+        TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier))
+
+    tada.cols <- colnames(TADA_with_ATTAINS)
+
+    attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
+
+    comb.cols <- append(tada.cols, attains.cols) %>% unique()
+
+    attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
+
+    colnames(attains.geo) <- comb.cols
 
     if(dim(lines)[1] > 0) {
-      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+      lines.geo <- TADA_with_ATTAINS %>%
         dplyr::left_join(lines,
                          by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier"))
+                                 "assessmentunitidentifier")) %>%
+        dplyr::filter(!is.na(OBJECTID))
+
+      common.cols <- intersect(colnames(lines.geo), colnames(attains.geo))
+
+      attains.geo <- rbind(attains.geo[common.cols], lines.geo[common.cols])
+
+      rm(lines.geo)
     }
 
     if(dim(points)[1] > 0) {
-      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+      points.geo <- TADA_with_ATTAINS %>%
         dplyr::left_join(points,
                          by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier"))
+                                 "assessmentunitidentifier")) %>%
+        dplyr::filter(!is.na(OBJECTID))
+
+      common.cols <- intersect(colnames(points.geo), colnames(attains.geo))
+
+      attains.geo <- rbind(attains.geo[common.cols], points.geo[common.cols])
+
+      rm(points.geo)
+
     }
 
     if(dim(polygons)[1] > 0) {
-      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
+      polygons.geo <- TADA_with_ATTAINS %>%
         dplyr::left_join(polygons,
                          by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier"))
+                                 "assessmentunitidentifier")) %>%
+        dplyr::filter(!is.na(OBJECTID))
+
+      common.cols <- intersect(colnames(polygons.geo), colnames(attains.geo))
+
+      attains.geo <- rbind(attains.geo[common.cols], polygons.geo[common.cols])
+
+      rm(polygons.geo)
     }
 
-    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-      renameATTAINSCols()
+    # remame cols and set up TADA_with_ATTAINS df
+    TADA_with_ATTAINS <- attains.geo %>%
+      dplyr::filter(!is.na(ResultIdentifier)) %>%
+      renameATTAINSCols() %>%
+      dplyr::full_join(.data)
+
+    # remove intermediate object
+    rm(attains.geo)
   }
 
   final_features <- list(
@@ -3572,7 +3612,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
         dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
         dplyr::distinct() %>%
-        dplyr::left_join(sub.au_ref) %>%
+        dplyr::left_join(sub.au_ref, relationship = "many-to-many") %>%
         dplyr::filter(ATTAINS.WaterType != User.WaterType)
 
       if (nrow(test_mismatch) > 0) {
@@ -3649,9 +3689,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
           TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
         )
     }
-
-
-
 
 
     # add source column for ATTAINS Crosswalk matched records
@@ -3792,7 +3829,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         TADA.AURefSource
       ) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id) %>%
+      dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
 
 
   final_list <- list(
@@ -3823,7 +3861,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       dplyr::select(
         ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
         MS_DATA_LINK
-      )
+      ) %>%
+      dplyr::filter(!is.na(ASSESSMENT_UNIT_ID))
 
     final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
   }

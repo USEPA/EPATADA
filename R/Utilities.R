@@ -1692,7 +1692,7 @@ checkColName <- function(.data, partial.string = NULL) {
 #' @param return_list Boolean argument. When return_list = TRUE, the function returns
 #' a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
 #' the input .data data frame is updated so column names from ATTAINS geospatial web
-#' services match the TADA format. Defualt is return_list = FALSE.
+#' services match the TADA format. Default is return_list = FALSE.
 #'
 #' @param format Character argument. The format the user wants to switch the column
 #' names too. When format = "tada", the ATTAINS prefix and TADA capitalization will
@@ -1736,39 +1736,45 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.WaterType"
   )
 
+  # list of original ATTAINS column names
+  attains.orig <- c(
+    "organizationid", "submissionid", "hasprotectionplan",
+    "assessmentunitname", "nhdplusid", "tas303d",
+    "isthreatened", "state", "on303dlist",
+    "organizationname", "region", "Shape_Length",
+    "reportingcycle", "assmnt_joinkey", "hastmdl",
+    "orgtype", "permid_joinkey", "catchmentistribal",
+    "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+    "overallstatus", "isassessed", "isimpaired",
+    "has4bplan", "huc12", "hasalternativeplan",
+    "visionpriority303d", "areasqkm", "catchmentareasqkm",
+    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+    "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
+    "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
+    "ammonia", "cause_unknown", "cause_unknown_fish_kills",
+    "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
+    "flow_alterations", "habitat_alterations", "hydrologic_alteration",
+    "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
+    "nuisance_exotic_species", "nuisance_native_species", "nutrients",
+    "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
+    "pesticides", "pfas", "ph_acidity_caustic_conditions",
+    "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
+    "sediment", "taste_color_and_odor", "temperature", "total_toxics",
+    "toxic_inorganics", "toxic_organics", "trash", "turbidity",
+    "cyclestatus", "orig_fid", "waterType")
+
   # if return list equals TRUE, return the list of tada formatted column names
-  if (return_list == TRUE) {
+  if (return_list == TRUE & format == "tada") {
     return(attains.tada)
+  }
+
+  # if return list equals TRUE, return the list of attains formatted column names
+  if (return_list == TRUE & format == "attains") {
+    return(attains.orig)
   }
 
   # if return equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-    # list of original ATTAINS column names
-    attains.orig <- c(
-      "organizationid", "submissionid", "hasprotectionplan",
-      "assessmentunitname", "nhdplusid", "tas303d",
-      "isthreatened", "state", "on303dlist",
-      "organizationname", "region", "Shape_Length",
-      "reportingcycle", "assmnt_joinkey", "hastmdl",
-      "orgtype", "permid_joinkey", "catchmentistribal",
-      "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
-      "overallstatus", "isassessed", "isimpaired",
-      "has4bplan", "huc12", "hasalternativeplan",
-      "visionpriority303d", "areasqkm", "catchmentareasqkm",
-      "catchmentstatecode", "catchmentresolution", "waterTypeCode",
-      "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
-      "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
-      "ammonia", "cause_unknown", "cause_unknown_fish_kills",
-      "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
-      "flow_alterations", "habitat_alterations", "hydrologic_alteration",
-      "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
-      "nuisance_exotic_species", "nuisance_native_species", "nutrients",
-      "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
-      "pesticides", "pfas", "ph_acidity_caustic_conditions",
-      "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
-      "sediment", "taste_color_and_odor", "temperature", "total_toxics",
-      "toxic_inorganics", "toxic_organics", "trash", "turbidity",
-      "cyclestatus", "orig_fid", "waterType")
 
     # assign old and new name vectors based on format selected by user
     old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
