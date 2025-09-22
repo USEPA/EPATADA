@@ -3545,11 +3545,15 @@ TADA_CreateAUMLCrosswalk <- function(.data,
           by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier")
         )
 
+      # check for missing water types and add from user-supplied ref if needed
+      if(dim(user.matches_WaterType_NA)[1] > 0) {
+
       # add the user assigned water types as necessary
       user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
         dplyr::filter(!is.na(ATTAINS.WaterType)) %>% # any rows that had ATTAINS.WaterType filled in from add_catch = TRUE are kept, most accurate as these are pulled from ATTAINS?
         dplyr::mutate(ATTAINS.WaterType = as.character(ATTAINS.WaterType)) %>% # if all NA, make sure to keep char column type
         dplyr::bind_rows(user.matches_WaterType_NA) # now re-join the table w/ ATTAINS.WaterType filled in from the user supplied table.
+      }
 
       # remove intermediate objects
       rm(user.matches_WaterType_NA)
@@ -3558,14 +3562,16 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     # test if a user supplied table has a mismatching ATTAINS.WaterType if it contains an
     # existing AU that was retrieved from ATTAINS and included in the user supplied table.
 
-      test_mismatch <- dplyr::anti_join(
-        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
-          dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
-          dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
-          dplyr::distinct(),
-        au_ref,
-        by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier", "ATTAINS.WaterType")
-      )
+    sub.au_ref <- au_ref %>%
+      dplyr::rename(User.WaterType = ATTAINS.WaterType) %>%
+      dplyr::distinct()
+
+    test_mismatch <- user.matches$TADA_with_ATTAINS %>%
+        dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+        dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.WaterType) %>%
+        dplyr::distinct() %>%
+        dplyr::left_join(sub.au_ref) %>%
+        dplyr::filter(ATTAINS.WaterType != User.WaterType)
 
       if (nrow(test_mismatch) > 0) {
         # We can change the warning and choose to prioritize user-supplied crosswalk instead if desired. - KW
@@ -3573,7 +3579,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
           "Your user-supplied table contains mismatching ATTAINS.WaterType for at least one AU when compared to what was retrieved from ATTAINS.",
           "Prioritizing what has been submitted to ATTAINS for the ATTAINS.WaterType."
         ))
-    }
+      }
+
+    # remove intermediate objects
+    rm(sub.au_ref, test_mismatch)
   }
 
 
