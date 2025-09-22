@@ -1751,14 +1751,18 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   # rename au_ref cols for next function
   au_ref <- au_ref %>%
     dplyr::rename(
-      ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
+      TADA.MonitoringLocationIdentifier = paste0(ml.col),
       ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
       ATTAINS.WaterType = paste0(type.col)
-    )
+    ) %>%
+    dplyr::select(-ATTAINS.WaterType)
 
   # filter detain to retain only results with known AUIDs
   .data <- .data %>%
-    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier)
+    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$TADA.MonitoringLocationIdentifier) %>%
+    dplyr::left_join(au_ref,
+                     by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
+
 
   # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
   if (dim(.data)[1] < 1) {
@@ -1957,10 +1961,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     catchments <- NULL
 
     TADA_with_ATTAINS <- .data %>%
-      dplyr::left_join(au_ref, by = c(
-        "TADA.MonitoringLocationIdentifier" =
-          "ATTAINS.MonitoringLocationIdentifier"
-      ))
+      dplyr::left_join(au_ref, dplyr::join_by(ATTAINS.AssessmentUnitIdentifier,
+                                              TADA.MonitoringLocationIdentifier))
 
     if(dim(lines)[1] > 0) {
       TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
@@ -1983,7 +1985,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
                                  "assessmentunitidentifier"))
     }
 
-    TADA_with_ATTAINS2 <- TADA_with_ATTAINS %>%
+    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
       renameATTAINSCols()
   }
 
@@ -3618,11 +3620,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 }
 
   if (!is.null(attains.cw)) {
-    # we could remove or make this step optional, but it is very helpful for making sure
-    # monitoring location identifiers are WQP compatible
 
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
+    # we could remove or make this step optional, but it is helpful for making sure
+    # monitoring location identifiers are WQP compatible
     attains.cw <- spsUtil::quiet(
       TADA_UpdateATTAINSAUMLCrosswalk(
         crosswalk = attains.cw,
@@ -3633,20 +3635,24 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
     # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
     if (!is.null(au_ref)) {
-    attains.cw.mls <- .data %>%
-      dplyr::filter(
-        !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-        TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
-      )
+      attains.cw.mls <- .data %>%
+        dplyr::filter(
+          !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+        )
     }
 
     # if au_ref was not provided  by user, retain all records that match ATTAINS ref
     if (is.null(au_ref)) {
       attains.cw.mls <- .data %>%
-      dplyr::filter(
-        TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
-      )
+        dplyr::filter(
+          TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+        )
     }
+
+
+
+
 
     # add source column for ATTAINS Crosswalk matched records
     attains.cw.mls <- attains.cw.mls %>%
@@ -3782,12 +3788,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       dplyr::select(
         TADA.MonitoringLocationIdentifier,
         ATTAINS.AssessmentUnitIdentifier,
-        OrganizationIdentifier,
         ATTAINS.WaterType,
         TADA.AURefSource
       ) %>%
       dplyr::distinct() %>%
-      dplyr::rename(ATTAINS.OrganizationIdentifier = OrganizationIdentifier)
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
 
 
   final_list <- list(

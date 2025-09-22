@@ -1717,7 +1717,23 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
     "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
     "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
-    "ATTAINS.ShapeArea"
+    "ATTAINS.ShapeArea", "ATTAINS.CulturalUse", "ATTAINS.DrinkingWaterUse",
+    "ATTAINS.EcologicalUse", "ATTAINS.FishConsumptionUse", "ATTAINS.RecreationUse",
+    "ATTAINS.OtherUse", "ATTAINS.AlgalGrowth", "ATTAINS.Ammonia",
+    "ATTAINS.CauseUnknown", "ATTAINS.CauseUnknownFishKills",
+    "ATTAINS.CauseUnknownImpairedBiota", "ATTAINS.Dioxins",
+    "ATTAINS.FishConsumptionAdvisory", "ATTAINS.FlowAlterations",
+    "ATTAINS.HabitatAlterations", "ATTAINS.HydrologicAlteration",
+    "ATTAINS.Mercury", "ATTAINS.MetalsOtherThanMercury", "ATTAINS.NoxiousAquaticPlants",
+    "ATTAINS.NuisanceExoticSpecies", "ATTAINS.NuisanceNativeSpecies", "ATTAINS.Nutrients",
+    "ATTAINS.OilAndGrease", "ATTAINS.OxygenDepletion", "ATTAINS.OtherCause",
+    "ATTAINS.Pathogens", "ATTAINS.Pesticides", "ATTAINS.Pfas",
+    "ATTAINS.PhAcidityCausticConditions", "ATTAINS.PolychlorinatedBiphenylsPcbs",
+    "ATTAINS.Radiation", "ATTAINS.SolidsChloridesSulfates",
+    "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
+    "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
+    "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
+    "ATTAINS.WaterType"
   )
 
   # if return list equals TRUE, return the list of tada formatted column names
@@ -1740,8 +1756,19 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
       "has4bplan", "huc12", "hasalternativeplan",
       "visionpriority303d", "areasqkm", "catchmentareasqkm",
       "catchmentstatecode", "catchmentresolution", "waterTypeCode",
-      "Shape_Area"
-    )
+      "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
+      "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
+      "ammonia", "cause_unknown", "cause_unknown_fish_kills",
+      "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
+      "flow_alterations", "habitat_alterations", "hydrologic_alteration",
+      "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
+      "nuisance_exotic_species", "nuisance_native_species", "nutrients",
+      "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
+      "pesticides", "pfas", "ph_acidity_caustic_conditions",
+      "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
+      "sediment", "taste_color_and_odor", "temperature", "total_toxics",
+      "toxic_inorganics", "toxic_organics", "trash", "turbidity",
+      "cyclestatus", "orig_fid", "waterType")
 
     # assign old and new name vectors based on format selected by user
     old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
