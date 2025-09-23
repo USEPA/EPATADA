@@ -2263,8 +2263,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         map <- map %>%
           leaflet::addPolygons(
             data = ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
+            color = "black", fillColor = "grey",
+            weight = 1, fillOpacity = 0.3,
             popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
           ),
         silent = TRUE
@@ -2471,7 +2471,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
         map <- map %>%
           leaflegend::addLegendImage(
-            images = images,
+            images = images.ref,
             labels = leg.labels,
             labelStyle = "font-size: 14px;",
             width = 14,
@@ -2484,7 +2484,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             position = "bottomright"
           )
 
-        rm(images)
+        rm(images.ref)
       }
 
       if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
