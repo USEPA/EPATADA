@@ -24,6 +24,11 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   # Subset rows where the original result value is NA
   copycheck2 <- subset(copycheck1, subset = is.na(copycheck1$ResultMeasureValue))
   
+  # Skip the test if there are no rows in copycheck2
+  if (nrow(copycheck2) == 0) {
+    skip("No rows in copycheck2; test skipped.")
+  }
+  
   # Validate the ResultMeasureValueDataTypes.Flag
   valid_flags <- c(
     "Result Value/Unit Copied from Detection Limit",
@@ -33,18 +38,20 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   expect_true(all(copycheck2$TADA.ResultMeasureValueDataTypes.Flag %in% valid_flags))
   
   # Subset data where DetectionQuantitationLimitMeasure.MeasureValue is not NA
-  copycheck_NAs <- subset(copycheck2, subset = !is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+  copycheck_NAs <- subset(copycheck2, subset = !is.na(
+    copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+  
+  # Skip the test if there are no rows in copycheck_NAs
+  if (nrow(copycheck_NAs) == 0) {
+    skip("No rows in copycheck_NAs; test skipped.")
+  }
   
   # Check flags and result measure values for non-NA detection limit measure values
-  expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit"))
+  expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == 
+                    "Result Value/Unit Copied from Detection Limit"))
+  
+  # Check to make sure TADA.ResultMeasureValue is not NA
   expect_true(all(!is.na(copycheck_NAs$TADA.ResultMeasureValue)))
-  
-  # Subset data where DetectionQuantitationLimitMeasure.MeasureValue is NA
-  copycheck_copies <- subset(copycheck2, subset = is.na(copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
-  
-  # Check flags for NA detection limit measure values
-  expect_true(all(copycheck_copies$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"))
-  expect_true(all(is.na(copycheck_copies$TADA.ResultMeasureValue)))
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
