@@ -112,6 +112,9 @@ tada.MT.clean <- tada.MT %>%
 
 # remove intermediate objects
 rm(tada.MT)
+
+# or uncomment the code below to load the example data set
+# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 ### Create An Example User-Supplied Crosswalk

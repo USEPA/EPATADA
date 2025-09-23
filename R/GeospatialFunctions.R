@@ -1782,14 +1782,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     ))
   }
 
-  filt.data <- .data %>%
-    dplyr::select(
-      TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
-      TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName
-    ) %>%
-    dplyr::distinct() %>%
-    TADA_MakeSpatial()
-
   # REST for ATTAINS geospatial data:
   baseurls <- c( # ATTAINS catchments:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
@@ -1987,71 +1979,52 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
         dplyr::select(-OBJECTID)
     }
 
-    # # internal function to combine attains.geo data
-    # combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
-    #
-    #   df <- .data %>%
-    #     dplyr::left_join(geo.data,
-    #                      by= c("ATTAINS.AssessmentUnitIdentifier" =
-    #                              "assessmentunitidentifier")) %>%
-    #     dplyr::filter(!is.na(OBJECTID))
-    #
-    #   common.cols <- intersect(colnames(geo.data), colnames(.data))
-    #
-    #   attains.geo <- rbind(attains.geo[common.cols], df[common.cols])
-    #
-    #   rm(geo.data, common.cols, .data)
-    #
-    #   return(attains.geo)
-    # }
+    # internal function to combine attains.geo data
+    combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
+
+      # join data from ATTAINS with tada df
+      df <- .data %>%
+        dplyr::left_join(geo.data,
+                         by= c("ATTAINS.AssessmentUnitIdentifier" =
+                                 "assessmentunitidentifier")) %>%
+        dplyr::filter(!is.na(OBJECTID))
 
 
+      # bind with existing attains.geo data
+      attains.geo <- plyr::rbind.fill(attains.geo, df)
+
+      # remove intermediate object
+      rm(df)
+
+      # return tada df with added attains data
+      return(attains.geo)
+    }
+
+
+    # add attains data returned from lines query if any exists
     if(dim(lines)[1] > 0) {
 
-      # lines.geo <- combineATTAINSGeo(.data = TADA_with_ATTAINS,
-      #                                geo.data = lines,
-      #                                attains.geo = attains.geo)
-
-      lines.geo <- TADA_with_ATTAINS %>%
-        dplyr::left_join(lines,
-                         by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier")) %>%
-        dplyr::filter(!is.na(OBJECTID))
-
-      common.cols <- intersect(colnames(lines.geo), colnames(attains.geo))
-
-      attains.geo <- rbind(attains.geo[common.cols], lines.geo[common.cols])
-
-      rm(lines.geo)
+      attains.geo <- combineATTAINSGeo(.data = TADA_with_ATTAINS,
+                                     geo.data = lines,
+                                     attains.geo = attains.geo)
     }
 
+    # add attains data returned from points query if any exists
     if(dim(points)[1] > 0) {
-      points.geo <- TADA_with_ATTAINS %>%
-        dplyr::left_join(points,
-                         by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier")) %>%
-        dplyr::filter(!is.na(OBJECTID))
 
-      common.cols <- intersect(colnames(points.geo), colnames(attains.geo))
-
-      attains.geo <- rbind(attains.geo[common.cols], points.geo[common.cols])
-
-      rm(points.geo)
+      attains.geo <- combineATTAINSGeo(.data = TADA_with_ATTAINS,
+                                       geo.data = points,
+                                       attains.geo = attains.geo)
 
     }
 
+    # add attains data returned from polygons query if any exists
     if(dim(polygons)[1] > 0) {
-      polygons.geo <- TADA_with_ATTAINS %>%
-        dplyr::left_join(polygons,
-                         by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier")) %>%
-        dplyr::filter(!is.na(OBJECTID))
 
-      common.cols <- intersect(colnames(polygons.geo), colnames(attains.geo))
+      attains.geo <- combineATTAINSGeo(.data = TADA_with_ATTAINS,
+                                       geo.data = polygons,
+                                       attains.geo = attains.geo)
 
-      attains.geo <- rbind(attains.geo[common.cols], polygons.geo[common.cols])
-
-      rm(polygons.geo)
     }
 
     # remame cols and set up TADA_with_ATTAINS df
