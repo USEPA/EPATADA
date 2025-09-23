@@ -2014,34 +2014,42 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
 #' TADA_ViewATTAINS
 #'
-#' Visualizes the data returned from TADA_CreateAUMLCrosswalk or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
+#' This function is designed to visualize the data included in the list returned 
+#' from TADA_CreateAUMLCrosswalk. The map can be used to review different 
+#' crosswalk sources used for the assignment of WQP Monitoring Locations to 
+#' ATTAINS Assessment Units. Please check out the TADAModule2.Rmd for an example workflow.
 #'
-#' This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
-#' TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-#' .data must be the list produced from `TADA_CreateATTAINSAUMLCrosswalk()` or `TADA_CreateAUMLCrosswalk()`
-#' with `return_sf = TRUE`. Check out the
-#' TADAModule2.Rmd for an example workflow.
-#'
-#' @param .data A list containing a data frame and ATTAINS shapefile objects created by `TADA_CreateATTAINSAUMLCrosswalk()`
-#' or `TADA_CreateAUMLCrosswalk()` with the return_sf argument set to TRUE.
+#' @param .data [TADA_DataRetrieval()] and [TADA_CreateAUMLCrosswalk()] can be run
+#' to get a list containing WQP monitoring locations and ATTAINS shapefile objects.
 #'
 #' @param ref_icons Boolean argument. Determines whether custom icons are displayed to differentiate between
 #' different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
 #' information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
-#' ref_icons = TRUE three different icons will be used for the map. The plain circle represents matches
-#' made with TADA_CreateATTAINSAUMLCrosswalk. The circle with the user icon is for matches from the user supplied
-#' ref. The circle with a check mark is for matches from ATTAINS. When rec_icons = FALSE or the source is not
-#' provided in .data, all Monitoring Locations are show with a plain circle.
+#' ref_icons = TRUE three different icons will be used for the map. 
+#' 1) The circle with the user icon is for matches from the user supplied
+#' ref if that was supplied as an input to TADA_CreateAUMLCrosswalk(). 
+#' 2) The circle with a check mark is for matches from [TADA_GetATTAINSAUMLCrosswalk()] which
+#' runs within TADA_CreateAUMLCrosswalk(). If an organization has recorded this
+#' information in ATTAINS, this gets the organizations crosswalk of known 
+#' monitoring location identifiers and assessment unit associations.
+#' 3) The plain circle represents matches
+#' made with [TADA_CreateATTAINSAUMLCrosswalk()] which also runs within 
+#' TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit 
+#' data to Water Quality Portal observations. 
+#' When rec_icons = FALSE or the source is not provided in .data, all 
+#' Monitoring Locations are show with a plain circle.
 #'
-#' @return A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
+#' @return A leaflet map visualizing Monitoring Locations and linked ATTAINS assessment units. All maps are in WGS84.
 #'
-#' @seealso [TADA_DataRetrieval()]
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
+#' @seealso [TADA_DataRetrieval()] must be run first to get WQP monitoring locations and results.
+#' @seealso [TADA_CreateAUMLCrosswalk()] which runs [TADA_CreateATTAINSAUMLCrosswalk()] with 
+#' return_sf argument set to TRUE and [TADA_GetATTAINSAUMLCrosswalk()] by default. 
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
+#' # Get WQP Monitoring Locations 
 #' tada_data <- TADA_DataRetrieval(
 #'   startDate = "1990-01-01",
 #'   endDate = "1995-12-31",
@@ -2050,13 +2058,19 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
-#'
-#' attains_data <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
+#' 
+#' # Match AUs using all available methods
+#' all_sources <- TADA_CreateAUMLCrosswalk(tada_data, org_id = "21NEV1")
+#' 
+#' TADA_ViewATTAINS(all_sources)
+#' 
+#' # Only use ATTAINS catchments to match AUs
+#' attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = TRUE,
 #'   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 #' )
 #'
-#' TADA_ViewATTAINS(attains_data)
+#' TADA_ViewATTAINS(attains_catchments)
 #' }
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   if (!any(c(
@@ -3436,7 +3450,14 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 #' MonitoringLocationIdentifier and WaterType.
-#' @param org_id Organization id to match AUs.
+#' @param org_id Character argument. The ATTAINS organization identifier. 
+#' If populated, Monitoring Locations will only be matched to Assessment Units from the 
+#' specified organization(s). A list of organization 
+#' identifiers can be found 
+#' by downloading the ATTAINS Domains Excel file: 
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column 
+#' contains the organization identifiers that should be used for this param.
 #' @param add_catch Boolean argument. When add_catch = TRUE, catchments
 #' are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
 #' monitoring locations by retrieving catchment data from ATTAINS geospatial web
