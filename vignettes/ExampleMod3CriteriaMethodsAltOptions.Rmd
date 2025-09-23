@@ -144,6 +144,9 @@ tada.MT.clean <- tada.MT %>%
 
 # remove intermediate objects
 rm(tada.MT)
+
+# or uncomment the code below and load internal copy of TADA df from EPATADA
+# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 # Defining Criteria - Magnitude Methodology
@@ -151,20 +154,33 @@ rm(tada.MT)
 Users can proceed with a few different options for generating their
 criteria table
 
-1)  Generate a blank criteria and methods table and fill it out from scratch.
+1)  Generate a blank criteria and methods table and fill it out from
+    scratch.
 
 2)  Provide a user-supplied criteria and methods table partially/fully
     filled out.
 
-    A.) The default option in this scenario will display all unique **TADA.ComparableDataIdentifiers** (or WQP CharacteristicName) in your TADA/WQP data frame to ensure you review any missing WQP Characteristic, speciation and fraction combinations.
-    
-    B.) Alternatively, users can choose to display all unique TADA Characteristic name rather than TADA.ComparableDataIdentifier. In this scenario, each ATTAINS.ParameterName in the analysis summary output will be grouped to any of these TADA/WQP CharacteristicName, unless a fraction or speciation is defined.
+    A.) The default option in this scenario will display all unique
+    **TADA.ComparableDataIdentifiers** (or WQP CharacteristicName) in
+    your TADA/WQP data frame to ensure you review any missing WQP
+    Characteristic, speciation and fraction combinations.
 
-3)  Users can also choose to provide an autofill option, which will help to fill out any missing rows with ATTAINS.ParameterName and ATTAINS.UseName that are pulled in from ATTAINS as the default.
+    B.) Alternatively, users can choose to display all unique TADA
+    Characteristic name rather than TADA.ComparableDataIdentifier. In
+    this scenario, each ATTAINS.ParameterName in the analysis summary
+    output will be grouped to any of these TADA/WQP CharacteristicName,
+    unless a fraction or speciation is defined.
 
-    A.) If a user has supplied a list of new or updated use names to AU that may not be retrievable from the prior ATTAINS assessment cycle, they should provide a useAURef crosswalk table in this function. This should only be provided when auto_assign = TRUE.
+3)  Users can also choose to provide an autofill option, which will help
+    to fill out any missing rows with ATTAINS.ParameterName and
+    ATTAINS.UseName that are pulled in from ATTAINS as the default.
 
-3)  (Recommended) Go through the step-by-step review process with the 3
+    A.) If a user has supplied a list of new or updated use names to AU
+    that may not be retrievable from the prior ATTAINS assessment cycle,
+    they should provide a useAURef crosswalk table in this function.
+    This should only be provided when auto_assign = TRUE.
+
+4)  (Recommended) Go through the step-by-step review process with the 3
     TADA crosswalk reference file generation for TADA_CreateParamRef,
     TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef. This vignette
     does not go through this recommended workflow. Please see
@@ -204,10 +220,10 @@ TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
 Users can view the output of these 3 functions in the excel spreadsheet
 if desired. They are hidden as default (NOTE TO CONSIDER: Should these
 be kept hidden? The goal of this output has been to focus on an
-auto_assign option as a quick get around to needing to fill out the table
-from scratch, but if users may find it worthwhile, we can always show
-these hidden tabs to allow for an easier review process and updating of
-tables directly in the excel file.)
+auto_assign option as a quick get around to needing to fill out the
+table from scratch, but if users may find it worthwhile, we can always
+show these hidden tabs to allow for an easier review process and
+updating of tables directly in the excel file.)
 
 ```{r auto-fill-output}
 MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
@@ -296,7 +312,10 @@ A user can combine options. The user supplied table is prioritized. Any
 missing WQP/TADA.CharacteristicName will be matched from ATTAINS based
 on the auto_assign option (if it was successfully crosswalked.).
 
-Note: If a user has an updated list of use names that have been applied to and have chosen to apply the auto_assign = TRUE input, they should also provide a useAURef input. Otherwises the uses will be pulled in from the prior ATTAINS assessment cycle.
+Note: If a user has an updated list of use names that have been applied
+to and have chosen to apply the auto_assign = TRUE input, they should
+also provide a useAURef input. Otherwises the uses will be pulled in
+from the prior ATTAINS assessment cycle.
 
 ```{r user-supplied-epa304a-and-autofill-output}
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
@@ -356,6 +375,6 @@ MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
 
 Users are recommended to go through each of the 3 reference files one at
 a time though in their review process. In this case, a user should
-provide a MLSummaryRef file function input and turn the auto_assign option
-to FALSE. Please see ExampleMod3Workflow.Rmd vignette for the step by
-step process.
+provide a MLSummaryRef file function input and turn the auto_assign
+option to FALSE. Please see ExampleMod3Workflow.Rmd vignette for the
+step by step process.

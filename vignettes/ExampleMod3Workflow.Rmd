@@ -12,7 +12,7 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{Example Mod 3 Workflow}
+  %\VignetteIndexEntry{Example Module 3 Workflow}
   %\VignetteEngine{knitr::rmarkdown}
 description: Recommended TADA module 3 Criteria and Methodology Table generation (under development) showcasing water quality data analysis functions and example workflows.
 editor_options:
