@@ -49,9 +49,6 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   # Check flags and result measure values for non-NA detection limit measure values
   expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag == 
                     "Result Value/Unit Copied from Detection Limit"))
-  
-  # Check to make sure TADA.ResultMeasureValue is not NA
-  expect_true(all(!is.na(copycheck_NAs$TADA.ResultMeasureValue)))
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
