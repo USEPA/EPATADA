@@ -20,8 +20,14 @@ TADA_CreateAUMLCrosswalk(
 \item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 MonitoringLocationIdentifier and WaterType.}
 
-\item{org_id}{Character string. ATTAINS organization id to select Assessment Unit/
-Monitoring Location data}
+\item{org_id}{ATTAINS organization identifier(s) as a character string.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.}
 
 \item{add_catch}{Boolean argument. When add_catch = TRUE, catchments
 are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
