@@ -8,7 +8,10 @@ on:
 
 name: test-coverage
 
-permissions: read-all
+permissions: 
+  contents: write
+  checks: write
+  pull-requests: write
 
 jobs:
   test-coverage:
@@ -58,4 +61,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: ${{ runner.temp }}/package
+          path: ./cobertura.xml
+
+      - name: Comment coverage
+        uses: 5monkeys/cobertura-action@master
+        with:
+          report_name: coverage-report
+          path: ./cobertura.xml
+          minimum_coverage: 10
+          show_missing: true
+          link_missing_lines: true
