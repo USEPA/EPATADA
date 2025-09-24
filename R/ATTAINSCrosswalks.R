@@ -59,17 +59,25 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
                                          batch_upload = FALSE) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
-  if (!org_id %in% org.ref$code) {
+  if (!is.null(org_id) & !org_id %in% org.ref$code) {
+
+    rm(org.ref)
+
     print(paste0(
       "TADA_GetATTAINSAUMLCrosswalk: ",
       "The organization identifier entered by user is not found in ATTAINS."
     ))
   }
 
-  if (org_id %in% org.ref$code) {
-    rm(org.ref)
+  if (org_id %in% org.ref$code | is.null(org_id)) {
 
+    if(org_id %in% org.ref$code) {
     au.info <- rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5")
+    }
+
+    if(is.null(org_id)) {
+      au.info <- rExpertQuery::EQ_NationalExtract("au_mls")
+    }
 
     au.crosswalk <- au.info %>%
       dplyr::select(
@@ -112,7 +120,13 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
     rm(au.info)
 
+    if(is.null(org_id)) {
+
+      org_id <- "all organizations"
+    }
+
     if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier > 0)) {
+
       print(paste0(
         "TADA_GetATTAINSAUMLCrosswalk: ",
         "There are ", nrow(au.crosswalk),
@@ -142,7 +156,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
         org_id, " assessment units.", " No crosswalk can be returned."
       ))
 
-      rm(au.crosswalk)
+      rm(au.crosswalk, org.ref)
     }
   }
 }
@@ -1033,7 +1047,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
       dplyr::arrange(ATTAINS.ParameterName)
 
-    # Should we stop or warn users in this step? 
+    # Should we stop or warn users in this step?
     if (sum(!org_id %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0) {
       warning(paste0(
         "TADA_CreateParamRef: ",
@@ -1527,7 +1541,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
-#' 
+#'
 #' @param useAURef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with each assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
@@ -2746,12 +2760,12 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 #' @param MLSummaryRef An optional data frame which contains the completed spatial
 #' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
 #' or monitoring site/assessment unit.
-#' 
-#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef 
+#'
+#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
 #' for all uses and parameter assigned to a ML or AU regardless if that site contains
 #' WQP data for that parameter. This is useful if a user is interested in an explicit
 #' list of everything that will be analyzed. Default is FALSE.
-#' 
+#'
 #' An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with a water type.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
@@ -2893,7 +2907,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
     ))
   }
 
-    
+
   # Applies all unique combos of param and uses to each monitoring location.
   CreateMLSummaryRef <- useParamRef %>%
     tidyr::uncount(weights = length(unique_ML)) %>%
