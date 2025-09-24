@@ -1768,7 +1768,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
                   ATTAINS.AssessmentUnitIdentifier)
 
   # filter detain to retain only results with known AUIDs
-  .data <- .data %>%
+  filt.data <- .data %>%
     dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$TADA.MonitoringLocationIdentifier) %>%
     dplyr::left_join(au_ref,
                      by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
@@ -1910,7 +1910,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   }
 
     # create TADA_with_ATTAINS df for list output
-    TADA_with_ATTAINS <- .data %>%
+    TADA_with_ATTAINS <- filt.data %>%
       dplyr::left_join(au_ref, by = dplyr::join_by(
         TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier))
 
@@ -1923,11 +1923,14 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     # create a combined list of tada and attains prefix cols
     comb.cols <- append(tada.cols, attains.cols) %>% unique()
 
-    # create empty attains.geo df
     attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
 
     # change col names of attains.geo to match tada and attains prefix cols
     colnames(attains.geo) <- comb.cols
+
+    # remove unecessary column from attains.geo
+    attains.geo <- attains.geo %>%
+      dplyr::select(-assessmentunitidentifier, -waterTypeCode)
 
     # remove intermediate objects
     rm(tada.cols, attains.cols, comb.cols)
@@ -1944,7 +1947,12 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
       # get one catchment per WQP location
       catchments.cw <- filt.data %>%
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName
+        ) %>%
         dplyr::distinct() %>%
+        TADA_MakeSpatial() %>%
         sf::st_join(catchments, join = sf::st_nearest_feature) %>%
         dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
         dplyr::mutate(catchCount = dplyr::n()) %>%
@@ -1982,13 +1990,15 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     # internal function to combine attains.geo data
     combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
 
+      # rename AU column in geo.data
+      geo.data <- geo.data %>%
+        dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
+
       # join data from ATTAINS with tada df
       df <- .data %>%
         dplyr::left_join(geo.data,
-                         by= c("ATTAINS.AssessmentUnitIdentifier" =
-                                 "assessmentunitidentifier")) %>%
+                         by = c("ATTAINS.AssessmentUnitIdentifier")) %>%
         dplyr::filter(!is.na(OBJECTID))
-
 
       # bind with existing attains.geo data
       attains.geo <- plyr::rbind.fill(attains.geo, df)
@@ -2030,11 +2040,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     # remame cols and set up TADA_with_ATTAINS df
     TADA_with_ATTAINS <- attains.geo %>%
       dplyr::filter(!is.na(ResultIdentifier)) %>%
-      renameATTAINSCols() %>%
-      dplyr::full_join(.data, by = names(.data))
+      dplyr::full_join(.data, by = names(.data)) %>%
+      renameATTAINSCols()
 
     # remove intermediate object
-    rm(attains.geo)
+    rm(attains.geo, filt.data)
 
 
   final_features <- list(
@@ -2051,9 +2061,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 
 #' TADA_ViewATTAINS
 #'
-#' This function is designed to visualize the data included in the list returned 
-#' from TADA_CreateAUMLCrosswalk. The map can be used to review different 
-#' crosswalk sources used for the assignment of WQP Monitoring Locations to 
+#' This function is designed to visualize the data included in the list returned
+#' from TADA_CreateAUMLCrosswalk. The map can be used to review different
+#' crosswalk sources used for the assignment of WQP Monitoring Locations to
 #' ATTAINS Assessment Units. Please check out the TADAModule2.Rmd for an example workflow.
 #'
 #' @param .data [TADA_DataRetrieval()] and [TADA_CreateAUMLCrosswalk()] can be run
@@ -2062,31 +2072,31 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #' @param ref_icons Boolean argument. Determines whether custom icons are displayed to differentiate between
 #' different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
 #' information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
-#' ref_icons = TRUE three different icons will be used for the map. 
+#' ref_icons = TRUE three different icons will be used for the map.
 #' 1) The circle with the user icon is for matches from the user supplied
-#' ref if that was supplied as an input to TADA_CreateAUMLCrosswalk(). 
+#' ref if that was supplied as an input to TADA_CreateAUMLCrosswalk().
 #' 2) The circle with a check mark is for matches from [TADA_GetATTAINSAUMLCrosswalk()] which
 #' runs within TADA_CreateAUMLCrosswalk(). If an organization has recorded this
-#' information in ATTAINS, this gets the organizations crosswalk of known 
+#' information in ATTAINS, this gets the organizations crosswalk of known
 #' monitoring location identifiers and assessment unit associations.
 #' 3) The plain circle represents matches
-#' made with [TADA_CreateATTAINSAUMLCrosswalk()] which also runs within 
-#' TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit 
-#' data to Water Quality Portal observations. 
-#' When rec_icons = FALSE or the source is not provided in .data, all 
+#' made with [TADA_CreateATTAINSAUMLCrosswalk()] which also runs within
+#' TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit
+#' data to Water Quality Portal observations.
+#' When rec_icons = FALSE or the source is not provided in .data, all
 #' Monitoring Locations are show with a plain circle.
 #'
 #' @return A leaflet map visualizing Monitoring Locations and linked ATTAINS assessment units. All maps are in WGS84.
 #'
 #' @seealso [TADA_DataRetrieval()] must be run first to get WQP monitoring locations and results.
-#' @seealso [TADA_CreateAUMLCrosswalk()] which runs [TADA_CreateATTAINSAUMLCrosswalk()] with 
-#' return_sf argument set to TRUE and [TADA_GetATTAINSAUMLCrosswalk()] by default. 
+#' @seealso [TADA_CreateAUMLCrosswalk()] which runs [TADA_CreateATTAINSAUMLCrosswalk()] with
+#' return_sf argument set to TRUE and [TADA_GetATTAINSAUMLCrosswalk()] by default.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Get WQP Monitoring Locations 
+#' # Get WQP Monitoring Locations
 #' tada_data <- TADA_DataRetrieval(
 #'   startDate = "1990-01-01",
 #'   endDate = "1995-12-31",
@@ -2095,12 +2105,12 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
-#' 
+#'
 #' # Match AUs using all available methods
 #' all_sources <- TADA_CreateAUMLCrosswalk(tada_data, org_id = "21NEV1")
-#' 
+#'
 #' TADA_ViewATTAINS(all_sources)
-#' 
+#'
 #' # Only use ATTAINS catchments to match AUs
 #' attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_catchments = TRUE,
@@ -3487,13 +3497,13 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @param .data A dataframe created by `TADA_DataRetrieval()`.
 #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
 #' MonitoringLocationIdentifier and WaterType.
-#' @param org_id ATTAINS organization identifier(s) as a character string. 
-#' If populated, Monitoring Locations will only be matched to Assessment Units from the 
-#' specified organization(s). A list of organization 
-#' identifiers can be found 
-#' by downloading the ATTAINS Domains Excel file: 
+#' @param org_id ATTAINS organization identifier(s) as a character string.
+#' If populated, Monitoring Locations will only be matched to Assessment Units from the
+#' specified organization(s). A list of organization
+#' identifiers can be found
+#' by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "OrgName" tab. The "code" column 
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
 #' @param add_catch Boolean argument. When add_catch = TRUE, catchments
 #' are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
