@@ -231,9 +231,9 @@ MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_assign = TRUE,
   # displayUniqueId = FALSE,
-  excel = FALSE
+  # excel = FALSE
   # uncomment to run the excel file
-  # excel = TRUE, overwrite = TRUE
+  excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -297,7 +297,7 @@ MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_assign = FALSE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = FALSE, # must be true when !is.null(criteriaMethods)
   displayUniqueId = TRUE,
   epa304a = TRUE,
   excel = FALSE
