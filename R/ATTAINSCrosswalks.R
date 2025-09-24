@@ -14,7 +14,9 @@
 #' ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param.
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = NULL, all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned.
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
@@ -59,7 +61,9 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
                                          batch_upload = FALSE) {
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
-  if (!is.null(org_id) & !org_id %in% org.ref$code) {
+  if(!is.null(org_id)) {
+
+    if (!org_id %in% org.ref$code) {
 
     rm(org.ref)
 
@@ -67,19 +71,17 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
       "TADA_GetATTAINSAUMLCrosswalk: ",
       "The organization identifier entered by user is not found in ATTAINS."
     ))
-  }
-
-  if (org_id %in% org.ref$code | is.null(org_id)) {
-
-    if(org_id %in% org.ref$code) {
-    au.info <- rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5")
     }
+  }
 
     if(is.null(org_id)) {
       au.info <- rExpertQuery::EQ_NationalExtract("au_mls")
+    } else {
+      au.info <- rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5")
     }
 
-    au.crosswalk <- au.info %>%
+  # need to rework this section to work when org_id = NULL (HRM 9/24/25)
+  au.crosswalk <- au.info %>%
       dplyr::select(
         monitoringLocationId, monitoringLocationOrgId,
         assessmentUnitId, monitoringLocationDataLink,
@@ -147,7 +149,6 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
       }
 
       return(au.crosswalk)
-    }
 
     if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) == 0) {
       print(paste0(
