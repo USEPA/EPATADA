@@ -80,35 +80,23 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
       au.info <- rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5")
     }
 
-  # need to rework this section to work when org_id = NULL (HRM 9/24/25)
+  # need to rework this section to work when org_id = NULL
   au.crosswalk <- au.info %>%
       dplyr::select(
         monitoringLocationId, monitoringLocationOrgId,
         assessmentUnitId, monitoringLocationDataLink,
-        waterType
+        waterType, organizationId
       ) %>%
-      dplyr::filter(!is.na(monitoringLocationId)) %>%
+      dplyr::filter(!is.na(monitoringLocationId),
+                    monitoringLocationId != "") %>%
       dplyr::distinct() %>%
       dplyr::rename(
         ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
         MonitoringLocationIdentifier = monitoringLocationId,
         OrganizationIdentifier = monitoringLocationOrgId,
         MonitoringDataLinkText = monitoringLocationDataLink,
-        ATTAINS.WaterType = waterType
-      ) %>%
-      # paste org_id in front of MLs from the specified org if they are missing
-      # from ATTAINS
-      dplyr::mutate(
-        MonitoringLocationIdentifier = ifelse((
-          OrganizationIdentifier == org_id &
-            stringr::str_detect(MonitoringLocationIdentifier,
-              org_id,
-              negate = TRUE
-            )),
-        paste0(org_id, "-", MonitoringLocationIdentifier),
-        MonitoringLocationIdentifier
-        ),
-        ATTAINS.OrganizationIdentifier = org_id
+        ATTAINS.WaterType = waterType,
+        ATTAINS.OrganizationIdentifier = organizationId
       ) %>%
       dplyr::rename(
         ATTAINS.MonitoringLocationIdentifier = MonitoringLocationIdentifier,
