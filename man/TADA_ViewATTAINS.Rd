@@ -40,7 +40,7 @@ ATTAINS Assessment Units. Please check out the TADAModule2.Rmd for an example wo
 }
 \examples{
 \dontrun{
-# Get WQP Monitoring Locations 
+# Get WQP Monitoring Locations
 tada_data <- TADA_DataRetrieval(
   startDate = "1990-01-01",
   endDate = "1995-12-31",
