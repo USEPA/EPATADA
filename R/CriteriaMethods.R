@@ -173,11 +173,11 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   if (auto_assign == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "AcuteChronic", "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue", "DurationUnit", "DurationMethod",
       "FreqValue", "FreqMethod",
       # Data Sufficiency Columns
@@ -192,9 +192,13 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     cols_to_convert <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
       # Spatial Columns
-      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria"
+      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
+      # Criteria Columns
+      "AcuteChronic", "EquationBased", 
+      # Data Sufficiency Columns
+      "AssessPeriod", "Season", "DistrPeriod"
     )
 
     DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(DefineCriteriaMethodology[cols_to_convert], as.character)
@@ -475,11 +479,11 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       tidyr::drop_na(ATTAINS.ParameterName) %>%
       dplyr::select(
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
         # Spatial Columns
         "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
         # Criteria Columns
-        "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+        "AcuteChronic", "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
         "DurationValue", "DurationUnit", "DurationMethod",
         "FreqValue", "FreqMethod",
         # Data Sufficiency Columns
@@ -491,11 +495,13 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     col_names_MLSummary <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
-      "MagnitudeUnit", "DurationUnit", "DurationMethod",
-      "FreqMethod"
+      # Criteria Columns
+      "AcuteChronic", "EquationBased", 
+      # Data Sufficiency Columns
+      "AssessPeriod", "Season", "DistrPeriod"
     )
 
     DefineCriteriaMethodology[c(col_names_MLSummary)] <- lapply(DefineCriteriaMethodology[col_names_MLSummary], as.character)
@@ -511,11 +517,11 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   if (!is.null(criteriaMethods)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "AcuteChronic", "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue", "DurationUnit", "DurationMethod",
       "FreqValue", "FreqMethod",
       # Data Sufficiency Columns
@@ -788,11 +794,11 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     columns <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "AcuteChronic",
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
-      "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "AcuteChronic", "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
       "DurationValue", "DurationUnit", "DurationMethod",
       "FreqValue", "FreqMethod",
       # Data Sufficiency Columns
@@ -819,7 +825,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     openxlsx::writeData(
       wb, "Index-Criteria",
-      startCol = 10, startRow = 1,
+      startCol = 14, startRow = 1,
       # AcuteChronic
       x = data.frame(
         AcuteChronic = c("Acute", "Chronic", "NA")
@@ -834,14 +840,14 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     openxlsx::writeData(
       wb, "Index-Criteria",
-      startCol = 11, startRow = 1,
+      startCol = 10, startRow = 1,
       # ATTAINS.WaterType
       x = unique(Org.WaterTypeList$ATTAINS.WaterType)
     )
 
     openxlsx::writeData(
       wb, "Index-Criteria",
-      startCol = 12, startRow = 1,
+      startCol = 11, startRow = 1,
       # SaltFresh
       x = data.frame(
         SaltFresh = c("Salt", "Fresh", "NA")
@@ -850,7 +856,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     openxlsx::writeData(
       wb, "Index-Criteria",
-      startCol = 13, startRow = 1,
+      startCol = 12, startRow = 1,
       x = data.frame(
         DepthCategory = c("No depth info", "Epilimnion-surface", "Surface", "Bottom", "Middle")
       )
@@ -858,7 +864,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     openxlsx::writeData(
       wb, "Index-Criteria",
-      startCol = 14, startRow = 1,
+      startCol = 13, startRow = 1,
       # UniqueSpatialCriteria
       x = data.frame(
         UniqueSpatialCriteria = c(unique(MLSummaryRef$UniqueSpatialCriteria), "NA")
@@ -952,7 +958,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 9, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$K$2:$K$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 10, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$L$2:$L$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 11, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$M$2:$M$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
-    # suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'CreateMLSummaryRef'!$Q$2:$Q$10000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
+    suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 12, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$N$2:$N$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 13, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$O$2:$O$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 16, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$R$2:$R$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
@@ -1045,24 +1051,25 @@ TADA_CriteriaDataDictionary <- function() {
       "Season",	"SeasonStartDate",	"SeasonEndDate",	"DistrCount",	"DistrPeriod",	"DistrMinSample",	"Notes"
       ),
     Requirement = c(
-      "Required",	"Required",	"Required",	"Conditional",	"Required",	
-      "Conditional",	"Conditional",	"Optional",	"Optional",	"Optional",	"Optional",	
+      "Required",	"Required",	"Required",	"Recommended",	"Required",	
+      "Recommended",	"Recommended",	"Optional",	"Optional",	"Optional",	"Optional",	
       "Optional",	"Optional",	"Required",	"Required",	"Required",	"Optional",	"Optional",	
       "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	
       "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional"
     ),
     Source= c(
-      "ATTAINS",	"ATTAINS",	"ATTAINS",	"TADA",	"TADA",	"TADA",	"TADA",	"Methodology",	
+      "ATTAINS",	"ATTAINS",	"ATTAINS",	"TADA",	"TADA",	"TADA",	"TADA",	"User Supplied",	
       "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
-      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"Methodology",	
-      "Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	
-      "Methodology",	"Methodology",	"Methodology"
+      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied"
       ),
     Description = c(
       "From the ATTAINS domain value, this is the id of your organization that gets submitted to ATTAINS.",
       "From the ATTAINS domain value, this is the name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
       "From the ATTAINS domain value, this is the name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
-      "From your TADA/WQP data frame. If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. It is recommended to have perform this crosswalk in TADA_CreateParamRef and avoid any duplicated definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",	"required when displayUniqueId = T and criteriaMethods = T. This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",
+      "From your TADA/WQP data frame. If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. It is recommended to have performed this crosswalk in TADA_CreateParamRef to avoid any duplicated definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",	
+      "This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",
       "",	"required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
       "required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
       "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
@@ -1091,14 +1098,18 @@ TADA_CriteriaDataDictionary <- function() {
     borderColour = "#000000" # Light grey border
   )
   
-  # Apply data border style to all data rows and columns
-  addStyle(wb, "DataDictionary", data_border_style, rows = 2:(nrow(data_to_write) + 1), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
+  # Apply data border style to all data rows and columns besides header
+  addStyle(wb, "DataDictionary", data_border_style, rows = 3:(nrow(data_to_write) + 2), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
-  # Description text gets wrapped
-  wrapStyle <- createStyle(wrapText = TRUE)
+  # Define description text that gets wrapped
+  wrapStyle <- createStyle(
+    border = "TopBottomLeftRight",
+    borderColour = "#000000", # Light grey border
+    wrapText = TRUE
+  )
 
   # only applies to the last column. We shifted the table to B2, adjust accordingly
-  addStyle(wb, "DataDictionary", wrapStyle, rows = 2:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
+  addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
 
   setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
   
