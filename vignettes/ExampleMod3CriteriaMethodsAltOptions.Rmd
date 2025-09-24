@@ -281,36 +281,10 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-Question: How should TADA handle invalid values? (see units for
-example). For example, what happens if TADA makes an update to column
-names or allowable value(s) and a state uses an old filled out template?
-How should we warn users that an invalid entry was submitted.
-
-In this first example, a user supplies their own criteria table. Any
-undefined TADA.CharacteristicName will be left to the user to determine
-the proper handling of this value - whether it is applicable to your
-analysis need or not.
-
-```{r user-supplied-and-epa304a}
-# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria_user_supplied <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean,
-  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ",
-  auto_assign = FALSE, # must be true when !is.null(criteriaMethods)
-  displayUniqueId = TRUE,
-  epa304a = TRUE,
-  excel = FALSE
-  # uncomment to run the excel file
-  # excel = TRUE, overwrite = TRUE
-)
-```
-
-## Option D: Combined User Supplied and Auto-Fill
-
-A user can combine options. The user supplied table is prioritized. Any
+In this first example, a user supplies their own criteria table. The user 
+supplied table is prioritized. Any
 missing WQP/TADA.CharacteristicName will be matched from ATTAINS based
-on the auto_assign option (if it was successfully crosswalked.).
+on the auto_assign = TRUE option.
 
 Note: If a user has an updated list of use names that have been applied
 to and have chosen to apply the auto_assign = TRUE input, they should
@@ -322,7 +296,8 @@ MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_assign = TRUE, useAURef = MT.UseAURef_with_WaterUseRef, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = TRUE, 
+  useAURef = MT.UseAURef_with_WaterUseRef, 
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE
@@ -345,7 +320,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  auto_assign = TRUE, # indicates a blank template to start, the returning table only contains user supplied criteria
+  auto_assign = TRUE, 
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
   epa304a = TRUE,
   excel = FALSE
@@ -357,7 +332,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
 ## Choose a Final Criteria Template, Save and Re-use
 
 ```{r save-and-re-use-your-most-up-to-date-criteria-table}
-# Save the criteria table of your likings to be used for your next analysis needs.
+# Save the criteria table of your liking to be used for your next analysis needs.
 # TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 
 # We can now reuse this criteria table
