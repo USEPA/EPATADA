@@ -557,7 +557,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       dplyr::full_join(
         TADA_param,
         by = c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
-      )
+      ) %>%
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
 
     # 2. Identify missing columns
     missing_cols <- setdiff(desired_cols, names(criteriaMethods))
@@ -566,7 +567,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     if (length(missing_cols) > 0) {
       for (col in missing_cols) {
         criteriaMethods <- criteriaMethods %>%
-          dplyr::mutate(!!col <- NA)
+          dplyr::mutate(!!col := NA)
       }
     }
 
@@ -776,7 +777,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     )
     
     # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
-    activeSheet(wb) <- "DefineCriteriaMethodology" 
+    openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology" 
     
     # Set visibility
     names(wb)

@@ -231,9 +231,9 @@ MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   auto_assign = TRUE,
   # displayUniqueId = FALSE,
-  # excel = FALSE
+  excel = FALSE
   # uncomment to run the excel file
-  excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -295,8 +295,7 @@ from the prior ATTAINS assessment cycle.
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ",
-  auto_assign = TRUE, 
+  org_id = "MTDEQ", 
   useAURef = MT.UseAURef_with_WaterUseRef, 
   displayUniqueId = FALSE,
   epa304a = TRUE,
