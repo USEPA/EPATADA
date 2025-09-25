@@ -60,5 +60,5 @@ jobs:
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: "Update Notebook"
+          message: "Update reference files"
           add: '[./inst/extdata/*]'
