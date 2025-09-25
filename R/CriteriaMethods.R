@@ -158,6 +158,11 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
     stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
   }
 
+  # If user supplies criteria methods table, then auto_assign = T for any non-matched values
+  if ( !is.null(criteriaMethods)) {
+    auto_assign = TRUE
+  }  
+  
   # Invalid function input combos - supply one or the other.
   # if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
   #   stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
@@ -1044,8 +1049,8 @@ TADA_CriteriaDataDictionary <- function() {
     ColumnName = c(
       "ATTAINS.OrganizationIdentifier",	"ATTAINS.ParameterName",	
       "ATTAINS.UseName", "TADA.ComparableDataIdentifier",	"TADA.CharacteristicName",	"TADA.ResultSampleFractionText",	"TADA.MethodSpeciationName",	
-      "AcuteChronic",	"ATTAINS.WaterType",	"SaltFresh",	"DepthCategory",	"UniqueSpatialCriteria",	
-      "EquationBased",	"MagnitudeValueLower",	"MagnitudeValueUpper",	"MagnitudeUnit",	
+      "ATTAINS.WaterType",	"SaltFresh",	"DepthCategory",	"UniqueSpatialCriteria",	
+      "AcuteChronic", "EquationBased",	"MagnitudeValueLower",	"MagnitudeValueUpper",	"MagnitudeUnit",	
       "DurationValue",	"DurationUnit",	"DurationMethod",	"FreqValue",	"FreqMethod",	
       "AssessPeriod",	"AssessPeriodStartDate",	"AssessPeriodEndDate",	
       "Season",	"SeasonStartDate",	"SeasonEndDate",	"DistrCount",	"DistrPeriod",	"DistrMinSample",	"Notes"
@@ -1058,20 +1063,33 @@ TADA_CriteriaDataDictionary <- function() {
       "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional"
     ),
     Source= c(
-      "ATTAINS",	"ATTAINS",	"ATTAINS",	"TADA",	"TADA",	"TADA",	"TADA",	"User Supplied",	
+      "ATTAINS*",	"ATTAINS*",	"ATTAINS*",	"TADA",	"TADA",	"TADA",	"TADA",	"User Supplied",	
       "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
       "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"User Supplied",	
       "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
       "User Supplied",	"User Supplied",	"User Supplied"
       ),
+    ColumnType= c(
+      "Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"User Supplied",	
+      "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
+      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied"
+    ),
     Description = c(
-      "From the ATTAINS domain value, this is the id of your organization that gets submitted to ATTAINS.",
-      "From the ATTAINS domain value, this is the name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
-      "From the ATTAINS domain value, this is the name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
-      "From your TADA/WQP data frame. If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. It is recommended to have performed this crosswalk in TADA_CreateParamRef to avoid any duplicated definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",	
-      "This will display all unique TADA.ComparableDataIdentifier found in your data frame. This is recommended if you are generating the criteria and methodology template without prior reference tables.",
-      "",	"required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
-      "required when displayUniqueId = F and when criteriaMethods = T. This will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      "The id of your organization that gets submitted to ATTAINS.",
+      "The name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
+      "The name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
+      paste0(
+        "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ", 
+        "It is recommended to have performed this crosswalk in TADA_CreateParamRef to avoid any duplicated ",
+        "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.", 
+        collapse = " "
+        ),	
+      "To populate this field, specify displayUniqueId = TRUE. Concatenates the WQP Characteristic, Fraction and speciation into one string. This is recommended to be populated if you are generating the criteria and methodology template without prior reference tables.",
+      "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",	
+      "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified speciation.",
       "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
       )
   )
