@@ -1,0 +1,57 @@
+name: Update Component Files
+
+on:
+  pull_request:
+    branches:
+      [main, 657-bot-updates-for-maintenance-tasks]
+  # Daily at 2:01AM https://crontab.guru/
+  schedule:
+    - cron: '1 2 * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  maintenance_updates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+
+      - name: Update reference files
+        run: |
+          library(EPATADA)
+          # ATTAINSRefTables.R
+          EPATADA:::TADA_UpdateATTAINSOrgIDsRef()
+          EPATADA:::TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
+          EPATADA:::TADA_UpdateATTAINSParameterWQPCharRef()
+          # WQPWQXRefTables.R
+          EPATADA:::TADA_UpdateWQXCharValRef()
+          EPATADA:::TADA_UpdateMeasureUnitRef()
+          EPATADA:::TADA_UpdateDetCondRef()
+          EPATADA:::TADA_UpdateDetLimitRef()
+          EPATADA:::TADA_UpdateActivityTypeRef()
+          EPATADA:::TADA_UpdateCharacteristicRef()
+          EPATADA:::TADA_UpdateMeasureQualifierCodeRef()
+          EPATADA:::TADA_UpdateMonLocTypeRef()
+          EPATADA:::TADA_UpdateWQPOrgProviderRef()
+          # CriteriaRefTables.R
+          EPATADA:::TADA_UpdateEPACSTRef()
+          # TADAGeospatialRefLayers.R
+          EPATADA:::TADA_UpdateTribalLayers()
+        shell: Rscript {0}
+
+      - name: Commit updated reference files
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: "Update Notebook"
+          add: '[./inst/extdata/*]'
