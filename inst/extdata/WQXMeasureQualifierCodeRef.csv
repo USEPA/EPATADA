@@ -147,6 +147,8 @@
 "Result Measure Qualifier(MeasureQualifierCode)",162,"JCW","Sample Container Damaged, sample lost","3/16/2016 1:04:25 PM","Suspect"
 "Result Measure Qualifier(MeasureQualifierCode)",66,"K","Value below the detection Limit.  For BOD: depletion is less than 1.0","8/22/2013 1:44:00 PM","Non-Detect"
 "Result Measure Qualifier(MeasureQualifierCode)",608,"K10","Initial Dissolved Oxygen (DO) or temperature conditions of BOD, or Biochemical Oxygen Demand sample unacceptable","7/10/2025 2:35:46 PM","Not Reviewed"
+"Result Measure Qualifier(MeasureQualifierCode)",609,"K11","All dilutions result in residual D.O. <1 mg/L","9/15/2025 11:26:05 AM","Not Reviewed"
+"Result Measure Qualifier(MeasureQualifierCode)",610,"K12","Test replicates show >30% difference between high and low values","9/15/2025 11:26:05 AM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",1198,"K5","The dilution water D.O. depletion was > 0.2 mg/L","8/1/2024 7:33:52 PM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",1197,"K6","Glucose/glutamic acid BOD was below method acceptance criteria","8/1/2024 7:33:52 PM","Not Reviewed"
 "Result Measure Qualifier(MeasureQualifierCode)",604,"K7","GGA Average not within 198 +/- 30.5 (167.5-228.5 mg/L)","7/10/2025 2:35:46 PM","Not Reviewed"
