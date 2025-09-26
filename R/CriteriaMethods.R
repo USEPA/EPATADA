@@ -582,7 +582,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         "Your user supplied criteriaMethods file contains ",
         length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
         " unique TADA.ComparableDataIdentifier(s) without a valid ",
-        "ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
+        "ATTAINS.ParameterName crosswalk ",
         "when compared to the domain value of ATTAINS from the prior ",
         "ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
@@ -600,7 +600,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       warning(paste0(
         "Your user supplied criteriaMethods file contains ",
         length(unique(non_definedCriteria$TADA.CharacteristicName)),
-        " unique TADA.CharacteristicName(s) without a valid ATTAINS.ParameterName and/or ATTAINS.UseName crosswalk ",
+        " unique TADA.CharacteristicName(s) without a valid ATTAINS.ParameterName crosswalk ",
         "when compared to the domain value of ATTAINS from the prior ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
@@ -612,20 +612,6 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         ))
       }
     }
-
-    # Are any of the meta data for the missed WQP characteristic names defined from the MLSummaryRef (if provided)
-    # non_definedCriteria2 <- criteriaMethods %>%
-    #   dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
-    #   dplyr::select("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName") %>%
-    #   dplyr::right_join(DefineCriteriaMethodology) %>%
-    #   dplyr::select(dplyr::all_of(desired_cols)) %>%
-    #   as.data.frame()
-    #
-    # ifelse(
-    #   nrow(non_definedCriteria2) == 0,
-    #   non_definedCriteria <- non_definedCriteria,
-    #   non_definedCriteria <- non_definedCriteria2
-    # )
 
     # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
     definedCriteria <- criteriaMethods %>%
@@ -651,20 +637,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         }
       }
     )
-
-    # Finally, join the user supplied criteria Methods table with any pre-filled values
-    # from either the recommended workflow or auto-fill options.
-
-
-    # DefineCriteriaMethodology_User_supplied <- definedCriteria %>%
-    #   dplyr::bind_rows(non_definedCriteria) %>%
-    #   dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
-    #   dplyr::filter(TADA.CharacteristicName %in% unique_param) %>%
-    #   dplyr::select(
-    #     dplyr::any_of(desired_cols)
-    #   ) %>%
-    #   dplyr::distinct()
-    #
+    
     # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
     if (nrow(DefineCriteriaMethodology) == 0 && auto_assign == FALSE) {
       DefineCriteriaMethodology <- criteriaMethods %>%
@@ -1065,17 +1038,17 @@ TADA_CriteriaDataDictionary <- function() {
     ),
     Source= c(
       "ATTAINS*",	"ATTAINS*",	"ATTAINS*",	"TADA",	"TADA",	"TADA",	"TADA",	"User Supplied",	
-      "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
-      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
+      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
       "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
       "User Supplied",	"User Supplied",	"User Supplied"
       ),
     ColumnType= c(
-      "Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"User Supplied",	
+      "Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Spatial",	
       "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
-      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied"
+      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"Methodology",	
+      "Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	
+      "Methodology",	"Methodology",	"Methodology"
     ),
     Description = c(
       "The id of your organization that gets submitted to ATTAINS.",
@@ -1091,7 +1064,9 @@ TADA_CriteriaDataDictionary <- function() {
       "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",	
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified speciation.",
-      "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
+      "The name of the waterbody type associated with an Assessment Unit from the ATTAINS domain value. These values will only be avaialble if a sites to ATTAINS Assessment Units crosswalk is provided.",
+      "The salt or freshwater classification of the ATTAINS Waterbody Type. Users should specify if a standard only applies to salt or freshwater types.",
+      "Users should specify a specific water column that a standard applies to if applicable. Users can choose to run TADA.FlagDepthCategory to populate this if desired or ",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
       )
   )
   
