@@ -2891,80 +2891,91 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   }
 
   # Runs TADA_FlagDepthCategory if not already ran
-  if (!"TADA.DepthCategory.Flag" %in% names(.data)) {
-    .data <- TADA_FlagDepthCategory(.data)
-  }
+  # if (!"DepthCategory" %in% names(.data)) {
+  #   .data <- TADA_FlagDepthCategory(.data)
+  # }
 
   useParamRef <- dplyr::filter(useParamRef, IncludeOrExclude == "Include")
 
   # Identify all unique monitoring location id in the .data data frame to filter by.
   unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
-  if (displayNA == TRUE) {
+  if (displayNA == TRUE && nrow(useParamRef) < 1000 && length(unique_ML) < 1000) {
     print(paste0(
       "displayNA = TRUE:",
       "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
     ))
+
+    # Applies all unique combos of param and uses to each monitoring location.
+    CreateMLSummaryRef <- useParamRef %>%
+      tidyr::uncount(weights = length(unique_ML)) %>%
+      dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
+      dplyr::full_join(.data, by = c("MonitoringLocationIdentifier"), relationship = "many-to-many") %>%
+      dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
+      dplyr::mutate(ATTAINS.WaterType = NA) %>%
+      dplyr::mutate(SaltFresh = NA) %>%
+      dplyr::mutate(UniqueSpatialCriteria = NA) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      dplyr::mutate(DepthCategory = NA) %>%
+      # dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+        MonitoringLocationIdentifier, MonitoringLocationTypeName,
+        TADA.ComparableDataIdentifier = TADA.ComparableDataIdentifier.x, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, DepthCategory,
+        LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, UniqueSpatialCriteria
+      ) %>%
+      dplyr::distinct()
+  
+    # data frame to only display sites that contains the parameter
+    CreateMLSummaryRef2 <- useParamRef %>%
+      tidyr::uncount(weights = length(unique_ML)) %>%
+      # dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
+      dplyr::full_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+      dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
+      dplyr::mutate(ATTAINS.WaterType = NA) %>%
+      dplyr::mutate(SaltFresh = NA) %>%
+      dplyr::mutate(UniqueSpatialCriteria = NA) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      dplyr::mutate(DepthCategory = NA) %>%
+      dplyr::mutate(TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your WQP data query.") %>%
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+        MonitoringLocationIdentifier, MonitoringLocationTypeName,
+        TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, DepthCategory,
+        LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
+      ) %>%
+      dplyr::distinct()
+  
+    # joins the table back together and flag appropriately
+    CreateMLSummaryRef <- CreateMLSummaryRef %>%
+      # dplyr::bind_rows(CreateMLSummaryRef2)
+      dplyr::left_join(CreateMLSummaryRef2) %>%
+      dplyr::mutate(
+        TADA.ParameterInSite.Flag =
+          dplyr::if_else(
+            is.na(TADA.ParameterInSite.Flag), "Suspect: This ML site does not contain information for this parameter in your WQP data query.",
+            "Pass: This ML contains the parameter in your WQP data query."
+          )
+      ) %>%
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+        MonitoringLocationIdentifier, MonitoringLocationTypeName,
+        TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, DepthCategory,
+        LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
+      ) %>%
+      dplyr::arrange(MonitoringLocationIdentifier)
   }
-
-
-  # Applies all unique combos of param and uses to each monitoring location.
-  CreateMLSummaryRef <- useParamRef %>%
-    tidyr::uncount(weights = length(unique_ML)) %>%
-    dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
-    dplyr::full_join(.data, by = c("MonitoringLocationIdentifier"), relationship = "many-to-many") %>%
-    dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
-    dplyr::mutate(ATTAINS.WaterType = NA) %>%
-    dplyr::mutate(SaltFresh = NA) %>%
-    dplyr::mutate(UniqueSpatialCriteria = NA) %>%
-    dplyr::mutate(IncludeOrExclude = "Include") %>%
-    # dplyr::mutate(Flag.AssessmentNote = "Default: No spatial criteria applied.") %>%
-    dplyr::select(
-      ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier, MonitoringLocationTypeName,
-      TADA.ComparableDataIdentifier = TADA.ComparableDataIdentifier.x, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
-      LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, UniqueSpatialCriteria
-    ) %>%
-    dplyr::distinct()
-
-  # data frame to only display sites that contains the parameter
-  CreateMLSummaryRef2 <- useParamRef %>%
-    tidyr::uncount(weights = length(unique_ML)) %>%
-    # dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
-    dplyr::full_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
-    dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
-    dplyr::mutate(ATTAINS.WaterType = NA) %>%
-    dplyr::mutate(SaltFresh = NA) %>%
-    dplyr::mutate(UniqueSpatialCriteria = NA) %>%
-    dplyr::mutate(IncludeOrExclude = "Include") %>%
-    dplyr::mutate(TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your WQP data query.") %>%
-    dplyr::select(
-      ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier, MonitoringLocationTypeName,
-      TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
-      LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
-    ) %>%
-    dplyr::distinct()
-
-  # joins the table back together and flag appropriately
-  CreateMLSummaryRef <- CreateMLSummaryRef %>%
-    # dplyr::bind_rows(CreateMLSummaryRef2)
-    dplyr::left_join(CreateMLSummaryRef2) %>%
-    dplyr::mutate(
-      TADA.ParameterInSite.Flag =
-        dplyr::if_else(
-          is.na(TADA.ParameterInSite.Flag), "Suspect: This ML site does not contain information for this parameter in your WQP data query.",
-          "Pass: This ML contains the parameter in your WQP data query."
-        )
-    ) %>%
-    dplyr::select(
-      ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier, MonitoringLocationTypeName,
-      TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, TADA.DepthCategory.Flag,
-      LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
-    ) %>%
-    dplyr::arrange(MonitoringLocationIdentifier)
-
+  
+  if (displayNA == TRUE && nrow(useParamRef) > 1000 || length(unique_ML) > 1000) {
+    warning(paste0(
+      "displayNA = TRUE:",
+      "This MLSummaryRef table contains over 1000 uses and parameters. Cannot assign all uses and parameters to each monitoring sites.",
+      "defaulting to displayNA = FALSE"
+    ))
+    
+    displayNA = FALSE
+  }
+  
   # If we want to exclude rows of sites with no specified parameters
   if (displayNA == FALSE) {
     print(paste0(
@@ -2972,6 +2983,25 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
       "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
     ))
 
+    CreateMLSummaryRef2 <- useParamRef %>%
+      # tidyr::uncount(weights = length(unique_ML)) %>%
+      # dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) %>%
+      dplyr::full_join(.data, by = c("TADA.ComparableDataIdentifier"), relationship = "many-to-many") %>%
+      dplyr::mutate(ATTAINS.AssessmentUnitIdentifier = NA) %>%
+      dplyr::mutate(ATTAINS.WaterType = NA) %>%
+      dplyr::mutate(SaltFresh = NA) %>%
+      dplyr::mutate(UniqueSpatialCriteria = NA) %>%
+      dplyr::mutate(IncludeOrExclude = "Include") %>%
+      dplyr::mutate(DepthCategory = NA) %>%
+      dplyr::mutate(TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your WQP data query.") %>%
+      dplyr::select(
+        ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+        MonitoringLocationIdentifier, MonitoringLocationTypeName,
+        TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType, SaltFresh, DepthCategory,
+        LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
+      ) %>%
+      dplyr::distinct()
+    
     CreateMLSummaryRef <- CreateMLSummaryRef2 %>%
       dplyr::arrange(MonitoringLocationIdentifier)
   }
@@ -3037,8 +3067,8 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
           ATTAINS.OrganizationIdentifier,
           ATTAINS.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier.y,
           MonitoringLocationIdentifier, MonitoringLocationTypeName,
-          TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, TADA.DepthCategory.Flag,
-          TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
+          TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, DepthCategory,
+          DepthCategory, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
         ) %>%
         # dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::arrange(MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier) %>%
@@ -3064,8 +3094,8 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
           ATTAINS.OrganizationIdentifier,
           ATTAINS.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier.y,
           MonitoringLocationIdentifier, MonitoringLocationTypeName,
-          TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, TADA.DepthCategory.Flag,
-          TADA.DepthCategory.Flag, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
+          TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, ATTAINS.WaterType = ATTAINS.WaterType.y, SaltFresh, DepthCategory,
+          DepthCategory, LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
         ) %>%
         dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier)) %>%
         dplyr::filter(!is.na(MonitoringLocationIdentifier)) %>%

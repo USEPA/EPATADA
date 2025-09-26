@@ -286,7 +286,6 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
 
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
-      # User can turn this off using displayUniqueId = FALSE
       MLSummaryRef <- TADA_param %>%
         dplyr::left_join(MLSummaryRef)
     }
@@ -442,7 +441,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
         "TADA.ComparableDataIdentifier", "TADA.CharacteristicName",
         "SaltFresh",
-        "DepthCategory" = "TADA.DepthCategory.Flag", "UniqueSpatialCriteria", "ATTAINS.WaterType"
+        "DepthCategory", "UniqueSpatialCriteria", "ATTAINS.WaterType"
       ) %>%
       # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
       dplyr::mutate(ATTAINS.WaterType = dplyr::if_else( # Only pre-populates if a unique spatial criteria is applied
@@ -476,12 +475,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
           DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
       ) %>%
-      # dplyr::left_join(metal_list, by = ("ATTAINS.ParameterName"), relationship = "many-to-many") %>%
-      # dplyr::mutate(AcuteChronic = dplyr::coalesce(AcuteChronic.x, AcuteChronic.y)) %>%
-      # dplyr::select(-c(AcuteChronic.x, AcuteChronic.y)) %>%
-      # dplyr::mutate(SaltFresh = dplyr::coalesce(SaltFresh.x, SaltFresh.y)) %>%
-      # dplyr::select(-c(SaltFresh.x, SaltFresh.y)) %>%
-      tidyr::drop_na(ATTAINS.ParameterName) %>%
+      #tidyr::drop_na(ATTAINS.ParameterName) %>%
       dplyr::select(
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
         "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
@@ -496,6 +490,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         "Season", "SeasonStartDate", "SeasonEndDate",
         "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
       ) %>%
+      dplyr::arrange(ATTAINS.UseName) %>%
       dplyr::distinct()
 
     col_names_MLSummary <- c(
@@ -651,6 +646,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
         TADA.ComparableDataIdentifier, TADA.CharacteristicName
       ) %>%
       dplyr::full_join(definedCriteria) %>%
+      dplyr::arrange(ATTAINS.UseName) %>%
       dplyr::distinct()
 
     # should not be a problem if we control what column names are allowed,
@@ -711,8 +707,8 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
       #   ), as.factor
       # )) %>%
       # dplyr::mutate(MagnitudeUnit = UNIT_NAME) %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier)
+      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier, ATTAINS.UseName) %>%
+      dplyr::distinct()
   }
 
   # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
@@ -727,6 +723,7 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 
     DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
       dplyr::mutate(TADA.ComparableDataIdentifier = NA) %>%
+      dplyr::arrange(ATTAINS.OrganizationIdentifier != "EPA304a", ATTAINS.OrganizationIdentifier, ATTAINS.UseName) %>%
       # tidyr::drop_na(ATTAINS.ParameterName) %>%
       dplyr::distinct()
   }
