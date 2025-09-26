@@ -51,9 +51,9 @@ test_that("TADA_DefineCriteriaMethodology ", {
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = TRUE,
     displayUniqueId = TRUE,
-    excel = FALSE
+    # excel = FALSE
     # uncomment to run the excel file
-    # excel = TRUE, overwrite = TRUE
+    excel = TRUE, overwrite = TRUE
   )
   )
   # check to make sure all criteria table has same number of TADA.Characteristics/TADA.ComparableDataIdentifiers

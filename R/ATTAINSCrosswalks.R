@@ -2902,7 +2902,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
 
   if (displayNA == TRUE && nrow(useParamRef) < 1000 && length(unique_ML) < 1000) {
     print(paste0(
-      "displayNA = TRUE:",
+      "displayNA = TRUE: ",
       "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
     ))
 
@@ -2968,9 +2968,9 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   
   if (displayNA == TRUE && nrow(useParamRef) > 1000 || length(unique_ML) > 1000) {
     warning(paste0(
-      "displayNA = TRUE:",
-      "This MLSummaryRef table contains over 1000 uses and parameters. Cannot assign all uses and parameters to each monitoring sites.",
-      "defaulting to displayNA = FALSE"
+      "displayNA = TRUE: ",
+      "This MLSummaryRef table contains over 1000 uses and parameters. Cannot assign all uses and parameters to each monitoring sites. ",
+      "Defaulting to displayNA = FALSE"
     ))
     
     displayNA = FALSE
@@ -2979,7 +2979,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   # If we want to exclude rows of sites with no specified parameters
   if (displayNA == FALSE) {
     print(paste0(
-      "displayNA = FALSE:",
+      "displayNA = FALSE: ",
       "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
     ))
 

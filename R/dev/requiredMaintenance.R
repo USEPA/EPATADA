@@ -237,60 +237,59 @@ TADA_UpdateExampleData <- function() {
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
   )
-  rm(Data_MT_MissoulaCounty)
 
-# Generate Data_MT_AUMLRef
+ # Generate Data_MT_AUMLRef
  # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+  attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
-# clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
-clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+ # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
+  clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
-# create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
-user.supplied.cw <- clean.existing.attains.MT %>%
-  dplyr::select(
-    ATTAINS.AssessmentUnitIdentifier,
-    ATTAINS.MonitoringLocationIdentifier,
-    ATTAINS.WaterType
-  ) %>%
-  dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
-    "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
-    "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-  )) %>%
-  dplyr::rename(
-    AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
-  ) %>%
-  # Add an example new assessment unit for demonstration purposes.
-  dplyr::bind_rows(c(
-    AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-    ATTAINS.WaterType = "LAKE, FRESHWATER"
-  ))
+ # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
+  user.supplied.cw <- clean.existing.attains.MT %>%
+    dplyr::select(
+      ATTAINS.AssessmentUnitIdentifier,
+      ATTAINS.MonitoringLocationIdentifier,
+      ATTAINS.WaterType
+    ) %>%
+    dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
+      "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
+      "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
+    )) %>%
+    dplyr::rename(
+      AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
+      MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
+    ) %>%
+    # Add an example new assessment unit for demonstration purposes.
+    dplyr::bind_rows(c(
+      AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
+      MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
+      ATTAINS.WaterType = "LAKE, FRESHWATER"
+    ))
 
-MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
-                                       au_ref = user.supplied.cw,
-                                       org_id = "MTDEQ",
-                                       add_catch = FALSE,
-                                       batch_upload = TRUE
-)
-
-Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
-  dplyr::mutate(
-    ATTAINS.WaterType = dplyr::case_when(
-      ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-      TRUE ~ ATTAINS.WaterType
+  MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
+                                         au_ref = user.supplied.cw,
+                                         org_id = "MTDEQ",
+                                         add_catch = FALSE,
+                                         batch_upload = TRUE
+  )
+  
+  Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
+    dplyr::mutate(
+      ATTAINS.WaterType = dplyr::case_when(
+        ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
+        TRUE ~ ATTAINS.WaterType
+      )
     )
-  )
-
-  print("Data_MT_AUMLRef")
-  print(dim(Data_MT_AUMLRef))
-  usethis::use_data(Data_MT_AUMLRef,
-                    internal = FALSE, overwrite = TRUE,
-                    compress = "xz", version = 3, ascii = FALSE
-  )
-  rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw,
-     MT.AUMLRef, Data_MT_AUMLRef)
+  
+    print("Data_MT_AUMLRef")
+    print(dim(Data_MT_AUMLRef))
+    usethis::use_data(Data_MT_AUMLRef,
+                      internal = FALSE, overwrite = TRUE,
+                      compress = "xz", version = 3, ascii = FALSE
+    )
+    rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw,
+       MT.AUMLRef, Data_MT_AUMLRef, Data_MT_MissoulaCounty)
 
   # Generate Data_MT_UseAURef
 

@@ -296,7 +296,7 @@ MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ", 
-  useAURef = MT.UseAURef_with_WaterUseRef, 
+  useAURef = Data_MT_UseAURef, 
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE
