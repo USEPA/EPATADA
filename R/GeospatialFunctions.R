@@ -2172,11 +2172,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   missing_raw_features <- NULL
 
   try(missing_raw_features <- ATTAINS_catchments %>%
-    dplyr::filter(!assessmentunitidentifier %in% c(
-      ATTAINS_points$assessmentunitidentifier,
-      ATTAINS_lines$assessmentunitidentifier,
-      ATTAINS_polygons$assessmentunitidentifier
-    )), silent = TRUE)
+        dplyr::filter(!assessmentunitidentifier %in% c(
+          ATTAINS_points$assessmentunitidentifier,
+          ATTAINS_lines$assessmentunitidentifier,
+          ATTAINS_polygons$assessmentunitidentifier
+        )), silent = TRUE)
 
   if (!"without_ATTAINS_catchments" %in% names(.data)) {
     if (nrow(ATTAINS_table) == 0) {
@@ -2198,7 +2198,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     suppressMessages(suppressWarnings({
       # if data was spatial, remove for downstream leaflet dev:
       try(ATTAINS_table <- ATTAINS_table %>%
-        sf::st_drop_geometry(), silent = TRUE)
+            sf::st_drop_geometry(), silent = TRUE)
 
       tada.pal <- TADA_ColorPalette()
 
@@ -2255,8 +2255,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           Organization_Count = length(unique(OrganizationIdentifier)),
           ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
           TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
-            as.character(TADA.AURefSource),
-            "not provided"
+                                    as.character(TADA.AURefSource),
+                                    "not provided"
           )
         ) %>%
         dplyr::mutate(
@@ -2268,11 +2268,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # Basemap for AOI:
       map <- leaflet::leaflet() %>%
         leaflet::addProviderTiles("Esri.WorldTopoMap",
-          group = "World topo",
-          options = leaflet::providerTileOptions(
-            updateWhenZooming = FALSE,
-            updateWhenIdle = TRUE
-          )
+                                  group = "World topo",
+                                  options = leaflet::providerTileOptions(
+                                    updateWhenZooming = FALSE,
+                                    updateWhenIdle = TRUE
+                                  )
         ) %>%
         leaflet::clearShapes() %>%
         leaflet::fitBounds(
@@ -2287,8 +2287,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         map <- map %>%
           leaflet::addPolygons(
             data = ATTAINS_catchments,
-            color = "black", fillColor = "grey",
-            weight = 1, fillOpacity = 0.3,
+            color = "black",
+            weight = 1, fillOpacity = 0,
             popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
           ),
         silent = TRUE
@@ -2393,6 +2393,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
           "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
         )
+
+        images.ref <- c(
+          images[1:3],
+          "inst/extdata/icons/circle-user-solid-full.png",
+          "inst/extdata/icons/circle-check-solid-full.png",
+          images[4:5]
+        )
+
+        leg.labels <- c(
+          "ATTAINS: Not Supporting",
+          "ATTAINS: Supporting",
+          "ATTAINS: Not Assessed",
+          "WQP: User-supplied Ref",
+          "WQP: ATTAINS Crosswalk",
+          "WQP: TADA_CreateATTAINSAUMLCrosswalk",
+          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
+        )
       }
 
       if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
@@ -2412,6 +2429,15 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         )
       }
 
+      if ("without_ATTAINS_catchments" %in% names(.data)) {
+        images.ref <- append(images.ref, images[6])
+
+        leg.labels <- append(
+          leg.labels,
+          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
+        )
+      }
+
 
       # Add WQP observation features (should always exist):
       try(
@@ -2425,34 +2451,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         silent = TRUE
       )
 
-      if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-        images.ref <- c(
-          images[1:3],
-          "inst/extdata/icons/circle-user-solid-full.png",
-          "inst/extdata/icons/circle-check-solid-full.png",
-          images[4:5]
-        )
-
-        leg.labels <- c(
-          "ATTAINS: Not Supporting",
-          "ATTAINS: Supporting",
-          "ATTAINS: Not Assessed",
-          "WQP: User-supplied Ref",
-          "WQP: ATTAINS Crosswalk",
-          "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-          "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
-        )
-
-        if ("without_ATTAINS_catchments" %in% names(.data)) {
-          images.ref <- append(images.ref, images[6])
-
-          leg.labels <- append(
-            leg.labels,
-            "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-          )
-        }
-
-
         map <- map %>%
           leaflegend::addLegendImage(
             images = images.ref,
@@ -2462,7 +2460,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             height = 14,
             orientation = "vertical",
             title = htmltools::tags$div("Legend",
-              style = "font-size: 14px;
+                                        style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
             ),
             position = "bottomright"
@@ -2495,20 +2493,20 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
         map <- map %>%
           leaflegend::addLegendImage(
-            images = images.ref,
+            images = images,
             labels = leg.labels,
             labelStyle = "font-size: 14px;",
             width = 14,
             height = 14,
             orientation = "vertical",
             title = htmltools::tags$div("Legend",
-              style = "font-size: 14px;
+                                        style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
             ),
             position = "bottomright"
           )
 
-        rm(images.ref)
+        rm(images)
       }
 
       if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
@@ -2541,7 +2539,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     without_ATTAINS_catchments <- NULL
     try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
-      dplyr::rename(nhd = 1), silent = TRUE)
+          dplyr::rename(nhd = 1), silent = TRUE)
 
     suppressMessages(suppressWarnings({
       # if data was spatial, remove for downstream leaflet dev.
@@ -2644,11 +2642,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # Basemap for AOI:
       map <- leaflet::leaflet() %>%
         leaflet::addProviderTiles("Esri.WorldTopoMap",
-          group = "World topo",
-          options = leaflet::providerTileOptions(
-            updateWhenZooming = FALSE,
-            updateWhenIdle = TRUE
-          )
+                                  group = "World topo",
+                                  options = leaflet::providerTileOptions(
+                                    updateWhenZooming = FALSE,
+                                    updateWhenIdle = TRUE
+                                  )
         ) %>%
         leaflet::clearShapes() %>%
         leaflet::fitBounds(
@@ -2666,13 +2664,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           height = 14,
           orientation = "vertical",
           title = htmltools::tags$div("Legend",
-            style = "font-size: 14px;
+                                      style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
           ),
           position = "bottomright"
         )
 
-      rm(images)
+      # rm(images)
 
       # Add ATTAINS catchment outlines (if they exist):
       try(
@@ -2803,6 +2801,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     }))
   }
 }
+
 
 
 
