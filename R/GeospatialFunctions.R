@@ -1997,8 +1997,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       # join data from ATTAINS with tada df
       df <- .data %>%
         dplyr::left_join(geo.data,
-                         by = c("ATTAINS.AssessmentUnitIdentifier")) %>%
-        dplyr::filter(!is.na(OBJECTID))
+                         by = c("ATTAINS.AssessmentUnitIdentifier"))
 
       # bind with existing attains.geo data
       attains.geo <- plyr::rbind.fill(attains.geo, df)
@@ -2133,6 +2132,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
+  if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
+    message("No ATTAINS data associated with this Water Quality Portal data.")
+  }
+
   # load images that are required for all legends
 
   # the commented out code creates the legend images using the TADA color palette
@@ -2182,6 +2185,16 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     if (nrow(ATTAINS_table) == 0) {
       stop("Your WQP dataframe has no observations.")
     }
+  }
+
+
+  if ("without_ATTAINS_catchments" %in% names(.data)) {
+    without_ATTAINS_table <- .data[["TADA_without_ATTAINS"]]
+
+    if (nrow(ATTAINS_table) == 0 & nrow(without_ATTAINS_table) == 0) {
+      stop("Your WQP dataframe has no observations.")
+    }
+  }
 
     required_columns <- c(
       "TADA.LongitudeMeasure", "TADA.LatitudeMeasure",
@@ -2283,12 +2296,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) %>%
         leaflet.extras::addResetMapButton()
 
+      # Add ATTAINS catchment outlines (if they exist):
       try(
         map <- map %>%
           leaflet::addPolygons(
             data = ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
+            color = "black", fillColor = "grey",
+            weight = 1, fillOpacity = 0.3,
             popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
           ),
         silent = TRUE
@@ -2427,49 +2441,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           "<br> Characteristic Count: ", sumdat$Parameter_Count,
           "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
         )
-      }
 
-      if ("without_ATTAINS_catchments" %in% names(.data)) {
-        images.ref <- append(images.ref, images[6])
-
-        leg.labels <- append(
-          leg.labels,
-          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-        )
-      }
-
-
-      # Add WQP observation features (should always exist):
-      try(
-        map <- map %>%
-          leaflet::addMarkers(
-            data = sumdat,
-            lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            icon = refIcons,
-            popup = set.popup
-          ),
-        silent = TRUE
-      )
-
-        map <- map %>%
-          leaflegend::addLegendImage(
-            images = images.ref,
-            labels = leg.labels,
-            labelStyle = "font-size: 14px;",
-            width = 14,
-            height = 14,
-            orientation = "vertical",
-            title = htmltools::tags$div("Legend",
-                                        style = "font-size: 14px;
-                                             text-align: left; font-weight: bold;"
-            ),
-            position = "bottomright"
-          )
-
-        rm(images.ref, images)
-      }
-
-      if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
         images.ref <- c(
           images[1:5]
         )
@@ -2490,10 +2462,49 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
           )
         }
+      }
+
+      if ("without_ATTAINS_catchments" %in% names(.data)) {
+        images.ref <- append(images.ref, images[6])
+
+        leg.labels <- append(
+          leg.labels,
+          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
+        )
+
+        without_ATTAINS_catchments <- NULL
+        try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
+              dplyr::rename(nhd = 1), silent = TRUE)
+
+        # Add missing catchment outlines (if they exist):
+        try(
+          map <- map %>%
+            leaflet::addPolygons(
+              data = without_ATTAINS_catchments,
+              color = "black",
+              weight = 1, fillOpacity = 0,
+              popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
+            ),
+          silent = TRUE
+        )
+
+      }
+
+        # Add WQP observation features (should always exist):
+        try(
+          map <- map %>%
+            leaflet::addMarkers(
+              data = sumdat,
+              lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
+              icon = refIcons,
+              popup = set.popup
+            ),
+          silent = TRUE
+        )
 
         map <- map %>%
           leaflegend::addLegendImage(
-            images = images,
+            images = images.ref,
             labels = leg.labels,
             labelStyle = "font-size: 14px;",
             width = 14,
@@ -2506,302 +2517,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             position = "bottomright"
           )
 
-        rm(images)
-      }
 
-      if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
-        message("No ATTAINS data associated with this Water Quality Portal data.")
-      }
 
       # Return leaflet map of TADA WQ and its associated ATTAINS data
       return(map)
-    }))
-  }
-
-  if ("without_ATTAINS_catchments" %in% names(.data)) {
-    without_ATTAINS_table <- .data[["TADA_without_ATTAINS"]]
-
-    if (nrow(ATTAINS_table) == 0 & nrow(without_ATTAINS_table) == 0) {
-      stop("Your WQP dataframe has no observations.")
-    }
-
-    required_columns <- c(
-      "LongitudeMeasure", "LatitudeMeasure",
-      "HorizontalCoordinateReferenceSystemDatumName",
-      "CharacteristicName", "MonitoringLocationIdentifier",
-      "MonitoringLocationName", "ResultIdentifier",
-      "ActivityStartDate", "OrganizationIdentifier"
-    )
-
-    if (!any(required_columns %in% colnames(ATTAINS_table))) {
-      stop("Your dataframe does not contain the necessary WQP-style column names.")
-    }
-
-    without_ATTAINS_catchments <- NULL
-    try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
-          dplyr::rename(nhd = 1), silent = TRUE)
-
-    suppressMessages(suppressWarnings({
-      # if data was spatial, remove for downstream leaflet dev.
-      # But first if no data in the ATTAINS table, add in required column names to
-      # without ATTAINS data:
-      if (nrow(ATTAINS_table) == 0) {
-        new_columns <- names(ATTAINS_table)[grep("^ATTAINS\\.", names(ATTAINS_table))]
-        ATTAINS_table <- without_ATTAINS_table %>%
-          sf::st_drop_geometry()
-
-        ATTAINS_table[new_columns] <- NA
-      } else {
-        ATTAINS_table <- ATTAINS_table %>%
-          sf::st_drop_geometry() %>%
-          dplyr::bind_rows(without_ATTAINS_table)
-      }
-
-      tada.pal <- TADA_ColorPalette()
-
-      colors <- data.frame(
-        overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
-        col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
-        dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
-        priority = c(1, 2, 3)
-      )
-
-      # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
-      try(
-        points_mapper <- ATTAINS_points %>%
-          dplyr::left_join(., colors, by = "overallstatus") %>%
-          dplyr::mutate(type = "Point Feature") %>%
-          tibble::rowid_to_column(var = "index") %>%
-          # some point features are actually multipoint features. Must extract all coordinates for mapping
-          # later:
-          dplyr::right_join(., tibble::as_tibble(sf::st_coordinates(ATTAINS_points)), by = c("index" = "L1")),
-        silent = TRUE
-      )
-
-      # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
-      try(
-        lines_mapper <- ATTAINS_lines %>%
-          dplyr::left_join(., colors, by = "overallstatus") %>%
-          dplyr::mutate(type = "Line Feature"),
-        silent = TRUE
-      )
-
-      # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
-      try(
-        polygons_mapper <- ATTAINS_polygons %>%
-          dplyr::left_join(., colors, by = "overallstatus") %>%
-          dplyr::mutate(type = "Polygon Feature"),
-        silent = TRUE
-      )
-
-      # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
-      try(
-        missing_raw_mapper <- missing_raw_features %>%
-          dplyr::left_join(., colors, by = "overallstatus") %>%
-          dplyr::mutate(type = "Raw Feature Unavailable"),
-        silent = TRUE
-      )
-
-      # Develop WQP site stats (e.g. count of observations, parameters, per site)
-      sumdat <- ATTAINS_table %>%
-        dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
-        dplyr::summarize(
-          Sample_Count = length(unique(ResultIdentifier)),
-          Visit_Count = length(unique(ActivityStartDate)),
-          Parameter_Count = length(unique(CharacteristicName)),
-          Organization_Count = length(unique(OrganizationIdentifier)),
-          ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier)))
-        ) %>%
-        dplyr::mutate(
-          ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
-          LatitudeMeasure = as.numeric(LatitudeMeasure),
-          LongitudeMeasure = as.numeric(LongitudeMeasure)
-        )
-
-      images.ref <- c(
-        images[1:5]
-      )
-
-      leg.labels <- c(
-        "ATTAINS: Not Supporting",
-        "ATTAINS: Supporting",
-        "ATTAINS: Not Assessed",
-        "WQP: Monitoring Locations",
-        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
-      )
-
-      if ("without_ATTAINS_catchments" %in% names(.data)) {
-        images.ref <- append(images.ref, images[6])
-
-        leg.labels <- append(
-          leg.labels,
-          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-        )
-      }
-
-      # Basemap for AOI:
-      map <- leaflet::leaflet() %>%
-        leaflet::addProviderTiles("Esri.WorldTopoMap",
-                                  group = "World topo",
-                                  options = leaflet::providerTileOptions(
-                                    updateWhenZooming = FALSE,
-                                    updateWhenIdle = TRUE
-                                  )
-        ) %>%
-        leaflet::clearShapes() %>%
-        leaflet::fitBounds(
-          lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
-          lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
-          lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
-          lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
-        ) %>%
-        leaflet.extras::addResetMapButton() %>%
-        leaflegend::addLegendImage(
-          images = images.ref,
-          labels = leg.labels,
-          labelStyle = "font-size: 14px;",
-          width = 14,
-          height = 14,
-          orientation = "vertical",
-          title = htmltools::tags$div("Legend",
-                                      style = "font-size: 14px;
-                                             text-align: left; font-weight: bold;"
-          ),
-          position = "bottomright"
-        )
-
-      # rm(images)
-
-      # Add ATTAINS catchment outlines (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = ATTAINS_catchments,
-            color = "black", fillColor = "grey",
-            weight = 1, fillOpacity = 0.3,
-            popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
-          ),
-        silent = TRUE
-      )
-
-      # Add missing catchment outlines (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = without_ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
-            popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
-          ),
-        silent = TRUE
-      )
-
-      # Add ATTAINS catchment outlines as AUs:
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = missing_raw_mapper,
-            color = ~ missing_raw_mapper$col,
-            fill = ~ missing_raw_mapper$col,
-            weight = 3, fillOpacity = 0.25,
-            popup = paste0(
-              "Assessment Unit Name: ", missing_raw_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ", missing_raw_mapper$assessmentunitidentifier,
-              "<br> Status: ", missing_raw_mapper$overallstatus,
-              "<br> Assessment Unit Type: ", missing_raw_mapper$type,
-              "<br> <a href=", missing_raw_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>",
-              "<br> NHDPlus HR Catchment ID: ", missing_raw_mapper$nhdplusid
-            )
-          ),
-        silent = TRUE
-      )
-
-      # Add ATTAINS polygon features (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = polygons_mapper,
-            color = ~ polygons_mapper$col,
-            fill = ~ polygons_mapper$col,
-            weight = 3, fillOpacity = 1,
-            popup = paste0(
-              "Assessment Unit Name: ", polygons_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ", polygons_mapper$assessmentunitidentifier,
-              "<br> Status: ", polygons_mapper$overallstatus,
-              "<br> Assessment Unit Type: ", polygons_mapper$type,
-              "<br> <a href=", polygons_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
-            )
-          ),
-        silent = TRUE
-      )
-
-      # Add ATTAINS lines features (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolylines(
-            data = lines_mapper,
-            color = ~ lines_mapper$col,
-            weight = 4, fillOpacity = 1,
-            popup = paste0(
-              "Assessment Unit Name: ", lines_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ", lines_mapper$assessmentunitidentifier,
-              "<br> Status: ", lines_mapper$overallstatus,
-              "<br> Assessment Unit Type: ", lines_mapper$type,
-              "<br> <a href=", lines_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
-            )
-          ),
-        silent = TRUE
-      )
-
-      # Add ATTAINS point features (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addCircleMarkers(
-            data = points_mapper,
-            lng = ~X, lat = ~Y,
-            color = ~ points_mapper$col, fillColor = ~ points_mapper$col,
-            fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5,
-            popup = paste0(
-              "Assessment Unit Name: ", points_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
-              "<br> Status: ", points_mapper$overallstatus,
-              "<br> Assessment Unit Type: ", points_mapper$type,
-              "<br> <a href=", points_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
-            )
-          ),
-        silent = TRUE
-      )
-
-      # Add WQP observation features (should always exist):
-      try(
-        map <- map %>%
-          leaflet::addCircleMarkers(
-            data = sumdat,
-            lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-            color = "grey", fillColor = "black",
-            fillOpacity = 0.8, stroke = TRUE, weight = 1.5, radius = 6,
-            popup = paste0(
-              "Site ID: ", sumdat$MonitoringLocationIdentifier,
-              "<br> Site Name: ", sumdat$MonitoringLocationName,
-              "<br> Measurement Count: ", sumdat$Sample_Count,
-              "<br> Visit Count: ", sumdat$Visit_Count,
-              "<br> Characteristic Count: ", sumdat$Parameter_Count,
-              "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
-            )
-          ),
-        silent = TRUE
-      )
-
-      if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
-        message("No ATTAINS data associated with this Water Quality Portal data.")
-      }
-
-      # Return leaflet map of TADA WQ and its associated ATTAINS data
-      return(map)
-    }))
-  }
+  }))
 }
-
 
 
 
