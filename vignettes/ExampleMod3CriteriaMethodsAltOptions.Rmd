@@ -281,10 +281,10 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table. The user 
-supplied table is prioritized. Any
-missing WQP/TADA.CharacteristicName will be matched from ATTAINS based
-on the auto_assign = TRUE option.
+In this first example, a user supplies their own criteria table. The
+user supplied table is prioritized. Any missing
+WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
+auto_assign = TRUE option.
 
 Note: If a user has an updated list of use names that have been applied
 to and have chosen to apply the auto_assign = TRUE input, they should

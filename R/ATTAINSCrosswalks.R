@@ -1359,7 +1359,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
           sheet = "CreateParamRef",
           cols = 3, rows = 2:1000,
           type = "list",
-          value = sprintf("'Index'!$E$2:$E$15000"), # please ensure this covers all values in the column E in the Index tab for future development.
+          value = sprintf("'Index'!$E$2:$E$30000"), # please ensure this covers all values in the column E in the Index tab for future development.
           allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
         )
       )
@@ -2966,10 +2966,10 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
       dplyr::arrange(MonitoringLocationIdentifier)
   }
   
-  if (displayNA == TRUE && nrow(useParamRef) > 1000 || length(unique_ML) > 1000) {
+  if (displayNA == TRUE && nrow(useParamRef) > 2000 || length(unique_ML) > 2000) {
     warning(paste0(
       "displayNA = TRUE: ",
-      "This MLSummaryRef table contains over 1000 uses and parameters. Cannot assign all uses and parameters to each monitoring sites. ",
+      "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
       "Defaulting to displayNA = FALSE"
     ))
     
