@@ -165,8 +165,8 @@ criteria table
     your TADA/WQP data frame to ensure you review any missing WQP
     Characteristic, speciation and fraction combinations.
 
-    B.) Alternatively, users can choose to display all unique TADA
-    Characteristic name rather than TADA.ComparableDataIdentifier. In
+    B.) Alternatively, users can choose to display all unique **TADA
+    Characteristic name** rather than TADA.ComparableDataIdentifier. In
     this scenario, each ATTAINS.ParameterName in the analysis summary
     output will be grouped to any of these TADA/WQP CharacteristicName,
     unless a fraction or speciation is defined.

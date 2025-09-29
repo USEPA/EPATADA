@@ -288,8 +288,7 @@ TADA_UpdateExampleData <- function() {
                       internal = FALSE, overwrite = TRUE,
                       compress = "xz", version = 3, ascii = FALSE
     )
-    rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw,
-       MT.AUMLRef, Data_MT_AUMLRef, Data_MT_MissoulaCounty)
+
 
   # Generate Data_MT_UseAURef
 
@@ -301,7 +300,8 @@ TADA_UpdateExampleData <- function() {
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
   )
-  rm(Data_MT_UseAURef)
+  rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw,
+     MT.AUMLRef, Data_MT_AUMLRef, Data_MT_MissoulaCounty, Data_MT_UseAURef)
 }
 ###########################################################
 
