@@ -65,6 +65,7 @@ jobs:
           
       - name: Update example data
         run: |
+          library(EPATADA)
           TADA_UpdateExampleData <- function() {
             # Generate Data_Nutrients_UT
             Data_Nutrients_UT <- TADA_DataRetrieval(
