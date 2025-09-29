@@ -3,7 +3,7 @@ name: Update Component Files
 on:
   push:
     branches:
-      [main, 657-bot-updates-for-maintenance-tasks]
+      [main]
   pull_request:
     branches:
       [main]
