@@ -127,6 +127,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_getNWIS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_listNWIS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/ask_user.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/checkColName.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>
@@ -137,6 +138,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/pchIcons.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/pipe.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/quiet.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/renameATTAINSCols.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/writeLayer.html</loc></url>
 </urlset>
 

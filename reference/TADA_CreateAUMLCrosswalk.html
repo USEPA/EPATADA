@@ -34,7 +34,7 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule3a.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX 3.0 Migration</a></li>
+    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX3-Migration</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -66,6 +66,8 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 <span>  au_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  add_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  nhd_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  return_nearest <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,19 +81,45 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 
 
 <dt id="arg-au-ref">au_ref<a class="anchor" aria-label="anchor" href="#arg-au-ref"></a></dt>
-<dd><p>Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-and MonitoringLocationIdentifier.</p></dd>
+<dd><p>Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+MonitoringLocationIdentifier and WaterType.</p></dd>
 
 
 <dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
-<dd><p>Organization id to match AUs.</p></dd>
+<dd><p>Character argument. The ATTAINS organization identifier.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.</p></dd>
 
 
 <dt id="arg-add-catch">add_catch<a class="anchor" aria-label="anchor" href="#arg-add-catch"></a></dt>
-<dd><p>Optional. When add_catch = TRUE, catchments are matched to monitoring
-locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
-and matching these additional geospatial data will increase the run time of this function
-significantly. Default is add_catch = FALSE.</p></dd>
+<dd><p>Boolean argument. When add_catch = TRUE, catchments
+are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
+monitoring locations by retrieving catchment data from ATTAINS geospatial web
+services. Fetching and matching these additional geospatial data will increase
+the run time of this function significantly. Default is add_catch = FALSE.</p></dd>
+
+
+<dt id="arg-nhd-catch">nhd_catch<a class="anchor" aria-label="anchor" href="#arg-nhd-catch"></a></dt>
+<dd><p>Boolean argument. Whether the user would like to return
+NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
+with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+the returned list splits observations into two dataframes: WQP observations
+with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
+observations without ATTAINS catchment data. Defaults to FALSE. This param
+applies only to WQP observations that do not have matches in the user-supplied ref
+or ATTAINS.</p></dd>
+
+
+<dt id="arg-return-nearest">return_nearest<a class="anchor" aria-label="anchor" href="#arg-return-nearest"></a></dt>
+<dd><p>If a WQP observation falls within more than one AU,
+return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+(return_nearest = FALSE). This param applies only to WQP observations that do
+not have matches in the user-supplied ref or ATTAINS.</p></dd>
 
 
 <dt id="arg-batch-upload">batch_upload<a class="anchor" aria-label="anchor" href="#arg-batch-upload"></a></dt>
