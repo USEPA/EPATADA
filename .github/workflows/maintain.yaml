@@ -10,8 +10,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-permissions: read-all
-
 jobs:
   maintenance_updates:
     runs-on: ubuntu-latest
@@ -31,6 +29,8 @@ jobs:
         uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: Update reference files
+        with:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           install.packages('remotes')
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
