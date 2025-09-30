@@ -88,7 +88,7 @@
 #' This helps prevent users from overwriting their progress.
 #'
 #' @return A data frame with the criteria and methodology table in TADA format.
-#'
+#' @importFrom rlang :=
 #' @export
 #'
 #' @examples
@@ -1071,7 +1071,7 @@ TADA_CriteriaDataDictionary <- function() {
   openxlsx::writeData(wb, "DataDictionary", data_to_write, startCol = 2, startRow = 2)
   
   # Create a style for the header row
-  header_style <- createStyle(
+  header_style <- openxlsx::createStyle(
     fontSize = 12,
     textDecoration = "bold",
     halign = "center",
@@ -1081,31 +1081,31 @@ TADA_CriteriaDataDictionary <- function() {
   )
   
   # Apply the header style to the second row (header)
-  addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
+  openxlsx::addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
   # Create a style for borders on all data cells
-  data_border_style <- createStyle(
+  data_border_style <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
     borderColour = "#000000" # Light grey border
   )
   
   # Apply data border style to all data rows and columns besides header
-  addStyle(wb, "DataDictionary", data_border_style, rows = 3:(nrow(data_to_write) + 2), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
+  openxlsx::addStyle(wb, "DataDictionary", data_border_style, rows = 3:(nrow(data_to_write) + 2), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
   
   # Define description text that gets wrapped
-  wrapStyle <- createStyle(
+  wrapStyle <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
     borderColour = "#000000", # Light grey border
     wrapText = TRUE
   )
 
   # only applies to the last column. We shifted the table to B2, adjust accordingly
-  addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
+  openxlsx::addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
 
-  setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
+  openxlsx::setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
   
   # Set column widths to automatically fit content, except last column
-  setColWidths(wb, "DataDictionary", cols = 1:(ncol(data_to_write) - 1), widths = "auto")
+  openxlsx::setColWidths(wb, "DataDictionary", cols = 1:(ncol(data_to_write) - 1), widths = "auto")
   
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)

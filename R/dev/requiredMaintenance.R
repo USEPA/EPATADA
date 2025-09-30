@@ -242,10 +242,12 @@ TADA_UpdateExampleData <- function() {
  # get crosswalk from ATTAINS
   attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
- # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
+ # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs 
+ # pulled from ATTAINS are WQP compatible (adds org ID if missing)
   clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
- # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
+ # create example user supplied crosswalk 
+ # (select a few Monitoring Locations from the tada df to use for demonstration purposes)
   user.supplied.cw <- clean.existing.attains.MT %>%
     dplyr::select(
       ATTAINS.AssessmentUnitIdentifier,
