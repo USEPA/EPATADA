@@ -32,7 +32,8 @@ jobs:
 
       - name: Update reference files
         run: |
-          install.packages('remotes')
+          install.packages("remotes")
+          library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
           library(EPATADA)
           # ATTAINSRefTables.R
