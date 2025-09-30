@@ -14,7 +14,7 @@ jobs:
   maintenance_updates:
     runs-on: ubuntu-latest
     env:
-      auth_token: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repo
@@ -33,7 +33,7 @@ jobs:
       - name: Update reference files
         run: |
           install.packages('remotes')
-          remotes::install_github("USEPA/EPATADA", auth_token = Sys.getenv("auth_token"), ref = "develop", dependencies = TRUE, force = TRUE)
+          remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
           library(EPATADA)
           # ATTAINSRefTables.R
           EPATADA:::TADA_UpdateATTAINSOrgIDsRef()
