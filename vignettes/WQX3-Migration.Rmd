@@ -1,5 +1,5 @@
 ---
-title: "WQX3-Migration"
+title: "WQX 3.0 Migration"
 format: html
 editor: visual
 author: "TADA Team"

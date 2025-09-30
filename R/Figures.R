@@ -496,10 +496,10 @@ TADA_OverviewMap <- function(.data) {
       # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
       bbox <- sf::st_bbox(
         c(
-          xmin = min(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
-          ymin = min(sumdat$TADA.LatitudeMeasure, na.rm = TRUE),
-          xmax = max(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
-          ymax = max(sumdat$TADA.LatitudeMeasure, na.rm = TRUE)
+          xmin = min(sumdat$TADA.LongitudeMeasure),
+          ymin = min(sumdat$TADA.LatitudeMeasure),
+          xmax = max(sumdat$TADA.LongitudeMeasure),
+          ymax = max(sumdat$TADA.LatitudeMeasure)
         ),
         crs = sf::st_crs(sumdat)
       )
