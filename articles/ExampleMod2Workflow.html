@@ -11,8 +11,8 @@
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Example Module 2 Workflow">
-<meta name="description" content="An example Module 2 workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.">
-<meta property="og:description" content="An example Module 2 workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.">
+<meta name="description" content="An example Module 2 workflow for creating an ATTAINS assessment unit/WQP monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any WQP monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.">
+<meta property="og:description" content="An example Module 2 workflow for creating an ATTAINS assessment unit/WQP monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any WQP monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/TADAModule2.html">TADA Module 2: Geospatial Functions</a></li>
     <li><a class="dropdown-item" href="../articles/TADAModule3a.html">TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</a></li>
     <li><a class="dropdown-item" href="../articles/TADAWaterSciConWorkshopDemo.html">TADA: WaterSciCon Workshop Demo</a></li>
-    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX3-Migration</a></li>
+    <li><a class="dropdown-item" href="../articles/WQX3-Migration.html">WQX 3.0 Migration</a></li>
     <li><a class="dropdown-item" href="../articles/WQXValidationService.html">WQX QAQC Service User Guide</a></li>
   </ul>
 </li>
@@ -82,19 +82,8 @@
     
     
 <div class="section level2">
-<h2 id="overview-and-setup">Overview and Setup<a class="anchor" aria-label="anchor" href="#overview-and-setup"></a>
+<h2 id="install-and-load-epatada-package">Install and Load EPATADA Package<a class="anchor" aria-label="anchor" href="#install-and-load-epatada-package"></a>
 </h2>
-<p>This is an example Module 2 workflow focused on: A) creating an
-ATTAINS assessment unit/WQP monitoring location crosswalk using
-<code>TADA_CreateAUMLCrosswalk</code>, B) reviewing assessment units and
-monitoring locations on a map with <code>TADA_ViewATTAINS</code>, C)
-submitting an up to date assessment unit/WQP monitoring location
-crosswalk to ATTAINS using <code>TADA_UpdateATTAINSAUMLCrosswalk</code>,
-and D) assigning uses to assessment units with
-<code>TADA_CreateUseAURef</code>.</p>
-<div class="section level3">
-<h3 id="install-and-load-epatada-package">Install and Load EPATADA Package<a class="anchor" aria-label="anchor" href="#install-and-load-epatada-package"></a>
-</h3>
 <p>First, install and load the remotes package specifying the repo. This
 is needed before installing EPATADA because it is only available on
 GitHub (not CRAN).</p>
@@ -115,15 +104,14 @@ GitHub (un-comment).</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
-<p>Finally, use the library() function to load the EPATADA R Package and
-other required packages/</p>
+<p>Finally, use the library() function to load the TADA R Package into
+your R session.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="get-wqp-monitoring-data-in-montana-using-tada_dataretrieval">Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()<a class="anchor" aria-label="anchor" href="#get-wqp-monitoring-data-in-montana-using-tada_dataretrieval"></a>
-</h3>
+<div class="section level2">
+<h2 id="get-wqp-monitoring-data-in-montana-using-tada_dataretrieval">Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()<a class="anchor" aria-label="anchor" href="#get-wqp-monitoring-data-in-montana-using-tada_dataretrieval"></a>
+</h2>
 <p>Get bacteria and pH data from Missoula County, Montana.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get MT data</span></span>
@@ -140,143 +128,77 @@ other required packages/</p>
 <span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># clean up data set (not comprehensive)</span></span>
+<span><span class="co"># clean up data set (minimal)</span></span>
 <span><span class="va">tada.MT.clean</span> <span class="op">&lt;-</span> <span class="va">tada.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_AnalysisDataFilter.html">TADA_AnalysisDataFilter</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_ConvertSpecialChars.html">TADA_ConvertSpecialChars</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"TADA.ResultMeasureValue"</span>,</span>
-<span>                           clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># remove intermediate objects</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tada.MT</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="create-an-example-user-supplied-crosswalk">Create An Example User-Supplied Crosswalk<a class="anchor" aria-label="anchor" href="#create-an-example-user-supplied-crosswalk"></a>
-</h3>
-<p>Get existing data from ATTAINS using
-<code>TADA_GetATTAINSAUMLCrosswalk</code> and subset a few rows to
-create an example user-supplied ATTAINS Assessment Unit and WQP
-Monitoring Location crosswalk for demonstration purposes. If you have
-your own crosswalk, this step can be skipped.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># review valid ATTAINS org IDs</span></span>
-<span><span class="va">ATTAINS_orgs</span> <span class="op">&lt;-</span> <span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"org_id"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># get crosswalk from ATTAINS</span></span>
-<span><span class="va">attains.existing.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINSAUMLCrosswalk.html">TADA_GetATTAINSAUMLCrosswalk</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)</span></span>
-<span><span class="va">clean.existing.attains.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)</span></span>
-<span><span class="va">user.supplied.cw</span> <span class="op">&lt;-</span> <span class="va">clean.existing.attains.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
-<span>    <span class="va">ATTAINS.AssessmentUnitIdentifier</span>,</span>
-<span>    <span class="va">ATTAINS.MonitoringLocationIdentifier</span>,</span>
-<span>    <span class="va">ATTAINS.WaterType</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.MonitoringLocationIdentifier</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    <span class="st">"MDEQ_WQ_WQX-C04CKFKR05"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC01"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC02"</span>,</span>
-<span>    <span class="st">"MDEQ_WQ_WQX-C04KNDYC04"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC54"</span></span>
-<span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
-<span>    AssessmentUnitIdentifier <span class="op">=</span> <span class="va">ATTAINS.AssessmentUnitIdentifier</span>,</span>
-<span>    MonitoringLocationIdentifier <span class="op">=</span> <span class="va">ATTAINS.MonitoringLocationIdentifier</span>,</span>
-<span>    WaterType <span class="op">=</span> <span class="va">ATTAINS.WaterType</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="co"># Add an example new assessment unit for demonstration purposes.</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
-<span>    AssessmentUnitIdentifier <span class="op">=</span> <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span>,</span>
-<span>    MonitoringLocationIdentifier <span class="op">=</span> <span class="st">"NARS_WQX-NWC_MT-10184"</span>,</span>
-<span>    WaterType <span class="op">=</span> <span class="st">"LAKE, FRESHWATER"</span></span>
-<span>  <span class="op">)</span><span class="op">)</span> </span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">attains.existing.MT</span>, <span class="va">clean.existing.attains.MT</span>, <span class="va">ATTAINS_orgs</span><span class="op">)</span></span></code></pre></div>
-</div>
+<div class="section level2">
+<h2 id="create-an-example-user-supplied-attains-assessment-unit-and-wqp-monitoring-location-crosswalk">Create An Example User-Supplied ATTAINS Assessment Unit and WQP
+Monitoring Location Crosswalk<a class="anchor" aria-label="anchor" href="#create-an-example-user-supplied-attains-assessment-unit-and-wqp-monitoring-location-crosswalk"></a>
+</h2>
+<p>Get existing data from ATTAINS and subset a few rows to create an
+example user-supplied crosswalk for demonstration purposes.</p>
 </div>
 <div class="section level2">
-<h2 id="step-a-discover-matches-with-tada_createaumlcrosswalk">Step A: Discover matches with TADA_CreateAUMLCrosswalk()<a class="anchor" aria-label="anchor" href="#step-a-discover-matches-with-tada_createaumlcrosswalk"></a>
+<h2 id="find-additional-attains-assessment-unit-and-wqp-monitoring-location-matches-using-tada_createaumlcrosswalk">Find Additional ATTAINS Assessment Unit and WQP Monitoring Location
+Matches Using TADA_CreateAUMLCrosswalk()<a class="anchor" aria-label="anchor" href="#find-additional-attains-assessment-unit-and-wqp-monitoring-location-matches-using-tada_createaumlcrosswalk"></a>
 </h2>
-<p><code>TADA_CreateAUMLCrosswalk</code> is a new function that can be
-leveraged to create an ATTAINS assessment unit/WQP monitoring location
-crosswalk. It considers:</p>
+<p>Run TADA_CreateAUMLCrosswalk which can incorporate any combination
+of:</p>
 <ol style="list-style-type: decimal">
-<li><p>an optional user-supplied crosswalk,</p></li>
-<li><p>the results of <code>TADA_GetATTAINSAUMLCrosswalk</code> which
-brings in any WQP monitoring location information stored in ATTAINS by
-participating organizations, and</p></li>
-<li><p>the results of <code>TADA_CreateATTAINSAUMLCrosswalk</code> which
-leverages the ATTAINS catchments to join monitoring locations to
-assessment units via a geospatial join.</p></li>
+<li><p>(optional) user-supplied crosswalk,</p></li>
+<li><p>crosswalk downloaded from ATTAINS, and</p></li>
+<li><p>results from TADA_CreateATTAINSAUMLCrosswalk which leverages the
+ATTAINS catchments to join monitoring locations to assessment units via
+a geospatial join .</p></li>
 </ol>
-<p>The three potential crosswalk data sources are prioritized in the
-order listed to create a comprehensive assessment unit/monitoring
-location crosswalk. This means that any WQP monitoring locations which
-remain unassigned after checking the user-supplied crosswalk will be
-subset and the function will then attempt to make additional ATTAINS
-assessment unit assignments using
-<code>TADA_GetATTAINSAUMLCrosswalk.</code> The same process then repeats
-and the function will then attempt to make additional ATTAINS assessment
-unit assignments using <code>TADA_CreateATTAINSAUMLCrosswalk</code>. All
-of this happens behind the scenes within the
-<code>TADA_CreateAUMLCrosswalk</code> functions so that users do not
-need to run them all separately (though that is still an option if users
-prefer).</p>
+<p>The assignments are prioritized in the order listed. Any WQP
+monitoring locations which remain unassigned after checking the
+user-supplied crosswalk will be subset and run with
+TADA_CreateATTAINSAUMLCrosswalk which will attempt to make additional
+ATTAINS assessment unit assignments.</p>
 <p>To make this function run more efficiently, and because we already
 have assessment unit assignments for some monitoring locations from the
-user-supplied crosswalk and the crosswalk downloaded from ATTAINS
-(<code>TADA_GetATTAINSAUMLCrosswalk</code>), the ATTAINS catchment data
-from the geospatial service is not currently being returned for matches
-in the crosswalks supplied by users or imported from ATTAINS. We have
-plans to create additional functions/internal reference files to
-facilitate this returning the associated catchments in the future.
-Therefore, any catchment data available for mapping is currently from
-<code>TADA_CreateATTAINSAUMLCrosswalk</code> assessed WQP monitoring
-locations only.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+user-supplied crosswalk and the crosswalk downloaded from ATTAINS, the
+ATTAINS catchment data from the geospatial service is not currently
+being returned for matches in the crosswalks supplied by users or
+imported from ATTAINS. We have plans to create additional
+functions/internal reference files to facilitate this returning the
+associated catchments in the future. Therefore, any catchment data
+available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk
+assessed WQP monitoring locations only.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use TADA get attains to make AU assignments for unassigned MLs</span></span>
 <span><span class="va">MT.AUMLRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateAUMLCrosswalk.html">TADA_CreateAUMLCrosswalk</a></span><span class="op">(</span><span class="va">tada.MT.clean</span>,</span>
 <span>  au_ref <span class="op">=</span> <span class="va">user.supplied.cw</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  add_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  nhd_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-b-generate-a-map-with-tada_viewattains">Step B: Generate a Map with TADA_ViewATTAINS<a class="anchor" aria-label="anchor" href="#step-b-generate-a-map-with-tada_viewattains"></a>
+<h2 id="generate-a-map-with-tada_viewattains">Generate a Map with TADA_ViewATTAINS<a class="anchor" aria-label="anchor" href="#generate-a-map-with-tada_viewattains"></a>
 </h2>
-<p>The <code><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS()</a></code> map function shows the results
-from all three different crosswalk sources (user supplied crosswalk,
-ATTAINS crosswalk, and ATTAINS catchments/geospatial join) by using
-different circle markers. The user icon indicates the monitoring
-location was from a user supplied ref. The circle with a check mark
-signifies a match from the crosswalk downloaded from ATTAINS
-(<code>TADA_GetATTAINSAUMLCrosswalk</code>). Matches found by comparing
-monitoring locations with ATTAINS catchment and assessment geometry with
-<code>TADA_CreateATTAINSAUMLCrosswalk</code> are represented by solid
-fill circle markers. The source is also displayed in the pop up window
-that appears when a user clicks on each circle marker.</p>
+<p>The TADA_ViewATTAINS() map function shows the results from all three
+different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
+and ATTAINS catchments/geospatial join) using different color circle
+markers (not final colors, we are very open to suggestions). The source
+has also been added to the popup window.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">MT.AUMLRef</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="update-crosswalk-in-attains-using-tada_updateattainsaumlcrosswalk">Update crosswalk in ATTAINS using
+TADA_UpdateATTAINSAUMLCrosswalk<a class="anchor" aria-label="anchor" href="#update-crosswalk-in-attains-using-tada_updateattainsaumlcrosswalk"></a>
+</h2>
+<p>After making any necessary changes to the ATTAINS_batchupload data
+frame generated by TADA_CreateAUMLCrosswalk, run
+TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">MT.AUMLRef</span>, ref_icons <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="step-c-update-crosswalk-in-attains-using-tada_updateattainsaumlcrosswalk">Step C: Update crosswalk in ATTAINS using
-TADA_UpdateATTAINSAUMLCrosswalk<a class="anchor" aria-label="anchor" href="#step-c-update-crosswalk-in-attains-using-tada_updateattainsaumlcrosswalk"></a>
-</h2>
-<p>The output of TADA_UpdateATTAINSAUMLCrosswalk can be uploaded to
-ATTAINS to create or update Monitoring Location Identifiers in ATTAINS
-Assessment Unit profiles. Users can specify whether all records should
-be overwritten (replaced) or if new Monitoring Location Identifiers
-should be appended (added) to existing records. Enter
-?TADA_UpdateATTAINSAUMLCrosswalk() into the console for more
-details.</p>
-<p>In this example workflow, after making any necessary changes to the
-ATTAINS_batchupload data frame generated by TADA_CreateAUMLCrosswalk, we
-run TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.
-This is now ready to upload to ATTAINS.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">batch.upload.MT</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span> <span class="co"># selected attains_replace = TRUE because all matches                                     currently in ATTAINS are included in this new crosswalk</span></span>
 <span>    attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -288,16 +210,15 @@ This is now ready to upload to ATTAINS.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-d-assign-uses-to-aus-with-tada_createuseauref">Step D: Assign uses to AUs with TADA_CreateUseAURef<a class="anchor" aria-label="anchor" href="#step-d-assign-uses-to-aus-with-tada_createuseauref"></a>
+<h2 id="assign-uses-to-aus-with-tada_createuseauref">Assign uses to AUs with TADA_CreateUseAURef<a class="anchor" aria-label="anchor" href="#assign-uses-to-aus-with-tada_createuseauref"></a>
 </h2>
-<p>After assigning WQP MLs to ATTAINS AUs, we will use
-<code>TADA_CreateUseAURef</code> to assign uses to these AUs. First, we
-will convert the ML to AU crosswalk to the appropriate format for this
-TADA workflow. We will also assign the <em>NEW:EX_MDEQ_WQ_WQX</em>
-assessment unit example to the water type <em>LAKE, FRESHWATER</em> to
-demonstrate how to <code>auto_assign</code> uses to a new AU that is not
-yet in ATTAINS based on water type.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<p>After assigning ML sites to AU, we will use TADA_CreateUseAURef to
+assign uses to these AUs. First, convert the ML sites to AU reference
+table to the appropriate format for TADA workflow. We will also assign
+the NEW:EX_MDEQ_WQ_WQX assessment unit example to the water type “LAKE,
+FRESHWATER” for demonstration on how to auto_assign uses to a new AU
+that is not yet in ATTAINS nor has been assigned uses to it yet.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Final.MT.AUMLRef</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span> <span class="co"># selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk</span></span>
 <span>    attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -306,32 +227,37 @@ yet in ATTAINS based on water type.</p>
 <span>    <span class="co"># ml ids have already  been corrected if needed</span></span>
 <span>    update_mlid <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
-<span>  <span class="op">)</span> </span></code></pre></div>
-<p>Now, we can use Final.MT.AUMLRef as our ML to AU crosswalk and
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    ATTAINS.WaterType <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span> <span class="op">~</span> <span class="st">"LAKE, FRESHWATER"</span>,</span>
+<span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">ATTAINS.WaterType</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<p>Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and
 proceed with assigning uses for each unique AU. The assignment of uses
-to AUs are prioritized as follows:</p>
+to AU are prioritized as follows:</p>
 <ol style="list-style-type: decimal">
 <li><p>(optional) User supplied uses to AU crosswalk,</p></li>
 <li><p>Import existing uses by AU from ATTAINS ExpertQuery.</p></li>
 </ol>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseAURef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseAURef.html">TADA_CreateUseAURef</a></span><span class="op">(</span>AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>, org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span></code></pre></div>
-<div class="section level3">
-<h3 id="assign-uses-to-new-aus-based-on-water-type-with-tada_createwateruseref">Assign uses to new AUs based on water type with
+</div>
+<div class="section level2">
+<h2 id="assign-uses-to-new-aus-based-on-water-type-with-tada_createwateruseref">Assign uses to new AUs based on water type with
 TADA_CreateWaterUseRef<a class="anchor" aria-label="anchor" href="#assign-uses-to-new-aus-based-on-water-type-with-tada_createwateruseref"></a>
-</h3>
+</h2>
 <p>For any new AU, users will need to determine how to assign uses to
 them.</p>
 <ol style="list-style-type: decimal">
-<li>TADA has developed a function called
-<code>TADA_CreateWaterUseRef</code> which imports a crosswalk of
-existing uses by water type from ExpertQuery for a specified
-organization. It can be leveraged within
-<code>TADA_CreateUseAURef</code> to assign any new AU the applicable
-uses for that water type. Users may choose to edit the
-<code>TADA_CreateWaterUseRef</code> crosswalk if needed.</li>
+<li>TADA has developed a function called TADA_CreateWaterUseRef which
+imports a crosswalk of existing uses by water type from ExpertQuery for
+a specified organization. It can be leveraged within TADA_CreateUseAURef
+to assign any new AU the applicable uses for that water type. Users may
+choose to edit the TADA_CreateWaterUseRef crosswalk if needed.</li>
 </ol>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseAURef.WaterUseRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseAURef.html">TADA_CreateUseAURef</a></span><span class="op">(</span></span>
 <span>  waterUseRef <span class="op">=</span> <span class="fu"><a href="../reference/TADA_CreateWaterUseRef.html">TADA_CreateWaterUseRef</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span>,</span>
 <span>  AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>,</span>
@@ -339,9 +265,9 @@ uses for that water type. Users may choose to edit the
 <span><span class="op">)</span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>Users may manually assign use names to any new AUs if desired rather
-than using <code>TADA_CreateWaterUseRef</code>. For example:</li>
+than using TADA_CreateWaterUseRef. For example:</li>
 </ol>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseAURef.manual</span> <span class="op">&lt;-</span> <span class="va">MT.UseAURef</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -352,7 +278,6 @@ than using <code>TADA_CreateWaterUseRef</code>. For example:</li>
 <span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">ATTAINS.UseName.x</span>, <span class="op">-</span><span class="va">ATTAINS.UseName.y</span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
