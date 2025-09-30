@@ -14,11 +14,11 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{Example Module 2 Workflow}
   %\VignetteEngine{knitr::rmarkdown}
+description: An example Module 2 workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
   chunk_output_type: console
   markdown:
     wrap: 72
-description: An example Module 2 workflow for creating an ATTAINS assessment unit/WQP monitoring location crosswalk. This workflow considers (1) an optional user-supplied crosswalk, (2) any WQP monitoring location data stored in ATTAINS, and (3) the results of TADA_CreateATTAINSAUML prioritized in the order listed to create a comprehensive assessment unit/monitoring location crosswalk.
 ---
 
 ```{r setup, include=FALSE}
@@ -32,7 +32,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Install and Load EPATADA Package
+## Overview and Setup
+
+This is an example Module 2 workflow focused on: A) creating an ATTAINS
+assessment unit/WQP monitoring location crosswalk using
+`TADA_CreateAUMLCrosswalk`, B) reviewing assessment units and monitoring
+locations on a map with `TADA_ViewATTAINS`, C) submitting an up to date
+assessment unit/WQP monitoring location crosswalk to ATTAINS using
+`TADA_UpdateATTAINSAUMLCrosswalk`, and D) assigning uses to assessment
+units with `TADA_CreateUseAURef`.
+
+### Install and Load EPATADA Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -62,19 +72,20 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "646-legend-for-color-coding-of-wqp-observations-and-what-they-correspond-to-in-tada_viewattains",
   dependencies = TRUE
 )
 ```
 
-Finally, use the library() function to load the TADA R Package into your
-R session.
+Finally, use the library() function to load the EPATADA R Package and
+other required packages/
 
 ```{r library, results = 'hide'}
 library(EPATADA)
+library(dplyr)
 ```
 
-## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
+### Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
 
 Get bacteria and pH data from Missoula County, Montana.
 
@@ -93,21 +104,30 @@ tada.MT <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-# clean up data set (minimal)
+# clean up data set (not comprehensive)
 tada.MT.clean <- tada.MT %>%
-  TADA_RunKeyFlagFunctions() %>%
-  TADA_SimpleCensoredMethods()
+  TADA_AnalysisDataFilter(clean = TRUE) %>% 
+  TADA_RunKeyFlagFunctions(clean = TRUE) %>%
+  TADA_SimpleCensoredMethods() %>%
+  TADA_HarmonizeSynonyms() %>%
+  TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue",
+                           clean = TRUE)
 
 # remove intermediate objects
 rm(tada.MT)
 ```
 
-## Create An Example User-Supplied ATTAINS Assessment Unit and WQP Monitoring Location Crosswalk
+### Create An Example User-Supplied Crosswalk
 
-Get existing data from ATTAINS and subset a few rows to create an
-example user-supplied crosswalk for demonstration purposes.
+Get existing data from ATTAINS using `TADA_GetATTAINSAUMLCrosswalk` and
+subset a few rows to create an example user-supplied ATTAINS Assessment
+Unit and WQP Monitoring Location crosswalk for demonstration purposes.
+If you have your own crosswalk, this step can be skipped.
 
-```{r demo.user, echo = FALSE}
+```{r demo.user, results = 'hide'}
+# review valid ATTAINS org IDs
+ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
+
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
@@ -118,7 +138,8 @@ clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 user.supplied.cw <- clean.existing.attains.MT %>%
   dplyr::select(
     ATTAINS.AssessmentUnitIdentifier,
-    ATTAINS.MonitoringLocationIdentifier
+    ATTAINS.MonitoringLocationIdentifier,
+    ATTAINS.WaterType
   ) %>%
   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
@@ -126,45 +147,59 @@ user.supplied.cw <- clean.existing.attains.MT %>%
   )) %>%
   dplyr::rename(
     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
+    MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+    WaterType = ATTAINS.WaterType
   ) %>%
   # Add an example new assessment unit for demonstration purposes.
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184"
-  ))
+    MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
+    WaterType = "LAKE, FRESHWATER"
+  )) 
 
-rm(attains.existing.MT, clean.existing.attains.MT)
+rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ```
 
-## Find Additional ATTAINS Assessment Unit and WQP Monitoring Location Matches Using TADA_CreateAUMLCrosswalk()
+## Step A: Discover matches with TADA_CreateAUMLCrosswalk()
 
-Run TADA_CreateAUMLCrosswalk which can incorporate any combination of:
+`TADA_CreateAUMLCrosswalk` is a new function that can be leveraged to
+create an ATTAINS assessment unit/WQP monitoring location crosswalk. It
+considers:
 
-1.  (optional) user-supplied crosswalk,
+1.  an optional user-supplied crosswalk,
 
-2.  crosswalk downloaded from ATTAINS, and
+2.  the results of `TADA_GetATTAINSAUMLCrosswalk` which brings in any
+    WQP monitoring location information stored in ATTAINS by
+    participating organizations, and
 
-3.  results from TADA_CreateATTAINSAUMLCrosswalk which leverages the
+3.  the results of `TADA_CreateATTAINSAUMLCrosswalk` which leverages the
     ATTAINS catchments to join monitoring locations to assessment units
-    via a geospatial join .
+    via a geospatial join.
 
-The assignments are prioritized in the order listed. Any WQP monitoring
-locations which remain unassigned after checking the user-supplied
-crosswalk will be subset and run with TADA_CreateATTAINSAUMLCrosswalk
-which will attempt to make additional ATTAINS assessment unit
-assignments.
+The three potential crosswalk data sources are prioritized in the order
+listed to create a comprehensive assessment unit/monitoring location
+crosswalk. This means that any WQP monitoring locations which remain
+unassigned after checking the user-supplied crosswalk will be subset and
+the function will then attempt to make additional ATTAINS assessment
+unit assignments using `TADA_GetATTAINSAUMLCrosswalk.` The same process
+then repeats and the function will then attempt to make additional
+ATTAINS assessment unit assignments using
+`TADA_CreateATTAINSAUMLCrosswalk`. All of this happens behind the scenes
+within the `TADA_CreateAUMLCrosswalk` functions so that users do not
+need to run them all separately (though that is still an option if users
+prefer).
 
 To make this function run more efficiently, and because we already have
 assessment unit assignments for some monitoring locations from the
-user-supplied crosswalk and the crosswalk downloaded from ATTAINS, the
-ATTAINS catchment data from the geospatial service is not currently
-being returned for matches in the crosswalks supplied by users or
-imported from ATTAINS. We have plans to create additional
-functions/internal reference files to facilitate this returning the
-associated catchments in the future. Therefore, any catchment data
-available for mapping is currently from TADA_CreateATTAINSAUMLCrosswalk
-assessed WQP monitoring locations only.
+user-supplied crosswalk and the crosswalk downloaded from ATTAINS
+(`TADA_GetATTAINSAUMLCrosswalk`), the ATTAINS catchment data from the
+geospatial service is not currently being returned for matches in the
+crosswalks supplied by users or imported from ATTAINS. We have plans to
+create additional functions/internal reference files to facilitate this
+returning the associated catchments in the future. Therefore, any
+catchment data available for mapping is currently from
+`TADA_CreateATTAINSAUMLCrosswalk` assessed WQP monitoring locations
+only.
 
 ```{r tada.get.attains}
 # use TADA get attains to make AU assignments for unassigned MLs
@@ -172,25 +207,41 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   add_catch = FALSE,
-  batch_upload = TRUE
-)
+  nhd_catch = TRUE,
+  batch_upload = TRUE)
 ```
 
-## Generate a Map with TADA_ViewATTAINS
+## Step B: Generate a Map with TADA_ViewATTAINS
 
-The TADA_ViewATTAINS() map function shows the results from all three
+The `TADA_ViewATTAINS()` map function shows the results from all three
 different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
-and ATTAINS catchments/geospatial join) using different color circle
-markers (not final colors, we are very open to suggestions). The source
-has also been added to the popup window.
+and ATTAINS catchments/geospatial join) by using different circle
+markers. The user icon indicates the monitoring location was from a user
+supplied ref. The circle with a check mark signifies a match from the
+crosswalk downloaded from ATTAINS (`TADA_GetATTAINSAUMLCrosswalk`).
+Matches found by comparing monitoring locations with ATTAINS catchment
+and assessment geometry with `TADA_CreateATTAINSAUMLCrosswalk` are
+represented by solid fill circle markers. The source is also displayed
+in the pop up window that appears when a user clicks on each circle
+marker.
 
 ```{r view.map}
-TADA_ViewATTAINS(MT.AUMLRef)
+TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
-## Update crosswalk in ATTAINS using TADA_UpdateATTAINSAUMLCrosswalk
+## Step C: Update crosswalk in ATTAINS using TADA_UpdateATTAINSAUMLCrosswalk
 
-After making any necessary changes to the ATTAINS_batchupload data frame generated by TADA_CreateAUMLCrosswalk, run TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.
+The output of TADA_UpdateATTAINSAUMLCrosswalk can be uploaded to ATTAINS
+to create or update Monitoring Location Identifiers in ATTAINS
+Assessment Unit profiles. Users can specify whether all records should
+be overwritten (replaced) or if new Monitoring Location Identifiers
+should be appended (added) to existing records. Enter
+?TADA_UpdateATTAINSAUMLCrosswalk() into the console for more details.
+
+In this example workflow, after making any necessary changes to the
+ATTAINS_batchupload data frame generated by TADA_CreateAUMLCrosswalk, we
+run TADA_UpdateATTAINSAUMLCrosswalk to add new links to WQP site pages.
+This is now ready to upload to ATTAINS.
 
 ```{r add.links}
 batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
@@ -204,14 +255,15 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
   )
 ```
 
-## Assign uses to AUs with TADA_CreateUseAURef
+## Step D: Assign uses to AUs with TADA_CreateUseAURef
 
-After assigning ML sites to AU, we will use TADA_CreateUseAURef to
-assign uses to these AUs. First, convert the ML sites to AU reference
-table to the appropriate format for TADA workflow. We will also assign
-the NEW:EX_MDEQ_WQ_WQX assessment unit example to the water type "LAKE,
-FRESHWATER" for demonstration on how to auto_assign uses to a new AU
-that is not yet in ATTAINS nor has been assigned uses to it yet.
+After assigning WQP MLs to ATTAINS AUs, we will use
+`TADA_CreateUseAURef` to assign uses to these AUs. First, we will
+convert the ML to AU crosswalk to the appropriate format for this TADA
+workflow. We will also assign the *NEW:EX_MDEQ_WQ_WQX* assessment unit
+example to the water type *LAKE, FRESHWATER* to demonstrate how to
+`auto_assign` uses to a new AU that is not yet in ATTAINS based on water
+type.
 
 ```{r get.MLAURef}
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
@@ -222,18 +274,12 @@ Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
     # ml ids have already  been corrected if needed
     update_mlid = FALSE,
     org_id = "MTDEQ"
-  ) %>%
-  dplyr::mutate(
-    ATTAINS.WaterType = dplyr::case_when(
-      ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-      TRUE ~ ATTAINS.WaterType
-    )
-  )
+  ) 
 ```
 
-Now, we can use Final.MT.AUMLRef as our sites to AU crosswalk and
-proceed with assigning uses for each unique AU. The assignment of uses
-to AU are prioritized as follows:
+Now, we can use Final.MT.AUMLRef as our ML to AU crosswalk and proceed
+with assigning uses for each unique AU. The assignment of uses to AUs
+are prioritized as follows:
 
 1)  (optional) User supplied uses to AU crosswalk,
 
@@ -243,11 +289,16 @@ to AU are prioritized as follows:
 MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
 ```
 
-## Assign uses to new AUs based on water type with TADA_CreateWaterUseRef
+### Assign uses to new AUs based on water type with TADA_CreateWaterUseRef
 
 For any new AU, users will need to determine how to assign uses to them.
 
-1) TADA has developed a function called TADA_CreateWaterUseRef which imports a crosswalk of existing uses by water type from ExpertQuery for a specified organization. It can be leveraged within TADA_CreateUseAURef to assign any new AU the applicable uses for that water type. Users may choose to edit the TADA_CreateWaterUseRef crosswalk if needed.
+1)  TADA has developed a function called `TADA_CreateWaterUseRef` which
+    imports a crosswalk of existing uses by water type from ExpertQuery
+    for a specified organization. It can be leveraged within
+    `TADA_CreateUseAURef` to assign any new AU the applicable uses for
+    that water type. Users may choose to edit the
+    `TADA_CreateWaterUseRef` crosswalk if needed.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
 MT.UseAURef.WaterUseRef <- TADA_CreateUseAURef(
@@ -257,7 +308,8 @@ MT.UseAURef.WaterUseRef <- TADA_CreateUseAURef(
 )
 ```
 
-2) Users may manually assign use names to any new AUs if desired rather than using TADA_CreateWaterUseRef. For example:
+2)  Users may manually assign use names to any new AUs if desired rather
+    than using `TADA_CreateWaterUseRef`. For example:
 
 ```{r assign.use.to.new.AU.manual}
 MT.UseAURef.manual <- MT.UseAURef %>%

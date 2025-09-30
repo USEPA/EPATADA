@@ -63,6 +63,7 @@ Imports:
     sf,
     leaflet,
     leaflet.extras,
+    leaflegend,
     plotly,
     urltools,
     geojsonsf,
@@ -107,7 +108,8 @@ Suggests:
     rvest,
     remotes,
     covr,
-    httr2 (>= 1.2.1)
+    httr2 (>= 1.2.1),
+    roxygen2
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown

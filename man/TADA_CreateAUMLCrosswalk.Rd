@@ -9,21 +9,45 @@ TADA_CreateAUMLCrosswalk(
   au_ref = NULL,
   org_id = NULL,
   add_catch = FALSE,
+  nhd_catch = FALSE,
+  return_nearest = FALSE,
   batch_upload = TRUE
 )
 }
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
 
-\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-and MonitoringLocationIdentifier.}
+\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+MonitoringLocationIdentifier and WaterType.}
 
-\item{org_id}{Organization id to match AUs.}
+\item{org_id}{Character argument. The ATTAINS organization identifier.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.}
 
-\item{add_catch}{Optional. When add_catch = TRUE, catchments are matched to monitoring
-locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
-and matching these additional geospatial data will increase the run time of this function
-significantly. Default is add_catch = FALSE.}
+\item{add_catch}{Boolean argument. When add_catch = TRUE, catchments
+are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
+monitoring locations by retrieving catchment data from ATTAINS geospatial web
+services. Fetching and matching these additional geospatial data will increase
+the run time of this function significantly. Default is add_catch = FALSE.}
+
+\item{nhd_catch}{Boolean argument. Whether the user would like to return
+NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
+with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+the returned list splits observations into two dataframes: WQP observations
+with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
+observations without ATTAINS catchment data. Defaults to FALSE. This param
+applies only to WQP observations that do not have matches in the user-supplied ref
+or ATTAINS.}
+
+\item{return_nearest}{If a WQP observation falls within more than one AU,
+return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+(return_nearest = FALSE). This param applies only to WQP observations that do
+not have matches in the user-supplied ref or ATTAINS.}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, an additional data frame
 which matches the format required for batch upload to ATTAINS is included in the
