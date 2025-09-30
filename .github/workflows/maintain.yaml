@@ -19,18 +19,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: 
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           use-public-rspm: true
 
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: Update reference files
-        with:
-          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           install.packages('remotes')
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
