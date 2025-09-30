@@ -13,8 +13,7 @@ on:
 jobs:
   maintenance_updates:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -241,8 +240,5 @@ jobs:
         with:
           author_name: 'github-actions[bot]'
           author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: "Update example data
-
-
-                    request-checks: true"
+          message: "Update example data"
           add: '[./data/*]'
