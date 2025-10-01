@@ -999,7 +999,6 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
 #' @export
 #'
 TADA_CriteriaDataDictionary <- function() {
-  library(openxlsx)
   
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")

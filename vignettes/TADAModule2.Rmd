@@ -27,8 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
-  eval = FALSE
+  message = FALSE
 )
 ```
 
@@ -72,7 +71,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -81,7 +80,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```
@@ -348,14 +347,14 @@ Let's view the data associated with our `TADA_with_ATTAINS_list` object!
 Enter `?TADA_ViewATTAINS` into the console to review another example
 query and additional information.
 
-```{r, fig.height=7}
+```{r ATTAINS catchments, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_list)
 ```
 
 When `fill_catchments = TRUE`, `TADA_ViewATTAINS()` will also map the
 `without_ATTAINS_catchments`:
 
-```{r, fig.height=7}
+```{r ATTAINS and NHDPlus catchments, fig.height=7}
 TADA_ViewATTAINS(.data = TADA_with_ATTAINS_filled)
 ```
 
