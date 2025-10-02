@@ -9,8 +9,6 @@ A data frame with 46 rows and 6 variables.
 }
 \usage{
 data(Data_MT_UseAURef)
-
-Data_MT_UseAURef <- TADA_CreateUseAURef(AUMLRef = Data_MT_AUMLRef, org_id = "MTDEQ")
 }
 \description{
 An example assessment unit/use reference data frame for testing TADA Module 2 and 3 workflows.

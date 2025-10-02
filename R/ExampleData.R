@@ -107,87 +107,18 @@ NULL
 #' @name Data_MT_MissoulaCounty
 #' @usage data(Data_MT_MissoulaCounty)
 #' @format A data frame with 426 rows and 161 variables
-#' @details with minimal data cleaning functions applied to the original WQP query.
-#'
-#' Data_MT_MissoulaCounty <- TADA_DataRetrieval(
-#' startDate = "2020-01-01",
-#' endDate = "2022-12-31",
-#' statecode = "MT",
-#' characteristicName = c(
-#' "Escherichia",
-#' "Escherichia coli",
-#' "pH"
-#' ),
-#' county = "Missoula County",
-#' ask = FALSE) %>%
-#' TADA_RunKeyFlagFunctions() %>%
-#' TADA_SimpleCensoredMethods() %>%
-#' TADA_HarmonizeSynonyms()
 NULL
 
 #' Data_MT_AUMLRef
 #'
-#'An example assessment unit/monitoring location reference data frame for use
-#'in testing TADA Module 2 and 3 workflows.
+#' An example assessment unit/monitoring location reference data frame for use
+#' in testing TADA Module 2 and 3 workflows.
 #'
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_AUMLRef
-#' @format A data frame with 56 rows and 6 variables.
 #' @usage data(Data_MT_AUMLRef)
-#'
-#' # create test reference data frame
-#' attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-#'
-#' # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
-#' clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-#'
-#' # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
-#' user.supplied.cw <- clean.existing.attains.MT %>%
-#'   dplyr::select(
-#'     ATTAINS.AssessmentUnitIdentifier,
-#'     ATTAINS.MonitoringLocationIdentifier,
-#'     ATTAINS.WaterType
-#'   ) %>%
-#'   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
-#'     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
-#'     "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-#'   )) %>%
-#'   dplyr::rename(
-#'     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-#'     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
-#'   ) %>%
-#'   # Add an example new assessment unit for demonstration purposes.
-#'   dplyr::bind_rows(c(
-#'     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-#'     MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-#'     ATTAINS.WaterType = "LAKE, FRESHWATER"
-#'   ))
-#'
-#' MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
-#'                                        au_ref = user.supplied.cw,
-#'                                        org_id = "MTDEQ",
-#'                                        add_catch = FALSE,
-#'                                        batch_upload = TRUE
-#' )
-#'
-#' Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_batchupload %>%
-#'   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
-#'     attains_replace = TRUE,
-#'     batch_upload = FALSE,
-#'     wqp_data_links = "add",
-#'    # ml ids have already  been corrected if needed
-#'     update_mlid = FALSE,
-#'     org_id = "MTDEQ"
-#'   ) %>%
-#'   dplyr::mutate(
-#'     ATTAINS.WaterType = dplyr::case_when(
-#'       ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-#'      TRUE ~ ATTAINS.WaterType
-#'    )
-#'   )
-#'
-#' rm(attains.existing.MT, clean.existing.attains.MT, user.supplied.cw, MT.AUMLRef)
+#' @format A data frame with 56 rows and 6 variables.
 NULL
 
 #' Data_MT_UseAURef
@@ -197,66 +128,17 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_UseAURef
-#' @format A data frame with 46 rows and 6 variables.
 #' @usage data(Data_MT_UseAURef)
-#'
-#' Data_MT_UseAURef <- TADA_CreateUseAURef(AUMLRef = Data_MT_AUMLRef, org_id = "MTDEQ")
+#' @format A data frame with 46 rows and 6 variables.
 NULL
 
-#' MT.UseAURef_with_WaterUseRef
+#' Data_MT.UseAURef_Water
 #'
-#' Generate MT.UseAURef_with_WaterUseRef used in ExampleMod2Workflow.Rmd and 
+#' Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and 
 #' ExampleMod3Workflow.Rmd
 #'
-#' Run code below to generate:
-#' 
-#' tada.MT.clean <- Data_MT_MissoulaCounty
-#' clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-#' user.supplied.cw <- clean.existing.attains.MT %>%
-#' dplyr::select(ATTAINS.AssessmentUnitIdentifier,
-#' ATTAINS.MonitoringLocationIdentifier, ATTAINS.WaterType) %>%
-#' dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
-#' "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
-#' "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-#' )) %>%
-#' dplyr::rename(
-#' AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-#' MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-#' WaterType = ATTAINS.WaterType) %>%
-#' 
-#' dplyr::bind_rows(c(
-#' AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-#' MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-#' WaterType = "LAKE, FRESHWATER"))
-#'
-#' MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
-#' au_ref = user.supplied.cw,
-#' org_id = "MTDEQ",
-#' add_catch = FALSE,
-#' nhd_catch = TRUE,
-#' batch_upload = TRUE)
-#'
-#' Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
-#' dplyr::mutate(
-#' ATTAINS.WaterType = dplyr::case_when(
-#' ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-#' TRUE ~ ATTAINS.WaterType))
-#'
-#' MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
-#' waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
-#' AUMLRef = Final.MT.AUMLRef,
-#' org_id = "MTDEQ")
-#'
-#' print("MT.UseAURef_with_WaterUseRef")
-#' print(dim(MT.UseAURef_with_WaterUseRef))
-#'
-#' usethis::use_data(MT.UseAURef_with_WaterUseRef,
-#' internal = FALSE, overwrite = TRUE,
-#' compress = "xz", version = 3, ascii = FALSE)
-#'
 #' @docType data
-#' @name MT.UseAURef_with_WaterUseRef
+#' @name Data_MT.UseAURef_Water
+#' @usage data(Data_MT.UseAURef_Water)
 #' @format A data frame with 48 rows and 6 variables.
-#' @usage data(MT.UseAURef_with_WaterUseRef)
-#'
 NULL

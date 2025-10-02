@@ -138,9 +138,9 @@ TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
   # updateRef defaults to "none" if one is not entered
-  if (is.null(updateRef)) {
-    updateRef <- "none"
-  }
+  # if (is.null(updateRef)) {
+  #   updateRef <- "none"
+  # }
 
   # ensures updateRef is an allowable entry
   updateRef <- match.arg(updateRef)

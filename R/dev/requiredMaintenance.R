@@ -306,64 +306,22 @@ TADA_UpdateExampleData <- function() {
      MT.AUMLRef, Data_MT_AUMLRef, Data_MT_MissoulaCounty, Data_MT_UseAURef)
   
   ##############################################
-  # Generate MT.UseAURef_with_WaterUseRef used in ExampleMod2Workflow.Rmd and 
-  # ExampleMod3Workflow.Rmd
-  tada.MT.clean <- Data_MT_MissoulaCounty
   
-  clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-  
-  user.supplied.cw <- clean.existing.attains.MT %>%
-    dplyr::select(
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.MonitoringLocationIdentifier,
-      ATTAINS.WaterType
-    ) %>%
-    dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
-      "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
-      "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-    )) %>%
-    dplyr::rename(
-      AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-      WaterType = ATTAINS.WaterType
-    ) %>%
-    # Add an example new assessment unit for demonstration purposes.
-    dplyr::bind_rows(c(
-      AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
-      MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-      WaterType = "LAKE, FRESHWATER"
-    ))
-  
-  MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
-                                         au_ref = user.supplied.cw,
-                                         org_id = "MTDEQ",
-                                         add_catch = FALSE,
-                                         nhd_catch = TRUE,
-                                         batch_upload = TRUE)
-  
-  Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
-    dplyr::mutate(
-      ATTAINS.WaterType = dplyr::case_when(
-        ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-        TRUE ~ ATTAINS.WaterType
-      )
-    )
-  
-  MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
+  Data_MT.UseAURef_Water <- TADA_CreateUseAURef(
     waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
-    AUMLRef = Final.MT.AUMLRef,
+    AUMLRef = Data_MT_AUMLRef,
     org_id = "MTDEQ"
   )
   
-  print("MT.UseAURef_with_WaterUseRef")
-  print(dim(MT.UseAURef_with_WaterUseRef))
+  print("Data_MT.UseAURef_Water")
+  print(dim(Data_MT.UseAURef_Water))
   
-  usethis::use_data(MT.UseAURef_with_WaterUseRef,
+  usethis::use_data(Data_MT.UseAURef_Water,
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
   )
   
-  rm(MT.UseAURef_with_WaterUseRef)
+  rm(Data_MT.UseAURef_Water)
   ##########################################
   
 }

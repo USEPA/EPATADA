@@ -14,23 +14,5 @@ data(Data_MT_MissoulaCounty)
 See Module 2 and 3 workflows for examples of this data set can be used in the
 TADA analysis workflow.
 }
-\details{
-with minimal data cleaning functions applied to the original WQP query.
-
-Data_MT_MissoulaCounty <- TADA_DataRetrieval(
-startDate = "2020-01-01",
-endDate = "2022-12-31",
-statecode = "MT",
-characteristicName = c(
-"Escherichia",
-"Escherichia coli",
-"pH"
-),
-county = "Missoula County",
-ask = FALSE) \%>\%
-TADA_RunKeyFlagFunctions() \%>\%
-TADA_SimpleCensoredMethods() \%>\%
-TADA_HarmonizeSynonyms()
-}
 \keyword{data}
 \keyword{frame}

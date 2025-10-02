@@ -161,7 +161,7 @@ utils::globalVariables(c(
   "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
   "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
   "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
-  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory"
+  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
