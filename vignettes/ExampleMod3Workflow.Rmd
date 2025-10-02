@@ -555,7 +555,7 @@ MT.UseParamRef_AutoAssign <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef_Final,
-  useAURef = MT.UseAURef_with_WaterUseRef,
+  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -579,7 +579,7 @@ MT.UseParamRef_with_useAURef <- TADA_CreateUseParamRef(
     tada.MT.clean,
     org_id = c("MTDEQ"),
     paramRef = MT.ParamRef_Final, 
-    useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table.
+    useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
     auto_assign = FALSE,
     excel = FALSE)
 
@@ -724,7 +724,7 @@ for sites with no WQP data, please choose displayNA = TRUE
 MT.MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean, 
   useParamRef = MT.UseParamRef_Final, 
-  useAURef = MT.UseAURef_with_WaterUseRef,
+  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
   # displayNA = FALSE
