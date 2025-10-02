@@ -18,13 +18,13 @@
 TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
   .data$summ <- .data[, col]
   # Summarize WQP data pull
-  wqp_summary <- .data %>%
-    dplyr::group_by(summ) %>%
+  wqp_summary <- .data |>
+    dplyr::group_by(summ) |>
     dplyr::summarize(
       n_sites = length(unique(TADA.MonitoringLocationIdentifier)),
       n_records = length(TADA.ResultMeasureValue),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::select(summ, n_sites, n_records)
   names(wqp_summary)[names(wqp_summary) == "summ"] <- col
   return(wqp_summary)
@@ -88,9 +88,9 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
 
   group_cols <- unique(c("TADA.ComparableDataIdentifier", group_cols))
 
-  StatsTable <- .data %>%
-    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) %>%
+  StatsTable <- .data |>
+    dplyr::filter(!is.na(TADA.ResultMeasureValue)) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
     dplyr::summarize(
       Location_Count = length(unique(TADA.MonitoringLocationIdentifier)),
       Measurement_Count = length(unique(ResultIdentifier)),
@@ -117,7 +117,7 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
       Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
       Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
       Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) %>%
+    ) |>
     dplyr::mutate(ND_Estimation_Method = dplyr::case_when(
       Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
       Non_Detect_Pct > 80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate

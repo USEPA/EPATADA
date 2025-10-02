@@ -147,7 +147,7 @@ TADA_IDCensoredData <- function(.data) {
   }
 
   # update TADA.ResultMeasureValueDataTypes.Flag if TADA.ResultMeasureValue is still NA
-  data_mq_flag <- data_mq_flag %>%
+  data_mq_flag <- data_mq_flag |>
     dplyr::mutate(TADA.ResultMeasureValueDataTypes.Flag = ifelse(
       is.na(TADA.ResultMeasureValueDataTypes.Flag) & is.na(TADA.ResultMeasureValue),
       "NA - Not Available",
@@ -155,17 +155,17 @@ TADA_IDCensoredData <- function(.data) {
     ))
 
   ## Identify censored data using TADA.ResultMeasureValueDataTypes.Flag and TADA.MeasureQualifierCode.Flag
-  cens_rm_flag <- data_mq_flag %>% dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
+  cens_rm_flag <- data_mq_flag |> dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit")
 
-  cens_mq_flag <- data_mq_flag %>%
-    dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")) %>%
+  cens_mq_flag <- data_mq_flag |>
+    dplyr::filter(TADA.MeasureQualifierCode.Flag %in% c("Non-Detect", "Over-Detect")) |>
     dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
 
-  cens <- cens_rm_flag %>%
+  cens <- cens_rm_flag |>
     rbind(cens_mq_flag)
 
   # Perform the filtering operation
-  not_cens <- data_mq_flag %>% dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
+  not_cens <- data_mq_flag |> dplyr::filter(!ResultIdentifier %in% cens$ResultIdentifier)
 
   # Check if the dataframe is empty
   if (nrow(not_cens) > 0) {
@@ -181,8 +181,8 @@ TADA_IDCensoredData <- function(.data) {
 
   if (dim(cens)[1] > 0) {
     ## Bring in det cond reference table
-    cond.ref <- utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "EPATADA")) %>%
-      dplyr::rename(ResultDetectionConditionText = Name) %>%
+    cond.ref <- utils::read.csv(system.file("extdata", "WQXResultDetectionConditionRef.csv", package = "EPATADA")) |>
+      dplyr::rename(ResultDetectionConditionText = Name) |>
       dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
 
     ## Join to censored data
@@ -193,9 +193,9 @@ TADA_IDCensoredData <- function(.data) {
 
     ## Fill in detection type when ResultMeasureValue indicates it is a nondetect
     ## should be blank in result value so that the rest of the function can work
-    nd.rmv.list <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")) %>%
-      dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") %>%
-      dplyr::select(Code) %>%
+    nd.rmv.list <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")) |>
+      dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") |>
+      dplyr::select(Code) |>
       dplyr::pull()
 
     cens$TADA.Detection_Type <- ifelse(cens$ResultMeasureValue %in%
@@ -222,8 +222,8 @@ TADA_IDCensoredData <- function(.data) {
     }
 
     ## Bring in det limit type reference table
-    limtype.ref <- utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "EPATADA")) %>%
-      dplyr::rename(DetectionQuantitationLimitTypeName = Name) %>%
+    limtype.ref <- utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "EPATADA")) |>
+      dplyr::rename(DetectionQuantitationLimitTypeName = Name) |>
       dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
 
     ## Join to censored data
@@ -308,7 +308,7 @@ TADA_IDCensoredData <- function(.data) {
       print(paste0("TADA_IDCensoredData: ", num, " records in the supplied dataframe have detection conditions and/or limit types that are missing from TADA reference tables. These records will not be included in detection limit handling calculations."))
     }
 
-    cens <- cens %>% dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type, -TADA.MeasureQualifierCode.Flag)
+    cens <- cens |> dplyr::select(-TADA.Detection_Type, -TADA.Limit_Type, -TADA.MeasureQualifierCode.Flag)
 
     cens.check <- plyr::rbind.fill(cens, not_cens)
   } else {
@@ -317,7 +317,7 @@ TADA_IDCensoredData <- function(.data) {
   }
 
   # double check that detection values are not copied when there are conflicts...
-  cens.check <- cens.check %>%
+  cens.check <- cens.check |>
     dplyr::mutate(
       TADA.ResultMeasureValueDataTypes.Flag = dplyr::if_else(
         TADA.CensoredData.Flag == "Conflict between Condition and Limit",
@@ -459,7 +459,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
         nd$multiplier <- stats::runif(dim(nd)[1], 0, 1)
         nd$TADA.ResultMeasureValue <- nd$TADA.ResultMeasureValue * nd$multiplier
         nd$TADA.CensoredMethod <- paste0("Random Value Between 0 and Detection Limit Using this Multiplier: ", round(nd$multiplier, digits = 3))
-        nd <- nd %>% dplyr::select(-multiplier)
+        nd <- nd |> dplyr::select(-multiplier)
         nd$TADA.ResultMeasureValueDataTypes.Flag <- "Result Value/Unit Estimated from Detection Limit"
       }
       if (nd_method == "as-is") {
@@ -495,7 +495,7 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
     }
 
 
-    .data <- plyr::rbind.fill(nd, od, all_others, no.ref, missing.ref) %>%
+    .data <- plyr::rbind.fill(nd, od, all_others, no.ref, missing.ref) |>
       TADA_CreateComparableID()
   }
   .data <- TADA_OrderCols(.data)

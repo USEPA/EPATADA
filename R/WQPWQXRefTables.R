@@ -54,7 +54,7 @@ TADA_GetWQXCharValRef <- function() {
     "MethodNeeded"
   )
 
-  WQXcharValRef <- raw.data %>%
+  WQXcharValRef <- raw.data |>
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       Status %in% notreviewed ~ "Not Reviewed",
       Status %in% valid ~ "Pass",
@@ -62,7 +62,7 @@ TADA_GetWQXCharValRef <- function() {
       Status %in% nonstandard ~ "NonStandardized",
       Status %in% NA ~ "Not Reviewed",
       TRUE ~ as.character("Not Reviewed")
-    )) %>%
+    )) |>
     dplyr::distinct()
 
   # Save updated table in cache
@@ -173,7 +173,7 @@ TADA_GetDetCondRef <- function() {
   }
 
   # Add detection type for all domain values. Review new values when updating.
-  WQXDetCondRef <- raw.data %>%
+  WQXDetCondRef <- raw.data |>
     dplyr::mutate(TADA.Detection_Type = dplyr::case_when(
       Name %in% c(
         "Below Daily Detection Limit",
@@ -206,7 +206,7 @@ TADA_GetDetCondRef <- function() {
       ) ~ as.character("Other"),
       Name %in% NA ~ "Not Reviewed",
       TRUE ~ as.character("Not Reviewed")
-    )) %>%
+    )) |>
     dplyr::distinct()
 
   ## Add USGS detection conditions not in WQX domain table
@@ -287,7 +287,7 @@ TADA_GetDetLimitRef <- function() {
     return(utils::read.csv(system.file("extdata", "WQXDetectionQuantitationLimitTypeRef.csv", package = "EPATADA")))
   }
 
-  WQXDetLimitRef <- raw.data %>%
+  WQXDetLimitRef <- raw.data |>
     dplyr::mutate(TADA.Limit_Type = dplyr::case_when(
       Name %in% c(
         "Blank-adjusted method detect limit",
@@ -337,7 +337,7 @@ TADA_GetDetLimitRef <- function() {
       ) ~ as.character("Other"),
       Name %in% NA ~ "Not Reviewed",
       TRUE ~ as.character("Not Reviewed")
-    )) %>%
+    )) |>
     dplyr::distinct()
 
   ## Add USGS limits not in WQX domain table
@@ -500,7 +500,7 @@ TADA_GetActivityTypeRef <- function() {
     "Sample-Routine"
   )
 
-  WQXActivityTypeRef <- raw.data %>%
+  WQXActivityTypeRef <- raw.data |>
     dplyr::mutate(TADA.ActivityType.Flag = dplyr::case_when(
       Code %in% rep ~ "QC_replicate",
       Code %in% dup ~ "QC_duplicate",
@@ -510,7 +510,7 @@ TADA_GetActivityTypeRef <- function() {
       Code %in% nonQC ~ "Non_QC",
       TRUE ~ as.character("Not Reviewed"),
       Code %in% NA ~ "Not Reviewed"
-    )) %>%
+    )) |>
     dplyr::distinct()
 
   # Hard-code add activity types from NWIS
@@ -597,8 +597,8 @@ TADA_GetCharacteristicRef <- function() {
   }
 
   # rename some columns
-  WQXCharacteristicRef <- raw.data %>%
-    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) %>%
+  WQXCharacteristicRef <- raw.data |>
+    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
 
   # Save updated table in cache
@@ -684,7 +684,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
 
   overdetect <- c("E", "EE", "GT")
 
-  WQXMeasureQualifierCodeRef <- raw.data %>%
+  WQXMeasureQualifierCodeRef <- raw.data |>
     dplyr::mutate(TADA.MeasureQualifierCode.Flag = dplyr::case_when(
       Code %in% nondetect ~ "Non-Detect",
       Code %in% overdetect ~ "Over-Detect",
@@ -692,7 +692,7 @@ TADA_GetMeasureQualifierCodeRef <- function() {
       Code %in% pass ~ "Pass",
       Code %in% NA ~ "Pass",
       TRUE ~ as.character("Not Reviewed")
-    )) %>%
+    )) |>
     dplyr::distinct()
 
   # ## Add detection conditions not in WQX domain table
@@ -806,7 +806,7 @@ TADA_GetMonLocTypeRef <- function() {
   }
 
   # Add TADA.Media.Flag for all domain values. Review new values when updating.
-  MonLocTypeRef <- raw.data %>%
+  MonLocTypeRef <- raw.data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
         Name %in% c(
@@ -885,7 +885,7 @@ TADA_GetMonLocTypeRef <- function() {
         ) ~ as.character("Groundwater")
       ),
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag), "", TADA.Media.Flag)
-    ) %>%
+    ) |>
     dplyr::distinct()
 
 
@@ -931,8 +931,8 @@ TADA_GetWQPOrgProviderRef <- function() {
   raw.data <- tryCatch(
     {
       # read raw csv from url
-      utils::read.csv(url("https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no")) %>%
-        dplyr::select(OrganizationIdentifier, OrganizationFormalName, ProviderName) %>%
+      utils::read.csv(url("https://www.waterqualitydata.us/data/Organization/search?mimeType=csv&zip=no")) |>
+        dplyr::select(OrganizationIdentifier, OrganizationFormalName, ProviderName) |>
         dplyr::distinct()
     },
     error = function(err) {

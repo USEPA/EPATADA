@@ -61,10 +61,10 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
         )
       )
 
-      attainsWQXRef <- WQXCharRef %>%
-        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) %>%
-        dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) %>%
-        dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) %>%
+      attainsWQXRef <- WQXCharRef |>
+        dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) |>
+        dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) |>
+        dplyr::full_join(others, by = c("CharacteristicName", "Char_Flag", "ATTAINS.ParameterName")) |>
         dplyr::distinct()
     },
     error = function(err) {
@@ -79,7 +79,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
     return(utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA")))
   }
 
-  ATTAINSParameterWQPCharRef <- raw.data %>%
+  ATTAINSParameterWQPCharRef <- raw.data |>
     dplyr::distinct()
 
   # Save updated table in cache
@@ -133,7 +133,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
     return(utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA")))
   }
 
-  ATTAINSOrgIDsRef <- raw.data %>%
+  ATTAINSOrgIDsRef <- raw.data |>
     dplyr::distinct()
 
   # Save updated table in cache
@@ -183,26 +183,26 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # considers only the latest cycle form each org, you could skip this step
   # and use params from all assessment cycles - What is preferred?
 
-  latest.assessments <- nat.assessments %>%
-    dplyr::group_by(organizationId) %>%
-    dplyr::slice_max(reportingCycle) %>%
-    dplyr::select(-objectId) %>%
-    dplyr::distinct() %>%
+  latest.assessments <- nat.assessments |>
+    dplyr::group_by(organizationId) |>
+    dplyr::slice_max(reportingCycle) |>
+    dplyr::select(-objectId) |>
+    dplyr::distinct() |>
     dplyr::ungroup()
 
-  latest.params <- latest.assessments %>%
+  latest.params <- latest.assessments |>
     dplyr::select(
       organizationId, organizationName,
       organizationType, parameterName,
       useName
-    ) %>%
+    ) |>
     dplyr::rename(
       ATTAINS.OrganizationIdentifier = organizationId,
       ATTAINS.OrganizationName = organizationName,
       ATTAINS.OrganizationType = organizationType,
       ATTAINS.ParameterName = parameterName,
       ATTAINS.UseName = useName
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # remove intermediate variables

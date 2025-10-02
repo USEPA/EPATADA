@@ -143,7 +143,7 @@ TADA_AutoClean <- function(.data) {
   # need to specify this or throws error when trying to bind rows. Temporary fix for larger
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
-  .data <- .data %>% dplyr::mutate_at(cols, as.character)
+  .data <- .data |> dplyr::mutate_at(cols, as.character)
 
   # .data required columns
   required_cols <- c(
@@ -250,24 +250,24 @@ TADA_AutoClean <- function(.data) {
 
     do.units <- c("%", "% SATURATN")
 
-    do.data <- .data %>%
-      dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) %>%
+    do.data <- .data |>
+      dplyr::filter((CharacteristicName == "Dissolved oxygen (DO)") & ResultMeasure.MeasureUnitCode %in% do.units) |>
       dplyr::mutate(
         TADA.CharacteristicName = "DISSOLVED OXYGEN SATURATION",
         TADA.ResultMeasure.MeasureUnitCode = "%"
       )
 
-    do.list <- do.data %>%
-      dplyr::select(ResultIdentifier) %>%
+    do.list <- do.data |>
+      dplyr::select(ResultIdentifier) |>
       dplyr::pull()
 
-    other.data <- .data %>%
+    other.data <- .data |>
       dplyr::filter(!ResultIdentifier %in% do.list)
 
     do.full.join <- colnames(.data)
 
-    .data <- do.data %>%
-      dplyr::full_join(other.data, by = do.full.join) %>%
+    .data <- do.data |>
+      dplyr::full_join(other.data, by = do.full.join) |>
       dplyr::arrange(ResultIdentifier)
 
     rm(do.units, do.list, do.data, other.data, do.full.join)

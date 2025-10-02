@@ -52,7 +52,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   }
 
   # remove fields with only NAs from df
-  df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
+  df <- .data |> dplyr::select(where(~ !all(is.na(.x))))
 
   if (display == "key") {
     cols <- c(
@@ -148,7 +148,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
     cols <- names(df)
   }
 
-  df <- df %>%
+  df <- df |>
     dplyr::select(dplyr::contains(cols))
 
   # CREATE LIST OF FIELDS
@@ -162,7 +162,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   col.names <- col.names[, c(2, 1)]
 
   # Reorder Count column in col.names from largest to smallest number
-  col.names <- col.names %>%
+  col.names <- col.names |>
     dplyr::arrange(desc(Count))
 
   return(col.names)
@@ -207,7 +207,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
-    .data <- .data %>%
+    .data <- .data |>
       dplyr::filter(TADA.CharacteristicName %in% characteristicName)
     if (dim(.data)[1] < 1) {
       stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
@@ -216,7 +216,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
   dat <- as.data.frame(table(.data[, field]))
   names(dat) <- c("Value", "Count")
-  dat <- dat %>% dplyr::arrange(desc(Count))
+  dat <- dat |> dplyr::arrange(desc(Count))
   return(dat)
 }
 
@@ -310,14 +310,14 @@ TADA_AnalysisDataFilter <- function(.data,
   # *Need to add fish tissue to this function once using WQX 3.0 profiles
 
   # import MonitoringLocationTypeNames and TADA.Media.Flags
-  sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")) %>%
-    dplyr::select(Name, TADA.Media.Flag) %>%
-    dplyr::rename(ML.Media.Flag = TADA.Media.Flag) %>%
-    dplyr::mutate(MonitoringLocationTypeName = toupper(Name)) %>%
+  sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")) |>
+    dplyr::select(Name, TADA.Media.Flag) |>
+    dplyr::rename(ML.Media.Flag = TADA.Media.Flag) |>
+    dplyr::mutate(MonitoringLocationTypeName = toupper(Name)) |>
     dplyr::select(-Name)
 
   # add TADA.Media.Flag column
-  .data <- .data %>%
+  .data <- .data |>
     # identify TADA.Media.Flag using ActivityMediaSubdivisionName and columns related to groundwater
     dplyr::mutate(TADA.Media.Flag = dplyr::case_when(
       ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
@@ -331,17 +331,17 @@ TADA_AnalysisDataFilter <- function(.data,
         !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
       ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
       !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
-    )) %>%
+    )) |>
     # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
-    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
+    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") |>
     dplyr::mutate(
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
         ML.Media.Flag, TADA.Media.Flag
       ),
       TADA.Media.Flag = toupper(TADA.Media.Flag)
-    ) %>%
-    dplyr::select(-ML.Media.Flag) %>%
-    # set remaining NA TADA.Media.Flag to OTHER %>%
+    ) |>
+    dplyr::select(-ML.Media.Flag) |>
+    # set remaining NA TADA.Media.Flag to OTHER |>
     dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
       "OTHER", TADA.Media.Flag
     ))
@@ -398,7 +398,7 @@ TADA_AnalysisDataFilter <- function(.data,
   }
 
   # add media flag
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::mutate(
       TADA.UseForAnalysis.Flag = dplyr::case_when(
         TADA.Media.Flag == "SEDIMENT" ~ paste0(sed.flag, " - ", TADA.Media.Flag),
@@ -410,9 +410,9 @@ TADA_AnalysisDataFilter <- function(.data,
     )
 
   if (clean == TRUE) {
-    .data <- .data %>%
-      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
-      dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) %>%
+    .data <- .data |>
+      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) |>
+      dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) |>
       TADA_OrderCols()
 
     print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
@@ -421,8 +421,8 @@ TADA_AnalysisDataFilter <- function(.data,
   }
 
   if (clean == FALSE) {
-    .data <- .data %>%
-      dplyr::select(-TADA.Media.Flag) %>%
+    .data <- .data |>
+      dplyr::select(-TADA.Media.Flag) |>
       TADA_OrderCols()
 
     print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")

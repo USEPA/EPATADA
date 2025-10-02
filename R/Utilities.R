@@ -1,13 +1,13 @@
 #' Pipe Operator
 #'
-#' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
+#' The pipe operator (`|>`) is a powerful tool for chaining operations in a readable and concise manner.
 #' It allows you to pass the left-hand side (`lhs`) value into the right-hand side (`rhs`) function call.
 #' For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
 #'
-#' @name %>%
+#' @name |>
 #' @rdname pipe
 #' @keywords internal
-#' @importFrom magrittr %>%
+#' @importFrom magrittr |>
 #' @usage lhs \%>\% rhs
 #' @export
 #' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
@@ -17,9 +17,9 @@
 #' @examples
 #' # Example: Using the pipe operator to transform data
 #' library(magrittr)
-#' result <- iris %>%
-#'   head(10) %>%
-#'   subset(Species == "setosa") %>%
+#' result <- iris |>
+#'   head(10) |>
+#'   subset(Species == "setosa") |>
 #'   summary()
 #' print(result)
 NULL
@@ -322,7 +322,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     # Create dummy columns for easy handling in function
     chars.data <- .data
     names(chars.data)[names(chars.data) == col] <- "orig"
-    chars.data <- chars.data %>%
+    chars.data <- chars.data |>
       dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
     chars.data$masked <- chars.data$orig
 
@@ -346,7 +346,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
-      clean.data <- chars.data %>%
+      clean.data <- chars.data |>
         dplyr::mutate(flag = dplyr::case_when(
           is.na(masked) ~ as.character("NA - Not Available"),
           TRUE ~ as.character("Numeric")
@@ -355,7 +355,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
       chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
       # Detect special characters in column and populate new flag column with descriptor
       # of the specific type of character/data type
-      clean.data <- chars.data %>%
+      clean.data <- chars.data |>
         dplyr::mutate(
           flag = dplyr::case_when(
             is.na(masked) ~ as.character("NA - Not Available"),
@@ -395,17 +395,17 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
       notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
-      numrange <- numrange %>%
+      numrange <- numrange |>
         dplyr::mutate(
           masked = stringr::str_remove(masked, "[1-9]\\)"),
           masked = stringr::str_remove(masked, "%"),
           masked = stringr::str_remove(masked, ">"),
           masked = stringr::str_remove(masked, "<")
-        ) %>%
-        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
+        ) |>
+        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) |>
         dplyr::mutate_at(c("num1", "num2"), as.numeric)
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
-      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] |>
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
@@ -433,7 +433,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     )
 
     # remove columns to be replaced
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
     # Rename to original column name, TADA column name, and flag column name
@@ -456,7 +456,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     )
 
     # remove columns to be replaced
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
     # Rename to original column name, TADA column name, and flag column name
@@ -469,7 +469,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
-      clean.data <- clean.data %>%
+      clean.data <- clean.data |>
         dplyr::filter(!(!!rlang::sym(flagcol)) %in% c(
           "NA - Not Available",
           "Text",
@@ -487,7 +487,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
   }
 
   if (flaggedonly == TRUE) {
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::filter(!!rlang::sym(flagcol) %in% c(
         "NA - Not Available",
         "Text",
@@ -571,17 +571,17 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) |>
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
-    ) %>%
+    ) |>
     dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Char_Flag == "Deprecated") %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) |>
+    dplyr::filter(Char_Flag == "Deprecated") |>
     rbind(nwis.table)
 
   rm(nwis.table)
@@ -601,7 +601,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     print("No deprecated characteristic names found in dataset.")
   }
 
-  .data <- .data %>% dplyr::select(-Char_Flag, -Comparable.Name)
+  .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
@@ -851,8 +851,8 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
   agg_fun <- match.arg(agg_fun)
 
   # Find multiple values in groups
-  ncount <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+  ncount <- .data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
     dplyr::summarise(ncount = length(ResultIdentifier))
 
   if (max(ncount$ncount) < 2) {
@@ -866,31 +866,31 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
     }
 
     dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
-    multiples <- dat %>% dplyr::filter(ncount > 1)
+    multiples <- dat |> dplyr::filter(ncount > 1)
 
-    dat <- dat %>% dplyr::select(-ncount)
+    dat <- dat |> dplyr::select(-ncount)
 
     if (agg_fun == "max") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
       dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
     }
     if (agg_fun == "min") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
       dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
     }
     if (agg_fun == "mean") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
-        dplyr::slice_sample(n = 1) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
+        dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) |>
+        dplyr::slice_sample(n = 1) |>
         dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
-      out <- out %>%
-        dplyr::select(-TADA.ResultMeasureValue) %>%
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
+      out <- out |>
+        dplyr::select(-TADA.ResultMeasureValue) |>
+        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) |>
         dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
       dat <- plyr::rbind.fill(dat, out)
     }
@@ -1041,7 +1041,7 @@ writeLayer <- function(url, layerfilepath) {
   # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer %>% dplyr::rename(
+    layer <- layer |> dplyr::rename(
       TAREA_MI = TOTALAREA_MI,
       TAREA_KM = TOTALAREA_KM
     )
@@ -1135,8 +1135,8 @@ getPopup <- function(layer, layername) {
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>%
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
@@ -1192,8 +1192,8 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>%
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(
@@ -1268,33 +1268,33 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   }
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
-  data.units.result <- .data %>%
+  data.units.result <- .data |>
     dplyr::select(
       TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
-  data.units.det <- .data %>%
+  data.units.det <- .data |>
     dplyr::select(
       TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
-    ) %>%
-    dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
-    dplyr::distinct() %>%
+    ) |>
+    dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) |>
+    dplyr::distinct() |>
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
     )
 
   # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result %>%
+  data.units <- data.units.result |>
     dplyr::full_join(data.units.det, by = c(
       "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
       "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName"
-    )) %>%
-    dplyr::distinct() %>%
+    )) |>
+    dplyr::distinct() |>
     dplyr::group_by(TADA.CharacteristicName)
 
   return(data.units)
@@ -1494,7 +1494,7 @@ TADA_TableExport <- function(.data = NULL) {
       buttons = c("copy", "csv", "excel", "pdf")
       # fixedColumns = list(leftColumns = 1
     ), class = "display"
-  ) %>%
+  ) |>
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
 
   return(data)

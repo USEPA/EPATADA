@@ -65,7 +65,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
   # read in sample fraction reference table from extdata and filter
-  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) |>
     dplyr::filter(Type == "CharacteristicFraction")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (SampleFraction)
@@ -78,8 +78,8 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   )
 
   # rename TADA.WQXVal.Flag column
-  check.data <- check.data %>%
-    dplyr::rename(TADA.SampleFraction.Flag = TADA.WQXVal.Flag) %>%
+  check.data <- check.data |>
+    dplyr::rename(TADA.SampleFraction.Flag = TADA.WQXVal.Flag) |>
     dplyr::distinct()
   # rename NA values to "Not Reviewed" in TADA.SampleFraction.Flag column
   check.data["TADA.SampleFraction.Flag"][is.na(check.data["TADA.SampleFraction.Flag"])] <- "Not Reviewed"
@@ -222,7 +222,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) |>
     dplyr::filter(Type == "CharacteristicSpeciation")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (Speciation)
@@ -232,8 +232,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
   )
 
   # rename TADA.WQXVal.Flag column
-  check.data <- check.data %>%
-    dplyr::rename(TADA.MethodSpeciation.Flag = TADA.WQXVal.Flag) %>%
+  check.data <- check.data |>
+    dplyr::rename(TADA.MethodSpeciation.Flag = TADA.WQXVal.Flag) |>
     dplyr::distinct()
 
   # rename NA values to Not Reviewed in TADA.MethodSpeciation.Flag column
@@ -421,7 +421,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
+  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) |>
     dplyr::filter(Type == "CharacteristicUnit")
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
@@ -431,8 +431,8 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   )
 
   # rename TADA.WQXVal.Flag column
-  check.data <- check.data %>%
-    dplyr::rename(TADA.ResultUnit.Flag = TADA.WQXVal.Flag) %>%
+  check.data <- check.data |>
+    dplyr::rename(TADA.ResultUnit.Flag = TADA.WQXVal.Flag) |>
     dplyr::distinct()
   # rename NA values to Not Reviewed in TADA.ResultUnit.Flag column
   # check.data below should not be needed anymore with flagging consistency update, but will keep in if logic changes or is actually needed. 10/7/2024 KW
@@ -440,7 +440,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
 
   # Flag additional combinations that are invalid regardless of media type (and media type was left blank - NWIS only issue)
   if (any(check.data$TADA.CharacteristicName == "PH")) {
-    check.data <- check.data %>%
+    check.data <- check.data |>
       dplyr::mutate(
         TADA.ResultUnit.Flag =
           ifelse(TADA.CharacteristicName == "PH" &
@@ -577,8 +577,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 
   # load in ActivityTypeRef Table
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) %>%
-    dplyr::rename(ActivityTypeCode = Code) %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXActivityTypeRef.csv", package = "EPATADA")) |>
+    dplyr::rename(ActivityTypeCode = Code) |>
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
 
   # identify any Activity Type Codes not in reference table
@@ -597,7 +597,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   # populate flag column in data
   flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode")
-  flag.data <- flag.data %>% dplyr::distinct()
+  flag.data <- flag.data |> dplyr::distinct()
 
   # clean dataframe
   # if clean = FALSE, return full dataframe
@@ -862,8 +862,8 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   if (all(is.na(.data$MeasureQualifierCode))) {
     print("TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode.")
 
-    .data <- .data %>%
-      dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") %>%
+    .data <- .data |>
+      dplyr::mutate(TADA.MeasureQualifierCode.Flag = "Pass") |>
       dplyr::mutate(TADA.MeasureQualifierCode.Def = "NA - Not Applicable")
 
     .data <- TADA_OrderCols(.data)
@@ -878,8 +878,8 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   # load in ResultMeasureQualifier Flag Table
-  qc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")) %>%
-    dplyr::rename(MeasureQualifierCode = Code) %>%
+  qc.ref <- utils::read.csv(system.file("extdata", "WQXMeasureQualifierCodeRef.csv", package = "EPATADA")) |>
+    dplyr::rename(MeasureQualifierCode = Code) |>
     dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag, Description)
 
   # add TADA.MeasureQualifierCode, qualifier code definitions
@@ -889,17 +889,17 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   if (define == TRUE) {
-    mqc.ref <- qc.ref %>%
-      dplyr::select(MeasureQualifierCode, Description) %>%
-      dplyr::group_by(MeasureQualifierCode) %>%
-      dplyr::mutate(Concat = paste(MeasureQualifierCode, "-", Description, collapse = "")) %>%
+    mqc.ref <- qc.ref |>
+      dplyr::select(MeasureQualifierCode, Description) |>
+      dplyr::group_by(MeasureQualifierCode) |>
+      dplyr::mutate(Concat = paste(MeasureQualifierCode, "-", Description, collapse = "")) |>
       dplyr::select(MeasureQualifierCode, Concat)
 
-    mqc.TADA <- .data %>%
-      dplyr::mutate(MeasureQualifierCode = stringr::str_split(MeasureQualifierCode, ";")) %>%
-      tidyr::unnest(MeasureQualifierCode) %>%
-      merge(mqc.ref) %>%
-      dplyr::group_by(ResultIdentifier) %>%
+    mqc.TADA <- .data |>
+      dplyr::mutate(MeasureQualifierCode = stringr::str_split(MeasureQualifierCode, ";")) |>
+      tidyr::unnest(MeasureQualifierCode) |>
+      merge(mqc.ref) |>
+      dplyr::group_by(ResultIdentifier) |>
       dplyr::summarize(TADA.MeasureQualifierCode.Def = paste(Concat, collapse = "; "))
 
     .data$TADA.MeasureQualifierCode.Def <- mqc.TADA$TADA.MeasureQualifierCode.Def[match(.data$ResultIdentifier, mqc.TADA$ResultIdentifier)]
@@ -908,12 +908,12 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
   }
 
   # populate flag column in data
-  flag.lists <- split(qc.ref$MeasureQualifierCode, qc.ref$TADA.MeasureQualifierCode.Flag) %>%
+  flag.lists <- split(qc.ref$MeasureQualifierCode, qc.ref$TADA.MeasureQualifierCode.Flag) |>
     stats::setNames(stringr::str_remove_all(stringr::str_remove_all(tolower(names(.)), "-"), " "))
 
 
-  flag.data <- .data %>%
-    dplyr::mutate(MeasureQualifierCode.Split = strsplit(MeasureQualifierCode, ";")) %>%
+  flag.data <- .data |>
+    dplyr::mutate(MeasureQualifierCode.Split = strsplit(MeasureQualifierCode, ";")) |>
     dplyr::mutate(TADA.MeasureQualifierCode.Flag = ifelse(
       purrr::map_lgl(MeasureQualifierCode.Split, ~ any(.x %in% flag.lists$suspect)), "Suspect",
       ifelse(purrr::map_lgl(MeasureQualifierCode.Split, ~ any(.x %in% flag.lists$nondetect)), "Non-Detect",
@@ -923,14 +923,14 @@ TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FA
           )
         )
       )
-    )) %>%
+    )) |>
     dplyr::select(-MeasureQualifierCode.Split)
 
-  flag.data <- flag.data %>% dplyr::distinct()
+  flag.data <- flag.data |> dplyr::distinct()
 
   # identify any ResultMeasureQualifier Codes not in reference table
-  codes <- stringr::str_split(unique(.data$MeasureQualifierCode), ";") %>%
-    unlist() %>%
+  codes <- stringr::str_split(unique(.data$MeasureQualifierCode), ";") |>
+    unlist() |>
     unique()
 
   if (any(!codes %in% qc.ref$MeasureQualifierCode)) {

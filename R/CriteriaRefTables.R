@@ -56,10 +56,10 @@ TADA_GetEPACSTRef <- function() {
   tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
 
   # Pulls in column names that will be used as a reference table
-  EPACSTRef <- raw.data %>%
-    utils::tail(-CST.begin) %>%
-    dplyr::filter(ENTITY_ABBR == "304A") %>%
-    dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
+  EPACSTRef <- raw.data |>
+    utils::tail(-CST.begin) |>
+    dplyr::filter(ENTITY_ABBR == "304A") |>
+    dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") |>
     dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME,
       organization_identifier = ENTITY_ABBR,
       use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,

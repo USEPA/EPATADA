@@ -329,10 +329,10 @@ TADA_OrderCols <- function(.data) {
 
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
 
-  rearranged <- .data %>%
-    dplyr::relocate(tidyselect::any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(extra_cols), .after = tidyselect::any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(last_cols), .after = tidyselect::any_of(extra_cols)) %>%
+  rearranged <- .data |>
+    dplyr::relocate(tidyselect::any_of(required_cols)) |>
+    dplyr::relocate(tidyselect::any_of(extra_cols), .after = tidyselect::any_of(required_cols)) |>
+    dplyr::relocate(tidyselect::any_of(last_cols), .after = tidyselect::any_of(extra_cols)) |>
     dplyr::relocate(tidyselect::any_of(attains_cols), .after = tidyselect::any_of(last_cols))
 
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
@@ -432,7 +432,7 @@ TADA_GetTemplate <- function() {
 #'   tz = "UTC"
 #' )
 #'
-#' review_TADAProfile1 <- TADAProfile1 %>% dplyr::select(c(
+#' review_TADAProfile1 <- TADAProfile1 |> dplyr::select(c(
 #'   "ActivityStartDate",
 #'   "ActivityStartTime.Time",
 #'   "ActivityStartTime.TimeZoneCode",
@@ -499,8 +499,8 @@ TADA_RetainRequired <- function(.data) {
   print("TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs.")
 
   # create list of columns containing all NA values.
-  na.cols <- .data %>%
-    purrr::keep(~ all(is.na(.x))) %>%
+  na.cols <- .data |>
+    purrr::keep(~ all(is.na(.x))) |>
     names()
 
   # create list of columns to be removed by comparing columns containing all NA
@@ -510,7 +510,7 @@ TADA_RetainRequired <- function(.data) {
   remove.cols <- setdiff(na.cols, require.cols)
 
   # remove not required columns containing all NA values from dataframe.
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::select(-dplyr::contains(remove.cols))
 
   # check to make sure required columns contain some data that is not NA
@@ -560,7 +560,7 @@ TADA_RetainRequired <- function(.data) {
   keep.cols <- c(require.cols, attains.cols, last.cols)
 
   # create list of all columns in original data set
-  original.cols <- .data %>% names()
+  original.cols <- .data |> names()
 
   # create a list of columns that were removed by comparing original column and keep column lists
   remove.cols <- setdiff(original.cols, keep.cols)
@@ -569,7 +569,7 @@ TADA_RetainRequired <- function(.data) {
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
   # retain only columns identified as required or for filtering in the dataframe
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::select(dplyr::contains(keep.cols))
 
   # print a message to list names for all removed columns
@@ -605,8 +605,8 @@ TADA_RetainRequired <- function(.data) {
 #'   print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
 #'
 #'   # create list of columns containing all NA values.
-#'   na.cols <- .data %>%
-#'     purrr::keep(~ all(is.na(.x))) %>%
+#'   na.cols <- .data |>
+#'     purrr::keep(~ all(is.na(.x))) |>
 #'     names()
 #'
 #'   # create list of columns to be removed by comparing columns containing all NA
@@ -616,7 +616,7 @@ TADA_RetainRequired <- function(.data) {
 #'   remove.cols <- setdiff(na.cols, require.cols)
 #'
 #'   # remove not required columns containing all NA values from dataframe.
-#'   .data <- .data %>%
+#'   .data <- .data |>
 #'     dplyr::select(-dplyr::contains(remove.cols))
 #'
 #'   # check to make sure required columns contain some data that is not NA
