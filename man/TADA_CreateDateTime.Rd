@@ -25,25 +25,49 @@ You can see where and how it gets called on line 160
 }
 \examples{
 \dontrun{
-# Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
-# Example WQP URL: https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+# Find web service URLs for each Profile using WQP User Interface
+# (https://www.waterqualitydata.us/)
+# Example WQP URL:
+# https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&
+# startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+# providers=STEWARDS&providers=STORET
 
-# Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+# Define base URL and common components
+baseurl <- "https://www.waterqualitydata.us"
+filters <- "/search?statecode=US\%3A09&characteristicType=Nutrient"
+dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+type <- "&mimeType=csv&zip=yes"
+providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+
+# Construct URLs for different profiles
+station_url <- paste0(
+  baseurl, "/data/Station", filters, dates, type, providers
+)
+result_url <- paste0(
+  baseurl, "/data/Result", filters, dates, type,
+  "&dataProfile=resultPhysChem", providers
+)
+project_url <- paste0(
+  baseurl, "/data/Project", filters, dates, type, providers
+)
+
+# Use TADA_ReadWQPWebServices to load Station, Project,
+# and Phys-Chem Result profiles
+stationProfile <- TADA_ReadWQPWebServices(station_url)
+physchemProfile <- TADA_ReadWQPWebServices(result_url)
+projectProfile <- TADA_ReadWQPWebServices(project_url)
 
 # Join all three profiles using TADA_JoinWQPProfiles
 TADAProfile <- TADA_JoinWQPProfiles(
-  FullPhysChem = physchemProfile, Sites = stationProfile,
+  FullPhysChem = physchemProfile,
+  Sites = stationProfile,
   Projects = projectProfile
 )
 
-# Run TADA_CheckRequiredFields, returns error message,
-# 'The dataframe does not contain the required fields: ActivityStartDateTime'
+# Run TADA_CheckRequiredFields, returns error message
 TADA_CheckRequiredFields(TADAProfile)
 
-# Add missing col
+# Add missing column
 TADAProfile1 <- TADA_CreateDateTime(
   .data = TADAProfile,
   date_col = "ActivityStartDate",
