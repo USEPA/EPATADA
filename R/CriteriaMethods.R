@@ -9,7 +9,7 @@
 #' these three TADA helper functions, [TADA_CreateParamRef()], 
 #' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef], in that order to 
 #' generate the Criteria and Methodology table specific for your organization. 
-#' 
+#'
 #' This criteria and methodology table will be in a TADA compatible format and
 #' contain a list of allowable values within each column to define the full
 #' criteria, or magnitude only, values associated with an ATTAINS parameter name
@@ -190,7 +190,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
   }
 
   # Generates a blank Criteria and Methods file.
-  # Users can still append a user supplied criteriaMethods table or the epa304a recommended standards if desired.
+  # Users can still append the epa304a recommended standards if desired.
   if (auto_assign == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
@@ -523,13 +523,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
     DefineCriteriaMethodology[c(col_names_MLSummary)] <- lapply(DefineCriteriaMethodology[col_names_MLSummary], as.character)
   }
 
-  # User wants to populate the Criteria table using a user supplied table.
-  # This option will prioritize a user-supplied table, but may include
-  # all rows generated from this function either from 1) auto_assign default values,
-  # 2) epa 304a values, 3) any updated ref values from the updateRef functions,
-  # 4) from the recommended workflow based on MLSummaryRef, or 5) a blank template
-  # which will only include rows relevant to all unique TADA.CharacteristicName in
-  # the TADA data frame.
+  # User wants to populate the criteria table using a user supplied table.
+  # This option will prioritize a user-supplied table, but will include
+  # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier) 
+  # generated from the auto_assign default values. Users may also append epa 304a values.
   if (!is.null(criteriaMethods)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
@@ -554,7 +551,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #   warning(paste0("Your user supplied criteria table contains a parameter under ATTAINS.ParameterName which is not found as an ATTAINS domain value."))
     # }
 
-    # identifies all unique TADA.CharacteristicName in data frame
+    # identifies all unique TADA.CharacteristicNames in TADA data frame
     unique_param <- unique(.data$TADA.CharacteristicName)
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
@@ -598,13 +595,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
         "ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
-      if (auto_assign == TRUE) {
-        warning(paste0(
-          "You selected auto_assign == TRUE. ",
-          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
-          "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
-        ))
-      }
     }
 
     if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
@@ -615,15 +605,25 @@ TADA_DefineCriteriaMethodology <- function(.data,
         "when compared to the domain value of ATTAINS from the prior ATTAINS assessment cycle for your organization(s). ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
-      if (auto_assign == TRUE) {
-        warning(paste0(
-          "You selected auto_assign == TRUE. ",
-          "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
-          "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
-        ))
-      }
     }
 
+    # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
+    if (auto_assign == TRUE & is.null(useAURef)) {
+      warning(paste0(
+        "You selected auto_assign == TRUE. No useAURef was provided. ",
+        "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
+        "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+      ))
+    }
+    # If the source of the ATTAINS param and uses is from the user supplied useAURef.
+    if (auto_assign == TRUE & !is.null(useAURef)) {
+      warning(paste0(
+        "You selected auto_assign == TRUE. A useAURef was provided. ",
+        "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your useAURef. ",
+        "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
+      ))  
+    }
+    
     # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
     definedCriteria <- criteriaMethods %>%
       dplyr::filter(!is.na(ATTAINS.ParameterName)) %>%
