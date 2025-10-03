@@ -1,22 +1,22 @@
-#' Define Criteria and Methodology
+#' Criteria and Methodology Template
 #'
-#' It is recommended to run the three TADA reference functions in order of
-#' [TADA_CreateParamRef()], [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef]
-#' to generate the Criteria and Methodology table specific for your organization.
-#' However, users can choose to proceed with an 'auto_assign'
-#' option which will use default assignments for each of these three functions.
-#' If you would like to update any of these reference tables from the defaults,
-#' you can choose to do so in the excel spreadsheet file and then specify the starting
-#' reference table that you have updated with the argument input 'updateRef'
-#' This which will update the Criteria and Methodology table to reflect any changes made.
-#'
+#' Assessment criteria and methodologies used to evaluate water quality vary
+#' across the country. TADA users can fill out this template to define the specific
+#' criteria and methodologies for each parameter and use combination they are 
+#' interested in analyzing. This table can be filled out manually, auto-populated 
+#' with uses and parameters from ATTAINS and the input WQP dataframe, or 
+#' developed with TADA helper functions (recommended).It is recommended to run 
+#' these three TADA helper functions, [TADA_CreateParamRef()], 
+#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef], in that order to 
+#' generate the Criteria and Methodology table specific for your organization. 
+#' 
 #' This criteria and methodology table will be in a TADA compatible format and
 #' contain a list of allowable values within each column to define the full
 #' criteria, or magnitude only, values associated with an ATTAINS parameter name
 #' and use name. For each criteria/magnitude value,
 #' users will need to ensure they properly define any additional methods that
-#' reflects their water quality standards for a parameter and use.
-#' For example, if there are separate standards for acute versus chronic,
+#' reflects their water quality criteria and methodologies for a parameter and use.
+#' For example, if there are separate criteria and methods for acute versus chronic,
 #' rivers versus estuary, different seasons, etc., then a user will need to create
 #' additional rows to reflect this. Additional columns are included in this output
 #' to capture data sufficiency considerations such as minimum sample sizes,
@@ -36,8 +36,8 @@
 #' the function attempts to identify which organization identifier(s) to include
 #' based on the unique ATTAINS organization identifiers found in the dataframe.
 #'
-#' @param criteriaMethods An optional data frame which contains the completed criteria
-#' and methodology table completed. This will be a user supplied table and any
+#' @param criteriaMethods An optional data frame which contains the completed
+#' criteria and methodology table. This will be a user supplied table and any
 #' inputs in this table will be prioritized. Additional rows for any parameter(s)
 #' and use(s) combinations that are not found in the user supplied table will be
 #' included in the output. These rows will need the criteria and methodology inputs
@@ -59,14 +59,23 @@
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #' 
-#' @param auto_assign A Boolean value to generate the criteria and methods table
-#' using auto_assign methods for the 3 crosswalk reference table without the need 
-#' for users to run beforehand. The default value is FALSE.
+#' @param auto_assign A Boolean value ("TRUE" or "FALSE"). The default value 
+#' is FALSE. If "TRUE", a draft criteria and methods table is generated using 
+#' default function inputs for [TADA_CreateParamRef()], 
+#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef]. .data and org_id are
+#' required inputs for this function if auto_assign = "TRUE". It is also 
+#' recommended to set excel = "TRUE" when 'auto_assign' = "TRUE". The criteria 
+#' and methodogology template should be reviewed carefully and edits can be 
+#' made manually in Excel. When your review is complete, read the file back into
+#' R and re-run this function, TADA_DefineCriteriaMethodology, again. This time, 
+#' use the criteriaMethods function input to specify the criteria and methodology
+#' table that has already been filled out.
 #'
-#' @param updateRef Default is none. NOTE TO TADA DEV: We can consider removing
-#' this as an argument input if we do not wish to facilitate updating the crosswalk
-#' reference table when generating the criteria and methods table for input. Keeping
-#' this in the function for now as it could be useful to consider having.
+#' @param updateRef Default is none. If you would like to update any of these 
+#' reference tables from the defaults, you can choose to do so in the excel 
+#' spreadsheet file and then specify the starting reference table that you 
+#' have updated with the argument input 'updateRef'. This will update the 
+#' Criteria and Methodology table to reflect any changes made.
 #' 
 #' @param displayUniqueId A Boolean value. If TRUE, this will print all unique 
 #' TADA.ComparableDataIdentifier in the criteria and methods table output. This is 
@@ -129,11 +138,18 @@
 #' )
 #' }
 #'
-TADA_DefineCriteriaMethodology <- function(.data, MLSummaryRef = NULL, org_id = NULL, # required inputs for the recommended workflow
-                                           criteriaMethods = NULL, auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           AUMLRef = NULL, useAURef = NULL, # Optional if auto_assign = TRUE
+TADA_DefineCriteriaMethodology <- function(.data, 
+                                           MLSummaryRef = NULL, 
+                                           org_id = NULL, # required inputs for the recommended workflow
+                                           criteriaMethods = NULL, 
+                                           auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+                                           AUMLRef = NULL, 
+                                           useAURef = NULL, # Optional if auto_assign = TRUE
                                            updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"), # hierarchical dependency
-                                           epa304a = FALSE, displayUniqueId = FALSE, excel = TRUE, overwrite = FALSE) {
+                                           epa304a = FALSE, 
+                                           displayUniqueId = FALSE, 
+                                           excel = TRUE, 
+                                           overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 

@@ -551,6 +551,9 @@ ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
 captured by the auto_assign method.
 
 ```{r useparamref-AutoAssign}
+# uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+data(MT.UseAURef_with_WaterUseRef)
+
 MT.UseParamRef_AutoAssign <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),

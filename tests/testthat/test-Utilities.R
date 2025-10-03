@@ -231,10 +231,10 @@ test_that("pH harmonization works as expected throughout workflow", {
   testthat::expect_gt(base::nrow(ph_data), 0, label = "Data frame should not be empty")
 
   # Check results for the state
-  # - Prints and checks the unit codes to verify harmonization.
-  base::print(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
-  if (!base::all(base::unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
-    base::message(base::paste("pH data unit codes for state", selected_state_code, "are not harmonized to 'NONE'"))
+  # Prints and checks the unit codes to verify harmonization.
+  print(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode))
+  if (!all(unique(ph_data$TADA.ResultMeasure.MeasureUnitCode) == "NONE")) {
+    message(paste("pH data unit codes are not harmonized to 'NONE'"))
   }
 })
 
