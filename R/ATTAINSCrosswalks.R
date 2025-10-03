@@ -1023,7 +1023,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) |>
-      tidyr::uncount(weights = length(org_id)) |>
+      tidyr::uncount(weights = length(org_id)) %>%
       dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
