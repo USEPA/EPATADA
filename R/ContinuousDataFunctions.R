@@ -135,7 +135,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 
     table <- rvest::read_html(site_url) |>
       rvest::html_nodes("table") |>
-      rvest::html_table() |>
+      rvest::html_table() %>%
       .[[1]] |>
       dplyr::mutate(stat_cd = sprintf("%05d", `Statistic Type Code`)) |>
       dplyr::select(stat_cd, stat_type = `Statistic Type Description`)
@@ -192,7 +192,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       suppressWarnings({
         for (i in 1:nrow(aoi_sf)) {
           bbox <- sf::st_bbox(aoi_sf[i, ]) |>
-            as.vector() |>
+            as.vector() %>%
             round(., digits = 7)
 
           gage_sites[[i]] <- tryCatch(
@@ -228,9 +228,9 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269)
 
     aoi_inventory <- gage_sites |>
-      .[aoi_sf, ] |>
-      dplyr::left_join(pcodes(), by = "parm_cd") |>
-      dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) |>
+      dplyr::pull(aoi_sf) |>
+      dplyr::left_join(pcodes(), by = "parm_cd") %>%
+      dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
       dplyr::left_join(., stats_table(), by = "stat_cd") |>
       dplyr::mutate(data_type = "Daily") |>
       dplyr::select(site_no,
@@ -246,7 +246,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
         n_obs = count_nu,
         begin_date,
         end_date
-      ) |>
+      ) %>%
       # remove any dupes if they exist (precautionary - they shouldn't!)
       dplyr::distinct(., .keep_all = TRUE)
 
@@ -316,7 +316,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 
     siteid <- siteid |>
       dplyr::bind_rows() |>
-      dplyr::distinct() |>
+      dplyr::distinct() %>%
       .$site_no
 
     # Check and split 'siteid' into chunks if necessary
@@ -364,11 +364,11 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     return(empty_sf())
   }
 
-  inventory <- inventory |>
-    sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269) |>
-    dplyr::left_join(pcodes(), by = "parm_cd") |>
-    dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) |>
-    dplyr::left_join(., stats_table(), by = "stat_cd") |>
+  inventory <- inventory %>%
+    sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269) %>%
+    dplyr::left_join(pcodes(), by = "parm_cd") %>%
+    dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
+    dplyr::left_join(., stats_table(), by = "stat_cd") %>%
     dplyr::mutate(data_type = "Daily") |>
     dplyr::select(site_no,
       site_name = station_nm,
@@ -383,7 +383,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       n_obs = count_nu,
       begin_date,
       end_date
-    ) |>
+    ) %>%
     # Remove any duplicates if they exist (precautionary - they shouldn't!)
     dplyr::distinct(., .keep_all = TRUE)
 
@@ -519,7 +519,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       suppressWarnings({
         for (i in 1:nrow(aoi_sf)) {
           bbox <- sf::st_bbox(aoi_sf[i, ]) |>
-            as.vector() |>
+            as.vector() %>%
             round(., digits = 7)
 
           siteid[[i]] <- tryCatch(

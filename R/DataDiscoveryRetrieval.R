@@ -382,7 +382,7 @@ TADA_DataRetrieval <- function(startDate = "null",
           # Pull data
           arcgislayers::arc_open() |>
           # Return sf
-          arcgislayers::arc_select() |>
+          arcgislayers::arc_select() %>%
           # If a value provided, then filter
           {
             if (all(tribe_name_parcel != "null")) {
@@ -399,7 +399,7 @@ TADA_DataRetrieval <- function(startDate = "null",
           tribal_area == tribal_area_type
         )$url |>
           arcgislayers::arc_open() |>
-          arcgislayers::arc_select() |>
+          arcgislayers::arc_select() %>%
           {
             if (all(tribe_name_parcel != "null")) {
               dplyr::filter(., PARCEL_NO %in% tribe_name_parcel)
