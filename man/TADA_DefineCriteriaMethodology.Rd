@@ -12,7 +12,6 @@ TADA_DefineCriteriaMethodology(
   auto_assign = FALSE,
   AUMLRef = NULL,
   useAURef = NULL,
-  updateRef = c("none", "paramRef", "useParamRef", "MLSummaryRef"),
   epa304a = FALSE,
   displayUniqueId = FALSE,
   excel = TRUE,
@@ -68,12 +67,6 @@ See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCr
 should contain a completed crosswalk of use names associated with each assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
-
-\item{updateRef}{Default is none. If you would like to update any of these
-reference tables from the defaults, you can choose to do so in the excel
-spreadsheet file and then specify the starting reference table that you
-have updated with the argument input 'updateRef'. This will update the
-Criteria and Methodology table to reflect any changes made.}
 
 \item{epa304a}{A Boolean value to return epa304a recommended standards for any
 WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
