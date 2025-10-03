@@ -192,8 +192,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       suppressWarnings({
         for (i in 1:nrow(aoi_sf)) {
           bbox <- sf::st_bbox(aoi_sf[i, ]) |>
-            as.vector() %>%
-            round(., digits = 7)
+            as.vector() |>
+            round(x = _, digits = 7)
 
           gage_sites[[i]] <- tryCatch(
             {
