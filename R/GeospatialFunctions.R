@@ -1644,7 +1644,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
 #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Example 1: Basic usage with default settings
@@ -1760,10 +1760,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       TADA.MonitoringLocationIdentifier = paste0(ml.col),
       ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
       ATTAINS.WaterType = paste0(type.col)
-    ) %>%
-    dplyr::select(-ATTAINS.WaterType) %>%
-    dplyr::select(TADA.MonitoringLocationIdentifier,
-                  ATTAINS.AssessmentUnitIdentifier)
+     ) %>%
+     dplyr::select(TADA.MonitoringLocationIdentifier,
+                   ATTAINS.AssessmentUnitIdentifier,
+                   ATTAINS.WaterType)
 
   # filter detain to retain only results with known AUIDs
   filt.data <- .data %>%
@@ -1910,7 +1910,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     # create TADA_with_ATTAINS df for list output
     TADA_with_ATTAINS <- filt.data %>%
       dplyr::left_join(au_ref, by = dplyr::join_by(
-        TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier))
+        TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+        ATTAINS.WaterType))
 
     # create list of tada prefix columns
     tada.cols <- colnames(TADA_with_ATTAINS)
@@ -3321,7 +3322,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         dplyr::rename(
           ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
           ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
-          ATTAINS.WaterType = paste0(type.col)
+          User.WaterType = paste0(type.col)
         )
 
       rm(col.ids, req.cols, auid.col, ml.col, type.col)
