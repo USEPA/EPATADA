@@ -1759,11 +1759,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     dplyr::rename(
       TADA.MonitoringLocationIdentifier = paste0(ml.col),
       ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
-      ATTAINS.WaterType = paste0(type.col)
+      Ref.WaterType = paste0(type.col)
      ) %>%
      dplyr::select(TADA.MonitoringLocationIdentifier,
                    ATTAINS.AssessmentUnitIdentifier,
-                   ATTAINS.WaterType)
+                   Ref.WaterType)
 
   # filter detain to retain only results with known AUIDs
   filt.data <- .data %>%
@@ -1908,10 +1908,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   }
 
     # create TADA_with_ATTAINS df for list output
-    TADA_with_ATTAINS <- filt.data %>%
-      dplyr::left_join(au_ref, by = dplyr::join_by(
-        TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-        ATTAINS.WaterType))
+    TADA_with_ATTAINS <- filt.data
 
     # create list of tada prefix columns
     tada.cols <- colnames(TADA_with_ATTAINS)
@@ -2039,7 +2036,38 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     TADA_with_ATTAINS <- attains.geo %>%
       dplyr::filter(!is.na(ResultIdentifier)) %>%
       dplyr::full_join(.data, by = names(.data)) %>%
-      renameATTAINSCols()
+      renameATTAINSCols() %>%
+      dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
+                                               Ref.WaterType, ATTAINS.WaterType))
+
+    # check to see if any mismatches
+    mismatch_check <- TADA_with_ATTAINS %>%
+      dplyr::select(ATTAINS.AssessmentUnitIdentifier,
+                    ATTAINS.WaterType, Ref.WaterType) %>%
+      dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
+                                               "NA", ATTAINS.WaterType),
+                    Ref.WaterType = ifelse(is.na(Ref.WaterType),
+                                           "NA", Ref.WaterType),
+                    Mismatch = ifelse(ATTAINS.WaterType ==
+                                        Ref.WaterType, FALSE, TRUE)) %>%
+      dplyr::filter(Mismatch == TRUE)
+
+    # print message if mismatches exist
+    if(dim(mismatch_check)[1] > 0) {
+
+      mismatch.text <- mismatch_check %>%
+        dplyr::mutate(MatchMessage = paste0(ATTAINS.AssessmentUnitIdentifier, " (ATTAINS: ",
+                                            ATTAINS.WaterType, ", User-ref: ",
+                                            Ref.WaterType, ")"))
+
+         mismatch.text2 <- mismatch.text %>%
+           dplyr::select(MatchMessage) %>%
+           dplyr::pull()
+
+
+      print(paste0("TADA_GetATTAINSByAUID: There are mismatches between the ATTAINS and user-supplied ",
+                   "ref for one ore more assessment units. See details: "))
+      }
 
     # remove intermediate object
     rm(attains.geo, filt.data)
