@@ -147,17 +147,17 @@ TADA_DefineCriteriaMethodology <- function(.data,
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
   # Ensures you have used a valid auto_assign name
-  if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
-    stop(paste0(
-      "TADA_DefineCriteriaMethodology: ",
-      "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
-    ))
-  }
+  # if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
+  #   stop(paste0(
+  #     "TADA_DefineCriteriaMethodology: ",
+  #     "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
+  #   ))
+  # }
 
   # Invalid function input combos - can only use updateRef =  none with auto_assign = FALSE
-  if (auto_assign == FALSE && updateRef != "none") {
-    stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
-  }
+  # if (auto_assign == FALSE && updateRef != "none") {
+  #   stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
+  # }
 
   # If user supplies criteria methods table, then auto_assign = T for any non-matched values
   if ( !is.null(criteriaMethods)) {
