@@ -144,7 +144,18 @@ TADA_DefineCriteriaMethodology <- function(.data,
                                            excel = TRUE, 
                                            overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
-  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  # Define the OneDrive Downloads path
+  onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
+  
+  # Define the default Downloads path
+  default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  
+  # Check if the OneDrive Downloads path exists, and prioritize it
+  if (file.exists(onedrive_downloads_path)) {
+    downloads_path <- onedrive_downloads_path
+  } else {
+    downloads_path <- default_downloads_path
+  }
 
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
   # # Ensures users have entered a valid input to updateRef
@@ -990,7 +1001,18 @@ TADA_DefineCriteriaMethodology <- function(.data,
 TADA_CriteriaDataDictionary <- function() {
   
   # Excel ref files to be stored in the Downloads folder location.
-  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  # Define the OneDrive Downloads path
+  onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
+  
+  # Define the default Downloads path
+  default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  
+  # Check if the OneDrive Downloads path exists, and prioritize it
+  if (file.exists(onedrive_downloads_path)) {
+    downloads_path <- onedrive_downloads_path
+  } else {
+    downloads_path <- default_downloads_path
+  }
   
   wb <- openxlsx::loadWorkbook(wb, downloads_path)
   tryCatch(
@@ -1059,7 +1081,7 @@ TADA_CriteriaDataDictionary <- function() {
       "An exceedance is recorded if a ResultValue is above the defined lower magnitude limit for this parameter and use.",	
       "The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
       "The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
-      "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	""
+      "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"", ""
       )
   )
   
