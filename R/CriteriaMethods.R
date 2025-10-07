@@ -146,15 +146,15 @@ TADA_DefineCriteriaMethodology <- function(.data,
   # Excel ref files to be stored in the Downloads folder location.
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
 
-  # Ensures you have used a valid auto_assign name
+  # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
+  # # Ensures users have entered a valid input to updateRef
   # if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
   #   stop(paste0(
   #     "TADA_DefineCriteriaMethodology: ",
-  #     "argument input ", updateRef, " is not a valid entry. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
+  #     "argument input ", updateRef, " is not a valid entry for updateRef. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
   #   ))
   # }
-
-  # Invalid function input combos - can only use updateRef =  none with auto_assign = FALSE
+  # # Invalid function input combos - can only use updateRef = none with auto_assign = FALSE
   # if (auto_assign == FALSE && updateRef != "none") {
   #   stop("TADA_DefineCriteriaMethodology: auto_assign = FALSE. The updateRef function input must be none. If you have updated a reference table, use auto_assign == TRUE")
   # }
@@ -243,7 +243,8 @@ TADA_DefineCriteriaMethodology <- function(.data,
   # Users can edit one or more of the ref files which will update all accordingly.
   if (auto_assign == TRUE) {
     # default, runs all reference tables with no user edits
-    #if (updateRef == "none") {
+    # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
+    # if (updateRef == "none") {
     message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment."))
     suppressMessages(
       TADA_ParamRef <- TADA_CreateParamRef(
@@ -291,6 +292,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       dplyr::left_join(MLSummaryRef)
     #}
 
+    # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
     # # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
     # if (updateRef == "paramRef") {
     #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
