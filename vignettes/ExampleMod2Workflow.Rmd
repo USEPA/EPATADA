@@ -164,19 +164,29 @@ It uses three prioritized data sources:
     **`TADA_CreateAUMLCrosswalk`**, so users do not need to run each
     step individually, though they have the option to do so if desired.
 
+-   To make this function run more efficiently, the default is to not
+    return catchments from the ATTAINS geospatial service for matches
+    found in the user-supplied crosswalk or ATTAINS crosswalk (#1 or #2
+    above). If the user does want to return ATTAINS geospatial service
+    catchments for matches from the user-supplied or ATTAINS crosswalks,
+    they can set add_catch = TRUE. This will return the catchments, but
+    increases function run time significantly. ATTAINS catchments are
+    always returned for `TADA_CreateATTAINSAUMLCrosswalk` assessed WQP
+    monitoring locations.
+
 **Current Limitations**
 
--   To make this function run more efficiently, catchments from the
-    ATTAINS geospatial service are not returned for matches found in the
-    user-supplied crosswalk or ATTAINS crosswalk (#1 or #2 above).
-    ATTAINS catchments are only returned from
-    `TADA_CreateATTAINSAUMLCrosswalk` assessed WQP monitoring locations.
+-   Currently, the nhd_catch argument applies only to monitoring
+    locations that are not included in the user-supplied or ATTAINS
+    crosswalks and that cannot be matched to existing ATTAINS assessment
+    units and catchments during `TADA_CreateATTAINSAUMLCrosswalk.`
 
 **Future Improvements**
 
--   Plans are underway to develop a separate process to return all
-    ATTAINS catchments associated with all WQP monitoring locations in
-    the future, to support mapping and crosswalk review.
+-   Plans are underway to develop a separate process to more efficiently
+    return all ATTAINS catchments and NHD catchments associated with all
+    WQP monitoring locations in the future, to support mapping and
+    crosswalk review.
 
 ### Create An Example User-Supplied Crosswalk
 
@@ -230,8 +240,8 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
-  add_catch = FALSE,
-  nhd_catch = FALSE,
+  add_catch = TRUE,
+  nhd_catch = TRUE,
   batch_upload = TRUE)
 ```
 
