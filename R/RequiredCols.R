@@ -246,7 +246,7 @@ extra.cols <- c(
 )
 
 attains.cols <- c(
-  "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
   "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
   "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
   "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",

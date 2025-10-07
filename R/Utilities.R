@@ -135,7 +135,7 @@ utils::globalVariables(c(
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
   "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
-  "ATTAINS.OrganizationId", "ATTAINS.WaterType", "useName", "waterType",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "useName", "waterType",
   "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
@@ -1706,7 +1706,7 @@ checkColName <- function(.data, partial.string = NULL) {
 renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   # list of TADA formatted column names
   attains.tada <- c(
-    "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
     "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
     "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
     "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
