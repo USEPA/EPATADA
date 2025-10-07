@@ -1081,7 +1081,12 @@ TADA_CriteriaDataDictionary <- function() {
       "An exceedance is recorded if a ResultValue is above the defined lower magnitude limit for this parameter and use.",	
       "The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
       "The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
-      "",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"",	"", ""
+      "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",	
+      "The frequency component defined as a percentage or number of times a magnitude value can be exceeded over a specified duration period.",	
+      "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",	
+      "The start date in which WQP data will be analysed for this parameter and use.",
+      "The end date in which WQP data will be analysed for this parameter and use.",	
+      "",	"",	"",	"",	"",	"",	"",	"", ""
       )
   )
   

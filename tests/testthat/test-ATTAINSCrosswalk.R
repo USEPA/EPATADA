@@ -1,7 +1,7 @@
 # get random data
 test_dat <- TADA_RandomTestingData()
 
-# Test: Check for potential duplicates, all auto_assign options without a user supplied paramRef should have equal rows
+# Test: Check for potential duplicates during criteria methods table generation
 test_that("TADA_CreateParamRef ", {
   param_ref_none <- TADA_CreateParamRef(
     test_dat,
@@ -10,6 +10,37 @@ test_that("TADA_CreateParamRef ", {
     excel = FALSE
   )
   
+  use_param_ref_none <- TADA_CreateUseParamRef(
+    test_dat,
+    paramRef = param_ref_none,
+    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+    auto_assign = FALSE,
+    excel = FALSE
+  )
+  
+  # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
+  user.supplied.uses.param <- data.frame(
+    ATTAINS.OrganizationIdentifier = rep("MTDEQ", length(unique(test_dat$TADA.ComparableDataIdentifier))), # we have assigned to example uses to each parameter
+    ATTAINS.ParameterName = unique(test_dat$TADA.ComparableDataIdentifier),
+    ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(test_dat$TADA.ComparableDataIdentifier)))
+  )
+  
+  use_param_ref_none2 <- TADA_CreateUseParamRef(
+    test_dat,
+    paramRef = param_ref_none,
+    useParamRef = user.supplied.uses.param,
+    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+    auto_assign = FALSE,
+    excel = FALSE
+  )
+  
+  # A user supplied table when paramRef has no crosswalk should return 0 rows (empty data frame).
+  # Check to make sure there are 7 columns, 0 rows
+  expect_true(
+    dim(use_param_ref_none)[1] == 0 && dim(use_param_ref_none)[2] == 7 &&
+    dim(use_param_ref_none2)[1] == 0 && dim(use_param_ref_none2)[2] == 7
+  )
+  #################
   param_ref_all <- TADA_CreateParamRef(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -17,6 +48,39 @@ test_that("TADA_CreateParamRef ", {
     excel = FALSE
   )
   
+  use_param_ref_all <- TADA_CreateUseParamRef(
+    test_dat,
+    paramRef = param_ref_all,
+    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+    auto_assign = TRUE,
+    excel = FALSE
+  )
+  
+  # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
+  user.supplied.uses.param <- data.frame(
+    ATTAINS.OrganizationIdentifier = rep("MTDEQ", length(unique(param_ref_all$ATTAINS.ParameterName))), # we have assigned to example uses to each parameter
+    ATTAINS.ParameterName = unique(param_ref_all$ATTAINS.ParameterName),
+    ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(param_ref_all$ATTAINS.ParameterName)))
+  )
+  
+  use_param_ref_all2 <- TADA_CreateUseParamRef(
+    test_dat,
+    paramRef = param_ref_all,
+    useParamRef = user.supplied.uses.param,
+    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+    auto_assign = FALSE,
+    excel = FALSE
+  )
+  
+  # A user supplied table when paramRef is filled out when auto_assign = FALSE
+  # should all reflect the user supplied crosswalk. Check all unique uses to make sure.
+  # Check to make sure there are 7 columns, 0 rows
+  expect_true(
+    all(unique(use_param_ref_all2$ATTAINS.UseName) %in% unique(user.supplied.uses.param$ATTAINS.UseName)) &&
+    dim(use_param_ref_all)[2] == 7 &&
+    dim(use_param_ref_all2)[2] == 7
+  )
+  #################
   param_ref_org <- TADA_CreateParamRef(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.

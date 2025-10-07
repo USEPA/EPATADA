@@ -1699,14 +1699,14 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       if (!is.data.frame(useParamRef)) {
         stop(paste0(
           "TADA_CreateUseParamRef: 'useParamRef' must be a data frame with these 3 columns:",
-          "ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier,",
+          "ATTAINS.OrganizationIdentifier",
           "ATTAINS.ParameterName, ATTAINS.UseName"
         ))
       }
 
       if (is.data.frame(useParamRef)) {
         col.names <- c(
-          "ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier",
+          "ATTAINS.OrganizationIdentifier", 
           "ATTAINS.ParameterName", "ATTAINS.UseName"
         )
 
@@ -1869,10 +1869,15 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 
       # check if users have specified an include or exclude column. If not, assume it is all 'include'
       if ("IncludeOrExclude" %in% names(useParamRef)) {
-        useParamRef <- useParamRef
+        useParamRef <- useParamRef %>%
+          dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude) %>%
+          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "IncludeOrExclude"))
       } else {
         print("IncludeOrExclude was not found as a column name in your user supplied, assuming all parameter and uses are applicable for your analysis.")
-        useParamRef <- dplyr::mutate(useParamRef, IncludeOrExclude = "Include")
+        useParamRef <- useParamRef %>%
+          dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %>%
+          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName")) %>%
+          dplyr::mutate(IncludeOrExclude = "Include")
       }
 
       useParamRef$ATTAINS.ParameterName <- toupper(useParamRef$ATTAINS.ParameterName)
@@ -1932,7 +1937,9 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
             "Use name is listed as a prior cause in ATTAINS for this organization.",
           !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all$ATTAINS.UseName) &
             ATTAINS.UseName %in% ATTAINS_param_all$ATTAINS.UseName ~
-            "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name."
+            "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
+          TRUE ~ 
+            "Use name is not listed as a prior cause in ATTAINS."
         )) %>%
         dplyr::mutate(Flag.UseInput = dplyr::case_when(
           is.na(Flag.UseInput) ~
@@ -1942,7 +1949,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         )) %>%
         dplyr::filter(
           ATTAINS.OrganizationIdentifier %in% org_id,
-          ATTAINS.ParameterName %in% paramRef$ATTAINS.ParameterName
+          ATTAINS.ParameterName %in% paramRef$ATTAINS.ParameterName,
+          !is.na(ATTAINS.ParameterName)
         ) %>%
         dplyr::select(
           TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName,
