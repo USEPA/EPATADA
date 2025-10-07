@@ -1255,7 +1255,18 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     }
 
     # Excel ref files to be stored in the Downloads folder location.
-    downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+    # Define the OneDrive Downloads path
+    onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
+    
+    # Define the default Downloads path
+    default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+    
+    # Check if the OneDrive Downloads path exists, and prioritize it
+    if (file.exists(onedrive_downloads_path)) {
+      downloads_path <- onedrive_downloads_path
+    } else {
+      downloads_path <- default_downloads_path
+    }
 
     if (excel == TRUE) {
       # Print message if there are many combinations of TADA Characteristic as it may slow run time.
@@ -1947,7 +1958,18 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     # remove intermediate objects
     rm(ATTAINS_param)
 
-    downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+    # Define the OneDrive Downloads path
+    onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
+    
+    # Define the default Downloads path
+    default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+    
+    # Check if the OneDrive Downloads path exists, and prioritize it
+    if (file.exists(onedrive_downloads_path)) {
+      downloads_path <- onedrive_downloads_path
+    } else {
+      downloads_path <- default_downloads_path
+    }
 
     if (excel == TRUE) {
       # Print message if there are many combinations of TADA Characteristic as it may slow run time.
@@ -2825,7 +2847,18 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   CreateMLSummaryRef <- data.frame()
 
   # default Downloads file location.
-  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  # Define the OneDrive Downloads path
+  onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
+  
+  # Define the default Downloads path
+  default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
+  
+  # Check if the OneDrive Downloads path exists, and prioritize it
+  if (file.exists(onedrive_downloads_path)) {
+    downloads_path <- onedrive_downloads_path
+  } else {
+    downloads_path <- default_downloads_path
+  }
 
   # This allows a user to provide the mod 2 function TADA_GetATTAINS() as the .data data frame.
   # In this case, the ML to AU crosswalk is generated from TADA_GetATTAINS().
