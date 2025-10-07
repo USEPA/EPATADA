@@ -50,7 +50,7 @@ C)  **Submitting the Crosswalk**: Employ
 D)  **Assigning Uses**: Use **`TADA_CreateUseAURef`** to assign specific
     uses to the assessment units.
 
-### Install and Load EPATADA Package
+### Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
@@ -97,7 +97,7 @@ other required packages/
 library(EPATADA)
 ```
 
-### Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
+### Get WQP Monitoring Data in MT
 
 Get bacteria and pH data from Missoula County, Montana.
 
@@ -133,7 +133,7 @@ loaded into your R environment like this:
 tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
-## Step A: Discover Matches with `TADA_CreateAUMLCrosswalk()`
+## Step A: Discover ML/AU Matches
 
 The **`TADA_CreateAUMLCrosswalk`** function efficiently creates a
 crosswalk between ATTAINS assessment units and WQP monitoring locations.
@@ -225,7 +225,7 @@ rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ### Run `TADA_CreateAUMLCrosswalk`
 
 ```{r tada.get.attains}
-# use TADA get attains to make AU assignments for unassigned MLs
+# make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
   au_ref = user.supplied.cw,
@@ -235,7 +235,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   batch_upload = TRUE)
 ```
 
-## Step B: Generate a Map with `TADA_ViewATTAINS`
+## Step B: Review MLs/AUs on a Map
 
 The **`TADA_ViewATTAINS()`** function creates a map that visually
 represents results from three different crosswalk sources using distinct
@@ -260,7 +260,7 @@ particular monitoring location.
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
-## Step C: Update crosswalk in ATTAINS
+## Step C: Upload ML/AU crosswalk to ATTAINS
 
 The **`TADA_UpdateATTAINSAUMLCrosswalk`** function generates an output
 that can be batch uploaded to ATTAINS, enabling the creation or updating
@@ -306,57 +306,68 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
   )
 ```
 
-## Step D: Assign uses to AUs with TADA_CreateUseAURef
+## Step D: Assign Uses to AUs
 
-After assigning WQP MLs to ATTAINS AUs, we will use
-`TADA_CreateUseAURef` to assign uses to these AUs. First, we will
-convert the ML to AU crosswalk to the appropriate format for this TADA
-workflow. We will also assign the *NEW:EX_MDEQ_WQ_WQX* assessment unit
-example to the water type *LAKE, FRESHWATER* to demonstrate how to
-`auto_assign` uses to a new AU that is not yet in ATTAINS based on water
-type.
+After mapping the WQP monitoring locations (MLs) to ATTAINS assessment
+units (AUs), we will use the `TADA_CreateUseAURef` function to assign
+specific uses to these assessment units. Additionally, we will
+demonstrate how to automatically assign uses to a new assessment unit,
+`NEW:EX_MDEQ_WQ_WQX`, which is not yet present in ATTAINS. This will be
+done by associating it with the water type "LAKE, FRESHWATER,"
+showcasing the process of assigning uses based on water type.
 
 ```{r get.MLAURef}
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
   dplyr::mutate(
-    ATTAINS.WaterType = dplyr::case_when(
-      ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-      TRUE ~ ATTAINS.WaterType
-    )
-  )
+    ATTAINS.WaterType = 
+      dplyr::case_when(
+        ATTAINS.AssessmentUnitIdentifier == 
+          "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
+        TRUE ~ ATTAINS.WaterType))
 ```
 
-Now, we can use Final.MT.AUMLRef as our ML to AU crosswalk and proceed
-with assigning uses for each unique AU. The assignment of uses to AUs
-are prioritized as follows:
+Now, we will assign uses to each unique assessment unit (AU) in our
+finalized monitoring location to assessment unit crosswalk (e.g.,
+`Final.MT.AUMLRef`). The process of assigning uses to AUs follows these
+prioritized steps:
 
-1)  (optional) User supplied uses to AU
+1.  User-Supplied Crosswalk (Optional): Utilize a crosswalk provided by
+    the user that maps specific uses to assessment units.
 
-2)  Imports existing uses by AU from ExpertQuery
+2.  Existing Uses from ATTAINS: Import existing uses for assessment
+    units as defined by ATTAINS organizations.
 
 ```{r assign.use.to.AU}
-MT.UseAURef <- TADA_CreateUseAURef(AUMLRef = Final.MT.AUMLRef, org_id = "MTDEQ")
+MT.UseAURef <- TADA_CreateUseAURef(
+  AUMLRef = Final.MT.AUMLRef, 
+  org_id = "MTDEQ")
 ```
 
-# Assign uses to new AUs
+### **Assigning Uses to New AUs**
 
-For any new AU, users will need to determine how to assign uses to them.
+For any new assessment unit (AU), users must determine how to assign the
+appropriate uses. The **`TADA_CreateWaterUseRef`** function is designed
+to assist with this process. It imports combinations of water types and
+use names associated with the specified organization from ATTAINS. By
+doing so, it automatically assigns uses to new assessment units based on
+their water type, thereby streamlining the integration of new AUs into
+existing frameworks.
 
-1)  TADA has developed a function called TADA_CreateWaterUseRef which
-    imports existing uses by water type from ExpertQuery, and will
-    assign any new AU these uses. Users may choose to edit the
-    TADA_CreateWaterUseRef according to their preference.
+For more information on how to customize this function to suit your
+needs, enter **`?TADA_CreateWaterUseRef`** into the R console.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
-MT.UseAURef_with_WaterUseRef <- TADA_CreateUseAURef(
-  waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
-  AUMLRef = Final.MT.AUMLRef,
-  org_id = "MTDEQ"
-)
+MT.UseAURef_with_WaterUseRef <- 
+  TADA_CreateUseAURef(
+    waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+    AUMLRef = Final.MT.AUMLRef,
+    org_id = "MTDEQ")
 ```
 
-2)  User may also proceed to do a manual assignment of use names to
-    these new AUs if desired rather than using `TADA_CreateWaterUseRef`.
+Users also have the option to manually assign use names to new AUs if
+they prefer not to use the TADA_CreateWaterUseRef function. This
+approach allows for greater flexibility and customization when
+integrating new AUs into existing frameworks.
 
 ```{r assign.use.to.new.AU.manual}
 MT.UseAURef_manual <- MT.UseAURef %>%
@@ -370,3 +381,13 @@ MT.UseAURef_manual <- MT.UseAURef %>%
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
+
+## Summary
+
+In conclusion, the "Example Module 2 Workflow" significantly enhances
+the ability to maintain up-to-date information on WQP Monitoring
+Locations and the uses being assessed at various ATTAINS Assessment
+Units. By systematically guiding users through the creation of
+crosswalks, map reviews, data submission, and use assignments, this
+workflow supports efficient data management and improves
+reproducibility.
