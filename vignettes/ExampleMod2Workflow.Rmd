@@ -146,7 +146,7 @@ It uses three prioritized data sources:
     to incorporate crosswalk information stored by participating
     organizations in ATTAINS.
 
-3.  **ATTAINS Catchements/Geospatial Join:** Employs
+3.  **ATTAINS Catchments/Geospatial Join:** Employs
     **`TADA_CreateATTAINSAUMLCrosswalk`** to connect monitoring
     locations to assessment units using ATTAINS catchments through a
     geospatial join.
@@ -211,7 +211,8 @@ user.supplied.cw <- clean.existing.attains.MT %>%
     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
     WaterType = ATTAINS.WaterType
   ) %>%
-  # Add an example new assessment unit for demonstration purposes.
+  
+  # Add an example new assessment unit for demonstration purposes
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
     MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
