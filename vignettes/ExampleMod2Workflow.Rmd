@@ -33,13 +33,22 @@ knitr::opts_chunk$set(
 
 ## Overview and Setup
 
-This is an example Module 2 workflow focused on: A) creating an ATTAINS
-assessment unit/WQP monitoring location crosswalk using
-`TADA_CreateAUMLCrosswalk`, B) reviewing assessment units and monitoring
-locations on a map with `TADA_ViewATTAINS`, C) submitting an up to date
-assessment unit/WQP monitoring location crosswalk to ATTAINS using
-`TADA_UpdateATTAINSAUMLCrosswalk`, and D) assigning uses to assessment
-units with `TADA_CreateUseAURef`.
+This example Module 2 workflow focuses on the following tasks:
+
+A)  **Creating a ML/AU Crosswalk**: Use **`TADA_CreateAUMLCrosswalk`**
+    to establish a crosswalk between ATTAINS assessment units and WQP
+    monitoring locations.
+
+B)  **Map Review**: Utilize **`TADA_ViewATTAINS`** to review assessment
+    units and monitoring locations on a map, ensuring accuracy and
+    completeness.
+
+C)  **Submitting the Crosswalk**: Employ
+    **`TADA_UpdateATTAINSAUMLCrosswalk`** to submit an up-to-date
+    assessment unit/WQP monitoring location crosswalk to ATTAINS.
+
+D)  **Assigning Uses**: Use **`TADA_CreateUseAURef`** to assign specific
+    uses to the assessment units.
 
 ### Install and Load EPATADA Package
 
@@ -53,7 +62,7 @@ install.packages("remotes",
 )
 ```
 
-Load remotes library: 
+Load the remotes library:
 
 ```{r load_remotes}
 library(remotes)
@@ -92,7 +101,7 @@ library(EPATADA)
 
 Get bacteria and pH data from Missoula County, Montana.
 
-```{r tada.data}
+```{r tada.data, eval = F}
 # get MT data
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
@@ -111,14 +120,63 @@ tada.MT <- TADA_DataRetrieval(
 tada.MT.clean <- tada.MT %>%
   TADA_RunKeyFlagFunctions() %>%
   TADA_SimpleCensoredMethods() %>%
-  TADA_HarmonizeSynonyms()
+  TADA_HarmonizeSynonyms() 
 
-# remove intermediate objects
+# Remove intermediate objects
 rm(tada.MT)
-
-# or uncomment the code below to load the example data set
-# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
+
+This example is also included in the EPATADA R package, and can be
+loaded into your R environment like this:
+
+```{r load WQP data}
+tada.MT.clean <- Data_MT_MissoulaCounty
+```
+
+## Step A: Discover Matches with `TADA_CreateAUMLCrosswalk()`
+
+The **`TADA_CreateAUMLCrosswalk`** function efficiently creates a
+crosswalk between ATTAINS assessment units and WQP monitoring locations.
+It uses three prioritized data sources:
+
+1.  **User-Supplied Crosswalk:** An optional crosswalk provided by the
+    user (e.g., see example **`user.supplied.cw`** in next code chunk).
+
+2.  **ATTAINS Crosswalk:** Utilizes **`TADA_GetATTAINSAUMLCrosswalk`**
+    to incorporate crosswalk information stored by participating
+    organizations in ATTAINS.
+
+3.  **ATTAINS Catchements/Geospatial Join:** Employs
+    **`TADA_CreateATTAINSAUMLCrosswalk`** to connect monitoring
+    locations to assessment units using ATTAINS catchments through a
+    geospatial join.
+
+**Process**
+
+-   The function prioritizes these sources in the order listed. It
+    automatically attempts to assign unassigned monitoring locations
+    using the next available data source. For example, if any monitoring
+    locations remain unassigned after checking the user-supplied
+    crosswalk, the function will check the ATTAINS crosswalk, then the
+    geospatial join, as needed.
+
+-   This entire process is automated within
+    **`TADA_CreateAUMLCrosswalk`**, so users do not need to run each
+    step individually, though they have the option to do so if desired.
+
+**Current Limitations**
+
+-   To make this function run more efficiently, catchments from the
+    ATTAINS geospatial service are not returned for matches found in the
+    user-supplied crosswalk or ATTAINS crosswalk (#1 or #2 above).
+    ATTAINS catchments are only returned from
+    `TADA_CreateATTAINSAUMLCrosswalk` assessed WQP monitoring locations.
+
+**Future Improvements**
+
+-   Plans are underway to develop a separate process to return all
+    ATTAINS catchments associated with all WQP monitoring locations in
+    the future, to support mapping and crosswalk review.
 
 ### Create An Example User-Supplied Crosswalk
 
@@ -164,70 +222,39 @@ user.supplied.cw <- clean.existing.attains.MT %>%
 rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ```
 
-## Step A: Discover matches with TADA_CreateAUMLCrosswalk()
-
-`TADA_CreateAUMLCrosswalk` is a new function that can be leveraged to
-create an ATTAINS assessment unit/WQP monitoring location crosswalk. It
-considers:
-
-1.  an optional user-supplied crosswalk,
-
-2.  the results of `TADA_GetATTAINSAUMLCrosswalk` which brings in any
-    WQP monitoring location information stored in ATTAINS by
-    participating organizations, and
-
-3.  the results of `TADA_CreateATTAINSAUMLCrosswalk` which leverages the
-    ATTAINS catchments to join monitoring locations to assessment units
-    via a geospatial join.
-
-The three potential crosswalk data sources are prioritized in the order
-listed to create a comprehensive assessment unit/monitoring location
-crosswalk. This means that any WQP monitoring locations which remain
-unassigned after checking the user-supplied crosswalk will be subset and
-the function will then attempt to make additional ATTAINS assessment
-unit assignments using `TADA_GetATTAINSAUMLCrosswalk.` The same process
-then repeats and the function will then attempt to make additional
-ATTAINS assessment unit assignments using
-`TADA_CreateATTAINSAUMLCrosswalk`. All of this happens behind the scenes
-within the `TADA_CreateAUMLCrosswalk` functions so that users do not
-need to run them all separately (though that is still an option if users
-prefer).
-
-To make this function run more efficiently, and because we already have
-assessment unit assignments for some monitoring locations from the
-user-supplied crosswalk and the crosswalk downloaded from ATTAINS
-(`TADA_GetATTAINSAUMLCrosswalk`), the ATTAINS catchment data from the
-geospatial service is not currently being returned for matches in the
-crosswalks supplied by users or imported from ATTAINS. We have plans to
-create additional functions/internal reference files to facilitate this
-returning the associated catchments in the future. Therefore, any
-catchment data available for mapping is currently from
-`TADA_CreateATTAINSAUMLCrosswalk` assessed WQP monitoring locations
-only.
+### Run `TADA_CreateAUMLCrosswalk`
 
 ```{r tada.get.attains}
 # use TADA get attains to make AU assignments for unassigned MLs
-MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
+MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
+  tada.MT.clean,
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   add_catch = FALSE,
-  nhd_catch = TRUE,
+  nhd_catch = FALSE,
   batch_upload = TRUE)
 ```
 
-## Step B: Generate a Map with TADA_ViewATTAINS
+## Step B: Generate a Map with `TADA_ViewATTAINS`
 
-The `TADA_ViewATTAINS()` map function shows the results from all three
-different crosswalk sources (user supplied crosswalk, ATTAINS crosswalk,
-and ATTAINS catchments/geospatial join) by using different circle
-markers. The user icon indicates the monitoring location was from a user
-supplied ref. The circle with a check mark signifies a match from the
-crosswalk downloaded from ATTAINS (`TADA_GetATTAINSAUMLCrosswalk`).
-Matches found by comparing monitoring locations with ATTAINS catchment
-and assessment geometry with `TADA_CreateATTAINSAUMLCrosswalk` are
-represented by solid fill circle markers. The source is also displayed
-in the pop up window that appears when a user clicks on each circle
-marker.
+The **`TADA_ViewATTAINS()`** function creates a map that visually
+represents results from three different crosswalk sources using distinct
+circle markers:
+
+-   **User-Supplied Crosswalk**: Monitoring locations derived from a
+    user-supplied reference are indicated by a user icon.
+
+-   **ATTAINS Crosswalk**: Locations that match with the crosswalk
+    downloaded from ATTAINS are marked with a circle that contains a
+    check mark.
+
+-   **ATTAINS Catchments/Geospatial Join**: Matches found by joining
+    monitoring locations with ATTAINS catchments are shown as solid fill
+    circle markers.
+
+Additionally, when a user clicks on any circle marker, a pop-up window
+appears displaying the assessment unit crosswalk source for that
+particular monitoring location.
 
 ```{r view.map}
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)

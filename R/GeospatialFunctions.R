@@ -2046,7 +2046,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       Ref.WaterType, ATTAINS.WaterType
     ))
 
-  # check to see if any mismatches
+  # Check to see if any mismatches
   mismatch_check <- TADA_with_ATTAINS %>%
     dplyr::select(
       ATTAINS.AssessmentUnitIdentifier,
@@ -2054,26 +2054,22 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     ) %>%
     dplyr::mutate(
       ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
-        "NA", ATTAINS.WaterType
+                                 "NA", ATTAINS.WaterType
       ),
       Ref.WaterType = ifelse(is.na(Ref.WaterType),
-        "NA", Ref.WaterType
+                             "NA", Ref.WaterType
       ),
-      Mismatch = ifelse(ATTAINS.WaterType ==
-        Ref.WaterType, FALSE, TRUE)
+      Mismatch = ATTAINS.WaterType != Ref.WaterType
     ) %>%
     dplyr::filter(Mismatch == TRUE)
-
-  # remove mismatch test if none exist
-  if (dim(mismatch_check)[1] == 0) {
-
+  
+  # Remove mismatch test if none exist
+  if (nrow(mismatch_check) == 0) {
     rm(mismatch_check)
-
   }
-
-  # print message if mismatches exist
-  if (dim(mismatch_check)[1] > 0) {
-
+  
+  # Print message if mismatches exist
+  if (exists("mismatch_check") && nrow(mismatch_check) > 0) {
     mismatch.text <- mismatch_check %>%
       dplyr::mutate(MatchMessage = paste0(
         ATTAINS.AssessmentUnitIdentifier, " (ATTAINS: ",
@@ -2082,12 +2078,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       )) %>%
       dplyr::select(MatchMessage) %>%
       dplyr::pull()
-
+    
     mismatch.text <- stringi::stri_replace_last(paste(mismatch.text, collapse = "; "),
-        fixed = "; ", " and "
-      )
-
-
+                                                fixed = "; ", " and "
+    )
+    
     print(paste0(
       "TADA_GetATTAINSByAUID: There are mismatches between the ATTAINS and user-supplied ",
       "ref water type for one or more assessment units. ",
@@ -2096,8 +2091,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
       "user interface or batch upload. ",
       "Mismatch details: ", mismatch.text, "."
     ))
-
-    rm(mismatch.text, mismatch.check)
+    
+    rm(mismatch.text, mismatch_check)
   }
 
   # remove Ref.WaterType col as it is no longer needed
@@ -2182,25 +2177,44 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #' TADA_ViewATTAINS(attains_catchments)
 #' }
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
+  # Define the paths to the images
+  image_paths <- c(
+    "inst/extdata/icons/square-ns.png",
+    "inst/extdata/icons/square-fs.png",
+    "inst/extdata/icons/square-na.png",
+    "inst/extdata/icons/circle-solid-full.png",
+    "inst/extdata/icons/square-catchment-gray.png",
+    "inst/extdata/icons/square-catchment.png",
+    "inst/extdata/icons/circle-user-solid-full.svg",
+    "inst/extdata/icons/circle-check-solid-full.svg"
+  )
+  
+  # Check if each file exists
+  for (path in image_paths) {
+    if (!file.exists(path)) {
+      stop(paste("File not found:", path))
+    }
+  }
+  
   if (!any(c(
     "ATTAINS_catchments", "ATTAINS_points",
     "ATTAINS_lines", "ATTAINS_polygons"
   ) %in% names(.data))) {
     stop("Your input dataframe was not produced from `TADA_CreateATTAINSAUMLCrosswalk(return_sf = TRUE)`, or it was modified. Please create your list of ATTAINS features using `TADA_CreateATTAINSAUMLCrosswalk()` and confirm that return_sf had been set to TRUE.")
   }
-
+  
   ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
   ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
   ATTAINS_points <- .data[["ATTAINS_points"]]
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
-
+  
   if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }
-
+  
   # load images that are required for all legends
-
+  
   # the commented out code creates the legend images using the TADA color palette
   # if the color palette is ever edited, this section needs to be uncommented and run again
   # square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
@@ -2222,7 +2236,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # catchment <- magick::image_fill(outline.square, "black", "+500+500")
   #
   # magick::image_write(catchment, path = "inst/extdata/icons/square-catchment.png")
-
+  
   images <- c(
     "inst/extdata/icons/square-ns.png",
     "inst/extdata/icons/square-fs.png",
@@ -2231,34 +2245,32 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "inst/extdata/icons/square-catchment-gray.png",
     "inst/extdata/icons/square-catchment.png"
   )
-
-
+  
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
   missing_raw_features <- NULL
-
+  
   try(missing_raw_features <- ATTAINS_catchments %>%
-    dplyr::filter(!assessmentunitidentifier %in% c(
-      ATTAINS_points$assessmentunitidentifier,
-      ATTAINS_lines$assessmentunitidentifier,
-      ATTAINS_polygons$assessmentunitidentifier
-    )), silent = TRUE)
-
+        dplyr::filter(!assessmentunitidentifier %in% c(
+          ATTAINS_points$assessmentunitidentifier,
+          ATTAINS_lines$assessmentunitidentifier,
+          ATTAINS_polygons$assessmentunitidentifier
+        )), silent = TRUE)
+  
   if (!"without_ATTAINS_catchments" %in% names(.data)) {
     if (nrow(ATTAINS_table) == 0) {
       stop("Your WQP dataframe has no observations.")
     }
   }
-
-
+  
   if ("without_ATTAINS_catchments" %in% names(.data)) {
     without_ATTAINS_table <- .data[["TADA_without_ATTAINS"]]
-
+    
     if (nrow(ATTAINS_table) == 0 & nrow(without_ATTAINS_table) == 0) {
       stop("Your WQP dataframe has no observations.")
     }
   }
-
+  
   required_columns <- c(
     "TADA.LongitudeMeasure", "TADA.LatitudeMeasure",
     "HorizontalCoordinateReferenceSystemDatumName",
@@ -2266,25 +2278,25 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "TADA.MonitoringLocationName", "ResultIdentifier",
     "ActivityStartDate", "TADA.OrganizationIdentifier"
   )
-
+  
   if (!any(required_columns %in% colnames(ATTAINS_table))) {
     stop("Your dataframe does not contain the necessary WQP-style column names.")
   }
-
+  
   suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table %>%
-      sf::st_drop_geometry(), silent = TRUE)
-
+          sf::st_drop_geometry(), silent = TRUE)
+    
     tada.pal <- TADA_ColorPalette()
-
+    
     colors <- data.frame(
       overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
       col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
       dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
       priority = c(1, 2, 3)
     )
-
+    
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
       points_mapper <- ATTAINS_points %>%
@@ -2296,7 +2308,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         dplyr::right_join(., tibble::as_tibble(sf::st_coordinates(ATTAINS_points)), by = c("index" = "L1")),
       silent = TRUE
     )
-
+    
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
       lines_mapper <- ATTAINS_lines %>%
@@ -2304,7 +2316,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         dplyr::mutate(type = "Line Feature"),
       silent = TRUE
     )
-
+    
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
       polygons_mapper <- ATTAINS_polygons %>%
@@ -2312,7 +2324,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         dplyr::mutate(type = "Polygon Feature"),
       silent = TRUE
     )
-
+    
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
       missing_raw_mapper <- missing_raw_features %>%
@@ -2320,7 +2332,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         dplyr::mutate(type = "Raw Feature Unavailable"),
       silent = TRUE
     )
-
+    
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
     sumdat <- ATTAINS_table %>%
       dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
@@ -2331,8 +2343,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         Organization_Count = length(unique(OrganizationIdentifier)),
         ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
         TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
-          as.character(TADA.AURefSource),
-          "not provided"
+                                  as.character(TADA.AURefSource),
+                                  "not provided"
         )
       ) %>%
       dplyr::mutate(
@@ -2340,15 +2352,15 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         LatitudeMeasure = as.numeric(LatitudeMeasure),
         LongitudeMeasure = as.numeric(LongitudeMeasure)
       )
-
+    
     # Basemap for AOI:
     map <- leaflet::leaflet() %>%
       leaflet::addProviderTiles("Esri.WorldTopoMap",
-        group = "World topo",
-        options = leaflet::providerTileOptions(
-          updateWhenZooming = FALSE,
-          updateWhenIdle = TRUE
-        )
+                                group = "World topo",
+                                options = leaflet::providerTileOptions(
+                                  updateWhenZooming = FALSE,
+                                  updateWhenIdle = TRUE
+                                )
       ) %>%
       leaflet::clearShapes() %>%
       leaflet::fitBounds(
@@ -2358,7 +2370,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
       ) %>%
       leaflet.extras::addResetMapButton()
-
+    
     # Add ATTAINS catchment outlines (if they exist):
     try(
       map <- map %>%
@@ -2370,7 +2382,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS catchment outlines as AUs:
     try(
       map <- map %>%
@@ -2390,7 +2402,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS polygon features (if they exist):
     try(
       map <- map %>%
@@ -2409,7 +2421,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS lines features (if they exist):
     try(
       map <- map %>%
@@ -2427,7 +2439,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     # Add ATTAINS point features (if they exist):
     try(
       map <- map %>%
@@ -2446,10 +2458,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
       # set shapes for different ref sources
-
+      
       # Make a list of icons. We'll index into it based on name.
       refIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
@@ -2460,7 +2472,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         iconWidth = 24,
         iconHeight = 24
       )
-
+      
       set.popup <- paste0(
         "Site ID: ", sumdat$MonitoringLocationIdentifier,
         "<br> Site Name: ", sumdat$MonitoringLocationName,
@@ -2470,14 +2482,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
         "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
       )
-
+      
       images.ref <- c(
         images[1:3],
         "inst/extdata/icons/circle-user-solid-full.png",
         "inst/extdata/icons/circle-check-solid-full.png",
         images[4:5]
       )
-
+      
       leg.labels <- c(
         "ATTAINS: Not Supporting",
         "ATTAINS: Supporting",
@@ -2488,14 +2500,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
       )
     }
-
+    
     if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
       refIcons <- leaflet::icons(
         iconUrl = "inst/extdata/icons/circle-solid-full.svg",
         iconWidth = 24,
         iconHeight = 24
       )
-
+      
       set.popup <- paste0(
         "Site ID: ", sumdat$MonitoringLocationIdentifier,
         "<br> Site Name: ", sumdat$MonitoringLocationName,
@@ -2504,11 +2516,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "<br> Characteristic Count: ", sumdat$Parameter_Count,
         "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
       )
-
+      
       images.ref <- c(
         images[1:5]
       )
-
+      
       leg.labels <- c(
         "ATTAINS: Not Supporting",
         "ATTAINS: Fully Supporting",
@@ -2516,29 +2528,29 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "WQP: Monitoring Location",
         "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with gray outlines."
       )
-
+      
       if ("without_ATTAINS_catchments" %in% names(.data)) {
         images.ref <- append(images.ref, images[6])
-
+        
         leg.labels <- append(
           leg.labels,
           "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
         )
       }
     }
-
+    
     if ("without_ATTAINS_catchments" %in% names(.data)) {
       images.ref <- append(images.ref, images[6])
-
+      
       leg.labels <- append(
         leg.labels,
         "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
       )
-
+      
       without_ATTAINS_catchments <- NULL
       try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
-        dplyr::rename(nhd = 1), silent = TRUE)
-
+            dplyr::rename(nhd = 1), silent = TRUE)
+      
       # Add missing catchment outlines (if they exist):
       try(
         map <- map %>%
@@ -2551,7 +2563,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         silent = TRUE
       )
     }
-
+    
     # Add WQP observation features (should always exist):
     try(
       map <- map %>%
@@ -2563,7 +2575,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
       silent = TRUE
     )
-
+    
     map <- map %>%
       leaflegend::addLegendImage(
         images = images.ref,
@@ -2573,14 +2585,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         height = 14,
         orientation = "vertical",
         title = htmltools::tags$div("Legend",
-          style = "font-size: 14px;
+                                    style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
         ),
         position = "bottomright"
       )
-
-
-
+    
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
