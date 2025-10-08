@@ -14,6 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteDepends{EPATADA}
 description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
   chunk_output_type: console
@@ -192,7 +193,11 @@ This example is also included in the EPATADA R package, and can be
 loaded into your R environment like this:
 
 ```{r load WQP data}
+data("Data_MT_MissoulaCounty", package = "EPATADA")
+
 tada.MT.clean <- Data_MT_MissoulaCounty
+
+rm(Data_MT_MissoulaCounty)
 ```
 
 # Step A: Discover ML/AU Matches
@@ -317,7 +322,11 @@ This example is also included in the EPATADA R package, and can be
 loaded into your R environment like this:
 
 ```{r useexampledata}
+data("Data_MT_AUMLRef", package = "EPATADA")
+
 MT.AUMLRef <- Data_MT_AUMLRef
+
+rm(Data_MT_AUMLRef)
 ```
 
 #### **Advanced: Deep Dive into `TADA_CreateATTAINSAUMLCrosswalk()`**
