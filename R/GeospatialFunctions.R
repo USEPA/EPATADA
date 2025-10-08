@@ -1,15 +1,14 @@
 #' TADA_MakeSpatial
 #'
-#' Transform a Water Quality Portal dataframe into a geospatial sf object.
+#' Transforms a Water Quality Portal dataframe into a geospatial `sf` object.
 #'
-#' Adds one new column to input dataframe, 'geometry', which allows for mapping and additional
-#' geospatial capabilities. Check out the TADAModule2.Rmd for an example workflow.
+#' This function adds a new column, 'geometry', to the input dataframe, enabling mapping and additional
+#' geospatial capabilities. For an example workflow, refer to the TADAModule2.Rmd file.
 #'
-#' @param .data A dataframe created by `TADA_DataRetrieval()` and `TADA_AutoClean`().
-#' @param crs The coordinate reference system (CRS) you would like the returned point features to
-#' be in. The default is CRS 4326 (WGS84).
+#' @param .data A dataframe that has been processed using `TADA_DataRetrieval()` and `TADA_AutoClean()`.
+#' @param crs The coordinate reference system (CRS) for the returned point features. The default is CRS 4326 (WGS84).
 #'
-#' @return The original TADA Water Quality Portal dataframe but as geospatial sf point objects.
+#' @return An `sf` object, which is the original TADA Water Quality Portal dataframe transformed into geospatial point objects.
 #'
 #' @seealso [TADA_DataRetrieval()]
 #'
@@ -17,7 +16,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'
+#' # Retrieve water quality data
 #' tada_not_spatial <- TADA_DataRetrieval(
 #'   characteristicName = "pH",
 #'   statecode = "SC",
@@ -26,7 +25,7 @@
 #'   ask = FALSE
 #' )
 #'
-#' # make `tada_not_spatial` an sf object, projected in crs = 4269 (NAD83)
+#' # Convert `tada_not_spatial` into an `sf` object, projected in CRS 4269 (NAD83)
 #' tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
 #' }
 #'
@@ -727,11 +726,11 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       nhd_hr_catchments <- arcgislayers::get_layer(nhd_hr, 10)
 
       # use bboxes of the sites to return their associated catchments
-      nhd_catchments_stored <- vector("list", length = length(wqp_bboxes))
+      fill_USGS_catchments_stored <- vector("list", length = length(wqp_bboxes))
 
       for (i in 1:length(wqp_bboxes)) {
         try(
-          nhd_catchments_stored[[i]] <- arcgislayers::arc_select(nhd_hr_catchments,
+          fill_USGS_catchments_stored[[i]] <- arcgislayers::arc_select(nhd_hr_catchments,
             filter_geom = wqp_bboxes[i],
             crs = sf::st_crs(wqp_bboxes[i])
           ) %>%
@@ -740,12 +739,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         )
       }
 
-      nhd_catchments_stored <- nhd_catchments_stored %>%
+      fill_USGS_catchments_stored <- fill_USGS_catchments_stored %>%
         purrr::keep(~ !is.null(.)) %>%
         dplyr::bind_rows() %>%
         dplyr::distinct()
 
-      try(nhd_catchments_stored <- nhd_catchments_stored %>%
+      try(fill_USGS_catchments_stored <- fill_USGS_catchments_stored %>%
         dplyr::select(nhdplusid,
           catchmentareasqkm = areasqkm
         ) %>%
@@ -759,28 +758,28 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
     # Empty version of the df will be returned if no associated catchments
     # to avoid breaking downstream fxns reliant on catchment info.
-    if (nrow(nhd_catchments_stored) == 0 && "catchments" %in% features) {
+    if (nrow(fill_USGS_catchments_stored) == 0 && "catchments" %in% features) {
       message("No NHD HR features associated with your WQP observations.")
-      nhd_catchments_stored <- tibble::tibble(
+      fill_USGS_catchments_stored <- tibble::tibble(
         NHD.nhdplusid = character(),
         NHD.resolution = character(),
         NHD.catchmentareasqkm = numeric()
       )
     }
 
-    if (nrow(nhd_catchments_stored) == 0 && !"catchments" %in% features) {
+    if (nrow(fill_USGS_catchments_stored) == 0 && !"catchments" %in% features) {
       stop("No NHD HR features associated with your WQP observations.")
     }
 
     if (length(features) == 1 && features == "catchments") {
-      return(nhd_catchments_stored)
+      return(fill_USGS_catchments_stored)
     }
 
     # Grab flowlines -
-    if ("flowlines" %in% features && nrow(nhd_catchments_stored) > 0) {
+    if ("flowlines" %in% features && nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
         # use catchments to grab other NHD features
-        geospatial_aoi <- nhd_catchments_stored %>%
+        geospatial_aoi <- fill_USGS_catchments_stored %>%
           sf::st_as_sfc()
 
         # select the layer by id from the items list (3 is HR flowlines)
@@ -834,9 +833,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     }
 
     # Grab waterbodies -
-    if ("waterbodies" %in% features & nrow(nhd_catchments_stored) > 0) {
+    if ("waterbodies" %in% features & nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
-        geospatial_aoi <- nhd_catchments_stored %>%
+        geospatial_aoi <- fill_USGS_catchments_stored %>%
           sf::st_as_sfc()
 
         # select the layer by id from the items list called above (9 is HR waterbodies)
@@ -894,14 +893,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
     if (length(features) == 2 && "catchments" %in% features && "flowlines" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments_stored,
+        "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored
       )
 
       return(nhd_list)
     } else if (length(features) == 2 && "catchments" %in% features && "waterbodies" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments_stored,
+        "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
 
@@ -915,7 +914,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       return(nhd_list)
     } else if (length(features) == 3 && "catchments" %in% features && "flowlines" %in% features && "waterbodies" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments_stored,
+        "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
@@ -926,12 +925,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     # If user wants NHDPlus V2...
   } else if (resolution %in% c("Med", "med")) {
     suppressMessages(suppressWarnings({
-      nhd_catchments <- vector("list", length = nrow(unique_sites))
+      fill_USGS_catchments <- vector("list", length = nrow(unique_sites))
 
       for (i in 1:nrow(unique_sites)) {
         # Use {nhdplusTools} to grab associated catchments...
         try(
-          nhd_catchments[[i]] <- nhdplusTools::get_nhdplus(AOI = unique_sites[i, ], realization = "catchment") %>%
+          fill_USGS_catchments[[i]] <- nhdplusTools::get_nhdplus(AOI = unique_sites[i, ], realization = "catchment") %>%
             sf::st_make_valid() %>%
             dplyr::select(
               comid = featureid,
@@ -947,44 +946,44 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         )
       }
 
-      nhd_catchments <- nhd_catchments %>%
+      fill_USGS_catchments <- fill_USGS_catchments %>%
         purrr::keep(~ !is.null(.))
 
-      try(nhd_catchments <- dplyr::bind_rows(nhd_catchments) %>%
+      try(fill_USGS_catchments <- dplyr::bind_rows(fill_USGS_catchments) %>%
         dplyr::distinct(), silent = TRUE)
 
       # if NHD catchments are not in the correct CRS, transform them
-      try(if (sf::st_crs(nhd_catchments) != sf::st_crs(geospatial_data)) {
-        nhd_catchments <- nhd_catchments %>%
+      try(if (sf::st_crs(fill_USGS_catchments) != sf::st_crs(geospatial_data)) {
+        fill_USGS_catchments <- fill_USGS_catchments %>%
           sf::st_transform(sf::st_crs(geospatial_data)$epsg)
       }, silent = TRUE)
     }))
 
-    if (nrow(nhd_catchments) == 0 && "catchments" %in% features) {
+    if (nrow(fill_USGS_catchments) == 0 && "catchments" %in% features) {
       message("No NHDPlus V2 features associated with your WQP observations.")
-      nhd_catchments <- tibble::tibble(
+      fill_USGS_catchments <- tibble::tibble(
         NHD.comid = character(),
         NHD.resolution = character(),
         NHD.catchmentareasqkm = numeric()
       )
     }
 
-    if (nrow(nhd_catchments) == 0 && !"catchments" %in% features) {
+    if (nrow(fill_USGS_catchments) == 0 && !"catchments" %in% features) {
       stop("No NHDPlus V2 features associated with your WQP observations.")
     }
 
     if (length(features) == 1 && features == "catchments") {
-      return(nhd_catchments)
+      return(fill_USGS_catchments)
     }
 
 
     # Grab flowlines -
-    if ("flowlines" %in% features && nrow(nhd_catchments) > 0) {
+    if ("flowlines" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
-        nhd_flowlines <- vector("list", length = nrow(nhd_catchments))
+        nhd_flowlines <- vector("list", length = nrow(fill_USGS_catchments))
 
         # use catchments to grab other NHD features:
-        unique_sites <- nhd_catchments
+        unique_sites <- fill_USGS_catchments
 
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
@@ -1028,12 +1027,12 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     }
 
     # Grab waterbodies -
-    if ("waterbodies" %in% features && nrow(nhd_catchments) > 0) {
+    if ("waterbodies" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
-        nhd_waterbodies <- vector("list", length = nrow(nhd_catchments))
+        nhd_waterbodies <- vector("list", length = nrow(fill_USGS_catchments))
 
         # use catchments to grab other NHD features:
-        unique_sites <- nhd_catchments
+        unique_sites <- fill_USGS_catchments
 
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
@@ -1083,14 +1082,14 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
     if (length(features) == 2 && "catchments" %in% features && "flowlines" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments,
+        "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines
       )
 
       return(nhd_list)
     } else if (length(features) == 2 && "catchments" %in% features && "waterbodies" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments,
+        "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_waterbodies" = nhd_waterbodies
       )
 
@@ -1104,7 +1103,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       return(nhd_list)
     } else if (length(features) == 3 && "catchments" %in% features && "flowlines" %in% features && "waterbodies" %in% features) {
       nhd_list <- list(
-        "NHD_catchments" = nhd_catchments,
+        "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines,
         "NHD_waterbodies" = nhd_waterbodies
       )
@@ -1133,7 +1132,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' choose to associate the WQP sites with NHDPlus catchments available from
 #' the USGS nhdplusTools package (please be aware that USGS and EPA ATTAINS
 #' snapshots of the NHDPlus catchments may vary) using the optional function
-#' param 'fill_catchments'.  If desired by the user, the HR
+#' param 'fill_USGS_catch'.  If desired by the user, the HR
 #' catchments could be created as new assessment unit polygons in ATTAINS
 #' (that process is outside of TADA).
 #'
@@ -1160,27 +1159,27 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param return_nearest If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE).
-#' @param fill_catchments Whether the user would like to return NHD catchments
+#' @param fill_USGS_catch Whether the user would like to return NHD catchments
 #' (USGS snapshot of NHDPlus V2) for WQP observations not associated with an
-#' ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+#' ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
 #' the returned list splits observations into two dataframes: WQP observations
 #' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
 #' observations without ATTAINS catchment data. Defaults to FALSE.
-#' @param resolution If fill_catchments = TRUE, whether to use NHDPlus V2 "Med"
+#' @param resolution If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med"
 #' catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
 #' ("Hi") because at approximately 80% of state submitted assessment units in
 #' ATTAINS were developed based on NHDPlus V2 HiRes.
 #' @param return_sf Whether to return the ATTAINS associated catchments, lines,
 #' points, and polygon shapefile objects along with the data frame(s).
 #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326). If fill_catchments = TRUE and return_sf = TRUE,
+#' are in WGS84 (crs = 4326). If fill_USGS_catch = TRUE and return_sf = TRUE,
 #' the function will additionally return the raw catchment features associated
 #' with the observations in TADA_without_ATTAINS in a new shapefile called
 #' without_ATTAINS_catchments. Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
-#' fill_catchments = TRUE, an additional dataframe of the observations without
+#' fill_USGS_catch = TRUE, an additional dataframe of the observations without
 #' intersecting ATTAINS features.
 #' Moreover, if return_sf = TRUE, this function will additionally return the
 #' raw ATTAINS and catchment shapefile features associated with those
@@ -1212,26 +1211,26 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' # note: these example ATTAINS data retrieval queries below may take a long
 #' # time (10+ minutes) to run
 #' tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_catchments = FALSE,
+#'   fill_USGS_catch = FALSE,
 #'   return_sf = FALSE,
 #'   return_nearest = FALSE,
 #' )
 #'
 #' tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_catchments = FALSE,
+#'   fill_USGS_catch = FALSE,
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
 #' )
 #'
 #' tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_catchments = TRUE,
+#'   fill_USGS_catch = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = FALSE,
 #'   return_nearest = TRUE
 #' )
 #'
 #' tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_catchments = TRUE,
+#'   fill_USGS_catch = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
@@ -1239,7 +1238,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' }
 TADA_CreateATTAINSAUMLCrosswalk <- function(.data, 
                                             return_nearest = TRUE,
-                                            fill_catchments = FALSE, 
+                                            fill_USGS_catch = FALSE, 
                                             resolution = "Hi",
                                             return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
@@ -1357,7 +1356,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 
     message("There are no ATTAINS catchments associated with these WQP observations.")
 
-    if (fill_catchments == FALSE) {
+    if (fill_USGS_catch == FALSE) {
       if (return_sf == TRUE) {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data,
@@ -1370,8 +1369,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         return(no_ATTAINS_data)
       }
     } else {
-      nhd_catchments <- fetchNHD(.data = TADA_DataRetrieval_data, resolution = resolution)
-      TADA_without_ATTAINS <- TADA_DataRetrieval_data %>% sf::st_join(nhd_catchments, left = TRUE)
+      fill_USGS_catchments <- fetchNHD(.data = TADA_DataRetrieval_data, resolution = resolution)
+      TADA_without_ATTAINS <- TADA_DataRetrieval_data %>% sf::st_join(fill_USGS_catchments, left = TRUE)
 
       if (return_sf == TRUE) {
         return(list(
@@ -1381,7 +1380,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
           "ATTAINS_points" = NULL,
           "ATTAINS_lines" = NULL,
           "ATTAINS_polygons" = NULL,
-          "without_ATTAINS_catchments" = nhd_catchments
+          "without_ATTAINS_catchments" = fill_USGS_catchments
         ))
       } else {
         return(list(
@@ -1540,8 +1539,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         ATTAINS_polygons <- NULL
       }
 
-      if (fill_catchments == FALSE) {
-        # If there are ATTAINS catchments, return_sf = TRUE, fill_catchments = FALSE:
+      if (fill_USGS_catch == FALSE) {
+        # If there are ATTAINS catchments, return_sf = TRUE, fill_USGS_catch = FALSE:
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
             renameATTAINSCols(),
@@ -1554,17 +1553,17 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         return(final_list)
       }
 
-      if (fill_catchments == TRUE) {
+      if (fill_USGS_catch == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
           dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
 
-        nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
+        fill_USGS_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
         TADA_without_ATTAINS <- TADA_without_ATTAINS %>%
-          sf::st_join(nhd_catchments, left = TRUE) %>%
+          sf::st_join(fill_USGS_catchments, left = TRUE) %>%
           st_drop_geometry()
 
-        # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
+        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = TRUE
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
             dplyr::filter(!is.na(assessmentunitidentifier)) %>%
@@ -1574,24 +1573,24 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
           "ATTAINS_points" = ATTAINS_points,
           "ATTAINS_lines" = ATTAINS_lines,
           "ATTAINS_polygons" = ATTAINS_polygons,
-          "without_ATTAINS_catchments" = nhd_catchments
+          "without_ATTAINS_catchments" = fill_USGS_catchments
         )
 
         return(final_list)
       }
     } else { # return_sf is FALSE
 
-      if (fill_catchments == TRUE) {
+      if (fill_USGS_catch == TRUE) {
         TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
           dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
 
-        nhd_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
+        fill_USGS_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
 
         TADA_without_ATTAINS <- TADA_without_ATTAINS %>%
-          sf::st_join(nhd_catchments, left = TRUE) %>%
+          sf::st_join(fill_USGS_catchments, left = TRUE) %>%
           st_drop_geometry()
 
-        # has ATTAINS catchments, return_sf = FALSE, fill_catchments = TRUE
+        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = TRUE
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
             dplyr::filter(!is.na(assessmentunitidentifier)) %>%
@@ -1601,7 +1600,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 
         return(final_list)
       } else {
-        # has ATTAINS catchments, return_sf = FALSE, fill_catchments = FALSE
+        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = FALSE
         return(TADA_with_ATTAINS)
       }
     }
@@ -1628,15 +1627,18 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' match those in the WQP, which may contain the organization and provider in
 #' the MonitoringLocationIdentifier.
 #'
-#' @param add_catch Boolean argument. Specify whether catchment data should be queried
-#' and downloaded for the user-supplied assessment units. When add_catch = TRUE,
-#' the catchment data are included in the output. When add_catch = FALSE,
-#' catchment data are not included. Setting add_catch = TRUE, may increase the
-#' run time of the function significantly. Default is add_catch = FALSE.
+#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based 
+#' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+#' with entity submitted assessment unit features - points, lines, and polygons) 
+#' should be queried and downloaded for the assessment units included in the 
+#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data 
+#' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the 
+#' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
-#' fill_catchments = TRUE, an additional dataframe of the observations without
+#' fill_USGS_catch = TRUE, an additional dataframe of the observations without
 #' intersecting ATTAINS features.
 #' Moreover, if return_sf = TRUE, this function will additionally return the
 #' raw ATTAINS and catchment shapefile features associated with those
@@ -1657,10 +1659,10 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
 #'
 #' # Example 2: Fetching ATTAINS data with catchment information
-#' # Set add_catch to TRUE to include catchment data in the output
+#' # Set fill_ATTAINS_catch to TRUE to include catchment data in the output
 #' result_with_catch <- TADA_GetATTAINSByAUID(my_data,
 #'   au_ref = my_au_ref,
-#'   add_catch = TRUE
+#'   fill_ATTAINS_catch = TRUE
 #' )
 #'
 #' # Example 3: Handling empty data frames
@@ -1677,7 +1679,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1909,7 +1911,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
     silent = TRUE
   )
 
-  if (add_catch == FALSE) {
+  if (fill_ATTAINS_catch == FALSE) {
     catchments <- NULL
   }
 
@@ -1937,7 +1939,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
 
-  if (add_catch == TRUE) {
+  if (fill_ATTAINS_catch == TRUE) {
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
@@ -2172,7 +2174,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'
 #' # Only use ATTAINS catchments to match AUs
 #' attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_catchments = TRUE,
+#'   fill_USGS_catch = TRUE,
 #'   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 #' )
 #'
@@ -3300,14 +3302,17 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
-#' @param add_catch Boolean argument. When add_catch = TRUE, catchments
-#' are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
-#' monitoring locations by retrieving catchment data from ATTAINS geospatial web
-#' services. Fetching and matching these additional geospatial data will increase
-#' the run time of this function significantly. Default is add_catch = FALSE.
-#' @param nhd_catch Boolean argument. Whether the user would like to return
+#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based 
+#' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+#' with entity submitted assessment unit features - points, lines, and polygons) 
+#' should be queried and downloaded for the assessment units included in the 
+#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data 
+#' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the 
+#' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
+#' @param fill_USGS_catch Boolean argument. Whether the user would like to return
 #' NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
-#' with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+#' with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
 #' the returned list splits observations into two dataframes: WQP observations
 #' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
 #' observations without ATTAINS catchment data. Defaults to FALSE. This param
@@ -3339,8 +3344,8 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 TADA_CreateAUMLCrosswalk <- function(.data,
                                      au_ref = NULL,
                                      org_id = NULL, 
-                                     add_catch = FALSE,
-                                     nhd_catch = FALSE, 
+                                     fill_ATTAINS_catch = FALSE,
+                                     fill_USGS_catch = FALSE, 
                                      return_nearest = TRUE,
                                      batch_upload = TRUE) {
   # check to see if user supplied ref is NULL
@@ -3414,7 +3419,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
       # get geospatial data for au_ref monitoring locations
       user.matches <- spsUtil::quiet(
-        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, add_catch = add_catch)
+        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
       )
 
       # check for user ref entries that cannot pull info from ATTAINS to ensure water type is retained
@@ -3500,7 +3505,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
                  "for assessment units from the ATTAINS crosswalk."))
     # get geospatial data for attains cw monitoring locations
     attains.matches <- spsUtil::quiet(
-      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, add_catch = add_catch)
+      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, fill_ATTAINS_catch = fill_ATTAINS_catch)
     )
 
     # remove intermediate objects
@@ -3553,7 +3558,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     get.attains.matches <- spsUtil::quiet(
       TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls,
         return_nearest = return_nearest,
-        fill_catchments = nhd_catch,
+        fill_USGS_catch = fill_USGS_catch,
         return_sf = TRUE
       )
     )
@@ -3683,7 +3688,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   )
 
   # add nhd catchments without ATTAINS matches if user has selected this option
-  if (nhd_catch == TRUE) {
+  if (fill_USGS_catch == TRUE) {
     # add nhd catchment related dfs to output if required
     final_list <- c(
       final_list,

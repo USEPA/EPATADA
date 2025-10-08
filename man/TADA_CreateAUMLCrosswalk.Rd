@@ -8,8 +8,8 @@ TADA_CreateAUMLCrosswalk(
   .data,
   au_ref = NULL,
   org_id = NULL,
-  add_catch = FALSE,
-  nhd_catch = FALSE,
+  fill_ATTAINS_catch = FALSE,
+  fill_USGS_catch = FALSE,
   return_nearest = TRUE,
   batch_upload = TRUE
 )
@@ -29,15 +29,18 @@ https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
 contains the organization identifiers that should be used for this param.}
 
-\item{add_catch}{Boolean argument. When add_catch = TRUE, catchments
-are matched to monitoring locations from the user-supplied and ATTAINS crosswalk
-monitoring locations by retrieving catchment data from ATTAINS geospatial web
-services. Fetching and matching these additional geospatial data will increase
-the run time of this function significantly. Default is add_catch = FALSE.}
+\item{fill_ATTAINS_catch}{Boolean argument. Specifies whether catchment-based
+ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+with entity submitted assessment unit features - points, lines, and polygons)
+should be queried and downloaded for the assessment units included in the
+USER-SUPPLIED \code{au_ref}. When fill_ATTAINS_catch = TRUE, the catchment data
+are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
 
-\item{nhd_catch}{Boolean argument. Whether the user would like to return
+\item{fill_USGS_catch}{Boolean argument. Whether the user would like to return
 NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
-with an ATTAINS assessment unit (TRUE or FALSE). When fill_catchments = TRUE,
+with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
 the returned list splits observations into two dataframes: WQP observations
 with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
 observations without ATTAINS catchment data. Defaults to FALSE. This param

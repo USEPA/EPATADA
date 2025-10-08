@@ -265,8 +265,8 @@ TADA_UpdateExampleData <- function() {
     Data_MT_MissoulaCounty,
     au_ref = user.supplied.cw,
     org_id = "MTDEQ",
-    add_catch = TRUE,
-    nhd_catch = TRUE,
+    fill_ATTAINS_catch = TRUE,
+    fill_USGS_catch = TRUE,
     return_nearest = TRUE,
     batch_upload = TRUE)
   
