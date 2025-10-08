@@ -3538,8 +3538,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   if (dim(get.attains.mls)[1] > 0) {
-    print(paste0("TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk ",
-                 "to match remaining monitoring locations to ATTAINS assessment units."))
+    print("TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit.")
 
     # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
     get.attains.mls <- get.attains.mls %>%
