@@ -13,6 +13,7 @@ ActivityDepthHeightMeasure
 ActivityGroup
 ActivityMediaName
 ActivityMediaSubdivisionName
+ActivityMetric
 ActivityRelativeDepthName
 ActivityStartDate
 ActivityStartDateTime
@@ -28,7 +29,6 @@ Animas
 AquiferName
 ArcGIS
 AssemblageSampledName
-AssessmentNote
 AssessmentUnitIdentifier
 AutoClean
 BiasValue
@@ -40,7 +40,6 @@ CFU
 CNENVSER
 COLI
 COMIDs
-CRS
 CSTtoATTAINSParamCrosswalk
 CWA
 CalculateTotalNP
@@ -58,7 +57,6 @@ Coli
 ComparableDataIdentifier
 ComparableDataIdentifier's
 ComparableDataIdentifiers
-ComprableDataIdentifier
 ConsolidatedDepth
 ConstructionDateText
 ContinuousData
@@ -68,23 +66,19 @@ ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
 CountyCode
-CreateATTAINSAUML
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
 CreateComparableID
 CreateMLSummaryRef
 CreatePairRef
 CreateParamRef
-CreateSpatial
 CreateUnitRef
 CreateUseAURef
 CreateUseParamRef
-CreateUseWaterParamRef
 CreateWaterUseParamRef
 CreateWaterUseRef
 CriteriaMethods
 Cybertown
-DEV
 DV
 DataFrame
 DataQuality
@@ -133,7 +127,6 @@ FlagUseName
 FractionAssumptions
 FullPhysChem
 Geospatial
-GetATTAINS
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
 GetCharacteristicRef
@@ -145,6 +138,7 @@ HUC
 HUCS
 HUCs
 HarmonizeSynonyms
+Helpdesk
 HiRes
 HorizontalCoordinateReferenceSystemDatumName
 Hydrography
@@ -158,7 +152,6 @@ InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
 InvalidSpeciation
-JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -169,13 +162,12 @@ LatitudeMeasure
 LocalAqfrName
 LongitudeMeasure
 MDE
-MDEQ
 MLSummaryRef
+MLs
 MTDEQ
 MTDEQ's
 MakeSpatial
 MapServer
-MeasureQualiferCode
 MeasureQualifierCode
 MeasureUnit
 MeasureUnitCode
@@ -192,6 +184,7 @@ MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
 Missoula
+MissoulaCounty
 MonitoringDataLinkText
 MonitoringLocation
 MonitoringLocationIdentifier
@@ -243,8 +236,8 @@ PairingGroupRank
 ParamRef
 ParameterName
 ParameterNames
-Parametername
 PartB
+PhysChem
 Pojoaque
 ProjectFileUrl
 ProjectName
@@ -252,7 +245,6 @@ ProviderName
 ProviderNames
 QAPP
 QAPPApprovedIndicator
-QAPPAprrovedIndicator
 QAPPDocAvailable
 QAQC
 QAQC'd
@@ -271,8 +263,8 @@ RProj
 RStudio
 RWQC
 Rancherias
+RenametoLegacy
 ReplicateSampleID
-Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -296,6 +288,7 @@ ResultValueAboveUpperThreshold
 ResultValueAggregation
 ResultValueBelowLowerThreshold
 ResultValueTypeName
+ResultWQX
 ResultWeightBasisText
 RetainRequired
 Rmd
@@ -312,7 +305,6 @@ SampleTissueAnatomyName
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
-SiteAURef
 SiteGroup
 Speciation
 SpeciationAssumptions
@@ -360,8 +352,6 @@ UseNames
 UseParamRef
 VCS
 ViewATTAINS
-WGS
-WQ
 WQC
 WQP
 WQS
@@ -388,7 +378,6 @@ Wikimedia
 YYYY
 addPoints
 addPolys
-additonal
 agg
 aggregatedonly
 analytes
@@ -396,11 +385,11 @@ aoi
 applyautoclean
 arcgis
 asNO
-assisgned
 autoassign
 autoclean
 autocleaned
 autofill
+autopopulate
 bBox
 batchupload
 bbox
@@ -411,11 +400,10 @@ cd
 cdx
 characteristicName
 characteristicType
-charactersitic
+checkColNames
 cleanNA
 coli
 comid
-compatibilty
 countrycode
 countycode
 cristinamullin
@@ -428,7 +416,6 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
-datetimes
 decimaldigits
 depthcat
 devtools
@@ -473,7 +460,6 @@ hydroloom
 importWQP
 io
 lessthan
-levereaged
 listNWIS
 mL
 magrittr
@@ -496,7 +482,6 @@ nrow
 od
 offsetLibrary
 orgs
-ousideUSA
 outsideUSA
 overdetects
 param
@@ -513,18 +498,16 @@ rExpertQuery
 randombelowlimit
 rda
 readWQPdata
-repo
-reproducibility
+renameATTAINSCols
 resultCount
 sampleMedia
 sd
 secchi
+setnames
 shp
 siteType
 siteid
-sitesAURef
 sitetype
-specfic
 speciation
 speciations
 spmodel
@@ -539,6 +522,7 @@ tada
 terra
 testthat
 th
+tidyverse
 tigris
 tmap
 un
@@ -551,14 +535,12 @@ useParamRef
 useR
 usepa
 usgs
-waterUseParamRef
 waterbodies
 waterbody
 waterdata
 waterqualitydata
 webservices
 webserviceurl
-wikipedia
 wqp
 wqs
 wqx
@@ -569,4 +551,3 @@ xmax
 xmin
 ymax
 ymin
-σ

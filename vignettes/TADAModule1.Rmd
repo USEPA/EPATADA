@@ -541,7 +541,7 @@ reduce the risk of leaving out usable data/sites.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
 sign". The default is "no" which flags latitude and longitude
-coordinates outside the USA. Assigning clean_ousideUSA = "remove" will
+coordinates outside the USA. Assigning clean_outsideUSA = "remove" will
 remove rows of data with coordinates outside the USA. And assigning
 clean_outsideUSA = "change sign" will flip the sign of latitude or
 longitude coordinates flagged as outside the USA. The "change sign"
@@ -1181,7 +1181,7 @@ categorized.
 
 The **TADA_SimpleCensoredMethods** function also adds a
 *TADA.MeasureQualifierCode.Def* column which contains the
-*MeasureQualiferCode* concatenated with the WQX definition for each
+*MeasureQualifierCode* concatenated with the WQX definition for each
 qualifier code. This provides additional information to the user which
 may assist in deciding which records to retain for analysis.
 

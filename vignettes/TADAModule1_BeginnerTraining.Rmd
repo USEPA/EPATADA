@@ -762,7 +762,7 @@ ID.
 
 The **TADA_SimpleCensoredMethods** function also adds a
 *TADA.MeasureQualifierCode.Def* column which contains the
-*MeasureQualiferCode* concatenated with the WQX definition for each
+*MeasureQualifierCode* concatenated with the WQX definition for each
 qualifier code. This provides additional information to the user which
 may assist in deciding which records to retain for analysis.
 

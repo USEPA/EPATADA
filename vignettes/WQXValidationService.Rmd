@@ -151,7 +151,7 @@ TADA leverages many of the WQX domain tables.
         for each unique characteristic to a consistent unit, so that
         results can then we assessed against the WQX upper and lower
         thresholds in the validation table. Target units for each
-        charactersitic are included in the MeasureUnit domain table.
+        characteristic are included in the MeasureUnit domain table.
         TADA leverages this table to convert all data for each unique
         characteristic to a consistent target unit. See relevant TADA
         functions:

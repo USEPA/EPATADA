@@ -859,7 +859,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @return Several combinations of inputs are possible:
 #' When clean = TRUE, cleanNA = FALSE, and flaggedonly = FALSE, the dataframe will
-#' be filtered to show only rows where QAPPAprrovedIndicator is "Y" or "NA";
+#' be filtered to show only rows where QAPPApprovedIndicator is "Y" or "NA";
 #' When clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
 #' be filtered to show only rows where QAPPApprovedIndicator is "Y";
 #' When clean = FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will

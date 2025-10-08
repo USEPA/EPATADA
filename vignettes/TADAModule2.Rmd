@@ -160,7 +160,7 @@ function in R or RStudio using the following format (example below):
 ?TADA_CreateAUMLCrosswalk
 ```
 
-## Module 1 Prerequsites
+## Module 1 Prerequisites
 
 Get bacteria and pH data from Missoula County, Montana.
 
@@ -217,7 +217,7 @@ It uses three prioritized data sources:
     **`TADA_CreateATTAINSAUMLCrosswalk`** to connect monitoring
     locations to assessment units using ATTAINS catchments through a
     geospatial join. This function converts WQP monitoring locations
-    into a geopatial sf object and associates them with their
+    into a geospatial sf object and associates them with their
     intersecting NHDPlus high resolution catchments containing
     [entity-defined assessment units in
     ATTAINS](https://www.epa.gov/waterdata/integrated-reporting-georeferencing-pilot-report).

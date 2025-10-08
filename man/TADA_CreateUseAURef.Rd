@@ -80,12 +80,12 @@ into ATTAINS in the prior ATTAINS cycle (most recent assessment).
 For any NEW AUs and/or NEW uses, users must modify
 the output of this function to manually add those uses and AU's to the crosswalk.
 Alternatively, we have developed a helper function, \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}},
-to assist with assigning uses to NEW AU's. This can be levereaged to assign
+to assist with assigning uses to NEW AU's. This can be leveraged to assign
 uses for any new AUs based on the water type of the AU.
 Users can either supply their own Water
 Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water Type to
 Use reference file. This Water to Use reference file can be used to assign all
-unique Uses to a new/modified AU based on which uses have been assisgned to that
+unique Uses to a new/modified AU based on which uses have been assigned to that
 water type in the past for the specified ATTAINS organization.
 Any new or modified AU and use information that gets submitted to ATTAINS
 in the current assessment cycle will not be available in ATTAINS until the

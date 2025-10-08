@@ -64,7 +64,7 @@ function's output.}
 A list containing a modified TADA data frame with added ATTAINS columns and
 data frames for ATTAINS data and features for points, lines, polygons and catchments.
 When batch_upload = TRUE, the list will contain an additional data frame formatted
-for compatibilty with ATTAINS batch upload for Monitoring_Stations.
+for compatibility with ATTAINS batch upload for Monitoring_Stations.
 }
 \description{
 Create the assessment unit and monitoring location ref by utilizing an optional

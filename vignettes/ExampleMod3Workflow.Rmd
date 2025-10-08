@@ -120,7 +120,7 @@ their decision making processes. Use of EPATADA is not required.
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are neede to
+users through how to create WQP and ATTAINS crosswalks that are needed to
 define and capture organization specific water quality analysis criteria
 and methodologies. This is a continuation of an example TADA workflow
 which began with ExampleMod2Workflow.Rmd.
@@ -136,9 +136,9 @@ can assist users with:
 
 -   Define and summarize your spatial level of analysis for uses and
     parameters to locations(monitoring locations or assessment units)
-    and capture any unique site-specfic WQS criteria.
+    and capture any unique site-specific WQS criteria.
 
-These functions are designed to be flexibley so users from states,
+These functions are designed to be flexible so users from states,
 tribes, or territories can input organization-specific information and
 link it information from ATTAINS. While TADA functions can help generate
 these crosswalks and fill in some values, users must review and modify
@@ -265,8 +265,8 @@ with these exact matches, there are additional complexities related to
 fraction, speciation and units that may be unique to your organization.
 For example, some organizations may consider Total Nitrogen,
 Nitrate/Nitrite, and Ammonia all to match the ATTAINS parameter
-"Nitrogen", while other organizations may cosnider only some
-fraction/speciation combinations analagous to the ATTAINS parameter
+"Nitrogen", while other organizations may consider only some
+fraction/speciation combinations analogous to the ATTAINS parameter
 "Nitrogen".
 
 Setting "excel = TRUE" in TADA_CreateParamRef tells the function to
@@ -605,7 +605,7 @@ ATTAINS.)
 In this example, let's use a filled out criteria table for MTDEQ and
 extract the use and parameters from their crosswalk.
 
-We can see that MTDEQ has additonal rows for E. Coli that was unable to
+We can see that MTDEQ has additional rows for E. Coli that was unable to
 be retrieved from ATTAINS. We also see PH was not found in the user
 supplied useParamRef table. We will assume MTDEQ has forgotten to
 include PH in their table and showcase the importance of considering all
@@ -642,7 +642,7 @@ assigning ATTAINS uses to these new additions.
 If new WQP characteristics (or new fraction/speciations) do show up,
 your user supplied 'useParamRef' is prioritized over the 'auto_assign'
 argument inputs. Thus, the auto_assign option will allow you to fill in
-any remaining blank ATTAINS.UseName to an ATTAINS.Parametername that you
+any remaining blank ATTAINS.UseName to an ATTAINS.ParameterName that you
 have not filled in but will not replace any cross walk that you have
 defined in your user supplied crosswalk.
 
@@ -811,7 +811,7 @@ MT.CriteriaMethods_user_supplied <- TADA_DefineCriteriaMethodology(
 Note: When a user provides a MLSummaryRef, it is assumed their criteria
 tables parameter crosswalk is based on the paramRef and useParamRef
 crosswalk done. However, whenever a criteriaMethods table is provided,
-all unique WQP Characteristic (or TADA.ComprableDataIdentifier) will be
+all unique WQP Characteristic (or TADA.ComparableDataIdentifier) will be
 shown in the table.
 
 ```{r step-by-step-output-with-displayUniqueId}
