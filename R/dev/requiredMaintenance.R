@@ -28,6 +28,8 @@ TADA_UpdateTribalLayers()
 # Update Example Data
 
 TADA_UpdateExampleData <- function() {
+  
+  ##########################
   # Generate Data_Nutrients_UT
   Data_Nutrients_UT <- TADA_DataRetrieval(
     statecode = "UT",
@@ -44,6 +46,7 @@ TADA_UpdateExampleData <- function() {
   )
   rm(Data_Nutrients_UT)
 
+  ##########################
   # Generate Data_6Tribes_5y.rda
   Data_6Tribes_5y <- TADA_DataRetrieval(
     organization = c(
@@ -65,6 +68,7 @@ TADA_UpdateExampleData <- function() {
     compress = "xz", version = 3, ascii = FALSE
   )
 
+  ##########################
   # Generate Data_6Tribes_5y_Harmonized.rda
   y <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
   y <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
@@ -94,27 +98,7 @@ TADA_UpdateExampleData <- function() {
   rm(Data_6Tribes_5y_Harmonized)
   rm(y)
 
-  # # Generate Data_NCTCShepherdstown_HUC12
-  # Data_NCTCShepherdstown_HUC12 <- TADA_DataRetrieval(
-  #   startDate = "2022-01-01",
-  #   endDate = "2024-12-31",
-  #   countycode = "null",
-  #   huc = "02070004",
-  #   siteid = "null",
-  #   siteType = "null",
-  #   characteristicName = "null",
-  #   characteristicType = "null",
-  #   sampleMedia = "null",
-  #   statecode = "null",
-  #   organization = "null",
-  #   project = "null",
-  #   applyautoclean = TRUE,
-  #   ask = FALSE
-  # )
-  # print("Data_NCTCShepherdstown_HUC12:")
-  # print(dim(Data_NCTCShepherdstown_HUC12))
-  # usethis::use_data(Data_NCTCShepherdstown_HUC12, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
-  # rm(Data_NCTCShepherdstown_HUC12)
+  ##########################
 
   # Generate Data_R5_TADAPackageDemo
   Data_R5_TADAPackageDemo <- TADA_DataRetrieval(
@@ -138,6 +122,7 @@ TADA_UpdateExampleData <- function() {
   usethis::use_data(Data_R5_TADAPackageDemo, internal = FALSE, overwrite = TRUE, compress = "xz", version = 3, ascii = FALSE)
   rm(Data_R5_TADAPackageDemo)
 
+  ##########################
   # Generate MODULE 3 VIGNETTE EXAMPLE DATA
   # Get data
   Data_WV <- TADA_DataRetrieval(
@@ -215,6 +200,8 @@ TADA_UpdateExampleData <- function() {
   rm(Data_HUC8_02070004_Mod1Output)
   rm(Data_WV)
 
+  ##########################
+  
   # Generate Data_MT_MissoulaCounty
   Data_MT_MissoulaCounty <- TADA_DataRetrieval(
      startDate = "2020-01-01",
@@ -237,17 +224,17 @@ TADA_UpdateExampleData <- function() {
                     internal = FALSE, overwrite = TRUE,
                     compress = "xz", version = 3, ascii = FALSE
   )
+  
+###############################
 
- # Generate Data_MT_AUMLRef
- # get crosswalk from ATTAINS
+  # Generate Data_MT_AUMLRef
+  # get crosswalk from ATTAINS
   attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-
- # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs 
- # pulled from ATTAINS are WQP compatible (adds org ID if missing)
+  
+  # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
   clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-
- # create example user supplied crosswalk 
- # (select a few Monitoring Locations from the tada df to use for demonstration purposes)
+  
+  # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
   user.supplied.cw <- clean.existing.attains.MT %>%
     dplyr::select(
       ATTAINS.AssessmentUnitIdentifier,
@@ -260,38 +247,44 @@ TADA_UpdateExampleData <- function() {
     )) %>%
     dplyr::rename(
       AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
+      MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+      WaterType = ATTAINS.WaterType
     ) %>%
-    # Add an example new assessment unit for demonstration purposes.
+    
+    # Add an example new assessment unit for demonstration purposes
     dplyr::bind_rows(c(
       AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
       MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
-      ATTAINS.WaterType = "LAKE, FRESHWATER"
+      WaterType = "LAKE, FRESHWATER"
     ))
-
-  MT.AUMLRef <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty,
-                                         au_ref = user.supplied.cw,
-                                         org_id = "MTDEQ",
-                                         add_catch = FALSE,
-                                         batch_upload = TRUE
-  )
   
-  Data_MT_AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk %>%
-    dplyr::mutate(
-      ATTAINS.WaterType = dplyr::case_when(
-        ATTAINS.AssessmentUnitIdentifier == "NEW:EX_MDEQ_WQ_WQX" ~ "LAKE, FRESHWATER",
-        TRUE ~ ATTAINS.WaterType
-      )
-    )
   
-    print("Data_MT_AUMLRef")
-    print(dim(Data_MT_AUMLRef))
-    usethis::use_data(Data_MT_AUMLRef,
-                      internal = FALSE, overwrite = TRUE,
-                      compress = "xz", version = 3, ascii = FALSE
-    )
+  rm(attains.existing.MT, clean.existing.attains.MT)
 
+  MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
+    Data_MT_MissoulaCounty,
+    au_ref = user.supplied.cw,
+    org_id = "MTDEQ",
+    add_catch = TRUE,
+    nhd_catch = TRUE,
+    return_nearest = TRUE,
+    batch_upload = TRUE)
+  
+  Data_MT_AUMLRef <- MT.AUMLRef
+  
+  rm(MT.AUMLRef)
+  
+  print("Data_MT_AUMLRef")
+  print(dim(Data_MT_AUMLRef))
+  usethis::use_data(Data_MT_AUMLRef,
+                    internal = FALSE, 
+                    overwrite = TRUE,
+                    compress = "xz", 
+                    version = 3, 
+                    ascii = FALSE)
 
+  ##########################
+  
   # Generate Data_MT_UseAURef
 
   Data_MT_UseAURef <- TADA_CreateUseAURef(AUMLRef = Data_MT_AUMLRef, org_id = "MTDEQ")
@@ -322,7 +315,6 @@ TADA_UpdateExampleData <- function() {
   )
   
   rm(Data_MT.UseAURef_Water)
-  ##########################################
   
 }
 ###########################################################
