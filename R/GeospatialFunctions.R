@@ -3339,6 +3339,55 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'          [TADA_GetATTAINSAUMLCrosswalk()]
 #'          [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
+#' @examples
+#' \dontrun{
+#' # Load the example data
+#' data(Data_MT_MissoulaCounty)
+#'
+#' # Example 1: Basic usage with default settings
+#' result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
+#'
+#' # Example 2: Using a user-supplied crosswalk
+#' user_crosswalk <- data.frame(
+#'   AssessmentUnitIdentifier = c("AU1", "AU2"),
+#'   MonitoringLocationIdentifier = c("ML1", "ML2"),
+#'   WaterType = c("River", "Lake")
+#' )
+#' result <- TADA_CreateAUMLCrosswalk(
+#'   Data_MT_MissoulaCounty,
+#'   au_ref = user_crosswalk
+#' )
+#'
+#' # Example 3: Including ATTAINS catchment data
+#' result <- TADA_CreateAUMLCrosswalk(
+#'   Data_MT_MissoulaCounty,
+#'   fill_ATTAINS_catch = TRUE
+#' )
+#'
+#' # Example 4: Preparing for batch upload
+#' result <- TADA_CreateAUMLCrosswalk(
+#'   Data_MT_MissoulaCounty,
+#'   batch_upload = TRUE
+#' )
+#'
+#' # Example 5: Using multiple options together
+#' org_id <- "EPA"
+#' result <- TADA_CreateAUMLCrosswalk(
+#'   Data_MT_MissoulaCounty,
+#'   au_ref = user_crosswalk,
+#'   org_id = org_id,
+#'   fill_ATTAINS_catch = TRUE,
+#'   fill_USGS_catch = TRUE,
+#'   return_nearest = FALSE,
+#'   batch_upload = TRUE
+#' )
+#'
+#' # View the results
+#' print(result$TADA_with_ATTAINS)
+#' print(result$ATTAINS_catchments)
+#' print(result$ATTAINS_batchupload)
+#' }
+#' 
 #' @export
 #'
 TADA_CreateAUMLCrosswalk <- function(.data,
