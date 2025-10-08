@@ -160,9 +160,8 @@ reference tables were created, see the ExampleMod2Workflow vignette.
 
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
-
-Final.MT.AUMLRef <- Data_MT_AUMLRef
-
+# extract ATTAINS_crosswalk data frame from the list
+Final.MT.AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
 
 MT.UseAURef <- Data_MT_UseAURef
 ```
