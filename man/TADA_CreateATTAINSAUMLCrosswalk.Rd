@@ -6,7 +6,7 @@
 \usage{
 TADA_CreateATTAINSAUMLCrosswalk(
   .data,
-  return_nearest = FALSE,
+  return_nearest = TRUE,
   fill_catchments = FALSE,
   resolution = "Hi",
   return_sf = TRUE

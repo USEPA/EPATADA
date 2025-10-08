@@ -1237,8 +1237,10 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   return_nearest = TRUE
 #' )
 #' }
-TADA_CreateATTAINSAUMLCrosswalk <- function(.data, return_nearest = FALSE,
-                                            fill_catchments = FALSE, resolution = "Hi",
+TADA_CreateATTAINSAUMLCrosswalk <- function(.data, 
+                                            return_nearest = TRUE,
+                                            fill_catchments = FALSE, 
+                                            resolution = "Hi",
                                             return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
@@ -2176,6 +2178,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, add_catch = FALSE) {
 #'
 #' TADA_ViewATTAINS(attains_catchments)
 #' }
+#' 
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # Define the paths to the images
   image_paths <- c(
@@ -3335,8 +3338,10 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'
 TADA_CreateAUMLCrosswalk <- function(.data,
                                      au_ref = NULL,
-                                     org_id = NULL, add_catch = FALSE,
-                                     nhd_catch = FALSE, return_nearest = FALSE,
+                                     org_id = NULL, 
+                                     add_catch = FALSE,
+                                     nhd_catch = FALSE, 
+                                     return_nearest = TRUE,
                                      batch_upload = TRUE) {
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {

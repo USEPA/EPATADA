@@ -59,13 +59,13 @@
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #' 
-#' @param auto_assign A Boolean value ("TRUE" or "FALSE"). The default value 
-#' is FALSE. If "TRUE", a draft criteria and methods table is generated using 
-#' default function inputs for [TADA_CreateParamRef()], 
+#' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
+#' The default value is FALSE. If TRUE, a draft criteria and methods table is
+#' generated using default function inputs for [TADA_CreateParamRef()], 
 #' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef]. .data and org_id are
-#' required inputs for this function if auto_assign = "TRUE". It is also 
-#' recommended to set excel = "TRUE" when 'auto_assign' = "TRUE". The criteria 
-#' and methodogology template should be reviewed carefully and edits can be 
+#' required inputs for this function if auto_assign = TRUE. It is also 
+#' recommended to set excel = TRUE when auto_assign = TRUE. The criteria 
+#' and methodology template should be reviewed carefully and edits can be 
 #' made manually in Excel. When your review is complete, read the file back into
 #' R and re-run this function, TADA_DefineCriteriaMethodology, again. This time, 
 #' use the criteriaMethods function input to specify the criteria and methodology

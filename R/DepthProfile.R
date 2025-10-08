@@ -54,11 +54,11 @@
 #' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
 #' will still be determined.
 #'
-#' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
-#' default is aggregatedonly = "FALSE" which means that all results are returned.
-#' When aggregatedonly = "TRUE", only aggregate values are returned.
+#' @param aggregatedonly Boolean argument with options TRUE or FALSE. The
+#' default is aggregatedonly = FALSE which means that all results are returned.
+#' When aggregatedonly = TRUE, only aggregate values are returned.
 #'
-#' @param clean Boolean argument with options "TRUE" or "FALSE". The
+#' @param clean Boolean argument with options TRUE or FALSE. The
 #' default is clean = "FALSE" which means that all results are returned.
 #' When clean = "TRUE", only aggregate results which can be assigned to a depth
 #' category are included in the returned dataframe.

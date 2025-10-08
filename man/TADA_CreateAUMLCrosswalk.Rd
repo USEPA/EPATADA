@@ -10,7 +10,7 @@ TADA_CreateAUMLCrosswalk(
   org_id = NULL,
   add_catch = FALSE,
   nhd_catch = FALSE,
-  return_nearest = FALSE,
+  return_nearest = TRUE,
   batch_upload = TRUE
 )
 }

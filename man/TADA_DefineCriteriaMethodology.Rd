@@ -45,13 +45,13 @@ and use(s) combinations that are not found in the user supplied table will be
 included in the output. These rows will need the criteria and methodology inputs
 filled out accordingly.}
 
-\item{auto_assign}{A Boolean value ("TRUE" or "FALSE"). The default value
-is FALSE. If "TRUE", a draft criteria and methods table is generated using
-default function inputs for \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
+\item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
+The default value is FALSE. If TRUE, a draft criteria and methods table is
+generated using default function inputs for \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
 \link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef}. .data and org_id are
-required inputs for this function if auto_assign = "TRUE". It is also
-recommended to set excel = "TRUE" when 'auto_assign' = "TRUE". The criteria
-and methodogology template should be reviewed carefully and edits can be
+required inputs for this function if auto_assign = TRUE. It is also
+recommended to set excel = TRUE when auto_assign = TRUE. The criteria
+and methodology template should be reviewed carefully and edits can be
 made manually in Excel. When your review is complete, read the file back into
 R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
 use the criteriaMethods function input to specify the criteria and methodology
