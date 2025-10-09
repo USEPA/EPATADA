@@ -1,27 +1,17 @@
 #' Pipe Operator
 #'
 #' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
-#' It allows you to pass the left-hand side (`lhs`) value into the right-hand side (`rhs`) function call.
-#' For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
+#' For detailed information, refer to magrittr:pipe()
 #'
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal
 #' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
 #' @export
 #' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
 #' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
 #' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
 #'
-#' @examples
-#' # Example: Using the pipe operator to transform data
-#' library(magrittr)
-#' result <- iris %>%
-#'   head(10) %>%
-#'   subset(Species == "setosa") %>%
-#'   summary()
-#' print(result)
 NULL
 
 #' Silence Print Messages from Code Execution
@@ -161,7 +151,8 @@ utils::globalVariables(c(
   "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
   "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
   "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
-  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType"
+  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType",
+  "ATTAINS.OrganizationId", "MatchMessage", "Mismatch", "Ref.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

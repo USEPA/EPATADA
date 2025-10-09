@@ -245,9 +245,8 @@ profiles. Once released (coming in 2025), one data profile will contain
 the columns critical to TADA, removing the need to combine profiles in
 this first step. This will simplify the steps needed to upload a custom
 or WQP GUI-downloaded dataframe into the R package. However, column
-names are changing in the new WQP 3.0 data profiles. This may impact
-TADA package users usage of the `TADA_DataRetrieval` function in their
-workflows. The WQP and TADA teams are available to assist with cross
+names are changing in the new WQP 3.0 data profiles. This will impact
+the `TADA_DataRetrieval` function. The WQP and TADA teams are available to assist with cross
 walking the old to new column names when the time comes.
 
 ## Initial data review

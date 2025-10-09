@@ -76,7 +76,7 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 # Load the example data
 utils::data(Data_MT_MissoulaCounty)
 
-# Example 1: Basic usage with default settings
+# Example 1: Basic use with default settings
 result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
 
 # Example 2: Using a user-supplied crosswalk

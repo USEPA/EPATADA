@@ -7,9 +7,6 @@
 \format{
 A data frame with 46 rows and 6 variables.
 }
-\usage{
-utils::data(Data_MT_UseAURef)
-}
 \description{
 An example assessment unit/use reference data frame for testing TADA Module 2 and 3 workflows.
 }

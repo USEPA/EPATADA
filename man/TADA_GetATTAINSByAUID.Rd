@@ -47,7 +47,7 @@ identifier/monitoring location combinations.
 }
 \examples{
 \dontrun{
-# Example 1: Basic usage with default settings
+# Example 1: Basic use with default settings
 # Assume my_data is a TADA data frame with some monitoring
 # location results
 # Assume my_au_ref is a data frame containing known AU and monitoring

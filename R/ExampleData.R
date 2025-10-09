@@ -11,7 +11,6 @@
 #' @docType data
 #' @keywords dataframe
 #' @name Data_Nutrients_UT
-#' @usage utils::data(Data_Nutrients_UT)
 #' @format A dataframe with 14592 rows and 152 variables
 NULL
 
@@ -39,7 +38,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_6Tribes_5y
-#' @usage utils::data(Data_6Tribes_5y)
 #' @format A dataframe with 134050 rows and 149 variables
 NULL
 
@@ -53,7 +51,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_6Tribes_5y_Harmonized
-#' @usage utils::data(Data_6Tribes_5y_Harmonized)
 #' @format A dataframe with 117124 rows and 166 variables
 NULL
 
@@ -79,7 +76,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_R5_TADAPackageDemo
-#' @usage utils::data(Data_R5_TADAPackageDemo)
 #' @format A dataframe with 6569 rows and 123 variables
 NULL
 
@@ -92,7 +88,6 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_HUC8_02070004_Mod1Output
-#' @usage utils::data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
 NULL
 
@@ -105,7 +100,6 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_MissoulaCounty
-#' @usage utils::data(Data_MT_MissoulaCounty)
 #' @format A data frame with 426 rows and 161 variables
 NULL
 
@@ -117,7 +111,6 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_AUMLRef
-#' @usage utils::data(Data_MT_AUMLRef)
 #' @format A data frame with 56 rows and 6 variables.
 NULL
 
@@ -128,7 +121,6 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_UseAURef
-#' @usage utils::data(Data_MT_UseAURef)
 #' @format A data frame with 46 rows and 6 variables.
 NULL
 
@@ -139,6 +131,5 @@ NULL
 #'
 #' @docType data
 #' @name Data_MT.UseAURef_Water
-#' @usage utils::data(Data_MT.UseAURef_Water)
 #' @format A data frame with 48 rows and 6 variables.
 NULL

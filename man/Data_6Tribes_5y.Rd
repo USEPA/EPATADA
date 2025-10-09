@@ -7,9 +7,6 @@
 \format{
 A dataframe with 134050 rows and 149 variables
 }
-\usage{
-utils::data(Data_6Tribes_5y)
-}
 \description{
 Original pull:
 Data_6Tribes_5y <- TADA_DataRetrieval(organization = c("REDLAKE_WQX",

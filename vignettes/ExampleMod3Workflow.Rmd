@@ -120,10 +120,10 @@ their decision making processes. Use of EPATADA is not required.
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed to
-define and capture organization specific water quality analysis criteria
-and methodologies. This is a continuation of an example TADA workflow
-which began with ExampleMod2Workflow.Rmd.
+users through how to create WQP and ATTAINS crosswalks that are needed
+to define and capture organization specific water quality analysis
+criteria and methodologies. This is a continuation of an example TADA
+workflow which began with ExampleMod2Workflow.Rmd.
 
 Specifically, this vignette provides an overview of three functions that
 can assist users with:
@@ -185,7 +185,7 @@ tada.MT <- TADA_DataRetrieval(
    characteristicName = c("Escherichia", 
                           "Escherichia coli", 
                           "pH"),
-   county = "Missoula County",
+   countycode = "Missoula County",
    ask = FALSE)
 
 # clean up data set (minimal)

@@ -133,7 +133,7 @@ tada.MT <- TADA_DataRetrieval(
     "Escherichia coli",
     "pH"
   ),
-  county = "Missoula County",
+  countycode = "Missoula County",
   ask = FALSE
 )
 
