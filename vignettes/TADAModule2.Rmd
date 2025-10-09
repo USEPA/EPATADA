@@ -210,9 +210,10 @@ It uses three prioritized data sources:
 
 2.  **ATTAINS Crosswalk:** Utilizes **`TADA_GetATTAINSAUMLCrosswalk`**
     to incorporate crosswalk information stored by participating
-    organizations in ATTAINS. Storing assessment unit/monitoring
-    location crosswalk information in ATTAINS is optional so there may
-    not be an ATTAINS crosswalk available for all organizations.
+    organizations in ATTAINS. There may not be an ATTAINS crosswalk
+    available for all organizations as storing this information in
+    ATTAINS is optional for states and some tribes are still in the
+    process of developing their crosswalks.
 
 3.  **ATTAINS Catchments/Geospatial Join:** Employs
     **`TADA_CreateATTAINSAUMLCrosswalk`** to connect monitoring
@@ -516,8 +517,9 @@ observations in `TADA_without_ATTAINS` in a new shapefile called
 # Step B: Review MLs/AUs on a Map
 
 The **`TADA_ViewATTAINS()`** function creates a map that visually
-represents results from three different crosswalk sources using distinct
-circle markers:
+represents the monitoring locations and assessment units. When the param
+ref_icons is equal to TRUE, the results from the three different
+crosswalk sources are shown using distinct circle marker icons:
 
 -   **User-Supplied Crosswalk**: Monitoring locations derived from a
     user-supplied reference are indicated by a user icon.
@@ -535,10 +537,14 @@ Additionally, when a user clicks on any circle marker, a pop-up window
 appears displaying the assessment unit crosswalk source for that
 particular monitoring location.
 
+Alternately, users can set ref_icons equal to FALSE to display all
+monitoring locations as plain circle markers regardless of the crosswalk
+source.
+
 Let's view the data associated with MT.AUMLRef!
 
 ```{r view.map}
-TADA_ViewATTAINS(MT.AUMLRef, ref_icons = FALSE)
+TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
 You may have noticed that because we set `fill_USGS_catch = TRUE`,
@@ -673,3 +679,4 @@ Assessment Units. By systematically guiding users through the creation
 of crosswalks, map reviews, data submission, and use assignments, this
 workflow supports efficient data management and improves
 reproducibility.
+
