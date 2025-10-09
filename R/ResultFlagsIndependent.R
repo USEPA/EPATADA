@@ -33,7 +33,7 @@
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove Suspect characteristic-analytical method combinations from
 #' # data frame:
@@ -197,7 +197,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # have 0 results because all are flagged in the example)
 #' all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 #'
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 #' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT,
@@ -457,7 +457,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data that is above the upper WQX threshold from dataframe:
 #' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
@@ -665,7 +665,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
 #' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
@@ -880,7 +880,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
 #' QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
@@ -998,7 +998,7 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
@@ -1120,7 +1120,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag":
@@ -1474,7 +1474,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
 #'
 #' @examples
 #' # Load dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # If duplicates exist, identify and flag them for removal
 #' Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
 #' table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)

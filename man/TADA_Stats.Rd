@@ -43,7 +43,7 @@ and Kaplan Meier.
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Create stats table:
 Data_6Tribes_5y_Harmonized_stats <- TADA_Stats(Data_6Tribes_5y_Harmonized)
 

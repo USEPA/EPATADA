@@ -486,7 +486,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' @export
 #'
 #' @examples
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
 TADA_RetainRequired <- function(.data) {

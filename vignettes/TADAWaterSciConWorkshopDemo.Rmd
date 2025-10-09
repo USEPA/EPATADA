@@ -330,7 +330,7 @@ We can use a TADA function to identify any censored data in the data
 set.
 
 ```{r TADA_IDCensoredData}
-data <- TADA_IDCensoredData(data)
+utils::data <- TADA_IDCensoredData(data)
 ```
 
 Because there are no censored data in the data set, we do not need to

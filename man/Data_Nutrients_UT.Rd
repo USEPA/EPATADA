@@ -8,7 +8,7 @@
 A dataframe with 14592 rows and 152 variables
 }
 \usage{
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 }
 \description{
 A dataframe containing Ammonia, Nitrate, and Nitrogen data from Utah:

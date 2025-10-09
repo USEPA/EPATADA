@@ -821,7 +821,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Select maximum value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
 #' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
@@ -923,7 +923,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1001,7 +1001,7 @@ pchIcons <- function(pch = 1,
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1067,7 +1067,7 @@ writeLayer <- function(url, layerfilepath) {
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1441,7 +1441,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #'
 #' @examples
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 #' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)

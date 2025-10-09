@@ -55,7 +55,7 @@ of results available for the characteristic in parentheses.
 }
 \examples{
 # Load data frame
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # find depth profile data without showing number of results
 Data_6Tribes_5y_DepthProfileID_Nresults <-

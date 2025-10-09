@@ -83,7 +83,8 @@ Imports:
     readr (>= 1.4.0),
     spsUtil,
     httr,
-    leaflegend
+    leaflegend,
+    usethis
 Depends: 
     R (>= 4.1.0)
 Suggests:

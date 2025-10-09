@@ -26,7 +26,8 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE)
+  message = FALSE, 
+  eval = F)
 ```
 
 # Overview and Setup
@@ -159,13 +160,11 @@ function in R or RStudio using the following format (example below):
 
 ## Module 1 Prerequisites
 
-Get bacteria and pH data from Missoula County, Montana. This example is  
-included in the EPATADA R package, and can be loaded into your R environment 
-like this:
+Get bacteria and pH data from Missoula County, Montana. This example is included in the EPATADA R package, and can be loaded into your R environment like this:
 
 ```{r load WQP data}
 # Load the dataset
-data("Data_MT_MissoulaCounty", package = "EPATADA")
+utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 
 # Un-comment to generate Data_MT_MissoulaCounty example data using TADA_DataRetrieval
 # # get MT data
@@ -239,10 +238,10 @@ It uses three prioritized data sources:
     found in the user-supplied crosswalk or ATTAINS crosswalk (#1 or #2
     above). If the user does want to return ATTAINS geospatial service
     catchments for matches from the user-supplied or ATTAINS crosswalks,
-    they can set fill_ATTAINS_catch = TRUE. This will return the catchments, but
-    increases function run time significantly. ATTAINS catchments are
-    always returned for `TADA_CreateATTAINSAUMLCrosswalk` assessed WQP
-    monitoring locations.
+    they can set fill_ATTAINS_catch = TRUE. This will return the
+    catchments, but increases function run time significantly. ATTAINS
+    catchments are always returned for `TADA_CreateATTAINSAUMLCrosswalk`
+    assessed WQP monitoring locations.
 
 **Current Limitations**
 
@@ -321,7 +320,7 @@ This example is also included in the EPATADA R package, and can be
 loaded into your R environment like this:
 
 ```{r useexampledata}
-data("Data_MT_AUMLRef", package = "EPATADA")
+utils::data("Data_MT_AUMLRef", package = "EPATADA")
 
 MT.AUMLRef <- Data_MT_AUMLRef
 
@@ -539,9 +538,12 @@ Let's view the data associated with MT.AUMLRef!
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = FALSE)
 ```
 
-You may have noticed that because we set `fill_USGS_catch = TRUE`, `TADA_ViewATTAINS()` also mapped the `without_ATTAINS_catchments`. These are represented as clear polygons with black outlines.
+You may have noticed that because we set `fill_USGS_catch = TRUE`,
+`TADA_ViewATTAINS()` also mapped the `without_ATTAINS_catchments`. These
+are represented as clear polygons with black outlines.
 
-Enter `?TADA_ViewATTAINS` into the console to review another example of this function in use and additional information.
+Enter `?TADA_ViewATTAINS` into the console to review another example of
+this function in use and additional information.
 
 # Step C: Upload ML/AU crosswalk to ATTAINS
 

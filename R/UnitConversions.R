@@ -37,7 +37,7 @@
 #' @examples
 #'
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a unit reference dataframe
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
@@ -314,7 +314,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Do not convert result values and units, but add four new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
@@ -871,7 +871,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Convert all depth units to meters and review unit harmonization:
 #' # "ActivityDepthHeightMeasure.MeasureUnitCode" and

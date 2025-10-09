@@ -8,7 +8,7 @@
 A data frame with 426 rows and 161 variables
 }
 \usage{
-data(Data_MT_MissoulaCounty)
+utils::data(Data_MT_MissoulaCounty)
 }
 \description{
 See Module 2 and 3 workflows for examples of this data set can be used in the

@@ -8,7 +8,7 @@
 A dataframe with 134050 rows and 149 variables
 }
 \usage{
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 }
 \description{
 Original pull:

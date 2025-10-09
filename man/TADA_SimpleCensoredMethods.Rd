@@ -47,7 +47,7 @@ information.
 \examples{
 \dontrun{
 # Load example dataframe:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # Check for agreement between detection condition and detection limit type,
 # and in instances where the measurement is non-detect, set the result value
 # to half of the detection limit value. For over-detect measurements, retain

@@ -8,7 +8,7 @@
 A dataframe with 117124 rows and 166 variables
 }
 \usage{
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 }
 \description{
 A dataframe containing data from tribal organizations

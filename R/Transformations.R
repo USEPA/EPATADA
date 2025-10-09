@@ -37,7 +37,7 @@
 #' @examples
 #' \dontrun{
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
 #' Data_6Tribes_5yClean <- subset(
@@ -777,7 +777,7 @@ TADA_CalculateTotalNP <- function(.data,
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Select maximum value per day, site, comparable data identifier,
 #' # unit, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.

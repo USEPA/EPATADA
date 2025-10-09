@@ -3335,7 +3335,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' @examples
 #' \dontrun{
 #' # Load the example data
-#' data(Data_MT_MissoulaCounty)
+#' utils::data(Data_MT_MissoulaCounty)
 #'
 #' # Example 1: Basic usage with default settings
 #' result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)

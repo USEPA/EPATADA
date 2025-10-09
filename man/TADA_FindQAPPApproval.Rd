@@ -68,7 +68,7 @@ submitted to WQP is NA.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
 QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)

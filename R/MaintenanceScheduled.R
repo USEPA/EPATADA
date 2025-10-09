@@ -294,10 +294,6 @@
         WaterType = "LAKE, FRESHWATER"
       ))
     
-    rm(attains.existing.MT, clean.existing.attains.MT)
-    
-    data(Data_MT_MissoulaCounty)
-    
     MT_AUMLRef <- TADA_CreateAUMLCrosswalk(
       Data_MT_MissoulaCounty,
       au_ref = user_supplied_cw,

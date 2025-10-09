@@ -57,7 +57,7 @@ the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Remove data that is below the lower WQX threshold from the dataframe:
 WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(

@@ -180,7 +180,7 @@ You can also take a look at an example dataframe, like
 `Data_Nutrients_UT` to get an idea of the data structure and format.
 
 ```{r UT example data}
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # review example dataframe
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
