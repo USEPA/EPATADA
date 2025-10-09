@@ -54,7 +54,7 @@ The WQX team plans to review and update these new combinations quarterly.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Remove data with Suspect characteristic-method speciation combinations
 # from dataframe,
