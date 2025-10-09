@@ -2,7 +2,7 @@
 test_dat <- TADA_RandomTestingData()
 
 # Test: Check for potential duplicates during criteria methods table generation
-test_that("TADA_CreateParamRef ", {
+testthat::test_that("TADA_CreateParamRef ", {
   param_ref_none <- TADA_CreateParamRef(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -36,7 +36,7 @@ test_that("TADA_CreateParamRef ", {
   
   # A user supplied table when paramRef has no crosswalk should return 0 rows (empty data frame).
   # Check to make sure there are 7 columns, 0 rows
-  expect_true(
+  testthat::expect_true(
     dim(use_param_ref_none)[1] == 0 && dim(use_param_ref_none)[2] == 7 &&
     dim(use_param_ref_none2)[1] == 0 && dim(use_param_ref_none2)[2] == 7
   )
@@ -75,7 +75,7 @@ test_that("TADA_CreateParamRef ", {
   # A user supplied table when paramRef is filled out when auto_assign = FALSE
   # should all reflect the user supplied crosswalk. Check all unique uses to make sure.
   # Check to make sure there are 7 columns, 0 rows
-  expect_true(
+  testthat::expect_true(
     all(unique(use_param_ref_all2$ATTAINS.UseName) %in% unique(user.supplied.uses.param$ATTAINS.UseName)) &&
     dim(use_param_ref_all)[2] == 7 &&
     dim(use_param_ref_all2)[2] == 7
@@ -89,14 +89,14 @@ test_that("TADA_CreateParamRef ", {
   )
   
   # check to make sure all rows contain equal number of rows and for equal number of unique ComparableDataIdentifiers
-  expect_true(
+  testthat::expect_true(
     length(unique(test_dat$TADA.ComparableDataIdentifier)) == nrow(param_ref_none) && 
       nrow(param_ref_none) == nrow(param_ref_all) && nrow(param_ref_all) == nrow(param_ref_org)
     )
 })
 
 # Test: Auto_assign criteria table should contain all unique TADA.Characteristics/TADA.ComparableDataIdentifier
-test_that("TADA_DefineCriteriaMethodology ", {
+testthat::test_that("TADA_DefineCriteriaMethodology ", {
   suppressMessages(
   Criteria_autofill <- TADA_DefineCriteriaMethodology(
     test_dat,
@@ -121,7 +121,7 @@ test_that("TADA_DefineCriteriaMethodology ", {
   )
   )
   # check to make sure all criteria table has same number of TADA.Characteristics/TADA.ComparableDataIdentifiers
-  expect_true(
+  testthat::expect_true(
     length(unique(test_dat$TADA.ComparableDataIdentifier)) == length(unique(Criteria_autofill_w_uniqueID$TADA.ComparableDataIdentifier)) && 
     length(unique(test_dat$TADA.CharacteristicName)) == length(unique(Criteria_autofill$TADA.CharacteristicName))
   )

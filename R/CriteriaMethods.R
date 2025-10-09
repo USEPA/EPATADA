@@ -1058,9 +1058,13 @@ TADA_CriteriaDataDictionary <- function() {
       "Methodology",	"Methodology",	"Methodology"
     ),
     Description = c(
+      # ATTAINS.OrganizationIdentifier
       "The id of your organization that gets submitted to ATTAINS.",
+      # ATTAINS.ParameterName
       "The name of the parameter that gets submitted to ATTAINS. These do not need to be unique to your organization.",
+      # ATTAINS.UseName
       "The name of the use of a waterbody that gets submitted to ATTAINS. These use names should be specific to your organization.",
+      # TADA.ComparableDataIdentifier
       paste0(
         "To populate this field, specify displayUniqueId = TRUE. Concatenates the WQP Characteristic, Fraction and speciation into one string.",
         "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ", 
@@ -1068,25 +1072,60 @@ TADA_CriteriaDataDictionary <- function() {
         "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.", 
         collapse = " "
         ),	
+      # TADA.CharacteristicName
       "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",	
+      # TADA.ResultSampleFractionText
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
+      # TADA.MethodSpeciationName
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified speciation.",
+      # ATTAINS.WaterType
       "The name of the waterbody type associated with an Assessment Unit from the ATTAINS domain value. These values will only be avaialble if a sites to ATTAINS Assessment Units crosswalk is provided.",
+      # SaltFresh
       "The salt or freshwater classification of the ATTAINS Waterbody Type. Users should specify if a standard only applies to salt or freshwater types.",
-      "Users should specify a specific water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry.",	
+      # DepthCategory
+      "The depth within water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry (or can specify a specific unit measurement?).",	
+      # UniqueSpatialCriteria
       "Users should specify any monitoring location sites that may contain a unique spatial critieria for a parameter or use in CreateMLSummaryRef.",	
+      # AcuteChronic
       "If a parameter and use depends depends on differing criteria standards for acute or chronic conditions. Acute is defined as short term while chronic is long term.",	
+      # EquationBased
       "If your water quality standards depend on an equation calculated numeric value, the equation column should be specified as yes. Users will need to specify either a custom equation or choose from a list of common equations and define each equation parameter appropriately. NOTE: Equation handling in TADA is still in development.",	
-      "An exceedance is recorded if a ResultValue falls below the defined lower magnitude limit for this parameter and use.",	
-      "An exceedance is recorded if a ResultValue is above the defined lower magnitude limit for this parameter and use.",	
+      # MagnitudeValueLower
+      "The lower limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls below this defined lower limit for this parameter and use.",	
+      # MagnitudeValueUpper
+      "The upper limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls above this defined lower limit for this parameter and use.",	
+      # MagnitudeUnit
+      "Defines the units component of the amount or concentration of a pollutant or parameter that is allowable in water.",
+      # DurationValue
       "The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
+      # DurationUnit
       "The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
+      # DurationMethod
+      "The specific aggregation calculation of samples that are collected during a duration period.",
+      # FreqValue
       "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",	
-      "The frequency component defined as a percentage or number of times a magnitude value can be exceeded over a specified duration period.",	
+      # FreqMethod
+      "How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.",	
+      # AssessPeriod
       "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",	
+      # AssessPeriodStartDate
       "The start date in which WQP data will be analysed for this parameter and use.",
+      # AssessPeriodEndDate
       "The end date in which WQP data will be analysed for this parameter and use.",	
-      "",	"",	"",	"",	"",	"",	"",	"", ""
+      # Season
+      "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",	
+      # SeasonStartDate
+      "The start date of the season in which assessments are done for during a calendar year.",	
+      # SeasonEndDate
+      "The end date of the season in which assessments are done for during a calendar year.",	
+      # DistrCount
+      "A numeric value specifying the minimum number of sampling events (consecutive) over a distribution period.",	
+      # DistrPeriod
+      "The period of time in which samples must be collected during an assessment data window.",	
+      # DistrMinSample
+      "How many samples must be collected during each specified DistrPeriod",	
+      # Notes
+      "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format."
       )
   )
   
@@ -1123,7 +1162,7 @@ TADA_CriteriaDataDictionary <- function() {
   )
 
   # only applies to the last column. We shifted the table to B2, adjust accordingly
-  openxlsx::addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 1), cols = ncol(data_to_write) + 1)
+  openxlsx::addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 2), cols = ncol(data_to_write) + 1)
 
   openxlsx::setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
   
