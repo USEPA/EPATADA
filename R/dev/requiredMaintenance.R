@@ -1,3 +1,9 @@
+# some of the ref files have flags that need review when
+# WQX domain tables are updated
+
+# for example, see "Not Reviewed" TADA.MeasureQualifierCode.Flag in WQXMeasureQualifierCodeRef
+
+#########################################################
 # spell check
 library(spelling)
 spelling::spell_check_package(
