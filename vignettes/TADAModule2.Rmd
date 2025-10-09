@@ -1,13 +1,17 @@
 ---
 title: "TADA Module 2: Geospatial Functions"
-format: html
-editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
 vignette: >
-  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
   %\VignetteDepends{EPATADA}
 description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
@@ -121,18 +125,21 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-```{r dev_install, results = 'hide', include = F, eval = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-AURef",
-  dependencies = TRUE,
-  force = TRUE
-)
+```{r dev_install, results = 'hide', include = F}
+# remotes::install_github("USEPA/EPATADA",
+#   ref = "Create-Module-3-AURef",
+#   dependencies = TRUE,
+#   force = TRUE
+# )
+
+library(devtools)
+load_all()
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide'}
+```{r library, results = 'hide', eval = F}
 library(EPATADA)
 ```
 
@@ -529,7 +536,7 @@ particular monitoring location.
 Let's view the data associated with MT.AUMLRef!
 
 ```{r view.map}
-TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
+TADA_ViewATTAINS(MT.AUMLRef, ref_icons = FALSE)
 ```
 
 You may have noticed that because we set `fill_USGS_catch = TRUE`, `TADA_ViewATTAINS()` also mapped the `without_ATTAINS_catchments`. These are represented as clear polygons with black outlines.

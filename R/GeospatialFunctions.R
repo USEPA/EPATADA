@@ -2182,24 +2182,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 #' }
 #' 
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
-  # Define the paths to the images
-  image_paths <- c(
-    "inst/extdata/icons/square-ns.png",
-    "inst/extdata/icons/square-fs.png",
-    "inst/extdata/icons/square-na.png",
-    "inst/extdata/icons/circle-solid-full.png",
-    "inst/extdata/icons/square-catchment-gray.png",
-    "inst/extdata/icons/square-catchment.png",
-    "inst/extdata/icons/circle-user-solid-full.svg",
-    "inst/extdata/icons/circle-check-solid-full.svg"
-  )
-
-  # Check if each file exists
-  for (path in image_paths) {
-    if (!file.exists(path)) {
-      stop(paste("File not found:", path))
-    }
-  }
 
   if (!any(c(
     "ATTAINS_catchments", "ATTAINS_points",
@@ -2222,26 +2204,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   # the commented out code creates the legend images using the TADA color palette
   # if the color palette is ever edited, this section needs to be uncommented and run again
+  # set palette
+  # tada.pal <- TADA_ColorPalette()
+  # 
   # square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
-  #
+  # 
   # notsupport <- magick::image_fill(square, tada.pal[3], "+500+500")
-  #
+  # 
   # magick::image_write(notsupport, path = "inst/extdata/icons/square-ns.png")
-  #
+  # 
   # fullsupport <- magick::image_fill(square, tada.pal[4], "+500+500")
-  #
+  # 
   # magick::image_write(fullsupport, path = "inst/extdata/icons/square-fs.png")
-  #
+  # 
   # notassessed <- magick::image_fill(square, tada.pal[7], "+500+500")
-  #
+  # 
   # magick::image_write(notassessed, path = "inst/extdata/icons/square-na.png")
-  #
+  # 
   # outline.square <- magick::image_read("inst/extdata/icons/square-regular-full.png")
-  #
+  # 
   # catchment <- magick::image_fill(outline.square, "black", "+500+500")
-  #
+  # 
   # magick::image_write(catchment, path = "inst/extdata/icons/square-catchment.png")
 
+  # Define the paths to the images
   images <- c(
     "inst/extdata/icons/square-ns.png",
     "inst/extdata/icons/square-fs.png",
@@ -2250,7 +2236,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "inst/extdata/icons/square-catchment-gray.png",
     "inst/extdata/icons/square-catchment.png"
   )
-
+  
+  # Check if all image paths exist
+  for (path in images) {
+    if (!file.exists(path)) {
+      stop(sprintf("Image file not found: %s", path))
+    }
+  }
+  
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
   missing_raw_features <- NULL
