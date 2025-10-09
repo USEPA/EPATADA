@@ -20,7 +20,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE
@@ -44,7 +44,7 @@ organizations who have submitted data to EPA's Water Quality eXchange
 (WQX) by reviewing the `organization` domain table available
 [here](https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads).
 
-```{r get org domain}
+```{r get org domain, eval = F}
 # Get the WQX organizations domain
 organizations <- read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Organization.CSV"))
 
