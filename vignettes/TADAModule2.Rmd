@@ -1,5 +1,6 @@
 ---
 title: "TADA Module 2: Geospatial Functions"
+always_all_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output:
@@ -22,12 +23,13 @@ editor_options:
 
 ```{r setup, include = F}
 library(knitr)
+library(htmlwidgets)
 
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE, 
-  eval = F)
+  eval = T)
 ```
 
 # Overview and Setup
@@ -103,7 +105,7 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide', eval = T}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -118,7 +120,7 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = F, results = 'hide'}
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE,
@@ -140,7 +142,7 @@ load_all()
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', eval = F}
+```{r library, results = 'hide', eval = T}
 library(EPATADA)
 ```
 
@@ -153,14 +155,16 @@ the GitHub website. Users can also access the help page for a given
 function in R or RStudio using the following format (example below):
 `?[name of TADA function]`
 
-```{r help_pages, eval = F}
+```{r help_pages, eval = T}
 # Access help page for TADA_CreateAUMLCrosswalk
 ?TADA_CreateAUMLCrosswalk
 ```
 
 ## Module 1 Prerequisites
 
-Get bacteria and pH data from Missoula County, Montana. This example is included in the EPATADA R package, and can be loaded into your R environment like this:
+Get bacteria and pH data from Missoula County, Montana. This example is
+included in the EPATADA R package, and can be loaded into your R
+environment like this:
 
 ```{r load WQP data}
 # Load the dataset
@@ -267,7 +271,7 @@ subset a few rows to create an example user-supplied ATTAINS Assessment
 Unit and WQP Monitoring Location crosswalk for demonstration purposes.
 If you have your own crosswalk, this step can be skipped.
 
-```{r demo.user, results = 'hide', eval = F}
+```{r demo.user, results = 'hide', eval = T}
 # review valid ATTAINS org IDs
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
@@ -307,7 +311,7 @@ rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 
 ## Run `TADA_CreateAUMLCrosswalk`
 
-```{r TADA_CreateAUMLCrosswalk, eval = F}
+```{r TADA_CreateAUMLCrosswalk, eval = T}
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
@@ -430,7 +434,7 @@ Using either our original `tada.MT.clean` *or* the geospatial version
 `TADA_spatial`, we can pull in the ATTAINS catchment features that
 intersect our observations:
 
-```{r, eval = F}
+```{r, eval = T}
 TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
   .data = tada.MT.clean, 
   return_sf = FALSE, 
@@ -449,7 +453,7 @@ the original TADA dataframe, we can deduce that some Water Quality
 Portal observations fall within an NHD catchment that contains more than
 one ATTAINS assessment unit.
 
-```{r, eval = F}
+```{r, eval = T}
 TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(
   .data = tada.MT.clean, 
   return_sf = TRUE, 
@@ -473,7 +477,7 @@ some WQP observations have NAs where there should be ATTAINS
 information. In these instances, the user can optionally fill in
 catchment information from the NHD by entering `fill_USGS_catch = TRUE`:
 
-```{r, eval = F}
+```{r, eval = T}
 TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(
   tada.MT.clean, 
   fill_USGS_catch = TRUE, 
@@ -543,7 +547,9 @@ source.
 Let's view the data associated with MT.AUMLRef!
 
 ```{r view.map}
-TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
+map <- TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
+
+htmlwidgets::saveWidget(map, file="vignettes/images/TADA_ViewATTAINS.html")
 ```
 
 You may have noticed that because we set `fill_USGS_catch = TRUE`,
@@ -678,4 +684,3 @@ Assessment Units. By systematically guiding users through the creation
 of crosswalks, map reviews, data submission, and use assignments, this
 workflow supports efficient data management and improves
 reproducibility.
-
