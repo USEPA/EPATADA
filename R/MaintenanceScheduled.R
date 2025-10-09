@@ -296,6 +296,8 @@
     
     rm(attains.existing.MT, clean.existing.attains.MT)
     
+    data(Data_MT_MissoulaCounty)
+    
     MT_AUMLRef <- TADA_CreateAUMLCrosswalk(
       Data_MT_MissoulaCounty,
       au_ref = user_supplied_cw,
@@ -331,7 +333,7 @@
                       compress = "xz", version = 3, ascii = FALSE
     )
     rm(attains.existing.MT, clean.existing.attains.MT, user_supplied_cw,
-       MT_AUMLRef, Data_MT_AUMLRef, Data_MT_MissoulaCounty, Data_MT_UseAURef)
+       MT_AUMLRef)
     
     # =======================================
     # Generate Data_MT.UseAURef_Water

@@ -1,15 +1,14 @@
 ---
 title: "TADA Module 2: Geospatial Functions"
-format: html
-editor: visual
-author: "TADA Team"
-date: "`r Sys.Date()`"
-output: 
-  rmarkdown::html_vignette:
+format: 
+  html_vignette:
     toc: true
     fig_caption: yes
     fig_height: 8
     fig_width: 8
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
 vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
@@ -162,41 +161,43 @@ function in R or RStudio using the following format (example below):
 
 ## Module 1 Prerequisites
 
-Get bacteria and pH data from Missoula County, Montana.
-
-```{r tada.data, eval = F}
-# get MT data
-tada.MT <- TADA_DataRetrieval(
-  startDate = "2020-01-01",
-  endDate = "2022-12-31",
-  statecode = "MT",
-  characteristicName = c(
-    "Escherichia",
-    "Escherichia coli",
-    "pH"
-  ),
-  county = "Missoula County",
-  ask = FALSE
-)
-
-# clean up data set (not comprehensive)
-tada.MT.clean <- tada.MT %>%
-  TADA_RunKeyFlagFunctions() %>%
-  TADA_SimpleCensoredMethods() %>%
-  TADA_HarmonizeSynonyms() 
-
-# Remove intermediate objects
-rm(tada.MT)
-```
-
-This example is also included in the EPATADA R package, and can be
-loaded into your R environment like this:
+Get bacteria and pH data from Missoula County, Montana. This example is  
+included in the EPATADA R package, and can be loaded into your R environment 
+like this:
 
 ```{r load WQP data}
+# Load the dataset
 data("Data_MT_MissoulaCounty", package = "EPATADA")
 
+# Un-comment to generate Data_MT_MissoulaCounty example data using TADA_DataRetrieval
+# # get MT data
+# tada.MT <- TADA_DataRetrieval(
+#   startDate = "2020-01-01",
+#   endDate = "2022-12-31",
+#   statecode = "MT",
+#   characteristicName = c(
+#     "Escherichia",
+#     "Escherichia coli",
+#     "pH"
+#   ),
+#   county = "Missoula County",
+#   ask = FALSE
+# )
+# 
+# # clean up data set (not comprehensive)
+# tada.MT.clean <- tada.MT %>%
+#   TADA_RunKeyFlagFunctions() %>%
+#   TADA_SimpleCensoredMethods() %>%
+#   TADA_HarmonizeSynonyms()
+```
+
+Rename the example data to tada.MT.clean:
+
+```{r rename}
+# Assign it to tada.MT.clean
 tada.MT.clean <- Data_MT_MissoulaCounty
 
+# Optionally, remove the original dataset from the environment
 rm(Data_MT_MissoulaCounty)
 ```
 
