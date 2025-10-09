@@ -1,11 +1,6 @@
 ---
 title: "TADA Module 2: Geospatial Functions"
-format: 
-  html_vignette:
-    toc: true
-    fig_caption: yes
-    fig_height: 8
-    fig_width: 8
+format: html
 editor: visual
 author: "TADA Team"
 date: "`r Sys.Date()`"
@@ -103,15 +98,11 @@ First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
-```
-
-Load the remotes library:
-
-```{r load_remotes}
+# Load the remotes library
 library(remotes)
 ```
 
@@ -130,7 +121,7 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-```{r dev_install, results = 'hide', include = F}
+```{r dev_install, results = 'hide', include = F, eval = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "Create-Module-3-AURef",
   dependencies = TRUE,
