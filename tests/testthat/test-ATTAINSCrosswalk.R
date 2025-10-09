@@ -10,14 +10,15 @@ testthat::test_that("TADA_CreateParamRef ", {
     excel = FALSE
   )
   
-  use_param_ref_none <- TADA_CreateUseParamRef(
-    test_dat,
-    paramRef = param_ref_none,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = FALSE,
-    excel = FALSE
+  suppressWarnings(
+    use_param_ref_none <- TADA_CreateUseParamRef(
+      test_dat,
+      paramRef = param_ref_none,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = FALSE,
+      excel = FALSE
+    )
   )
-  
   # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
     ATTAINS.OrganizationIdentifier = rep("MTDEQ", length(unique(test_dat$TADA.ComparableDataIdentifier))), # we have assigned to example uses to each parameter
@@ -25,13 +26,15 @@ testthat::test_that("TADA_CreateParamRef ", {
     ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(test_dat$TADA.ComparableDataIdentifier)))
   )
   
-  use_param_ref_none2 <- TADA_CreateUseParamRef(
-    test_dat,
-    paramRef = param_ref_none,
-    useParamRef = user.supplied.uses.param,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = FALSE,
-    excel = FALSE
+  suppressWarnings(
+    use_param_ref_none2 <- TADA_CreateUseParamRef(
+      test_dat,
+      paramRef = param_ref_none,
+      useParamRef = user.supplied.uses.param,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = FALSE,
+      excel = FALSE
+    )
   )
   
   # A user supplied table when paramRef has no crosswalk should return 0 rows (empty data frame).
@@ -48,12 +51,14 @@ testthat::test_that("TADA_CreateParamRef ", {
     excel = FALSE
   )
   
-  use_param_ref_all <- TADA_CreateUseParamRef(
-    test_dat,
-    paramRef = param_ref_all,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = TRUE,
-    excel = FALSE
+  suppressWarnings(
+    use_param_ref_all <- TADA_CreateUseParamRef(
+      test_dat,
+      paramRef = param_ref_all,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = TRUE,
+      excel = FALSE
+    )
   )
   
   # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
@@ -63,13 +68,15 @@ testthat::test_that("TADA_CreateParamRef ", {
     ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(param_ref_all$ATTAINS.ParameterName)))
   )
   
-  use_param_ref_all2 <- TADA_CreateUseParamRef(
-    test_dat,
-    paramRef = param_ref_all,
-    useParamRef = user.supplied.uses.param,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = FALSE,
-    excel = FALSE
+  suppressWarnings(
+    use_param_ref_all2 <- TADA_CreateUseParamRef(
+      test_dat,
+      paramRef = param_ref_all,
+      useParamRef = user.supplied.uses.param,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = FALSE,
+      excel = FALSE
+    )
   )
   
   # A user supplied table when paramRef is filled out when auto_assign = FALSE
@@ -97,28 +104,28 @@ testthat::test_that("TADA_CreateParamRef ", {
 
 # Test: Auto_assign criteria table should contain all unique TADA.Characteristics/TADA.ComparableDataIdentifier
 testthat::test_that("TADA_DefineCriteriaMethodology ", {
-  suppressMessages(
-  Criteria_autofill <- TADA_DefineCriteriaMethodology(
-    test_dat,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = TRUE,
-    displayUniqueId = FALSE,
-    excel = FALSE
-    # uncomment to run the excel file
-    #excel = TRUE, overwrite = TRUE
-  )
+  suppressWarnings(
+    Criteria_autofill <- TADA_DefineCriteriaMethodology(
+      test_dat,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = TRUE,
+      displayUniqueId = FALSE,
+      excel = FALSE
+      # uncomment to run the excel file
+      #excel = TRUE, overwrite = TRUE
+    )
   )
   
-  suppressMessages(
-  Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
-    test_dat,
-    org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
-    auto_assign = TRUE,
-    displayUniqueId = TRUE,
-    excel = FALSE
-    # uncomment to run the excel file
-    # excel = TRUE, overwrite = TRUE
-  )
+  suppressWarnings(
+    Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+      test_dat,
+      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      auto_assign = TRUE,
+      displayUniqueId = TRUE,
+      excel = FALSE
+      # uncomment to run the excel file
+      # excel = TRUE, overwrite = TRUE
+    )
   )
   # check to make sure all criteria table has same number of TADA.Characteristics/TADA.ComparableDataIdentifiers
   testthat::expect_true(
@@ -126,3 +133,4 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
     length(unique(test_dat$TADA.CharacteristicName)) == length(unique(Criteria_autofill$TADA.CharacteristicName))
   )
 })
+
