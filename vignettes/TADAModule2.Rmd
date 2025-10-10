@@ -23,7 +23,6 @@ editor_options:
 
 ```{r setup, include = F}
 library(knitr)
-library(htmlwidgets)
 
 knitr::opts_chunk$set(
   echo = TRUE,
@@ -547,9 +546,7 @@ source.
 Let's view the data associated with MT.AUMLRef!
 
 ```{r view.map}
-map <- TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
-
-htmlwidgets::saveWidget(map, file="vignettes/images/TADA_ViewATTAINS.html")
+TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
 You may have noticed that because we set `fill_USGS_catch = TRUE`,

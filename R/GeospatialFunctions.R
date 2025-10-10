@@ -1236,9 +1236,9 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   return_nearest = TRUE
 #' )
 #' }
-TADA_CreateATTAINSAUMLCrosswalk <- function(.data, 
+TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
                                             return_nearest = TRUE,
-                                            fill_USGS_catch = FALSE, 
+                                            fill_USGS_catch = FALSE,
                                             resolution = "Hi",
                                             return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
@@ -1627,13 +1627,13 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' match those in the WQP, which may contain the organization and provider in
 #' the MonitoringLocationIdentifier.
 #'
-#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based 
+#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
 #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
-#' with entity submitted assessment unit features - points, lines, and polygons) 
-#' should be queried and downloaded for the assessment units included in the 
-#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data 
+#' with entity submitted assessment unit features - points, lines, and polygons)
+#' should be queried and downloaded for the assessment units included in the
+#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
 #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
-#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the 
+#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
@@ -2180,7 +2180,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 #'
 #' TADA_ViewATTAINS(attains_catchments)
 #' }
-#' 
+#'
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   if (!any(c(
@@ -2206,44 +2206,44 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # if the color palette is ever edited, this section needs to be uncommented and run again
   # set palette
   # tada.pal <- TADA_ColorPalette()
-  # 
-  # square <- magick::image_read("inst/extdata/icons/square-solid-full.png")
-  # 
+  #
+  # square <- magick::image_read("vignettes/images/icons/square-solid-full.png")
+  #
   # notsupport <- magick::image_fill(square, tada.pal[3], "+500+500")
-  # 
-  # magick::image_write(notsupport, path = "inst/extdata/icons/square-ns.png")
-  # 
+  #
+  # magick::image_write(notsupport, path = "vignettes/images/icons/square-ns.png")
+  #
   # fullsupport <- magick::image_fill(square, tada.pal[4], "+500+500")
-  # 
-  # magick::image_write(fullsupport, path = "inst/extdata/icons/square-fs.png")
-  # 
+  #
+  # magick::image_write(fullsupport, path = "vignettes/images/icons/square-fs.png")
+  #
   # notassessed <- magick::image_fill(square, tada.pal[7], "+500+500")
-  # 
-  # magick::image_write(notassessed, path = "inst/extdata/icons/square-na.png")
-  # 
-  # outline.square <- magick::image_read("inst/extdata/icons/square-regular-full.png")
-  # 
+  #
+  # magick::image_write(notassessed, path = "vignettes/images/icons/square-na.png")
+  #
+  # outline.square <- magick::image_read("vignettes/images/icons/square-regular-full.png")
+  #
   # catchment <- magick::image_fill(outline.square, "black", "+500+500")
-  # 
-  # magick::image_write(catchment, path = "inst/extdata/icons/square-catchment.png")
+  #
+  # magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
 
   # Define the paths to the images
   images <- c(
-    "inst/extdata/icons/square-ns.png",
-    "inst/extdata/icons/square-fs.png",
-    "inst/extdata/icons/square-na.png",
-    "inst/extdata/icons/circle-solid-full.png",
-    "inst/extdata/icons/square-catchment-gray.png",
-    "inst/extdata/icons/square-catchment.png"
+    "vignettes/images/icons/square-ns.png",
+    "vignettes/images/icons/square-fs.png",
+    "vignettes/images/icons/square-na.png",
+    "vignettes/images/icons/circle-solid-full.png",
+    "vignettes/images/icons/square-catchment-gray.png",
+    "vignettes/images/icons/square-catchment.png"
   )
-  
+
   # Check if all image paths exist
   for (path in images) {
     if (!file.exists(path)) {
       stop(sprintf("Image file not found: %s", path))
     }
   }
-  
+
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
   missing_raw_features <- NULL
@@ -2463,9 +2463,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # Make a list of icons. We'll index into it based on name.
       refIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "inst/extdata/icons/circle-check-solid-full.svg",
-          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "inst/extdata/icons/circle-solid-full.svg",
-          sumdat$TADA.AURefSource == "User-supplied Ref" ~ "inst/extdata/icons/circle-user-solid-full.svg"
+          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "vignettes/images/icons/circle-check-solid-full.svg",
+          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "vignettes/images/icons/circle-solid-full.svg",
+          sumdat$TADA.AURefSource == "User-supplied Ref" ~ "vignettes/images/icons/circle-user-solid-full.svg"
         ),
         iconWidth = 24,
         iconHeight = 24
@@ -2483,8 +2483,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
       images.ref <- c(
         images[1:3],
-        "inst/extdata/icons/circle-user-solid-full.png",
-        "inst/extdata/icons/circle-check-solid-full.png",
+        "vignettes/images/icons/circle-user-solid-full.png",
+        "vignettes/images/icons/circle-check-solid-full.png",
         images[4:5]
       )
 
@@ -2501,7 +2501,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
       refIcons <- leaflet::icons(
-        iconUrl = "inst/extdata/icons/circle-solid-full.svg",
+        iconUrl = "vignettes/images/icons/circle-solid-full.svg",
         iconWidth = 24,
         iconHeight = 24
       )
@@ -3295,13 +3295,13 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param.
-#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based 
+#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
 #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
-#' with entity submitted assessment unit features - points, lines, and polygons) 
-#' should be queried and downloaded for the assessment units included in the 
-#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data 
+#' with entity submitted assessment unit features - points, lines, and polygons)
+#' should be queried and downloaded for the assessment units included in the
+#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
 #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
-#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the 
+#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #' @param fill_USGS_catch Boolean argument. Whether the user would like to return
 #' NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
@@ -3333,7 +3333,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'          [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
 #' @export
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Load the example data
@@ -3382,12 +3382,12 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' print(result$ATTAINS_catchments)
 #' print(result$ATTAINS_batchupload)
 #' }
-#' 
+#'
 TADA_CreateAUMLCrosswalk <- function(.data,
                                      au_ref = NULL,
-                                     org_id = NULL, 
+                                     org_id = NULL,
                                      fill_ATTAINS_catch = FALSE,
-                                     fill_USGS_catch = FALSE, 
+                                     fill_USGS_catch = FALSE,
                                      return_nearest = TRUE,
                                      batch_upload = TRUE) {
   # check to see if user supplied ref is NULL
