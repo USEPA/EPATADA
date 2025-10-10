@@ -14,7 +14,15 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repo (existing branch)
+        uses: actions/checkout@v4
+        id: bad-checkout
+        continue-on-error: true
+        with:
+          ref: maintenance-branch
+        # If the first checkout fails, we checkout the `main` branch by default
+      - name: Fallback to main branch
+        if: steps.bad-checkout.outcome == 'failure'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
