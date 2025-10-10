@@ -5,6 +5,7 @@ author: "TADA Team"
 date: "`r Sys.Date()`"
 output:
   rmarkdown::html_vignette:
+    self_contained: false
     toc: true
     fig_caption: yes
     fig_height: 8
@@ -271,7 +272,7 @@ subset a few rows to create an example user-supplied ATTAINS Assessment
 Unit and WQP Monitoring Location crosswalk for demonstration purposes.
 If you have your own crosswalk, this step can be skipped.
 
-```{r demo.user, results = 'hide', eval = T}
+```{r demo.user, results = 'hide', eval = F}
 # review valid ATTAINS org IDs
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
@@ -311,7 +312,7 @@ rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 
 ## Run `TADA_CreateAUMLCrosswalk`
 
-```{r TADA_CreateAUMLCrosswalk, eval = T}
+```{r TADA_CreateAUMLCrosswalk, eval = F}
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
@@ -682,3 +683,4 @@ Assessment Units. By systematically guiding users through the creation
 of crosswalks, map reviews, data submission, and use assignments, this
 workflow supports efficient data management and improves
 reproducibility.
+
