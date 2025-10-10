@@ -28,7 +28,8 @@ knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE, 
-  eval = T)
+  eval = T,
+  dev.args = list(bg = "transparent"))
 ```
 
 # Overview and Setup

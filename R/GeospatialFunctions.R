@@ -2233,6 +2233,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     system.file("extdata/icons", "square-fs.png", package = "EPATADA"),
     system.file("extdata/icons", "square-na.png", package = "EPATADA"),
     system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
+    system.file("extdata/icons", "circle-check-solid.png", package = "EPATADA"),
+    system.file("extdata/icons", "circle-user-solid.png", package = "EPATADA"),
     system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
     system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
   )
