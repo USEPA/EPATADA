@@ -2229,12 +2229,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   # Define the paths to the images
   images <- c(
-    "vignettes/images/icons/square-ns.png",
-    "vignettes/images/icons/square-fs.png",
-    "vignettes/images/icons/square-na.png",
-    "vignettes/images/icons/circle-solid-full.png",
-    "vignettes/images/icons/square-catchment-gray.png",
-    "vignettes/images/icons/square-catchment.png"
+    system.file("extdata/icons", "square-ns.png", package = "EPATADA"),
+    system.file("extdata/icons", "square-fs.png", package = "EPATADA"),
+    system.file("extdata/icons", "square-na.png", package = "EPATADA"),
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
+    system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
   )
 
   # Check if all image paths exist
@@ -2463,9 +2463,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # Make a list of icons. We'll index into it based on name.
       refIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ "vignettes/images/icons/circle-check-solid-full.svg",
-          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ "vignettes/images/icons/circle-solid-full.svg",
-          sumdat$TADA.AURefSource == "User-supplied Ref" ~ "vignettes/images/icons/circle-user-solid-full.svg"
+          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ system.file("extdata/icons", "circle-check-solid-full.svg", package = "EPATADA"),
+          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
+          sumdat$TADA.AURefSource == "User-supplied Ref" ~ system.file("extdata/icons", "circle-user-solid-full.svg", package = "EPATADA")
         ),
         iconWidth = 24,
         iconHeight = 24
@@ -2483,8 +2483,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
       images.ref <- c(
         images[1:3],
-        "vignettes/images/icons/circle-user-solid-full.png",
-        "vignettes/images/icons/circle-check-solid-full.png",
+        system.file("extdata/icons", "circle-user-solid-full.png", package = "EPATADA"),
+        system.file("extdata/icons", "circle-check-solid-full.png", package = "EPATADA"),
         images[4:5]
       )
 
@@ -2501,7 +2501,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
       refIcons <- leaflet::icons(
-        iconUrl = "vignettes/images/icons/circle-solid-full.svg",
+        iconUrl = system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
         iconWidth = 24,
         iconHeight = 24
       )
