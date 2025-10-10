@@ -1651,7 +1651,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Basic usage with default settings
+#' # Example 1: Basic use with default settings
 #' # Assume my_data is a TADA data frame with some monitoring
 #' # location results
 #' # Assume my_au_ref is a data frame containing known AU and monitoring
@@ -3332,12 +3332,14 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'          [TADA_GetATTAINSAUMLCrosswalk()]
 #'          [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
+#' @export
+#' 
 #' @examples
 #' \dontrun{
 #' # Load the example data
 #' utils::data(Data_MT_MissoulaCounty)
 #'
-#' # Example 1: Basic usage with default settings
+#' # Example 1: Basic use with default settings
 #' result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
 #'
 #' # Example 2: Using a user-supplied crosswalk
@@ -3381,8 +3383,6 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' print(result$ATTAINS_batchupload)
 #' }
 #' 
-#' @export
-#'
 TADA_CreateAUMLCrosswalk <- function(.data,
                                      au_ref = NULL,
                                      org_id = NULL, 

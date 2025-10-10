@@ -256,7 +256,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     # default, runs all reference tables with no user edits
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
     # if (updateRef == "none") {
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment."))
+    print(paste0("auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment."))
     suppressMessages(
       TADA_ParamRef <- TADA_CreateParamRef(
         .data,
@@ -266,7 +266,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       )
     )
 
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment."))
+    print(paste0("auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment."))
     suppressWarnings(
       TADA_UseParamRef <- TADA_CreateUseParamRef(
         .data,
@@ -277,7 +277,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       )
     )
 
-    message(paste0("auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."))
+    print(paste0("auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."))
     suppressMessages(
       MLSummaryRef <- TADA_CreateMLSummaryRef(
         .data,

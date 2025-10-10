@@ -202,7 +202,7 @@ limited.
 **Note:** USGS and EPA are working together to create WQP 3.0 data
 profiles. Once released, one data profile will contain the columns
 critical to TADA, removing the need to combine profiles. TADA package
-users likely will not notice a difference in their usage of the
+users likely will not notice a difference in their use of the
 **TADA_DataRetrieval** function, but it will simplify the steps needed
 to upload a custom or WQP GUI-downloaded data set into the R package.
 

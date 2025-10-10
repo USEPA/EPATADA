@@ -1652,8 +1652,8 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
     # therefore we will allow users to proceed in this case.
     if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
       warning(paste0(
-        "No values were found in ATTAINS.ParameterName.",
-        "Please ensure that you have inputted all field values of interest in the",
+        "No values were found in ATTAINS.ParameterName. ",
+        "Please ensure that you have inputted all field values of interest in the ",
         "ATTAINS.ParameterName column generated from TADA_CreateParamRef() function."
       ))
     }
@@ -1876,7 +1876,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         print("IncludeOrExclude was not found as a column name in your user supplied, assuming all parameter and uses are applicable for your analysis.")
         useParamRef <- useParamRef %>%
           dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %>%
-          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName")) %>%
+          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), relationship = "many-to-many") %>%
           dplyr::mutate(IncludeOrExclude = "Include")
       }
 
@@ -1926,9 +1926,11 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
                 c(
                   "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude",
                   "ATTAINS.ParameterName", "ATTAINS.UseName"
-                )
+                ),
+              relationship = "many-to-many"
             ),
-          by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.ParameterName", "ATTAINS.UseName")
+          by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "IncludeOrExclude", "ATTAINS.ParameterName", "ATTAINS.UseName"),
+          relationship = "many-to-many"
         ) %>%
         dplyr::mutate(ATTAINS.FlagUseName = dplyr::case_when(
           is.na(ATTAINS.UseName) ~

@@ -7,9 +7,6 @@
 \format{
 A data frame with 48 rows and 6 variables.
 }
-\usage{
-utils::data(Data_MT.UseAURef_Water)
-}
 \description{
 Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and
 ExampleMod3Workflow.Rmd

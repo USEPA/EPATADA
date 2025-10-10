@@ -99,7 +99,6 @@ Suggests:
     knitr,
     testthat,
     testthis,
-    usethis,
     devtools,
     pkgdown,
     spelling,

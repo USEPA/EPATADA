@@ -27,8 +27,6 @@
 #'   \item Tribal geospatial layers
 #' }
 #'
-#' @usage .TADA_UpdateRefFiles()
-#'
 #' @return 
 #' This function does not return any value. It performs updates as a side effect.
 #'
@@ -90,9 +88,6 @@
 #' harmonized datasets, and more.
 #'
 #' @return None. The function saves processed data files in the package's `data/` directory.
-#'
-#' @importFrom usethis use_data
-#' @importFrom dplyr filter select rename bind_rows
 #'
 #' @examples
 #' \dontrun{
@@ -250,7 +245,7 @@
       endDate = "2022-12-31",
       statecode = "MT",
       characteristicName = c("Escherichia", "Escherichia coli", "pH"),
-      county = "Missoula County",
+      countycode = "Missoula County",
       ask = FALSE
     ) %>%
       TADA_RunKeyFlagFunctions() %>%

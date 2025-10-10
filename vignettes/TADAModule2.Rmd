@@ -181,7 +181,7 @@ utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 #     "Escherichia coli",
 #     "pH"
 #   ),
-#   county = "Missoula County",
+#   countycode = "Missoula County",
 #   ask = FALSE
 # )
 # 
