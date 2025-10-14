@@ -9,7 +9,7 @@ TADA_CreateParamRef(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  auto_assign = "None",
+  auto_assign = c("None", "All", "Org"),
   excel = FALSE,
   overwrite = FALSE
 )

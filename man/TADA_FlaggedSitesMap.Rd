@@ -27,8 +27,8 @@ Create Flagged Sites Map
 \examples{
 \dontrun{
 # Load example dataframe:
-data(Data_Nutrients_UT)
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_Nutrients_UT)
+utils::data(Data_6Tribes_5y_Harmonized)
 
 # Create maps:
 TADA_FlaggedSitesMap(Data_Nutrients_UT)

@@ -22,7 +22,7 @@ getLayer is used within TADA_addPolys and TADA_addPoints
 \examples{
 \dontrun{
 # Load example dataset
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(

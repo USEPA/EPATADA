@@ -44,7 +44,7 @@ pre[class] {
 
 ## Overview
 
-This vignette walks through how to use the EPATADA R Package to discover
+This vignette walks through how to use the TADA R Package to discover
 and clean (i.e., wrangle, Quality Assure and Quality Control (QAQC), and
 harmonize) [Water Quality Portal
 (WQP)](https://www.waterqualitydata.us/) data from multiple
@@ -79,7 +79,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "combined-review",
   dependencies = TRUE
 )
 ```
@@ -541,7 +541,7 @@ reduce the risk of leaving out usable data/sites.
 
 Allowable values for clean_outsideUSA are "no", "remove", or "change
 sign". The default is "no" which flags latitude and longitude
-coordinates outside the USA. Assigning clean_ousideUSA = "remove" will
+coordinates outside the USA. Assigning clean_outsideUSA = "remove" will
 remove rows of data with coordinates outside the USA. And assigning
 clean_outsideUSA = "change sign" will flip the sign of latitude or
 longitude coordinates flagged as outside the USA. The "change sign"
@@ -1181,7 +1181,7 @@ categorized.
 
 The **TADA_SimpleCensoredMethods** function also adds a
 *TADA.MeasureQualifierCode.Def* column which contains the
-*MeasureQualiferCode* concatenated with the WQX definition for each
+*MeasureQualifierCode* concatenated with the WQX definition for each
 qualifier code. This provides additional information to the user which
 may assist in deciding which records to retain for analysis.
 
@@ -1225,8 +1225,9 @@ Count how many NA's remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-Filter down to only include data that is numeric in the `TADA.ResultMeasureValue` column. This removes data where the `TADA.ResultMeasureValueDataTypes.Flag` = `Text` or 
-`NA - Not Available`.
+Filter down to only include data that is numeric in the
+"TADA.ResultMeasureValue" column. This removes data where the
+TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
 
 ```{r filter_out_NAs}
 TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)

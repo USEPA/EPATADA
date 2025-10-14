@@ -56,7 +56,7 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Flag, but do not remove, data with Suspect coordinates in new column
 # titled "TADA.SuspectCoordinates.Flag":

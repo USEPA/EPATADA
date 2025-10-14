@@ -1,8 +1,8 @@
 #' TADA_AutoClean
 #'
-#' This function performs several cleaning tasks on a TADA dataframe.
+#' This function performs several cleaning tasks on a TADA dataframe:
 #'
-#' **Column Creation and Capitalization**: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with USGS data and the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
+#' 1. **Column Creation and Capitalization**: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
 #'    - CharacteristicName
 #'    - ResultSampleFractionText
 #'    - MethodSpeciationName
@@ -10,43 +10,42 @@
 #'    - ActivityMediaName
 #'    - DetectionQuantitationLimitMeasure.MeasureUnitCode
 #'
-#' **Special Character Conversion**: Runs `TADA_ConvertSpecialChars` on the following columns and creates new versions with the TADA prefix:
+#' 2. **Special Character Conversion**: Runs `TADA_ConvertSpecialChars` on the following columns and creates new versions with the TADA prefix:
 #'    - ResultMeasureValue
 #'    - DetectionQuantitationLimitMeasure.MeasureValue
 #'
-#' **Latitude and Longitude Conversion**: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
+#' 3. **Latitude and Longitude Conversion**: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
 #'
-#' **Unit Code Replacement**: Replaces `meters` with `m` in the following columns:
+#' 4. **Unit Code Replacement**: Replaces `meters` with `m` in the following columns:
 #'    - TADA.ResultMeasure.MeasureUnitCode
 #'    - ActivityDepthHeightMeasure.MeasureUnitCode
 #'    - ActivityTopDepthHeightMeasure.MeasureUnitCode
 #'    - ActivityBottomDepthHeightMeasure.MeasureUnitCode
 #'    - ResultDepthHeightMeasure.MeasureUnitCode
 #'
-#' **Deprecated Characteristic Replacement**: Runs `TADA_SubstituteDeprecatedChars` to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
+#' 5. **Deprecated Characteristic Replacement**: Runs `TADA_SubstituteDeprecatedChars` to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
 #'
-#' **Result Unit Harmonization**: Runs `TADA_ConvertResultUnits` to harmonize
-#'  result and detection limit units to WQX and TADA target units.
-#'  For more details, including how to convert units to user supplied targets,
-#'  see `?TADA_ConvertResultUnits` and `?TADA_CreateUnitRef()`.
+#' 6. **Result Unit Harmonization**: Runs `TADA_ConvertResultUnits` to harmonize
+#'  result and detection limit units to WQX and TADA or user-supplied target units.
+#'  For more details, see `?TADA_ConvertResultUnits` and `?TADA_CreateUnitRef()`.
 #'
-#' **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert depth
+#' 7. **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert depth
 #' units to meters on the following columns, adding new columns with the TADA prefix:
 #'    - ResultDepthHeightMeasure.MeasureValue
 #'    - ActivityDepthHeightMeasure.MeasureValue
 #'    - ActivityTopDepthHeightMeasure.MeasureValue
 #'    - ActivityBottomDepthHeightMeasure.MeasureValue
 #'
-#' **Comparable ID Creation**: Runs `TADA_CreateComparableID` to create a
-#' `TADA.ComparableDataIdentifier` by concatenating:
+#' 8. **Comparable ID Creation**: Runs `TADA_CreateComparableID` to create a
+#' comparable data group by concatenating:
 #'    - TADA.CharacteristicName
 #'    - TADA.ResultSampleFractionText
 #'    - TADA.MethodSpeciationName
 #'    - TADA.ResultMeasure.MeasureUnitCode
 #'
 #' Original columns are not changed. New columns are appended to the dataframe
-#' with the prefix `TADA`. `TADA_AutoClean` can be run as a standalone function
-#' but is primarily used by the `TADA_dataRetrieval` function.
+#' with the prefix `TADA.`. `TADA_AutoClean` can be run as a standalone function
+#'  but is primarily used by the `TADA_dataRetrieval` function.
 #'
 #' @param .data TADA dataframe
 #'
@@ -129,7 +128,7 @@
 #' # Run TADA_AutoClean
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
-#'
+#' 
 TADA_AutoClean <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -356,14 +355,11 @@ TADA_AutoClean <- function(.data) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' # Run flagging functions but keep all results
 #' keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
 #'
 #' # Run flagging functions and remove and suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
-#' }
-#'
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")

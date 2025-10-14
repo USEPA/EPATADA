@@ -27,7 +27,7 @@ unique value count.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # Count table of key fields in Data_Nutrients_UT dataset
 fieldCountUT <- TADA_FieldCounts(Data_Nutrients_UT)
 # Count table of most fields in Data_Nutrients_UT, filtered to only

@@ -19,7 +19,7 @@ Get bounding box JSON
 \examples{
 \dontrun{
 # Load example dataset
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(

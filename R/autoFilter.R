@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Count table of key fields in Data_Nutrients_UT dataset
 #' fieldCountUT <- TADA_FieldCounts(Data_Nutrients_UT)
 #' # Count table of most fields in Data_Nutrients_UT, filtered to only
@@ -182,7 +182,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
@@ -276,7 +276,7 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #'
 #' @examples
 #' \dontrun{
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
 #' Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
 #'   clean = TRUE,

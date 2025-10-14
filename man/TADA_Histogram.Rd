@@ -30,7 +30,7 @@ Create Histogram(s)
 }
 \examples{
 # Load example dataframe:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 
 # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
@@ -49,7 +49,7 @@ TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataframe:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
   id_cols = c(
     "TADA.ComparableDataIdentifier",

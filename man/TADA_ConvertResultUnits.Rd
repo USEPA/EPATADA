@@ -20,7 +20,7 @@ units (where applicable) which applies targets at the characteristic level,
 with any other units assigned by WQX unit reference (at the unit level).
 The default is ref = "tada".}
 
-\item{transform}{Boolean argument with two possible values (TRUE or FALSE).
+\item{transform}{Boolean argument with two possible values, “TRUE” and “FALSE”.
 Default is transform = TRUE. When transform = TRUE, result values and units,
 and detection quantitation limit value and units are converted to TADA target units.
 This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
@@ -70,7 +70,7 @@ those with speciation in units.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
 # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
