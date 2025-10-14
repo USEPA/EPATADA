@@ -27,8 +27,7 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE,
-  eval = F
+  message = FALSE
 )
 ```
 
@@ -85,42 +84,35 @@ page on the TADA GitHub site for guidance on collaboration conventions.
 ## Install and setup
 
 Users can install the TADA package from GitHub into their R library
-using the `remotes` package. Copy and paste the code below into your R
-or RStudio console to download and install.
+using the `remotes` package.
 
-```{r install_remotes, results = 'hide', eval = F}
+```{r install_remotes, results = 'hide'}
 if (!"remotes" %in% installed.packages()) {
   install.packages("remotes")
 }
+```
 
+Load the remotes library:
+
+```{r}
 library(remotes)
 ```
 
-TADA package relies on other packages, therefore you may be prompted in
-the console to update dependency packages that have more recent versions
-available. If you see this prompt, it is recommended to update all of
-them (enter 1 into the console).
+The EPATADA R package relies on other packages, therefore you may be
+prompted in the console to update dependency packages that have more
+recent versions available. If you see this prompt, it is recommended to
+update all of them (enter 1 into the console).
 
-The most stable branch for TADA right now is the develop branch.
-Contributors generally create their own branches based on develop, make
-some improvements, and then submit a pull request to be reviewed by the
-TADA Team. Once approved, updates are then merged into the develop
-branch. However, you are welcome to download any branch you'd like using
-the `ref` input in `install_github` (see code chunk below). This
-functionality is mainly only useful to TADA package
-developers/contributors.
-
-```{r install_TADA_dev, include = F}
-# helps with development (knit and checks), this chunk should not appear on the pkgdown website
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
 ```
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA_dev, results = 'hide', include = FALSE}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "Create-Module-3-AURef",
   dependencies = TRUE
 )
 ```
@@ -139,11 +131,15 @@ the code in this RMarkdown document are loaded. However, users may also
 use the `package name:: package function` notation to avoid the list of
 `library()` calls.
 
-```{r setup, eval = F, results = 'hide'}
+```{r setup, results = 'hide'}
 if (!"tidyverse" %in% installed.packages()) {
   install.packages("tidyverse")
 }
+```
 
+Load tidyverse library:
+
+```{r tidyverse}
 library(tidyverse)
 ```
 
@@ -173,14 +169,18 @@ WQP profiles.
 
 If you are interested in reviewing the column headers and formats
 required to run TADA, use the function below, which saves an example
-spreadsheet to the user's working directory. You can also take a look at
-an example dataframe, like `Data_Nutrients_UT` to get an idea of the
-data structure and format.
+spreadsheet to the user's working directory.
 
-```{r template}
+```{r template, eval = F}
 getwd() # find your working directory
 template <- TADA_GetTemplate() # download template to working directory
+```
 
+You can also take a look at an example dataframe, like
+`Data_Nutrients_UT` to get an idea of the data structure and format.
+
+```{r UT example data}
+utils::data(Data_Nutrients_UT)
 # review example dataframe
 exampledata_Nutrients_UT <- Data_Nutrients_UT
 ```
@@ -245,9 +245,8 @@ profiles. Once released (coming in 2025), one data profile will contain
 the columns critical to TADA, removing the need to combine profiles in
 this first step. This will simplify the steps needed to upload a custom
 or WQP GUI-downloaded dataframe into the R package. However, column
-names are changing in the new WQP 3.0 data profiles. This may impact
-TADA package users usage of the `TADA_DataRetrieval` function in their
-workflows. The WQP and TADA teams are available to assist with cross
+names are changing in the new WQP 3.0 data profiles. This will impact
+the `TADA_DataRetrieval` function. The WQP and TADA teams are available to assist with cross
 walking the old to new column names when the time comes.
 
 ## Initial data review

@@ -3,9 +3,6 @@
 \name{\%>\%}
 \alias{\%>\%}
 \title{Pipe Operator}
-\usage{
-lhs \%>\% rhs
-}
 \arguments{
 \item{lhs}{A value or the magrittr placeholder, representing the initial input to the pipeline.}
 
@@ -16,16 +13,6 @@ The result of evaluating \code{rhs(lhs)}, enabling seamless chaining of operatio
 }
 \description{
 The pipe operator (\verb{\%>\%}) is a powerful tool for chaining operations in a readable and concise manner.
-It allows you to pass the left-hand side (\code{lhs}) value into the right-hand side (\code{rhs}) function call.
-For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
-}
-\examples{
-# Example: Using the pipe operator to transform data
-library(magrittr)
-result <- iris \%>\%
-  head(10) \%>\%
-  subset(Species == "setosa") \%>\%
-  summary()
-print(result)
+For detailed information, refer to magrittr:pipe()
 }
 \keyword{internal}

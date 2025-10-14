@@ -12,7 +12,7 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteEncoding{UTF-8}
-  %\VignetteIndexEntry{WQX3-Migration}
+  %\VignetteIndexEntry{WQX 3.0 Migration}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options:
   chunk_output_type: console
@@ -23,8 +23,7 @@ editor_options:
 ```{r setup, include = F}
 knitr::opts_chunk$set(
   echo = TRUE,
-  warning = FALSE,
-  eval = F
+  warning = FALSE
 )
 ```
 

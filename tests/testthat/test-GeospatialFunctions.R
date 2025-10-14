@@ -123,7 +123,7 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
 
 testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
   testthat::expect_error(
-    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "Invalid", return_sf = FALSE),
+    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_USGS_catch = TRUE, resolution = "Invalid", return_sf = FALSE),
     "User-supplied resolution unavailable"
   )
 })

@@ -32,7 +32,7 @@ Create Scatterplot(s)
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 
 # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 # in the input dataframe:
@@ -53,7 +53,7 @@ TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLoc
 # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 )

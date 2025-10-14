@@ -24,7 +24,7 @@
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
 #'   Data_6Tribes_5y_Harmonized,
@@ -50,7 +50,7 @@
 #' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
 #'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 #' )
@@ -212,7 +212,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' @examples
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
@@ -231,7 +231,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
 #'   id_cols = c(
 #'     "TADA.ComparableDataIdentifier",
@@ -398,8 +398,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
@@ -589,8 +589,8 @@ TADA_OverviewMap <- function(.data) {
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_FlaggedSitesMap(Data_Nutrients_UT)
@@ -654,7 +654,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #'
 #' # Create maps:
@@ -744,7 +744,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
@@ -837,7 +837,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
@@ -858,7 +858,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
 #'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 #' )
@@ -1019,7 +1019,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
 #'   id_cols = "TADA.ComparableDataIdentifier",
@@ -1030,7 +1030,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' )
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
@@ -1273,7 +1273,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # UT Nutrients results grouped by county
 #' # transform non-detect data
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
@@ -1287,7 +1287,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' UT_Nutrients_by_CountyCode[[4]]
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Filter the example data so it includes only one
 #' # TADA.ComparableDataIdentifier

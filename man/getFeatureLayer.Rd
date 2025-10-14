@@ -22,7 +22,7 @@ getFeatureLayer is used by writeLayer to write feature layers to local files
 \examples{
 \dontrun{
 # Load example dataset
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(

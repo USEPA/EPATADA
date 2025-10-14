@@ -37,7 +37,7 @@
 #' @examples
 #' \dontrun{
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
 #' Data_6Tribes_5yClean <- subset(
@@ -301,7 +301,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' @export
 #'
 #' @examples
-#' \dontrun{
 #' df <- TADA_DataRetrieval(
 #'   statecode = "UT", startDate = "2024-06-01",
 #'   endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
@@ -318,7 +317,6 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' df2 <- TADA_HarmonizeSynonyms(df2)
 #'
 #' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-#' }
 #'
 TADA_CalculateTotalNP <- function(.data,
                                   sum_ref,
@@ -544,24 +542,21 @@ TADA_CalculateTotalNP <- function(.data,
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
 
-  # Move forward with this subset of data (dat_TNTP)
-  # Define the valid flags for aggregation
-  valid_flags <- c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
-  
-  # Check if the flag column exists in the data frame and if any rows match the condition
-  if ("TADA.ResultValueAggregation.Flag" %in% names(dat) && any(dat$TADA.ResultValueAggregation.Flag %in% valid_flags)) {
-    # Filter rows based on valid flags
-    matching_rows <- dat$TADA.ResultValueAggregation.Flag %in% valid_flags
-    
-    # Filter the data
+  # move forward with only max values selected for each grouping (dat_TNTP)
+  # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
+  # no longer need "Considered in max aggregation function but not selected"
+  # Define the condition for filtering
+  matching_rows <- dat$TADA.ResultValueAggregation.Flag %in%
+    c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
+  # Check if matching_rows is not empty
+  if (length(matching_rows) > 0) {
+    # Filter dat based on the condition
     dat_TNTP <- dat[matching_rows, ]
   } else {
-    # Handle the case where the column does not exist or no rows match the condition
+    # Stop function execution and return a message
     message("There is no applicable data to calculate TN or TP. Returning data unchanged.")
-    return(.data)  # Stop execution and return the original data
+    return(.data)
   }
-  
-  # If execution reaches here, dat_TNTP contains the filtered data
 
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)
@@ -782,7 +777,7 @@ TADA_CalculateTotalNP <- function(.data,
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Select maximum value per day, site, comparable data identifier,
 #' # unit, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.

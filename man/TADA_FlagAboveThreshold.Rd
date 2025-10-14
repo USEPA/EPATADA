@@ -16,9 +16,9 @@ threshold from the dataframe when clean = TRUE. Default is clean = FALSE.}
 flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.}
 }
 \value{
-The input TADA dataset with the added \code{TADA.ResultValueAboveUpperThreshold.Flag}
-column which is populated with the values: \code{Pass}, \code{Suspect}, \verb{Not Reviewed}, or
-\verb{NA - Not Available}. Defaults are clean = FALSE and flaggedonly = FALSE.
+The input TADA dataset with the added "TADA.ResultValueAboveUpperThreshold.Flag"
+column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
+"NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 When clean = FALSE and flaggedonly = TRUE, the dataframe
 is filtered to show only data found above the WQX threshold. When clean = TRUE
 and flaggedonly = FALSE, rows with values that are above the upper WQX threshold
@@ -42,13 +42,13 @@ column is appended. When clean = TRUE and and flaggedonly = TRUE, the function
 is not executed and an error message is returned. Defaults are clean = FALSE
 and flaggedonly = FALSE.
 
-This function will add the column \code{TADA.ResultValueAboveUpperThreshold.Flag} which
-will be populated with the values: \code{Pass}, \code{Suspect}, \verb{Not Reviewed},
-or \verb{NA - Not Available}. The \verb{Not Reviewed} value means that the EPA WQX team
+This function will add the column "TADA.ResultValueAboveUpperThreshold.Flag" which
+will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+"NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 has not yet reviewed the range yet for the characteristic and unit combination combination
 in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-The WQX team plans to review and update these new combinations quarterly.
-The \verb{NA - Not Available} flag means that the characteristic, media, and/or unit combination
+The WQX team plans to review and update these new combinations quarterly. The
+"NA - Not Available" flag means that the characteristic, media, and/or unit combination
 for that row is not fully populated (is NA or does not match the WQX data standard)
 or the result value is NA.
 
@@ -57,7 +57,7 @@ the flag column will be deleted and regenerated.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Remove data that is above the upper WQX threshold from dataframe:
 WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
@@ -66,7 +66,7 @@ WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
 )
 
 # Flag, but do not remove, data that is above the upper WQX threshold in
-# new column titled `TADA.ResultValueAboveUpperThreshold.Flag`:
+# new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
   Data_Nutrients_UT,
   clean = FALSE

@@ -46,7 +46,7 @@ before the unit reference dataframe is created.
 \examples{
 
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Create a unit reference dataframe
 UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)

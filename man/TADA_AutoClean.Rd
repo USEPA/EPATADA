@@ -49,10 +49,11 @@ with a numeric value. If all depth columns contain only NA's, no conversion
 is necessary and no TADA depth columns are created.
 }
 \description{
-This function performs several cleaning tasks on a TADA dataframe.
+This function performs several cleaning tasks on a TADA dataframe:
 }
 \details{
-\strong{Column Creation and Capitalization}: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with USGS data and the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
+\enumerate{
+\item \strong{Column Creation and Capitalization}: Creates new columns with the TADA prefix "TADA." and capitalizes all letters within them for interoperability with the WQX validation reference tables, reducing case-sensitivity issues when joining data. Affected columns include:
 \itemize{
 \item CharacteristicName
 \item ResultSampleFractionText
@@ -61,16 +62,13 @@ This function performs several cleaning tasks on a TADA dataframe.
 \item ActivityMediaName
 \item DetectionQuantitationLimitMeasure.MeasureUnitCode
 }
-
-\strong{Special Character Conversion}: Runs \code{TADA_ConvertSpecialChars} on the following columns and creates new versions with the TADA prefix:
+\item \strong{Special Character Conversion}: Runs \code{TADA_ConvertSpecialChars} on the following columns and creates new versions with the TADA prefix:
 \itemize{
 \item ResultMeasureValue
 \item DetectionQuantitationLimitMeasure.MeasureValue
 }
-
-\strong{Latitude and Longitude Conversion}: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
-
-\strong{Unit Code Replacement}: Replaces \code{meters} with \code{m} in the following columns:
+\item \strong{Latitude and Longitude Conversion}: Converts the column type of LatitudeMeasure and LongitudeMeasure to numeric (double) and creates new columns with the TADA prefix.
+\item \strong{Unit Code Replacement}: Replaces \code{meters} with \code{m} in the following columns:
 \itemize{
 \item TADA.ResultMeasure.MeasureUnitCode
 \item ActivityDepthHeightMeasure.MeasureUnitCode
@@ -78,15 +76,11 @@ This function performs several cleaning tasks on a TADA dataframe.
 \item ActivityBottomDepthHeightMeasure.MeasureUnitCode
 \item ResultDepthHeightMeasure.MeasureUnitCode
 }
-
-\strong{Deprecated Characteristic Replacement}: Runs \code{TADA_SubstituteDeprecatedChars} to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
-
-\strong{Result Unit Harmonization}: Runs \code{TADA_ConvertResultUnits} to harmonize
-result and detection limit units to WQX and TADA target units.
-For more details, including how to convert units to user supplied targets,
-see \code{?TADA_ConvertResultUnits} and \code{?TADA_CreateUnitRef()}.
-
-\strong{Depth Unit Conversion}: Runs \code{TADA_ConvertDepthUnits} to convert depth
+\item \strong{Deprecated Characteristic Replacement}: Runs \code{TADA_SubstituteDeprecatedChars} to replace deprecated characteristic names based on the Water Quality Exchange (WQX) Characteristic domain table.
+\item \strong{Result Unit Harmonization}: Runs \code{TADA_ConvertResultUnits} to harmonize
+result and detection limit units to WQX and TADA or user-supplied target units.
+For more details, see \code{?TADA_ConvertResultUnits} and \code{?TADA_CreateUnitRef()}.
+\item \strong{Depth Unit Conversion}: Runs \code{TADA_ConvertDepthUnits} to convert depth
 units to meters on the following columns, adding new columns with the TADA prefix:
 \itemize{
 \item ResultDepthHeightMeasure.MeasureValue
@@ -94,18 +88,18 @@ units to meters on the following columns, adding new columns with the TADA prefi
 \item ActivityTopDepthHeightMeasure.MeasureValue
 \item ActivityBottomDepthHeightMeasure.MeasureValue
 }
-
-\strong{Comparable ID Creation}: Runs \code{TADA_CreateComparableID} to create a
-\code{TADA.ComparableDataIdentifier} by concatenating:
+\item \strong{Comparable ID Creation}: Runs \code{TADA_CreateComparableID} to create a
+comparable data group by concatenating:
 \itemize{
 \item TADA.CharacteristicName
 \item TADA.ResultSampleFractionText
 \item TADA.MethodSpeciationName
 \item TADA.ResultMeasure.MeasureUnitCode
 }
+}
 
 Original columns are not changed. New columns are appended to the dataframe
-with the prefix \code{TADA}. \code{TADA_AutoClean} can be run as a standalone function
+with the prefix \code{TADA.}. \code{TADA_AutoClean} can be run as a standalone function
 but is primarily used by the \code{TADA_dataRetrieval} function.
 }
 \examples{

@@ -109,11 +109,10 @@ can also access function help pages from RStudio by entering
 # Introduction to TADA Module 3
 
 This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS or Criteria Search Tool data
-crosswalks that are needed prior to defining and capturing organization
-specific water quality analysis criteria and methodologies. It is the
-first of several vignettes that are being developed as part of TADA
-Module 3.
+users through how to create WQP and ATTAINS crosswalks that are needed
+prior to defining and capturing organization specific water quality
+analysis criteria and methodologies. It is the first of several
+vignettes that are being developed as part of TADA Module 3.
 
 Specifically, this vignette provides an overview of two functions that
 can assist users with:
@@ -124,11 +123,6 @@ can assist users with:
 -   Creating a crosswalk (reference table) of all unique combinations of
     ATTAINS uses and parameters applicable to ATTAINS Assessment Units
     of interest.
-
--   Creating a crosswalk (reference table) between the EPA Criteria
-    Search Tool (CST) parameter names and WQP/TADA characteristic names.
-    This enables incorporating EPA national recommended Clean Water Act
-    (CWA) 304(a) numeric criteria.
 
 These Module 3 functions are being designed with the flexibility for
 users from states, tribes, or territories to input organization-specific
@@ -446,10 +440,10 @@ ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.
 
 In the example below, we can see only "ZINC" and "NITROGEN, TOTAL" were
-the ATTAINS.ParameterNames done in prior assessment cycles for MDE_EASP
-(see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was not
-listed in ATTAINS for MDE_EASP in the prior assessment cycle, but was
-included in MDE_EASP paramRef argument input.
+the ATTAINS.ParameterNames assessed in prior assessment cycles for
+MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef). "PH" was
+not listed in ATTAINS for MDE_EASP in the prior assessment cycle, but
+was included in MDE_EASP paramRef argument input.
 
 ```{r useparamref-Manual}
 NCTC_UseParamRef_Manual <- TADA_CreateUseParamRef(

@@ -26,8 +26,8 @@ Create Overview Map
 \examples{
 \dontrun{
 # Load example dataframe:
-data(Data_Nutrients_UT)
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_Nutrients_UT)
+utils::data(Data_6Tribes_5y_Harmonized)
 
 # Create maps:
 TADA_OverviewMap(Data_Nutrients_UT)

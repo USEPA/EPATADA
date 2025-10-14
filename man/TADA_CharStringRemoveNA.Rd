@@ -26,7 +26,7 @@ from figure titles and axis labels for the TADA package.
 }
 \examples{
 # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 unique(UT_Titles)

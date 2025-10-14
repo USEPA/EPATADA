@@ -82,7 +82,9 @@ Imports:
     rExpertQuery,
     readr (>= 1.4.0),
     spsUtil,
-    httr
+    httr,
+    leaflegend,
+    usethis
 Depends: 
     R (>= 4.1.0)
 Suggests:
@@ -97,7 +99,6 @@ Suggests:
     knitr,
     testthat,
     testthis,
-    usethis,
     devtools,
     pkgdown,
     spelling,
@@ -107,7 +108,8 @@ Suggests:
     rvest,
     remotes,
     covr,
-    httr2 (>= 1.2.1)
+    httr2 (>= 1.2.1),
+    roxygen2
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown

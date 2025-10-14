@@ -21,7 +21,7 @@ Function creates a ggplot2 pie chart showing the relative proportions of values 
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Create a list of parameters in the dataset and the number of records of
 # each parameter:

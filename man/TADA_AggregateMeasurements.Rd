@@ -62,7 +62,7 @@ TADA.ResultMeasureValue to a minimum, maximum, or average value.
 }
 \examples{
 # Load example dataset
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 # Select maximum value per day, site, comparable data identifier,
 # unit, result detection condition,
 # and activity type code. Clean all non-maximum measurements from grouped data.
@@ -93,7 +93,7 @@ Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
 )
 
 # Load example dataset
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 # Select maximum value per day, site, comparable data identifier, result detection condition,
 # and activity type code. Clean all non-maximum measurements from grouped data.
 Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,

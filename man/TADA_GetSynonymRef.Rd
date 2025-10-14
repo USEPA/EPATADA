@@ -28,7 +28,7 @@ etc.).
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Create a synonym reference table for flagged, cleaned dataframe:
 Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
