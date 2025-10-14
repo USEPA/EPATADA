@@ -46,7 +46,7 @@ All other samples are flagged as "Non_QC".
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Flag and keep all QC samples:
 QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)

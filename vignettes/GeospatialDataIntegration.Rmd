@@ -649,7 +649,7 @@ quality data is the WQP.
     applicable to their use case
 
 ```{r}
-WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_USGS_catch = FALSE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```
@@ -675,7 +675,7 @@ but there are no existing Assessment Units in ATTAINS for them. If you
 are interested in analyzing WQP data available in areas that fall
 outside of the ATTAINS assessment unit areas (using all available data
 from the WQP), TADA has included a way to explore this using
-TADA_CreateATTAINSAUMLCrosswalk() fill_catchments function input
+TADA_CreateATTAINSAUMLCrosswalk() fill_USGS_catch function input
 (leveraging USGS's nhdplusTools and TADA geospatial functions). This is
 included for exploratory purposes only. In theory, states and tribal
 nations could use the high res catchments as new assessment unit
@@ -694,7 +694,7 @@ res is the default) and match those with the WQP sites & create new IDs
 these WQP sites).
 
 ```{r}
-WQP_withATTAINSandNHDPluscatchments <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_catchments = TRUE, return_sf = TRUE)
+WQP_withATTAINSandNHDPluscatchments <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_USGS_catch = TRUE, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_withATTAINSandNHDPluscatchments)
 ```

@@ -185,7 +185,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
 
   latest.assessments <- nat.assessments |>
     dplyr::group_by(organizationId) |>
-    dplyr::slice_max(reportingCycle) |>
+    # dplyr::slice_max(reportingCycle) %>%
     dplyr::select(-objectId) |>
     dplyr::distinct() |>
     dplyr::ungroup()
@@ -194,15 +194,16 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     dplyr::select(
       organizationId, organizationName,
       organizationType, parameterName,
-      useName
+      useName, waterType
     ) |>
     dplyr::rename(
       ATTAINS.OrganizationIdentifier = organizationId,
       ATTAINS.OrganizationName = organizationName,
       ATTAINS.OrganizationType = organizationType,
       ATTAINS.ParameterName = parameterName,
-      ATTAINS.UseName = useName
-    ) |>
+      ATTAINS.UseName = useName,
+      ATTAINS.WaterType = waterType
+  ) |>
     dplyr::distinct()
 
   # remove intermediate variables

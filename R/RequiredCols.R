@@ -246,7 +246,7 @@ extra.cols <- c(
 )
 
 attains.cols <- c(
-  "ATTAINS.OrganizationId", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
   "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
   "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
   "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
@@ -486,7 +486,7 @@ TADA_CheckRequiredFields <- function(.data) {
 #' @export
 #'
 #' @examples
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
 TADA_RetainRequired <- function(.data) {

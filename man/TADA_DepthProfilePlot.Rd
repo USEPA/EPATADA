@@ -61,7 +61,7 @@ Create A Three-Characteristic Depth Profile
 \examples{
 \dontrun{
 # Load example dataframe:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with three parameters for a single
 # monitoring location and date
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -74,7 +74,7 @@ TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
 )
 
 # Load example data frame:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Create a depth profile figure with two parameters for a single monitoring
 # location and date without displaying depth categories
 TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,

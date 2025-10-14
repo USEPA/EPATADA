@@ -44,7 +44,7 @@ Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up t
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # UT Nutrients results grouped by county
 # transform non-detect data
 df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
@@ -58,7 +58,7 @@ UT_Nutrients_by_CountyCode[[3]]
 UT_Nutrients_by_CountyCode[[4]]
 
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 
 # Filter the example data so it includes only one
 # TADA.ComparableDataIdentifier

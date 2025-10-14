@@ -29,7 +29,7 @@ accompanying QAPP document is required to use data in assessments.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Flag, but do not remove, data without an associated QAPP document in
 # new column titled "TADA.QAPPDocAvailable":

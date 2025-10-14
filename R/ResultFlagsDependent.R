@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-fraction combinations:
 #' SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
@@ -56,8 +56,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and flaggedonly are not TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
-    message("Function not executed because clean and flaggedonly cannot both be TRUE")
-    return(.data)
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
@@ -166,7 +165,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-method speciation combinations
 #' # from dataframe,
@@ -348,7 +347,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-media-result unit combinations
 #' # from dataframe, but retain "NonStandardized" combinations flagged in new
@@ -549,7 +548,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag and keep all QC samples:
 #' QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
@@ -682,7 +681,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
 #' df <- TADA_FindQCActivities(Data_Nutrients_UT)
@@ -723,13 +722,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
-      message("Function not executed because no replicates found in dataframe.")
-      return(.data)
+      stop("Function not executed because no replicates found in dataframe.")
     }
   } else {
     if (nrow(dplyr::filter(.data, .data$ActivityTypeCode %in% type)) == 0) {
-      message(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
-      return(.data)
+      stop(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
     }
   }
   # check type is character
@@ -826,7 +823,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Flag and keep all suspect samples:
 #' MeasureQualifierCode_flagged <-

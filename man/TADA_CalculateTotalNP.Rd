@@ -87,7 +87,6 @@ and fewer subspecies). Eventually, even groups with only one subspecies will
 be used to represent a TOTAL N value for that site/day/depth.
 }
 \examples{
-\dontrun{
 df <- TADA_DataRetrieval(
   statecode = "UT", startDate = "2024-06-01",
   endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
@@ -104,7 +103,6 @@ df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
 df2 <- TADA_HarmonizeSynonyms(df2)
 
 df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-}
 
 }
 \seealso{

@@ -50,11 +50,11 @@ be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and
 TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag will
 be added to describe aggregation.}
 
-\item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
-default is aggregatedonly = "FALSE" which means that all results are returned.
-When aggregatedonly = "TRUE", only aggregate values are returned.}
+\item{aggregatedonly}{Boolean argument with options TRUE or FALSE. The
+default is aggregatedonly = FALSE which means that all results are returned.
+When aggregatedonly = TRUE, only aggregate values are returned.}
 
-\item{clean}{Boolean argument with options "TRUE" or "FALSE". The
+\item{clean}{Boolean argument with options TRUE or FALSE. The
 default is clean = "FALSE" which means that all results are returned.
 When clean = "TRUE", only aggregate results which can be assigned to a depth
 category are included in the returned dataframe.}
@@ -88,7 +88,7 @@ define whether the daily aggregation occurs over each depth category
 }
 \examples{
 # Load data frame
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)

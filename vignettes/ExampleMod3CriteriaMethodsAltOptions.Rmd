@@ -1,0 +1,355 @@
+---
+title: "TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input"
+format: html
+editor: visual
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input}
+  %\VignetteEngine{knitr::rmarkdown}
+description: A vignette (under development) showcasing alternative ways to generate the criteria and methodology file.
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = F
+)
+```
+
+## Welcome!
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+users through how to download the EPATADA R package from GitHub, access
+and parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note: EPATADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.**
+
+**If you are interested in contributing to EPATADA development, more
+information is available at:**
+
+[**Contributing**](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+**We welcome collaboration with external partners.**
+
+## Install and load packages
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub.
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+```
+
+Next, install and load the EPATADA R Package using the remotes package.
+Dependency packages will also be downloaded automatically from CRAN. You
+may be prompted in the console to update dependencies that have more
+recent versions available. If you see this prompt, it is recommended to
+update all of them (enter 1 into the console).
+
+```{r install_TADA, eval = T, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "Create-Module-3-AURef",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the EPATADA R Package
+into your R session.
+
+```{r library, results = 'hide'}
+library(EPATADA)
+```
+
+## Help pages
+
+All TADA R package functions have their own individual help pages,
+listed on the [Function
+reference](https://usepa.github.io/EPATADA/reference/index.html) page on
+the GitHub site. Users can also access the help page for a given
+function in R or RStudio using the following format (example below):
+`?[name of TADA function]`
+
+```{r help_pages, eval = F}
+# Access help page for TADA_DataRetrieval
+?TADA_DataRetrieval
+```
+
+## Module 3 Functions in TADA
+
+Disclaimer: The EPATADA Module 3 functions were designed to: (1) assist
+users with associating Water Quality Portal monitoring locations with
+assessment units and designated uses from ATTAINS and (2) compare Water
+Quality Portal results with numeric water quality criteria. EPATADA
+functions do not constitute current EPA policy or regulatory
+requirements. Organizations may choose to use EPATADA as a a tool in
+their decision making processes. Use of EPATADA is not required.
+
+## Get WQP Monitoring Data in Montana Using TADA_DataRetrieval()
+
+Get bacteria and pH data from Missoula County, Montana.
+
+```{r tada-data}
+# get MT data
+tada.MT <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c(
+    "Escherichia",
+    "Escherichia coli",
+    "pH"
+  ),
+  countycode = "Missoula County",
+  ask = FALSE
+)
+
+# clean up data set (minimal)
+tada.MT.clean <- tada.MT %>%
+  TADA_RunKeyFlagFunctions() %>%
+  TADA_SimpleCensoredMethods() %>%
+  TADA_HarmonizeSynonyms()
+
+# remove intermediate objects
+rm(tada.MT)
+
+# or uncomment the code below and load internal copy of TADA df from EPATADA
+# tada.MT.clean <- Data_MT_MissoulaCounty
+```
+
+# Defining Criteria - Magnitude Methodology
+
+Users can proceed with a few different options for generating their
+criteria table
+
+1)  Generate a blank criteria and methods table and fill it out from
+    scratch.
+
+2)  Provide a user-supplied criteria and methods table partially/fully
+    filled out.
+
+    A.) The default option in this scenario will display all unique
+    **TADA.ComparableDataIdentifiers** (or WQP CharacteristicName) in
+    your TADA/WQP data frame to ensure you review any missing WQP
+    Characteristic, speciation and fraction combinations.
+
+    B.) Alternatively, users can choose to display all unique **TADA
+    Characteristic name** rather than TADA.ComparableDataIdentifier. In
+    this scenario, each ATTAINS.ParameterName in the analysis summary
+    output will be grouped to any of these TADA/WQP CharacteristicName,
+    unless a fraction or speciation is defined.
+
+3)  Users can also choose to provide an autofill option, which will help
+    to fill out any missing rows with ATTAINS.ParameterName and
+    ATTAINS.UseName that are pulled in from ATTAINS as the default.
+
+    A.) If a user has supplied a list of new or updated use names to AU
+    that may not be retrievable from the prior ATTAINS assessment cycle,
+    they should provide a useAURef crosswalk table in this function.
+    This should only be provided when auto_assign = TRUE.
+
+4)  (Recommended) Go through the step-by-step review process with the 3
+    TADA crosswalk reference file generation for TADA_CreateParamRef,
+    TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef. This vignette
+    does not go through this recommended workflow. Please see
+    ExampleMod3Workflow.Rmd for this guided workflow.
+
+Each option will allow the option to append additional rows to summarize
+EPA304a recommended standards, if one has been defined. Please contact
+the TADA team if you believe there are additional entries or
+modification to these defined standards.
+
+## Option A: Fully blank template
+
+A blank template is generated. This can be generated and filled out in
+the excel file.
+
+```{r blank template output}
+MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean, # remove this as an arg input
+  org_id = "MTDEQ", # can remove this too
+  # auto_assign = FALSE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+## Option B: Auto Fill option (Intermediate Tabs are Hidden)
+
+You can also generate auto_assigned value(s) of ATTAINS.ParameterName,
+ATTAINS.UseName to TADA.CharacteristicName using default options. Users
+should be aware that this will only return rows for any matching values
+from a WQP characteristic to ATTAINS parameter alias table. It is likely
+that these value(s) will require a thorough review process during each
+step of the process with the recommended workflow of
+TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
+
+Users can view the output of these 3 functions in the excel spreadsheet
+if desired. They are hidden as default (NOTE TO CONSIDER: Should these
+be kept hidden? The goal of this output has been to focus on an
+auto_assign option as a quick get around to needing to fill out the
+table from scratch, but if users may find it worthwhile, we can always
+show these hidden tabs to allow for an easier review process and
+updating of tables directly in the excel file.)
+
+```{r auto-fill-output}
+MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_assign = TRUE,
+  # displayUniqueId = FALSE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+Users who would like to ensure all Characteristic, Speciation and
+Fractions are being considered, can use displayUniqueId = TRUE to show
+all unique TADA.ComparableDataIdentifier(s) shown as explicit crosswalk.
+Note: This may generate many additional rows if your WQP data results
+are not harmonized or if there are many different combinations of
+Characteristic, Speciation and Fractions to consider.
+
+```{r auto-fill-display-TADA.ComparableDataIdentifier}
+MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_assign = TRUE,
+  displayUniqueId = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+We can also choose to append epa304a recommended standards into the
+criteria table for any WQP characteristics in your data frame that are
+found.
+
+```{r auto-fill-epa304a-and-display-TADA.ComparableDataIdentifier}
+MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean,
+  org_id = "MTDEQ", 
+  auto_assign = TRUE, 
+  displayUniqueId = TRUE, 
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+## Option C: User Supplied Table
+
+A user has a completed or partially filled criteria file, let's use
+MTDEQ as our example org. MTDEQ should thoroughly review this table and
+determine if there are values that needs to be fixed or if there are
+missing WQP Char to consider that isn't defined in their criteria and
+methods table that they have supplied. Users will be warned how many WQP
+Char values are not defined from their user supplied table.
+
+In this first example, a user supplies their own criteria table. The
+user supplied table is prioritized. Any missing
+WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
+auto_assign = TRUE option.
+
+Note: If a user has an updated list of use names that have been applied
+to an assessment unit, they should also provide a useAURef input.
+Otherwises the uses will be pulled in from the prior ATTAINS assessment
+cycle.
+
+```{r user-supplied-epa304a-and-autofill-output}
+MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  useAURef = Data_MT_UseAURef, 
+  displayUniqueId = FALSE,
+  epa304a = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+Users will need to determine their level of desired grouping of
+TADA.CharacteristicName by aggregation. If a user has not gone through
+the review process with the 3 crosswalk reference files, they need to
+specify what combinations of fraction and speciations falls under an
+ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
+displayUniqueId = TRUE, this will display all combinations in the
+criteria table output.
+
+```{r display-TADA.ComparableDataIdentifier-user-supplied-epa304a-and-autofill-output}
+load(system.file("extdata", "criteria_table.rda", package = "EPATADA"))
+
+# Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
+MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ", 
+  displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
+  epa304a = TRUE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+## Choose a Final Criteria Template, Save and Re-use
+
+```{r save-and-re-use-your-most-up-to-date-criteria-table}
+# Save the criteria table of your liking to be used for your next analysis needs.
+# TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
+
+# We can now reuse this criteria table
+MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
+  org_id = "MTDEQ",
+  displayUniqueId = FALSE,
+  excel = FALSE
+  # uncomment to run the excel file
+  # excel = TRUE, overwrite = TRUE
+)
+```
+
+Users are recommended to go through each of the 3 reference files one at
+a time though in their review process. In this case, a user should
+provide a MLSummaryRef file function input and turn the auto_assign
+option to FALSE. Please see ExampleMod3Workflow.Rmd vignette for the
+step by step process.

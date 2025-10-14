@@ -33,7 +33,7 @@ Create Boxplot(s)
 # Create a single boxplot using defaults. The input dataframe in this example
 # includes only one unique TADA.ComparableDataIdentifier:
 # Load example dataframe:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Filter data down to a single TADA.ComparableDataIdentifier
 df <- dplyr::filter(
   Data_6Tribes_5y_Harmonized,
@@ -59,7 +59,7 @@ Boxplots_TPbyOrg[[2]]
 # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 # (e.g. stream, reservoir, canal, etc.)
 # Load example dataframe:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 )

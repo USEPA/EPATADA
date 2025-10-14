@@ -46,7 +46,7 @@ sample are flagged as orphan samples.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
 df <- TADA_FindQCActivities(Data_Nutrients_UT)

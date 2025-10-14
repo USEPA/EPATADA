@@ -33,7 +33,7 @@
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove Suspect characteristic-analytical method combinations from
 #' # data frame:
@@ -197,7 +197,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # have 0 results because all are flagged in the example)
 #' all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 #'
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 #' Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT,
@@ -426,13 +426,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' is not executed and an error message is returned. Defaults are clean = FALSE
 #' and flaggedonly = FALSE.
 #'
-#' This function will add the column `TADA.ResultValueAboveUpperThreshold.Flag` which
-#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`,
-#' or `NA - Not Available`. The `Not Reviewed` value means that the EPA WQX team
+#' This function will add the column "TADA.ResultValueAboveUpperThreshold.Flag" which
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly.
-#' The `NA - Not Available` flag means that the characteristic, media, and/or unit combination
+#' The WQX team plans to review and update these new combinations quarterly. The
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
 #' or the result value is NA.
 #'
@@ -444,9 +444,9 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as above the upper WQX threshold. Default is flaggedonly = FALSE.
-#' @return The input TADA dataset with the added `TADA.ResultValueAboveUpperThreshold.Flag`
-#' column which is populated with the values: `Pass`, `Suspect`, `Not Reviewed`, or
-#' `NA - Not Available`. Defaults are clean = FALSE and flaggedonly = FALSE.
+#' @return The input TADA dataset with the added "TADA.ResultValueAboveUpperThreshold.Flag"
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
 #' is filtered to show only data found above the WQX threshold. When clean = TRUE
 #' and flaggedonly = FALSE, rows with values that are above the upper WQX threshold
@@ -457,7 +457,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data that is above the upper WQX threshold from dataframe:
 #' WQXUpperThreshold_clean <- TADA_FlagAboveThreshold(
@@ -466,7 +466,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' )
 #'
 #' # Flag, but do not remove, data that is above the upper WQX threshold in
-#' # new column titled `TADA.ResultValueAboveUpperThreshold.Flag`:
+#' # new column titled "TADA.ResultValueAboveUpperThreshold.Flag":
 #' WQXUpperThreshold_flags <- TADA_FlagAboveThreshold(
 #'   Data_Nutrients_UT,
 #'   clean = FALSE
@@ -634,13 +634,13 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' is not executed and an error message is returned. Defaults are clean = FALSE
 #' and flaggedonly = FALSE.
 #'
-#' This function will add the column `TADA.ResultValueBelowLowerThreshold.Flag` which
-#' will be populated with the values: `Pass`, `Suspect`, `Not Reviewed`,
-#' or `NA - Not Available`. The “Not Reviewed” value means that the EPA WQX team
+#' This function will add the column "TADA.ResultValueBelowLowerThreshold.Flag" which
+#' will be populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". The “Not Reviewed” value means that the EPA WQX team
 #' has not yet reviewed the range yet for the characteristic and unit combination combination
 #' in that row (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly.
-#' The `NA - Not Available` flag means that the characteristic, media, and/or unit combination
+#' The WQX team plans to review and update these new combinations quarterly. The
+#' "NA - Not Available" flag means that the characteristic, media, and/or unit combination
 #' for that row is not fully populated (is NA or does not match the WQX data standard)
 #' or the result value is NA.
 #'
@@ -652,9 +652,9 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' threshold from the dataframe when clean = TRUE. Default is clean = FALSE.
 #' @param flaggedonly Boolean argument; filters dataframe to show only the data
 #' flagged as below the lower WQX threshold. Default is flaggedonly = FALSE.
-#' @return The input TADA dataset with the added `TADA.ResultValueBelowLowerThreshold.Flag`
-#' column which is populated with the values: `Pass`, `Suspect`, `Not Reviewed`, or
-#' `NA - Not Available`. Defaults are clean = FALSE and flaggedonly = FALSE.
+#' @return The input TADA dataset with the added "TADA.ResultValueBelowLowerThreshold.Flag"
+#' column which is populated with the values: "Pass", "Suspect", "Not Reviewed", or
+#' "NA - Not Available". Defaults are clean = FALSE and flaggedonly = FALSE.
 #' When clean = FALSE and flaggedonly = TRUE, the dataframe
 #' is filtered to show only data found below the WQX threshold. When clean = TRUE
 #' and flaggedonly = FALSE, rows with values that are below the lower WQX threshold
@@ -665,7 +665,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data that is below the lower WQX threshold from the dataframe:
 #' WQXLowerThreshold_clean <- TADA_FlagBelowThreshold(
@@ -674,7 +674,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' )
 #'
 #' # Flag, but do not remove, data that is below the lower WQX threshold in
-#' # new column titled `TADA.ResultValueBelowLowerThreshold.Flag`:
+#' # new column titled "TADA.ResultValueBelowLowerThreshold.Flag":
 #' WQXLowerThreshold_flags <- TADA_FlagBelowThreshold(
 #'   Data_Nutrients_UT,
 #'   clean = FALSE
@@ -825,52 +825,62 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
 
 
-#' Check Data for an Approved QAPP
+#' Check data for an approved QAPP
 #'
-#' This function evaluates the data submitted under the "QAPPApprovedIndicator"
-#' column to determine if it has an approved Quality Assurance Project Plan (QAPP).
-#' Organizations use this field to indicate approval status,
-#' where 'Y' denotes approval and 'N' denotes non-approval.
-#' The function provides flexibility through three
-#' boolean arguments: `clean`, `cleanNA`, and `flaggedonly`, which control the
-#' filtering behavior of the data.
+#' Function checks data submitted under the column "QAPPApprovedIndicator".
+#' Some organizations submit data for this field to indicate if the data
+#' produced has an approved Quality Assurance Project Plan (QAPP) or not.
+#' Y indicates yes, N indicates no.  This function has three default inputs:
+#' clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default flags
+#' rows of data where the QAPPApprovedIndicator equals "N". Users could
+#' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
+#' and flaggedonly = FALSE. If flaggedonly = TRUE, the function will filter out all
+#' rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE,
+#' and flaggedonly = FALSE, the function will not make any changes to the data.
 #'
-#' @param .data A dataframe containing the QAPP data.
-#' @param clean Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator`
-#' equals 'N'. Default is `FALSE`.
-#' @param cleanNA Logical. If `TRUE`, removes rows where `QAPPApprovedIndicator`
-#' is NA. Default is `FALSE`.
-#' @param flaggedonly Logical. If `TRUE`, filters out rows where
-#' `QAPPApprovedIndicator` equals 'Y'. Default is `FALSE`.
+#' Note: This is not a required field, so it is often left blank (NA) even if
+#' the data has an associated QAPP. All states and tribes that collect
+#' monitoring data using 106 funding (almost all state and tribal data in WQX)
+#' are required to have an EPA approved QAPP to receive 106 funding. Therefore,
+#' most of these organizations data has an approved QAPP even if the data
+#' submitted to WQP is NA.
 #'
-#' @details
-#' The function operates based on the following default settings:
-#' - `clean = TRUE`: Removes rows where `QAPPApprovedIndicator` equals 'N'.
-#' - `cleanNA = FALSE`: Retains rows with `QAPPApprovedIndicator` as NA.
-#' - `flaggedonly = FALSE`: Flags but does not remove rows with `QAPPApprovedIndicator` as 'N'.
+#' @param .data TADA dataframe
+#' @param clean Boolean argument with two possible values called "TRUE" and
+#' "FALSE". When clean=TRUE, rows of data where the QAPPApprovedIndicator equals
+#' "N" will be removed. When, clean=FALSE, rows of data where the
+#' QAPPApprovedIndicator equals "N" will be retained.
+#' @param cleanNA Boolean argument with two possible values called "TRUE" and
+#' "FALSE". When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator
+#' equals "NA" will be removed. When, cleanNA=FALSE, rows of data where the
+#' the QAPPApprovedIndicator equals "NA" will be retained.
+#' @param flaggedonly Boolean argument; when flaggedonly = TRUE, the dataframe will
+#' be filtered to remove any rows where the QAPPApprovedIndicator equals "Y".
 #'
-#' Users can adjust these settings to tailor the output:
-#' - Set `cleanNA = TRUE` to remove rows with NA values.
-#' - Set `flaggedonly = TRUE` to filter out rows where `QAPPApprovedIndicator` equals 'Y'.
+#' @return Several combinations of inputs are possible:
+#' When clean = TRUE, cleanNA = FALSE, and flaggedonly = FALSE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "Y" or "NA";
+#' When clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "Y";
+#' When clean = FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "Y" or "N";
+#' When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no rows are
+#' removed from the dataframe;
+#' When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, the function will
+#' not execute and an error message will be returned;
+#' When clean = TRUE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "NA";
+#' When clean = FALSE, cleanNA = TRUE, and flaggedonly = TRUE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "N";
+#' When clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE, the dataframe will
+#' be filtered to show only rows where QAPPApprovedIndicator is "N" or "NA"
 #'
-#' Note: The `QAPPApprovedIndicator` field is optional and often left blank (NA),
-#' even if the data is associated with a QAPP. Most organizations collecting
-#' monitoring data using 106 funding are required to have an EPA-approved QAPP,
-#' hence most data should have an approved QAPP even if submitted as NA.
 #'
-#' @return A filtered dataframe based on the combination of input parameters:
-#' - `clean = TRUE`, `cleanNA = FALSE`, `flaggedonly = FALSE`: Returns rows where `QAPPApprovedIndicator` is 'Y' or NA.
-#' - `clean = TRUE`, `cleanNA = TRUE`, `flaggedonly = FALSE`: Returns rows where `QAPPApprovedIndicator` is 'Y'.
-#' - `clean = FALSE`, `cleanNA = TRUE`, `flaggedonly = FALSE`: Returns rows where `QAPPApprovedIndicator` is 'Y' or 'N'.
-#' - `clean = FALSE`, `cleanNA = FALSE`, `flaggedonly = FALSE`: Returns the original dataframe without changes.
-#' - `clean = TRUE`, `cleanNA = TRUE`, `flaggedonly = TRUE`: Returns an error message.
-#' - `clean = TRUE`, `cleanNA = FALSE`, `flaggedonly = TRUE`: Returns rows where `QAPPApprovedIndicator` is NA.
-#' - `clean = FALSE`, `cleanNA = TRUE`, `flaggedonly = TRUE`: Returns rows where `QAPPApprovedIndicator` is 'N'.
-#' - `clean = FALSE`, `cleanNA = FALSE`, `flaggedonly = TRUE`: Returns rows where `QAPPApprovedIndicator` is 'N' or NA.
+#' @export
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
 #' QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
@@ -893,7 +903,6 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Note: When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no data is removed
 #' # Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned
 #'
-#' @export
 TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
@@ -989,7 +998,7 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag, but do not remove, data without an associated QAPP document in
 #' # new column titled "TADA.QAPPDocAvailable":
@@ -1111,7 +1120,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag":
@@ -1465,7 +1474,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
 #'
 #' @examples
 #' # Load dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # If duplicates exist, identify and flag them for removal
 #' Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
 #' table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)

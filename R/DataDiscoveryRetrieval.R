@@ -1055,7 +1055,9 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #'
 #' Note: It may be useful to save the Query URL from the WQP as well as a
 #' comment within your code. This URL let's you return to the WQP query page
-#' with all your selected data filters. See example below.
+#' with all your selected data filters. For example, this is the query used
+#' in the examples for this function:
+#' https://www.waterqualitydata.us/#statecode=US%3A09&sampleMedia=water&sampleMedia=Water&startDateLo=01-01-2021&startDateHi=02-01-2021&mimeType=csv&providers=NWIS&providers=STORET
 #'
 #' **Extra tip:** Note that the web service call built using the Water
 #' Quality Portal uses the inputs startDateLo and startDateHi rather than
@@ -1076,28 +1078,44 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' # Define base URL and common components
+#' # construct the WQP web service URL for each profile
 #' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
+#' profile_result_2 <- "&dataProfile=biological"
+#' profile_project <- "/data/Project"
 #' filters <- "/search?statecode=US%3A09&sampleMedia=water&sampleMedia=Water"
 #' dates <- "&startDateLo=01-01-2021&startDateHi=02-01-2021"
 #' type <- "&mimeType=csv&zip=yes"
 #' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 #'
-#' # Construct URLs for different profiles
-#' station_url <- paste0(
-#'   baseurl, "/data/Station", filters, dates, type, providers
-#' )
-#' result_url <- paste0(
-#'   baseurl, "/data/Result", filters, dates, type, "&dataProfile=biological", providers
-#' )
-#' project_url <- paste0(
-#'   baseurl, "/data/Project", filters, dates, type, providers
-#' )
+#' physchemresults1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_station,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
 #'
-#' # Retrieve data from Water Quality Portal web services
-#' physchemresults1 <- TADA_ReadWQPWebServices(station_url)
-#' sites1 <- TADA_ReadWQPWebServices(result_url)
-#' projects1 <- TADA_ReadWQPWebServices(project_url)
+#' sites1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_result,
+#'   filters,
+#'   dates,
+#'   type,
+#'   profile_result_2,
+#'   providers
+#' ))
+#'
+#' projects1 <- TADA_ReadWQPWebServices(paste0(
+#'   baseurl,
+#'   profile_project,
+#'   filters,
+#'   dates,
+#'   type,
+#'   providers
+#' ))
 #' }
 #'
 TADA_ReadWQPWebServices <- function(webservice) {
@@ -1187,43 +1205,16 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
         smallsitesgrp$MonitoringLocationIdentifier,
         smallsitesgrp$group == i
       )
-      query_data_with_retry <- function(site_chunk, query, max_attempts = 3) {
-        attempt <- 1
-        while (attempt <= max_attempts) {
-          tryCatch(
-            {
-              # Query result data
-              results_small <- suppressMessages(
-                dataRetrieval::readWQPdata(
-                  siteid = site_chunk,
-                  query,
-                  dataProfile = "resultPhysChem",
-                  ignore_attributes = TRUE
-                )
-              ) |>
-                dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
-              
-              # Return the results if successful
-              return(results_small)
-            },
-            error = function(e) {
-              # Check if the error is an HTTP 500 error
-              if (grepl("HTTP 500", e$message)) {
-                message("HTTP 500 error encountered. Retrying... (Attempt ", attempt, " of ", max_attempts, ")")
-                attempt <- attempt + 1
-                Sys.sleep(2) # Optional: wait for a few seconds before retrying
-              } else {
-                stop("An unexpected error occurred: ", e$message)
-              }
-            }
-          )
-        }
-        # If max attempts reached, stop with an error message
-        stop("Failed to retrieve data after ", max_attempts, " attempts due to repeated HTTP 500 errors.")
-      }
-      
-      # Use the function to query data
-      results_small <- query_data_with_retry(small_site_chunk, WQPquery)
+      # Query result data
+      results_small <- suppressMessages(
+        dataRetrieval::readWQPdata(
+          siteid = small_site_chunk,
+          WQPquery,
+          dataProfile = "resultPhysChem",
+          ignore_attributes = TRUE
+        )
+      ) |>
+        dplyr::mutate(dplyr::across(everything(), as.character))
 
       # If data is returned, stack with what's already been retrieved
       if (dim(results_small)[1] > 0) {
@@ -1266,7 +1257,7 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
           ignore_attributes = TRUE
         )
       ) |>
-        dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
+        dplyr::mutate(dplyr::across(everything(), as.character))
 
       if (dim(results_big)[1] > 0) {
         df_big <- dplyr::bind_rows(df_big, results_big)
@@ -1311,25 +1302,28 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #'
 #' @examples
 #' \dontrun{
-#' # Define base URL and common components
+#' # construct the WQP web service URL for each profile
 #' baseurl <- "https://www.waterqualitydata.us"
+#' profile_station <- "/data/Station"
+#' profile_result <- "/data/Result"
+#' profile_result_2 <- "&dataProfile=resultPhysChem"
+#' profile_project <- "/data/Project"
 #' filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
 #' dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
 #' type <- "&mimeType=csv&zip=yes"
 #' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 #'
-#' # Construct URLs for different profiles
-#' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
-#' result_url <- paste0(
-#'   baseurl, "/data/Result", filters,
-#'   dates, type, "&dataProfile=resultPhysChem", providers
+#' stationProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_station, filters, dates, type, providers)
 #' )
-#' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
 #'
-#' # Retrieve data from Water Quality Portal web services
-#' stationProfile <- TADA_ReadWQPWebServices(station_url)
-#' physchemProfile <- TADA_ReadWQPWebServices(result_url)
-#' projectProfile <- TADA_ReadWQPWebServices(project_url)
+#' physchemProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_result, filters, dates, type, profile_result_2, providers)
+#' )
+#'
+#' projectProfile <- TADA_ReadWQPWebServices(
+#'   paste0(baseurl, profile_project, filters, dates, type, providers)
+#' )
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
 #' TADAProfile <- TADA_JoinWQPProfiles(

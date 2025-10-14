@@ -11,7 +11,6 @@
 #' @docType data
 #' @keywords dataframe
 #' @name Data_Nutrients_UT
-#' @usage data(Data_Nutrients_UT)
 #' @format A dataframe with 14592 rows and 152 variables
 NULL
 
@@ -39,7 +38,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_6Tribes_5y
-#' @usage data(Data_6Tribes_5y)
 #' @format A dataframe with 134050 rows and 149 variables
 NULL
 
@@ -53,7 +51,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_6Tribes_5y_Harmonized
-#' @usage data(Data_6Tribes_5y_Harmonized)
 #' @format A dataframe with 117124 rows and 166 variables
 NULL
 
@@ -79,7 +76,6 @@ NULL
 #' @docType data
 #' @keywords dataframe
 #' @name Data_R5_TADAPackageDemo
-#' @usage data(Data_R5_TADAPackageDemo)
 #' @format A dataframe with 6569 rows and 123 variables
 NULL
 
@@ -92,6 +88,48 @@ NULL
 #' @docType data
 #' @keywords data frame
 #' @name Data_HUC8_02070004_Mod1Output
-#' @usage data(Data_HUC8_02070004_Mod1Output)
 #' @format A data frame with 84 rows and 161 variables
+NULL
+
+
+#' Data_MT_MissoulaCounty
+#'
+#' See Module 2 and 3 workflows for examples of this data set can be used in the
+#' TADA analysis workflow.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_MissoulaCounty
+#' @format A data frame with 426 rows and 161 variables
+NULL
+
+#' Data_MT_AUMLRef
+#'
+#' An example assessment unit/monitoring location reference data frame for use
+#' in testing TADA Module 2 and 3 workflows.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_AUMLRef
+#' @format A data frame with 56 rows and 6 variables.
+NULL
+
+#' Data_MT_UseAURef
+#'
+#' An example assessment unit/use reference data frame for testing TADA Module 2 and 3 workflows.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_UseAURef
+#' @format A data frame with 46 rows and 6 variables.
+NULL
+
+#' Data_MT.UseAURef_Water
+#'
+#' Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and 
+#' ExampleMod3Workflow.Rmd
+#'
+#' @docType data
+#' @name Data_MT.UseAURef_Water
+#' @format A data frame with 48 rows and 6 variables.
 NULL

@@ -1,27 +1,17 @@
 #' Pipe Operator
 #'
-#' The pipe operator (`|>`) is a powerful tool for chaining operations in a readable and concise manner.
-#' It allows you to pass the left-hand side (`lhs`) value into the right-hand side (`rhs`) function call.
-#' For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
+#' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
+#' For detailed information, refer to magrittr:pipe()
 #'
-#' @name |>
+#' @name %>%
 #' @rdname pipe
 #' @keywords internal
-#' @importFrom magrittr |>
-#' @usage lhs \%>\% rhs
+#' @importFrom magrittr %>%
 #' @export
 #' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
 #' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
 #' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
 #'
-#' @examples
-#' # Example: Using the pipe operator to transform data
-#' library(magrittr)
-#' result <- iris |>
-#'   head(10) |>
-#'   subset(Species == "setosa") |>
-#'   summary()
-#' print(result)
 NULL
 
 #' Silence Print Messages from Code Execution
@@ -135,7 +125,7 @@ utils::globalVariables(c(
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
   "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
-  "ATTAINS.OrganizationId", "ATTAINS.WaterType", "useName", "waterType",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "useName", "waterType",
   "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
@@ -155,7 +145,14 @@ utils::globalVariables(c(
   "overallstatus", "permid_joinkey", "region", "reportingCycle",
   "reportingcycle", "response.code", "return_sf", "state", "submissionid",
   "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method", "WqxV2.FieldName"
+  "xwalk_method", "WqxV2.FieldName", "auid.col", "ml.col", "type.col",
+  "AggregatedActivityEndDateTime", "AggregatedActivityStartDateTime",
+  "ATTAINS.AssessmentUnitIdentifier.y", "ATTAINS.WaterType.y DepthCategory",
+  "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
+  "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
+  "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
+  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType",
+  "ATTAINS.OrganizationId", "MatchMessage", "Mismatch", "Ref.WaterType"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -815,7 +812,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 #'
 #' @examples
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Select maximum value per day, site, comparable data identifier, result detection condition,
 #' # and activity type code. Clean all non-maximum measurements from grouped data.
 #' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
@@ -917,7 +914,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -995,7 +992,7 @@ pchIcons <- function(pch = 1,
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1061,7 +1058,7 @@ writeLayer <- function(url, layerfilepath) {
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1435,7 +1432,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #'
 #' @examples
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 #' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
@@ -1535,7 +1532,6 @@ TADA_CreateCSV <- function(.data) {
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
 
-
 #' TADA_RenametoLegacy
 #'
 #' This function renames columns in a dataframe from WQX3.0 (beta) names to WQX2.0 (legacy) names.
@@ -1611,7 +1607,7 @@ TADA_RenametoLegacy <- function(.data) {
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
-  
+
   rm(WqxV2.FieldName)
 
   if (length(beta_names) != length(legacy_names)) {
@@ -1626,4 +1622,178 @@ TADA_RenametoLegacy <- function(.data) {
   df <- TADA_OrderCols(df)
 
   return(df)
+}
+
+#' checkColNames
+#'
+#' This function checks column names using partial string matches. It is designed
+#' to facilitate the use of user-supplied refs with differently prefixed columns
+#' in Module 2 and 3 functions.
+#'
+#' @param .data A user-supplied ref data frame containing AssessmentUnitIdentifier,
+#' MonitoringLocationIdentifier, and WaterType columns. It is permitted (but not
+#' required) for these columns to use ATTAINS, TADA or other prefixes.
+#' @param partial.string The character string used for partial string matching when
+#' checking column names.
+#'
+#' @return A data frame with two columns identifying the exact column names for the
+#' AssessmentUnitIdentifier, MonitoringLocationIdentifier, and WaterType columns in
+#' a user-supplied ref file.
+#'
+checkColName <- function(.data, partial.string = NULL) {
+  col.id <- dplyr::case_when(
+    partial.string == "AssessmentUnitIdentifier" ~ "auid.col",
+    partial.string == "MonitoringLocationIdentifier" ~ "ml.col",
+    partial.string == "WaterType" ~ "type.col"
+  )
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
+    stop(paste0(
+      "TADA_CreateAUMLCrosswalk: The ",
+      partial.string, " column is missing from the user-supplied reference (au_ref)."
+    ))
+  }
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
+    select.col <- .data %>%
+      dplyr::select(dplyr::contains(partial.string)) %>%
+      names()
+
+    if (length(select.col) > 1) {
+      stop(paste0(
+        "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
+        partial.string, " column in the user-supplied reference (au_ref)."
+      ))
+    }
+
+    col.lab <- data.frame(col.id, select.col)
+
+    rm(col.id, select.col)
+  }
+  return(col.lab)
+}
+
+#' renameATTAINSCols
+#'
+#' This function adds the ATTAINS prefix and changes column name capitalization to
+#' match the TADA format.
+#'
+#' @param .data A data frame containing columns from ATTAINS geospatial web services.
+#'
+#' @param return_list Boolean argument. When return_list = TRUE, the function returns
+#' a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
+#' the input .data data frame is updated so column names from ATTAINS geospatial web
+#' services match the TADA format. Default is return_list = FALSE.
+#'
+#' @param format Character argument. The format the user wants to switch the column
+#' names too. When format = "tada", the ATTAINS prefix and TADA capitalization will
+#' be applied. When format = "attains", TADA formatted columns will be renamed to the
+#' original ATTAINS names. Default = "tada".
+#'
+#' @return A data frame with column name from ATTAINS geospatial web service updated
+#' to match the TADA format. Or when return_list = TRUE, a list of all TADA
+#' formatted ATTAINS column names.
+#'
+renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+  # list of TADA formatted column names
+  attains.tada <- c(
+    "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+    "ATTAINS.ShapeArea", "ATTAINS.CulturalUse", "ATTAINS.DrinkingWaterUse",
+    "ATTAINS.EcologicalUse", "ATTAINS.FishConsumptionUse", "ATTAINS.RecreationUse",
+    "ATTAINS.OtherUse", "ATTAINS.AlgalGrowth", "ATTAINS.Ammonia",
+    "ATTAINS.CauseUnknown", "ATTAINS.CauseUnknownFishKills",
+    "ATTAINS.CauseUnknownImpairedBiota", "ATTAINS.Dioxins",
+    "ATTAINS.FishConsumptionAdvisory", "ATTAINS.FlowAlterations",
+    "ATTAINS.HabitatAlterations", "ATTAINS.HydrologicAlteration",
+    "ATTAINS.Mercury", "ATTAINS.MetalsOtherThanMercury", "ATTAINS.NoxiousAquaticPlants",
+    "ATTAINS.NuisanceExoticSpecies", "ATTAINS.NuisanceNativeSpecies", "ATTAINS.Nutrients",
+    "ATTAINS.OilAndGrease", "ATTAINS.OxygenDepletion", "ATTAINS.OtherCause",
+    "ATTAINS.Pathogens", "ATTAINS.Pesticides", "ATTAINS.Pfas",
+    "ATTAINS.PhAcidityCausticConditions", "ATTAINS.PolychlorinatedBiphenylsPcbs",
+    "ATTAINS.Radiation", "ATTAINS.SolidsChloridesSulfates",
+    "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
+    "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
+    "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
+    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
+    "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
+  )
+
+  # list of original ATTAINS column names
+  attains.orig <- c(
+    "organizationid", "submissionid", "hasprotectionplan",
+    "assessmentunitname", "nhdplusid", "tas303d",
+    "isthreatened", "state", "on303dlist",
+    "organizationname", "region", "Shape_Length",
+    "reportingcycle", "assmnt_joinkey", "hastmdl",
+    "orgtype", "permid_joinkey", "catchmentistribal",
+    "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+    "overallstatus", "isassessed", "isimpaired",
+    "has4bplan", "huc12", "hasalternativeplan",
+    "visionpriority303d", "areasqkm", "catchmentareasqkm",
+    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+    "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
+    "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
+    "ammonia", "cause_unknown", "cause_unknown_fish_kills",
+    "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
+    "flow_alterations", "habitat_alterations", "hydrologic_alteration",
+    "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
+    "nuisance_exotic_species", "nuisance_native_species", "nutrients",
+    "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
+    "pesticides", "pfas", "ph_acidity_caustic_conditions",
+    "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
+    "sediment", "taste_color_and_odor", "temperature", "total_toxics",
+    "toxic_inorganics", "toxic_organics", "trash", "turbidity",
+    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
+    "chlorine", "biotoxins")
+
+  # if return list equals TRUE, return the list of tada formatted column names
+  if (return_list == TRUE & format == "tada") {
+    return(attains.tada)
+  }
+
+  # if return list equals TRUE, return the list of attains formatted column names
+  if (return_list == TRUE & format == "attains") {
+    return(attains.orig)
+  }
+
+  # if return equals FALSE, proceed with renaming columns
+  if (return_list == FALSE) {
+
+    # assign old and new name vectors based on format selected by user
+    old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
+      format == "attains" ~ attains.tada
+    )
+
+    new.names <- dplyr::case_when(format == "tada" ~ attains.tada,
+      format == "attains" ~ attains.orig
+    )
+
+
+    .data
+
+    view <-
+      data.table::setnames(
+      .data,
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
+    )
+
+    # remove intermediate objects
+    rm(attains.tada, attains.orig, old.names, new.names)
+
+
+    # return data frame with changed column names
+    return(.data)
+  }
 }

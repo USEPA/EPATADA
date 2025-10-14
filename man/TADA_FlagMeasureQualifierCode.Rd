@@ -45,7 +45,7 @@ censored data function, TADA_SimpleCensoredMethods.
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Flag and keep all suspect samples:
 MeasureQualifierCode_flagged <-

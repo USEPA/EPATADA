@@ -54,11 +54,11 @@
 #' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
 #' will still be determined.
 #'
-#' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
-#' default is aggregatedonly = "FALSE" which means that all results are returned.
-#' When aggregatedonly = "TRUE", only aggregate values are returned.
+#' @param aggregatedonly Boolean argument with options TRUE or FALSE. The
+#' default is aggregatedonly = FALSE which means that all results are returned.
+#' When aggregatedonly = TRUE, only aggregate values are returned.
 #'
-#' @param clean Boolean argument with options "TRUE" or "FALSE". The
+#' @param clean Boolean argument with options TRUE or FALSE. The
 #' default is clean = "FALSE" which means that all results are returned.
 #' When clean = "TRUE", only aggregate results which can be assigned to a depth
 #' category are included in the returned dataframe.
@@ -78,7 +78,7 @@
 #'
 #' @examples
 #' # Load data frame
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
 #' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
@@ -507,7 +507,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
 #'
 #' @examples
 #' # Load data frame
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
 #' Data_6Tribes_5y_DepthProfileID_Nresults <-
@@ -676,7 +676,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -689,7 +689,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' )
 #'
 #' # Load example data frame:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring
 #' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,

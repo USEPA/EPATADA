@@ -69,7 +69,7 @@ and the TADA.UseForAnalysis.Flag column will not be added.
 }
 \examples{
 \dontrun{
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
 Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
   clean = TRUE,
