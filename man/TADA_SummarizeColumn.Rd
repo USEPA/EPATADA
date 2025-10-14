@@ -7,7 +7,7 @@
 TADA_SummarizeColumn(.data, col = "TADA.CharacteristicName")
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP, where
+\item{.data}{TADA dataframe containing the data downloaded from the WQP, where
 each row represents a unique data record.}
 
 \item{col}{A text string name of the column the user would like summarized.}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RequiredCols.R
 \name{TADA_CheckRequiredFields}
 \alias{TADA_CheckRequiredFields}
-\title{TADA Module 1 Required Fields Check}
+\title{TADA Required Fields Check}
 \usage{
 TADA_CheckRequiredFields(.data)
 }
@@ -10,27 +10,77 @@ TADA_CheckRequiredFields(.data)
 \item{.data}{A dataframe}
 }
 \value{
-Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all
+of the required fields. If FALSE, an error will be returned that includes the names of all
+missing columns.
 }
 \description{
-This function checks if all required fields for TADA Module 1 are
-included in the input dataframe.
+This function checks if all fields required to run TADA functions are included in the input
+dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility
+with the application.
 }
 \examples{
 \dontrun{
-# Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
-# Example WQP URL: https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+# Find web service URLs for each Profile using WQP User Interface
+# (https://www.waterqualitydata.us/)
+# Example WQP URL:
+# https://www.waterqualitydata.us/#statecode=US\%3A09&characteristicType=Nutrient&
+# startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+# providers=STEWARDS&providers=STORET
 
-# Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US\%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+# Define base URL and common components
+baseurl <- "https://www.waterqualitydata.us"
+filters <- "/search?statecode=US\%3A09&characteristicType=Nutrient"
+dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+type <- "&mimeType=csv&zip=yes"
+providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 
-# Join all three profiles using TADA_JoinWQPProfiles
-TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+# Construct URLs for different profiles
+station_url <- paste0(
+  baseurl, "/data/Station", filters, dates, type, providers
+)
+result_url <- paste0(
+  baseurl, "/data/Result", filters, dates, type,
+  "&dataProfile=resultPhysChem", providers
+)
+project_url <- paste0(
+  baseurl, "/data/Project", filters, dates, type, providers
+)
 
-# Run TADA_CheckRequiredFields
-CheckRequirements_TADAProfile <- TADA_CheckRequiredFields(TADAProfile)
+# Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem profiles
+stationProfile <- TADA_ReadWQPWebServices(station_url)
+physchemProfile <- TADA_ReadWQPWebServices(result_url)
+projectProfile <- TADA_ReadWQPWebServices(project_url)
+
+# Join profiles using TADA_JoinWQPProfiles
+TADAProfile <- TADA_JoinWQPProfiles(
+  FullPhysChem = physchemProfile,
+  Sites = stationProfile,
+  Projects = projectProfile
+)
+
+# Run TADA_CheckRequiredFields, returns error message
+TADA_CheckRequiredFields(TADAProfile)
+
+# Add missing column
+TADAProfile1 <- TADA_CreateDateTime(
+  .data = TADAProfile,
+  date_col = "ActivityStartDate",
+  time_col = "ActivityStartTime.Time",
+  tz_col = "ActivityStartTime.TimeZoneCode",
+  tz = "UTC"
+)
+
+review_TADAProfile1 <- TADAProfile1 \%>\% dplyr::select(c(
+  "ActivityStartDate",
+  "ActivityStartTime.Time",
+  "ActivityStartTime.TimeZoneCode",
+  "ActivityStartDateTime",
+  "ActivityStartTime.TimeZoneCode_offset"
+))
+
+# Re-run TADA_CheckRequiredFields, returns TRUE
+TADA_CheckRequiredFields(TADAProfile1)
 }
 
 }

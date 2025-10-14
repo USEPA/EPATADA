@@ -7,21 +7,21 @@
 TADA_Stats(.data, group_cols = c("TADA.ComparableDataIdentifier"))
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. Data frame must include the
+\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+where each row represents a unique data record. Dataframe must include the
 columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 'TADA.ResultSampleFractionText', 'TADA.MethodSpeciationName',
 'TADA.ComparableDataIdentifier', 'TADA.CensoredData.Flag',
-'DetectionQuantitationLimitTypeName', and 'MonitoringLocationIdentifier' to
+'DetectionQuantitationLimitTypeName', and 'TADA.MonitoringLocationIdentifier' to
 run this function. The 'TADA.ComparableDataIdentifier' can be added to the
-data frame by running the function TADA_CreateComparableID().}
+dataframe by running the function TADA_CreateComparableID().}
 
 \item{group_cols}{This function automatically uses
 'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
 want to summarize their dataset by additional grouping columns. For
 example, a user may want to create a summary table where each row is
-specific to one comparable data identifier AND one monitoring location.
-This input would look like: group_cols = c("MonitoringLocationIdentifier")}
+specific to one comparable data identifier AND one TADA monitoring location.
+This input would look like: group_cols = c("TADA.MonitoringLocationIdentifier")}
 }
 \value{
 stats table
@@ -43,7 +43,7 @@ and Kaplan Meier.
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Create stats table:
 Data_6Tribes_5y_Harmonized_stats <- TADA_Stats(Data_6Tribes_5y_Harmonized)
 

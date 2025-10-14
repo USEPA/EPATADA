@@ -11,7 +11,10 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "NPsummation_key.csv", package = "EPATADA"))
+  ref <- utils::read.csv(system.file("extdata",
+    "NPsummation_key.csv",
+    package = "EPATADA"
+  ))
   return(ref)
 }
 
@@ -31,7 +34,7 @@ TADA_GetNutrientSummationRef <- function() {
 #' combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit,
 #' etc.).
 #'
-#' @param .data TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.
+#' @param .data TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.
 #'
 #' @return Synonym Reference Table unique to the input dataframe
 #'
@@ -39,7 +42,7 @@ TADA_GetNutrientSummationRef <- function() {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
 #' Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))

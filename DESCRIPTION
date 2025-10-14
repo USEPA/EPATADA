@@ -3,37 +3,37 @@ Type: Package
 Title: EPA TADA (Tools for Automated Data Analysis) R Package
 Version: 0.0.1
 Authors@R: 
-  c(person(given = "U.S. Environmental Protection Agency",
-           role = "aut"),
-    person(given = "Cristina",
+  c(person(given = "Cristina",
            family = "Mullin",
            role = c("aut", "cre"),
            email = "mullin.cristina@epa.gov",
            comment = c(ORCID = "0000-0002-0615-6087")),
     person(given = "Hillary",
            family = "Marler",
-           role = "aut"),
+           role = "aut",
+           email = "marler.hillary@epa.gov",
+           comment = c(ORCID = "0009-0006-0323-1172")),
     person(given = "Jacob",
            family = "Greif",
            role = "aut"),
     person(given = "Elise",
            family = "Hinman",
            role = "aut"), 
-    person(given = "Kathleen",
-           family = "Healy",
-           role = "ctb"), 
     person(given = "Kenny", 
            family = "Wong",
-           role = "ctb"),
+           role = "aut"),
     person(given = "Kathryn", 
            family = "Willi",
-           role = "ctb"),
-    person(given = "Justin", 
+           role = "aut"),
+    person(given = "Matt",
+           family = "Brousil",
+           role = "aut"),
+    person(given = "Kathleen",
+           family = "Healy",
+           role = "aut"),
+    person(given = "Justin",
            family = "Bousquin",
-           role = "ctb"),
-    person(given = "Renae",
-           family = "Myers",
-           role = "ctb"), 
+           role = "aut"),
     person(family = "TADA Working Group", 
            role = "ctb")
     )
@@ -44,7 +44,7 @@ Copyright: This software is in the public domain because it contains materials
     that originally came from the U.S. Environmental Protection Agency.
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     plyr, 
     data.table, 
@@ -58,8 +58,7 @@ Imports:
     stringi,
     utils, 
     stats, 
-    lubridate,
-    dataRetrieval, 
+    lubridate (>= 1.5.0), 
     ggplot2, 
     sf,
     leaflet,
@@ -71,30 +70,55 @@ Imports:
     rlang,
     nhdplusTools,
     arcgislayers,
-    httr,
-    jsonlite
-Depends: 
-    R (>= 3.5.0)
-Suggests:
-    lwgeom,
+    MESS,
+    units,
+    igraph,
+    jsonlite, 
+    openxlsx,
     DT,
+    dataRetrieval (>= 2.7.21),
+    dbscan,
+    janitor,
+    rExpertQuery,
+    readr (>= 1.4.0),
+    spsUtil,
+    httr,
+    leaflegend,
+    usethis
+Depends: 
+    R (>= 4.1.0)
+Suggests:
+    curl (>= 7.0.0),
+    xml2,
+    whisker,
+    hydroloom,
+    lwgeom,
     RColorBrewer,
     rmarkdown,
-    readr,
     tidyverse,
     knitr,
     testthat,
-    testthis, 
-    usethis,
+    testthis,
     devtools,
     pkgdown,
     spelling,
     htmltools,
-    yaml
+    tigris,
+    yaml,
+    rvest,
+    remotes,
+    covr,
+    httr2 (>= 1.2.1),
+    roxygen2
+Remotes:
+    USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown
+BuildVignettes: true
 Language: en-US
 Config/testthat/edition: 3
 Config/testthat/load-all: list(export_all = FALSE, helpers = FALSE)
 URL: https://usepa.github.io/EPATADA/, https://github.com/USEPA/EPATADA
 LazyData: true
 LazyDataCompression: xz
+Config/Needs/website: rmarkdown
+BugReports: https://github.com/USEPA/EPATADA/issues

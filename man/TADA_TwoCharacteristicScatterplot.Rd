@@ -11,8 +11,8 @@ TADA_TwoCharacteristicScatterplot(
 )
 }
 \arguments{
-\item{.data}{TADA data frame containing the data downloaded from the WQP,
-where each row represents a unique data record. Data frame must include the
+\item{.data}{TADA dataframe containing the data downloaded from the WQP,
+where each row represents a unique data record. Dataframe must include the
 columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
 to run this function.}
 
@@ -26,7 +26,7 @@ organization, etc.)}
 
 \item{groups}{A vector of two identifiers from the id_cols column. For
 example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
-be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
+be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_STD UNITS'. These groups will
 be specific to your dataset. If the id_cols is 'MonitoringLocationName',
 the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.}
 }
@@ -40,13 +40,22 @@ Create A Two-Characteristic Scatterplot
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_MG/L", "NITRATE_UNFILTERED_AS N_MG/L"))
+TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
+  id_cols = "TADA.ComparableDataIdentifier",
+  groups = c(
+    "AMMONIA_UNFILTERED_AS N_MG/L",
+    "NITRATE_UNFILTERED_AS N_MG/L"
+  )
+)
 
 # Load example dataset:
-data(Data_6Tribes_5y_Harmonized)
+utils::data(Data_6Tribes_5y_Harmonized)
 # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
+  id_cols = "TADA.ComparableDataIdentifier",
+  groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
+)
 
 }

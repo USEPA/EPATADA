@@ -2,43 +2,67 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_RandomTestingData}
 \alias{TADA_RandomTestingData}
-\title{Generate a random WQP dataset}
+\title{Generate a Random Water Quality Portal (WQP) Dataset}
 \usage{
 TADA_RandomTestingData(
   number_of_days = 1,
   choose_random_state = FALSE,
-  autoclean = TRUE
+  autoclean = TRUE,
+  max_attempts = 3
 )
 }
 \arguments{
-\item{number_of_days}{Numeric. The default is 1, which will query and retrieve
-data for a random two-day period (e.g.startDate = "2015-04-21",
-endDate = "2015-04-22"). The user can change this number to select additional days
-if desired.}
+\item{number_of_days}{Numeric. Specifies the number of days for which data
+will be queried. The default is 1, which queries data for a random two-day
+period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
+Users can increase this number to retrieve data for more days.}
 
-\item{choose_random_state}{Boolean (TRUE or FALSE). The default is FALSE.
-If FALSE, the function will query all data in the WQP for the number_of_days
-specified (national query). If TRUE, the function will select a random state
-and only retrieve data for that state.}
+\item{choose_random_state}{Boolean (TRUE or FALSE). Default is FALSE.
+If FALSE, the function queries all available WQP data for the specified
+number_of_days (national query). If TRUE, the function selects a random state
+and retrieves data only for that state.}
 
-\item{autoclean}{Boolean (TRUE or FALSE). The default is TRUE.
-If FALSE, the function will NOT apply the TADA_AutoClean as part of the
-TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
-TADA_DataRetrieval.}
+\item{autoclean}{Boolean (TRUE or FALSE). Default is TRUE.
+If TRUE, the function applies \code{TADA_AutoClean} as part of the \code{TADA_DataRetrieval}.
+If FALSE, the function does not apply \code{TADA_AutoClean}.}
+
+\item{max_attempts}{Numeric. Specifies the maximum number of attempts to
+retrieve data if an error occurs. Default is 3.}
 }
 \value{
-Random WQP dataset.
+A data frame containing a random WQP dataset with at least 10 results,
+or an empty data frame if data retrieval fails after the specified number of attempts.
 }
 \description{
-Retrieves data for a period of time in the past 20 years using
-TADA_DataRetrieval. This function can be used for testing functions on
-random datasets.
+This function retrieves water quality data for a randomly selected period
+within the past 20 years using \code{TADA_DataRetrieval}. It can be used to test
+functions on random datasets. The function ensures that the returned dataset
+contains at least 10 results. If the initial random dataset contains fewer
+than 10 results, the function automatically queries another random dataset
+until the criteria are met.
 }
 \examples{
 \dontrun{
-df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
-df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
-df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
-}
+# Example 1: Retrieve a random dataset for random 2-day period
+# across the entire nation
+random_data_national <- TADA_RandomTestingData(
+  number_of_days = 1,
+  choose_random_state = FALSE
+)
 
+# Example 2: Retrieve a random dataset for a 3-day period within
+# a randomly selected state
+random_data_state <- TADA_RandomTestingData(
+  number_of_days = 3,
+  choose_random_state = TRUE
+)
+
+# Example 3: Retrieve a random dataset for a 5-day period
+# within a randomly selected state without auto-cleaning
+random_data_state_no_clean <- TADA_RandomTestingData(
+  number_of_days = 5,
+  choose_random_state = TRUE, 
+  autoclean = FALSE
+)
+}
 }

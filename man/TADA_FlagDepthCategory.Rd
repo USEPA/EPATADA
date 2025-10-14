@@ -43,18 +43,18 @@ will still be determined.}
 "max". The default is dailyagg = "none". When dailyagg = "none", all results
 will be retained. When dailyagg == "avg", the mean value in each group of
 results (as determined by the depth category) will be identified or calculated for each
-MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
+TADA.MonitoringLocation, ActivityDate, Organization ID, and TADA.CharacteristicName combination.
 When dailyagg == "min" or when dailyagg == "max", the min or max
 value in each group of results (as determined by the depth category) will
-be identified or calculated for each MonitoringLocation, ActivityDate, and TADA.CharacteristicName
-combination. An additional column, TADA.DepthProfileAggregation.Flag will be added
-to describe aggregation.}
+be identified or calculated for each TADA.MonitoringLocation, ActivityDate, and
+TADA.CharacteristicName combination. An additional column, TADA.DepthProfileAggregation.Flag will
+be added to describe aggregation.}
 
-\item{aggregatedonly}{Boolean argument with options "TRUE" or "FALSE". The
-default is aggregatedonly = "FALSE" which means that all results are returned.
-When aggregatedonly = "TRUE", only aggregate values are returned.}
+\item{aggregatedonly}{Boolean argument with options TRUE or FALSE. The
+default is aggregatedonly = FALSE which means that all results are returned.
+When aggregatedonly = TRUE, only aggregate values are returned.}
 
-\item{clean}{Boolean argument with options "TRUE" or "FALSE". The
+\item{clean}{Boolean argument with options TRUE or FALSE. The
 default is clean = "FALSE" which means that all results are returned.
 When clean = "TRUE", only aggregate results which can be assigned to a depth
 category are included in the returned dataframe.}
@@ -73,26 +73,30 @@ their result identifiers.
 This function creates a new column, TADA.DepthCategory.Flag with values: "No
 depth info", "Surface", "Bottom", and
 "Middle" when multiple depths are available.
-Categories are: less than 2m (or user specified value) depth = "Surface", from
-bottom up to 2m (or user specified value) from bottom = "Bottom", and all depths
-in between the Surface and Bottom are assigned to the "Middle" category.
+Categories are: less than 2m (or user specified value) depth = "Surface",
+from bottom up to 2m (or user specified value) from bottom = "Bottom", and
+all depths in between the Surface and Bottom are assigned to the "Middle"
+category.
 }
 \details{
-When more than one result is available for a MonitoringLocationIdentifier,
+When more than one result is available for a TADA.MonitoringLocationIdentifier,
 ActivityStartDate, OrganizationIdentifier, and TADA.CharacteristicName, the
-user can choose a single result value (average, max, or min value) to use for that
-day and location. If results vary with depth, the user may also define whether
-the daily aggregation occurs over each depth category (surface, middle, or bottom)
-or for the entire depth profile.
+user can choose a single result value (average, max, or min value) to use
+for that day and location. If results vary with depth, the user may also
+define whether the daily aggregation occurs over each depth category
+(surface, middle, or bottom) or for the entire depth profile.
 }
 \examples{
 # Load data frame
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
 
-# assign TADA.DepthCategory.Flag and determine average values by depth category and returning only aggregate values
-Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y, bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE)
+# assign TADA.DepthCategory.Flag and determine average values by depth
+# category and returning only aggregate values
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+  bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
+)
 
 }

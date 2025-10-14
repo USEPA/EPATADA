@@ -45,18 +45,27 @@ censored data function, TADA_SimpleCensoredMethods.
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Flag and keep all suspect samples:
-MeasureQualifierCode_flagged <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
+MeasureQualifierCode_flagged <-
+  TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
 
 # Flag suspect samples and filter to suspect data only:
-MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, flaggedonly = TRUE)
+MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(
+  Data_6Tribes_5y,
+  flaggedonly = TRUE
+)
 
 # Remove all suspect samples:
-MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE)
+MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y,
+  clean = TRUE
+)
 
 # Remove all suspect samples and DO NOT include a new column with
 # qualifier definitions (TADA.MeasureQualifierCode.Def):
-MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y, clean = TRUE, define = FALSE)
+MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(
+  Data_6Tribes_5y,
+  clean = TRUE, define = FALSE
+)
 }

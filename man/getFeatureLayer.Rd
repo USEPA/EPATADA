@@ -22,7 +22,7 @@ getFeatureLayer is used by writeLayer to write feature layers to local files
 \examples{
 \dontrun{
 # Load example dataset
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 # Get the bounding box of the data
 bbox <- sf::st_bbox(
   c(
@@ -37,5 +37,4 @@ bbox <- sf::st_bbox(
 # filtered by the bounding box for the Data_Nutrients_UT example dataset
 getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
 }
-
 }

@@ -7,7 +7,7 @@
 TADA_GetSynonymRef(.data)
 }
 \arguments{
-\item{.data}{TADA dataframe. If a data frame is not provided, the function will return the default internal reference table.}
+\item{.data}{TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.}
 }
 \value{
 Synonym Reference Table unique to the input dataframe
@@ -28,7 +28,7 @@ etc.).
 }
 \examples{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Create a synonym reference table for flagged, cleaned dataframe:
 Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))

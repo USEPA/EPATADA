@@ -1,17 +1,17 @@
 #' Create Boxplot(s)
 #'
-#' @param .data TADA data frame containing the data downloaded from the
-#'   WQP, where each row represents a unique data record. Data frame must
+#' @param .data TADA dataframe containing the data downloaded from the
+#'   WQP, where each row represents a unique data record. dataframe must
 #'   include the columns 'TADA.ComparableDataIdentifier',
 #'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 #'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
 #'   frame by running the function TADA_HarmonizeSynonyms(). The user can include
 #'   additional grouping columns in the id_cols input. If more than one group
-#'   exists in the data frame (i.e. two or more unique comparable data
+#'   exists in the dataframe (i.e. two or more unique comparable data
 #'   identifiers), the function creates a list of plots, where each list element
 #'   name is a unique group identifier.
 #'
-#' @param id_cols The column(S) in the data frame used to identify the unique groups
+#' @param id_cols The column(S) in the dataframe used to identify the unique groups
 #'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #'
 #' @return A list of plotly boxplot figures showing the median, 25th percentile,
@@ -23,17 +23,24 @@
 #' @examples
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
-#' # Load example data frame:
-#' data(Data_6Tribes_5y_Harmonized)
+#' # Load example dataframe:
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' # Generate single boxplot
 #' TADA_Boxplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create multiple boxplots with additional grouping columns and view the first
 #' # plot in list. In this example, we will group data in the input dataframe
 #' # by both the TADA.ComparableDataIdentifier and the OrganizationIdentifier
-#' Boxplots_TPbyOrg <- TADA_Boxplot(df, id_cols = c("TADA.ComparableDataIdentifier", "OrganizationIdentifier"))
+#' Boxplots_TPbyOrg <- TADA_Boxplot(df,
+#'   id_cols =
+#'     c("TADA.ComparableDataIdentifier", "OrganizationIdentifier")
+#' )
 #' # This example generates 2 box plots.
 #' Boxplots_TPbyOrg[[1]]
 #' Boxplots_TPbyOrg[[2]]
@@ -42,9 +49,11 @@
 #' # plot in list. In this example, we will group data in the input dataframe
 #' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
-#' # Load example data frame:
-#' data(Data_Nutrients_UT)
-#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' # Load example dataframe:
+#' utils::data(Data_Nutrients_UT)
+#' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
+#'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+#' )
 #' # This example generates 32 box plots.
 #' Boxplot_output[[2]]
 #' Boxplot_output[[25]]
@@ -182,18 +191,18 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
 #' Create Histogram(s)
 #'
-#' @param .data TADA data frame containing the data downloaded from the
-#'   WQP, where each row represents a unique data record. Data frame must
+#' @param .data TADA dataframe containing the data downloaded from the
+#'   WQP, where each row represents a unique data record. Dataframe must
 #'   include the columns 'TADA.ComparableDataIdentifier',
 #'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 #'   this function. 'TADA.ComparableDataIdentifier' can be added to the data
 #'   frame by running the function TADA_HarmonizeSynonyms(). The user can include
 #'   additional grouping columns in the id_cols input. If more than one group
-#'   exists in the data frame (i.e. two or more unique comparable data
+#'   exists in the dataframe (i.e. two or more unique comparable data
 #'   identifiers), the function creates a list of plots, where each list element
 #'   name is a unique group identifier.
 #'
-#' @param id_cols The column(S) in the data frame used to identify the unique groups
+#' @param id_cols The column(S) in the dataframe used to identify the unique groups
 #'   to be plotted. Defaults to 'TADA.ComparableDataIdentifier'.
 #'
 #' @return A list of plotly histogram figures showing the distribution of sample values
@@ -202,24 +211,33 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' @export
 #'
 #' @examples
-#' # Load example data frame:
-#' data(Data_6Tribes_5y_Harmonized)
+#' # Load example dataframe:
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
-#' # in the input data frame:
+#' # in the input dataframe:
 #' TADA_Histogram(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier")
 #'
-#' # Create a single histogram using defaults. The input data frame in this example
+#' # Create a single histogram using defaults. The input dataframe in this example
 #' # is filtered so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' TADA_Histogram(df, id_cols = "TADA.ComparableDataIdentifier")
 #'
 #' # Create multiple histograms with additional grouping columns and view the first
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
-#' # Load example data frame:
-#' data(Data_Nutrients_UT)
-#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' # Load example dataframe:
+#' utils::data(Data_Nutrients_UT)
+#' Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
+#'   id_cols = c(
+#'     "TADA.ComparableDataIdentifier",
+#'     "MonitoringLocationTypeName"
+#'   )
+#' )
 #' # This example generates 32 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
@@ -363,13 +381,13 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 
 #' Create Overview Map
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns
+#' @param .data TADA dataframe containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Dataframe must include the columns
 #' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 #' 'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate', 'TADA.CharacteristicName',
 #' and 'OrganizationIdentifier' to run this function.
 #'
-#' @return A leaflet map that shows all sites in the data frame, where larger point sizes
+#' @return A leaflet map that shows all sites in the dataframe, where larger point sizes
 #' indicate more results collected at a site, and darker point colors indicate more
 #' characteristics measured at that site. Users can click on points on the map to see
 #' a pop-up window with exact counts for measurements (i.e. number of rows),
@@ -379,21 +397,18 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #'
 #' @examples
 #' \dontrun{
-#' # Load example data frame:
-#' data(Data_Nutrients_UT)
-#' data(Data_NCTCShepherdstown_HUC12)
-#' data(Data_6Tribes_5y_Harmonized)
+#' # Load example dataframe:
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
-#' TADA_OverviewMap(Data_NCTCShepherdstown_HUC12)
 #' TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
 TADA_OverviewMap <- function(.data) {
   suppressMessages(suppressWarnings({
     quiet({
-      # taken from this stackoverflow: https://stackoverflow.com/questions/58505589/circles-in-legend-for-leaflet-map-with-addcirclemarkers-in-r-without-shiny
       addLegendCustom <- function(map, colors, labels, sizes, opacity = 0.5) {
         colorAdditions <- paste0(colors, "; border-radius: 50%; width:", sizes, "px; height:", sizes, "px")
         labelAdditions <- paste0("<div style='display: inline-block;height: ", sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", labels, "</div>")
@@ -558,31 +573,27 @@ TADA_OverviewMap <- function(.data) {
 
 #' Create Flagged Sites Map
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP, where
-#' each row represents a unique data record. Data frame must include the columns
+#' @param .data TADA dataframe containing the data downloaded from the WQP, where
+#' each row represents a unique data record. Dataframe must include the columns
 #' 'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
 #' and 'TADA.LongitudeMeasure' to run this function.
 #'
-#' @return A leaflet map that shows all sites in the data frame that contain
+#' @return A leaflet map that shows all sites in the dataframe that contain
 #' flagged data in the form of:
 #' 1) imprecise coordinates - latitudes and/or longitudes that contain fewer
 #'    then 3 decimal places.
 #' 2) outside USA - coordinates that fall outside the bounds of the USA.
-#' 3) near other sites - groups of sites that are spatially located within
-#'    a threshold distance (defaulting to 100 m) from each other.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Load example data frame:
-#' data(Data_Nutrients_UT)
-#' data(Data_NCTCShepherdstown_HUC12)
-#' data(Data_6Tribes_5y_Harmonized)
+#' # Load example dataframe:
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_FlaggedSitesMap(Data_Nutrients_UT)
-#' TADA_FlaggedSitesMap(Data_NCTCShepherdstown_HUC12)
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
@@ -590,13 +601,9 @@ TADA_FlaggedSitesMap <- function(.data) {
   invalid <- TADA_FlagCoordinates(.data, flaggedonly = TRUE)
   lowres <- invalid[invalid$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits", ]
   outsideusa <- invalid[invalid$TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA"), ]
-  nearby <- TADA_FindNearbySites(.data)
-  print(colnames(nearby))
-  nearby <- TADA_GetUniqueNearbySites(nearby)
 
   lowresIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "green")
   outsideIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "darkblue")
-  nearbyIcon <- leaflet::makeAwesomeIcon(icon = "circle", library = "fa", iconColor = "#ffffff", markerColor = "pink")
 
   map <- leaflet::leaflet() %>%
     leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
@@ -629,24 +636,99 @@ TADA_FlaggedSitesMap <- function(.data) {
       data = lowres
     )
   }
-  if (nrow(nearby) > 0) {
-    map <- map %>% leaflet::addAwesomeMarkers(~TADA.LongitudeMeasure,
-      ~TADA.LatitudeMeasure,
-      icon = nearbyIcon,
-      # label = ~as.character(TADA.MonitoringLocationIdentifier),
-      popup = paste0(
-        "Nearby Group Name: ", nearby$TADA.MonitoringLocationIdentifier,
-        "<br> Site ID: ", nearby$MonitoringLocationIdentifier,
-        "<br> Site Name: ", nearby$MonitoringLocationName,
-        "<br> Latitude: ", nearby$TADA.LatitudeMeasure,
-        "<br> Longitude: ", nearby$TADA.LongitudeMeasure
-      ),
-      data = nearby
-    )
+  return(map)
+}
+
+#' Create Nearby Sites Map
+#'
+#' @param .data TADA dataframe after running TADA.FindNearbySites.
+#' @param dist_buffer Distance in m to show a radius around each site marker.
+#'
+#'
+#' @return A leaflet map that shows all sites in the dataframe that contain
+#' flagged data in the form of near other sites - groups of sites that are spatially located within
+#'    a threshold distance (defaulting to 100 m) from each other and within the same catchment.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataframe:
+#' utils::data(Data_Nutrients_UT)
+#'
+#'
+#' # Create maps:
+#' TADA_FlaggedSitesMap(Data_Nutrients_UT)
+#' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+#' }
+#'
+TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
+  if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
+    .data <- TADA_FindNearbySites(.data)
+  }
+
+  .data <- .data %>%
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) %>%
+    dplyr::mutate(
+      LatitudeMeasure = as.numeric(LatitudeMeasure),
+      LongitudeMeasure = as.numeric(LongitudeMeasure)
+    ) %>%
+    dplyr::select(
+      LongitudeMeasure, LatitudeMeasure, TADA.MonitoringLocationIdentifier,
+      MonitoringLocationIdentifier, MonitoringLocationName, TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure, OrganizationIdentifier, TADA.NearbySiteGroup
+    ) %>%
+    dplyr::distinct()
+
+  icon.colors <- grDevices::rainbow(as.numeric(length(unique(.data$TADA.NearbySiteGroup))))
+
+  pal <- leaflet::colorFactor(
+    palette = icon.colors,
+    domain = .data$TADA.NearbySiteGroup
+  )
+
+  map <- leaflet::leaflet(.data) %>%
+    leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo", options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)) %>%
+    leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
+  if (nrow(.data) > 0) {
+    map <- map %>%
+      leaflet::addCircleMarkers(~LongitudeMeasure,
+        ~LatitudeMeasure,
+        color = ~ pal(TADA.NearbySiteGroup),
+        opacity = 1,
+        fillColor = ~ pal(TADA.NearbySiteGroup),
+        fillOpacity = 1,
+        radius = ifelse(dist_buffer > 200,
+          dist_buffer / 10,
+          20
+        ),
+        weight = 1,
+        # label = ~as.character(TADA.MonitoringLocationIdentifier),
+        popup = paste0(
+          "Nearby Group Name: ", .data$TADA.MonitoringLocationIdentifier,
+          "<br> Nearby Site Group: ", .data$TADA.NearbySiteGroup,
+          "<br> Site ID: ", .data$MonitoringLocationIdentifier,
+          "<br> Site Name: ", .data$MonitoringLocationName,
+          "<br> Latitude: ", .data$LatitudeMeasure,
+          "<br> Longitude: ", .data$LongitudeMeasure
+        ),
+        data = .data,
+        clusterOptions = leaflet::markerClusterOptions(),
+      ) %>%
+      leaflet::addCircles(~LongitudeMeasure,
+        ~LatitudeMeasure,
+        color = ~ pal(TADA.NearbySiteGroup),
+        opacity = 0.1,
+        fillColor = ~ pal(TADA.NearbySiteGroup),
+        fillOpacity = 0.1,
+        radius = dist_buffer,
+        weight = 1
+      )
   }
 
   return(map)
 }
+
 
 #' Field Values Pie Chart
 #'
@@ -662,14 +744,18 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
 #' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.CharacteristicName")
-#' # If there are more than 12 categories to display, any remaining categories, the ones that have the smallest number of results,
+#' # If there are more than 12 categories to display, any remaining categories,
+#' # the ones that have the smallest number of results,
 #' # are combined into an "ALL OTHERS" category.
-#' TADA_FieldValuesPie(Data_Nutrients_UT, field = "TADA.ComparableDataIdentifier")
+#' TADA_FieldValuesPie(Data_Nutrients_UT,
+#'   field =
+#'     "TADA.ComparableDataIdentifier"
+#' )
 #'
 TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "null") {
   dat <- utils::head(TADA_FieldValuesTable(.data = .data, field = field, characteristicName = characteristicName), 12)
@@ -680,7 +766,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
   dat2$Legend <- paste0(dat2$Value, " - ", dat2$Count, " results")
   dat <- dat %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Legend = TADA_InsertBreaks(Legend))
+    dplyr::mutate(Legend = stringr::str_wrap(Legend, width = 50))
 
   # Only apply the all others category if there are greater than 12 categories to display.
   if (dat2$Count != 0) {
@@ -728,12 +814,12 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 
 #' Create Scatterplot(s)
 #'
-#' @param .data TADA data frame containing the data downloaded from the
-#'   WQP, where each row represents a unique data record. Data frame must
+#' @param .data TADA dataframe containing the data downloaded from the
+#'   WQP, where each row represents a unique data record. Dataframe must
 #'   include the columns 'TADA.ComparableDataIdentifier',
 #'   'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode' to run
 #'   this function. The 'TADA.ComparableDataIdentifier' column is added to the
-#'   data frame automatically when WQP data is retrieved using TADADataRetrieval.
+#'   dataframe automatically when WQP data is retrieved using TADADataRetrieval.
 #'   This TADA.ComparableDataIdentifier can be updated to harmonize synonyms
 #'   by running the function TADA_HarmonizeSynonyms(). You can also include
 #'   additional grouping columns in the id_cols input if desired. If more than
@@ -751,7 +837,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
@@ -759,7 +845,11 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' # Create a single scatterplot using defaults. The input dataframe in this
 #' # example is filtered so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L")
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier ==
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#' )
 #' TADA_Scatterplot(df, id_cols = "TADA.ComparableDataIdentifier")
 #' # Creates a scatterplot for each monitoring location
 #' TADA_Scatterplot(df, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationName"))
@@ -768,8 +858,10 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
-#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT, id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName"))
+#' utils::data(Data_Nutrients_UT)
+#' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
+#'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
+#' )
 #' # This example generates 47 scatterplots
 #' Scatterplot_output[[10]]
 #' Scatterplot_output[[25]]
@@ -900,8 +992,8 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 
 #' Create A Two-Characteristic Scatterplot
 #'
-#' @param .data TADA data frame containing the data downloaded from the WQP,
-#'   where each row represents a unique data record. Data frame must include the
+#' @param .data TADA dataframe containing the data downloaded from the WQP,
+#'   where each row represents a unique data record. Dataframe must include the
 #'   columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue', and 'TADA.ResultMeasure.MeasureUnitCode'
 #'   to run this function.
 #'
@@ -915,7 +1007,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @param groups A vector of two identifiers from the id_cols column. For
 #'   example, if the id_cols is 'TADA.ComparableDataIdentifier', the groups could
-#'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_NA'. These groups will
+#'   be 'DISSOLVED OXYGEN (DO)_NA_NA_UG/L' and 'PH_NA_NA_STD UNITS'. These groups will
 #'   be specific to your dataset. If the id_cols is 'MonitoringLocationName',
 #'   the groups could be 'Upper Red Lake: West' and 'Upper Red Lake: West-Central'.
 #'
@@ -927,14 +1019,23 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT, id_cols = "TADA.ComparableDataIdentifier", groups = c("AMMONIA_UNFILTERED_AS N_MG/L", "NITRATE_UNFILTERED_AS N_MG/L"))
+#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
+#'   id_cols = "TADA.ComparableDataIdentifier",
+#'   groups = c(
+#'     "AMMONIA_UNFILTERED_AS N_MG/L",
+#'     "NITRATE_UNFILTERED_AS N_MG/L"
+#'   )
+#' )
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized, id_cols = "TADA.ComparableDataIdentifier", groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_NA"))
+#' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
+#'   id_cols = "TADA.ComparableDataIdentifier",
+#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
+#' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
   # check .data is data.frame
@@ -983,14 +1084,14 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   param1 <- subset(plot.data, plot.data[, id_cols] %in% groups[1])
   param2 <- subset(plot.data, plot.data[, id_cols] %in% groups[2])
 
-  title <- TADA_InsertBreaks(
+  title <- stringr::str_wrap(
     paste0(
       param1$TADA.CharacteristicName[1],
       " and ",
       param2$TADA.CharacteristicName[1],
       " Over Time"
     ),
-    len = 45
+    width = 45
   )
 
   # figure margin
@@ -1141,7 +1242,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 
 #' Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with Multiple (Up to 4) Groupings by an Additional Column
 #'
-#' @param .data TADA data frame where each row represents a unique record. Data frame must include
+#' @param .data TADA dataframe where each row represents a unique record. Dataframe must include
 #'    the columns 'TADA.ComparableDataIdentifier', 'TADA.ResultMeasureValue',
 #'   'TADA.ResultMeasure.MeasureUnitCode', 'ActivityStartDate', 'ActivityStartDateTime',
 #'    'ActivityStartDateTime', 'MonitoringLocationName', 'TADA.ActivityMediaName',
@@ -1172,25 +1273,42 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # UT Nutrients results grouped by county
 #' # transform non-detect data
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 #' # create scatterplots for selected counties
-#' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(df2, group_col = "CountyCode", groups = c("057", "011", "003", "037"))
+#' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
+#'   df2,
+#'   group_col = "CountyCode", groups = c("057", "011", "003", "037")
+#' )
 #' # view the 3rd and 4th plots
 #' UT_Nutrients_by_CountyCode[[3]]
 #' UT_Nutrients_by_CountyCode[[4]]
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
-#' # Filter the example data so it includes only one TADA.ComparableDataIdentifier
-#' df <- dplyr::filter(Data_6Tribes_5y_Harmonized, TADA.ComparableDataIdentifier %in% c("TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
-#' # Creates a scatterplot of the three specified sites of interest in the same plot.
-#' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName", groups = c("Upper Red Lake: West", "Upper Red Lake: West-Central", "Upper Red Lake: East Central"))
+#' # Filter the example data so it includes only one
+#' # TADA.ComparableDataIdentifier
+#' df <- dplyr::filter(
+#'   Data_6Tribes_5y_Harmonized,
+#'   TADA.ComparableDataIdentifier %in% c(
+#'     "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+#'   )
+#' )
+#' # Creates a scatterplot of the three specified sites of interest in the
+#' # same plot.
+#' TADA_GroupedScatterplot(df,
+#'   group_col = "MonitoringLocationName",
+#'   groups = c(
+#'     "Upper Red Lake: West", "Upper Red Lake: West-Central",
+#'     "Upper Red Lake: East Central"
+#'   )
+#' )
 #'
-#' # If no groups are selected, return the 4 groups (by MonitoringLocationName) with the greatest number of results
+#' # If no groups are selected, return the 4 groups
+#' # (by MonitoringLocationName) with the greatest number of results
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 #'
 TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
@@ -1237,7 +1355,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
       dplyr::filter(!is.na(get(group_col)))
 
 
-    # calculate how many total groups are available in TADA data frame
+    # calculate how many total groups are available in TADA dataframe
     n.groups.total <- nrow(assign.groups)
 
     # select top four groups by number of results
@@ -1268,7 +1386,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
 
     # print message describing groups that will be plotted
     print(paste0("TADA_GroupedScatterplot: No 'groups' selected for ", group_col, ". There are ",
-      n.groups.total, " ", group_col, "s in the TADA data frame. The top ", n.groups.plotted,
+      n.groups.total, " ", group_col, "s in the TADA dataframe. The top ", n.groups.plotted,
       " ", group_col, "s by number of results will be plotted: ", groups.string, ".",
       sep = ""
     ))
@@ -1286,8 +1404,8 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     # create a character string of missing groups for printed message
     missing.groups.string <- stringi::stri_replace_last(paste(missing.groups, collapse = "; "), " and ", fixed = "; ")
 
-    # stop function if any groups are not found in TADA data frame
-    stop("TADA_GroupedScatterplot: The following ", group_col, "s are not found in the TADA data frame: ",
+    # stop function if any groups are not found in TADA dataframe
+    stop("TADA_GroupedScatterplot: The following ", group_col, "s are not found in the TADA dataframe: ",
       missing.groups.string, ". Revise param 'groups' before re-running function.",
       sep = ""
     )
@@ -1317,13 +1435,13 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   all_scatterplots <- list()
 
   for (i in 1:length(unique(plot.data$TADA.ComparableDataIdentifier))) {
-    title <- TADA_InsertBreaks(
+    title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
         TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[i]),
         " Over Time"
       ),
-      len = 45
+      width = 45
     )
 
     # figure margin

@@ -22,8 +22,8 @@ NO3 will be converted to as N using molecular weight conversion factors.}
 }
 \value{
 The input TADA dataframe with the TADA.CharacteristicName,
-TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
-TADA.ResultMeasure.MeasureUnitCode columns converted to the target values,
+TADA.ResultSampleFractionText, and TADA.MethodSpeciationName columns
+converted to the target values,
 if supplied. Also includes additional columns
 TADA.CharacteristicNameAssumptions, TADA.FractionAssumptions, and
 TADA.SpeciationAssumptions populated with additional notes about the conversion
@@ -37,25 +37,38 @@ and visualization. Users may populate the function with a dataset-specific
 synonym table created from TADA_GetSynonymRef and reviewed/customized by the
 user (recommended), or the default TADA-provided synonym table, containing
 suggested synonym naming for some priority characteristics. Where a suggested
-characteristic name, fraction, speciation, or unit is present, the function
+characteristic name, fraction, or speciation is present, the function
 will convert the TADA.CharacteristicName, TADA.ResultSampleFractionText,
 and TADA.MethodSpeciationName to the target format. In cases where a target
 speciation differs from the existing speciation, the reference table will
 also apply multiplication conversion factors to the TADA.ResultMeasureValue.
 }
 \examples{
+\dontrun{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Create a synonym reference table for flagged, cleaned dataframe:
-Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
-Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
+Data_6Tribes_5yClean <- subset(
+  Data_6Tribes_5y,
+  !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue)
+)
+Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean,
+  clean = TRUE
+)
+Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean,
+  clean = "suspect_only"
+)
+Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean,
+  clean = "suspect_only"
+)
 Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
 CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 
 # Append synonym reference table columns to dataframe and transform/convert
 # data to the USER SUPPLIED reference table values:
-Data_6Tribes_5yClean_Harmonized <- TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+Data_6Tribes_5yClean_Harmonized <-
+  TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
+}
+
 }

@@ -4,14 +4,14 @@
 \alias{TADA_FlagMethod}
 \title{Check for Suspect Analytical Methods}
 \usage{
-TADA_FlagMethod(.data, clean = TRUE, flaggedonly = FALSE)
+TADA_FlagMethod(.data, clean = FALSE, flaggedonly = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
 
 \item{clean}{Boolean argument; removes "Suspect" characteristic-analytical
 method combinations from the dataframe when clean = TRUE. Default is
-clean = TRUE.}
+clean = FALSE.}
 
 \item{flaggedonly}{Boolean argument; filters dataframe to show only "Suspect"
 characteristic-analytical method combinations when flaggedonly = TRUE. Default
@@ -31,28 +31,36 @@ are removed from the dataframe and no column will be appended.
 Function checks the validity of each characteristic-analytical method
 combination in the dataframe. When clean = TRUE, rows with Suspect
 characteristic-analytical method combinations are removed. Default is
-clean = TRUE. When flaggedonly = TRUE, dataframe is filtered to show only
+clean = FALSE. When flaggedonly = TRUE, dataframe is filtered to show only
 Suspect characteristic-analytical method combinations. Default is
 flaggedonly = FALSE.
 }
 \details{
-The “Not Reviewed” value within "TADA.ResultAboveUpperThreshold.Flag" means
+The “Not Reviewed” value within "TADA.AnalyticalMethod.Flag" means
 that the EPA WQX team has not yet reviewed the combinations
 (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 The WQX team plans to review and update these new combinations quarterly.
 }
 \examples{
 # Load example dataset
-data(Data_NCTCShepherdstown_HUC12)
+utils::data(Data_Nutrients_UT)
 
-# Remove Suspect characteristic-analytical method combinations from dataframe:
-SuspectMethod_clean <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = TRUE)
+# Remove Suspect characteristic-analytical method combinations from
+# data frame:
+SuspectMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT,
+  clean = TRUE
+)
 
-# Flag, but do not remove, Suspect characteristic-analytical method combinations
+# Flag, but do not remove, Suspect characteristic-analytical method
+# combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-SuspectMethod_flags <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE)
+SuspectMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT,
+  clean = FALSE
+)
 
 # Show only Suspect characteristic-analytical method combinations:
-SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_NCTCShepherdstown_HUC12, clean = FALSE, flaggedonly = TRUE)
+SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT,
+  clean = FALSE, flaggedonly = TRUE
+)
 
 }

@@ -11,7 +11,7 @@ TADA_RetainRequired(.data)
 }
 \value{
 A dataframe containing all required fields for use with TADA as well as fields
-commonly used for filtering.
+commonly used for filtering. Removes non-required columns containing only NA values.
 }
 \description{
 This function removes all duplicate columns where TADA has created a new column with a TADA prefix.
@@ -20,8 +20,13 @@ other TADA functions or are commonly used filters. Using this function allows th
 all TADA created changes and reduce the size of the data set before using TADA mapping or data
 visualization features in the TADA package or Shiny app.
 }
+\details{
+This function also removes any columns not required for the TADA workflow
+where all values are equal to NA. It provides a warning message identifying
+any TADA required columns containing only NA values.
+}
 \examples{
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 
 }

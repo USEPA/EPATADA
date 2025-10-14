@@ -1,8 +1,10 @@
 # Lists are used within TADA_OrderCols, TADA_GetTemplate, TADA_CheckRequiredFields,
-# TADA_AutoFilter, TADA_RetainRequired
+# and TADA_RetainRequired
 
-# ordered list of TADA workflow required columns to be retained in data frame
+# ordered list of TADA workflow required columns to be retained in dataframe
 require.cols <- c(
+  "ResultIdentifier", # required
+
   # Sample/Measurement Type (e.g. QC or Not)
   "ActivityTypeCode", # required
   "TADA.ActivityType.Flag", # generated
@@ -12,6 +14,28 @@ require.cols <- c(
   "ActivityMediaName", # required
   "TADA.ActivityMediaName", # generated/required/replaces original
   "ActivityMediaSubdivisionName", # filter
+
+  # Organization Monitoring Locations
+  "CountryCode",
+  "StateCode",
+  "CountyCode",
+  "MonitoringLocationName", # required
+  "TADA.MonitoringLocationName", # generated
+  "MonitoringLocationTypeName",
+  "TADA.MonitoringLocationTypeName", # generated
+  "MonitoringLocationDescriptionText",
+  "LatitudeMeasure",
+  "TADA.LatitudeMeasure", # generated
+  "LongitudeMeasure",
+  "TADA.LongitudeMeasure", # generated
+  "HorizontalCoordinateReferenceSystemDatumName",
+  "TADA.SuspectCoordinates.Flag", # generated
+  "HUCEightDigitCode",
+  "MonitoringLocationIdentifier", # required
+  "TADA.MonitoringLocationIdentifier",
+  "TADA.NearbySites.Flag", # generated,
+  "TADA.NearbySiteGroup", # generated
+  "TADA.DistanceAway.Meters", # generated
 
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
@@ -130,6 +154,7 @@ require.cols <- c(
 
   # Result Quality
   "MeasureQualifierCode", # required, could be replaced by TADA.MeasureQualifierCode.Def in future mods
+  "ResultStatusIdentifier",
   "TADA.MeasureQualifierCode.Flag", # generated
   "TADA.MeasureQualifierCode.Def", # generated, could replace MeasureQualifierCode in future mods
   "ResultCommentText",
@@ -144,7 +169,6 @@ require.cols <- c(
   "SamplingDesignTypeCode",
   "LaboratoryName",
   "ResultLaboratoryCommentText",
-  "ResultIdentifier", # required
   "ActivityIdentifier", # required
 
   # Organization (e.g. data submitter)
@@ -165,24 +189,7 @@ require.cols <- c(
   "QAPPApprovalAgencyName",
   "TADA.QAPPDocAvailable", # generated, based on ProjectFileUrl
 
-  # Organization Monitoring Locations
-  "CountryCode",
-  "StateCode",
-  "CountyCode",
-  "MonitoringLocationName", # required
-  "MonitoringLocationTypeName",
-  "MonitoringLocationDescriptionText",
-  "LatitudeMeasure",
-  "TADA.LatitudeMeasure", # generated
-  "LongitudeMeasure",
-  "TADA.LongitudeMeasure", # generated
-  "HorizontalCoordinateReferenceSystemDatumName",
-  "TADA.SuspectCoordinates.Flag", # generated
-  "HUCEightDigitCode",
-  "MonitoringLocationIdentifier", # required
-  "TADA.MonitoringLocationIdentifier",
-
-  # Groundwater fields
+  # Groundwater fields, used for auto filtering for assessment use case but should not be required to have in TADA template
   "AquiferName", # filter, groundwater
   "AquiferTypeName", # filter
   "LocalAqfrName", # filter, groundwater
@@ -195,6 +202,7 @@ require.cols <- c(
 
 # ordered list of non-essential WQP columns that can be removed from df
 extra.cols <- c(
+  # Others
   "ActivityDepthAltitudeReferencePointText",
   "ActivityEndDate",
   "ActivityEndTime.Time",
@@ -204,7 +212,6 @@ extra.cols <- c(
   "SampleAquifer",
   "ActivityLocation.LatitudeMeasure",
   "ActivityLocation.LongitudeMeasure",
-  "ResultStatusIdentifier",
   "ResultWeightBasisText",
   "ResultTemperatureBasisText",
   "ResultParticleSizeBasisText",
@@ -214,9 +221,10 @@ extra.cols <- c(
   "AnalysisStartDate",
   "ResultDetectionQuantitationLimitUrl",
   "LabSamplePreparationUrl",
-  "timeZoneStart", # no longer in default dataRetrieval profile? 11/7/24
-  "timeZoneEnd", # no longer in default dataRetrieval profile? 11/7/24
-  "ActivityStartTime.TimeZoneCode_offset", # new column from default dataRetrieval profile? 11/7/24
+  "timeZoneStart", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "timeZoneEnd", # no longer in default USGS dataRetrieval profile? 11/7/24
+  "ActivityStartTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/7/24
+  "ActivityEndTime.TimeZoneCode_offset", # new column from default USGS dataRetrieval profile? 11/21/24
   "SourceMapScaleNumeric",
   "HorizontalAccuracyMeasure.MeasureValue",
   "HorizontalAccuracyMeasure.MeasureUnitCode",
@@ -238,24 +246,19 @@ extra.cols <- c(
 )
 
 attains.cols <- c(
-  "ATTAINS.organizationid", "ATTAINS.submissionid", "ATTAINS.hasprotectionplan",
-  "ATTAINS.assessmentunitname", "ATTAINS.nhdplusid", "ATTAINS.tas303d",
-  "ATTAINS.isthreatened", "ATTAINS.state", "ATTAINS.on303dlist",
-  "ATTAINS.organizationname", "ATTAINS.region", "ATTAINS.Shape_Length",
-  "ATTAINS.reportingcycle", "ATTAINS.assmnt_joinkey", "ATTAINS.hastmdl",
-  "ATTAINS.orgtype",
-  "ATTAINS.permid_joinkey", #
-  "ATTAINS.catchmentistribal",
-  "ATTAINS.ircategory", "ATTAINS.waterbodyreportlink", "ATTAINS.assessmentunitidentifier",
-  "ATTAINS.overallstatus", "ATTAINS.isassessed", "ATTAINS.isimpaired",
-  "ATTAINS.has4bplan", "ATTAINS.huc12", "ATTAINS.hasalternativeplan",
-  "ATTAINS.visionpriority303d", "ATTAINS.areasqkm", "ATTAINS.catchmentareasqkm",
-  "ATTAINS.catchmentstatecode", "ATTAINS.catchmentresolution", "ATTAINS.Shape_Area",
-  "ATTAINS.xwalk_method",
-  "ATTAINS.xwalk_huc12_version",
-  "ATTAINS.waterTypeCode"
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+  "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+  "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+  "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+  "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+  "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+  "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+  "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+  "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+  "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+  "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+  "ATTAINS.ShapeArea"
 )
-
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "TADA.Remove",
@@ -279,16 +282,39 @@ last.cols <- c(
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
-#' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' # Find web service URLs for each Profile using WQP User Interface
+#' # (https://www.waterqualitydata.us/)
+#' # Example WQP URL:
+#' # https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&
+#' # startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+#' # providers=STEWARDS&providers=STORET
 #'
-#' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' # Define base URL and common components
+#' baseurl <- "https://www.waterqualitydata.us"
+#' filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
+#' dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+#' type <- "&mimeType=csv&zip=yes"
+#' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+#'
+#' # Construct URLs for different profiles
+#' station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
+#' result_url <- paste0(
+#'   baseurl, "/data/Result", filters, dates, type,
+#'   "&dataProfile=resultPhysChem", providers
+#' )
+#' project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
+#'
+#' # Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles
+#' stationProfile <- TADA_ReadWQPWebServices(station_url)
+#' physchemProfile <- TADA_ReadWQPWebServices(result_url)
+#' projectProfile <- TADA_ReadWQPWebServices(project_url)
 #'
 #' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' TADAProfile <- TADA_JoinWQPProfiles(
+#'   FullPhysChem = physchemProfile,
+#'   Sites = stationProfile,
+#'   Projects = projectProfile
+#' )
 #'
 #' # Run TADA_OrderCols
 #' Reordered_TADAProfile <- TADA_OrderCols(TADAProfile)
@@ -340,30 +366,82 @@ TADA_GetTemplate <- function() {
 
 
 
-#' TADA Module 1 Required Fields Check
+#' TADA Required Fields Check
 #'
-#' This function checks if all required fields for TADA Module 1 are
-#' included in the input dataframe.
+#' This function checks if all fields required to run TADA functions are included in the input
+#' dataframe. It is used in the TADA Shiny application to test user supplied files for compatibility
+#' with the application.
 #'
 #' @param .data A dataframe
 #'
-#' @return Boolean result indicating whether or not the input dataframe contains all of the TADA profile fields.
+#' @return Boolean result, TRUE or FALSE, indicating whether or not the input dataframe contains all
+#' of the required fields. If FALSE, an error will be returned that includes the names of all
+#' missing columns.
+#'
+#' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Find web service URLs for each Profile using WQP User Interface (https://www.waterqualitydata.us/)
-#' # Example WQP URL: https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&providers=STORET
+#' # Find web service URLs for each Profile using WQP User Interface
+#' # (https://www.waterqualitydata.us/)
+#' # Example WQP URL:
+#' # https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&
+#' # startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+#' # providers=STEWARDS&providers=STORET
 #'
-#' # Use TADA_ReadWQPWebServices to load the Station, Project, and Phys-Chem Result profiles
-#' stationProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' physchemProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Result/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&dataProfile=resultPhysChem&providers=NWIS&providers=STEWARDS&providers=STORET")
-#' projectProfile <- TADA_ReadWQPWebServices("https://www.waterqualitydata.us/data/Project/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET")
+#' # Define base URL and common components
+#' baseurl <- "https://www.waterqualitydata.us"
+#' filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
+#' dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+#' type <- "&mimeType=csv&zip=yes"
+#' providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
 #'
-#' # Join all three profiles using TADA_JoinWQPProfiles
-#' TADAProfile <- TADA_JoinWQPProfiles(FullPhysChem = physchemProfile, Sites = stationProfile, Projects = projectProfile)
+#' # Construct URLs for different profiles
+#' station_url <- paste0(
+#'   baseurl, "/data/Station", filters, dates, type, providers
+#' )
+#' result_url <- paste0(
+#'   baseurl, "/data/Result", filters, dates, type,
+#'   "&dataProfile=resultPhysChem", providers
+#' )
+#' project_url <- paste0(
+#'   baseurl, "/data/Project", filters, dates, type, providers
+#' )
 #'
-#' # Run TADA_CheckRequiredFields
-#' CheckRequirements_TADAProfile <- TADA_CheckRequiredFields(TADAProfile)
+#' # Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem profiles
+#' stationProfile <- TADA_ReadWQPWebServices(station_url)
+#' physchemProfile <- TADA_ReadWQPWebServices(result_url)
+#' projectProfile <- TADA_ReadWQPWebServices(project_url)
+#'
+#' # Join profiles using TADA_JoinWQPProfiles
+#' TADAProfile <- TADA_JoinWQPProfiles(
+#'   FullPhysChem = physchemProfile,
+#'   Sites = stationProfile,
+#'   Projects = projectProfile
+#' )
+#'
+#' # Run TADA_CheckRequiredFields, returns error message
+#' TADA_CheckRequiredFields(TADAProfile)
+#'
+#' # Add missing column
+#' TADAProfile1 <- TADA_CreateDateTime(
+#'   .data = TADAProfile,
+#'   date_col = "ActivityStartDate",
+#'   time_col = "ActivityStartTime.Time",
+#'   tz_col = "ActivityStartTime.TimeZoneCode",
+#'   tz = "UTC"
+#' )
+#'
+#' review_TADAProfile1 <- TADAProfile1 %>% dplyr::select(c(
+#'   "ActivityStartDate",
+#'   "ActivityStartTime.Time",
+#'   "ActivityStartTime.TimeZoneCode",
+#'   "ActivityStartDateTime",
+#'   "ActivityStartTime.TimeZoneCode_offset"
+#' ))
+#'
+#' # Re-run TADA_CheckRequiredFields, returns TRUE
+#' TADA_CheckRequiredFields(TADAProfile1)
 #' }
 #'
 TADA_CheckRequiredFields <- function(.data) {
@@ -377,82 +455,61 @@ TADA_CheckRequiredFields <- function(.data) {
   if (all(require.originals %in% colnames(.data)) == TRUE) {
     TRUE
   } else {
-    stop("The dataframe does not contain the required fields.")
+    missingcols <- base::setdiff(require.originals, colnames(.data))
+    stop(
+      "TADA_CheckRequiredFields: the dataframe does not contain the required fields: ",
+      paste(as.character(missingcols),
+        collapse = ", "
+      )
+    )
   }
 }
 
 
-
-#' AutoFilter
+#' TADA_RetainRequired
 #'
-#' This function removes rows where the result value is not numeric to
-#' prepare a dataframe for quantitative analyses. Ideally, this function should
-#' be run after other data cleaning, QA/QC, and harmonization steps are
-#' completed using other TADA package functions, or manually. Specifically, .
-#' this function removes rows with "Text" and "NA - Not Available"
-#' in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-#' TADA.ResultMeasureValue column.
+#' This function removes all duplicate columns where TADA has created a new column with a TADA prefix.
+#' It retains all TADA prefixed columns as well as other original fields that are either required by
+#' other TADA functions or are commonly used filters. Using this function allows the user to accept
+#' all TADA created changes and reduce the size of the data set before using TADA mapping or data
+#' visualization features in the TADA package or Shiny app.
 #'
-#' This function also removes any columns not required for TADA workflow where
-#' all values are equal to NA.It also provides a warning message identifying
+#' This function also removes any columns not required for the TADA workflow
+#' where all values are equal to NA. It provides a warning message identifying
 #' any TADA required columns containing only NA values.
 #'
-#' @param .data TADA dataframe OR TADA sites dataframe
+#' @param .data A dataframe
 #'
-#' @return .data with rows removed where result values are not quantitative (NA or text),
-#' or the results have other issues that are not dealt with elsewhere.
+#' @return A dataframe containing all required fields for use with TADA as well as fields
+#' commonly used for filtering. Removes non-required columns containing only NA values.
 #'
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
+#' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 #'
-#' # Remove all:
-#' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
-#'
-TADA_AutoFilter <- function(.data) {
+TADA_RetainRequired <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
+  # execute function after TADA_CheckType passes
 
-  TADA_CheckColumns(.data, c(
-    "ActivityTypeCode", "MeasureQualifierCode",
-    "TADA.ResultMeasureValueDataTypes.Flag",
-    "TADA.ResultMeasureValue", "TADA.ActivityMediaName",
-    "ActivityTypeCode"
-  ))
-
-  # keep track of starting and ending number of rows
-  start <- dim(.data)[1]
-
-  # run TADA_FindQCActivities if needed
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == TRUE) {
-    .data <- .data
-  }
-
-  if (("TADA.MeasureQualifierCode.Flag" %in% colnames(.data)) == FALSE) {
-    .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
-  }
-
-  # remove text, NAs and QC results
-  .data <- dplyr::filter(.data, TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-    TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-    TADA.ActivityType.Flag == "Non_QC" & # filter out QA/QC ActivityTypeCode's
-    !is.na(TADA.ResultMeasureValue))
-
-  # remove columns that are not required for TADA workflow
-  print("TADA_Autofilter: removing columns not required for TADA workflow if they contain only NAs.")
+  ############################
+  # first, remove columns that are not required for TADA workflow and contain only NA
+  print("TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs.")
 
   # create list of columns containing all NA values.
   na.cols <- .data %>%
     purrr::keep(~ all(is.na(.x))) %>%
     names()
 
-  # create list of columns to be removed by comparing columns containing all NA values to required columns.
-  # any required columns with all NA values will be excluded from the list of columns to remove.
+  # create list of columns to be removed by comparing columns containing all NA
+  # values to required columns.
+  # any required columns with all NA values will be excluded from the list of
+  # columns to remove.
   remove.cols <- setdiff(na.cols, require.cols)
 
-  # remove not required columns containing all NA values from data frame.
+  # remove not required columns containing all NA values from dataframe.
   .data <- .data %>%
     dplyr::select(-dplyr::contains(remove.cols))
 
@@ -470,60 +527,33 @@ TADA_AutoFilter <- function(.data) {
 
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
-    print(paste0("The following column(s) were removed as they contained only NAs: ", remove.paste, "."))
+    print(paste0(
+      "The following column(s) were removed as they contained only NAs ",
+      "and are not required for the TADA workflow: ", remove.paste, "."
+    ))
   } else {
-    print("All columns contained some non-NA values and were retained in the data frame.")
+    print("All columns contained some non-NA values and were retained in the dataframe.")
   }
 
   # remove columns that are not required for TADA workflow
-  print("TADA_Autofilter: checking required columns for non-NA values.")
+  print("TADA_RetainRequired: checking required columns for non-NA values.")
 
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
-    print(paste0("TADA Required column(s) ", req.paste, " contain only NA values. This may impact other TADA functions."))
+    print(paste0(
+      "TADA_RetainRequired: TADA Required column(s) ", req.paste,
+      " contain only NA values. This may impact other TADA functions."
+    ))
   } else {
-    print("All TADA Required columns contain some non-NA values.")
+    print("TADA_RetainRequired: All TADA Required columns contain some non-NA values.")
   }
 
   # remove intermediate objects
   rm(req.paste, remove.cols, remove.paste, req.check)
 
-  end <- dim(.data)[1]
+  ######################
 
-  # print number of results removed
-  if (!start == end) {
-    net <- start - end
-    print(paste0("Function removed ", net, " results. These results are either text or NA and cannot be plotted or represent quality control activities (not routine samples or measurements)."))
-  }
-
-  return(.data)
-}
-
-
-#' TADA_RetainRequired
-#'
-#' This function removes all duplicate columns where TADA has created a new column with a TADA prefix.
-#' It retains all TADA prefixed columns as well as other original fields that are either required by
-#' other TADA functions or are commonly used filters. Using this function allows the user to accept
-#' all TADA created changes and reduce the size of the data set before using TADA mapping or data
-#' visualization features in the TADA package or Shiny app.
-#'
-#' @param .data A dataframe
-#'
-#' @return A dataframe containing all required fields for use with TADA as well as fields
-#' commonly used for filtering.
-#'
-#' @export
-#'
-#' @examples
-#' data(Data_Nutrients_UT)
-#' reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
-#'
-TADA_RetainRequired <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # execute function after TADA_CheckType passes
+  # Now removing any columns not required for the TADA workflow where all values are equal to NA
   print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
 
   # Create list of all columns to be retained
@@ -538,15 +568,94 @@ TADA_RetainRequired <- function(.data) {
   # create a character string listing all removed columns
   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
 
-  # retain only columns identified as required or for filtering in the data frame
+  # retain only columns identified as required or for filtering in the dataframe
   .data <- .data %>%
     dplyr::select(dplyr::contains(keep.cols))
 
   # print a message to list names for all removed columns
-  print(paste("The following non-required columns were removed: ", remove.paste, ".", sep = ""))
+  print(paste("TADA_RetainRequired: The following non-required columns were removed: ", remove.paste, ".", sep = ""))
 
   return(.data)
 
   # remove intermediate objects
   rm(keep.cols, original.cols, remove.cols, remove.paste)
 }
+
+# CM combined with TADA_RetainRequired on 7/28/25
+#' #' AutoFilter
+#' #'
+#' #' This function also removes any columns not required for the TADA workflow
+#' #' where all values are equal to NA. It provides a warning message identifying
+#' #' any TADA required columns containing only NA values.
+#' #'
+#' #' @param .data TADA dataframe
+#' #'
+#' #' @return .data with any non-required columns containing only NA values
+#' #' removed.
+#' #'
+#' #' @export
+#' #'
+#' #' @examples
+#' #' TADA_filtered <- TADA_AutoFilter(Data_Nutrients_UT)
+#' TADA_AutoFilter <- function(.data) {
+#'   # check .data is data.frame
+#'   TADA_CheckType(.data, "data.frame", "Input object")
+#'
+#'   # remove columns that are not required for TADA workflow
+#'   print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
+#'
+#'   # create list of columns containing all NA values.
+#'   na.cols <- .data %>%
+#'     purrr::keep(~ all(is.na(.x))) %>%
+#'     names()
+#'
+#'   # create list of columns to be removed by comparing columns containing all NA
+#'   # values to required columns.
+#'   # any required columns with all NA values will be excluded from the list of
+#'   # columns to remove.
+#'   remove.cols <- setdiff(na.cols, require.cols)
+#'
+#'   # remove not required columns containing all NA values from dataframe.
+#'   .data <- .data %>%
+#'     dplyr::select(-dplyr::contains(remove.cols))
+#'
+#'   # check to make sure required columns contain some data that is not NA
+#'   req.check <- intersect(require.cols, na.cols)
+#'
+#'   # create character string for list of required columns containing only NAs
+#'   req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
+#'
+#'   # remove column name lists
+#'   rm(na.cols)
+#'
+#'   # create character string for list of removed columns
+#'   remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+#'
+#'   # print list of columns removed from data frame
+#'   if (length(remove.cols) > 0) {
+#'     print(paste0(
+#'       "The following column(s) were removed as they contained only NAs ",
+#'       "and are not required for the TADA workflow: ", remove.paste, "."
+#'     ))
+#'   } else {
+#'     print("All columns contained some non-NA values and were retained in the dataframe.")
+#'   }
+#'
+#'   # remove columns that are not required for TADA workflow
+#'   print("TADA_AutoFilter: checking required columns for non-NA values.")
+#'
+#'   # if some required columns contain only NA values print a warning message.
+#'   if (length(req.check) > 0) {
+#'     print(paste0(
+#'       "TADA_AutoFilter: TADA Required column(s) ", req.paste,
+#'       " contain only NA values. This may impact other TADA functions."
+#'     ))
+#'   } else {
+#'     print("TADA_AutoFilter: All TADA Required columns contain some non-NA values.")
+#'   }
+#'
+#'   # remove intermediate objects
+#'   rm(req.paste, remove.cols, remove.paste, req.check)
+#'
+#'   return(.data)
+#' }

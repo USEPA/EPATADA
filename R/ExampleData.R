@@ -1,6 +1,6 @@
 #' Data_Nutrients_UT
 #'
-#' A data frame containing Ammonia, Nitrate, and Nitrogen data from Utah:
+#' A dataframe containing Ammonia, Nitrate, and Nitrogen data from Utah:
 #'
 #' Data_Nutrients_UT <- TADA_DataRetrieval(statecode = "UT",
 #' characteristicName = c("Ammonia", "Nitrate", "Nitrogen"),
@@ -9,10 +9,9 @@
 #' applyautoclean = TRUE)
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_Nutrients_UT
-#' @usage data(Data_Nutrients_UT)
-#' @format A data frame with 14592 rows and 152 variables
+#' @format A dataframe with 14592 rows and 152 variables
 NULL
 
 #' Data_6Tribes_5y
@@ -37,50 +36,22 @@ NULL
 #' 6) The Chickasaw Nation
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_6Tribes_5y
-#' @usage data(Data_6Tribes_5y)
-#' @format A data frame with 134050 rows and 149 variables
+#' @format A dataframe with 134050 rows and 149 variables
 NULL
 
 #' Data_6Tribes_5y_Harmonized
 #'
-#' A data frame containing data from tribal organizations
+#' A dataframe containing data from tribal organizations
 #' (see ?Data_6Tribes_5y for more information). Data was cleaned using the
 #' TADA Module 1 vignette
 #' (see: https://usepa.github.io/EPATADA/articles/TADAModule1.html).
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_6Tribes_5y_Harmonized
-#' @usage data(Data_6Tribes_5y_Harmonized)
-#' @format A data frame with 117124 rows and 166 variables
-NULL
-
-#' Data_NCTCShepherdstown_HUC12
-#'
-#' Original pull:
-#' Data_NCTCShepherdstown_HUC12 = TADA_DataRetrieval(
-#'   startDate = "2020-03-14",
-#'   endDate = "null",
-#'   countycode = "null",
-#'   huc = "02070004",
-#'   siteid = "null",
-#'   siteType = "null",
-#'   characteristicName = "null",
-#'   characteristicType = "null",
-#'   sampleMedia = "null",
-#'   statecode = "null",
-#'   organization = "null",
-#'   project = "null",
-#'   applyautoclean = TRUE
-#' )
-#'
-#' @docType data
-#' @keywords data frame
-#' @name Data_NCTCShepherdstown_HUC12
-#' @usage data(Data_NCTCShepherdstown_HUC12)
-#' @format A data frame with 39236 rows and 151 variables
+#' @format A dataframe with 117124 rows and 166 variables
 NULL
 
 #' Data_R5_TADAPackageDemo
@@ -103,8 +74,62 @@ NULL
 #' )
 #'
 #' @docType data
-#' @keywords data frame
+#' @keywords dataframe
 #' @name Data_R5_TADAPackageDemo
-#' @usage data(Data_R5_TADAPackageDemo)
-#' @format A data frame with 6569 rows and 123 variables
+#' @format A dataframe with 6569 rows and 123 variables
+NULL
+
+#' Data_HUC8_02070004_Mod1Output
+#'
+#' See Module 1 Workflow.R script in vignettes folder
+#' This is the final data after running a recommended module 1 workflow.
+#' It can be used as a starting point for Modules 2 or 3.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_HUC8_02070004_Mod1Output
+#' @format A data frame with 84 rows and 161 variables
+NULL
+
+
+#' Data_MT_MissoulaCounty
+#'
+#' See Module 2 and 3 workflows for examples of this data set can be used in the
+#' TADA analysis workflow.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_MissoulaCounty
+#' @format A data frame with 426 rows and 161 variables
+NULL
+
+#' Data_MT_AUMLRef
+#'
+#' An example assessment unit/monitoring location reference data frame for use
+#' in testing TADA Module 2 and 3 workflows.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_AUMLRef
+#' @format A data frame with 56 rows and 6 variables.
+NULL
+
+#' Data_MT_UseAURef
+#'
+#' An example assessment unit/use reference data frame for testing TADA Module 2 and 3 workflows.
+#'
+#' @docType data
+#' @keywords data frame
+#' @name Data_MT_UseAURef
+#' @format A data frame with 46 rows and 6 variables.
+NULL
+
+#' Data_MT.UseAURef_Water
+#'
+#' Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and 
+#' ExampleMod3Workflow.Rmd
+#'
+#' @docType data
+#' @name Data_MT.UseAURef_Water
+#' @format A data frame with 48 rows and 6 variables.
 NULL

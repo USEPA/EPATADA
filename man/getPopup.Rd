@@ -26,5 +26,4 @@ layer <- getLayer("extdata/OKTribe.shp")
 # Get popup text for individual markers
 getPopup(layer, "Oklahoma Tribal Statistical Areas")
 }
-
 }
