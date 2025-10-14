@@ -670,77 +670,70 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 
 #' Generate a Random Water Quality Portal (WQP) Dataset
 #'
-#' This function retrieves water quality data for a randomly selected period within the past 20 years using `TADA_DataRetrieval`.
-#' It can be used to test functions on random datasets. The function ensures that the returned dataset contains at least 10 results.
-#' If the initial random dataset contains fewer than 10 results, the function automatically queries another random dataset until the criteria are met.
+#' This function retrieves water quality data for a randomly selected period
+#' within the past 20 years using `TADA_DataRetrieval`. It can be used to test 
+#' functions on random datasets. The function ensures that the returned dataset 
+#' contains at least 10 results. If the initial random dataset contains fewer 
+#' than 10 results, the function automatically queries another random dataset 
+#' until the criteria are met.
 #'
-#' @param number_of_days Numeric. Specifies the number of days for which data will be queried. The default is 1, which queries data for a random two-day period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
+#' @param number_of_days Numeric. Specifies the number of days for which data 
+#' will be queried. The default is 1, which queries data for a random two-day 
+#' period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
 #' Users can increase this number to retrieve data for more days.
 #'
 #' @param choose_random_state Boolean (TRUE or FALSE). Default is FALSE.
-#' If FALSE, the function queries all available WQP data for the specified number_of_days (national query).
-#' If TRUE, the function selects a random state and retrieves data only for that state.
+#' If FALSE, the function queries all available WQP data for the specified 
+#' number_of_days (national query). If TRUE, the function selects a random state 
+#' and retrieves data only for that state.
 #'
 #' @param autoclean Boolean (TRUE or FALSE). Default is TRUE.
 #' If TRUE, the function applies `TADA_AutoClean` as part of the `TADA_DataRetrieval`.
 #' If FALSE, the function does not apply `TADA_AutoClean`.
 #'
-#' @return A data frame containing a random WQP dataset with at least 10 results.
+#' @param max_attempts Numeric. Specifies the maximum number of attempts to 
+#' retrieve data if an error occurs. Default is 3.
+#'
+#' @return A data frame containing a random WQP dataset with at least 10 results,
+#' or an empty data frame if data retrieval fails after the specified number of attempts.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Retrieve a random dataset for a single day
+#' # Example 1: Retrieve a random dataset for random 2-day period
 #' # across the entire nation
 #' random_data_national <- TADA_RandomTestingData(
 #'   number_of_days = 1,
 #'   choose_random_state = FALSE
 #' )
-#' print(random_data_national)
 #'
-#' # Example 2: Retrieve a random dataset for a 10-day period within
+#' # Example 2: Retrieve a random dataset for a 3-day period within
 #' # a randomly selected state
 #' random_data_state <- TADA_RandomTestingData(
-#'   number_of_days = 10,
+#'   number_of_days = 3,
 #'   choose_random_state = TRUE
 #' )
-#' print(random_data_state)
 #'
 #' # Example 3: Retrieve a random dataset for a 5-day period
 #' # within a randomly selected state without auto-cleaning
 #' random_data_state_no_clean <- TADA_RandomTestingData(
 #'   number_of_days = 5,
-#'   choose_random_state = TRUE, autoclean = FALSE
+#'   choose_random_state = TRUE, 
+#'   autoclean = FALSE
 #' )
-#' print(random_data_state_no_clean)
-#'
-#' # Example 4: Retrieve a random dataset for a 30-day period
-#' # across the entire nation with auto-cleaning
-#' random_data_large_period <- TADA_RandomTestingData(
-#'   number_of_days = 30,
-#'   choose_random_state = FALSE, autoclean = TRUE
-#' )
-#' print(random_data_large_period)
-#'
-#' # Example 5: Retrieve a random dataset for a 15-day period
-#' # across the entire nation without auto-cleaning
-#' random_data_no_clean <- TADA_RandomTestingData(
-#'   number_of_days = 15,
-#'   choose_random_state = FALSE, autoclean = FALSE
-#' )
-#' print(random_data_no_clean)
 #' }
 TADA_RandomTestingData <- function(number_of_days = 1,
                                    choose_random_state = FALSE,
-                                   autoclean = TRUE) {
-  # Internal function to retrieve random data
+                                   autoclean = TRUE,
+                                   max_attempts = 3) {
+  # Retrieve random data
   get_random_data <- function(ndays, state_choice, ac) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-
+    
     # Determine if a random state should be selected
     if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
@@ -748,35 +741,58 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     } else {
       state <- "null"
     }
-
+    
     # Print the selected date range and state code
     print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-
-    # Retrieve data with or without auto-cleaning
-    dat <- TADA_DataRetrieval(
-      startDate = as.character(random_start_date),
-      endDate = as.character(end_date),
-      statecode = state,
-      applyautoclean = ac,
-      ask = FALSE
-    )
-
-    return(dat)
+    
+    # Attempt to retrieve data, retrying if an error occurs
+    attempt <- 1
+    while (attempt <= max_attempts) {
+      dat <- tryCatch({
+        TADA_DataRetrieval(
+          startDate = as.character(random_start_date),
+          endDate = as.character(end_date),
+          statecode = state,
+          applyautoclean = ac,
+          ask = FALSE
+        )
+      }, error = function(e) {
+        message("Attempt ", attempt, ": An error occurred - ", e$message)
+        return(NULL) # Return NULL to indicate failure
+      })
+      
+      # If data retrieval was successful, return the data
+      if (!is.null(dat)) {
+        return(dat)
+      }
+      
+      # Increment attempt counter and try a new query
+      attempt <- attempt + 1
+      random_start_date <- twenty_years_ago + sample(20 * 365, 1)
+      end_date <- random_start_date + ndays
+      if (state_choice) {
+        state <- sample(statecodes_df$STUSAB, 1)
+      }
+    }
+    
+    # If all attempts fail, return an empty data frame
+    message("Failed to retrieve data after ", max_attempts, " attempts.")
+    return(data.frame())
   }
-
+  
   # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
     repeat {
       df <- get_random_data(number_of_days, choose_random_state, autoclean)
-      if (nrow(df) >= 10) break
+      if (!is.null(df) && nrow(df) >= 10) break
     }
     return(df)
   }
-
+  
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
