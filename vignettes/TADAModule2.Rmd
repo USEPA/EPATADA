@@ -320,7 +320,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
   fill_USGS_catch = TRUE,
-  return_nearest = TRUE,
+  return_nearest = TRUEF,
   batch_upload = TRUE)
 ```
 
@@ -374,7 +374,8 @@ Such WQP observations can be identified using the
 If the user would like to only return a single ATTAINS assessment unit,
 set `return_nearest = TRUE`. This will return only the closest
 assessment unit to the WQP observation in instances where a catchment
-contains more than one assessment unit.
+contains more than one assessment unit. In this example workflow,
+`return_nearest = TRUE.`
 
 `TADA_CreateATTAINSAUMLCrosswalk` also runs `TADA_MakeSpatial()` within
 it to convert any Water Quality Portal (WQP)-style dataframe with
