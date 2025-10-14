@@ -383,7 +383,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
             OrganizationIdentifier = MS_ORG_ID,
             ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
           ) |>
-          dplyr::rowwise() |>
+          dplyr::rowwise() %>%
           dplyr::mutate(
             ATTAINS.OrganizationIdentifier = org_id,
             ATTAINS.WaterType =
