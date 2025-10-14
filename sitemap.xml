@@ -2,7 +2,8 @@
 <url><loc>usepa.github.io/EPATADA/404.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/LICENSE.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/CONTRIBUTING.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/articles/ExampleMod2Workflow.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/ExampleMod3CriteriaMethodsAltOptions.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/articles/ExampleMod3Workflow.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/GeospatialDataIntegration.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/Participatory-Science-Water-Projects-in-WQX.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/articles/TADAAssessmentUnitUseCase.html</loc></url>
@@ -21,6 +22,10 @@
 <url><loc>usepa.github.io/EPATADA/reference/Data_6Tribes_5y.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_6Tribes_5y_Harmonized.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/Data_MT.UseAURef_Water.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/Data_MT_AUMLRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/Data_MT_MissoulaCounty.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/Data_MT_UseAURef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_Nutrients_UT.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
@@ -42,14 +47,17 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateCSV.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateComparableID.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateDateTime.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CreateMLSummaryRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreatePairRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateParamRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUseAURef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateUseParamRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateWaterUseRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_DefineCriteriaMethodology.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_DepthProfilePlot.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FieldCounts.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.html</loc></url>
@@ -127,6 +135,9 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_getNWIS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_listNWIS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/ask_user.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/checkColName.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>
@@ -137,6 +148,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/pchIcons.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/pipe.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/quiet.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/renameATTAINSCols.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/writeLayer.html</loc></url>
 </urlset>
 

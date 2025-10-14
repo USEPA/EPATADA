@@ -29,7 +29,8 @@ function.'></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -95,7 +96,7 @@ The default is ref = "tada".</p></dd>
 
 
 <dt id="arg-transform">transform<a class="anchor" aria-label="anchor" href="#arg-transform"></a></dt>
-<dd><p>Boolean argument with two possible values (TRUE or FALSE).
+<dd><p>Boolean argument with two possible values, “TRUE” and “FALSE”.
 Default is transform = TRUE. When transform = TRUE, result values and units,
 and detection quantitation limit value and units are converted to TADA target units.
 This function changes the values within "TADA.ResultMeasure.MeasureUnitCode" and
@@ -140,7 +141,7 @@ those with speciation in units.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset:</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Do not convert result values and units, but add four new columns titled</span></span></span>
 <span class="r-in"><span><span class="co"># "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",</span></span></span>
@@ -155,6 +156,9 @@ those with speciation in units.</p>
 <span class="r-in"><span><span class="va">ResultUnitsConverted</span> <span class="op">&lt;-</span> <span class="fu">TADA_ConvertResultUnits</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  transform <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>URL 'https://cdx.epa.gov/wqx/download/DomainValues/MeasureUnit.CSV': status was 'SSL connect error'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Downloading latest Measure Unit Reference Table failed!</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Falling back to (possibly outdated) internal file.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NOTE: Dataset contains 391 USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

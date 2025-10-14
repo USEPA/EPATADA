@@ -23,7 +23,8 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -65,7 +66,9 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 <span>  <span class="va">.data</span>,</span>
 <span>  au_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  add_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,19 +82,48 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 
 
 <dt id="arg-au-ref">au_ref<a class="anchor" aria-label="anchor" href="#arg-au-ref"></a></dt>
-<dd><p>Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-and MonitoringLocationIdentifier.</p></dd>
+<dd><p>Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+MonitoringLocationIdentifier and WaterType.</p></dd>
 
 
 <dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
-<dd><p>Organization id to match AUs.</p></dd>
+<dd><p>ATTAINS organization identifier(s) as a character string.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.</p></dd>
 
 
-<dt id="arg-add-catch">add_catch<a class="anchor" aria-label="anchor" href="#arg-add-catch"></a></dt>
-<dd><p>Optional. When add_catch = TRUE, catchments are matched to monitoring
-locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
-and matching these additional geospatial data will increase the run time of this function
-significantly. Default is add_catch = FALSE.</p></dd>
+<dt id="arg-fill-attains-catch">fill_ATTAINS_catch<a class="anchor" aria-label="anchor" href="#arg-fill-attains-catch"></a></dt>
+<dd><p>Boolean argument. Specifies whether catchment-based
+ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+with entity submitted assessment unit features - points, lines, and polygons)
+should be queried and downloaded for the assessment units included in the
+USER-SUPPLIED <code>au_ref</code>. When fill_ATTAINS_catch = TRUE, the catchment data
+are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.</p></dd>
+
+
+<dt id="arg-fill-usgs-catch">fill_USGS_catch<a class="anchor" aria-label="anchor" href="#arg-fill-usgs-catch"></a></dt>
+<dd><p>Boolean argument. Whether the user would like to return
+NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
+with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
+the returned list splits observations into two dataframes: WQP observations
+with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
+observations without ATTAINS catchment data. Defaults to FALSE. This param
+applies only to WQP observations that do not have matches in the user-supplied ref
+or ATTAINS.</p></dd>
+
+
+<dt id="arg-return-nearest">return_nearest<a class="anchor" aria-label="anchor" href="#arg-return-nearest"></a></dt>
+<dd><p>If a WQP observation falls within more than one AU,
+return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+(return_nearest = FALSE). This param applies only to WQP observations that do
+not have matches in the user-supplied ref or ATTAINS.</p></dd>
 
 
 <dt id="arg-batch-upload">batch_upload<a class="anchor" aria-label="anchor" href="#arg-batch-upload"></a></dt>
@@ -118,6 +150,58 @@ for compatibility with ATTAINS batch upload for Monitoring_Stations.</p>
 <code><a href="TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># Load the example data</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_MT_MissoulaCounty</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 1: Basic use with default settings</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span><span class="va">Data_MT_MissoulaCounty</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 2: Using a user-supplied crosswalk</span></span></span>
+<span class="r-in"><span><span class="va">user_crosswalk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  AssessmentUnitIdentifier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AU1"</span>, <span class="st">"AU2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  MonitoringLocationIdentifier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ML1"</span>, <span class="st">"ML2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  WaterType <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"River"</span>, <span class="st">"Lake"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  au_ref <span class="op">=</span> <span class="va">user_crosswalk</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 3: Including ATTAINS catchment data</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 4: Preparing for batch upload</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 5: Using multiple options together</span></span></span>
+<span class="r-in"><span><span class="va">org_id</span> <span class="op">&lt;-</span> <span class="st">"EPA"</span></span></span>
+<span class="r-in"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  au_ref <span class="op">=</span> <span class="va">user_crosswalk</span>,</span></span>
+<span class="r-in"><span>  org_id <span class="op">=</span> <span class="va">org_id</span>,</span></span>
+<span class="r-in"><span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># View the results</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">ATTAINS_catchments</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">result</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

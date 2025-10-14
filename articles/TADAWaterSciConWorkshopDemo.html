@@ -36,7 +36,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -73,7 +74,7 @@
       <h1>TADA: WaterSciCon Workshop Demo</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-10-03</h4>
+            <h4 data-toc-skip class="date">2025-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAWaterSciConWorkshopDemo.Rmd" class="external-link"><code>vignettes/TADAWaterSciConWorkshopDemo.Rmd</code></a></small>
       <div class="d-none name"><code>TADAWaterSciConWorkshopDemo.Rmd</code></div>
@@ -327,7 +328,7 @@ than the TADA defaults regarding which results to retain.</p>
 <p>We can use a TADA function to identify any censored data in the data
 set.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_IDCensoredData.html">TADA_IDCensoredData</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">utils</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_IDCensoredData.html">TADA_IDCensoredData</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 <p>Because there are no censored data in the data set, we do not need to
 take any further action. If censored data do exist,
 <code>TADA_SimpleCensoredMethods</code> could be used. See the TADA

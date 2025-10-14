@@ -34,7 +34,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -71,7 +72,7 @@
       <h1>WQX QAQC Service User Guide</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-10-03</h4>
+            <h4 data-toc-skip class="date">2025-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/WQXValidationService.Rmd" class="external-link"><code>vignettes/WQXValidationService.Rmd</code></a></small>
       <div class="d-none name"><code>WQXValidationService.Rmd</code></div>
@@ -151,6 +152,14 @@ combination</p>
 </ul>
 </li>
 <li>
+<p>Flag monitoring locations with imprecise coordinates (accuracy of
+lat/long is less than three three decimal degrees (e.g., 38.88°,
+-77.00°)] and/or coordinates outside of the US.</p>
+<ul>
+<li><a href="https://usepa.github.io/EPATADA/reference/TADA_FlagCoordinates.html">TADA_FlagCoordinates()</a></li>
+</ul>
+</li>
+<li>
 <p>Flag results that do not have an approved QAPP and/or do not
 include a QAPP attachment</p>
 <ul>
@@ -183,22 +192,14 @@ percentile)</p>
 </ul>
 </li>
 </ul>
-<p><a href="https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg" class="external-link"><img src="images/IQR.png" alt="[Boxplot](https://en.wikipedia.org/wiki/Boxplot “Boxplot”) (with an interquartile range) and a [probability density function](https://en.wikipedia.org/wiki/Probability_density_function “Probability density function”) (pdf) of a Normal N(0,σ2) Population. Attribution: Jhguch at en.wikipedia, [CC BY-SA 2.5](https://creativecommons.org/licenses/by-sa/2.5/), via Wikimedia Commons."></a></p>
-<p>Additional tests only available in WQX Web and Node Submissions (for
-now):</p>
+<p><a href="https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg" class="external-link"><img src="images/IQR.png" alt="[Boxplot](https://en.wikipedia.org/wiki/Boxplot) with an interquartile range and normal [probability](https://en.wikipedia.org/wiki/Probability_density_function). Attribution: [Jhguch](https://creativecommons.org/licenses/by-sa/2.5/) via Wikimedia Commons."></a></p>
+<p>Additional tests only available in WQX Web and Node Submissions:</p>
 <ul>
 <li>
 <p>Location</p>
 <ul>
-<li><p>Flag data where accuracy of lat/long is less than three three
-decimal degrees (e.g., 38.88°, -77.00°)</p></li>
-<li><p>Flag data where the lat/long assigned to monitoring sites is NOT
-in the state and country included in metadata</p></li>
-<li><p>Flag if monitoring locations nearby each other are likely the
-same based on three decimal degrees precision. Includes two flags - one
-within your org and one national (across all orgs). If they are, then
-provide user an option to use the existing monitoring location instead
-of creating a new one [expand here].</p></li>
+<li>Flag data where the lat/long assigned to monitoring sites is NOT in
+the state and country included in metadata.</li>
 </ul>
 </li>
 </ul>
@@ -236,7 +237,7 @@ functions:</p>
 <li><p>Both WQX and TADA leverage the table above to convert all data
 for each unique characteristic to a consistent unit, so that results can
 then we assessed against the WQX upper and lower thresholds in the
-validation table. Target units for each charactersitic are included in
+validation table. Target units for each characteristic are included in
 the MeasureUnit domain table. TADA leverages this table to convert all
 data for each unique characteristic to a consistent target unit. See
 relevant TADA functions:</p></li>

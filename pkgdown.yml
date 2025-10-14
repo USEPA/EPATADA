@@ -3,7 +3,8 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   CONTRIBUTING: CONTRIBUTING.html
-  ExampleMod2Workflow: ExampleMod2Workflow.html
+  ExampleMod3CriteriaMethodsAltOptions: ExampleMod3CriteriaMethodsAltOptions.html
+  ExampleMod3Workflow: ExampleMod3Workflow.html
   GeospatialDataIntegration: GeospatialDataIntegration.html
   Participatory-Science-Water-Projects-in-WQX: Participatory-Science-Water-Projects-in-WQX.html
   TADAAssessmentUnitUseCase: TADAAssessmentUnitUseCase.html
@@ -16,7 +17,7 @@ articles:
   TADAWaterSciConWorkshopDemo: TADAWaterSciConWorkshopDemo.html
   WQX3-Migration: WQX3-Migration.html
   WQXValidationService: WQXValidationService.html
-last_built: 2025-10-03T17:57Z
+last_built: 2025-10-14T15:24Z
 urls:
   reference: usepa.github.io/EPATADA/reference
   article: usepa.github.io/EPATADA/articles

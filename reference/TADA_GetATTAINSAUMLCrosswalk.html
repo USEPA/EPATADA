@@ -31,7 +31,8 @@ tribal nations record this information in ATTAINS but only a few states."></head
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -81,12 +82,15 @@ tribal nations record this information in ATTAINS but only a few states.</p>
 
 
 <dl><dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
-<dd><p>The ATTAINS organization identifier must be supplied by the
-user. A list of organization identifiers can be found by downloading the
-ATTAINS Domains Excel file:
+<dd><p>Character string. The ATTAINS organization identifier must be
+supplied by the user. More than one org_id may be provided. A list of
+organization identifiers can be found by downloading the ATTAINS Domains
+Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
-contains the organization identifiers that should be used for this param.</p></dd>
+contains the organization identifiers that should be used for this param. When
+org_id = NULL, all assessment unit/monitoring locations matches recorded in
+ATTAINS from all organizations will be returned.</p></dd>
 
 
 <dt id="arg-batch-upload">batch_upload<a class="anchor" aria-label="anchor" href="#arg-batch-upload"></a></dt>

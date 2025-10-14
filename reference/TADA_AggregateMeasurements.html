@@ -25,7 +25,8 @@ TADA.ResultMeasureValue to a minimum, maximum, or average value."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -129,7 +130,7 @@ to indicate which rows have been aggregated.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Select maximum value per day, site, comparable data identifier,</span></span></span>
 <span class="r-in"><span><span class="co"># unit, result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Clean all non-maximum measurements from grouped data.</span></span></span>
@@ -172,7 +173,7 @@ to indicate which rows have been aggregated.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                               10659 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_6Tribes_5y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Select maximum value per day, site, comparable data identifier, result detection condition,</span></span></span>
 <span class="r-in"><span><span class="co"># and activity type code. Clean all non-maximum measurements from grouped data.</span></span></span>
 <span class="r-in"><span><span class="va">Data_6Tribes_5y_agg</span> <span class="op">&lt;-</span> <span class="fu">TADA_AggregateMeasurements</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>,</span></span>

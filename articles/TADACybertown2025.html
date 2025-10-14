@@ -36,7 +36,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -73,7 +74,7 @@
       <h1>TADA Cybertown Workshop June 2025</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-10-03</h4>
+            <h4 data-toc-skip class="date">2025-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADACybertown2025.Rmd" class="external-link"><code>vignettes/TADACybertown2025.Rmd</code></a></small>
       <div class="d-none name"><code>TADACybertown2025.Rmd</code></div>
@@ -93,36 +94,18 @@ toolbar. Users can also access this vignette on the EPATADA Github page
 found (<a href="https://usepa.github.io/EPATADA/articles/TADACybertown2025.html">here</a>).</p>
 </div>
 <div class="section level2">
-<h2 id="install-and-load-packages">Install and load packages<a class="anchor" aria-label="anchor" href="#install-and-load-packages"></a>
+<h2 id="load-libraries">Load libraries<a class="anchor" aria-label="anchor" href="#load-libraries"></a>
 </h2>
-<p>First, install and load the remotes package specifying the repo. This
-is needed before installing EPATADA because it is only available on
-GitHub (not CRAN).</p>
+<p>First, please install the EPATADA R package by following the
+instructions <a href="https://github.com/USEPA/EPATADA" class="external-link">here</a>. Next,
+load the EPATADA R Package.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span>,</span>
-<span>  repos <span class="op">=</span> <span class="st">"http://cran.us.r-project.org"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://remotes.r-lib.org" class="external-link">remotes</a></span><span class="op">)</span></span></code></pre></div>
-<p>Next, install and load EPATADA using the remotes package. USGS’s
-dataRetrieval and other TADA R Package dependencies will also be
-downloaded automatically from CRAN with the TADA install. If desired,
-the development version of dataRetrieval can be downloaded directly from
-GitHub (un-comment).</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/EPATADA"</span>,</span>
-<span>  ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
-<span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
-<p>Finally, use the <strong>library()</strong> function to load the TADA
-R Package into your R session.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="record-start-time">Record start time<a class="anchor" aria-label="anchor" href="#record-start-time"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">start.time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -153,8 +136,8 @@ of the Assessment Unit). Now we can use this shapefile (only works for
 polygons for now) as our input for the new aoi_sf query option included
 in TADA_DataRetrieval. This allows us to download WQP data within the
 Assessment Unit (our area of interest/AOI).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">query_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">query.params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  where <span class="op">=</span> <span class="st">"assessmentunitidentifier IN ('CT6400-00-1-L5_01')"</span>,</span>
 <span>  outFields <span class="op">=</span> <span class="st">"*"</span>,</span>
 <span>  f <span class="op">=</span> <span class="st">"geojson"</span></span>
@@ -162,25 +145,16 @@ Assessment Unit (our area of interest/AOI).</p>
 <span></span>
 <span><span class="va">url</span> <span class="op">&lt;-</span> <span class="st">"https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"</span></span>
 <span></span>
-<span><span class="co"># Create a request object and set the query parameters</span></span>
-<span><span class="va">request</span> <span class="op">&lt;-</span> <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/request.html" class="external-link">request</a></span><span class="op">(</span><span class="va">url</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/req_url.html" class="external-link">req_url_query</a></span><span class="op">(</span><span class="op">!</span><span class="op">!</span><span class="op">!</span><span class="va">query_params</span><span class="op">)</span></span>
+<span><span class="va">poly.response</span> <span class="op">&lt;-</span> <span class="fu">httr</span><span class="fu">::</span><span class="fu"><a href="https://httr.r-lib.org/reference/GET.html" class="external-link">GET</a></span><span class="op">(</span><span class="va">url</span>, query <span class="op">=</span> <span class="va">query.params</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Perform the GET request</span></span>
-<span><span class="va">poly_response</span> <span class="op">&lt;-</span> <span class="va">request</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/req_perform.html" class="external-link">req_perform</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">poly.geojson</span> <span class="op">&lt;-</span> <span class="fu">httr</span><span class="fu">::</span><span class="fu"><a href="https://httr.r-lib.org/reference/content.html" class="external-link">content</a></span><span class="op">(</span><span class="va">poly.response</span>, as <span class="op">=</span> <span class="st">"text"</span>, encoding <span class="op">=</span> <span class="st">"UTF-8"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Extract the content as text</span></span>
-<span><span class="va">poly_geojson</span> <span class="op">&lt;-</span> <span class="va">poly_response</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">httr2</span><span class="fu">::</span><span class="fu"><a href="https://httr2.r-lib.org/reference/resp_body_raw.html" class="external-link">resp_body_string</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Read the geojson into an sf object</span></span>
-<span><span class="va">poly_sf</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="va">poly_geojson</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">poly.sf</span> <span class="op">&lt;-</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_read.html" class="external-link">st_read</a></span><span class="op">(</span><span class="va">poly.geojson</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">WQP_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span></span>
 <span>  startDate <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  endDate <span class="op">=</span> <span class="st">"null"</span>,</span>
-<span>  aoi_sf <span class="op">=</span> <span class="va">poly_sf</span>,</span>
+<span>  aoi_sf <span class="op">=</span> <span class="va">poly.sf</span>,</span>
 <span>  countrycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"null"</span>,</span>
 <span>  huc <span class="op">=</span> <span class="st">"null"</span>,</span>
@@ -201,7 +175,7 @@ Assessment Unit (our area of interest/AOI).</p>
 <span>  applyautoclean <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables in R by using ‘rm()’.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">poly.response</span>, <span class="va">poly.sf</span>, <span class="va">query.params</span>, <span class="va">poly.geojson</span>, <span class="va">url</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -213,7 +187,7 @@ to our water quality analysis and area of interest.</p>
 <p>TADA is primarily designed to accommodate water data from the WQP.
 Let’s see what activity media types are represented in the data set. Are
 there any media type that are not water in our data frame?</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create table with count for each ActivityMediaName</span></span>
 <span><span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_raw</span>,</span>
@@ -221,12 +195,12 @@ there any media type that are not water in our data frame?</p>
 <span>  characteristicName <span class="op">=</span> <span class="st">"null"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Create an overview map.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_OverviewMap.html">TADA_OverviewMap</a></span><span class="op">(</span><span class="va">WQP_raw</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s take a quick look at all unique values in the
 MonitoringLocationIdentifier column and see how how many results are
 associated with each.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier</span></span>
 <span><span class="va">sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_raw</span>,</span>
@@ -236,7 +210,7 @@ associated with each.</p>
 <span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">sites</span>, fillContainer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Are there sites located within 100 meters of each other?</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindNearbySites.html">TADA_FindNearbySites</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_raw</span>,</span>
 <span>  dist_buffer <span class="op">=</span> <span class="fl">100</span>,</span>
@@ -251,7 +225,7 @@ TADA.ComparableDataIdentifier column and see how how many results are
 associated with each. TADA.ComparableDataIdentifier concatenates
 TADA.CharacteristicName, TADA.ResultSampleFractionText,
 TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier</span></span>
 <span><span class="va">chars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean</span>,</span>
@@ -261,7 +235,7 @@ TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.</p>
 <span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">chars</span>, fillContainer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables in R by using ‘rm()’.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">chars</span>, <span class="va">sites</span>, <span class="va">WQP_flag_review</span>, <span class="va">WQP_flag</span><span class="op">)</span></span></code></pre></div>
 <p>Next, let’s check if the dataset contains potential duplicate results
 from within a single organization or from within multiple organizations
@@ -270,7 +244,7 @@ may submit duplicate results).</p>
 <p>If you would like to prioritize results from one organization over
 another, this can be done using the org_hierarchy argument in
 <code>TADA_FindPotentialDuplicatesMultipleOrgs</code>.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># find duplicates from single org</span></span>
 <span><span class="va">WQP_flag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="va">WQP_clean</span><span class="op">)</span></span>
 <span></span>
@@ -284,7 +258,7 @@ another, this can be done using the org_hierarchy argument in
 <span>  org_hierarchy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CT_DEP01"</span>, <span class="st">"USGS-CT"</span>, <span class="st">"CTVOLMON"</span>, <span class="st">"NALMS"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Let’s review the duplicates:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_flag_review</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">MonitoringLocationName</span>,</span>
@@ -311,13 +285,13 @@ TADA.SingleOrgDup.Flag equals “Unique”.</p>
 <code>TADA_FindPotentialDuplicatesMultipleOrgs</code> in this example,
 but if there were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals “Y”.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ResultSelectedMultipleOrgs</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables in R by using ‘rm()’. In the remainder
 of this workshop, we will work with the clean data set.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">WQP_flag</span>, <span class="va">WQP_flag_review</span><span class="op">)</span></span></code></pre></div>
 <p>Censored data are measurements for which the true value is not known,
 but we can estimate the value based on known lower or upper detection
@@ -337,7 +311,7 @@ take in this example is to perform simple conversions to the censored
 data in the dataset: we keep over-detects as is (no conversion made) and
 convert non-detect values to 0.5 times the detection limit (half the
 detection limit).</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean</span>,</span>
 <span>  nd_method <span class="op">=</span> <span class="st">"multiplier"</span>,</span>
@@ -347,24 +321,23 @@ detection limit).</p>
 <span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_FindQCActivities</code> removes results with QA/QC
 ActivityTypeCode’s.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FindQCActivities.html">TADA_FindQCActivities</a></span><span class="op">(</span><span class="va">WQP_clean</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_ConvertSpecialChars</code> removes rows where the result
 value is not numeric to prepare a dataframe for quantitative analyses.
-Specifically, this function removes rows with <code>Text</code> and
-<code>NA - Not Available</code> in the
-TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-TADA.ResultMeasureValue column. In addition, this function removes
+Specifically, this function removes rows with “Text” and “NA - Not
+Available” in the TADA.ResultMeasureValueDataTypes.Flag column, or NA in
+the TADA.ResultMeasureValue column. In addition, this function removes
 results with QA/QC ActivityTypeCode’s. This function also removes any
 columns not required for TADA workflow where all values are equal to
 NA.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ConvertSpecialChars.html">TADA_ConvertSpecialChars</a></span><span class="op">(</span><span class="va">WQP_clean</span>, col <span class="op">=</span> <span class="st">"TADA.ResultMeasureValue"</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
 flagging functions. See ?function documentation for TADA_FlagResultUnit,
 TADA_FlagFraction, TADA_FlagMeasureQualifierCode, and
 TADA_FlagSpeciation for more information.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean</span>,</span>
 <span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -376,19 +349,19 @@ against national lower and upper thresholds. For these, we will set
 clean = FALSE and flaggedonly = TRUE so that it returns only flagged
 results in the review dataframe returned. We will keep these in our
 “clean” dataframe for now.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_flag_reviewabove</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FlagAboveThreshold.html">TADA_FlagAboveThreshold</a></span><span class="op">(</span><span class="va">WQP_clean</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">WQP_flag_reviewbelow</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FlagBelowThreshold.html">TADA_FlagBelowThreshold</a></span><span class="op">(</span><span class="va">WQP_clean</span>, clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">WQP_flag_reviewabove</span>, <span class="va">WQP_flag_reviewbelow</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s take another look at all unique values in the
 TADA.ComparableDataIdentifier column and see how how many results are
 associated with each. TADA.ComparableDataIdentifier concatenates
 TADA.CharacteristicName, TADA.ResultSampleFractionText,
 TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier</span></span>
 <span><span class="va">chars</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean</span>,</span>
@@ -404,17 +377,17 @@ may be possible that some of these can be automatically harmonized using
 <code>TADA_HarmonizeSynonyms</code> so their results can be directly
 compared.</p>
 <p>Let’s give it a try.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="va">WQP_clean</span><span class="op">)</span></span></code></pre></div>
 <p>How many unique TADA.ComparableDataIdentifier’s do we have now? In
 this example, there were no synonyms.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chars_after</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">WQP_clean</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">chars_before</span>, <span class="va">chars_after</span><span class="op">)</span></span></code></pre></div>
 <p>Create a pie chart.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean</span>,</span>
 <span>  field <span class="op">=</span> <span class="st">"TADA.CharacteristicName"</span>,</span>
@@ -426,13 +399,13 @@ this example, there were no synonyms.</p>
 </h2>
 <p>Let’s filter the data and focus on a one characteristic of
 interest.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select characteristics of interest</span></span>
 <span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"ESCHERICHIA COLI"</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables. We will focus on the subset from now
 on.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">WQP_clean</span>, <span class="va">chars</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -454,11 +427,11 @@ because 80% of state submitted assessment units in ATTAINS were
 developed based on high res NHD; users can select med-res if applicable
 to their use case</li>
 </ul>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean_subset_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span></span>
 <span>  <span class="va">WQP_clean_subset</span>,</span>
 <span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  fill_catchments <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  resolution <span class="op">=</span> <span class="st">"Hi"</span>,</span>
 <span>  return_sf <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
@@ -466,34 +439,35 @@ to their use case</li>
 <span><span class="co"># Adds ATTAINS info to df</span></span>
 <span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset_spatial</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span></span></code></pre></div>
 <p>View catchments and assessment units on map</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ATTAINS_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">WQP_clean_subset_spatial</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ATTAINS_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">WQP_clean_subset_spatial</span>, </span>
+<span>                                ref_icons <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">ATTAINS_map</span></span></code></pre></div>
 <p>Remove intermediate variables:</p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">ATTAINS_map</span><span class="op">)</span></span></code></pre></div>
 <p>Create table of monitoring location identifiers and AUs.</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ML_AU_crosswalk</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">TADA.MonitoringLocationIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitName</span>, <span class="va">TADA.CharacteristicName</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables. Let’s keep going with
 WQP_clean_subset.</p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">ML_AU_crosswalk</span>, <span class="va">WQP_clean_subset_spatial</span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_RetainRequired</code> removes all duplicate columns where
 TADA has created a new column with a TADA prefix. It retains all TADA
 prefixed columns as well as other original fields that are either
 required by other TADA functions or are commonly used filters.</p>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_RetainRequired.html">TADA_RetainRequired</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="exploratory-analysis">Exploratory analysis<a class="anchor" aria-label="anchor" href="#exploratory-analysis"></a>
 </h2>
 <p>Review unique TADA.ComparableDataIdentifier’s</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s check if any results are above the EPA 304A recommended maximum
 criteria magnitude (see: <a href="https://www.epa.gov/sites/default/files/2015-10/documents/rec-factsheet-2012.pdf" class="external-link">2012
@@ -505,7 +479,7 @@ Criteria Search Tool</a>.</p>
 <p>Let’s check if any individual results exceed 320 CFU/100mL (the
 magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
 COLI).</p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># add column with comparison to criteria mag (excursions)</span></span>
 <span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
@@ -522,12 +496,12 @@ COLI).</p>
 <p>Generate stats table. Review percentiles. Less than 5% of results
 fall above 10 CFU/100mL, and over 98% of results fall below 265.2
 CFU/100m.</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean_subset_stats</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="../reference/TADA_Stats.html">TADA_Stats</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Generate a scatterplot. One result value is above the threshold.</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_Scatterplot.html">TADA_Scatterplot</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">plotly</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/add_trace.html" class="external-link">add_lines</a></span><span class="op">(</span></span>
 <span>    y <span class="op">=</span> <span class="fl">320</span>,</span>
@@ -538,21 +512,21 @@ CFU/100m.</p>
 <span>    hoverinfo <span class="op">=</span> <span class="st">"none"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p>Generate a histogram.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_Histogram.html">TADA_Histogram</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_Boxplot</code> can be useful for identifying skewness and
 percentiles.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_Boxplot.html">TADA_Boxplot</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span></span></code></pre></div>
 <p><code>TADA_RetainRequired</code> removes extra columns. Enter
 ?TADA_RetainRequired into the console for more details.</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">WQP_clean_subset_final</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_RetainRequired.html">TADA_RetainRequired</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="record-end-time">Record end time<a class="anchor" aria-label="anchor" href="#record-end-time"></a>
 </h2>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">end.time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">end.time</span> <span class="op">-</span> <span class="va">start.time</span></span></code></pre></div>

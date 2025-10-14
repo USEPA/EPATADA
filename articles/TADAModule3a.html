@@ -36,7 +36,8 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/CONTRIBUTING.html">Contributing</a></li>
-    <li><a class="dropdown-item" href="../articles/ExampleMod2Workflow.html">Example Module 2 Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3CriteriaMethodsAltOptions.html">TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</a></li>
+    <li><a class="dropdown-item" href="../articles/ExampleMod3Workflow.html">Example Module 3 Workflow</a></li>
     <li><a class="dropdown-item" href="../articles/GeospatialDataIntegration.html">Geospatial Data Integration</a></li>
     <li><a class="dropdown-item" href="../articles/Participatory-Science-Water-Projects-in-WQX.html">Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)</a></li>
     <li><a class="dropdown-item" href="../articles/TADAAssessmentUnitUseCase.html">TADA: Assessment Unit Use Case Demo</a></li>
@@ -73,7 +74,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-10-03</h4>
+            <h4 data-toc-skip class="date">2025-10-14</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3a.Rmd" class="external-link"><code>vignettes/TADAModule3a.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3a.Rmd</code></div>
@@ -131,11 +132,10 @@ by entering <code>?[name of TADA function]</code> into the console
 <h2 id="introduction-to-tada-module-3">Introduction to TADA Module 3<a class="anchor" aria-label="anchor" href="#introduction-to-tada-module-3"></a>
 </h2>
 <p>This <a href="https://bookdown.org/yihui/rmarkdown/" class="external-link">RMarkdown</a>
-document walks users through how to create WQP and ATTAINS or Criteria
-Search Tool data crosswalks that are needed prior to defining and
-capturing organization specific water quality analysis criteria and
-methodologies. It is the first of several vignettes that are being
-developed as part of TADA Module 3.</p>
+document walks users through how to create WQP and ATTAINS crosswalks
+that are needed prior to defining and capturing organization specific
+water quality analysis criteria and methodologies. It is the first of
+several vignettes that are being developed as part of TADA Module 3.</p>
 <p>Specifically, this vignette provides an overview of two functions
 that can assist users with:</p>
 <ul>
@@ -144,10 +144,6 @@ names and WQP/TADA characteristic names.</p></li>
 <li><p>Creating a crosswalk (reference table) of all unique combinations
 of ATTAINS uses and parameters applicable to ATTAINS Assessment Units of
 interest.</p></li>
-<li><p>Creating a crosswalk (reference table) between the EPA Criteria
-Search Tool (CST) parameter names and WQP/TADA characteristic names.
-This enables incorporating EPA national recommended Clean Water Act
-(CWA) 304(a) numeric criteria.</p></li>
 </ul>
 <p>These Module 3 functions are being designed with the flexibility for
 users from states, tribes, or territories to input organization-specific
@@ -432,7 +428,7 @@ also choose to ‘auto_assign’ all unique ATTAINS.UseName by
 ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.</p>
 <p>In the example below, we can see only “ZINC” and “NITROGEN, TOTAL”
-were the ATTAINS.ParameterNames done in prior assessment cycles for
+were the ATTAINS.ParameterNames assessed in prior assessment cycles for
 MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef). “PH” was
 not listed in ATTAINS for MDE_EASP in the prior assessment cycle, but
 was included in MDE_EASP paramRef argument input.</p>
