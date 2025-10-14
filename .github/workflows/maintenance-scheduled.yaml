@@ -20,8 +20,8 @@ jobs:
         continue-on-error: true
         with:
           ref: maintenance-branch
-        # If the first checkout fails, we checkout the `main` branch by default
-      - name: Fallback to main branch
+        # If the first checkout fails, we checkout the `develop` branch by default
+      - name: Fallback to default branch
         if: steps.bad-checkout.outcome == 'failure'
         uses: actions/checkout@v4
         with:
