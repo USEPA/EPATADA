@@ -112,7 +112,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r install_TADA_dev, results = 'hide', include = FALSE}
 remotes::install_github("USEPA/EPATADA",
-  ref = "Create-Module-3-AURef",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
