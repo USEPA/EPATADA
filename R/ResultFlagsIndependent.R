@@ -77,8 +77,11 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     .data <- dplyr::select(.data, -TADA.AnalyticalMethod.Flag)
   }
   # read in WQX val reference table and filter
-  load(file = "inst/extdata/WQXcharValRef.rda")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
   meth.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicMethod")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
@@ -510,9 +513,12 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   # get WQXcharVal.ref and filter to include only the ranges for units that are "accepted"
   # status in the validation table is not applicable to ranges (only the units)
-  load(file = "inst/extdata/WQXcharValRef.rda")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
   unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
+  rm(WQXcharValRef)
 
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
@@ -718,10 +724,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 
   # get WQXcharVal.ref and filter to include only the ranges for units that are "accepted"
   # status in the validation table is not applicable to ranges (only the units)
-  load(file = "inst/extdata/WQXcharValRef.rda")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
   unit.ref <- dplyr::filter(WQXcharValRef, Status == "Accepted")
-
+  rm(WQXcharValRef)
+  
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
   names(unit.ref)[names(unit.ref) == "Source"] <- "TADA.ActivityMediaName"

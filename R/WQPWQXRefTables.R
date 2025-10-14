@@ -38,7 +38,9 @@ TADA_GetWQXCharValRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(load(file = "inst/extdata/WQXcharValRef.rda"))
+    file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+    return(load(file_path))
+    rm(file_path)
   }
 
   # Categorize status values

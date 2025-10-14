@@ -112,7 +112,10 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
 
 test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
 
-  load(file = "inst/extdata/WQXcharValRef.rda")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit",
                             Status == "Accepted")
 
