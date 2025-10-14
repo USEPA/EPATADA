@@ -3480,7 +3480,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (is.null(org_id)) {
-    print("TADA_CreateAUMLCrosswalk: No org_id provided. No crosswalk will be imported from ATTAINS.")
+    print(paste0("TADA_CreateAUMLCrosswalk: No org_id provided. ",
+                 "Checking crosswalks from all ATTAINS organizations for ",
+                 "monitoring location and assessment unit matches."))
+
+
   }
 
   # if an org id is provided, ATTAINS is checked for a crosswalk
