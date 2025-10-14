@@ -2526,15 +2526,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "WQP: Monitoring Location",
         "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with gray outlines."
       )
-
-      if ("without_ATTAINS_catchments" %in% names(.data)) {
-        images.ref <- append(images.ref, images[6])
-
-        leg.labels <- append(
-          leg.labels,
-          "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-        )
-      }
     }
 
     if ("without_ATTAINS_catchments" %in% names(.data)) {
