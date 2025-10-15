@@ -216,9 +216,7 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 #' @param expected_cols A vector of expected column names as strings
 #' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
 TADA_CheckColumns <- function(.data, expected_cols) {
-  if (!inherits(.data, "data.frame")) {
-    stop("Input must be a dataframe.")
-  }
+  TADA_CheckType(.data, "data.frame", "Input object") # check .data is data.frame
 
   if (!is.vector(expected_cols) || !is.character(expected_cols)) {
     stop("Expected columns must be a character vector.")
