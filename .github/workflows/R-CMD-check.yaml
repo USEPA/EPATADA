@@ -3,7 +3,7 @@
 on:
   push:
     branches: 
-      [develop, 642-update-package-to-use-instead-of]
+      [develop]
   pull_request:
     branches: develop
   # allow manual action trigger
