@@ -3385,28 +3385,39 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   )
 
   # if no org id is provided, no crosswalk is imported from ATTAINS
-  if (is.null(org_id)) {
-    print(paste0("TADA_CreateAUMLCrosswalk: No org_id provided. ",
-                 "Checking crosswalks from all ATTAINS organizations for ",
-                 "monitoring location and assessment unit matches."))
-
+  if (org_id == "none") {
+    print(paste0("TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
+                 "should not be checked for monitoring location and assessment unit matches."))
 
   }
 
   # if an org id is provided, ATTAINS is checked for a crosswalk
-  if (!is.null(org_id)) {
+  if (org_id != "none") {
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
+    # get crosswalk from ATTAINS
     attains.cw <- spsUtil::quiet(
       TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
     )
 
-    if (is.null(attains.cw)) {
-      print(paste0(
-        "TADA_CreateAUMLCrosswalk: There are no MonitoringLocation records ",
-        "in ATTAINS for ", org_id, "."
+    # create string to describe ATTAINS orgs for print message
+    org.text <- ifelse(is.null(org_id), "all organizations",
+                       stringi::stri_replace_last(paste(org_id, collapse = ", "),
+                                                  fixed = ", ", replacement = " and "))
+
+    # count number of records from ATTAINS crosswalk
+    record.count <- dim(attains.cw)[1]
+
+   # create text to describe number of records
+    count.text <- ifelse(record.count == 0, "no", record.count)
+
+    # prinnt message summarizing the results of fetching crosswalk data from ATTAINS
+    print(paste0(
+        "TADA_CreateAUMLCrosswalk: There are ", count.text, " MonitoringLocation records ",
+        "in ATTAINS for ", org.text, "."
       ))
-    }
+
+      rm(org.text, record.count, count.text)
   }
 
   if (!is.null(attains.cw)) {
