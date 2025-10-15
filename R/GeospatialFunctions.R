@@ -3384,15 +3384,19 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     "ATTAINS_polygons" = NULL
   )
 
-  # if no org id is provided, no crosswalk is imported from ATTAINS
-  if (org_id == "none") {
-    print(paste0("TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
-                 "should not be checked for monitoring location and assessment unit matches."))
 
+  # if no org id is provided, no crosswalk is imported from ATTAINS
+  if (!is.null(org_id)) {
+
+    if(org_id == "none")  {
+
+    print(paste0("TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
+                 "should not be checked for monitoring location and assessment unit matches.")) }
   }
 
+
   # if an org id is provided, ATTAINS is checked for a crosswalk
-  if (org_id != "none") {
+  if (format(org_id) != "none" | is.null(org_id)) {
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
     # get crosswalk from ATTAINS
@@ -3428,7 +3432,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains.cw <- spsUtil::quiet(
       TADA_UpdateATTAINSAUMLCrosswalk(
         crosswalk = attains.cw,
-        org_id = org_id,
         attains_replace = TRUE
       )
     )

@@ -176,13 +176,6 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' https://www.epa.gov/waterdata/upload-data-resources-registered-attains-users#batch-upload-templates
 #' See Assessment Unit Batch Upload Template.
 #'
-#' @param org_id Character argument. The ATTAINS organization identifier must
-#' be supplied by the user. A list of organization identifiers can be found by
-#' downloading the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param.
-#'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
 #' Portal Data Site page for each Monitoring Location Identifier in the data
@@ -305,25 +298,12 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' )
 #' }
 #'
-TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
-                                            crosswalk = NULL,
+TADA_UpdateATTAINSAUMLCrosswalk <- function(crosswalk = NULL,
                                             attains_replace = FALSE,
                                             wqp_data_links = "add",
                                             update_mlid = TRUE,
                                             batch_upload = FALSE,
                                             check_links = FALSE) {
-  # get list of organization identifiers from ATTAINS
-  org.ref <- utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv",
-    package = "EPATADA"
-  ))
-
-  # stop function if organization identifiers is not found in ATTAINS
-  if (!org_id %in% org.ref$code) {
-    stop(paste0(
-      "TADA_UpdateATTAINSAUMLCrosswalk: ",
-      "The organization identifier entered by user is not found in ATTAINS."
-    ))
-  }
 
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
@@ -333,10 +313,6 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       "MonitoringLocation/AssessmentUnitcrosswalk."
     ))
   }
-
-  if (org_id %in% org.ref$code) {
-    # remove intermediate object
-    rm(org.ref)
 
     # if the crosswalk is not a dataframe, stop the function
     if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
@@ -741,7 +717,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
     return(update.crosswalk)
   }
-}
+
 
 #' Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool (CST)
 #' Parameter Name Crosswalk
@@ -1257,10 +1233,10 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     # Excel ref files to be stored in the Downloads folder location.
     # Define the OneDrive Downloads path
     onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
-    
+
     # Define the default Downloads path
     default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-    
+
     # Check if the OneDrive Downloads path exists, and prioritize it
     if (file.exists(onedrive_downloads_path)) {
       downloads_path <- onedrive_downloads_path
@@ -1706,7 +1682,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 
       if (is.data.frame(useParamRef)) {
         col.names <- c(
-          "ATTAINS.OrganizationIdentifier", 
+          "ATTAINS.OrganizationIdentifier",
           "ATTAINS.ParameterName", "ATTAINS.UseName"
         )
 
@@ -1940,7 +1916,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
           !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all$ATTAINS.UseName) &
             ATTAINS.UseName %in% ATTAINS_param_all$ATTAINS.UseName ~
             "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
-          TRUE ~ 
+          TRUE ~
             "Use name is not listed as a prior cause in ATTAINS."
         )) %>%
         dplyr::mutate(Flag.UseInput = dplyr::case_when(
@@ -1970,10 +1946,10 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 
     # Define the OneDrive Downloads path
     onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
-    
+
     # Define the default Downloads path
     default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-    
+
     # Check if the OneDrive Downloads path exists, and prioritize it
     if (file.exists(onedrive_downloads_path)) {
       downloads_path <- onedrive_downloads_path
@@ -2859,10 +2835,10 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
   # default Downloads file location.
   # Define the OneDrive Downloads path
   onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
-  
+
   # Define the default Downloads path
   default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  
+
   # Check if the OneDrive Downloads path exists, and prioritize it
   if (file.exists(onedrive_downloads_path)) {
     downloads_path <- onedrive_downloads_path
@@ -2968,7 +2944,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
         LongitudeMeasure, LatitudeMeasure, IncludeOrExclude, UniqueSpatialCriteria
       ) %>%
       dplyr::distinct()
-  
+
     # data frame to only display sites that contains the parameter
     CreateMLSummaryRef2 <- useParamRef %>%
       tidyr::uncount(weights = length(unique_ML)) %>%
@@ -2988,7 +2964,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
         LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
       ) %>%
       dplyr::distinct()
-  
+
     # joins the table back together and flag appropriately
     CreateMLSummaryRef <- CreateMLSummaryRef %>%
       # dplyr::bind_rows(CreateMLSummaryRef2)
@@ -3008,17 +2984,17 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
       ) %>%
       dplyr::arrange(MonitoringLocationIdentifier)
   }
-  
+
   if (displayNA == TRUE && nrow(useParamRef) > 2000 || length(unique_ML) > 2000) {
     warning(paste0(
       "displayNA = TRUE: ",
       "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
       "Defaulting to displayNA = FALSE"
     ))
-    
+
     displayNA = FALSE
   }
-  
+
   # If we want to exclude rows of sites with no specified parameters
   if (displayNA == FALSE) {
     print(paste0(
@@ -3044,7 +3020,7 @@ TADA_CreateMLSummaryRef <- function(.data, org_id = NULL, useParamRef = NULL, di
         LongitudeMeasure, LatitudeMeasure, TADA.ParameterInSite.Flag, IncludeOrExclude, UniqueSpatialCriteria
       ) %>%
       dplyr::distinct()
-    
+
     CreateMLSummaryRef <- CreateMLSummaryRef2 %>%
       dplyr::arrange(MonitoringLocationIdentifier)
   }
