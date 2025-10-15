@@ -54,18 +54,16 @@
 #' )
 #'
 TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
-  TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
+  # check .data is data.frame and has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
   TADA_CheckColumns(.data, required_cols)
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
@@ -218,13 +216,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' }
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
-  TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
+  # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c(
     "ActivityTypeCode",
     "SampleCollectionEquipmentName",
@@ -236,7 +228,10 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "OrganizationIdentifier",
     "ActivityRelativeDepthName"
   ))
-
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
@@ -479,18 +474,17 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #' )
 #'
 TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
-  TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
+  # check .data is data.frame and has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
+  # check .data has required columns
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
@@ -687,18 +681,16 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' )
 #'
 TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
-  TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
+  # check .data is data.frame and has required columns
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, required_cols)
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check flaggedonly is boolean
+  TADA_CheckType(flaggedonly, "logical")
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
@@ -904,16 +896,14 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned
 #'
 TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, "QAPPApprovedIndicator")
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check cleanNA is boolean
   TADA_CheckType(cleanNA, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, "QAPPApprovedIndicator")
   # check that clean, cleanNA and flaggedonly are not all TRUE
   if (clean == TRUE & cleanNA == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean, cleanNA, and flaggedonly cannot all be TRUE")
@@ -1010,10 +1000,6 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
 TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check .data has required columns
-
   # generate required column if it does not exist (there is no project data)
   if ("ProjectFileUrl" %in% colnames(.data)) {
     .data <- .data
@@ -1021,10 +1007,11 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
     # create empty ProjectFileUrl column
     .data[, "ProjectFileUrl"] <- NA
   }
-
   # check .data has required columns
   TADA_CheckColumns(.data, "ProjectFileUrl")
-
+  
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
   # default flag column
   .data$TADA.QAPPDocAvailable <- "N"
 
@@ -1164,14 +1151,12 @@ TADA_FlagCoordinates <- function(.data,
                                  clean_outsideUSA = c("no", "remove", "change sign"),
                                  clean_imprecise = FALSE,
                                  flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check clean_outsideUSA is character
   TADA_CheckType(clean_outsideUSA, "character")
   # check clean_imprecise is boolean
   TADA_CheckType(clean_imprecise, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check lat and long are "numeric"
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
