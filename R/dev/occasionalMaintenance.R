@@ -93,13 +93,15 @@ df_false <- df %>%
 
 ###########################################################
 
-# Find Characteristic/Source/Value.Unit Combinations in "WQXcharValRef.csv" with more than one row
+# Find Characteristic/Source/Value.Unit Combinations in "WQXcharValRef.rda" with more than one row
 # open unit.ref
-unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-  dplyr::filter(
-    Type == "CharacteristicUnit",
-    Status == "Accepted"
-  )
+# read in fraction reference table from extdata and filter
+file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+load(file_path)
+rm(file_path)
+unit.ref <- dplyr::filter(WQXcharValRef, 
+                          Type == "CharacteristicUnit",
+                          Status == "Accepted")
 
 # find Characteristic/Source/Value.Unit combinations with more than one row
 find.dups <- unit.ref %>%
