@@ -1312,9 +1312,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
       }
     } else {
       # ... Otherwise transform into a spatial object then do the same thing:
-      TADA_DataRetrieval_data <- .data %>%
-        # convert dataframe to a spatial object
-        TADA_MakeSpatial(.data = ., crs = 4326)
+      TADA_DataRetrieval_data <- TADA_MakeSpatial(.data, crs = 4326)
     }
   }))
 
