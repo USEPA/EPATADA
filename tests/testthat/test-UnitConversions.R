@@ -27,7 +27,7 @@ TADAProfile <- data.frame(
 test_that("TADA_CheckColumns catches non-dataframe input", {
   expect_error(
     TADA_CheckColumns("string", c("A", "B")),
-    "Input must be a dataframe."
+    "Input object must be of class 'data.frame'"
   )
 })
 
