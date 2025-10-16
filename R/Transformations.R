@@ -65,13 +65,13 @@
 TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   # check .data has the required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
@@ -79,7 +79,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
-
+  
   # define which columns are expected in ref
   expected_ref_cols <- c(
     "TADA.CharacteristicName",
@@ -94,47 +94,47 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.SpeciationConversionFactor",
     "HarmonizationGroup"
   )
-
+  
   # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
   }
-
+  
   # Changes NONE in fraction and speciation to NA for better harmonization
   # Should this be specified in the template instead? 7/25/25 cm
   .data <- .data %>% dplyr::mutate(
     TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
     TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA)
   )
-
+  
   # define harm.ref
   # if input for ref exists, use that data
   if (!missing(ref)) {
     # check ref is data.frame
     TADA_CheckType(ref, "data.frame")
-
+    
     # check ref has all of the required columns
     TADA_CheckColumns(ref, expected_ref_cols)
-
+    
     harm.ref <- ref
   }
-
+  
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
     # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
     harm.ref <- TADA_GetSynonymRef(.data) %>%
       dplyr::distinct()
   }
-
+  
   # find places where metadata will be changed and add targets
   harm.ref$TADA.Harmonized.Flag <- ifelse(!is.na(harm.ref$Target.TADA.CharacteristicName) |
-    !is.na(harm.ref$Target.TADA.ResultSampleFractionText) |
-    !is.na(harm.ref$Target.TADA.MethodSpeciationName),
-  TRUE, FALSE
+                                            !is.na(harm.ref$Target.TADA.ResultSampleFractionText) |
+                                            !is.na(harm.ref$Target.TADA.MethodSpeciationName),
+                                          TRUE, FALSE
   )
-
+  
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
-
+  
   # join harm.ref to .data
   flag.data <- .data %>%
     dplyr::left_join(harm.ref, by = c(
@@ -142,7 +142,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "TADA.ResultSampleFractionText",
       "TADA.MethodSpeciationName"
     ))
-
+  
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
   clean.data <- flag.data %>%
@@ -152,7 +152,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName,
       .default = TADA.CharacteristicName
     ))
-
+  
   # TADA.ResultSampleFractionText
   # replace ResultSampleFractionText with Target.TADA.ResultSampleFractionText
   clean.data <- clean.data %>%
@@ -163,13 +163,13 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       # is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
       .default = TADA.ResultSampleFractionText
     ))
-
+  
   # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
   clean.data$TADA.MethodSpeciationName <- ifelse(!is.na(clean.data$TADA.MethodSpeciationName) & is.na(clean.data$Target.TADA.MethodSpeciationName) & !is.na(clean.data$TADA.SpeciationAssumptions), clean.data$Target.TADA.MethodSpeciationName, clean.data$TADA.MethodSpeciationName)
-
+  
   # TADA.MethodSpeciationName
   # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
-
+  
   if (np_speciation == TRUE) {
     clean.data <- clean.data %>%
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
@@ -195,7 +195,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
         .default = TADA.MethodSpeciationName
       ))
   }
-
+  
   # remove conversion columns
   clean.data <- clean.data %>%
     dplyr::select(-c(
@@ -205,9 +205,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       "Target.TADA.SpeciationConversionFactor",
       "HarmonizationGroup"
     ))
-
+  
   clean.data$TADA.Harmonized.Flag <- ifelse(is.na(clean.data$TADA.Harmonized.Flag), FALSE, clean.data$TADA.Harmonized.Flag)
-
+  
   # return clean.data
   clean.data <- TADA_CreateComparableID(clean.data)
   clean.data <- TADA_OrderCols(clean.data)
@@ -323,16 +323,16 @@ TADA_CalculateTotalNP <- function(.data,
                                   daily_agg = c("max", "min", "mean")) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   # check to make sure daily_agg is populated with allowable value
   daily_agg <- match.arg(daily_agg)
-
+  
   # check required columns for TADA dataset
   req_cols <- c(
     "TADA.CharacteristicName",
@@ -361,32 +361,32 @@ TADA_CalculateTotalNP <- function(.data,
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
-
-
+  
+  
   # check if QC flag function ran and message warning if not
   if (!"TADA.ActivityType.Flag" %in% names(.data)) {
     message("TADA_CalculateTotalNP: Your input dataset was missing the TADA.ActivityType.Flag column, suggesting that QC replicates have not been addressed or reviewed. Running the TADA_FindQCActivities function with the clean = FALSE option before executing this function. This function will not include QC results when aggregating to a daily maximum and total nutrient value.")
     .data <- TADA_FindQCActivities(.data, clean = FALSE)
   }
-
+  
   # check if unit flag function ran and message warning if not
   if (!"TADA.ResultUnit.Flag" %in% names(.data)) {
     message("TADA_CalculateTotalNP: Your input dataset was missing the TADA.ResultUnit.Flag column, suggesting that unit and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagResultUnit function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect units when aggregating to a daily maximum and total nutrient value.")
     .data <- TADA_FlagResultUnit(.data, clean = "none")
   }
-
+  
   # check if fraction flag function ran and message if not
   if (!"TADA.SampleFraction.Flag" %in% names(.data)) {
     message("TADA_CalculateTotalNP: Your input dataset was missing the TADA.SampleFraction.Flag column, suggesting that fraction and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagFraction function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect fractions when aggregating to a daily maximum and total nutrient value.")
     .data <- TADA_FlagFraction(.data, clean = FALSE)
   }
-
+  
   # check if speciation flag function ran and message warning if not
   if (!"TADA.MethodSpeciation.Flag" %in% names(.data)) {
     message("TADA_CalculateTotalNP: Your input dataset was missing the TADA.MethodSpeciation.Flag column, suggesting that speciation and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagSpeciation function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect speciations when aggregating to a daily maximum and total nutrient value.")
     .data <- TADA_FlagSpeciation(.data, clean = "none")
   }
-
+  
   # Check if the specified values are present in the TADA.ResultMeasureValueDataTypes.Flag column
   if (any(.data$TADA.ResultMeasureValueDataTypes.Flag %in% c(
     "TP estimated from one or more subspecies.",
@@ -396,70 +396,70 @@ TADA_CalculateTotalNP <- function(.data,
     message(paste("TADA_CalculateTotalNP has already been run. Returning data unchanged. See TADA.ResultMeasureValueDataTypes.Flag column."))
     return(.data)
   }
-
+  
   # Create the include and exclude data frames
   include_df <- .data[.data$TADA.ActivityType.Flag == "Non_QC" &
-    (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-      c(
-        "Numeric",
-        "Result Value/Unit Estimated from Detection Limit",
-        "Less Than",
-        "Percentage",
-        "Approximate Value",
-        "Greater Than",
-        "Comma-Separated Numeric",
-        "Numeric Range - Averaged",
-        "Percentage Range - Averaged",
-        "Approximate Value",
-        "Result Value/Unit Copied from Detection Limit"
-      )) &
-    (.data$TADA.ResultUnit.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )) &
-    (.data$TADA.SampleFraction.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )) &
-    (.data$TADA.MethodSpeciation.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )), ]
-
+                        (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
+                           c(
+                             "Numeric",
+                             "Result Value/Unit Estimated from Detection Limit",
+                             "Less Than",
+                             "Percentage",
+                             "Approximate Value",
+                             "Greater Than",
+                             "Comma-Separated Numeric",
+                             "Numeric Range - Averaged",
+                             "Percentage Range - Averaged",
+                             "Approximate Value",
+                             "Result Value/Unit Copied from Detection Limit"
+                           )) &
+                        (.data$TADA.ResultUnit.Flag %in%
+                           c(
+                             "Pass",
+                             "Not Reviewed"
+                           )) &
+                        (.data$TADA.SampleFraction.Flag %in%
+                           c(
+                             "Pass",
+                             "Not Reviewed"
+                           )) &
+                        (.data$TADA.MethodSpeciation.Flag %in%
+                           c(
+                             "Pass",
+                             "Not Reviewed"
+                           )), ]
+  
   exclude_df <- .data[.data$TADA.ActivityType.Flag != "Non_QC" |
-    is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
-    (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-      c(
-        "NA - Not Available",
-        "Text",
-        "Non-ASCII Character(s)",
-        "Result Value/Unit Cannot Be Estimated From Detection Limit",
-        "Coerced to NA"
-      )) |
-    !(.data$TADA.ResultUnit.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )) |
-    !(.data$TADA.SampleFraction.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )) |
-    !(.data$TADA.MethodSpeciation.Flag %in%
-      c(
-        "Pass",
-        "Not Reviewed"
-      )), ]
-
+                        is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
+                        (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
+                           c(
+                             "NA - Not Available",
+                             "Text",
+                             "Non-ASCII Character(s)",
+                             "Result Value/Unit Cannot Be Estimated From Detection Limit",
+                             "Coerced to NA"
+                           )) |
+                        !(.data$TADA.ResultUnit.Flag %in%
+                            c(
+                              "Pass",
+                              "Not Reviewed"
+                            )) |
+                        !(.data$TADA.SampleFraction.Flag %in%
+                            c(
+                              "Pass",
+                              "Not Reviewed"
+                            )) |
+                        !(.data$TADA.MethodSpeciation.Flag %in%
+                            c(
+                              "Pass",
+                              "Not Reviewed"
+                            )), ]
+  
   # add flags noting these are not used in TN/TP summation
   exclude_df <- exclude_df %>%
     dplyr::mutate(TADA.NutrientSummation.Flag = "Not used to calculate Total N or P.") %>%
     dplyr::mutate(TADA.ResultValueAggregation.Flag = "Not considered in max aggregation function")
-
+  
   # # For function testing only
   # # Calculate the number of rows in each data frame
   # total_rows_data <- nrow(.data)
@@ -475,7 +475,7 @@ TADA_CalculateTotalNP <- function(.data,
   # } else {
   #   print("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
   # }
-
+  
   # bring in custom reference df if provided
   if (!missing(sum_ref)) {
     ref_cols <- names(TADA_GetNutrientSummationRef())
@@ -483,10 +483,10 @@ TADA_CalculateTotalNP <- function(.data,
   } else {
     sum_ref <- TADA_GetNutrientSummationRef()
   }
-
+  
   # Get grouping cols for daily aggregation
   # create nutrient groups by site and date
-
+  
   # # used to include depth as well. cm removed 8/6/25
   # depths <- names(include_df)[grepl("DepthHeightMeasure", names(include_df))]
   # depths <- depths[grepl("TADA.", depths)]
@@ -513,11 +513,11 @@ TADA_CalculateTotalNP <- function(.data,
     # "ActivityRelativeDepthName"
     # depths # does not make sense for daily aggregation of a max value. Use max value for day regardless of depth
   )
-
+  
   dat <- suppressMessages(TADA_AggregateMeasurements(include_df,
-    grouping_cols = grpcols,
-    agg_fun = daily_agg,
-    clean = FALSE
+                                                     grouping_cols = grpcols,
+                                                     agg_fun = daily_agg,
+                                                     clean = FALSE
   ))
   # # for function review only
   # dat_subset <- dat %>%
@@ -527,7 +527,7 @@ TADA_CalculateTotalNP <- function(.data,
   #     "TADA.ActivityMediaName",
   #     "TADA.ComparableDataIdentifier",
   #     "TADA.ResultValueAggregation.Flag")))
-
+  
   # Add rows not selected back at end but do not include in TN/TP summation
   # Define the condition for rows to be added back
   condition <- paste0("Considered in ", daily_agg, " aggregation function but not selected")
@@ -541,7 +541,7 @@ TADA_CalculateTotalNP <- function(.data,
   if (dim(dat_addback)[1] > 0) {
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
-
+  
   # move forward with only max values selected for each grouping (dat_TNTP)
   # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
   # no longer need "Considered in max aggregation function but not selected"
@@ -557,11 +557,11 @@ TADA_CalculateTotalNP <- function(.data,
     message("There is no applicable data to calculate TN or TP. Returning data unchanged.")
     return(.data)
   }
-
+  
   # join data to summation table and keep only those that match for summations
   sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)
   sum_dat <- subset(sum_dat, !is.na(sum_dat$NutrientGroup))
-
+  
   # # REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
   # # for review only: what is not matching?
   # sum_dat_review <- sum_dat %>%
@@ -573,7 +573,7 @@ TADA_CalculateTotalNP <- function(.data,
   #     "TADA.ResultValueAggregation.Flag",
   #     "NutrientGroup"))) %>%
   #   dplyr::filter(is.na(NutrientGroup))
-
+  
   # If the join results in matching rows
   if (dim(sum_dat)[1] > 0) {
     thecols <- grpcols[!grpcols %in% c(
@@ -583,22 +583,22 @@ TADA_CalculateTotalNP <- function(.data,
       "TADA.MethodSpeciationName",
       "TADA.ResultSampleFractionText"
     )]
-
+    
     # create nutrient group ID's.
     sum_dat <- sum_dat %>%
       dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>%
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
-
+    
     # bring in equations
     eqns <- utils::read.csv(system.file("extdata",
-      "NP_equations.csv",
-      package = "EPATADA"
+                                        "NP_equations.csv",
+                                        package = "EPATADA"
     ))
-
+    
     # dataframe to hold results
     summeddata <- data.frame()
     grps <- vector()
-
+    
     for (i in 1:length(unique(eqns$Nutrient))) {
       nut <- unique(eqns$Nutrient)[i]
       nutqns <- subset(eqns, eqns$Nutrient == nut)
@@ -606,8 +606,8 @@ TADA_CalculateTotalNP <- function(.data,
         eqnum <- unique(nutqns$EQN)[j]
         eqn <- subset(nutqns, nutqns$EQN == eqnum)$SummationName
         nutrient <- ifelse(nut == "N",
-          "Total Nitrogen as N",
-          "Total Phosphorus as P"
+                           "Total Nitrogen as N",
+                           "Total Phosphorus as P"
         )
         # for each equation, see if any groups contain all required subspecies,
         # and for each pick the variant with the lowest rank.
@@ -619,7 +619,7 @@ TADA_CalculateTotalNP <- function(.data,
           dplyr::filter(all(eqn %in% SummationName)) %>% # this line ensures that ALL subspecies are present within an equation group, not just one or more
           dplyr::filter(SummationName %in% eqn) %>%
           dplyr::mutate(TADA.NutrientSummationEquation = paste0(unique(SummationName), collapse = " + "))
-
+        
         out <- out %>%
           dplyr::group_by(TADA.NutrientSummationGroup, SummationName) %>%
           dplyr::slice_min(SummationRank, with_ties = FALSE)
@@ -629,12 +629,12 @@ TADA_CalculateTotalNP <- function(.data,
         grps <- c(grps, unique(out$TADA.NutrientSummationGroup))
       }
     }
-
+    
     # Convert speciation if needed
     summeddata$TADA.ResultMeasureValue <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor), summeddata$TADA.ResultMeasureValue * summeddata$SummationSpeciationConversionFactor, summeddata$TADA.ResultMeasureValue)
     summeddata$TADA.MethodSpeciationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Nitrogen as N", "AS N", summeddata$TADA.MethodSpeciationName)
     summeddata$TADA.MethodSpeciationName <- ifelse(!is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Phosphorus as P", "AS P", summeddata$TADA.MethodSpeciationName)
-
+    
     # Get to total N or P
     totncols <- c(thecols, "TADA.NutrientSummationGroup", "TADA.NutrientSummationEquation")
     TotalN <- summeddata %>%
@@ -665,7 +665,7 @@ TADA_CalculateTotalNP <- function(.data,
         TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.",
         TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed."
       )
-
+    
     # If summation is zero....include anyway
     # Generate unique ResultIdentifier
     Totals <- plyr::rbind.fill(TotalN, TotalP) %>%
@@ -676,7 +676,7 @@ TADA_CalculateTotalNP <- function(.data,
           dplyr::n()
         )
       ))
-
+    
     # Combine all data back into dat_TNTP and get rid of unneeded columns
     dat_TNTP_combined <- dat_TNTP %>%
       base::merge(summeddata, all.x = TRUE) %>%
@@ -692,8 +692,8 @@ TADA_CalculateTotalNP <- function(.data,
         -NutrientGroup
       ) %>%
       dplyr::mutate(TADA.NutrientSummation.Flag = dplyr::if_else(is.na(TADA.NutrientSummation.Flag),
-        "Not used to calculate Total N or P.",
-        TADA.NutrientSummation.Flag
+                                                                 "Not used to calculate Total N or P.",
+                                                                 TADA.NutrientSummation.Flag
       ))
     # At end... summation complete at this point
     # Check if each data frame is not empty
@@ -706,7 +706,7 @@ TADA_CalculateTotalNP <- function(.data,
       exclude_df_non_empty,
       dat_addback_non_empty
     )
-
+    
     # Filter rows based on specific conditions
     duplicates <- final_TNTP %>%
       dplyr::group_by(TADA.NutrientSummationGroup) %>%
@@ -715,9 +715,9 @@ TADA_CalculateTotalNP <- function(.data,
           TADA.ResultMeasureValue[1] == TADA.ResultMeasureValue[2]
       ) %>%
       dplyr::filter(TADA.NutrientSummation.Flag == "New row added: Nutrient summation from one or more subspecies.")
-
+    
     remove_list <- unique(duplicates$ResultIdentifier)
-
+    
     # Filter the data frame
     complete_df <- final_TNTP %>%
       dplyr::filter(!ResultIdentifier %in% remove_list)
@@ -726,19 +726,19 @@ TADA_CalculateTotalNP <- function(.data,
     dat_TNTP_non_empty <- if (nrow(dat_TNTP) > 0) dat_TNTP else NULL
     exclude_df_non_empty <- if (nrow(exclude_df) > 0) exclude_df else NULL
     dat_addback_non_empty <- if (nrow(dat_addback) > 0) dat_addback else NULL
-
+    
     # Bind rows only if the data frames are not NULL
     complete_df <- dplyr::bind_rows(
       dat_TNTP_non_empty,
       exclude_df_non_empty,
       dat_addback_non_empty
     )
-
+    
     # if there are no data to sum
     complete_df$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
     message("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
   }
-
+  
   # order columns and return complete_df
   complete_df <- TADA_CreateComparableID(complete_df)
   complete_df <- TADA_OrderCols(complete_df)
@@ -820,36 +820,36 @@ TADA_AggregateMeasurements <- function(.data,
                                        clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
-
+  
   # Find multiple values in groups
   ncount <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
     dplyr::summarise(ncount = length(ResultIdentifier))
-
+  
   if (max(ncount$ncount) < 2) {
     message("TADA_AggregateMeasurements: No rows to aggregate.")
     return(.data)
   } else {
     dat <- merge(.data, ncount, all.x = TRUE)
-
+    
     if (any(is.na(dat$TADA.ResultMeasureValue))) {
       "TADA_AggregateMeasurements: Your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
     }
-
+    
     dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
     multiples <- dat %>% dplyr::filter(ncount > 1)
-
+    
     dat <- dat %>% dplyr::select(-ncount)
-
+    
     if (agg_fun == "max") {
       out <- multiples %>%
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
@@ -874,11 +874,11 @@ TADA_AggregateMeasurements <- function(.data,
         dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
       dat <- plyr::rbind.fill(dat, out)
     }
-
+    
     if (clean == TRUE) {
       dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
     }
-
+    
     dat <- TADA_CreateComparableID(dat)
     dat <- TADA_OrderCols(dat)
     message("Aggregation results:")
