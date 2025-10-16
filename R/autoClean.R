@@ -128,7 +128,7 @@
 #' # Run TADA_AutoClean
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
-#' 
+#'
 TADA_AutoClean <- function(.data) {
   # check .data is data.frame and has required columns
   required_cols <- c(

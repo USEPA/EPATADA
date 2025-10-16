@@ -916,7 +916,7 @@ TADA_ConvertDepthUnits <- function(.data,
     "ResultDepthHeightMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # check unit is character
   TADA_CheckType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)

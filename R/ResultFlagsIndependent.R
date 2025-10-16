@@ -1009,7 +1009,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   }
   # check .data has required columns
   TADA_CheckColumns(.data, "ProjectFileUrl")
-  
+
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # default flag column

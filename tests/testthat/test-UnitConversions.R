@@ -104,12 +104,12 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
 # and ResultMeasure.MeasureUnitCode
 test_that("TADA_CreateUnitRef output contains a row for each TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode.", {
   testdat <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
-  
+
   # Skip the test if the data retrieval results in an empty data frame
   if (nrow(testdat) == 0) {
     skip("Data retrieval failed after multiple attempts, skipping the test.")
   }
-  
+
   unit.ref <- TADA_CreateUnitRef(testdat)
   unit.ref <- unit.ref %>%
     dplyr::select(
@@ -117,7 +117,7 @@ test_that("TADA_CreateUnitRef output contains a row for each TADA.Characteristic
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
-  
+
   unit.combs <- TADA_UniqueCharUnitSpeciation(testdat)
   unit.combs <- unit.combs %>%
     dplyr::select(
@@ -125,7 +125,7 @@ test_that("TADA_CreateUnitRef output contains a row for each TADA.Characteristic
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
-  
+
   compare <- unit.ref %>%
     dplyr::anti_join(unit.combs)
   expect_true(nrow(compare) == 0)
