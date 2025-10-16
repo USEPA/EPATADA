@@ -69,7 +69,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols = c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  required_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   TADA_CheckColumns(.data, required_cols)
 
   # load TADA color palette
@@ -245,7 +245,7 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols = c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  required_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
   TADA_CheckColumns(.data, required_cols)
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
@@ -862,9 +862,11 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols = c(id_cols, c("ActivityStartDate",
-                               "TADA.ResultMeasureValue",
-                               "TADA.ResultMeasure.MeasureUnitCode"))
+  required_cols <- c(id_cols, c(
+    "ActivityStartDate",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
   TADA_CheckColumns(.data, required_cols)
 
 
@@ -1022,11 +1024,13 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols = c(id_cols, c("ActivityStartDate",
-                               "TADA.ResultMeasureValue",
-                               "TADA.ResultMeasure.MeasureUnitCode"))
+  required_cols <- c(id_cols, c(
+    "ActivityStartDate",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
   TADA_CheckColumns(.data, required_cols)
-  
+
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
     print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
   }
