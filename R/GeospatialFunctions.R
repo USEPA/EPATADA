@@ -1862,7 +1862,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     }
 
     # fetch all chunks and combine results
-    purrr::map_dfr(id_chunks, fetch_chunk)
+    au_results <- purrr::map_dfr(id_chunks, fetch_chunk)
+
+    return(au_results)
   }
 
   # start grabbing the raw ATTAINS features
@@ -2004,7 +2006,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
       )
 
     # bind with existing attains.geo data
-    attains.geo <- plyr::rbind.fill(attains.geo, df)
+    attains.geo <- plyr::rbind.fill(attains.geo, df) %>%
+      dplyr::filter(!is.na(GLOBALID))
 
     # remove intermediate object
     rm(df)
@@ -2048,7 +2051,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     renameATTAINSCols() %>%
     dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
       Ref.WaterType, ATTAINS.WaterType
-    ))
+    )) %>%
+    dplyr::group_by(ResultIdentifier)
 
   # Check to see if any mismatches
   mismatch_check <- TADA_with_ATTAINS %>%
@@ -3175,6 +3179,100 @@ TADA_GetUniqueNearbySites <- function(.data) {
 
 
 
+#' Generate a random WQP dataset
+#'
+#' Retrieves data for a period of time in the past 20 years using
+#' TADA_DataRetrieval. This function can be used for testing functions on
+#' random datasets. Only random data sets with 10 or more results will be returned.
+#' If a random dataset has fewer than 10 results, the function will automatically
+#' create another random WQP query until a df with greater than 10 results is returned.
+#'
+#' @param number_of_days Numeric. The default is 1, which will query and retrieve
+#' data for a random two-day period (e.g.startDate = "2015-04-21",
+#' endDate = "2015-04-22"). The user can change this number to select additional days
+#' if desired.
+#'
+#' @param choose_random_state Boolean (TRUE or FALSE). The default is FALSE.
+#' If FALSE, the function will query all data in the WQP for the number_of_days
+#' specified (national query). If TRUE, the function will select a random state
+#' and only retrieve data for that state.
+#'
+#' @param autoclean Boolean (TRUE or FALSE). The default is TRUE.
+#' If FALSE, the function will NOT apply the TADA_AutoClean as part of the
+#' TADA_DataRetrieval. If TRUE, the function WILL apply TADA_AutoClean as part of
+#' TADA_DataRetrieval.
+#'
+#' @return Random WQP dataset.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+#' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+#' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+#' }
+TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE,
+                                   autoclean = TRUE) {
+  get_random_data <- function(ndays = number_of_days, state_choice = choose_random_state,
+                              ac = autoclean, ask = FALSE) {
+    # choose a random day within the last 20 years
+    twenty_yrs_ago <- Sys.Date() - 20 * 365
+    random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
+    # choose a random start date and add any number_of_days (set that as the end date)
+    end_date <- random_start_date + ndays
+
+    if (state_choice == TRUE) {
+      load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
+      state <- sample(statecodes_df$STUSAB, 1)
+    }
+
+    if (state_choice == FALSE) {
+      state <- "null"
+    }
+
+    print(c(
+      startDate = as.character(random_start_date),
+      endDate = as.character(end_date),
+      statecode = state
+    ))
+
+    if (ac == TRUE) {
+      dat <- TADA_DataRetrieval(
+        startDate = as.character(random_start_date),
+        endDate = as.character(end_date),
+        statecode = state,
+        applyautoclean = TRUE,
+        ask = FALSE
+      )
+    }
+
+    if (ac == FALSE) {
+      dat <- TADA_DataRetrieval(
+        startDate = as.character(random_start_date),
+        endDate = as.character(end_date),
+        statecode = state,
+        applyautoclean = FALSE,
+        ask = FALSE
+      )
+    }
+    return(dat)
+  }
+
+  verify_random_data <- function() {
+    df <- get_random_data()
+    while (nrow(df) < 10) {
+      df <- get_random_data()
+    }
+    return(df)
+  }
+
+  df <- verify_random_data()
+  return(df)
+}
+
+
+
 #' TADA_CreateAUMLCrosswalk
 #'
 #' Create the assessment unit and monitoring location ref by utilizing an optional
@@ -3287,16 +3385,18 @@ TADA_CreateAUMLCrosswalk <- function(.data,
                                      fill_USGS_catch = FALSE,
                                      return_nearest = TRUE,
                                      batch_upload = TRUE) {
+
+  # create list where all user matches dfs are set to NULL
+  user.matches <- list(
+    "TADA_with_ATTAINS" = NULL,
+    "ATTAINS_catchments" = NULL,
+    "ATTAINS_points" = NULL,
+    "ATTAINS_lines" = NULL,
+    "ATTAINS_polygons" = NULL
+  )
+
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
-    # if no user supplied ref exists create a list where all required outputs are set to NULL
-    user.matches <- list(
-      "TADA_with_ATTAINS" = NULL,
-      "ATTAINS_catchments" = NULL,
-      "ATTAINS_points" = NULL,
-      "ATTAINS_lines" = NULL,
-      "ATTAINS_polygons" = NULL
-    )
 
     print(paste0("TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
                   "was provided."))
@@ -3356,19 +3456,13 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
         dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
+      if(dim(au.ref.mls)[1] > 0) {
+
       # get geospatial data for au_ref monitoring locations
       user.matches <- spsUtil::quiet(
         TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
       )
-
-      # check for user ref entries that cannot pull info from ATTAINS to ensure water type is retained
-      user.matches_WaterType_NA <- user.matches$TADA_with_ATTAINS %>%
-        dplyr::filter(is.na(ATTAINS.WaterType)) %>%
-        dplyr::select(-ATTAINS.WaterType) %>%
-        dplyr::left_join(
-          au_ref,
-          by = c("TADA.MonitoringLocationIdentifier" = "ATTAINS.MonitoringLocationIdentifier", "ATTAINS.AssessmentUnitIdentifier")
-        )
+      }
     }
   }
 
