@@ -337,7 +337,7 @@ TADA_CalculateTotalNP <- function(.data,
     "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
-  TADA_CheckColumns(.data, expected_cols = req_cols)
+  TADA_CheckColumns(.data, req_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
@@ -462,8 +462,7 @@ TADA_CalculateTotalNP <- function(.data,
 
   # bring in custom reference df if provided
   if (!missing(sum_ref)) {
-    ref_cols <- names(TADA_GetNutrientSummationRef())
-    TADA_CheckColumns(sum_ref, expected_cols = ref_cols)
+    TADA_CheckColumns(sum_ref, names(TADA_GetNutrientSummationRef()))
   } else {
     sum_ref <- TADA_GetNutrientSummationRef()
   }

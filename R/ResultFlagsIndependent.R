@@ -55,11 +55,11 @@
 #'
 TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame and has required columns
-  required_cols <- c(
+  expected_cols <- c(
     "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
     "ResultAnalyticalMethod.MethodIdentifierContext"
   )
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
@@ -217,7 +217,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, time_difference = 4) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, c(
+  expected_cols <- c(
     "ActivityTypeCode",
     "SampleCollectionEquipmentName",
     "ResultDetectionConditionText",
@@ -227,7 +227,8 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "ResultIdentifier",
     "OrganizationIdentifier",
     "ActivityRelativeDepthName"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
@@ -475,11 +476,11 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
 #'
 TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame and has required columns
-  required_cols <- c(
+  expected_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
@@ -682,11 +683,11 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame and has required columns
-  required_cols <- c(
+  expected_cols <- c(
     "TADA.CharacteristicName", "TADA.ActivityMediaName", "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   )
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean

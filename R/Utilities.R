@@ -547,7 +547,7 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 #' }
 TADA_SubstituteDeprecatedChars <- function(.data) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
+  TADA_CheckColumns(.data, c("CharacteristicName"))
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
@@ -611,14 +611,13 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #' @export
 TADA_CreateComparableID <- function(.data) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data,
-    expected_cols = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    )
+  expected_cols = c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
   )
+  TADA_CheckColumns(.data, expected_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")

@@ -93,7 +93,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
                                    surfacevalue = 2, dailyagg = "none",
                                    aggregatedonly = FALSE, clean = FALSE) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, c(
+  expected_cols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "ActivityRelativeDepthName",
@@ -105,7 +105,8 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
     "TADA.MonitoringLocationIdentifier",
     "OrganizationIdentifier",
     "ActivityStartDate"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
   # check aggregatedonly is boolean
   TADA_CheckType(aggregatedonly, "logical")
   # check clean is boolean
@@ -876,7 +877,7 @@ TADA_DepthProfilePlot <- function(.data,
   rm(param.check)
 
   # list required columns
-  reqcols <- c(
+  required_cols <- c(
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
     "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
@@ -894,7 +895,7 @@ TADA_DepthProfilePlot <- function(.data,
   )
 
   # check .data has required columns
-  TADA_CheckColumns(.data, reqcols)
+  TADA_CheckColumns(.data, required_cols)
 
   print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
@@ -1026,7 +1027,7 @@ TADA_DepthProfilePlot <- function(.data,
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
     dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~ .x %in% groups)) %>%
-    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
+    dplyr::select(dplyr::all_of(required_cols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
       "NA", TADA.ResultMeasure.MeasureUnitCode
     ))

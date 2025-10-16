@@ -69,8 +69,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  TADA_CheckColumns(.data, required_cols)
+  expected_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, expected_cols)
 
   # load TADA color palette
 
@@ -245,8 +245,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
-  TADA_CheckColumns(.data, required_cols)
+  expected_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, expected_cols)
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
@@ -862,12 +862,12 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols <- c(id_cols, c(
+  expected_cols <- c(id_cols, c(
     "ActivityStartDate",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
 
 
   .data <- .data %>%
@@ -1024,12 +1024,12 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   }
 
   # check .data is data.frame and has required columns (including id_cols)
-  required_cols <- c(id_cols, c(
+  expected_cols <- c(id_cols, c(
     "ActivityStartDate",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
 
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
     print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
@@ -1047,7 +1047,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, required_cols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -1285,7 +1285,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
   # check .data is data.frame and has required columns (including group_col)
-  reqcols <- c(
+  required_cols <- c(
     "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
@@ -1293,10 +1293,10 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     "ActivityStartDateTime",
     "MonitoringLocationName"
   )
-  reqcols <- reqcols %>%
+  required_cols <- required_cols %>%
     append(group_col) %>%
     unique()
-  TADA_CheckColumns(.data, reqcols)
+  TADA_CheckColumns(.data, required_cols)
 
 
   # only allows for 1 column selection in id_cols
@@ -1385,7 +1385,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, required_cols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 

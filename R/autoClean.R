@@ -131,14 +131,14 @@
 #'
 TADA_AutoClean <- function(.data) {
   # check .data is data.frame and has required columns
-  required_cols <- c(
+  expected_cols <- c(
     "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
     "CharacteristicName", "ResultSampleFractionText", "MethodSpeciationName",
     "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
     "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
     "LatitudeMeasure", "LongitudeMeasure"
   )
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
 
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {

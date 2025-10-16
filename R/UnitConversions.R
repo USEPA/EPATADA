@@ -404,7 +404,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-
   TADA_CheckColumns(.data, expected_cols)
 
   # list of conversion columns

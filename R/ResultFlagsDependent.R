@@ -378,7 +378,8 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #'
 TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
+  expected_cols <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName")
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is character
   TADA_CheckType(clean, "character")
   # check flaggedonly is boolean
@@ -689,7 +690,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600) {
   # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, c(
+  expected_cols <- c(
     "OrganizationIdentifier", "ActivityTypeCode",
     "ActivityStartDate", "ActivityStartDateTime",
     "ResultIdentifier", "ActivityRelativeDepthName",
@@ -699,7 +700,8 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
     "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
 
   # run TADA_FindQCActivities if needed
   if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
