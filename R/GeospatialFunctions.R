@@ -2672,19 +2672,13 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                  nhd_res = "Hi",
                                  org_hierarchy = "none",
                                  meta_select = "random") {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # .data required columns
+  # check .data is data.frame and has required columns
   required_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure"
   )
-
-  # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
-
   rm(required_cols)
 
   # retain only necessary columns unique Monitoring Locations
@@ -3147,10 +3141,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 #'
 #' @export
 TADA_GetUniqueNearbySites <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # .data required columns
+  # check .data is data.frame and has required columns
   required_cols <- c(
     "MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier",
     "MonitoringLocationName", "TADA.MonitoringLocationName",
@@ -3160,7 +3151,6 @@ TADA_GetUniqueNearbySites <- function(.data) {
     "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag",
     "TADA.NearbySiteGroup"
   )
-  # check .data has required columns
   TADA_CheckColumns(.data, required_cols)
 
   # filter only for locations with nearby sites

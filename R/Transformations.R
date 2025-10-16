@@ -63,8 +63,13 @@
 #' }
 #'
 TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )
+  TADA_CheckColumns(.data, expected_cols)
 
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
@@ -72,13 +77,17 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     return(NULL) # Exit the function early
   }
 
-  # check .data has the required columns
-  expected_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName"
+  # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
+  if (!is.numeric(.data$TADA.ResultMeasureValue)) {
+    stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
+  }
+
+  # Changes NONE in fraction and speciation to NA for better harmonization
+  # Should this be specified in the template instead? 7/25/25 cm
+  .data <- .data %>% dplyr::mutate(
+    TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
+    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA)
   )
-  TADA_CheckColumns(.data, expected_cols)
 
   # define which columns are expected in ref
   expected_ref_cols <- c(
@@ -94,25 +103,10 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
     "Target.TADA.SpeciationConversionFactor",
     "HarmonizationGroup"
   )
-
-  # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
-  if (!is.numeric(.data$TADA.ResultMeasureValue)) {
-    stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
-  }
-
-  # Changes NONE in fraction and speciation to NA for better harmonization
-  # Should this be specified in the template instead? 7/25/25 cm
-  .data <- .data %>% dplyr::mutate(
-    TADA.ResultSampleFractionText = replace(TADA.ResultSampleFractionText, TADA.ResultSampleFractionText %in% c("NONE"), NA),
-    TADA.MethodSpeciationName = replace(TADA.MethodSpeciationName, TADA.MethodSpeciationName %in% c("NONE"), NA)
-  )
-
+  
   # define harm.ref
   # if input for ref exists, use that data
   if (!missing(ref)) {
-    # check ref is data.frame
-    TADA_CheckType(ref, "data.frame")
-
     # check ref has all of the required columns
     TADA_CheckColumns(ref, expected_ref_cols)
 
@@ -321,19 +315,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 TADA_CalculateTotalNP <- function(.data,
                                   sum_ref,
                                   daily_agg = c("max", "min", "mean")) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  # check to make sure daily_agg is populated with allowable value
-  daily_agg <- match.arg(daily_agg)
-
-  # check required columns for TADA dataset
+  # check .data is data.frame and has required columns
   req_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -361,8 +343,16 @@ TADA_CalculateTotalNP <- function(.data,
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols = req_cols)
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
+  }
 
+  # check to make sure daily_agg is populated with allowable value
+  daily_agg <- match.arg(daily_agg)
 
+  
   # check if QC flag function ran and message warning if not
   if (!"TADA.ActivityType.Flag" %in% names(.data)) {
     message("TADA_CalculateTotalNP: Your input dataset was missing the TADA.ActivityType.Flag column, suggesting that QC replicates have not been addressed or reviewed. Running the TADA_FindQCActivities function with the clean = FALSE option before executing this function. This function will not include QC results when aggregating to a daily maximum and total nutrient value.")
@@ -818,8 +808,8 @@ TADA_AggregateMeasurements <- function(.data,
                                        ),
                                        agg_fun = c("max", "min", "mean"),
                                        clean = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, grouping_cols)
 
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
@@ -827,7 +817,6 @@ TADA_AggregateMeasurements <- function(.data,
     return(NULL) # Exit the function early
   }
 
-  TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
   # Find multiple values in groups

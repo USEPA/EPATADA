@@ -546,16 +546,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 #' unique(df4$TADA.CharacteristicName)
 #' }
 TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
-  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
@@ -613,23 +610,21 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data,
+                    expected_cols = c(
+                      "TADA.CharacteristicName",
+                      "TADA.ResultSampleFractionText",
+                      "TADA.MethodSpeciationName",
+                      "TADA.ResultMeasure.MeasureUnitCode"
+                    )
+  )
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
 
-  TADA_CheckColumns(.data,
-    expected_cols = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    )
-  )
   .data$TADA.ComparableDataIdentifier <-
     paste(.data$TADA.CharacteristicName,
       .data$TADA.ResultSampleFractionText,
@@ -849,16 +844,14 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 #'   agg_fun = "mean", clean = FALSE
 #' )
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, grouping_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
 
-  TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
   # Find multiple values in groups

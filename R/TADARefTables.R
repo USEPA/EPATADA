@@ -60,10 +60,7 @@ TADA_GetSynonymRef <- function(.data) {
     return(ref)
   }
 
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # check .data has the required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",

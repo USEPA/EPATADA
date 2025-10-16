@@ -92,13 +92,7 @@
 TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
                                    surfacevalue = 2, dailyagg = "none",
                                    aggregatedonly = FALSE, clean = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check aggregatedonly is boolean
-  TADA_CheckType(aggregatedonly, "logical")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check .data has required columns
+  # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
@@ -112,6 +106,10 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
     "OrganizationIdentifier",
     "ActivityStartDate"
   ))
+  # check aggregatedonly is boolean
+  TADA_CheckType(aggregatedonly, "logical")
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
 
   # execute function after checks are passed
 
