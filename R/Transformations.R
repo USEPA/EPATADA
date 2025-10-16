@@ -93,6 +93,16 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # if input for ref exists, use that data
   if (!missing(ref)) {
     # check ref has all of the required columns
+    expected_ref_cols <- c(expected_cols, c(
+      "Target.TADA.CharacteristicName",
+      "Target.TADA.ResultSampleFractionText",
+      "Target.TADA.MethodSpeciationName",
+      "TADA.CharacteristicNameAssumptions",
+      "TADA.FractionAssumptions",
+      "TADA.SpeciationAssumptions",
+      "Target.TADA.SpeciationConversionFactor",
+      "HarmonizationGroup"
+    ))
     TADA_CheckColumns(ref, expected_ref_cols)
 
     harm.ref <- ref
