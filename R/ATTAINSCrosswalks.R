@@ -54,7 +54,7 @@
 #'   org_id = "PUEBLOOFTESUQUE"
 #' )
 #'
-#' # Arizona example, returns blank dataframe as of 1/21/25
+#' # Arizona example, returns an empty df as of 10/17/25
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
@@ -147,9 +147,10 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
       " monitoring location identifiers associated with assessment units for ",
       org_id, " in ATTAINS."
     ))
+  }
 
     # if batch_upload is TRUE, create an ATTAINS formatted batch upload df
-    if (batch_upload == TRUE) {
+    if (batch_upload == TRUE & length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0) {
       au.crosswalk <- au.crosswalk %>%
         dplyr::select(-ATTAINS.WaterType) %>%
         dplyr::select(-ATTAINS.OrganizationIdentifier) %>%
@@ -173,7 +174,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
     }
 
     return(au.crosswalk)
-  }
+
 }
 
 
@@ -362,9 +363,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
     )
 
 
-    if (!all(batch_cols %in% names(crosswalk))) {
+    if (!all(user_cols %in% names(crosswalk))) {
       stop(paste0(
-        "Column names must reflect either the TADA workflow requirements. ",
+        "Column names must reflect the TADA workflow requirements. ",
         "Review function documentation for more information."
       ))
     }
