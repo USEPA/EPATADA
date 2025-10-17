@@ -34,3 +34,8 @@ can result in less potential match (false negatives) findings while
 less strict may result in greater number of matches that shouldn't
 be matched (false positives). Default for now is to be more strict.
 }
+\examples{
+review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
+review <- TADA_AdditionalCharAliasForReview()
+
+}

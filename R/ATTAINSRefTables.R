@@ -149,9 +149,8 @@ TADA_UpdateCriteriaSearchToolRef <- function() {
 #' 
 #' @export
 #' 
-#' @example 
+#' @examples 
 #' review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
-#' 
 #' review <- TADA_AdditionalCharAliasForReview()
 #'
 TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
