@@ -11,10 +11,10 @@ output:
     fig_height: 8
     fig_width: 8
 vignette: >
-  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{EPATADA}
+  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
+  %\VignetteEngine{knitr::rmarkdown}
 description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
   chunk_output_type: console
@@ -121,14 +121,6 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = T, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE,
-  force = TRUE
-)
-```
-
 ```{r dev_install, results = 'hide', include = F}
 # remotes::install_github("USEPA/EPATADA",
 #   ref = "develop",
@@ -136,8 +128,8 @@ remotes::install_github("USEPA/EPATADA",
 #   force = TRUE
 # )
 
-library(devtools)
-load_all()
+# library(devtools)
+# load_all()
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
