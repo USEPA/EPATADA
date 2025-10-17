@@ -494,7 +494,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Change NonStandardized to Pass for this function (same)
   unit.ref <- unit.ref %>%
-    mutate(TADA.WQXVal.Flag = case_when(
+    dplyr::mutate(TADA.WQXVal.Flag = case_when(
       TADA.WQXVal.Flag == "NonStandardized" ~ "Pass",
       TRUE ~ TADA.WQXVal.Flag
     ))
