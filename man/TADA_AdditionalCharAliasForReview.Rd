@@ -2,13 +2,13 @@
 % Please edit documentation in R/ATTAINSRefTables.R
 \name{TADA_AdditionalCharAliasForReview}
 \alias{TADA_AdditionalCharAliasForReview}
-\title{TADA ATTAINS, WQP and CST Alias Table for Review}
+\title{TADA Method: ATTAINS, WQP and CST Alias Table for Review}
 \usage{
 TADA_AdditionalCharAliasForReview(includeCST = FALSE)
 }
 \arguments{
-\item{includeCST}{include columns for CST pollutant Name and if it
-contains a alias between any 3 sources.}
+\item{includeCST}{a Boolean value. If TRUE, this will include columns
+for CST pollutant Name if it contains an alias between any 3 sources.}
 }
 \value{
 a dataframe consisting of potential additional ATTAINS.ParameterName
@@ -16,10 +16,11 @@ to WQX.CharacteristicName alias for review. TADA team will review and
 decide if these are appropriate aliases.
 }
 \description{
-Function compares the current WQP Characteristic Alias table
-between ATTAINS.ParameterNames and WQX CharacteristicNames.
-This function looks at the percentage of words that are a match
-between ATTAINS parameters and WQX Characteristics as an alternative
+This function compares the current WQX Characteristic Alias table
+of ATTAINS.ParameterNames and WQX CharacteristicNames to the logic.
+used in this function, which looks at the percentage of words that are
+a match between each ATTAINS parameters and WQX Characteristics (and
+within ATTAINS and CST, and CST and WQX by CAS) as an alternative
 way of finding additional aliases. It is recommended for the TADA
 team to review this table and decide whether these aliases are
 accurate, and if so, reach out to the WQX team to add these to the
@@ -27,5 +28,9 @@ WQX Characteristic Alias table.
 }
 \details{
 Note for Development: We should keep a reference file to indicate
-which rows have already been reviewed during this process.
+which rows have already been reviewed during this process.In addition,
+we can modify the 'strictness' of percent matches. Being more strict
+can result in less potential match (false negatives) findings while
+less strict may result in greater number of matches that shouldn't
+be matched (false positives). Default for now is to be more strict.
 }
