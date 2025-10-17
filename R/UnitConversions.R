@@ -404,7 +404,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-
   TADA_CheckColumns(.data, expected_cols)
 
   # list of conversion columns
@@ -904,8 +903,19 @@ TADA_ConvertDepthUnits <- function(.data,
                                    #   "ResultDepthHeightMeasure"
                                    # ),
                                    transform = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
+    "ActivityDepthHeightMeasure.MeasureValue",
+    "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue",
+    "ResultDepthHeightMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, expected_cols)
+
   # check unit is character
   TADA_CheckType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)
@@ -935,19 +945,6 @@ TADA_ConvertDepthUnits <- function(.data,
 
   # check transform is boolean
   TADA_CheckType(transform, "logical")
-
-  # .data required columns
-  expected_cols <- c(
-    "ActivityDepthHeightMeasure.MeasureValue",
-    "ActivityDepthHeightMeasure.MeasureUnitCode",
-    "ActivityTopDepthHeightMeasure.MeasureValue",
-    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
-    "ActivityBottomDepthHeightMeasure.MeasureValue",
-    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-    "ResultDepthHeightMeasure.MeasureValue",
-    "ResultDepthHeightMeasure.MeasureUnitCode"
-  )
-  TADA_CheckColumns(.data, expected_cols)
 
   tadacols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",

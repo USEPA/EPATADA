@@ -264,9 +264,9 @@ found.
 ```{r auto-fill-epa304a-and-display-TADA.ComparableDataIdentifier}
 MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = "MTDEQ", 
-  auto_assign = TRUE, 
-  displayUniqueId = TRUE, 
+  org_id = "MTDEQ",
+  auto_assign = TRUE,
+  displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
@@ -296,8 +296,8 @@ cycle.
 MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
-  useAURef = Data_MT_UseAURef, 
+  org_id = "MTDEQ",
+  useAURef = Data_MT_UseAURef,
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE
@@ -321,7 +321,7 @@ load(system.file("extdata", "criteria_table.rda", package = "EPATADA"))
 MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ", 
+  org_id = "MTDEQ",
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
   epa304a = TRUE,
   excel = FALSE

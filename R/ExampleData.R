@@ -126,7 +126,7 @@ NULL
 
 #' Data_MT.UseAURef_Water
 #'
-#' Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and 
+#' Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and
 #' ExampleMod3Workflow.Rmd
 #'
 #' @docType data
