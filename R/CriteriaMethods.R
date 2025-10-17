@@ -2,13 +2,13 @@
 #'
 #' Assessment criteria and methodologies used to evaluate water quality vary
 #' across the country. TADA users can fill out this template to define the specific
-#' criteria and methodologies for each parameter and use combination they are 
-#' interested in analyzing. This table can be filled out manually, auto-populated 
-#' with uses and parameters from ATTAINS and the input WQP dataframe, or 
-#' developed with TADA helper functions (recommended).It is recommended to run 
-#' these three TADA helper functions, [TADA_CreateParamRef()], 
-#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef], in that order to 
-#' generate the Criteria and Methodology table specific for your organization. 
+#' criteria and methodologies for each parameter and use combination they are
+#' interested in analyzing. This table can be filled out manually, auto-populated
+#' with uses and parameters from ATTAINS and the input WQP dataframe, or
+#' developed with TADA helper functions (recommended).It is recommended to run
+#' these three TADA helper functions, [TADA_CreateParamRef()],
+#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef], in that order to
+#' generate the Criteria and Methodology table specific for your organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and
 #' contain a list of allowable values within each column to define the full
@@ -58,21 +58,21 @@
 #' should contain a completed crosswalk of use names associated with each assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
-#' 
+#'
 #' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
 #' The default value is FALSE. If TRUE, a draft criteria and methods table is
-#' generated using default function inputs for [TADA_CreateParamRef()], 
+#' generated using default function inputs for [TADA_CreateParamRef()],
 #' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef]. .data and org_id are
-#' required inputs for this function if auto_assign = TRUE. It is also 
-#' recommended to set excel = TRUE when auto_assign = TRUE. The criteria 
-#' and methodology template should be reviewed carefully and edits can be 
+#' required inputs for this function if auto_assign = TRUE. It is also
+#' recommended to set excel = TRUE when auto_assign = TRUE. The criteria
+#' and methodology template should be reviewed carefully and edits can be
 #' made manually in Excel. When your review is complete, read the file back into
-#' R and re-run this function, TADA_DefineCriteriaMethodology, again. This time, 
+#' R and re-run this function, TADA_DefineCriteriaMethodology, again. This time,
 #' use the criteriaMethods function input to specify the criteria and methodology
 #' table that has already been filled out.
-#' 
-#' @param displayUniqueId A Boolean value. If TRUE, this will print all unique 
-#' TADA.ComparableDataIdentifier in the criteria and methods table output. This is 
+#'
+#' @param displayUniqueId A Boolean value. If TRUE, this will print all unique
+#' TADA.ComparableDataIdentifier in the criteria and methods table output. This is
 #' useful in the alternative options to generate the criteria and methods table
 #' without the reference tables.
 #'
@@ -132,24 +132,24 @@
 #' )
 #' }
 #'
-TADA_DefineCriteriaMethodology <- function(.data, 
-                                           MLSummaryRef = NULL, 
+TADA_DefineCriteriaMethodology <- function(.data,
+                                           MLSummaryRef = NULL,
                                            org_id = NULL, # required inputs for the recommended workflow
-                                           criteriaMethods = NULL, 
+                                           criteriaMethods = NULL,
                                            auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           AUMLRef = NULL, 
+                                           AUMLRef = NULL,
                                            useAURef = NULL, # Optional if auto_assign = TRUE
-                                           epa304a = FALSE, 
-                                           displayUniqueId = FALSE, 
-                                           excel = TRUE, 
+                                           epa304a = FALSE,
+                                           displayUniqueId = FALSE,
+                                           excel = TRUE,
                                            overwrite = FALSE) {
   # Excel ref files to be stored in the Downloads folder location.
   # Define the OneDrive Downloads path
   onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
-  
+
   # Define the default Downloads path
   default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  
+
   # Check if the OneDrive Downloads path exists, and prioritize it
   if (file.exists(onedrive_downloads_path)) {
     downloads_path <- onedrive_downloads_path
@@ -171,10 +171,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
   # }
 
   # If user supplies criteria methods table, then auto_assign = T for any non-matched values
-  if ( !is.null(criteriaMethods)) {
-    auto_assign = TRUE
-  }  
-  
+  if (!is.null(criteriaMethods)) {
+    auto_assign <- TRUE
+  }
+
   # Invalid function input combos - supply one or the other.
   # if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
   #   stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
@@ -190,7 +190,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
   if (auto_assign == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
@@ -209,11 +209,11 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     cols_to_convert <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
-      "AcuteChronic", "EquationBased", 
+      "AcuteChronic", "EquationBased",
       # Data Sufficiency Columns
       "AssessPeriod", "Season", "DistrPeriod"
     )
@@ -301,14 +301,14 @@ TADA_DefineCriteriaMethodology <- function(.data,
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%
       dplyr::left_join(MLSummaryRef)
-    #}
+    # }
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
     # # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
     # if (updateRef == "paramRef") {
     #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
     #   myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
-    # 
+    #
     #   TADA_ParamRef <- TADA_CreateParamRef(
     #     .data,
     #     org_id = org_id,
@@ -316,7 +316,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_CreateParamRef
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   TADA_UseParamRef <- TADA_CreateUseParamRef(
     #     .data,
     #     org_id = org_id,
@@ -324,7 +324,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = TRUE,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   MLSummaryRef <- TADA_CreateMLSummaryRef(
     #     .data,
     #     org_id = org_id,
@@ -333,12 +333,12 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     # }
-    # 
+    #
     # # user only updates useParamRef. This will update useParamRef, MLSummaryRef based on this modifications.
     # if (updateRef == "useParamRef") {
     #   message(paste0("auto_assign = TRUE and updateRef = useParamRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
     #   myfile_UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef")
-    # 
+    #
     #   TADA_ParamRef <- TADA_CreateParamRef(
     #     .data,
     #     org_id = org_id,
@@ -346,7 +346,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = "All",
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   TADA_UseParamRef <- TADA_CreateUseParamRef(
     #     .data,
     #     org_id = org_id,
@@ -355,7 +355,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = TRUE,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   MLSummaryRef <- TADA_CreateMLSummaryRef(
     #     .data,
     #     org_id = org_id,
@@ -364,12 +364,12 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     # }
-    # 
+    #
     # # user only updates MLSummaryRef in excel. This will update MLSummaryRef based on this modifications.
     # if (updateRef == "MLSummaryRef") {
     #   message(paste0("auto_assign = TRUE and updateRef = MLSummaryRef selected. Running TADA_CreateMLSummaryRef with use supplied paramRef assignment. Please review this paramRef table output."))
     #   myfile_MLSummaryRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateMLSummaryRef")
-    # 
+    #
     #   TADA_ParamRef <- TADA_CreateParamRef(
     #     .data,
     #     org_id = org_id,
@@ -377,7 +377,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = "All",
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   TADA_UseParamRef <- TADA_CreateUseParamRef(
     #     .data,
     #     org_id = org_id,
@@ -386,7 +386,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     #     auto_assign = TRUE,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
-    # 
+    #
     #   MLSummaryRef <- TADA_CreateMLSummaryRef(
     #     .data,
     #     org_id = org_id,
@@ -489,10 +489,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
           DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
       ) %>%
-      #tidyr::drop_na(ATTAINS.ParameterName) %>%
+      # tidyr::drop_na(ATTAINS.ParameterName) %>%
       dplyr::select(
         "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+        "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
         # Spatial Columns
         "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
         # Criteria Columns
@@ -509,11 +509,11 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     col_names_MLSummary <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
-      "AcuteChronic", "EquationBased", 
+      "AcuteChronic", "EquationBased",
       # Data Sufficiency Columns
       "AssessPeriod", "Season", "DistrPeriod"
     )
@@ -523,12 +523,12 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
   # User wants to populate the criteria table using a user supplied table.
   # This option will prioritize a user-supplied table, but will include
-  # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier) 
+  # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier)
   # generated from the auto_assign default values. Users may also append epa 304a values.
   if (!is.null(criteriaMethods)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
@@ -619,9 +619,9 @@ TADA_DefineCriteriaMethodology <- function(.data,
         "You selected auto_assign == TRUE. A useAURef was provided. ",
         "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your useAURef. ",
         "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
-      ))  
+      ))
     }
-    
+
     # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
     definedCriteria <- criteriaMethods %>%
       dplyr::filter(!is.na(ATTAINS.ParameterName)) %>%
@@ -646,7 +646,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
         }
       }
     )
-    
+
     # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
     if (nrow(DefineCriteriaMethodology) == 0 && auto_assign == FALSE) {
       DefineCriteriaMethodology <- criteriaMethods %>%
@@ -731,7 +731,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
-    
+
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
@@ -745,10 +745,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
         openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       }
     )
-    
+
     # IMPORTANT: Set the "DefineCriteriaMethodology" sheet as the active sheet
-    openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology" 
-    
+    openxlsx::activeSheet(wb) <- "DefineCriteriaMethodology"
+
     # Set visibility
     names(wb)
     openxlsx::sheetVisibility(wb)[1] <- "hidden"
@@ -770,7 +770,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     columns <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
-      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", 
+      "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
       # Spatial Columns
       "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
       # Criteria Columns
@@ -980,7 +980,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
     }
 
     TADA_CriteriaDataDictionary()
-    
+
     cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
 
@@ -999,21 +999,20 @@ TADA_DefineCriteriaMethodology <- function(.data,
 #' @export
 #'
 TADA_CriteriaDataDictionary <- function() {
-  
   # Excel ref files to be stored in the Downloads folder location.
   # Define the OneDrive Downloads path
   onedrive_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "OneDrive", "Downloads", "myfileRef.xlsx")
-  
+
   # Define the default Downloads path
   default_downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")
-  
+
   # Check if the OneDrive Downloads path exists, and prioritize it
   if (file.exists(onedrive_downloads_path)) {
     downloads_path <- onedrive_downloads_path
   } else {
     downloads_path <- default_downloads_path
   }
-  
+
   wb <- openxlsx::loadWorkbook(wb, downloads_path)
   tryCatch(
     {
@@ -1024,38 +1023,38 @@ TADA_CriteriaDataDictionary <- function() {
       openxlsx::addWorksheet(wb, "DataDictionary")
     }
   )
-  
+
   # Example data frame
   data_to_write <- data.frame(
     ColumnName = c(
-      "ATTAINS.OrganizationIdentifier",	"ATTAINS.ParameterName",	
-      "ATTAINS.UseName", "TADA.ComparableDataIdentifier",	"TADA.CharacteristicName",	"TADA.ResultSampleFractionText",	"TADA.MethodSpeciationName",	
-      "ATTAINS.WaterType",	"SaltFresh",	"DepthCategory",	"UniqueSpatialCriteria",	
-      "AcuteChronic", "EquationBased",	"MagnitudeValueLower",	"MagnitudeValueUpper",	"MagnitudeUnit",	
-      "DurationValue",	"DurationUnit",	"DurationMethod",	"FreqValue",	"FreqMethod",	
-      "AssessPeriod",	"AssessPeriodStartDate",	"AssessPeriodEndDate",	
-      "Season",	"SeasonStartDate",	"SeasonEndDate",	"DistrCount",	"DistrPeriod",	"DistrMinSample",	"Notes"
-      ),
-    Requirement = c(
-      "Required",	"Required",	"Required",	"Recommended",	"Required",	
-      "Recommended",	"Recommended",	"Optional",	"Optional",	"Optional",	"Optional",	
-      "Optional",	"Optional",	"Required",	"Required",	"Required",	"Optional",	"Optional",	
-      "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional",	
-      "Optional",	"Optional",	"Optional",	"Optional",	"Optional",	"Optional"
+      "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName",
+      "ATTAINS.UseName", "TADA.ComparableDataIdentifier", "TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName",
+      "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "UniqueSpatialCriteria",
+      "AcuteChronic", "EquationBased", "MagnitudeValueLower", "MagnitudeValueUpper", "MagnitudeUnit",
+      "DurationValue", "DurationUnit", "DurationMethod", "FreqValue", "FreqMethod",
+      "AssessPeriod", "AssessPeriodStartDate", "AssessPeriodEndDate",
+      "Season", "SeasonStartDate", "SeasonEndDate", "DistrCount", "DistrPeriod", "DistrMinSample", "Notes"
     ),
-    Source= c(
-      "ATTAINS*",	"ATTAINS*",	"ATTAINS*",	"TADA",	"TADA",	"TADA",	"TADA",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	"User Supplied",	
-      "User Supplied",	"User Supplied",	"User Supplied"
-      ),
-    ColumnType= c(
-      "Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Crosswalk",	"Spatial",	
-      "Spatial",	"Spatial",	"Spatial",	"Spatial",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	
-      "Criteria",	"Criteria",	"Criteria",	"Criteria",	"Criteria",	"Methodology",	
-      "Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	"Methodology",	
-      "Methodology",	"Methodology",	"Methodology"
+    Requirement = c(
+      "Required",       "Required",     "Required",     "Recommended",  "Required",
+      "Recommended",    "Recommended",  "Optional",     "Optional",     "Optional",     "Optional",
+      "Optional",       "Optional",     "Required",     "Required",     "Required",     "Optional",     "Optional",
+      "Optional",       "Optional",     "Optional",     "Optional",     "Optional",     "Optional",     "Optional",
+      "Optional",       "Optional",     "Optional",     "Optional",     "Optional",     "Optional"
+    ),
+    Source = c(
+      "ATTAINS*", "ATTAINS*", "ATTAINS*", "TADA", "TADA", "TADA", "TADA", "User Supplied",
+      "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied",
+      "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied",
+      "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied", "User Supplied",
+      "User Supplied", "User Supplied", "User Supplied"
+    ),
+    ColumnType = c(
+      "Crosswalk",      "Crosswalk",    "Crosswalk",    "Crosswalk",    "Crosswalk",    "Crosswalk",    "Crosswalk",    "Spatial",
+      "Spatial",        "Spatial",      "Spatial",      "Spatial",      "Criteria",     "Criteria",     "Criteria",     "Criteria",
+      "Criteria",       "Criteria",     "Criteria",     "Criteria",     "Criteria",     "Methodology",
+      "Methodology",    "Methodology",  "Methodology",  "Methodology",  "Methodology",  "Methodology",
+      "Methodology",    "Methodology",  "Methodology"
     ),
     Description = c(
       # ATTAINS.OrganizationIdentifier
@@ -1067,13 +1066,13 @@ TADA_CriteriaDataDictionary <- function() {
       # TADA.ComparableDataIdentifier
       paste0(
         "To populate this field, specify displayUniqueId = TRUE. Concatenates the WQP Characteristic, Fraction and speciation into one string.",
-        "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ", 
+        "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
         "It is recommended to have performed this crosswalk in TADA_CreateParamRef to avoid any duplicated ",
-        "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.", 
+        "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",
         collapse = " "
-        ),	
+      ),
       # TADA.CharacteristicName
-      "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",	
+      "Name of TADA characteristic in the WQP that gets matched to an ATTAINS parameter.",
       # TADA.ResultSampleFractionText
       "If TADA.ComparableDataIdentifier is blank, this will group all TADA.CharacteristicName to an ATTAINS.ParameterName on the condition of the specified Fraction Type.",
       # TADA.MethodSpeciationName
@@ -1083,55 +1082,55 @@ TADA_CriteriaDataDictionary <- function() {
       # SaltFresh
       "The salt or freshwater classification of the ATTAINS Waterbody Type. Users should specify if a standard only applies to salt or freshwater types.",
       # DepthCategory
-      "The depth within water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry (or can specify a specific unit measurement?).",	
+      "The depth within water column that a standard applies to if applicable. Users can run TADA.FlagDepthCategory to populate this entry (or can specify a specific unit measurement?).",
       # UniqueSpatialCriteria
-      "Users should specify any monitoring location sites that may contain a unique spatial critieria for a parameter or use in CreateMLSummaryRef.",	
+      "Users should specify any monitoring location sites that may contain a unique spatial critieria for a parameter or use in CreateMLSummaryRef.",
       # AcuteChronic
-      "If a parameter and use depends depends on differing criteria standards for acute or chronic conditions. Acute is defined as short term while chronic is long term.",	
+      "If a parameter and use depends depends on differing criteria standards for acute or chronic conditions. Acute is defined as short term while chronic is long term.",
       # EquationBased
-      "If your water quality standards depend on an equation calculated numeric value, the equation column should be specified as yes. Users will need to specify either a custom equation or choose from a list of common equations and define each equation parameter appropriately. NOTE: Equation handling in TADA is still in development.",	
+      "If your water quality standards depend on an equation calculated numeric value, the equation column should be specified as yes. Users will need to specify either a custom equation or choose from a list of common equations and define each equation parameter appropriately. NOTE: Equation handling in TADA is still in development.",
       # MagnitudeValueLower
-      "The lower limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls below this defined lower limit for this parameter and use.",	
+      "The lower limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls below this defined lower limit for this parameter and use.",
       # MagnitudeValueUpper
-      "The upper limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls above this defined lower limit for this parameter and use.",	
+      "The upper limit of the amount or concentration of a pollutant or parameter that is allowable in water. An excursion or exceedance occurs if a ResultValue falls above this defined lower limit for this parameter and use.",
       # MagnitudeUnit
       "Defines the units component of the amount or concentration of a pollutant or parameter that is allowable in water.",
       # DurationValue
-      "The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
+      "The numeric value component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",
       # DurationUnit
-      "The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",	
+      "The units component of the length of time in which a waterbody can be exposed to a magnitude of a parameter without negatively impacting its designated use.",
       # DurationMethod
       "The specific aggregation calculation of samples that are collected during a duration period.",
       # FreqValue
-      "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",	
+      "The numeric value of how often a magnitude value can be exceeded before being considered impaired.",
       # FreqMethod
-      "How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.",	
+      "How often a magnitude value can be exceeded percentage or number of times a magnitude value can be exceeded over a specified duration period.",
       # AssessPeriod
-      "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",	
+      "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",
       # AssessPeriodStartDate
       "The start date in which WQP data will be analysed for this parameter and use.",
       # AssessPeriodEndDate
-      "The end date in which WQP data will be analysed for this parameter and use.",	
+      "The end date in which WQP data will be analysed for this parameter and use.",
       # Season
-      "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",	
+      "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",
       # SeasonStartDate
-      "The start date of the season in which assessments are done for during a calendar year.",	
+      "The start date of the season in which assessments are done for during a calendar year.",
       # SeasonEndDate
-      "The end date of the season in which assessments are done for during a calendar year.",	
+      "The end date of the season in which assessments are done for during a calendar year.",
       # DistrCount
-      "A numeric value specifying the minimum number of sampling events (consecutive) over a distribution period.",	
+      "A numeric value specifying the minimum number of sampling events (consecutive) over a distribution period.",
       # DistrPeriod
-      "The period of time in which samples must be collected during an assessment data window.",	
+      "The period of time in which samples must be collected during an assessment data window.",
       # DistrMinSample
-      "How many samples must be collected during each specified DistrPeriod",	
+      "How many samples must be collected during each specified DistrPeriod",
       # Notes
       "Additonal free form notes column for any notes that must be considered for this parameter and use that may not be able to be captured in the TADA criteria table format."
-      )
+    )
   )
-  
+
   # Write the data frame to the worksheet, starting at cell B2
   openxlsx::writeData(wb, "DataDictionary", data_to_write, startCol = 2, startRow = 2)
-  
+
   # Create a style for the header row
   header_style <- openxlsx::createStyle(
     fontSize = 12,
@@ -1141,19 +1140,19 @@ TADA_CriteriaDataDictionary <- function() {
     border = "TopBottomLeftRight",
     borderColour = "#000000"
   )
-  
+
   # Apply the header style to the second row (header)
   openxlsx::addStyle(wb, "DataDictionary", header_style, rows = 2, cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
-  
+
   # Create a style for borders on all data cells
   data_border_style <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
     borderColour = "#000000" # Light grey border
   )
-  
+
   # Apply data border style to all data rows and columns besides header
   openxlsx::addStyle(wb, "DataDictionary", data_border_style, rows = 3:(nrow(data_to_write) + 2), cols = 2:(ncol(data_to_write) + 1), gridExpand = TRUE)
-  
+
   # Define description text that gets wrapped
   wrapStyle <- openxlsx::createStyle(
     border = "TopBottomLeftRight",
@@ -1165,12 +1164,10 @@ TADA_CriteriaDataDictionary <- function() {
   openxlsx::addStyle(wb, "DataDictionary", wrapStyle, rows = 3:(nrow(data_to_write) + 2), cols = ncol(data_to_write) + 1)
 
   openxlsx::setColWidths(wb, "DataDictionary", cols = ncol(data_to_write) + 1, widths = 80) # Adjust width as needed
-  
+
   # Set column widths to automatically fit content, except last column
   openxlsx::setColWidths(wb, "DataDictionary", cols = 1:(ncol(data_to_write) - 1), widths = "auto")
-  
+
   # Save the workbook to an Excel file
   openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-  
 }
-

@@ -46,14 +46,12 @@
 #' )
 #'
 TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and flaggedonly are not TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
@@ -207,14 +205,12 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' )
 #'
 TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
   # check clean is boolean
   TADA_CheckType(clean, "character")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
   # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -387,8 +383,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' )
 #'
 TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName")
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is character
   TADA_CheckType(clean, "character")
   # check flaggedonly is boolean
@@ -416,7 +413,6 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
     .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   }
 
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -569,14 +565,12 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 #'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("ActivityTypeCode"))
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("ActivityTypeCode"))
 
   # execute function after checks are passed
   # delete existing flag column
@@ -704,10 +698,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
     "OrganizationIdentifier", "ActivityTypeCode",
     "ActivityStartDate", "ActivityStartDateTime",
     "ResultIdentifier", "ActivityRelativeDepthName",
@@ -717,7 +709,8 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
     "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
 
   # run TADA_FindQCActivities if needed
   if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
@@ -856,14 +849,12 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #'   clean = TRUE, define = FALSE
 #' )
 TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
   if (all(is.na(.data$MeasureQualifierCode))) {
     print("TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode.")
