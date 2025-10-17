@@ -319,7 +319,6 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
-  fill_USGS_catch = TRUE,
   return_nearest = TRUE,
   batch_upload = TRUE)
 ```

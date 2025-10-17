@@ -1944,7 +1944,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(filt.df$ATTAINS.AssessmentUnitIdentifier)),
+        assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
         chunk_n = 10
       ),
       silent = TRUE
@@ -1975,21 +1975,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
       silent = TRUE
     )
-
-    # modify TADA_with_ATTAINS
-    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-      dplyr::left_join(
-        catchments.cw,
-        dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      ) %>%
-      dplyr::left_join(catchments.no.geo,
-        by = c(
-          "nhdplusid" = "nhdplusid",
-          "ATTAINS.AssessmentUnitIdentifier" =
-            "assessmentunitidentifier"
-        )
-      ) %>%
-      dplyr::select(-OBJECTID)
   }
 
   # internal function to combine attains.geo data
@@ -1998,7 +1983,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     geo.data <- geo.data %>%
       dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
 
-    # join data from ATTAINS with tada df
+    # join data from ATTAINS with TADA df
     df <- .data %>%
       dplyr::left_join(geo.data,
         by = c("ATTAINS.AssessmentUnitIdentifier")
