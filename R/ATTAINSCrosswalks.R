@@ -1080,7 +1080,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         "auto_assign == 'All' was selected, ",
         "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
+      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))
 
       ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef %>%
         dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName)
@@ -1126,7 +1126,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
+      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))
 
       ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef %>%
         dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName)
