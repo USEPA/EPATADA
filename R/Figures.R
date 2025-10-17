@@ -1047,7 +1047,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, required_cols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, expected_cols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
