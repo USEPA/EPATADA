@@ -1779,7 +1779,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
     )
 
-
   # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
   if (dim(.data)[1] < 1) {
     stop(paste0(
