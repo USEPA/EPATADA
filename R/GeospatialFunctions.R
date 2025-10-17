@@ -1877,7 +1877,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     points <- fetch_au(
       baseurls = baseurls[2],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1886,7 +1886,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     lines <- fetch_au(
       baseurls = baseurls[3],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1895,7 +1895,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     polygons <- fetch_au(
       baseurls = baseurls[4],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1945,7 +1945,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+        assessment_unit_ids = paste0(unique(filt.df$ATTAINS.AssessmentUnitIdentifier)),
         chunk_n = 10
       ),
       silent = TRUE

@@ -82,7 +82,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
   if (is.null(org_id)) {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_NationalExtract("au_mls"))
   } else {
-    au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(org_id = org_id, api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"))
+    au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(org_id = org_id,
+                                                      api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"))
   }
 
   # select, filter and rename crosswalk columns
@@ -123,8 +124,25 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
     org_id <- "all organizations"
   }
 
+  # check for how many org_ids were provided by user if org_id is not NULL
+  if(!is.null(org_id)) {
+
+     # determine how many org_ids were provided
+    if(length(org_id) > 1) {
+
+      # create string for print message
+      org_id <- stringi::stri_replace_last(
+        paste(org_id, collapse = ", "),
+        fixed = ", ", replacement = " and ")
+    }
+
+  }
+
   # check to see if the crosswalk contains any results
-  if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier > 0)) {
+  if (dim(au.crosswalk$ATTAINS.MonitoringLocationIdentifier)[1] > 0) {
+
+
+
     # print a message describing the number of results
     print(paste0(
       "TADA_GetATTAINSAUMLCrosswalk: ",
@@ -175,6 +193,16 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' ATTAINS batch upload files are available here:
 #' https://www.epa.gov/waterdata/upload-data-resources-registered-attains-users#batch-upload-templates
 #' See Assessment Unit Batch Upload Template.
+#'
+#' @param org_id Character string. The ATTAINS organization identifier may be
+#' supplied by the user. More than one org_id may be provided. A list of
+#' organization identifiers can be found by downloading the ATTAINS Domains
+#' Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = NULL, all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned.
 #'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
@@ -298,7 +326,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' )
 #' }
 #'
-TADA_UpdateATTAINSAUMLCrosswalk <- function(crosswalk = NULL,
+TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
+                                            crosswalk = NULL,
                                             attains_replace = FALSE,
                                             wqp_data_links = "add",
                                             update_mlid = TRUE,
@@ -309,7 +338,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(crosswalk = NULL,
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
       "in order to replace MonitoringLocations stored in ATTAINS ",
-      "(with attains_replace = TRUE), user must provide a ",
+      "user must provide a ",
       "MonitoringLocation/AssessmentUnitcrosswalk."
     ))
   }
@@ -336,38 +365,12 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(crosswalk = NULL,
         "ATTAINS.WaterType"
       )
 
-      batch_cols <- c(
-        "ASSESSMENT_UNIT_ID",
-        "MS_LOCATION_ID",
-        "MS_ORG_ID",
-        "MS_DATA_LINK"
-      )
 
-      if (!all(user_cols %in% names(crosswalk)) &
-        !all(batch_cols %in% names(crosswalk))) {
+      if (!all(batch_cols %in% names(crosswalk))) {
         stop(paste0(
-          "Column names must reflect either the TADA workflow or the ATTAINS ",
-          "batch upload requirements. Review function documentation for more information"
+          "Column names must reflect either the TADA workflow requirements. ",
+          "Review function documentation for more information."
         ))
-      }
-
-      if (all(batch_cols %in% names(crosswalk))) {
-        crosswalk <- crosswalk %>%
-          dplyr::rename(
-            ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
-            ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
-            OrganizationIdentifier = MS_ORG_ID,
-            ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
-          ) %>%
-          dplyr::rowwise() %>%
-          dplyr::mutate(
-            ATTAINS.OrganizationIdentifier = org_id,
-            ATTAINS.WaterType =
-              ifelse(
-                "ATTAINS.WaterType" %in% names(.), ATTAINS.WaterType,
-                NA_character_
-              )
-          )
       }
     }
 
