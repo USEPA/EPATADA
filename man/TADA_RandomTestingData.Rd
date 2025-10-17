@@ -81,7 +81,7 @@ random_data_state <- TADA_RandomTestingData(
 # within a randomly selected state without auto-cleaning
 random_data_state_no_clean <- TADA_RandomTestingData(
   number_of_days = 5,
-  choose_random_state = TRUE, 
+  choose_random_state = TRUE,
   autoclean = FALSE
 )
 }
