@@ -501,13 +501,13 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Identify inconsistent flag groups
   inconsistent_flags <- unit.ref %>%
-    group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
-    filter(n_distinct(TADA.WQXVal.Flag) > 1) %>%
-    ungroup()
+    dplyr::group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    dplyr::filter(dplyr::n_distinct(TADA.WQXVal.Flag) > 1) %>%
+    dplyr::ungroup()
   
   # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups 
   unit.ref <- unit.ref %>%
-    filter(
+    dplyr::filter(
       !(TADA.CharacteristicName %in% inconsistent_flags$TADA.CharacteristicName &
           TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
           TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
@@ -516,7 +516,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Remove extraneous columns from unit.ref
   unit.ref <- unit.ref %>%
-    select(-c(
+    dplyr::select(-c(
       Domain, 
       Status,
       Type, 
@@ -528,7 +528,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       Value,
       Minimum
     )) %>%
-    distinct()
+    dplyr::distinct()
   
   # Join with the input data
   check.data <- dplyr::left_join(
@@ -543,7 +543,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Create flag column
   flag.data <- check.data %>%
-    mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
+    dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue > Maximum ~ as.character("Suspect"),
       TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect"),
       (TADA.WQXVal.Flag == "Pass" & TADA.ResultMeasureValue <= Maximum) ~ as.character("Pass"),
@@ -732,13 +732,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Identify inconsistent flag groups
   inconsistent_flags <- unit.ref %>%
-    group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
-    filter(n_distinct(TADA.WQXVal.Flag) > 1) %>%
-    ungroup()
+    dplyr::group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
+    dplyr::filter(dplyr::n_distinct(TADA.WQXVal.Flag) > 1) %>%
+    dplyr::ungroup()
   
   # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups 
   unit.ref <- unit.ref %>%
-    filter(
+    dplyr::filter(
       !(TADA.CharacteristicName %in% inconsistent_flags$TADA.CharacteristicName &
           TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
           TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
@@ -747,7 +747,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Remove extraneous columns from unit.ref
   unit.ref <- unit.ref %>%
-    select(-c(
+    dplyr::select(-c(
       Domain, 
       Status,
       Type, 
@@ -759,7 +759,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       Value,
       Maximum
     )) %>%
-    distinct()
+    dplyr::distinct()
   
   # Join with the input data
   check.data <- dplyr::left_join(
