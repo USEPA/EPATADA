@@ -28,9 +28,10 @@ library(knitr)
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
-  message = FALSE, 
+  message = FALSE,
   eval = T,
-  dev.args = list(bg = "transparent"))
+  dev.args = list(bg = "transparent")
+)
 ```
 
 # Overview and Setup
@@ -177,7 +178,7 @@ utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 #   countycode = "Missoula County",
 #   ask = FALSE
 # )
-# 
+#
 # # clean up data set (not comprehensive)
 # tada.MT.clean <- tada.MT %>%
 #   TADA_RunKeyFlagFunctions() %>%
@@ -290,7 +291,6 @@ user.supplied.cw <- clean.existing.attains.MT %>%
     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
     WaterType = ATTAINS.WaterType
   ) %>%
-  
   # Add an example new assessment unit for demonstration purposes
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
@@ -313,7 +313,8 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   fill_ATTAINS_catch = TRUE,
   fill_USGS_catch = TRUE,
   return_nearest = TRUE,
-  batch_upload = TRUE)
+  batch_upload = TRUE
+)
 ```
 
 This example is also included in the EPATADA R package, and can be
@@ -430,9 +431,10 @@ intersect our observations:
 
 ```{r, eval = T}
 TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
-  .data = tada.MT.clean, 
-  return_sf = FALSE, 
-  return_nearest = FALSE)
+  .data = tada.MT.clean,
+  return_sf = FALSE,
+  return_nearest = FALSE
+)
 
 # Can also be performed on the spatial data:
 # TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = FALSE, return_nearest = TRUE)
@@ -449,9 +451,10 @@ one ATTAINS assessment unit.
 
 ```{r, eval = T}
 TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(
-  .data = tada.MT.clean, 
-  return_sf = TRUE, 
-  return_nearest = TRUE)
+  .data = tada.MT.clean,
+  return_sf = TRUE,
+  return_nearest = TRUE
+)
 
 # return only the closest ATTAINS AU for observations within a catchment with multiple AUs
 # TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
@@ -473,10 +476,11 @@ catchment information from the NHD by entering `fill_USGS_catch = TRUE`:
 
 ```{r, eval = T}
 TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(
-  tada.MT.clean, 
-  fill_USGS_catch = TRUE, 
-  return_sf = TRUE, 
-  return_nearest = TRUE)
+  tada.MT.clean,
+  fill_USGS_catch = TRUE,
+  return_sf = TRUE,
+  return_nearest = TRUE
+)
 ```
 
 When `fill_USGS_catch = TRUE`, the returned list splits observations
@@ -624,8 +628,9 @@ prioritized steps:
 
 ```{r assign.use.to.AU}
 MT.UseAURef <- TADA_CreateUseAURef(
-  AUMLRef = Final.MT.AUMLRef, 
-  org_id = "MTDEQ")
+  AUMLRef = Final.MT.AUMLRef,
+  org_id = "MTDEQ"
+)
 ```
 
 #### **Advanced: Assigning Uses to New AUs**
@@ -642,11 +647,12 @@ For more information on how to customize this function to suit your
 needs, enter **`?TADA_CreateWaterUseRef`** into the R console.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
-MT.UseAURef_with_WaterUseRef <- 
+MT.UseAURef_with_WaterUseRef <-
   TADA_CreateUseAURef(
     waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
-    org_id = "MTDEQ")
+    org_id = "MTDEQ"
+  )
 ```
 
 Users also have the option to manually assign use names to new AUs if

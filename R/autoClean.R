@@ -128,10 +128,17 @@
 #' # Run TADA_AutoClean
 #' Autocleaned_TADAProfile <- TADA_AutoClean(TADAProfile)
 #' }
-#' 
+#'
 TADA_AutoClean <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
+    "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
+    "CharacteristicName", "ResultSampleFractionText", "MethodSpeciationName",
+    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
+    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
+    "LatitudeMeasure", "LongitudeMeasure"
+  )
+  TADA_CheckColumns(.data, expected_cols)
 
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
@@ -143,18 +150,6 @@ TADA_AutoClean <- function(.data) {
   # issue where data structure for all columns should be specified.
   cols <- names(.data)
   .data <- .data %>% dplyr::mutate_at(cols, as.character)
-
-  # .data required columns
-  required_cols <- c(
-    "ActivityMediaName", "ResultMeasureValue", "ResultMeasure.MeasureUnitCode",
-    "CharacteristicName", "ResultSampleFractionText", "MethodSpeciationName",
-    "DetectionQuantitationLimitMeasure.MeasureUnitCode", "ResultDetectionConditionText",
-    "ResultIdentifier", "DetectionQuantitationLimitMeasure.MeasureValue",
-    "LatitudeMeasure", "LongitudeMeasure"
-  )
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, required_cols)
 
   # execute function after checks are passed
 
