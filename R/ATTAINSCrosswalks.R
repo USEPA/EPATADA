@@ -139,7 +139,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
   }
 
   # check to see if the crosswalk contains any results
-  if (dim(au.crosswalk$ATTAINS.MonitoringLocationIdentifier)[1] > 0) {
+  if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0) {
     # print a message describing the number of results
     print(paste0(
       "TADA_GetATTAINSAUMLCrosswalk: ",
@@ -474,10 +474,10 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
   }
 
   # internal function to create new urls for monitoring locations
-  createNewMLUrls <- function(.data) {
+  createNewMLUrls <- function(.data, ref) {
     if (!"ProviderName" %in% names(.data)) {
       .data <- .data %>%
-        dplyr::left_join(provider.ref,
+        dplyr::left_join(ref,
           by = dplyr::join_by(OrganizationIdentifier)
         )
     }
@@ -556,7 +556,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
   if (update_mlid == TRUE & wqp_data_links == "replace") {
     update.crosswalk <- updateMonLocIds(update.crosswalk)
 
-    update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref) %>%
       dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
       dplyr::rename(ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New)
 
@@ -576,7 +576,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
   if (update_mlid == TRUE & wqp_data_links == "add") {
     update.crosswalk <- updateMonLocIds(update.crosswalk)
 
-    update.crosswalk <- createNewMLUrls(update.crosswalk)
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref)
 
     if (check_links == TRUE) {
       update.crosswalk <- checkUrlResp(update.crosswalk,
@@ -625,7 +625,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       dplyr::mutate(OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier) %>%
       updateMonLocIds()
 
-    update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref) %>%
       dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
       dplyr::rename(ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New) %>%
       dplyr::select(-ATTAINS.MonitoringLocationIdentifier, -OrgIDForURL) %>%
@@ -637,7 +637,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
       dplyr::mutate(OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier) %>%
       updateMonLocIds()
 
-    update.crosswalk <- createNewMLUrls(update.crosswalk)
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref)
 
     if (check_links == TRUE) {
       update.crosswalk <- checkUrlResp(update.crosswalk,
