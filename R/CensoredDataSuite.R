@@ -40,22 +40,19 @@
 #'
 #'
 TADA_IDCensoredData <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  # check .data has all of the required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
     "DetectionQuantitationLimitTypeName",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols)
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
+  }
+
 
   # this copies det lim result value and unit over to TADA result value and unit
   # when the result value is TEXT but there is a specific text value that indicates
@@ -398,22 +395,19 @@ TADA_SimpleCensoredMethods <- function(.data, nd_method = "multiplier",
                                        nd_multiplier = 0.5,
                                        od_method = "as-is",
                                        od_multiplier = "null") {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  # check .data has all of the required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "ResultDetectionConditionText",
     "DetectionQuantitationLimitTypeName",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, expected_cols)
+
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
+  }
 
   # check that multiplier is provided if method = "multiplier"
   if (nd_method == "multiplier" & nd_multiplier == "null") {

@@ -177,29 +177,32 @@ data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
 ```{r tada-data}
-# get MT data 
+# get MT data
 tada.MT <- TADA_DataRetrieval(
-   startDate = "2020-01-01", 
-   endDate = "2022-12-31",
-   statecode = "MT",
-   characteristicName = c("Escherichia", 
-                          "Escherichia coli", 
-                          "pH"),
-   countycode = "Missoula County",
-   ask = FALSE)
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c(
+    "Escherichia",
+    "Escherichia coli",
+    "pH"
+  ),
+  countycode = "Missoula County",
+  ask = FALSE
+)
 
 # clean up data set (minimal)
-  tada.MT.clean <- tada.MT %>%
-    TADA_RunKeyFlagFunctions() %>%
-    TADA_SimpleCensoredMethods() %>%
-    TADA_HarmonizeSynonyms()
-  
+tada.MT.clean <- tada.MT %>%
+  TADA_RunKeyFlagFunctions() %>%
+  TADA_SimpleCensoredMethods() %>%
+  TADA_HarmonizeSynonyms()
+
 # remove intermediate objects
-  rm(tada.MT)
-  
+rm(tada.MT)
+
 # if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
-  
-  # tada.MT.clean <- Data_MT_MissoulaCounty
+
+# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 This example will focus only on Montana. The remainder of this vignette
@@ -382,7 +385,7 @@ ParamRef <- MT.ParamRef_None %>%
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) ~ "PH",
     grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)")) %>% 
-  dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ")) 
+  dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ"))
 
 MT.ParamRef_Manual <- TADA_CreateParamRef(
   tada.MT.clean,
@@ -442,7 +445,7 @@ MT.ParamRef_Final <- TADA_CreateParamRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-# Test if the two data frames are same or not. 
+# Test if the two data frames are same or not.
 identical(MT.ParamRef_Final[1:4], MT.ParamRef_user_supplied[1:4])
 
 TADA_TableExport(MT.ParamRef_Final)
@@ -578,13 +581,13 @@ rExpertQuery to assign any new uses to parameters.
 
 ```{r useParamRef-with-useAURef}
 MT.UseParamRef_with_useAURef <- TADA_CreateUseParamRef(
-    tada.MT.clean,
-    org_id = c("MTDEQ"),
-    paramRef = MT.ParamRef_Final, 
-    useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-    auto_assign = FALSE,
-    excel = FALSE)
-
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef_Final,
+  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  auto_assign = FALSE,
+  excel = FALSE
+)
 ```
 
 ### Provide a User Supplied useParamRef
@@ -658,7 +661,7 @@ MT.UseParamRef_Final <- TADA_CreateUseParamRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-# Test if the two data frames are same or not. 
+# Test if the two data frames are same or not.
 identical(MT.UseParamRef_Final[1:5], MT.UseParamRef_user_supplied_Edit[1:5])
 
 TADA_TableExport(MT.useParamRef_Final)
@@ -698,11 +701,11 @@ data, please choose displayNA = TRUE
 
 ```{r ML_Summary}
 MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
-  .data = tada.MT.clean, 
+  .data = tada.MT.clean,
   useParamRef = MT.UseParamRef_Final,
   org_id = "MTDEQ",
   displayNA = FALSE
-  )
+)
 ```
 
 ## Define Spatial Summary by Monitoring Location (AU)
@@ -724,13 +727,13 @@ for sites with no WQP data, please choose displayNA = TRUE
 
 ```{r AU_Summary, eval = FALSE}
 MT.MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
-  .data = tada.MT.clean, 
-  useParamRef = MT.UseParamRef_Final, 
+  .data = tada.MT.clean,
+  useParamRef = MT.UseParamRef_Final,
   useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
   # displayNA = FALSE
-  )
+)
 ```
 
 ## Assign site-specific spatial criteria
@@ -746,8 +749,8 @@ MT.MLSummaryRef_AU2 <- MT.MLSummaryRef_AU %>%
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
       MonitoringLocationIdentifier == "MTVOLWQM_WQX-CLEARWATERR_1" ~ "Example Site Specific"
-      )
     )
+  )
 ```
 
 Compare the nrow for each of the ML versus AU level of summary. The AU
@@ -785,7 +788,7 @@ MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
   org_id = "MTDEQ",
   MLSummaryRef = MT.MLSummaryRef_ML,
   excel = FALSE
-  #excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
 ```
 
@@ -855,12 +858,15 @@ in the remaining blank PH magnitude values with a range between 6.5 and
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods_Final <- MT.CriteriaMethods_User_Supplied3 %>% dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
+MT.CriteriaMethods_Final <- MT.CriteriaMethods_User_Supplied3 %>%
+  dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
-    TRUE ~ MagnitudeValueLower)) %>% 
- dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
+    TRUE ~ MagnitudeValueLower
+  )) %>%
+  dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 8.5,
-    TRUE ~ MagnitudeValueUpper))
+    TRUE ~ MagnitudeValueUpper
+  ))
 ```
 
 We will supply this final crosswalk table to be reused and validated.
