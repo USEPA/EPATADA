@@ -74,7 +74,7 @@
       <h1>Example Module 3 Workflow</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-10-16</h4>
+            <h4 data-toc-skip class="date">2025-10-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/ExampleMod3Workflow.Rmd" class="external-link"><code>vignettes/ExampleMod3Workflow.Rmd</code></a></small>
       <div class="d-none name"><code>ExampleMod3Workflow.Rmd</code></div>
@@ -196,29 +196,32 @@ functions, so we will go through some minimal cleaning with an example
 data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># get MT data </span></span>
+<code class="sourceCode R"><span><span class="co"># get MT data</span></span>
 <span><span class="va">tada.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span></span>
-<span>   startDate <span class="op">=</span> <span class="st">"2020-01-01"</span>, </span>
-<span>   endDate <span class="op">=</span> <span class="st">"2022-12-31"</span>,</span>
-<span>   statecode <span class="op">=</span> <span class="st">"MT"</span>,</span>
-<span>   characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Escherichia"</span>, </span>
-<span>                          <span class="st">"Escherichia coli"</span>, </span>
-<span>                          <span class="st">"pH"</span><span class="op">)</span>,</span>
-<span>   countycode <span class="op">=</span> <span class="st">"Missoula County"</span>,</span>
-<span>   ask <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  startDate <span class="op">=</span> <span class="st">"2020-01-01"</span>,</span>
+<span>  endDate <span class="op">=</span> <span class="st">"2022-12-31"</span>,</span>
+<span>  statecode <span class="op">=</span> <span class="st">"MT"</span>,</span>
+<span>  characteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Escherichia"</span>,</span>
+<span>    <span class="st">"Escherichia coli"</span>,</span>
+<span>    <span class="st">"pH"</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  countycode <span class="op">=</span> <span class="st">"Missoula County"</span>,</span>
+<span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># clean up data set (minimal)</span></span>
-<span>  <span class="va">tada.MT.clean</span> <span class="op">&lt;-</span> <span class="va">tada.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>    <span class="fu"><a href="../reference/TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="op">)</span></span>
-<span>  </span>
+<span><span class="va">tada.MT.clean</span> <span class="op">&lt;-</span> <span class="va">tada.MT</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_RunKeyFlagFunctions.html">TADA_RunKeyFlagFunctions</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/TADA_HarmonizeSynonyms.html">TADA_HarmonizeSynonyms</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># remove intermediate objects</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tada.MT</span><span class="op">)</span></span>
-<span>  </span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">tada.MT</span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below</span></span>
-<span>  </span>
-<span>  <span class="co"># tada.MT.clean &lt;- Data_MT_MissoulaCounty</span></span></code></pre></div>
+<span></span>
+<span><span class="co"># tada.MT.clean &lt;- Data_MT_MissoulaCounty</span></span></code></pre></div>
 <p>This example will focus only on Montana. The remainder of this
 vignette will walk through how to fill out two crosswalk tables
 (TADA_CreateParamRef and TADA_CreateUseParamRef) that are needed before
@@ -382,7 +385,7 @@ name.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"PH_NONE_NONE_NONE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"PH"</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"ESCHERICHIA COLI"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"ESCHERICHIA COLI (E. COLI)"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>TADA.ComparableDataIdentifier <span class="op">=</span> <span class="st">"PH_NONE_NONE_NONE"</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="st">"PH, HIGH"</span>, ATTAINS.OrganizationIdentifier <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span><span class="op">)</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>TADA.ComparableDataIdentifier <span class="op">=</span> <span class="st">"PH_NONE_NONE_NONE"</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="st">"PH, HIGH"</span>, ATTAINS.OrganizationIdentifier <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">MT.ParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>,</span>
@@ -439,7 +442,7 @@ this table will be the same.</p>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Test if the two data frames are same or not. </span></span>
+<span><span class="co"># Test if the two data frames are same or not.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">MT.ParamRef_Final</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="va">MT.ParamRef_user_supplied</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">MT.ParamRef_Final</span><span class="op">)</span></span></code></pre></div>
@@ -566,12 +569,13 @@ and joined to an internal parameter and water type extraction from
 rExpertQuery to assign any new uses to parameters.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.UseParamRef_with_useAURef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span>
-<span>    <span class="va">tada.MT.clean</span>,</span>
-<span>    org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MTDEQ"</span><span class="op">)</span>,</span>
-<span>    paramRef <span class="op">=</span> <span class="va">MT.ParamRef_Final</span>, </span>
-<span>    useAURef <span class="op">=</span> <span class="va">MT.UseAURef_with_WaterUseRef</span>, <span class="co"># uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd</span></span>
-<span>    auto_assign <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>    excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="va">tada.MT.clean</span>,</span>
+<span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MTDEQ"</span><span class="op">)</span>,</span>
+<span>  paramRef <span class="op">=</span> <span class="va">MT.ParamRef_Final</span>,</span>
+<span>  useAURef <span class="op">=</span> <span class="va">MT.UseAURef_with_WaterUseRef</span>, <span class="co"># uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd</span></span>
+<span>  auto_assign <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="provide-a-user-supplied-useparamref">Provide a User Supplied useParamRef<a class="anchor" aria-label="anchor" href="#provide-a-user-supplied-useparamref"></a>
@@ -640,7 +644,7 @@ defined in your user supplied crosswalk.</p>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Test if the two data frames are same or not. </span></span>
+<span><span class="co"># Test if the two data frames are same or not.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">MT.UseParamRef_Final</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, <span class="va">MT.UseParamRef_user_supplied_Edit</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">MT.useParamRef_Final</span><span class="op">)</span></span></code></pre></div>
@@ -679,11 +683,11 @@ If you would like to display all information even for sites with no WQP
 data, please choose displayNA = TRUE</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.MLSummaryRef_ML</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateMLSummaryRef.html">TADA_CreateMLSummaryRef</a></span><span class="op">(</span></span>
-<span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>, </span>
+<span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>,</span>
 <span>  useParamRef <span class="op">=</span> <span class="va">MT.UseParamRef_Final</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  displayNA <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="define-spatial-summary-by-monitoring-location-au">Define Spatial Summary by Monitoring Location (AU)<a class="anchor" aria-label="anchor" href="#define-spatial-summary-by-monitoring-location-au"></a>
@@ -702,13 +706,13 @@ in your WQP data query. If you would like to display all information
 even for sites with no WQP data, please choose displayNA = TRUE</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT.MLSummaryRef_AU</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateMLSummaryRef.html">TADA_CreateMLSummaryRef</a></span><span class="op">(</span></span>
-<span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>, </span>
-<span>  useParamRef <span class="op">=</span> <span class="va">MT.UseParamRef_Final</span>, </span>
+<span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>,</span>
+<span>  useParamRef <span class="op">=</span> <span class="va">MT.UseParamRef_Final</span>,</span>
 <span>  useAURef <span class="op">=</span> <span class="va">MT.UseAURef_with_WaterUseRef</span>, <span class="co"># uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd</span></span>
 <span>  AUMLRef <span class="op">=</span> <span class="va">Final.MT.AUMLRef</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
 <span>  <span class="co"># displayNA = FALSE</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="assign-site-specific-spatial-criteria">Assign site-specific spatial criteria<a class="anchor" aria-label="anchor" href="#assign-site-specific-spatial-criteria"></a>
@@ -724,8 +728,8 @@ table.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    UniqueSpatialCriteria <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>      <span class="va">MonitoringLocationIdentifier</span> <span class="op">==</span> <span class="st">"MTVOLWQM_WQX-CLEARWATERR_1"</span> <span class="op">~</span> <span class="st">"Example Site Specific"</span></span>
-<span>      <span class="op">)</span></span>
-<span>    <span class="op">)</span></span></code></pre></div>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
 <p>Compare the nrow for each of the ML versus AU level of summary. The
 AU level of summary is further filtered down by the AU to ML crosswalk,
 the use to AU crosswalk, and the use to parameter crosswalk based on
@@ -759,7 +763,7 @@ allowable values and easy interface for inputs to the table.</p>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  MLSummaryRef <span class="op">=</span> <span class="va">MT.MLSummaryRef_ML</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>  <span class="co">#excel = TRUE, overwrite = TRUE</span></span>
+<span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Now, if MTDEQ, already has a filled out/partially filled out criteria
 methods table, let’s provide this as an argument input.</p>
@@ -816,12 +820,15 @@ fill in the remaining blank PH magnitude values with a range between 6.5
 and 8.5 as MTDEQ criteria of interest.</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We will fill in PH magnitude values for this example</span></span>
-<span><span class="va">MT.CriteriaMethods_Final</span> <span class="op">&lt;-</span> <span class="va">MT.CriteriaMethods_User_Supplied3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MagnitudeValueLower <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span><span class="va">MT.CriteriaMethods_Final</span> <span class="op">&lt;-</span> <span class="va">MT.CriteriaMethods_User_Supplied3</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MagnitudeValueLower <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"PH_NONE_NONE_NONE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">ATTAINS.OrganizationIdentifier</span> <span class="op">==</span> <span class="st">"MTDEQ"</span> <span class="op">~</span> <span class="fl">6.5</span>,</span>
-<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">MagnitudeValueLower</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MagnitudeValueUpper <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">MagnitudeValueLower</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MagnitudeValueUpper <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"PH_NONE_NONE_NONE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">ATTAINS.OrganizationIdentifier</span> <span class="op">==</span> <span class="st">"MTDEQ"</span> <span class="op">~</span> <span class="fl">8.5</span>,</span>
-<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">MagnitudeValueUpper</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>    <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">MagnitudeValueUpper</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>We will supply this final crosswalk table to be reused and
 validated.</p>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
