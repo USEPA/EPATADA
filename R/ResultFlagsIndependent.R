@@ -494,7 +494,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Change NonStandardized to Pass for this function (same)
   unit.ref <- unit.ref %>%
-    dplyr::mutate(TADA.WQXVal.Flag = case_when(
+    dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       TADA.WQXVal.Flag == "NonStandardized" ~ "Pass",
       TRUE ~ TADA.WQXVal.Flag
     ))
@@ -543,7 +543,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Create flag column
   flag.data <- check.data %>%
-    mutate(TADA.ResultValueAboveUpperThreshold.Flag = case_when(
+    mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue > Maximum ~ as.character("Suspect"),
       TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect"),
       (TADA.WQXVal.Flag == "Pass" & TADA.ResultMeasureValue <= Maximum) ~ as.character("Pass"),
@@ -725,7 +725,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Change NonStandardized to Pass for this function (same)
   unit.ref <- unit.ref %>%
-    mutate(TADA.WQXVal.Flag = case_when(
+    dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       TADA.WQXVal.Flag == "NonStandardized" ~ "Pass",
       TRUE ~ TADA.WQXVal.Flag
     ))
@@ -774,7 +774,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   
   # Create flag column
   flag.data <- check.data %>%
-    mutate(TADA.ResultValueBelowLowerThreshold.Flag = case_when(
+    dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
       TADA.ResultMeasureValue < Minimum ~ as.character("Suspect"),
       TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect"),
       (TADA.WQXVal.Flag == "Pass" & TADA.ResultMeasureValue >= Minimum) ~ as.character("Pass"),
