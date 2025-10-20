@@ -134,7 +134,10 @@ retrieve data if an error occurs. Default is 3.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Random WQP dataset.</p>
 <p>A data frame containing a random WQP dataset with at least 10 results,
-or an empty data frame if data retrieval fails after the specified number of attempts.</p>
+or an empty data frame if data retrieval fails after the specified number of attempts.
+If a 500 Internal Server Error or any other error occurs during data retrieval,
+the function will retry up to <code>max_attempts</code> times. If all attempts fail,
+an empty data frame is returned, and a message is logged indicating the failure.</p>
     </div>
 
     <div class="section level2">
@@ -163,7 +166,7 @@ or an empty data frame if data retrieval fails after the specified number of att
 <span class="r-in"><span><span class="co"># within a randomly selected state without auto-cleaning</span></span></span>
 <span class="r-in"><span><span class="va">random_data_state_no_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_RandomTestingData</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  number_of_days <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>  choose_random_state <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>  choose_random_state <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  autoclean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
