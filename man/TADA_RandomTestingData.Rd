@@ -41,6 +41,9 @@ Random WQP dataset.
 
 A data frame containing a random WQP dataset with at least 10 results,
 or an empty data frame if data retrieval fails after the specified number of attempts.
+If a 500 Internal Server Error or any other error occurs during data retrieval,
+the function will retry up to \code{max_attempts} times. If all attempts fail,
+an empty data frame is returned, and a message is logged indicating the failure.
 }
 \description{
 Retrieves data for a period of time in the past 20 years using
