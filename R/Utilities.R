@@ -724,7 +724,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-    
+
     # Determine if a random state should be selected
     if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
@@ -732,14 +732,14 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     } else {
       state <- "null"
     }
-    
+
     # Print the selected date range and state code
     print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-    
+
     # Attempt to retrieve data, retrying if an error occurs
     attempt <- 1
     while (attempt <= max_attempts) {
@@ -764,12 +764,12 @@ TADA_RandomTestingData <- function(number_of_days = 1,
           return(NULL) # Return NULL to indicate failure
         }
       )
-      
+
       # If data retrieval was successful, return the data
       if (!is.null(dat)) {
         return(dat)
       }
-      
+
       # Increment attempt counter and try a new query
       attempt <- attempt + 1
       random_start_date <- twenty_years_ago + sample(20 * 365, 1)
@@ -778,12 +778,12 @@ TADA_RandomTestingData <- function(number_of_days = 1,
         state <- sample(statecodes_df$STUSAB, 1)
       }
     }
-    
+
     # If all attempts fail, return an empty data frame
     message("Failed to retrieve data after ", max_attempts, " attempts due to persistent errors.")
     return(data.frame())
   }
-  
+
   # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
     repeat {
@@ -792,7 +792,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     }
     return(df)
   }
-  
+
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
