@@ -305,7 +305,6 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 }
 
 
-
 #' Check Result Unit Validity
 #'
 #' Function checks the validity of each characteristic-media-result unit
@@ -642,7 +641,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-
 #' Pair Replicates with Original Samples
 #'
 #' This function looks for replicate samples and pairs them to their original or
@@ -788,7 +786,6 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
-
 
 
 #' Check for results with suspect result Measure Qualifier Codes

@@ -622,7 +622,6 @@ TADA_UpdateCharacteristicRef <- function() {
 }
 
 
-
 # Used to store cached WQXMeasureQualifierCodeRef Ref Table
 WQXMeasureQualifierCodeRef_Cached <- NULL
 

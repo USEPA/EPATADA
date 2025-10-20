@@ -139,7 +139,6 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-
 #' Flag Continuous Data
 #'
 #' Continuous data may (or may not) be suitable for integration with discrete
@@ -240,53 +239,53 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-  
+
   # Run autoclean if necessary to prepare the data
   if (!"TADA.ActivityMediaName" %in% colnames(.data)) {
     .data <- TADA_AutoClean(.data)
   }
-  
+
   if (!"TADA.LatitudeMeasure" %in% colnames(.data)) {
     .data <- TADA_AutoClean(.data)
   }
-  
+
   if (!"TADA.LongitudeMeasure" %in% colnames(.data)) {
     .data <- TADA_AutoClean(.data)
   }
-  
+
   # Run quality control check if necessary
   if (!"TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- TADA_FindQCActivities(.data)
   }
-  
+
   # Create comparable data identifier if necessary
   if (!"TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- TADA_CreateComparableID(.data)
   }
-  
+
   # Initialize all data as "Discrete"
   .data$TADA.ContinuousData.Flag <- "Discrete"
-  
+
   # Identify continuous data based on various criteria
   cont.data <- .data %>%
     dplyr::filter(TADA.ActivityType.Flag == "Non_QC") %>%
     dplyr::filter(ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" |
-                    grepl("Continuous", ProjectIdentifier) |
-                    grepl("CONTINUOUS", ProjectIdentifier) |
-                    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-                    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-                    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-                    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-                    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) %>%
+      grepl("Continuous", ProjectIdentifier) |
+      grepl("CONTINUOUS", ProjectIdentifier) |
+      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) %>%
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
-  
+
   # Identify non-continuous data
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
-  
+
   # If there are non-continuous data, further check for time-based continuity
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data %>%
@@ -311,23 +310,23 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
         time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))
       ) %>%
       dplyr::ungroup()
-    
+
     # Flag as continuous if time differences are within the specified window
     within_window <- info_match %>%
       dplyr::filter(time_diff_lead <= time_difference |
-                      time_diff_lag <= time_difference)
-    
+        time_diff_lag <= time_difference)
+
     rm(info_match)
-    
+
     # Update flag for continuous data
     noncont.data <- noncont.data %>%
       dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
-                                                      "Continuous", TADA.ContinuousData.Flag
+        "Continuous", TADA.ContinuousData.Flag
       ))
-    
+
     rm(within_window)
   }
-  
+
   # Combine continuous and non-continuous data
   if (nrow(noncont.data) == 0) {
     print("All data is flagged as continuous in TADA.ContinuousData.Flag column.")
@@ -336,13 +335,13 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     flag.data <- cont.data %>%
       dplyr::full_join(noncont.data, by = c(names(cont.data)))
   }
-  
+
   # Return data based on the 'clean' and 'flaggedonly' parameters
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-  
+
   if (clean == TRUE & flaggedonly == FALSE) {
     clean.data <- flag.data %>%
       dplyr::filter(!(TADA.ContinuousData.Flag %in% "Continuous")) %>%
@@ -350,21 +349,21 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       TADA_OrderCols()
     return(clean.data)
   }
-  
+
   if (clean == FALSE & flaggedonly == TRUE) {
     onlycont.data <- flag.data %>%
       dplyr::filter(TADA.ContinuousData.Flag == "Continuous") %>%
       TADA_OrderCols()
     return(onlycont.data)
   }
-  
+
   if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0) {
     if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
       return(.data)
     }
-    
+
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
       all.cont.data <- flag.data %>%
@@ -459,28 +458,28 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("TADA_FlagAboveThreshold: Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-  
+
   # Check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("TADA_FlagAboveThreshold: The ResultMeasureValue column must be of class 'numeric'.")
   }
-  
+
   # Execute function after checks are passed
-  
+
   # Delete existing flag column - removes flag column in case reference table has changed.
   if (("TADA.ResultValueAboveUpperThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
-  
+
   # Load WQXcharValRef data
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
   rm(file_path)
-  
+
   # Filter to include only the units Type
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
   rm(WQXcharValRef)
-  
+
   # Update ref table names to prepare for left join with df
   unit.ref <- unit.ref %>%
     dplyr::rename(
@@ -488,38 +487,38 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.ActivityMediaName = Source,
       TADA.ResultMeasure.MeasureUnitCode = Value.Unit
     )
-  
+
   # Remove rows where TADA.ResultMeasure.MeasureUnitCode is NA
   unit.ref <- dplyr::filter(unit.ref, !is.na(TADA.ResultMeasure.MeasureUnitCode) & TADA.ResultMeasure.MeasureUnitCode != "")
-  
+
   # Change NonStandardized to Pass for this function (same)
   unit.ref <- unit.ref %>%
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       TADA.WQXVal.Flag == "NonStandardized" ~ "Pass",
       TRUE ~ TADA.WQXVal.Flag
     ))
-  
+
   # Identify inconsistent flag groups
   inconsistent_flags <- unit.ref %>%
     dplyr::group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
     dplyr::filter(dplyr::n_distinct(TADA.WQXVal.Flag) > 1) %>%
     dplyr::ungroup()
-  
-  # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups 
+
+  # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups
   unit.ref <- unit.ref %>%
     dplyr::filter(
       !(TADA.CharacteristicName %in% inconsistent_flags$TADA.CharacteristicName &
-          TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
-          TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
+        TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
+        TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
         (TADA.WQXVal.Flag == "Pass")
     )
-  
+
   # Remove extraneous columns from unit.ref
   unit.ref <- unit.ref %>%
     dplyr::select(-c(
-      Domain, 
+      Domain,
       Status,
-      Type, 
+      Type,
       Unique.Identifier,
       Note.Recommendation,
       Conversion.Factor,
@@ -529,7 +528,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       Minimum
     )) %>%
     dplyr::distinct()
-  
+
   # Join with the input data
   check.data <- dplyr::left_join(
     .data,
@@ -540,7 +539,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ResultMeasure.MeasureUnitCode"
     )
   )
-  
+
   # Create flag column
   flag.data <- check.data %>%
     dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
@@ -550,17 +549,17 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.WQXVal.Flag == "Not Reviewed" ~ as.character("Not Reviewed"),
       TRUE ~ "NA - Not Available"
     ))
-  
+
   # Count occurrences of each flag
   flag_counts <- table(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)
-  
+
   # Format the counts for display
   formatted_counts <- paste(names(flag_counts), flag_counts, sep = ": ", collapse = ", ")
-  
+
   # Remove Maximum and TADA.WQXVal.Flag column from flag.data
   flag.data <- flag.data %>%
     dplyr::select(-c(Maximum, TADA.WQXVal.Flag))
-  
+
   # Handle different scenarios based on clean and flaggedonly parameters
   if (any("Suspect" %in% unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
@@ -575,14 +574,14 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-  
+
   # flagged and not cleaned
   if (clean == FALSE & flaggedonly == FALSE) {
     message(paste("TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts: ", formatted_counts))
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-  
+
   # clean = TRUE and flaggedonly = FALSE
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueAboveUpperThreshold.Flag = Suspect; remove TADA.ResultValueAboveUpperThreshold.Flag column
@@ -593,7 +592,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-  
+
   # flagged, errors only
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows above WQX upper threshold
@@ -603,7 +602,6 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     return(flagsonly.data)
   }
 }
-
 
 
 #' Check Result Value Against WQX Lower Threshold
@@ -690,28 +688,28 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("TADA_FlagBelowThreshold: Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-  
+
   # Check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("TADA_FlagBelowThreshold: The ResultMeasureValue column must be of class 'numeric'.")
   }
-  
+
   # Execute function after checks are passed
-  
+
   # Delete existing flag column - removes flag column in case reference table has changed.
   if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
-  
+
   # Load WQXcharValRef data
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
   rm(file_path)
-  
+
   # Filter to include only the units Type
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
   rm(WQXcharValRef)
-  
+
   # Update ref table names to prepare for left join with df
   unit.ref <- unit.ref %>%
     dplyr::rename(
@@ -719,38 +717,38 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.ActivityMediaName = Source,
       TADA.ResultMeasure.MeasureUnitCode = Value.Unit
     )
-  
+
   # Remove rows where TADA.ResultMeasure.MeasureUnitCode is NA
   unit.ref <- dplyr::filter(unit.ref, !is.na(TADA.ResultMeasure.MeasureUnitCode) & TADA.ResultMeasure.MeasureUnitCode != "")
-  
+
   # Change NonStandardized to Pass for this function (same)
   unit.ref <- unit.ref %>%
     dplyr::mutate(TADA.WQXVal.Flag = dplyr::case_when(
       TADA.WQXVal.Flag == "NonStandardized" ~ "Pass",
       TRUE ~ TADA.WQXVal.Flag
     ))
-  
+
   # Identify inconsistent flag groups
   inconsistent_flags <- unit.ref %>%
     dplyr::group_by(TADA.CharacteristicName, TADA.ActivityMediaName, TADA.ResultMeasure.MeasureUnitCode) %>%
     dplyr::filter(dplyr::n_distinct(TADA.WQXVal.Flag) > 1) %>%
     dplyr::ungroup()
-  
-  # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups 
+
+  # Keep only rows where TADA.WQXVal.Flag == "Pass" for inconsistent groups & keep all others outside the inconsistent groups
   unit.ref <- unit.ref %>%
     dplyr::filter(
       !(TADA.CharacteristicName %in% inconsistent_flags$TADA.CharacteristicName &
-          TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
-          TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
+        TADA.ActivityMediaName %in% inconsistent_flags$TADA.ActivityMediaName &
+        TADA.ResultMeasure.MeasureUnitCode %in% inconsistent_flags$TADA.ResultMeasure.MeasureUnitCode) |
         (TADA.WQXVal.Flag == "Pass")
     )
-  
+
   # Remove extraneous columns from unit.ref
   unit.ref <- unit.ref %>%
     dplyr::select(-c(
-      Domain, 
+      Domain,
       Status,
-      Type, 
+      Type,
       Unique.Identifier,
       Note.Recommendation,
       Conversion.Factor,
@@ -760,7 +758,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       Maximum
     )) %>%
     dplyr::distinct()
-  
+
   # Join with the input data
   check.data <- dplyr::left_join(
     .data,
@@ -771,7 +769,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "TADA.ResultMeasure.MeasureUnitCode"
     )
   )
-  
+
   # Create flag column
   flag.data <- check.data %>%
     dplyr::mutate(TADA.ResultValueBelowLowerThreshold.Flag = dplyr::case_when(
@@ -781,17 +779,17 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.WQXVal.Flag == "Not Reviewed" ~ as.character("Not Reviewed"),
       TRUE ~ "NA - Not Available"
     ))
-  
+
   # Count occurrences of each flag
   flag_counts <- table(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)
-  
+
   # Format the counts for display
   formatted_counts <- paste(names(flag_counts), flag_counts, sep = ": ", collapse = ", ")
-  
+
   # Remove Minimum and TADA.WQXVal.Flag column from flag.data
   flag.data <- flag.data %>%
     dplyr::select(-c(Minimum, TADA.WQXVal.Flag))
-  
+
   # Handle different scenarios based on clean and flaggedonly parameters
   if (any("Suspect" %in% unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
@@ -806,14 +804,14 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-  
+
   # flagged and not cleaned
   if (clean == FALSE & flaggedonly == FALSE) {
     message(paste("TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts: ", formatted_counts))
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-  
+
   # clean = TRUE and flaggedonly = FALSE
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect; remove TADA.ResultValueBelowLowerThreshold.Flag column
@@ -824,7 +822,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-  
+
   # flagged, errors only
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows below WQX lower threshold
@@ -834,8 +832,6 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     return(flagsonly.data)
   }
 }
-
-
 
 
 #' Check data for an approved QAPP
@@ -985,7 +981,6 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
 }
 
 
-
 #' Check if an approved QAPP document URL is provided
 #'
 #' Function checks data submitted under the "ProjectFileUrl" column
@@ -1082,7 +1077,6 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
     }
   }
 }
-
 
 
 #' Suspect coordinates

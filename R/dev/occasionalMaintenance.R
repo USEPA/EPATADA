@@ -99,9 +99,11 @@ df_false <- df %>%
 file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
 load(file_path)
 rm(file_path)
-unit.ref <- dplyr::filter(WQXcharValRef, 
-                          Type == "CharacteristicUnit",
-                          Status == "Accepted")
+unit.ref <- dplyr::filter(
+  WQXcharValRef,
+  Type == "CharacteristicUnit",
+  Status == "Accepted"
+)
 
 # find Characteristic/Source/Value.Unit combinations with more than one row
 find.dups <- unit.ref %>%

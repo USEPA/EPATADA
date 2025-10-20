@@ -729,7 +729,6 @@ TADA_CalculateTotalNP <- function(.data,
 }
 
 
-
 #' Aggregate multiple result values to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the

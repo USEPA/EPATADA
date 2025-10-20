@@ -32,7 +32,6 @@ test_that("Is TADA_GetActivityTypeRef up to date?", {
 })
 
 
-
 # Test that new codes have not been added to ResultMeasureQualifier domain table
 test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   # Check for any new domain values that may not follow above logic and warn.
@@ -49,7 +48,7 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
   rm(file_path)
-  
+
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
   find.dups <- unit.ref %>%
@@ -69,11 +68,13 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
   rm(file_path)
-  
-  unit.ref <- dplyr::filter(WQXcharValRef, 
-                            Type == "CharacteristicUnit",
-                            Status == "Accepted")
-  
+
+  unit.ref <- dplyr::filter(
+    WQXcharValRef,
+    Type == "CharacteristicUnit",
+    Status == "Accepted"
+  )
+
   find.dups <- unit.ref %>%
     dplyr::filter(Type == "CharacteristicUnit") %>%
     dplyr::group_by(Characteristic, Source, Value.Unit) %>%
@@ -82,7 +83,7 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
       Max_n = length(unique(Maximum))
     ) %>%
     dplyr::filter(Min_n > 1 |
-                    Max_n > 1)
+      Max_n > 1)
 
   expect_true(nrow(find.dups) == 0)
 })
