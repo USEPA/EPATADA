@@ -27,7 +27,7 @@ TADA_GetATTAINSParamToWQPCharRef <- function(charAliasType = c("All", "ATTAINS")
   # If you know the CSV filename
   csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
 
-  data <- read.csv(csv_file_path)
+  data <- utils::read.csv(csv_file_path)
 
   # remove intermediate variables
   rm(temp_zip, temp_dir, csv_file_path)
@@ -221,7 +221,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   rm(ATTAINSParamRef, ATTAINS.raw)
   
   # Extracts all words from each CST Pollutant Name
-  CST <-  utils::read.csv(system.file("extdata", "CriteriaSearchToolRef.csv", package = "EPATADA"))
+  CST <- utils::read.csv(system.file("extdata", "CriteriaSearchToolRef.csv", package = "EPATADA"))
   CST <- CST |>
     dplyr::mutate(CAS_NO = as.character(CAS_NO))
 
@@ -236,7 +236,6 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
 
   # Find matches by WQX char and CAS with CST pollutants
-
   WQX_CST_CAS_Ref <- WQXCharacteristicRef |>
     dplyr::inner_join(CST, by = c("CAS.Number" = "CAS_NO")) |>
     #dplyr::mutate(ATTAINS.ParameterName = STD_POLLUTANT_NAME) |>
@@ -380,7 +379,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   }
   
   # remove intermediate variable
-  rm(temp_final)
+  rm(temp_final, WQXCharacteristicRef2, ATTAINSParamRef2, CST2, WQX_CST_CAS_Ref)
   
   return(ATTAINSWQX2.0_non_matched3)
 }
