@@ -544,7 +544,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     )
 
 
-
     return(final_features)
 
     # If area is small (< 6e+9 square meters), just use the bbox in one pull:
@@ -2589,7 +2588,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 }
 
 
-
 #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
 #'
 #' This function takes a TADA dataset and identifies the NHD catchments that
@@ -3124,7 +3122,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 }
 
 
-
 #' Get grouped monitoring stations that are near each other
 #'
 #' This function takes a TADA dataset that contains grouped nearby monitoring stations
@@ -3165,7 +3162,6 @@ TADA_GetUniqueNearbySites <- function(.data) {
 
   return(.data)
 }
-
 
 
 #' Generate a random WQP dataset
@@ -3259,7 +3255,6 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
   df <- verify_random_data()
   return(df)
 }
-
 
 
 #' TADA_CreateAUMLCrosswalk

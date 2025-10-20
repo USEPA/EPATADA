@@ -795,7 +795,6 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 }
 
 
-
 #' Create Scatterplot(s)
 #'
 #' @param .data TADA dataframe containing the data downloaded from the

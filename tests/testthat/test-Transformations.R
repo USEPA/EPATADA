@@ -19,7 +19,6 @@ test_that("harmonization works", {
 })
 
 
-
 test_that("np summation key matches nutrient harmonization ref", {
   harm <- TADA_GetSynonymRef()
   harm <- unique(subset(harm, harm$HarmonizationGroup %in% c("Phosphorus", "Nitrogen"))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
@@ -28,7 +27,6 @@ test_that("np summation key matches nutrient harmonization ref", {
   check <- merge(harm, np, all.x = TRUE)
   expect_false(any(is.na(check$np)))
 })
-
 
 
 test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result cols", {
