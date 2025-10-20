@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSRefTables.R
 \name{TADA_AdditionalCharAliasForReview}
 \alias{TADA_AdditionalCharAliasForReview}
-\title{TADA Method: ATTAINS, WQP and CST Alias Table for Review}
+\title{TADA Alias Methodology for ATTAINS, WQP and CST Alias Table for Review}
 \usage{
 TADA_AdditionalCharAliasForReview(includeCST = FALSE)
 }
@@ -11,7 +11,7 @@ TADA_AdditionalCharAliasForReview(includeCST = FALSE)
 for CST pollutant Name if it contains an alias between any 3 sources.}
 }
 \value{
-a dataframe consisting of potential additional ATTAINS.ParameterName
+a data frame consisting of potential additional ATTAINS.ParameterName
 to WQX.CharacteristicName alias for review. TADA team will review and
 decide if these are appropriate aliases.
 }

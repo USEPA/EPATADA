@@ -124,7 +124,8 @@ TADA_UpdateCriteriaSearchToolRef <- function() {
 }
 
 
-#' TADA Method: ATTAINS, WQP and CST Alias Table for Review
+
+#' TADA Alias Methodology for ATTAINS, WQP and CST Alias Table for Review
 #'
 #' This function compares the current WQX Characteristic Alias table
 #' of ATTAINS.ParameterNames and WQX CharacteristicNames to the logic.
@@ -146,7 +147,7 @@ TADA_UpdateCriteriaSearchToolRef <- function() {
 #' @param includeCST a Boolean value. If TRUE, this will include columns
 #' for CST pollutant Name if it contains an alias between any 3 sources.
 #'
-#' @return a dataframe consisting of potential additional ATTAINS.ParameterName
+#' @return a data frame consisting of potential additional ATTAINS.ParameterName
 #' to WQX.CharacteristicName alias for review. TADA team will review and
 #' decide if these are appropriate aliases.
 #'
@@ -183,7 +184,8 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       Char_Flag = Domain.Value.Status) |>
     # select the columns of interest from the data frame.
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
-
+  
+  # WQX has dashes in the CAS number, remove them to match CST CAS number
   WQXCharacteristicRef$CAS.Number <- gsub("-","", WQXCharacteristicRef$CAS.Number)
 
   WQXCharacteristicRef2 <- WQXCharacteristicRef |>
@@ -195,7 +197,10 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     dplyr::distinct(CharacteristicName, name_words, .keep_all = TRUE)
 
   WQXCharacteristicRef2$name_words <- toupper(gsub("[^[:alnum:] ]", "", WQXCharacteristicRef2$name_words))
-
+  
+  # remove intermediate variable
+  rm(raw.data)
+  
   # Extracts all words from each ATTAINS Parameter Name
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("param_name")
@@ -212,6 +217,9 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
 
   ATTAINSParamRef2$name_words <- gsub("[^[:alnum:] ]", "", ATTAINSParamRef2$name_words)
 
+  # remove intermediate variables
+  rm(ATTAINSParamRef, ATTAINS.raw)
+  
   # Extracts all words from each CST Pollutant Name
   CST <-  utils::read.csv(system.file("extdata", "CriteriaSearchToolRef.csv", package = "EPATADA"))
   CST <- CST |>
@@ -228,14 +236,16 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
 
   # Find matches by WQX char and CAS with CST pollutants
-  WQXCharacteristicRef$CAS.Number <- gsub("-","", WQXCharacteristicRef$CAS.Number)
 
   WQX_CST_CAS_Ref <- WQXCharacteristicRef |>
     dplyr::inner_join(CST, by = c("CAS.Number" = "CAS_NO")) |>
     #dplyr::mutate(ATTAINS.ParameterName = STD_POLLUTANT_NAME) |>
     dplyr::distinct()
-
-  # Look for percent word matches
+  
+  # remove intermediate variables
+  rm(CST, WQXCharacteristicRef)
+  
+  # Look for percent word matches 
   temp <- dplyr::right_join(WQXCharacteristicRef2, ATTAINSParamRef2, by = "name_words") |>
     dplyr::distinct(CharacteristicName, name, name_words, .keep_all = TRUE) |>
     dplyr::group_by(CharacteristicName, name) |>
@@ -251,7 +261,6 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       percent_match_WQX + percent_match_ATTAINS > 1
     )
 
-  # optional additional filter, skip if we are fine with many to many matches
   # less aggressive (prone to more mistake)
   temp <- temp |>
     dplyr::group_by(CharacteristicName) |>
@@ -266,7 +275,8 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     dplyr::filter(
       percent_match_WQX == 1 | percent_match_ATTAINS == 1
     )
-
+  
+  # Look for percent word matches between ATTAINS and CST
   temp_ATTAINS_CST <- dplyr::right_join(CST2, ATTAINSParamRef2, by = "name_words") |>
     dplyr::distinct(POLLUTANT_NAME, name, name_words, .keep_all = TRUE) |>
     dplyr::group_by(POLLUTANT_NAME, name) |>
@@ -281,7 +291,8 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     dplyr::filter(
       percent_match_WQX + percent_match_ATTAINS > 1
     )
-
+  
+  # less aggressive (prone to more mistake) but identifies more matches
   temp_ATTAINS_CST <- temp_ATTAINS_CST |>
     dplyr::group_by(POLLUTANT_NAME) |>
     dplyr::mutate(
@@ -289,8 +300,9 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       percent_match_ATTAINS = n/stringr::str_count(name, "\\S+")
     ) |>
     dplyr::slice_max(order_by = percent_match_WQX + percent_match_ATTAINS )
-
-  temp_100_ATTAINS_CST <- temp_ATTAINS_CST |>
+  
+  # more aggressive (too strict, can lead to missed matched)
+  temp_100_ATTAINS_CST <- temp_ATTAINS_CST |> 
     dplyr::filter(
       percent_match_WQX == 1 | percent_match_ATTAINS == 1
     )
@@ -321,7 +333,10 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       CAS.Number, POLLUTANT_NAME, STD_POLLUTANT_NAME
     ) |>
     dplyr::distinct()
-
+  
+  # remove intermediate variables
+  rm(temp, temp_100, temp_ATTAINS_CST, temp_100_ATTAINS_CST)
+  
   # Compare the crosswalk methodology logic done in TADA temp dataframe (in development still) to the WQX Char Alias table
   WQX_Char_Needs_Review <- ATTAINSParamToWQPCharRef |>
     dplyr::anti_join(temp_final, by = c("ATTAINS.ParameterName", "CharacteristicName")) |>
@@ -360,10 +375,13 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       dplyr::anti_join(ATTAINSParamToWQPCharRef, by = c("ATTAINS.ParameterName", "CharacteristicName")) |>
       dplyr::select(ATTAINS.ParameterName, CharacteristicName, CAS.Number) |>
       dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
-      dplyr::mutate(TADA.Status == "Not Reviewed")
+      #dplyr::mutate(TADA.Status == "Not Reviewed")
     dplyr::distinct()
   }
-
+  
+  # remove intermediate variable
+  rm(temp_final)
+  
   return(ATTAINSWQX2.0_non_matched3)
 }
 
