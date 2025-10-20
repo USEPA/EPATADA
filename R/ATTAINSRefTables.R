@@ -269,7 +269,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     ) |>
     dplyr::slice_max(order_by = percent_match_WQX + percent_match_ATTAINS )
 
-  # more aggressive (too strict, can lead to missed matched)
+  # more aggressive (too strict, can lead to missed matches)
   temp_100 <- temp |>
     dplyr::filter(
       percent_match_WQX == 1 | percent_match_ATTAINS == 1
@@ -300,7 +300,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     ) |>
     dplyr::slice_max(order_by = percent_match_WQX + percent_match_ATTAINS )
   
-  # more aggressive (too strict, can lead to missed matched)
+  # more aggressive (too strict, can lead to missed matches)
   temp_100_ATTAINS_CST <- temp_ATTAINS_CST |> 
     dplyr::filter(
       percent_match_WQX == 1 | percent_match_ATTAINS == 1
