@@ -216,9 +216,7 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 #' @param expected_cols A vector of expected column names as strings
 #' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
 TADA_CheckColumns <- function(.data, expected_cols) {
-  if (!inherits(.data, "data.frame")) {
-    stop("Input must be a dataframe.")
-  }
+  TADA_CheckType(.data, "data.frame", "Input object") # check .data is data.frame
 
   if (!is.vector(expected_cols) || !is.character(expected_cols)) {
     stop("Expected columns must be a character vector.")
@@ -548,16 +546,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 #' unique(df4$TADA.CharacteristicName)
 #' }
 TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("CharacteristicName"))
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
-  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
@@ -615,23 +610,20 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  expected_cols = c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, expected_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
 
-  TADA_CheckColumns(.data,
-    expected_cols = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    )
-  )
   .data$TADA.ComparableDataIdentifier <-
     paste(.data$TADA.CharacteristicName,
       .data$TADA.ResultSampleFractionText,
@@ -671,27 +663,27 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' Generate a Random Water Quality Portal (WQP) Dataset
 #'
 #' This function retrieves water quality data for a randomly selected period
-#' within the past 20 years using `TADA_DataRetrieval`. It can be used to test 
-#' functions on random datasets. The function ensures that the returned dataset 
-#' contains at least 10 results. If the initial random dataset contains fewer 
-#' than 10 results, the function automatically queries another random dataset 
+#' within the past 20 years using `TADA_DataRetrieval`. It can be used to test
+#' functions on random datasets. The function ensures that the returned dataset
+#' contains at least 10 results. If the initial random dataset contains fewer
+#' than 10 results, the function automatically queries another random dataset
 #' until the criteria are met.
 #'
-#' @param number_of_days Numeric. Specifies the number of days for which data 
-#' will be queried. The default is 1, which queries data for a random two-day 
+#' @param number_of_days Numeric. Specifies the number of days for which data
+#' will be queried. The default is 1, which queries data for a random two-day
 #' period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
 #' Users can increase this number to retrieve data for more days.
 #'
 #' @param choose_random_state Boolean (TRUE or FALSE). Default is FALSE.
-#' If FALSE, the function queries all available WQP data for the specified 
-#' number_of_days (national query). If TRUE, the function selects a random state 
+#' If FALSE, the function queries all available WQP data for the specified
+#' number_of_days (national query). If TRUE, the function selects a random state
 #' and retrieves data only for that state.
 #'
 #' @param autoclean Boolean (TRUE or FALSE). Default is TRUE.
 #' If TRUE, the function applies `TADA_AutoClean` as part of the `TADA_DataRetrieval`.
 #' If FALSE, the function does not apply `TADA_AutoClean`.
 #'
-#' @param max_attempts Numeric. Specifies the maximum number of attempts to 
+#' @param max_attempts Numeric. Specifies the maximum number of attempts to
 #' retrieve data if an error occurs. Default is 3.
 #'
 #' @return A data frame containing a random WQP dataset with at least 10 results,
@@ -719,7 +711,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' # within a randomly selected state without auto-cleaning
 #' random_data_state_no_clean <- TADA_RandomTestingData(
 #'   number_of_days = 5,
-#'   choose_random_state = TRUE, 
+#'   choose_random_state = TRUE,
 #'   autoclean = FALSE
 #' )
 #' }
@@ -733,7 +725,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-    
+
     # Determine if a random state should be selected
     if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
@@ -741,35 +733,38 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     } else {
       state <- "null"
     }
-    
+
     # Print the selected date range and state code
     print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-    
+
     # Attempt to retrieve data, retrying if an error occurs
     attempt <- 1
     while (attempt <= max_attempts) {
-      dat <- tryCatch({
-        TADA_DataRetrieval(
-          startDate = as.character(random_start_date),
-          endDate = as.character(end_date),
-          statecode = state,
-          applyautoclean = ac,
-          ask = FALSE
-        )
-      }, error = function(e) {
-        message("Attempt ", attempt, ": An error occurred - ", e$message)
-        return(NULL) # Return NULL to indicate failure
-      })
-      
+      dat <- tryCatch(
+        {
+          TADA_DataRetrieval(
+            startDate = as.character(random_start_date),
+            endDate = as.character(end_date),
+            statecode = state,
+            applyautoclean = ac,
+            ask = FALSE
+          )
+        },
+        error = function(e) {
+          message("Attempt ", attempt, ": An error occurred - ", e$message)
+          return(NULL) # Return NULL to indicate failure
+        }
+      )
+
       # If data retrieval was successful, return the data
       if (!is.null(dat)) {
         return(dat)
       }
-      
+
       # Increment attempt counter and try a new query
       attempt <- attempt + 1
       random_start_date <- twenty_years_ago + sample(20 * 365, 1)
@@ -778,12 +773,12 @@ TADA_RandomTestingData <- function(number_of_days = 1,
         state <- sample(statecodes_df$STUSAB, 1)
       }
     }
-    
+
     # If all attempts fail, return an empty data frame
     message("Failed to retrieve data after ", max_attempts, " attempts.")
     return(data.frame())
   }
-  
+
   # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
     repeat {
@@ -792,131 +787,10 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     }
     return(df)
   }
-  
+
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
-}
-
-
-
-#' Aggregate multiple result values to a min, max, or mean
-#'
-#' This function groups TADA data by user-defined columns and aggregates the
-#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
-#'
-#' @param .data A TADA dataframe
-#' @param grouping_cols The column names used to group the data
-#' @param agg_fun The aggregation function used on the grouped data. This can
-#'   either be 'min', 'max', or 'mean'.
-#' @param clean Boolean. Determines whether other measurements from the group
-#'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
-#'   additional measurements are indicated in the
-#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
-#'   selected".
-#'
-#' @return A TADA dataframe with aggregated values combined into one row. If the
-#'   agg_fun is 'min' or 'max', the function will select the row matching the
-#'   aggregation condition and flag it as the selected measurement. If the
-#'   agg_fun is 'mean', the function will select a random row from the
-#'   aggregated rows to represent the metadata associated with the mean value,
-#'   and gives the row a unique ResultIdentifier: the original ResultIdentifier
-#'   with the prefix "TADA-". Function adds a TADA.ResultValueAggregation.Flag
-#'   to indicate which rows have been aggregated.
-#'
-#' @export
-#'
-#' @examples
-#' # Load example dataset
-#' utils::data(Data_6Tribes_5y)
-#' # Select maximum value per day, site, comparable data identifier, result detection condition,
-#' # and activity type code. Clean all non-maximum measurements from grouped data.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c(
-#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
-#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'     "ActivityTypeCode"
-#'   ),
-#'   agg_fun = "max", clean = TRUE
-#' )
-#'
-#' # Calculate a mean value per day, site, comparable data identifier, result detection condition,
-#' # and activity type code. Keep all measurements used to calculate mean measurement.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c(
-#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
-#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'     "ActivityTypeCode"
-#'   ),
-#'   agg_fun = "mean", clean = FALSE
-#' )
-TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  TADA_CheckColumns(.data, grouping_cols)
-  agg_fun <- match.arg(agg_fun)
-
-  # Find multiple values in groups
-  ncount <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-    dplyr::summarise(ncount = length(ResultIdentifier))
-
-  if (max(ncount$ncount) < 2) {
-    print("No rows to aggregate.")
-    return(.data)
-  } else {
-    dat <- merge(.data, ncount, all.x = TRUE)
-
-    if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
-    }
-
-    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
-    multiples <- dat %>% dplyr::filter(ncount > 1)
-
-    dat <- dat %>% dplyr::select(-ncount)
-
-    if (agg_fun == "max") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
-    }
-    if (agg_fun == "min") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
-    }
-    if (agg_fun == "mean") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
-        dplyr::slice_sample(n = 1) %>%
-        dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
-      out <- out %>%
-        dplyr::select(-TADA.ResultMeasureValue) %>%
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
-        dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
-      dat <- plyr::rbind.fill(dat, out)
-    }
-
-    if (clean == TRUE) {
-      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
-    }
-
-    dat <- TADA_OrderCols(dat)
-    print("Aggregation results:")
-    print(table(dat$TADA.ResultValueAggregation.Flag))
-    return(dat)
-  }
 }
 
 
@@ -1770,7 +1644,8 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "sediment", "taste_color_and_odor", "temperature", "total_toxics",
     "toxic_inorganics", "toxic_organics", "trash", "turbidity",
     "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
-    "chlorine", "biotoxins")
+    "chlorine", "biotoxins"
+  )
 
   # if return list equals TRUE, return the list of tada formatted column names
   if (return_list == TRUE & format == "tada") {
@@ -1784,13 +1659,14 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
   # if return equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-
     # assign old and new name vectors based on format selected by user
-    old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
+    old.names <- dplyr::case_when(
+      format == "tada" ~ attains.orig,
       format == "attains" ~ attains.tada
     )
 
-    new.names <- dplyr::case_when(format == "tada" ~ attains.tada,
+    new.names <- dplyr::case_when(
+      format == "tada" ~ attains.tada,
       format == "attains" ~ attains.orig
     )
 
@@ -1799,11 +1675,11 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
     view <-
       data.table::setnames(
-      .data,
-      old = old.names,
-      new = new.names,
-      skip_absent = TRUE
-    )
+        .data,
+        old = old.names,
+        new = new.names,
+        skip_absent = TRUE
+      )
 
     # remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)

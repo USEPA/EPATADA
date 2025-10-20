@@ -475,8 +475,9 @@ WQP_clean_subset <- WQP_clean_subset_spatial$TADA_with_ATTAINS
 View catchments and assessment units on map
 
 ```{r TADA_ViewATTAINS}
-ATTAINS_map <- TADA_ViewATTAINS(WQP_clean_subset_spatial, 
-                                ref_icons = FALSE)
+ATTAINS_map <- TADA_ViewATTAINS(WQP_clean_subset_spatial,
+  ref_icons = FALSE
+)
 
 ATTAINS_map
 ```
