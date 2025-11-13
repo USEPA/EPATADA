@@ -1,0 +1,72 @@
+# Check for Quality Control Samples
+
+This function checks for and flags or removes samples denoted as quality
+control activities based on the 'ActivityTypeCode' column. The function
+will flag duplicate samples as "QC_duplicate", blank samples as
+"QC_blank", calibration or spiked samples as "QC_calibration", and other
+QC samples as "QC_other". All other samples are flagged as "Non_QC".
+
+## Usage
+
+``` r
+TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe which must include the column 'ActivityTypeCode'
+
+- clean:
+
+  Character argument with options "none", "all", "duplicates", or
+  "blanks", "calibrations", or "other". The default is clean = "none"
+  which does not remove any rows of data. When clean = "all", any rows
+  of data flagged as a Quality Control sample will be removed. When
+  clean = "duplicates", any rows of data flagged as a duplicate Quality
+  Control sample will be removed. When clean = "blanks", any rows of
+  data flagged as a blank Quality Control sample will be removed. When
+  clean = "calibrations", any rows of data flagged as a calibration
+  check or spiked Quality Control sample will be removed. And when clean
+  = "other", any rows of data flagged as some other type of Quality
+  Control sample will be removed.
+
+- flaggedonly:
+
+  Boolean argument; the default is flaggedonly = FALSE. When flaggedonly
+  = TRUE, the function will filter the dataframe to show only the rows
+  of data flagged as Quality Control samples.
+
+## Value
+
+This function adds the column "TADA.ActivityType.Flag" to the dataframe
+which flags quality control samples based on the "ActivityTypeCode"
+column. When clean = "none", all flagged data are kept in the dataframe.
+When clean = "all", all flagged data are removed from the dataframe.
+When clean = "duplicates", data flagged as QC duplicates are removed
+from the dataframe. When clean = "blanks", data flagged as QC blanks are
+removed from the dataframe. When clean = "calibrations", data flagged as
+QC calibration checks or spikes are removed from the dataframe. When
+clean = "other", data flagged as other QC samples are removed from the
+dataframe. When flaggedonly = TRUE, the dataframe is filtered to show
+only the flagged data. When flaggedonly = FALSE, the full, cleaned
+dataframe is returned. The default is clean = "none" and flaggedonly =
+FALSE.
+
+## Examples
+
+``` r
+# Load example dataset:
+utils::data(Data_Nutrients_UT)
+
+# Flag and keep all QC samples:
+QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
+
+# Flag QC samples and filter to flagged data only:
+QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, flaggedonly = TRUE)
+
+# Remove all QC samples:
+QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
+#> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
+```

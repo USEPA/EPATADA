@@ -1,0 +1,65 @@
+# Order TADA Columns and Rows
+
+This utility function moves all TADA-created columns next to associated
+original columns in the dataframe. The function also reorders all
+columns to improve readability and usability, and orders the dataframe
+rows by ResultIdentifier.
+
+## Usage
+
+``` r
+TADA_OrderCols(.data)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+## Value
+
+A reordered TADA handled dataframe.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Find web service URLs for each Profile using WQP User Interface
+# (https://www.waterqualitydata.us/)
+# Example WQP URL:
+# https://www.waterqualitydata.us/#statecode=US%3A09&characteristicType=Nutrient&
+# startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&providers=NWIS&
+# providers=STEWARDS&providers=STORET
+
+# Define base URL and common components
+baseurl <- "https://www.waterqualitydata.us"
+filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
+dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+type <- "&mimeType=csv&zip=yes"
+providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+
+# Construct URLs for different profiles
+station_url <- paste0(baseurl, "/data/Station", filters, dates, type, providers)
+result_url <- paste0(
+  baseurl, "/data/Result", filters, dates, type,
+  "&dataProfile=resultPhysChem", providers
+)
+project_url <- paste0(baseurl, "/data/Project", filters, dates, type, providers)
+
+# Use TADA_ReadWQPWebServices to load Station, Project, and Phys-Chem Result profiles
+stationProfile <- TADA_ReadWQPWebServices(station_url)
+physchemProfile <- TADA_ReadWQPWebServices(result_url)
+projectProfile <- TADA_ReadWQPWebServices(project_url)
+
+# Join all three profiles using TADA_JoinWQPProfiles
+TADAProfile <- TADA_JoinWQPProfiles(
+  FullPhysChem = physchemProfile,
+  Sites = stationProfile,
+  Projects = projectProfile
+)
+
+# Run TADA_OrderCols
+Reordered_TADAProfile <- TADA_OrderCols(TADAProfile)
+} # }
+```

@@ -1,0 +1,680 @@
+## EPATADA: Tools for Automated Data Analysis!
+
+[![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+[![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
+
+Tools for Automated Data Analysis, or TADA, is being developed to help
+States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias,
+Communities, Colonies, Towns, Indians, Villages), federal partners, and
+other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/)
+users (e.g. researchers) efficiently compile and evaluate WQP data
+collected from water quality monitoring sites. TADA is both a
+stand-alone R package, and a building block to support development of R
+Shiny applications such as
+[TADAShiny](https://github.com/USEPA/TADAShiny).
+
+- How to use TADA:
+
+  - [Function
+    Reference](https://usepa.github.io/EPATADA/reference/index.html)
+
+  - See Articles Tab [Here](https://usepa.github.io/EPATADA/) for
+    Example Workflows
+
+- [How to
+  Contribute](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+  - We encourage stakeholders to test the functionality and provide
+    feedback. Moreover, open source software provides an avenue for
+    water quality data originators and users to develop and share code,
+    and we welcome your contributions! We hope to build a collaborative
+    community dedicated to this effort where TADA users and contributors
+    can discover, share and build the functionality over time.
+
+- More information on how TADA leverages the [WQX QAQC
+  Service](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
+
+- [More about the TADA Project](https://www.epa.gov/waterdata/TADA)
+
+![](articles/images/TADA-Poster.png)
+
+## Installation
+
+You must first have R and R Studio installed to use the TADA R Package
+(see instructions below if needed). Our team is actively developing
+TADA, therefore we highly recommend that you update the TADA R Package
+and all of its dependency libraries each time you use the package. You
+can install and/or update the TADA R Package and all dependencies by
+running:
+
+\`\`\`{r} if(!“remotes”%in%installed.packages()){
+install.packages(“remotes”) }
+
+library(remotes)
+
+remotes::install_github(“USEPA/EPATADA”, ref = “develop”, dependencies =
+TRUE, force = TRUE)
+
+library(EPATADA)
+
+    The TADA R Shiny application can be run [on the web](https://rconnect-public.epa.gov/TADAShiny/) (R and R Studio install not required), or within R Studio. We recommend running it within R Studio if possible to avoid time out issues (especially when working with large datasets) and to make sure you are using the most up to date version. The web version of the application is on a slightly lagged update schedule. Run the following code within R Studio to install or update and run the most recent version of the [TADA R Shiny](https://github.com/USEPA/TADAShiny) application:
+
+    ```{r}
+    if(!"remotes"%in%installed.packages()){
+    install.packages("remotes")
+    }
+
+    library(remotes)
+
+    remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE, force = TRUE)
+
+    library(TADAShiny)
+
+    run_app()
+
+## Run Web Version
+
+Alternatively, you can run the public web version of the TADAShiny
+application (<https://rconnect-public.epa.gov/TADAShiny/>). Beware that
+this version is not the most up to date and we recommend running the app
+from R studio instead if possible.
+
+### Recommended Citation:
+
+    Mullin, C.A., Marler, H., Greif, J., Hinman, E., Wong, K., Healy, K., Willi, K., Brousil, M., Bousquin, J., 2025, EPATADA: Tools for Automated Data Analysis, https://usepa.github.io/EPATADA/
+
+## Water Quality Portal
+
+In 2012, the WQP was deployed by the U.S. Geological Survey (USGS), the
+U.S. Environmental Protection Agency (USEPA), and the National Water
+Quality Monitoring Council to combine and serve water-quality data from
+numerous sources in a standardized format. The WQP holds over 420
+million water quality sample results from over 1000 federal, state,
+tribal and other partners, and is the nation’s largest source for single
+point of access for water-quality data. Participating organizations
+submit their data to the WQP using the EPA’s Water Quality Exchange
+(WQX), a framework designed to map their data holdings to a common data
+structure.
+
+## Install R and R Studio
+
+1.  To download R: Go to <https://cran.r-project.org/> and click the
+    link that describes your computer operating system in the first box
+    in the menu entitled “Download and Install R”.
+2.  Clicking your operating system will take you to a new page, which
+    looks slightly different for PC (first image) and Macs (second
+    image):
+
+![](reference/figures/Install1.png)
+
+![](reference/figures/Install2.png)
+
+3.  Download the program by clicking the appropriate link for your
+    system, and click through the installer windows on your computer,
+    accepting all defaults.
+
+4.  Next, go to the following link to download RStudio:
+    <https://posit.co/download/rstudio-desktop/>, scroll down a little,
+    and click download RStudio.
+
+![](reference/figures/Install3.png)
+
+3.  Again, download the installer, click through the prompts, and accept
+    the defaults.
+
+## Open-Source Code Policy
+
+Effective August 8, 2016, the [OMB Mandate: M-16-21; Federal Source Code
+Policy: Achieving Efficiency, Transparency, and Innovation through
+Reusable and Open Source
+Software](https://obamawhitehouse.archives.gov/sites/default/files/omb/memoranda/2016/m_16_21.pdf)
+applies to new custom-developed code created or procured by EPA
+consistent with the scope and applicability requirements of Office of
+Management and Budget’s (OMB’s) Federal Source Code Policy. In general,
+it states that all new custom-developed code by Federal Agencies should
+be made available and reusable as open-source code.
+
+The EPA specific implementation of OMB Mandate M-16-21 is addressed in
+the [System Life Cycle Management
+Procedure](https://www.epa.gov/irmpoli8/policy-procedures-and-guidance-system-life-cycle-management-slcm).
+EPA has chosen to use GitHub as its version control system as well as
+its inventory of open-source code projects. EPA uses GitHub to inventory
+its custom-developed, open-source code and generate the necessary
+metadata file that is then posted to code.gov for broad reuse in
+compliance with OMB Mandate M-16-21.
+
+If you have any questions or want to read more, check out the [EPA Open
+Source Project
+Repo](https://www.epa.gov/developers/open-source-software-and-code-repositories)
+and [EPA’s Interim Open Source Software
+Policy](https://www.epa.gov/sites/default/files/2018-02/documents/interim_oss_policy_final.pdf).
+
+## License
+
+All contributions to this project will be released under the CCO-1.0
+license file dedication. By submitting a pull request or issue, you are
+agreeing to comply with this waiver of copyright interest.
+
+## Disclaimer
+
+This United States Environmental Protection Agency (EPA) GitHub project
+code is provided on an “as is” basis and the user assumes responsibility
+for its use. EPA has relinquished control of the information and no
+longer has responsibility to protect the integrity, confidentiality, or
+availability of the information. Any reference to specific commercial
+products, processes, or services by service mark, trademark,
+manufacturer, or otherwise, does not constitute or imply their
+endorsement, recommendation or favoring by EPA. The EPA seal and logo
+shall not be used in any manner to imply endorsement of any commercial
+product or activity by EPA or the United States Government.
+
+## Contact
+
+If you have any questions, please reach out to the TADA Team at
+mywaterway@epa.gov.
+
+# Package index
+
+## All functions
+
+- [`Data_6Tribes_5y`](usepa.github.io/EPATADA/reference/Data_6Tribes_5y.md)
+  : Data_6Tribes_5y
+
+- [`Data_6Tribes_5y_Harmonized`](usepa.github.io/EPATADA/reference/Data_6Tribes_5y_Harmonized.md)
+  : Data_6Tribes_5y_Harmonized
+
+- [`Data_HUC8_02070004_Mod1Output`](usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.md)
+  : Data_HUC8_02070004_Mod1Output
+
+- [`Data_MT.UseAURef_Water`](usepa.github.io/EPATADA/reference/Data_MT.UseAURef_Water.md)
+  : Data_MT.UseAURef_Water
+
+- [`Data_MT_AUMLRef`](usepa.github.io/EPATADA/reference/Data_MT_AUMLRef.md)
+  : Data_MT_AUMLRef
+
+- [`Data_MT_MissoulaCounty`](usepa.github.io/EPATADA/reference/Data_MT_MissoulaCounty.md)
+  : Data_MT_MissoulaCounty
+
+- [`Data_MT_UseAURef`](usepa.github.io/EPATADA/reference/Data_MT_UseAURef.md)
+  : Data_MT_UseAURef
+
+- [`Data_Nutrients_UT`](usepa.github.io/EPATADA/reference/Data_Nutrients_UT.md)
+  : Data_Nutrients_UT
+
+- [`Data_R5_TADAPackageDemo`](usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.md)
+  : Data_R5_TADAPackageDemo
+
+- [`TADA_AggregateMeasurements()`](usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
+  : Aggregate multiple result values to a min, max, or mean
+
+- [`TADA_AnalysisDataFilter()`](usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.md)
+  : TADA_AnalysisDataFilter
+
+- [`TADA_AutoClean()`](usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
+  : TADA_AutoClean
+
+- [`TADA_BigDataHelper()`](usepa.github.io/EPATADA/reference/TADA_BigDataHelper.md)
+  : Assist with large WQP data pulls using dataRetrieval
+
+- [`TADA_Boxplot()`](usepa.github.io/EPATADA/reference/TADA_Boxplot.md)
+  : Create Boxplot(s)
+
+- [`TADA_CalculateTotalNP()`](usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.md)
+  : Calculate Total Nitrogen and Phosphorus
+
+- [`TADA_CharStringRemoveNA()`](usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNA.md)
+  : Remove NAs in Strings for Figure Titles and Axis Labels
+
+- [`TADA_CheckColumns()`](usepa.github.io/EPATADA/reference/TADA_CheckColumns.md)
+  : Check Columns
+
+- [`TADA_CheckRequiredFields()`](usepa.github.io/EPATADA/reference/TADA_CheckRequiredFields.md)
+  : TADA Required Fields Check
+
+- [`TADA_CheckType()`](usepa.github.io/EPATADA/reference/TADA_CheckType.md)
+  : Check Type
+
+- [`TADA_ColorPalette()`](usepa.github.io/EPATADA/reference/TADA_ColorPalette.md)
+  : Create Color Palette For Use in Graphs and Maps
+
+- [`TADA_ConvertDepthUnits()`](usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.md)
+  : Convert Depth Units
+
+- [`TADA_ConvertResultUnits()`](usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.md)
+  : Transform Units to TADA Target Units, WQX Target Units or User
+  Specified Units
+
+- [`TADA_ConvertSpecialChars()`](usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.md)
+  : TADA_ConvertSpecialChars
+
+- [`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+  : TADA_CreateATTAINSAUMLCrosswalk
+
+- [`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
+  : TADA_CreateAUMLCrosswalk
+
+- [`TADA_CreateCSV()`](usepa.github.io/EPATADA/reference/TADA_CreateCSV.md)
+  : Create and download .csv
+
+- [`TADA_CreateComparableID()`](usepa.github.io/EPATADA/reference/TADA_CreateComparableID.md)
+  : Create TADA.ComparableDataIdentifier Column
+
+- [`TADA_CreateDateTime()`](usepa.github.io/EPATADA/reference/TADA_CreateDateTime.md)
+  : Create ActivityStartDateTime column
+
+- [`TADA_CreateMLSummaryRef()`](usepa.github.io/EPATADA/reference/TADA_CreateMLSummaryRef.md)
+  : Review and Apply Any Site-specific Criteria to Monitoring Location
+  Sites or Assessment Units
+
+- [`TADA_CreatePairRef()`](usepa.github.io/EPATADA/reference/TADA_CreatePairRef.md)
+  : Create Reference Data Frame to Pair Characteristic Results For Use
+  in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
+
+- [`TADA_CreateParamRef()`](usepa.github.io/EPATADA/reference/TADA_CreateParamRef.md)
+  : Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool
+  (CST) Parameter Name Crosswalk
+
+- [`TADA_CreateUnitRef()`](usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
+  : Generate A DataFrame of Units and Target by Characteristic Name
+
+- [`TADA_CreateUseAURef()`](usepa.github.io/EPATADA/reference/TADA_CreateUseAURef.md)
+  : ATTAINS Assessment Unit and Use Name Crosswalk
+
+- [`TADA_CreateUseParamRef()`](usepa.github.io/EPATADA/reference/TADA_CreateUseParamRef.md)
+  : Create or Update ATTAINS Parameter and Use crosswalk
+
+- [`TADA_CreateWaterUseRef()`](usepa.github.io/EPATADA/reference/TADA_CreateWaterUseRef.md)
+  : Helper Function to Apply Uses to Unassigned Assessment Units by
+  Water Type
+
+- [`TADA_CriteriaDataDictionary()`](usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.md)
+  : Data Dictionary for Criteria and Methodology
+
+- [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+  : Generate TADA-compatible dataframe from WQP Data
+
+- [`TADA_DecimalPlaces()`](usepa.github.io/EPATADA/reference/TADA_DecimalPlaces.md)
+  : Calculate Decimal Places
+
+- [`TADA_DefineCriteriaMethodology()`](usepa.github.io/EPATADA/reference/TADA_DefineCriteriaMethodology.md)
+  : Criteria and Methodology Template
+
+- [`TADA_DepthProfilePlot()`](usepa.github.io/EPATADA/reference/TADA_DepthProfilePlot.md)
+  : Create A Three-Characteristic Depth Profile
+
+- [`TADA_FieldCounts()`](usepa.github.io/EPATADA/reference/TADA_FieldCounts.md)
+  : Unique Field Values Table
+
+- [`TADA_FieldValuesPie()`](usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.md)
+  : Field Values Pie Chart
+
+- [`TADA_FieldValuesTable()`](usepa.github.io/EPATADA/reference/TADA_FieldValuesTable.md)
+  : Field Values Summary Table
+
+- [`TADA_FindNearbySites()`](usepa.github.io/EPATADA/reference/TADA_FindNearbySites.md)
+  : Identify and group nearby monitoring locations (UNDER ACTIVE
+  DEVELOPMENT)
+
+- [`TADA_FindPotentialDuplicatesMultipleOrgs()`](usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.md)
+  : Identify Potentially Duplicated Data Uploads by Multiple
+  Organizations
+
+- [`TADA_FindPotentialDuplicatesSingleOrg()`](usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesSingleOrg.md)
+  : Identify Potentially Duplicated Data Uploads by a Single
+  Organization
+
+- [`TADA_FindQAPPApproval()`](usepa.github.io/EPATADA/reference/TADA_FindQAPPApproval.md)
+  : Check data for an approved QAPP
+
+- [`TADA_FindQAPPDoc()`](usepa.github.io/EPATADA/reference/TADA_FindQAPPDoc.md)
+  : Check if an approved QAPP document URL is provided
+
+- [`TADA_FindQCActivities()`](usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
+  : Check for Quality Control Samples
+
+- [`TADA_FlagAboveThreshold()`](usepa.github.io/EPATADA/reference/TADA_FlagAboveThreshold.md)
+  : Check Result Value Against WQX Upper Threshold
+
+- [`TADA_FlagBelowThreshold()`](usepa.github.io/EPATADA/reference/TADA_FlagBelowThreshold.md)
+  : Check Result Value Against WQX Lower Threshold
+
+- [`TADA_FlagContinuousData()`](usepa.github.io/EPATADA/reference/TADA_FlagContinuousData.md)
+  : Flag Continuous Data
+
+- [`TADA_FlagCoordinates()`](usepa.github.io/EPATADA/reference/TADA_FlagCoordinates.md)
+  : Suspect coordinates
+
+- [`TADA_FlagDepthCategory()`](usepa.github.io/EPATADA/reference/TADA_FlagDepthCategory.md)
+  : TADA_FlagDepthCategory
+
+- [`TADA_FlagFraction()`](usepa.github.io/EPATADA/reference/TADA_FlagFraction.md)
+  : Check Sample Fraction Validity
+
+- [`TADA_FlagMeasureQualifierCode()`](usepa.github.io/EPATADA/reference/TADA_FlagMeasureQualifierCode.md)
+  : Check for results with suspect result Measure Qualifier Codes
+
+- [`TADA_FlagMethod()`](usepa.github.io/EPATADA/reference/TADA_FlagMethod.md)
+  : Check for Suspect Analytical Methods
+
+- [`TADA_FlagResultUnit()`](usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md)
+  : Check Result Unit Validity
+
+- [`TADA_FlagSpeciation()`](usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md)
+  : Check Method Speciation Validity
+
+- [`TADA_FlaggedSitesMap()`](usepa.github.io/EPATADA/reference/TADA_FlaggedSitesMap.md)
+  : Create Flagged Sites Map
+
+- [`TADA_FormatDelimitedString()`](usepa.github.io/EPATADA/reference/TADA_FormatDelimitedString.md)
+  : Convert a delimited string to the format used by WQX 3.0 profiles
+  for one-to-manys
+
+- [`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+  : Get Monitoring Location Identifier and Assessment Unit Identifier
+  Crosswalk from ATTAINS
+
+- [`TADA_GetATTAINSByAUID()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSByAUID.md)
+  : TADA_GetATTAINSByAUID
+
+- [`TADA_GetATTAINSOrgIDsRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.md)
+  : ATTAINS Organization Identifier Reference Table
+
+- [`TADA_GetATTAINSParamUseOrgRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.md)
+  : ATTAINS Parameter and Use Name by Organization Reference Key
+
+- [`TADA_GetATTAINSParameterWQPCharRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSParameterWQPCharRef.md)
+  : ATTAINS Parameter and WQP Characteristic Exact Match Reference Table
+
+- [`TADA_GetActivityTypeRef()`](usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md)
+  : Update Activity Type Reference Table
+
+- [`TADA_GetCharacteristicRef()`](usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.md)
+  : Update Characteristic Reference Table
+
+- [`TADA_GetDetCondRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
+  : Update Result Detection Condition Reference Table
+
+- [`TADA_GetDetLimitRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.md)
+  : Update Detection Quantitation Limit Type Reference Table
+
+- [`TADA_GetEPACSTRef()`](usepa.github.io/EPATADA/reference/TADA_GetEPACSTRef.md)
+  : Get EPA Criteria Search Tool (CST) Data
+
+- [`TADA_GetMeasureQualifierCodeRef()`](usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.md)
+  : Update result Measure Qualifier Code Reference Table
+
+- [`TADA_GetMeasureUnitRef()`](usepa.github.io/EPATADA/reference/TADA_GetMeasureUnitRef.md)
+  : Update Measure Unit Reference Table
+
+- [`TADA_GetMonLocTypeRef()`](usepa.github.io/EPATADA/reference/TADA_GetMonLocTypeRef.md)
+  : Update Monitoring Location Type Name Reference Table
+
+- [`TADA_GetNutrientSummationRef()`](usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
+  : Nutrient Summation Reference Key
+
+- [`TADA_GetSynonymRef()`](usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.md)
+  : Generate Unique Synonym Reference Table
+
+- [`TADA_GetTemplate()`](usepa.github.io/EPATADA/reference/TADA_GetTemplate.md)
+  : Get TADA Template
+
+- [`TADA_GetUSGSSynonymRef()`](usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.md)
+  : Nutrient Summation Reference Key
+
+- [`TADA_GetUniqueNearbySites()`](usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.md)
+  : Get grouped monitoring stations that are near each other
+
+- [`TADA_GetWQPOrgProviderRef()`](usepa.github.io/EPATADA/reference/TADA_GetWQPOrgProviderRef.md)
+  : Get Organization and Provider Reference Table
+
+- [`TADA_GetWQXCharValRef()`](usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.md)
+  : WQX QAQC Characteristic Validation Reference Table
+
+- [`TADA_GroupedScatterplot()`](usepa.github.io/EPATADA/reference/TADA_GroupedScatterplot.md)
+  : Create Scatterplot(s) for Each TADA.ComparableDataIdentifier with
+  Multiple (Up to 4) Groupings by an Additional Column
+
+- [`TADA_HarmonizeSynonyms()`](usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.md)
+  : Harmonize Synonyms
+
+- [`TADA_Histogram()`](usepa.github.io/EPATADA/reference/TADA_Histogram.md)
+  : Create Histogram(s)
+
+- [`TADA_IDCensoredData()`](usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
+  : Prepare Censored Data
+
+- [`TADA_IDDepthProfiles()`](usepa.github.io/EPATADA/reference/TADA_IDDepthProfiles.md)
+  : TADA_IDDepthProfiles
+
+- [`TADA_JoinWQPProfiles()`](usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.md)
+  : Join WQP Profiles
+
+- [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+  : TADA_MakeSpatial
+
+- [`TADA_NearbySitesMap()`](usepa.github.io/EPATADA/reference/TADA_NearbySitesMap.md)
+  : Create Nearby Sites Map
+
+- [`TADA_OrderCols()`](usepa.github.io/EPATADA/reference/TADA_OrderCols.md)
+  : Order TADA Columns and Rows
+
+- [`TADA_OverviewMap()`](usepa.github.io/EPATADA/reference/TADA_OverviewMap.md)
+  : Create Overview Map
+
+- [`TADA_PairForCriteriaCalc()`](usepa.github.io/EPATADA/reference/TADA_PairForCriteriaCalc.md)
+  : Pair Results for Numeric Criteria Calculation (UNDER ACTIVE
+  DEVELOPMENT)
+
+- [`TADA_PairReplicates()`](usepa.github.io/EPATADA/reference/TADA_PairReplicates.md)
+  : Pair Replicates with Original Samples
+
+- [`TADA_RandomTestingData()`](usepa.github.io/EPATADA/reference/TADA_RandomTestingData.md)
+  : Generate a random WQP dataset
+
+- [`TADA_ReadWQPWebServices()`](usepa.github.io/EPATADA/reference/TADA_ReadWQPWebServices.md)
+  : Read in WQP data using the Water Quality Portal (WQP) web services
+
+- [`TADA_RenametoLegacy()`](usepa.github.io/EPATADA/reference/TADA_RenametoLegacy.md)
+  : TADA_RenametoLegacy
+
+- [`TADA_RetainRequired()`](usepa.github.io/EPATADA/reference/TADA_RetainRequired.md)
+  : TADA_RetainRequired
+
+- [`TADA_RunKeyFlagFunctions()`](usepa.github.io/EPATADA/reference/TADA_RunKeyFlagFunctions.md)
+  : Run key flagging functions
+
+- [`TADA_Scatterplot()`](usepa.github.io/EPATADA/reference/TADA_Scatterplot.md)
+  : Create Scatterplot(s)
+
+- [`TADA_SimpleCensoredMethods()`](usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
+  : Simple Tools for Censored Data Handling
+
+- [`TADA_Stats()`](usepa.github.io/EPATADA/reference/TADA_Stats.md) :
+  Generate Statistics Table
+
+- [`TADA_SubstituteDeprecatedChars()`](usepa.github.io/EPATADA/reference/TADA_SubstituteDeprecatedChars.md)
+  : Substitute Preferred Characteristic Name for Deprecated Names
+
+- [`TADA_SummarizeColumn()`](usepa.github.io/EPATADA/reference/TADA_SummarizeColumn.md)
+  : Summarize data downloaded by specified column
+
+- [`TADA_TableExport()`](usepa.github.io/EPATADA/reference/TADA_TableExport.md)
+  : Create downloadable table
+
+- [`TADA_TribalOptions()`](usepa.github.io/EPATADA/reference/TADA_TribalOptions.md)
+  :
+
+  Access options available for querying tribal spatial data with
+  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md).
+
+- [`TADA_TwoCharacteristicScatterplot()`](usepa.github.io/EPATADA/reference/TADA_TwoCharacteristicScatterplot.md)
+  : Create A Two-Characteristic Scatterplot
+
+- [`TADA_UniqueCharUnitSpeciation()`](usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.md)
+  : Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
+
+- [`TADA_UpdateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
+  : Update Monitoring Location Identifier and Assessment Unit Identifier
+  Crosswalk in ATTAINS
+
+- [`TADA_UpdateTribalLayers()`](usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.md)
+  : Function to update tribal layer shapefiles. Shapefiles are stored in
+  inst/extdata. Existing shapefiles with the same name will be deleted
+  first if they exist.
+
+- [`TADA_ViewATTAINS()`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
+  : TADA_ViewATTAINS
+
+- [`TADA_ViewColorPalette()`](usepa.github.io/EPATADA/reference/TADA_ViewColorPalette.md)
+  : View TADA Color Palette
+
+- [`TADA_addPoints()`](usepa.github.io/EPATADA/reference/TADA_addPoints.md)
+  : Add points from an ArcGIS feature layer to a leaflet map
+
+- [`TADA_addPolys()`](usepa.github.io/EPATADA/reference/TADA_addPolys.md)
+  : Add polygons from an ArcGIS feature layer to a leaflet map
+
+- [`TADA_getNWIS()`](usepa.github.io/EPATADA/reference/TADA_getNWIS.md)
+  : Retrieve and tidy daily values from NWIS (DRAFT - UNDER ACTIVE
+  DEVELOPMENT)
+
+- [`TADA_listNWIS()`](usepa.github.io/EPATADA/reference/TADA_listNWIS.md)
+  : TADA_listNWIS (DRAFT - UNDER ACTIVE DEVELOPMENT)
+
+- [`ask_user()`](usepa.github.io/EPATADA/reference/ask_user.md) : Ask
+  user to approve WQP downloads
+
+- [`checkColName()`](usepa.github.io/EPATADA/reference/checkColName.md)
+  : checkColNames
+
+- [`.TADA_UpdateExampleData()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
+  : Update Example Data for EPATADA Package (Internal)
+
+- [`.TADA_UpdateRefFiles()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
+  : Update All TADA Reference Files (Internal)
+
+- [`fetchATTAINS()`](usepa.github.io/EPATADA/reference/fetchATTAINS.md)
+  : fetchATTAINS
+
+- [`fetchNHD()`](usepa.github.io/EPATADA/reference/fetchNHD.md) :
+  fetchNHD
+
+- [`getBboxJson()`](usepa.github.io/EPATADA/reference/getBboxJson.md) :
+  Get bounding box JSON
+
+- [`getFeatureLayer()`](usepa.github.io/EPATADA/reference/getFeatureLayer.md)
+  : Retrieve feature layer from ArcGIS REST service getFeatureLayer is
+  used by writeLayer to write feature layers to local files
+
+- [`getLayer()`](usepa.github.io/EPATADA/reference/getLayer.md) : Get a
+  shapefile from a local folder, optionally crop it by a bounding box,
+  and return it as a sf object getLayer is used within TADA_addPolys and
+  TADA_addPoints
+
+- [`getPopup()`](usepa.github.io/EPATADA/reference/getPopup.md) : Get
+  text for tribal marker popup getPopup is used within TADA_addPolys and
+  TADA_addPoints
+
+- [`pchIcons()`](usepa.github.io/EPATADA/reference/pchIcons.md) : Create
+  icon(s) to be used to represent points on a map feature layer pchIcons
+  is used within TADA_addPoints
+
+- [`quiet()`](usepa.github.io/EPATADA/reference/quiet.md) : Silence
+  Print Messages from Code Execution
+
+- [`renameATTAINSCols()`](usepa.github.io/EPATADA/reference/renameATTAINSCols.md)
+  : renameATTAINSCols
+
+- [`writeLayer()`](usepa.github.io/EPATADA/reference/writeLayer.md) :
+  Download a shapefile from an API and save it to a local folder,
+  overwriting existing file if it exists writeLayer is used by
+  TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+
+# Articles
+
+### All vignettes
+
+- [Contributing](usepa.github.io/EPATADA/articles/CONTRIBUTING.md):
+
+- [TADA Module 3: Alternative Options to Generate the Criteria and
+  Methodology template for User
+  Input](usepa.github.io/EPATADA/articles/ExampleMod3CriteriaMethodsAltOptions.md):
+
+  A vignette (under development) showcasing alternative ways to generate
+  the criteria and methodology file.
+
+- [Example Module 3
+  Workflow](usepa.github.io/EPATADA/articles/ExampleMod3Workflow.md):
+
+  Recommended TADA module 3 Criteria and Methodology Table generation
+  (under development) showcasing water quality data analysis functions
+  and example workflows.
+
+- [Geospatial Data
+  Integration](usepa.github.io/EPATADA/articles/GeospatialDataIntegration.md):
+
+- [Participatory (Volunteer) Scientists are Monitoring Waters and
+  Sharing Data via EPA's Water Quality eXchange
+  (WQX)](usepa.github.io/EPATADA/articles/Participatory-Science-Water-Projects-in-WQX.md):
+
+- [TADA: Assessment Unit Use Case
+  Demo](usepa.github.io/EPATADA/articles/TADAAssessmentUnitUseCase.md):
+
+  An overview of a TADA use case for a single Assessment Unit.
+
+- [TADA Cybertown Workshop June
+  2025](usepa.github.io/EPATADA/articles/TADACybertown2025.md):
+
+  An introduction to using the EPATADA R package to retrieve, clean,
+  analyze, and visualize WQP data.
+
+- [TADA Module 1: Training for Intermediate/Advanced R
+  Users](usepa.github.io/EPATADA/articles/TADAModule1_AdvancedTraining.md):
+
+  A foray into major TADA Module 1 functions for users familiar with R
+  and RStudio.
+
+- [TADA Module 1: Training for Beginner R
+  Users](usepa.github.io/EPATADA/articles/TADAModule1_BeginnerTraining.md):
+
+  An introduction to major TADA Module 1 functions for users unfamiliar
+  with R and RStudio.
+
+- [TADA Module 1: Water Quality Portal Data Discovery and
+  Cleaning](usepa.github.io/EPATADA/articles/TADAModule1.md):
+
+  An overview of TADA Module 1 Data Discovery and Cleaning functions and
+  a recommended workflow.
+
+- [TADA Module 2: Geospatial
+  Functions](usepa.github.io/EPATADA/articles/TADAModule2.md):
+
+  An overview of TADA Module 2 functions and a recommended workflow
+  focused on A) creating an ATTAINS assessment unit/WQP monitoring
+  location crosswalk, B) reviewing assessment units and monitoring
+  locations on a map, C) submitting an up to date assessment unit/WQP
+  monitoring location crosswalk to ATTAINS, and D) assigning uses to
+  assessment units.
+
+- [TADA Module 3A: Associating WQP Characteristic Names with Applicable
+  ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use
+  Names](usepa.github.io/EPATADA/articles/TADAModule3a.md):
+
+  The first of multiple Module 3 vignettes (under development)
+  showcasing water quality data analysis functions and example
+  workflows.
+
+- [TADA: WaterSciCon Workshop
+  Demo](usepa.github.io/EPATADA/articles/TADAWaterSciConWorkshopDemo.md):
+
+  A demonstration of data discovery for the confluence of the San Juan
+  and Animas Rivers near Farmington, New Mexico. This example focuses on
+  surface water quality with a focus on total dissolved solids and
+  conductivity.
+
+- [WQX 3.0
+  Migration](usepa.github.io/EPATADA/articles/WQX3-Migration.md):
+
+- [WQX QAQC Service User
+  Guide](usepa.github.io/EPATADA/articles/WQXValidationService.md):

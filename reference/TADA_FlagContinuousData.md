@@ -1,0 +1,109 @@
+# Flag Continuous Data
+
+Continuous data may (or may not) be suitable for integration with
+discrete water quality data for analyses. Therefore, this function uses
+metadata submitted by data providers to flag rows with continuous data.
+
+## Usage
+
+``` r
+TADA_FlagContinuousData(
+  .data,
+  clean = FALSE,
+  flaggedonly = FALSE,
+  time_difference = 4
+)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+- clean:
+
+  Boolean argument: When clean = FALSE (default), a column titled
+  "TADA.ContinuousData.Flag" is added to the dataframe to indicate if
+  each row includes "Continuous" or "Discrete" data. When clean = TRUE,
+  rows with "Continuous" data are removed from the dataframe and no
+  column is appended.
+
+- flaggedonly:
+
+  Boolean argument: When flaggedonly = FALSE (default), all results are
+  included in the output. When flaggedonly = TRUE, the dataframe will be
+  filtered to include only the rows flagged as "Continuous" results.
+
+- time_difference:
+
+  Numeric argument defining the maximum time difference in hours between
+  measurements of the same TADA.ComparableDataIdentifier taken at the
+  same latitude, longitude, and depth. This is used to search for
+  continuous time series data (i.e., if there are multiple measurements
+  within the selected time_difference, then the row will be flagged as
+  continuous). The default time window is 4 hours. The time_difference
+  can be adjusted by the user.
+
+## Value
+
+The default is clean = FALSE and flaggedonly = FALSE. When clean = FALSE
+and flaggedonly = FALSE (default), a new column,
+"TADA.ContinuousData.Flag", is appended to the input data set which
+flags each row as "Continuous" or "Discrete". When clean = FALSE and
+flaggedonly = TRUE, the dataframe is filtered to show only the flagged
+continuous data and the flag column is still appended. When clean = TRUE
+and flaggedonly = FALSE, continuous data is removed from the dataframe
+and no column is appended.
+
+## Details
+
+Continuous data is often aggregated to a daily avg, max, and min value,
+or another statistic of interest to the data submitter. Alternatively,
+some organizations aggregate their high frequency data (15 min or 1 hour
+data) to 2 or 4 hour interval averages. In all of these scenarios, the
+data provider may have also included the raw data (full continuous time
+series) as a text file attachment at the activity level.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+all_data <- TADA_DataRetrieval(project = c(
+  "Continuous LC1",
+  "MA_Continuous", "Anchorage Bacteria 20-21"
+), ask = FALSE)
+
+# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
+all_data_flags <- TADA_FlagContinuousData(all_data, clean = FALSE)
+
+# Show only rows flagged as continuous data (note that all results are
+# flagged in the example)
+all_data_flaggedonly <- TADA_FlagContinuousData(all_data,
+  clean = FALSE, flaggedonly = TRUE
+)
+
+# Remove continuous data in dataframe (note that this dataframe will
+# have 0 results because all are flagged in the example)
+all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
+
+utils::data(Data_Nutrients_UT)
+
+# Flag continuous data in new column titled "TADA.ContinuousData.Flag"
+Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT,
+  clean = FALSE
+)
+unique(Data_Nutrients_UT_flags$TADA.ContinuousData.Flag)
+
+# Show only rows flagged as continuous data
+Data_Nutrients_UT_flaggedonly <- TADA_FlagContinuousData(Data_Nutrients_UT,
+  clean = FALSE, flaggedonly = TRUE
+)
+
+# Remove continuous data in dataframe
+Data_Nutrients_UT_clean <- TADA_FlagContinuousData(Data_Nutrients_UT,
+  clean = TRUE
+)
+unique(Data_Nutrients_UT_clean$TADA.ContinuousData.Flag)
+} # }
+```

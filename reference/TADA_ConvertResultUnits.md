@@ -1,0 +1,106 @@
+# Transform Units to TADA Target Units, WQX Target Units or User Specified Units
+
+This function converts result and detection limit measure values and
+units in the input dataframe to TADA target units. It also automatically
+wrangles common USGS units which include speciation in the unit value,
+such as "mg/l as N" and "mg/l asNO3", by transferring the speciation
+information to the TADA.MethodSpeciationName field. No speciation
+conversions occur in this function.
+
+## Usage
+
+``` r
+TADA_ConvertResultUnits(.data, ref = "tada", transform = TRUE)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+- ref:
+
+  Optional character argument in which a user can specify a dataframe by
+  name. Dataframe must contain the columns CharacteristicName, Unit, and
+  TargetUnit. TADA_CreateUnitRef() can be used to help create this
+  dataframe. There are two options that do not require the user to
+  supply a dataframe, "tada" and "wqx". When ref = "wqx" all unit
+  conversion will be based on the WQX unit reference which applies
+  targets at the unit level. When ref = "tada" all unit conversion will
+  be based on TADA priority characteristic units (where applicable)
+  which applies targets at the characteristic level, with any other
+  units assigned by WQX unit reference (at the unit level). The default
+  is ref = "tada".
+
+- transform:
+
+  Boolean argument with two possible values, “TRUE” and “FALSE”. Default
+  is transform = TRUE. When transform = TRUE, result values and units,
+  and detection quantitation limit value and units are converted to TADA
+  target units. This function changes the values within
+  "TADA.ResultMeasure.MeasureUnitCode" and
+  "TADA.DetectionQuantitationLimitMeasure.MeasureValue" to the TADA
+  target units and converts respective values within the
+  "TADA.ResultMeasureValue" and
+  "TADA.DetectionQuantitationLimitMeasure.MeasureValue" fields. When
+  "TADA.ResultMeasure.MeasureUnitCode" is NA, the unit is taken from
+  "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" if it not NA.
+  This facilitates estimation of censored data later in the workflow.
+
+  When transform = FALSE, result values and units, and detection
+  quantitation limit values are units are NOT converted to TADA target
+  units,but columns are appended to indicate what the target units and
+  conversion factors are, and if the data can be converted. This
+  function adds the following four fields ONLY when transform = FALSE:
+  "TADA.WQXUnitConversionFactor",
+  "TADA.Target.ResultMeasure.MeasureUnitCode",
+  "TADA.SpeciationUnitConversion", and "TADA.WQXResultUnitConversion.
+
+## Value
+
+A TADA dataframe. Depending on the arguments entered by the user, the
+number of columns returned may differ. When transform = TRUE,
+TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode are
+converted to target units. When transform = FALSE,
+"TADA.WQXUnitConversionFactor",
+"TADA.Target.ResultMeasure.MeasureUnitCode",
+"TADA.SpeciationUnitConversion" are added. With either transform
+argument, "TADA.WQXResultUnitConversion" is added. It indicates if data
+can be converted. "NoResultValue" means data cannot be converted because
+there is no ResultMeasureValue, and "NoTargetUnit"means data cannot be
+converted because the original unit is not associated with a target
+unit. "Convert" means the data can be transformed.
+
+## Details
+
+The function uses the "TADA.ResultMeasureValue" and
+TADA.ResultMeasure.MeasureUnitCode" fields from an autocleaned input
+dataframe to perform conversions when transform = TRUE.
+
+Speciation in USGS result units (ex: "mg/L as N") are addressed in this
+function by creating additional rows to accommodate all possible
+combinations from the input TADA dataframe, including those with
+speciation in units.
+
+## Examples
+
+``` r
+# Load example dataset:
+utils::data(Data_Nutrients_UT)
+
+# Do not convert result values and units, but add four new columns titled
+# "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
+# "TADA.Target.ResultMeasure.MeasureUnitCode", and
+# "TADA.SpeciationUnitConversion":
+ResultUnitsNotConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
+  transform = FALSE
+)
+#> [1] "TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks)."
+
+# Convert values and units for results and detection limits:
+ResultUnitsConverted <- TADA_ConvertResultUnits(Data_Nutrients_UT,
+  transform = TRUE
+)
+#> [1] "NOTE: Dataset contains 391 USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."
+```

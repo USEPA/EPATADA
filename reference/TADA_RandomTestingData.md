@@ -1,0 +1,104 @@
+# Generate a random WQP dataset
+
+Retrieves data for a period of time in the past 20 years using
+TADA_DataRetrieval. This function can be used for testing functions on
+random datasets. Only random data sets with 10 or more results will be
+returned. If a random dataset has fewer than 10 results, the function
+will automatically create another random WQP query until a df with
+greater than 10 results is returned.
+
+This function retrieves water quality data for a randomly selected
+period within the past 20 years using `TADA_DataRetrieval`. It can be
+used to test functions on random datasets. The function ensures that the
+returned dataset contains at least 10 results. If the initial random
+dataset contains fewer than 10 results, the function automatically
+queries another random dataset until the criteria are met.
+
+## Usage
+
+``` r
+TADA_RandomTestingData(
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE,
+  max_attempts = 3
+)
+
+TADA_RandomTestingData(
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE,
+  max_attempts = 3
+)
+```
+
+## Arguments
+
+- number_of_days:
+
+  Numeric. Specifies the number of days for which data will be queried.
+  The default is 1, which queries data for a random two-day period
+  (e.g., startDate = "2015-04-21", endDate = "2015-04-22"). Users can
+  increase this number to retrieve data for more days.
+
+- choose_random_state:
+
+  Boolean (TRUE or FALSE). Default is FALSE. If FALSE, the function
+  queries all available WQP data for the specified number_of_days
+  (national query). If TRUE, the function selects a random state and
+  retrieves data only for that state.
+
+- autoclean:
+
+  Boolean (TRUE or FALSE). Default is TRUE. If TRUE, the function
+  applies `TADA_AutoClean` as part of the `TADA_DataRetrieval`. If
+  FALSE, the function does not apply `TADA_AutoClean`.
+
+- max_attempts:
+
+  Numeric. Specifies the maximum number of attempts to retrieve data if
+  an error occurs. Default is 3.
+
+## Value
+
+Random WQP dataset.
+
+A data frame containing a random WQP dataset with at least 10 results,
+or an empty data frame if data retrieval fails after the specified
+number of attempts. If a 500 Internal Server Error or any other error
+occurs during data retrieval, the function will retry up to
+`max_attempts` times. If all attempts fail, an empty data frame is
+returned, and a message is logged indicating the failure.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
+df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
+df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
+} # }
+if (FALSE) { # \dontrun{
+# Example 1: Retrieve a random dataset for random 2-day period
+# across the entire nation
+random_data_national <- TADA_RandomTestingData(
+  number_of_days = 1,
+  choose_random_state = FALSE
+)
+
+# Example 2: Retrieve a random dataset for a 3-day period within
+# a randomly selected state
+random_data_state <- TADA_RandomTestingData(
+  number_of_days = 3,
+  choose_random_state = TRUE
+)
+
+# Example 3: Retrieve a random dataset for a 5-day period
+# within a randomly selected state without auto-cleaning
+random_data_state_no_clean <- TADA_RandomTestingData(
+  number_of_days = 5,
+  choose_random_state = TRUE,
+  autoclean = FALSE
+)
+} # }
+```

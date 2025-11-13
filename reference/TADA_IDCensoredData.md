@@ -1,0 +1,59 @@
+# Prepare Censored Data
+
+This function identifies censored data records and characterizes them as
+"Non-Detects" or "Over-Detects" based on the
+ResultDetectionConditionText and DetectionQuantitationLimitTypeName. It
+also identifies records populated with limits and conditions that cannot
+be grouped as over- or non-detects as "Other Condition/Limit Populated",
+and flags records where there is a conflict between
+ResultDetectionConditionText and DetectionQuantitationLimitTypeName as
+"Conflict between Condition and Limit". A "Conflict between Condition
+and Limit" may occur if: A) the data submitter supplied multiple
+detection limits and the wrong one is accidentally being associated with
+the detection condition, or B) the data submitter accidentally choose
+the wrong detection limit or detection condition to associate with the
+result. Detection limit results missing ResultDetectionConditionText are
+flagged as "Detection condition is missing and required for censored
+data ID." unless the ResultMeasureValue field is populated with "ND"
+(indicating non-detect). In rare situations, new detection limit types
+are added to WQX domain tables (and thus WQP data) that have not yet
+been classified as over- or non-detects. When these appear in a
+dataframe, they are categorized as "Detection condition or detection
+limit is not documented in TADA reference tables." In these situations,
+users should contact TADA administrators to update the package
+accordingly. This function is used by default in
+TADA_SimpleCensoredMethods, but can be used on its own.
+
+## Usage
+
+``` r
+TADA_IDCensoredData(.data)
+```
+
+## Arguments
+
+- .data:
+
+  A TADA dataframe
+
+## Value
+
+A TADA dataframe with additional column named TADA.CensoredData.Flag,
+which categorizes results with the following values:
+
+1.  Detection condition or detection limit is not documented in TADA
+    reference tables.
+
+2.  Detection condition is missing and required for censored data ID.
+
+3.  Conflict between Condition and Limit
+
+4.  Non-Detect
+
+5.  Over-Detect
+
+6.  Other Condition/Limit Populated If user has not previously run
+    TADA_FlagMeasureQualifierCode, this function will also run that
+    function to add the columns TADA.MeasureQualifierCode.Flag and
+    TADA.MeasureQualifierCode.Def because user-supplied Result Measure
+    Qualifier codes are also used to ID censored results.

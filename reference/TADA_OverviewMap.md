@@ -1,0 +1,44 @@
+# Create Overview Map
+
+Create Overview Map
+
+## Usage
+
+``` r
+TADA_OverviewMap(.data)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe containing the data downloaded from the WQP, where each
+  row represents a unique data record. Dataframe must include the
+  columns
+  'MonitoringLocationIdentifier','MonitoringLocationName','TADA.LatitudeMeasure',
+  'TADA.LongitudeMeasure', 'ResultIdentifier', 'ActivityStartDate',
+  'TADA.CharacteristicName', and 'OrganizationIdentifier' to run this
+  function.
+
+## Value
+
+A leaflet map that shows all sites in the dataframe, where larger point
+sizes indicate more results collected at a site, and darker point colors
+indicate more characteristics measured at that site. Users can click on
+points on the map to see a pop-up window with exact counts for
+measurements (i.e. number of rows), visits (number of unique Activity
+ID's), and characteristics associated with each site.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Load example dataframe:
+utils::data(Data_Nutrients_UT)
+utils::data(Data_6Tribes_5y_Harmonized)
+
+# Create maps:
+TADA_OverviewMap(Data_Nutrients_UT)
+TADA_OverviewMap(Data_6Tribes_5y_Harmonized)
+} # }
+```

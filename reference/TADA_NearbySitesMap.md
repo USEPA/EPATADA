@@ -1,0 +1,40 @@
+# Create Nearby Sites Map
+
+Create Nearby Sites Map
+
+## Usage
+
+``` r
+TADA_NearbySitesMap(.data, dist_buffer = 100)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe after running TADA.FindNearbySites.
+
+- dist_buffer:
+
+  Distance in m to show a radius around each site marker.
+
+## Value
+
+A leaflet map that shows all sites in the dataframe that contain flagged
+data in the form of near other sites - groups of sites that are
+spatially located within a threshold distance (defaulting to 100 m) from
+each other and within the same catchment.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# Load example dataframe:
+utils::data(Data_Nutrients_UT)
+
+
+# Create maps:
+TADA_FlaggedSitesMap(Data_Nutrients_UT)
+TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
+} # }
+```

@@ -1,0 +1,108 @@
+# Check data for an approved QAPP
+
+Function checks data submitted under the column "QAPPApprovedIndicator".
+Some organizations submit data for this field to indicate if the data
+produced has an approved Quality Assurance Project Plan (QAPP) or not. Y
+indicates yes, N indicates no. This function has three default inputs:
+clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default
+flags rows of data where the QAPPApprovedIndicator equals "N". Users
+could remove NA's in addition to N's using the inputs clean = TRUE,
+cleanNA = TRUE, and flaggedonly = FALSE. If flaggedonly = TRUE, the
+function will filter out all rows where the QAPPApprovedIndicator is
+'Y'. If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the
+function will not make any changes to the data.
+
+## Usage
+
+``` r
+TADA_FindQAPPApproval(
+  .data,
+  clean = FALSE,
+  cleanNA = FALSE,
+  flaggedonly = FALSE
+)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+- clean:
+
+  Boolean argument with two possible values called "TRUE" and "FALSE".
+  When clean=TRUE, rows of data where the QAPPApprovedIndicator equals
+  "N" will be removed. When, clean=FALSE, rows of data where the
+  QAPPApprovedIndicator equals "N" will be retained.
+
+- cleanNA:
+
+  Boolean argument with two possible values called "TRUE" and "FALSE".
+  When cleanNA=TRUE, rows of data where the QAPPApprovedIndicator equals
+  "NA" will be removed. When, cleanNA=FALSE, rows of data where the the
+  QAPPApprovedIndicator equals "NA" will be retained.
+
+- flaggedonly:
+
+  Boolean argument; when flaggedonly = TRUE, the dataframe will be
+  filtered to remove any rows where the QAPPApprovedIndicator equals
+  "Y".
+
+## Value
+
+Several combinations of inputs are possible: When clean = TRUE, cleanNA
+= FALSE, and flaggedonly = FALSE, the dataframe will be filtered to show
+only rows where QAPPApprovedIndicator is "Y" or "NA"; When clean = TRUE,
+cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will be filtered
+to show only rows where QAPPApprovedIndicator is "Y"; When clean =
+FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will be
+filtered to show only rows where QAPPApprovedIndicator is "Y" or "N";
+When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no rows
+are removed from the dataframe; When clean = TRUE, cleanNA = TRUE, and
+flaggedonly = TRUE, the function will not execute and an error message
+will be returned; When clean = TRUE, cleanNA = FALSE, and flaggedonly =
+TRUE, the dataframe will be filtered to show only rows where
+QAPPApprovedIndicator is "NA"; When clean = FALSE, cleanNA = TRUE, and
+flaggedonly = TRUE, the dataframe will be filtered to show only rows
+where QAPPApprovedIndicator is "N"; When clean = FALSE, cleanNA = FALSE,
+and flaggedonly = TRUE, the dataframe will be filtered to show only rows
+where QAPPApprovedIndicator is "N" or "NA"
+
+## Details
+
+Note: This is not a required field, so it is often left blank (NA) even
+if the data has an associated QAPP. All states and tribes that collect
+monitoring data using 106 funding (almost all state and tribal data in
+WQX) are required to have an EPA approved QAPP to receive 106 funding.
+Therefore, most of these organizations data has an approved QAPP even if
+the data submitted to WQP is NA.
+
+## Examples
+
+``` r
+# Load example dataset:
+utils::data(Data_R5_TADAPackageDemo)
+
+# Show data where the QAPPApprovedIndicator equals "Y" or "NA":
+QAPPapproved_clean <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo)
+#> [1] "Data is flagged but not removed because clean and cleanNA were FALSE"
+
+# Show only data where the QAPPApprovedIndicator equals "Y":
+QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo, cleanNA = TRUE)
+
+# Show data where the QAPPApprovedIndicator equals "N" or "NA":
+QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo,
+  clean = FALSE,
+  cleanNA = FALSE, flaggedonly = TRUE
+)
+
+# Show data where the QAPPApprovedIndicator equals "N":
+QAPPIndicator_N <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo,
+  clean = FALSE,
+  cleanNA = TRUE, flaggedonly = TRUE
+)
+
+# Note: When clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, no data is removed
+# Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned
+```

@@ -1,0 +1,257 @@
+# Contributing
+
+## Contribute to TADA!
+
+We encourage you to read this project’s
+[CONTRIBUTING](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+policy (you are here), its
+[LICENSE](https://github.com/USEPA/EPATADA/blob/develop/LICENSE.md), and
+its [README](https://usepa.github.io/EPATADA/).
+
+We’re so glad you’re thinking about contributing to an EPA open source
+project! If you’re unsure about anything, just ask — or submit your
+issue or pull request anyway. The worst that can happen is we’ll
+politely ask you to change something. We appreciate all friendly
+contributions.
+
+No matter who you are, if you spot an error, omission, or bug, you’re
+welcome to open an issue in this repo!
+
+## TADA Working Group Mission
+
+To share and develop R code for evaluating and visualizing Water Quality
+Portal (WQP) data more efficiently though collaboration and open-source
+programming. This includes working together to find commonalities in
+assessment processes across the nation, creating flexible tools that can
+be easily customized to work within existing workflows, supporting each
+other in learning R, and ensuring products will be accessible to
+organizations most in need.
+
+## Package Development
+
+This article will walk through how to contribute to the TADA package via
+a pull request workflow. This is also not a complete guide to R package
+development, instead this is meant as more of a checklist for the
+general steps. Several references are included at the bottom for more
+information on R-package development and git workflows.
+
+## What is GitHub?
+
+GitHub is a third-party website that offers version-controlled
+repositories that developers and scientists can use to collaborate on
+projects (e.g., software, text, manuscripts, etc.) in real-time. GitHub
+also provides social networking features that allow developers to follow
+open-source projects, share code and learn how code changes are made
+throughout the development process. GitHub is so named because it
+utilizes the open-source version control system (VCS) known as Git.
+There are multiple ways to interact with GitHub using Git.
+
+- Option 1: Interact with GitHub using a GUI instead of the command line
+  or a web browser
+
+  - [Getting Started with GitHub
+    Desktop](https://docs.github.com/en/desktop/overview/getting-started-with-github-desktop)
+
+- Option 2: Interact with GitHub using the command line or a web browser
+
+  - [Setting Up
+    Git](https://docs.github.com/en/get-started/git-basics/set-up-git)
+
+  - [Git
+    Basics](https://git-scm.com/book/en/v2/Git-Basics-Getting-a-Git-Repository)
+
+  - [Comprehensive Guide: Happy Git and GitHub for the
+    useR](https://happygitwithr.com/ "Great and comprehensive guide for Git with an R flair")
+
+## Required Installations
+
+There are several programs that are needed before any work can begin.
+With admin access to your computer, you can install all of these,
+otherwise create a ticket with your IT group with the following
+requests. The links provided assume a Windows computer. Adjustments
+might be needed for Mac or Linux OS:
+
+- Recommend all three:
+
+  - [R](https://cran.r-project.org/bin/windows/base/)
+
+  - [RStudio](https://posit.co/download/rstudio-desktop/)
+
+  - [Rtools](https://cran.r-project.org/bin/windows/Rtools/)
+
+- Download both:
+
+  - [GitHub Desktop](https://github.com/apps/desktop)
+
+  - [Git](https://git-scm.com/downloads)
+
+External Collaborators (using GitHub Desktop):
+
+Once you have downloaded R, RStudio, Rtools, GitHub Desktop, and Git you
+will need to create a GitHub account. Open GitHub Desktop and login in
+with your account. In the web browser go the main TADA page
+(<https://github.com/USEPA/EPATADA>) and click on the “Code” button.
+
+Select the “Open With GitHub Desktop” option. When a pop-up window
+appears in GitHub Desktop, click “Clone”. As you do not have write
+access to the TADA repository, you will be prompted to create a fork. In
+the “How are you planning to use this fork?” window you should select
+“To contribute to the parent project”.
+
+It is possible to work with EPATADA admins to gain write access as
+external collaborators. This may be a better option if you plan to make
+multiple or substantial contributions. It allows us all to work together
+on branches more seamlessly. In this scenario, EPATADA admins should
+fill out this
+[form](https://forms.office.com/Pages/ResponsePage.aspx?id=s3iziEhnZ0is-Xaqy-ymp-SFBJAioqZJiIikkUGw3NhUNUtVSEVHRjZWMEFDVTNNR1NEM0lEVk5BSyQlQCN0PWcu)
+to make EPA GitHub organization admins aware of the collaboration.
+
+To make moving between branches while working in RStudio easy, create an
+R Project. Open R Studio and the file menu select “New Project”. In the
+New Project Wizard select “Existing Directory” and select the file path
+for the local repository. Name the R Project “TADA.RProj” as this file
+name is already included in the .gitignore. Now when you open TADA.RProj
+the file name should match the name of the branch you have selected in
+GitHub Desktop. Any changes you make in R Studio and save will be saved
+to the selected branch.
+
+Once those have been installed, the following R packages will be needed
+for R-package development work:
+
+``` r
+install.packages(c("devtools", "rmarkdown"))
+```
+
+## Issues
+
+- If you see an error or have feedback, the best way to let us know is
+  to file an [issue](https://github.com/USEPA/EPATADA/issues).
+- Issues are labeled to help indicate what they are about. For example,
+  we are using “Good First Issue” to indicate issues that might be good
+  first pickings for your first contribution to this open-source
+  project.
+- Pull requests can be directly
+  [linked](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue)
+  to a specific issue. If linked, the Repository Administrators can more
+  easily review the pull request and issue at the same time once a
+  contributor submits the pull request. The issue can then be closed
+  once the pull request is merged.
+
+## Branches and Pull Requests
+
+All new development currently happens in the **develop** branch.
+
+To contribute a specific change or new code, outside contributors can
+[create a new
+fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository),
+using the **develop** branch as the source. We recommend that
+contributors work from their personal fork, and on one specific “task”
+at a time. When complete, you may submit a pull request to request that
+your changes be merged from your fork into the TADA develop branch.
+Contributors should submit separate pull requests for each “task”.
+
+“Tasks” should be small in scope. For example, they may pertain to a bug
+fix or update relevant to a single function. A single “task” may also
+encompass the same changes made across many functions if needed. Another
+example of a single “task” could be to make changes to all documentation
+to improve clarity, for example. Furthermore, a task may include
+developing a new function, or a series of related functions. In some
+cases, tasks can also be synonymous with issues, and the pull requests
+can be directly linked to a specific issue (in that case, the Repository
+Administrators will review the pull request and issue at the same time
+and the issue can be closed once the pull request is merged).
+
+Complete the pull request by detailing all fixes and contributions, and
+tagging TADA repo admins who should review the work. For this package,
+please tag cristinamullin (Cristina Mullin). Repository Administrators
+will review code contributions from both internal EPA and external
+collaborators and integrate code commits into source code. This is done
+to ensure code stability and consistency and prevent degradation of code
+performance. After review, the admin will either accept the submission,
+recommend specific improvements to the submission, or in some cases
+reject the submission.
+
+To avoid issues, developers contributing code should contact the
+repository admins (Cristina Mullin) early in the development process and
+maintain contact throughout to help ensure the submission is compatible
+with the code base and is a robust addition.
+
+A few tips:
+
+- GitHub makes it easy to review Pull Requests for changes on each file,
+  and to discuss the changes if needed using comments
+
+- We have set up [automated
+  checks](https://github.com/USEPA/EPATADA/tree/develop/.github/workflows)
+  (using Github Actions). Any new code included in Pull Requests must
+  pass these checks before it can be merged into develop. These checks
+  will run automatically when Pull Requests are submitted, and are
+  ancillary to our content review, and help make sure the code is
+  robust.
+
+- We recommend to run devtools::check() often during development.
+
+- Be descriptive with your commits and commit descriptions, but don’t
+  over-think it! All changes are tracked. Include comments and details
+  within the package code itself to describe what the code does.
+
+- Always pull in upstream changes from the develop branch before adding
+  a new commit on your branch.
+
+- Directly link Pull Request to Issues they address, if relevant.
+
+## Additional References
+
+- [R Packages](https://r-pkgs.org/)
+
+- [testthat](https://testthat.r-lib.org/)
+
+- [R markdown](https://r4ds.had.co.nz/r-markdown.html)
+
+## Open-Source Code Policy
+
+Effective August 8, 2016, the [OMB Mandate: M-16-21; Federal Source Code
+Policy: Achieving Efficiency, Transparency, and Innovation through
+Reusable and Open Source
+Software](https://www.whitehouse.gov/wp-content/uploads/legacy_drupal_files/omb/memoranda/2016/m_16_21.pdf)
+applies to new custom-developed code created or procured by EPA
+consistent with the scope and applicability requirements of Office of
+Management and Budget’s (OMB’s) Federal Source Code Policy. In general,
+it states that all new custom-developed code by Federal Agencies should
+be made available and reusable as open-source code.
+
+The EPA specific implementation of OMB Mandate M-16-21 is addressed in
+the [System Life Cycle Management
+Procedure](https://www.epa.gov/irmpoli8/policy-procedures-and-guidance-system-life-cycle-management-slcm).
+EPA has chosen to use GitHub as its version control system as well as
+its inventory of open-source code projects. EPA uses GitHub to inventory
+its custom-developed, open-source code and generate the necessary
+metadata file that is then posted to code.gov for broad reuse in
+compliance with OMB Mandate M-16-21.
+
+If you have any questions or want to read more, check out the [EPA Open
+Source Project Repo](https://github.com/USEPA/open-source-projects).
+
+## License
+
+All contributions to this project will be released under the CCO-1.0
+license file dedication. By submitting a pull request or issue, you are
+agreeing to comply with this waiver of copyright interest.
+
+## Disclaimer
+
+This United States Environmental Protection Agency (EPA) GitHub project
+code is provided on an “as is” basis and the user assumes responsibility
+for its use. EPA has relinquished control of the information and no
+longer has responsibility to protect the integrity, confidentiality, or
+availability of the information. Any reference to specific commercial
+products, processes, or services by service mark, trademark,
+manufacturer, or otherwise, does not constitute or imply their
+endorsement, recommendation or favoring by EPA. The EPA seal and logo
+shall not be used in any manner to imply endorsement of any commercial
+product or activity by EPA or the United States Government.
+
+## Contact
+
+If you have any questions, please reach out to the TADA Team
+(<mywaterway@epa.gov>).

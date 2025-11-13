@@ -1,0 +1,78 @@
+# Pair Replicates with Original Samples
+
+This function looks for replicate samples and pairs them to their
+original or parent sample for further analysis. Replicate samples
+without an associated original sample are flagged as orphan samples.
+
+## Usage
+
+``` r
+TADA_PairReplicates(.data, type = c("QC_replicate"), time_difference = 600)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe which must include the columns
+  'OrganizationIdentifier', 'ActivityTypeCode', 'ActivityStartDate',
+  'ActivityStartDateTime', 'ResultIdentifier',
+  'ActivityRelativeDepthName', 'TADA.LatitudeMeasure',
+  'TADA.LongitudeMeasure', 'TADA.ResultMeasureValue',
+  'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag',
+  'TADA.ActivityDepthHeightMeasure.MeasureValue',
+  'TADA.ResultDepthHeightMeasure.MeasureValue',
+  'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and
+  'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.
+
+- type:
+
+  Character argument identifying which Activity Types to look for while
+  pairing replicates to their parent samples. The default type is
+  "QC_replicate", which includes Activity Type Codes: "Quality Control
+  Field Replicate Habitat Assessment", "Quality Control Field Replicate
+  Msr/Obs", "Quality Control Field Replicate Portable Data Logger",
+  "Quality Control Field Replicate Sample-Composite", and "Quality
+  Control Sample-Field Replicate".
+
+- time_difference:
+
+  Numeric argument defining the maximum time difference in seconds to
+  search for parent samples. The default time window is 600 seconds or
+  10 minutes. The time_difference can be as large as the user would
+  like, but parent-replicate pairs will only be identified if they were
+  collected on the same date.
+
+## Value
+
+This function adds one column to the original dataframe:
+'TADA.ReplicateSampleID'. 'TADA.ReplicateSampleID' contains the
+'ResultIdentifier' value from the replicate sample if a parent sample
+match is identified. Both the replicate sample and the parent sample
+will have the same 'ResultIdentifier' code in this column, marking them
+as a pair. If a sample was identified as a replicate sample in the
+'TADA.ActivityType.Flag' column but does not have an associated parent
+sample in the dataframe, the 'TADA.ReplicateSampleID' column will
+contain the flag 'Orphan'. If more than one parent or replicate sample
+is identified in the dataframe, the 'TADA.ReplicateSampleID' column for
+all samples will contain the 'ResultIdentifier' value from one of the
+replicate samples marking them as a grouping.
+
+## Examples
+
+``` r
+# Load example dataset:
+utils::data(Data_Nutrients_UT)
+
+# Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
+df <- TADA_FindQCActivities(Data_Nutrients_UT)
+
+# Find pairs for all data flagged as "QC_replicate" in the TADA.ActivityType.Flag column:
+df_all_pairs <- TADA_PairReplicates(df)
+
+# Find pairs for only data with ActivityTypeCode "Quality Control Sample-Field Replicate":
+df_fieldrep_pairs <- TADA_PairReplicates(df, type = "Quality Control Sample-Field Replicate")
+
+# Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
+df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
+```

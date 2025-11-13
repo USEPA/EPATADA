@@ -1,0 +1,284 @@
+# Generate TADA-compatible dataframe from WQP Data
+
+Retrieve data from Water Quality Portal (WQP) and generate a
+TADA-compatible dataframe. Note that the inputs (e.g. project,
+organization, siteType) with the exceptions of endDate and startDate
+match the web service call format from the online WQP GUI. endDate and
+startDate match the format suggested in USGS's dataRetrieval package
+(endDate = "YYYY-MM-DD"), which is a more familiar date format for R
+users than the WQP GUI's endDateHi = "MM-DD-YYYY". aoi_sf,
+tribal_area_type, and tribe_name_parcel do not have corresponding inputs
+in the web service.
+
+## Usage
+
+``` r
+TADA_DataRetrieval(
+  startDate = "null",
+  endDate = "null",
+  aoi_sf = NULL,
+  countrycode = "null",
+  countycode = "null",
+  huc = "null",
+  siteid = "null",
+  siteType = "null",
+  tribal_area_type = "null",
+  tribe_name_parcel = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
+  organization = "null",
+  project = "null",
+  providers = "null",
+  bBox = "null",
+  maxrecs = 350000,
+  ask = TRUE,
+  applyautoclean = TRUE
+)
+```
+
+## Arguments
+
+- startDate:
+
+  Start Date string in the format YYYY-MM-DD, for example, "2020-01-01"
+
+- endDate:
+
+  End Date string in the format YYYY-MM-DD, for example, "2020-01-01"
+
+- aoi_sf:
+
+  An sf object to use for a query area of interest. If using a local
+  shapefile, sf::read_sf can be used to read in a user provided
+  shapefile. This will only work for polygons.
+
+- countrycode:
+
+  Code that identifies a country or ocean (e.g. countrycode = "CA" for
+  Canada, countrycode = "OA" for Atlantic Ocean). See
+  https://www.waterqualitydata.us/Codes/countrycode for options.
+
+- countycode:
+
+  FIPS county name. Note that a state code must also be supplied (e.g.
+  statecode = "AL", countycode = "Chilton"). See
+  https://www.waterqualitydata.us/Codes/countycode for options.
+
+- huc:
+
+  A numeric code denoting a hydrologic unit. Example: "04030202".
+  Different size hucs can be entered. See
+  https://epa.maps.arcgis.com/home/item.html?id=796992f4588c401fabec7446ecc7a5a3
+  for a map with HUCS. Click on a HUC to find the associated code.
+
+- siteid:
+
+  Unique monitoring location identifier.
+
+- siteType:
+
+  Type of waterbody. See https://www.waterqualitydata.us/Codes/sitetype
+  for options.
+
+- tribal_area_type:
+
+  One of four tribal spatial layers: "Alaska Native Allotments",
+  "American Indian Reservations", "Off-reservation Trust Lands", or
+  "Oklahoma Tribal Statistical Areas". More info in
+  TADA_TribalOptions(). Note that "Alaska Native Villages" and "Virginia
+  Federally Recognized Tribes" layers will not return a successful
+  query.
+
+- tribe_name_parcel:
+
+  The name of one or more tribes corresponding to entries in the
+  TRIBE_NAME field of the specified tribal_area_type. OR if the type is
+  "Alaska Native Allotments" then the corresponding PARCEL_NO. If a
+  tribal_area_type is selected, tribal_name_parcel is required. More
+  info in TADA_TribalOptions().
+
+- characteristicName:
+
+  Name of parameter. See
+  https://www.waterqualitydata.us/Codes/characteristicName for options.
+
+- characteristicType:
+
+  Groups of environmental measurements/parameters. See
+  https://www.waterqualitydata.us/Codes/characteristicType for options.
+
+- sampleMedia:
+
+  Sampling substrate such as water, air, or sediment. See
+  https://www.waterqualitydata.us/Codes/sampleMedia for options.
+
+- statecode:
+
+  FIPS state alpha code that identifies a state (e.g. statecode = "DE"
+  for Delaware). See https://www.waterqualitydata.us/Codes/statecode for
+  options.
+
+- organization:
+
+  A string of letters and/or numbers (some additional characters also
+  possible) used to signify an organization with data in the Water
+  Quality Portal. See https://www.waterqualitydata.us/Codes/organization
+  for options.
+
+- project:
+
+  A string of letters and/or numbers (some additional characters also
+  possible) used to signify a project with data in the Water Quality
+  Portal. See https://www.waterqualitydata.us/Codes/project for options.
+
+- providers:
+
+  Leave blank to include all, or specify "STEWARDS", "STORET" (i.e.,
+  WQX), and/or "NWIS". See
+  https://www.waterqualitydata.us/Codes/providers for options.
+
+- bBox:
+
+  The latitude and longitude extent. Includes four numbers, e.g. bBox
+  \<- c(-xmin, ymin, -xmax, ymax).
+
+- maxrecs:
+
+  Maximum number of records to query at once (i.e., without breaking
+  into smaller queries).
+
+- ask:
+
+  A logical value (TRUE or FALSE) indicating whether the user should be
+  asked for approval before downloads begin. Defaults to TRUE.
+
+- applyautoclean:
+
+  Logical, defaults to TRUE. Applies TADA_AutoClean function on the
+  returned data profile. Suggest switching to FALSE for queries that are
+  expected to be large.
+
+## Value
+
+TADA-compatible dataframe
+
+## Details
+
+Multiple fields are queried together using AND logic, but multiple
+values within one field are queried together using OR logic. For
+example, within characteristicName, if you enter, c("pH", "Dissolved
+oxygen (DO)), the function will return all results that are "pH" OR
+"Dissolved oxygen (DO)". Similarly, if you enter c("VA", "IL"), the
+function will return results from Virginia OR Illinois. But the combo of
+these fields are ANDs: The function will return any pH and DO data from
+only Virginia or Illinois; the data must fit into one of the values from
+BOTH of the query fields. characteristicName and Characteristic Group
+also work as an AND, therefore the characteristicName must fall within
+the Characteristic Group when both are entered.
+
+aoi_sf cannot be used with tribal_area_type. If countrycode, countycode,
+huc, siteid, or statecode are used with aoi_sf or tribal_area_type they
+will be ignored under the assumption that the sf object or tribal
+location are the intended area of interest.
+
+aoi_sf is only designed to work with polygon shapefiles.
+
+Users can reference the [WQX domain
+tables](https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
+to find allowable values for queries, e.g., reference the WQX domain
+table to find countycode and statecode:
+https://cdx.epa.gov/wqx/download/DomainValues/County_CSV.zip
+Alternatively, you can use the WQP services to find areas where data is
+available in the US: https://www.waterqualitydata.us/Codes/countycode
+
+TADA_DataRetrieval automatically runs TADA_AutoClean on the incoming
+dataframe. TADA_AutoClean is important for categorizing result value and
+detection limit data, as well as harmonizing key columns used in TADA.
+See ?TADA_AutoClean for more information.
+
+Note: TADA_DataRetrieval (by leveraging dataRetrieval), automatically
+converts the date times to UTC. It also automatically converts the data
+to dates, datetimes, numerics based on a standard algorithm. See:
+?dataRetrieval::readWQPdata
+
+## Note
+
+Alaska Native Villages and Virginia Federally Recognized Tribes are
+point geometries in the Map Service, not polygons. At the time of this
+writing they do not return any data when used for WQP bbox queries and
+so are set to return errors when used with this function.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+
+# example for a single characteristic from one county
+tada1 <- TADA_DataRetrieval(
+  statecode = "WI", countycode = "Dane",
+  characteristicName = "Phosphorus",
+  ask = FALSE
+)
+
+# example for NM with a startDate and multiple characteristics
+tada2 <- TADA_DataRetrieval(
+  statecode = "NM",
+  characteristicName = c(
+    "Ammonia",
+    "Nitrate",
+    "Nitrogen"
+  ),
+  startDate = "2020-05-01",
+  ask = FALSE
+)
+
+# example for retrieving data from a single project
+tada3 <- TADA_DataRetrieval(project = "Anchorage Bacteria 20-21", ask = FALSE)
+
+
+# example using tribal_area_type and tribe_name_parcel to query
+tada4 <- TADA_DataRetrieval(
+  tribal_area_type = "American Indian Reservations",
+  tribe_name_parcel = "Pueblo of Pojoaque, New Mexico",
+  startDate = "2018-01-01",
+  endDate = "2019-01-01",
+  applyautoclean = FALSE,
+  ask = FALSE
+)
+
+# query only NWIS data for a 10 year period in CT
+tada5 <- TADA_DataRetrieval(
+  startDate = "2013-01-01",
+  endDate = "2022-12-31",
+  sampleMedia = c("Water", "water"),
+  statecode = "CT", # consider downloading only 1 state at a time
+  providers = "NWIS",
+  applyautoclean = FALSE,
+  ask = FALSE
+)
+
+# query by country code (e.g. Canada, countrycode = "CA")
+tada6 <- TADA_DataRetrieval(
+  startDate = "2015-01-01",
+  countrycode = "CA",
+  ask = FALSE
+)
+
+# query by shapefile for Navajo Nation
+
+navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
+  dplyr::filter(NAME == "Navajo Nation")
+
+tada7 <- TADA_DataRetrieval(
+  aoi_sf = navajo_sf,
+  startDate = "2023-01-01",
+  endDate = "2023-12-31",
+  ask = FALSE
+)
+
+bbox <- c(-86.9736, 34.4883, -86.6135, 34.6562)
+tada8 <- TADA_DataRetrieval(bBox = bbox)
+} # }
+```

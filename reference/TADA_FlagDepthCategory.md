@@ -1,0 +1,131 @@
+# TADA_FlagDepthCategory
+
+This function creates a new column, TADA.DepthCategory.Flag with values:
+"No depth info", "Surface", "Bottom", and "Middle" when multiple depths
+are available. Categories are: less than 2m (or user specified value)
+depth = "Surface", from bottom up to 2m (or user specified value) from
+bottom = "Bottom", and all depths in between the Surface and Bottom are
+assigned to the "Middle" category.
+
+## Usage
+
+``` r
+TADA_FlagDepthCategory(
+  .data,
+  bycategory = "no",
+  bottomvalue = 2,
+  surfacevalue = 2,
+  dailyagg = "none",
+  aggregatedonly = FALSE,
+  clean = FALSE
+)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+- bycategory:
+
+  character argument with options "no", "all", "surface", "middle",
+  "bottom". The default is bycategory = "no" which means that any
+  aggregate values are based on the entire water column at a Monitoring
+  Location. When bycategory = "all", any aggregate values are determined
+  for each depth category for each Monitoring Location. When bycategory
+  = "surface", "middle", or "bottom", the data frame is filtered only to
+  include results in the selected category and aggregate values are
+  determined ONLY for results with TADA.DepthCategory.Flags "Surface",
+  "Bottom", or "Middle" results respectively.
+
+- bottomvalue:
+
+  numeric argument. The user enters how many meters from the bottom
+  should be included in the "Bottom" category. Default is bottomvalue
+  = 2. If bottomvalue = "null", "Bottom" and "Middle" results cannot be
+  identified, however TADA.ConsolidatedDepth and
+  TADA.ConsolidatedDepth.Bottom will still be determined.
+
+- surfacevalue:
+
+  numeric argument. The user enters how many meters from the surface
+  should be included in the "Surface" category. Default is surfacevalue
+  = 2. If surfacevalue = "null", "Surface" and "Middle" results cannot
+  be identified, however TADA.ConsolidatedDepth and
+  TADA.ConsolidatedDepth.Bottom will still be determined.
+
+- dailyagg:
+
+  Character argument; with options "none", "avg", "min", or "max". The
+  default is dailyagg = "none". When dailyagg = "none", all results will
+  be retained. When dailyagg == "avg", the mean value in each group of
+  results (as determined by the depth category) will be identified or
+  calculated for each TADA.MonitoringLocation, ActivityDate,
+  Organization ID, and TADA.CharacteristicName combination. When
+  dailyagg == "min" or when dailyagg == "max", the min or max value in
+  each group of results (as determined by the depth category) will be
+  identified or calculated for each TADA.MonitoringLocation,
+  ActivityDate, and TADA.CharacteristicName combination. An additional
+  column, TADA.DepthProfileAggregation.Flag will be added to describe
+  aggregation.
+
+- aggregatedonly:
+
+  Boolean argument with options TRUE or FALSE. The default is
+  aggregatedonly = FALSE which means that all results are returned. When
+  aggregatedonly = TRUE, only aggregate values are returned.
+
+- clean:
+
+  Boolean argument with options TRUE or FALSE. The default is clean =
+  "FALSE" which means that all results are returned. When clean =
+  "TRUE", only aggregate results which can be assigned to a depth
+  category are included in the returned dataframe.
+
+## Value
+
+The same input TADA dataframe with additional columns
+TADA.DepthCategory.Flag, TADA.DepthProfileAggregation.Flag,
+TADA.ConsolidatedDepth, TADA.ConsolidatedDepth.Bottom, and
+TADA.ConsolidatedDepth.Unit. The consolidated depth fields are created
+by reviewing multiple WQC columns where users may input depth
+information. If a daily_agg = "avg", "min", or "max", aggregated values
+will be identified in the TADA.ResultAggregation.Flag column. In the
+case of daily_agg = "avg", additional rows to display averages will be
+added to the data frame. They can be identified by the prefix ("TADA-")
+of their result identifiers.
+
+## Details
+
+When more than one result is available for a
+TADA.MonitoringLocationIdentifier, ActivityStartDate,
+OrganizationIdentifier, and TADA.CharacteristicName, the user can choose
+a single result value (average, max, or min value) to use for that day
+and location. If results vary with depth, the user may also define
+whether the daily aggregation occurs over each depth category (surface,
+middle, or bottom) or for the entire depth profile.
+
+## Examples
+
+``` r
+# Load data frame
+utils::data(Data_6Tribes_5y)
+
+# assign TADA.DepthCategory.Flag with no aggregation
+Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
+#> [1] "TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available."
+#> [1] "TADA_FlagDepthCategory: assigning depth categories."
+#> [1] "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column."
+#> [1] "TADA_FlagDepthCategory: No aggregation performed."
+
+# assign TADA.DepthCategory.Flag and determine average values by depth
+# category and returning only aggregate values
+Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
+  bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
+)
+#> [1] "TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available."
+#> [1] "TADA_FlagDepthCategory: assigning depth categories."
+#> [1] "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag."
+#> [1] "TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata."
+```

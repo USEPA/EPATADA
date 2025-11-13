@@ -1,0 +1,74 @@
+# Join WQP Profiles
+
+After retrieving multiple result and metadata profiles from the WQP,
+this function joins those profiles together into one dataframe. The
+FullPhysChem data input is required to run this function.
+
+## Usage
+
+``` r
+TADA_JoinWQPProfiles(FullPhysChem = "null", Sites = "null", Projects = "null")
+```
+
+## Arguments
+
+- FullPhysChem:
+
+  Full physical chemical data profile
+
+- Sites:
+
+  Sites data profile
+
+- Projects:
+
+  Projects data profile
+
+## Value
+
+TADA-compatible dataframe
+
+## Details
+
+The WQP user interface assists users with constructing a web service
+query URL - for example:
+https://www.waterqualitydata.us/#statecode=US%3A09&
+characteristicType=Nutrient&startDateLo=04-01-2023&
+startDateHi=11-01-2023&mimeType=csv&providers=NWIS&providers=STEWARDS&
+providers=STORET
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# construct the WQP web service URL for each profile
+baseurl <- "https://www.waterqualitydata.us"
+profile_station <- "/data/Station"
+profile_result <- "/data/Result"
+profile_result_2 <- "&dataProfile=resultPhysChem"
+profile_project <- "/data/Project"
+filters <- "/search?statecode=US%3A09&characteristicType=Nutrient"
+dates <- "&startDateLo=04-01-2023&startDateHi=11-01-2023"
+type <- "&mimeType=csv&zip=yes"
+providers <- "&providers=NWIS&providers=STEWARDS&providers=STORET"
+
+stationProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_station, filters, dates, type, providers)
+)
+
+physchemProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_result, filters, dates, type, profile_result_2, providers)
+)
+
+projectProfile <- TADA_ReadWQPWebServices(
+  paste0(baseurl, profile_project, filters, dates, type, providers)
+)
+
+# Join all three profiles using TADA_JoinWQPProfiles
+TADAProfile <- TADA_JoinWQPProfiles(
+  FullPhysChem = physchemProfile,
+  Sites = stationProfile,
+  Projects = projectProfile
+)
+} # }
+```

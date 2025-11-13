@@ -1,0 +1,98 @@
+# Convert Depth Units
+
+\#'The **TADA_ConvertDepthUnits** function converts depth units to a
+consistent unit. Depth values and units are most commonly associated
+with lake data, and are populated in the *ActivityDepthHeightMeasure*,
+*ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and
+*ResultDepthHeightMeasure* Result Value/Unit columns.
+
+## Usage
+
+``` r
+TADA_ConvertDepthUnits(.data, unit = "m", transform = TRUE)
+```
+
+## Arguments
+
+- .data:
+
+  TADA dataframe
+
+- unit:
+
+  Character string input indicating the target depth unit to use for
+  conversions. Allowable values for 'unit' are either "m" (meters), "ft"
+  (feet), or "in" (inches). 'unit' accepts only one allowable value as
+  an input. The default unit = "m".
+
+- transform:
+
+  Boolean argument; The default is transform = TRUE.
+
+## Value
+
+When transform = TRUE, the input dataframe is returned with all depth
+data converted to the target unit in new TADA-specific columns. When
+transform = FALSE, the input dataframe is returned with additional
+columns showing how the data would be handled if converted. A user can
+review the conversion factor information if desired by using this
+feature. No conversions are made, but new TADA-specific columns are
+added as copies of original columns, with unit synonyms addressed (e.g.
+"meters" is converted automatically to "m" for national consistency).
+
+## Details
+
+This function first checks the dataframe for depth profile data. Where
+depth profile columns are populated, the function appends 'Conversion
+Factor' columns and populates those columns based on the original unit
+and the target unit, which is defined in the 'unit' argument. A 'Depth
+Target Unit' column is also appended, indicating the unit all selected
+depth data is converted to. When transform = FALSE, the output includes
+all 'Conversion Factor' columns and the 'Depth Target Unit' column. When
+transform = TRUE, the output includes converted depth data in a column
+with the same name as the original, plus the prefix "TADA." and a 'Depth
+Target Unit' column, which acts as a flag indicating which rows have
+been converted. New TADA versions of all depth columns are always
+created. Default is transform = TRUE.
+
+The depth profile function can harmonize depth units across all the
+following fields: "ActivityDepthHeightMeasure",
+"ActivityTopDepthHeightMeasure", "ActivityBottomDepthHeightMeasure",
+"ResultDepthHeightMeasure"). It creates new result value/unit columns
+with the prefix "TADA." to all converted columns. The default is to
+check all four Depth Height columns.
+
+Allowable values for 'unit' are either 'm' (meter), 'ft' (feet), or 'in'
+(inch). 'unit' accepts only one allowable value as an input. Default is
+unit = "m".
+
+## Examples
+
+``` r
+# Load example dataset:
+utils::data(Data_Nutrients_UT)
+
+# Convert all depth units to meters and review unit harmonization:
+# "ActivityDepthHeightMeasure.MeasureUnitCode" and
+# "ActivityDepthHeightMeasure.MeasureValue"
+# are harmonized to "TADA.ActivityDepthHeightMeasure.MeasureUnitCode" and
+# "TADA.ActivityDepthHeightMeasure.MeasureValue"
+DepthUnitsConverted_m <- TADA_ConvertDepthUnits(Data_Nutrients_UT)
+
+# Convert all depth units to feet:
+DepthUnitsConverted_ft <- TADA_ConvertDepthUnits(Data_Nutrients_UT, unit = "ft")
+
+# Do not convert any depth units, but address depth unit synonyms, add
+# TADA depth columns (copies),
+# Add columns with target units and conversion factors for each depth
+# measure unit:
+DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT,
+  transform = FALSE
+)
+# Compare columns before and after transformation to see example
+# transformation from "meters" to "m"
+unique(DepthUnitsNotConverted$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
+#> [1] NA     "m"    "feet"
+unique(DepthUnitsNotConverted$ActivityDepthHeightMeasure.MeasureUnitCode)
+#> [1] NA     "m"    "feet"
+```
