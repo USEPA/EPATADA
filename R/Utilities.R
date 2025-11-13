@@ -188,7 +188,6 @@ TADA_DecimalPlaces <- function(x) {
 }
 
 
-
 #' Check Type
 #'
 #' This function checks if the inputs to a function are of the expected type. It
@@ -204,7 +203,6 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
   }
   invisible(NULL)
 }
-
 
 
 #' Check Columns
@@ -237,7 +235,6 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 
   invisible(NULL)
 }
-
 
 
 #' TADA_ConvertSpecialChars
@@ -614,7 +611,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #' @export
 TADA_CreateComparableID <- function(.data) {
   # check .data is data.frame and has required columns
-  expected_cols = c(
+  expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName",
@@ -662,7 +659,6 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 }
 
 
-
 #' Generate a Random Water Quality Portal (WQP) Dataset
 #'
 #' This function retrieves water quality data for a randomly selected period
@@ -691,6 +687,9 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'
 #' @return A data frame containing a random WQP dataset with at least 10 results,
 #' or an empty data frame if data retrieval fails after the specified number of attempts.
+#' If a 500 Internal Server Error or any other error occurs during data retrieval,
+#' the function will retry up to `max_attempts` times. If all attempts fail,
+#' an empty data frame is returned, and a message is logged indicating the failure.
 #'
 #' @export
 #'
@@ -757,7 +756,13 @@ TADA_RandomTestingData <- function(number_of_days = 1,
             ask = FALSE
           )
         },
+        httr2_http_500 = function(e) {
+          # Log the occurrence of a 500 error
+          message("Attempt ", attempt, ": 500 Internal Server Error occurred.")
+          return(NULL) # Return NULL to indicate failure
+        },
         error = function(e) {
+          # Log other errors
           message("Attempt ", attempt, ": An error occurred - ", e$message)
           return(NULL) # Return NULL to indicate failure
         }
@@ -778,7 +783,7 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     }
 
     # If all attempts fail, return an empty data frame
-    message("Failed to retrieve data after ", max_attempts, " attempts.")
+    message("Failed to retrieve data after ", max_attempts, " attempts due to persistent errors.")
     return(data.frame())
   }
 
@@ -795,7 +800,6 @@ TADA_RandomTestingData <- function(number_of_days = 1,
   df <- verify_random_data()
   return(df)
 }
-
 
 
 #' Get bounding box JSON

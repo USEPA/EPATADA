@@ -163,12 +163,7 @@ All TADA Reference and Validation Tables are also available in the R
 Package
 [HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata). TADA
 pulls the WQX Validation Table and other domain tables into TADA and
-updates them automatically whenever changes are made
-
--   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXcharValRef.csv>
-
--   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXunitRef.csv>
-
-WQX and TADA users can review and provide feedback on the validation
-table and/or target units assigned, and provide feedback by emailing the
-WQX helpdesk (WQX\@epa.gov).
+updates them automatically whenever changes are made. WQX and TADA users
+can review and provide feedback on the validation table and/or target
+units assigned, and provide feedback by emailing the WQX helpdesk
+(WQX\@epa.gov).
