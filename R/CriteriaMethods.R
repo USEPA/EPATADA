@@ -988,7 +988,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
 }
 
 
-
 #' Data Dictionary for Criteria and Methodology
 #'
 #' Defines and summarizes the column names found in the TADA format for the

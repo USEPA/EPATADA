@@ -205,9 +205,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
               err_msg <- as.character(e$message)
 
               # Check for HTTP 404 in the error message
-              if (grepl("404", err_msg)) {
-
-              } else {
+              if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
                 stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
               }
@@ -302,9 +300,7 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
               err_msg <- as.character(e$message)
 
               # Check for HTTP 404 in the error message
-              if (grepl("404", err_msg)) {
-
-              } else {
+              if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
                 stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
               }
@@ -532,9 +528,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
               err_msg <- as.character(e$message)
 
               # Check for HTTP 404 in the error message
-              if (grepl("404", err_msg)) {
-
-              } else {
+              if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
                 stop(paste0("Something went wrong: ", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
               }
@@ -579,9 +573,7 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
               err_msg <- as.character(e$message)
 
               # Check for HTTP 404 in the error message
-              if (grepl("404", err_msg)) {
-
-              } else {
+              if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
                 stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
               }

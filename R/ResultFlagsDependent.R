@@ -61,9 +61,12 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
-  # read in sample fraction reference table from extdata and filter
-  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicFraction")
+  # read in fraction reference table from extdata and filter
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  frac.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicFraction")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (SampleFraction)
   check.data <- merge(.data, frac.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -217,8 +220,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicSpeciation")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (Speciation)
   check.data <- merge(.data, spec.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -297,7 +303,6 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
     return(error.data)
   }
 }
-
 
 
 #' Check Result Unit Validity
@@ -416,8 +421,11 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "TADA.WQXVal.Flag", "Value")],
@@ -633,7 +641,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-
 #' Pair Replicates with Original Samples
 #'
 #' This function looks for replicate samples and pairs them to their original or
@@ -779,7 +786,6 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
-
 
 
 #' Check for results with suspect result Measure Qualifier Codes
