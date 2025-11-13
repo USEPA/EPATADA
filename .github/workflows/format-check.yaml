@@ -28,7 +28,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -36,11 +36,11 @@ jobs:
         uses: posit-dev/setup-air@v1
 
       - name: Format
-        run: air format .
+        run: air format . --check
 
-      - name: Suggest
-        uses: reviewdog/action-suggester@v1
-        with:
-          level: error
-          fail_level: error
-          tool_name: air
+#      - name: Suggest
+#        uses: reviewdog/action-suggester@v1
+#        with:
+#          level: error
+#          fail_level: error
+#          tool_name: air

@@ -178,7 +178,6 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 }
 
 
-
 #' Update Monitoring Location Identifier and Assessment Unit Identifier
 #' Crosswalk in ATTAINS
 #'
@@ -1432,7 +1431,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 }
 
 
-
 #' Create or Update ATTAINS Parameter and Use crosswalk
 #'
 #' This function generates a crosswalk of all parameters and uses applicable to
@@ -2137,7 +2135,6 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
 }
 
 
-
 #' ATTAINS Assessment Unit and Use Name Crosswalk
 #'
 #' This function pulls in all prior ATTAINS Use names associated with each
@@ -2582,7 +2579,6 @@ TADA_CreateUseAURef <- function(.data, org_id = NULL, AUMLRef = NULL, # Required
 }
 
 
-
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
 #' This is a helper function to TADA_CreateUseAURef and is meant to help users
@@ -2699,7 +2695,6 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL) {
 
   return(CreateWaterUseRef)
 }
-
 
 
 #' Review and Apply Any Site-specific Criteria to Monitoring Location Sites or Assessment Units

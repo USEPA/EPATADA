@@ -44,7 +44,6 @@ test_that("Column names do not contain the pattern 'TADA.TADA.'", {
 })
 
 
-
 test_that("Only numeric data remains after running TADA_ConvertSpecialChars clean = TRUE", {
   testdat <- TADA_RandomTestingData(
     number_of_days = 1,
@@ -204,12 +203,24 @@ test_that("pH harmonization works as expected throughout workflow", {
   random_date_str <- format(random_date, "%Y-%m-%d")
   random_date_minus_2_str <- format(random_date_minus_2, "%Y-%m-%d")
 
-  # Retrieves pH data using the TADA_DataRetrieval function.
-  ph_data <- TADA_DataRetrieval(
-    startDate = random_date_minus_2_str,
-    endDate = random_date_str,
-    characteristicName = "pH",
-    ask = FALSE
+  # Try to retrieve pH data using the TADA_DataRetrieval function.
+  ph_data <- tryCatch(
+    {
+      TADA_DataRetrieval(
+        startDate = random_date_minus_2_str,
+        endDate = random_date_str,
+        characteristicName = "pH",
+        ask = FALSE
+      )
+    },
+    httr2_http_500 = function(e) {
+      # Skip the test if a 500 error occurs
+      skip("Skipping test due to 500 Internal Server Error during data retrieval")
+    },
+    error = function(e) {
+      # Re-throw the error if it's not a 500 error
+      stop(e)
+    }
   )
 
   # Check if the required data frame is empty or null
