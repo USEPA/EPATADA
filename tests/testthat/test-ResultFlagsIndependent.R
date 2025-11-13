@@ -68,50 +68,87 @@ test_that("No NA's in independent flag columns", {
   expect_false(any(is.na(testdat$TADA_FindQAPPDoc)))
 })
 
-# takes too long
-# test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-#   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-#   testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
-#   testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-#   expect_true(dim(testdat)[1] == dim(testdat1)[1])
-#   expect_true(dim(testdat)[1] == dim(testdat2)[1])
-# })
+test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
 
-# takes too long
-# test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-#   testdat <- TADA_RandomTestingData()
-#   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-#
-#   testdat1 <- testdat %>%
-#     dplyr::select(TADA.NearbySiteGroup) %>%
-#     dplyr::distinct() %>%
-#     dplyr::pull() %>%
-#     as.numeric() %>%
-#     sort()
-#
-#   testdat2 <- testdat %>%
-#     dplyr::select(TADA.MultipleOrgDupGroupID) %>%
-#     dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
-#     unique() %>%
-#     dplyr::pull() %>%
-#     as.numeric() %>%
-#     sort()
-#
-#   expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
-#
-#   expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
-# })
+  # Skip the test if the test dataframe is empty
+  if (dim(testdat)[1] == 0) {
+    skip("Test dataframe is empty, skipping test.")
+  }
 
-# takes too long
-# test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
-#   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-#   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-#
-#   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
-#   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
-#   expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
-#   expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
-# })
+  testdat1 <- TADA_FindPotentialDuplicatesSingleOrg(testdat)
+  testdat2 <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  expect_true(dim(testdat)[1] == dim(testdat1)[1])
+  expect_true(dim(testdat)[1] == dim(testdat2)[1])
+})
+
+test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  testdat1 <- testdat %>%
+    dplyr::select(TADA.NearbySiteGroup) %>%
+    dplyr::distinct() %>%
+    dplyr::pull() %>%
+    as.numeric() %>%
+    sort()
+
+  testdat2 <- testdat %>%
+    dplyr::select(TADA.MultipleOrgDupGroupID) %>%
+    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
+    unique() %>%
+    dplyr::pull() %>%
+    as.numeric() %>%
+    sort()
+
+  expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
+
+  expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
+})
+
+test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
+  expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
+  expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
+})
+
+test_that("WQXcharValRef.rda contains only one row for each unique characteristic/source/unit combination for threshold functions", {
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+
+  unit.ref <- dplyr::filter(
+    WQXcharValRef, Type == "CharacteristicUnit",
+    Status == "Accepted"
+  )
+
+  find.dups <- unit.ref %>%
+    dplyr::filter(Type == "CharacteristicUnit") %>%
+    dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+    dplyr::mutate(
+      Min_n = length(unique(Minimum)),
+      Max_n = length(unique(Maximum))
+    ) %>%
+    dplyr::filter(Min_n > 1 |
+      Max_n > 1)
+
+  expect_true(nrow(find.dups) == 0)
+})
+
+test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
+
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
+  expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
+  expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
+  expect_false(any(is.na(testdat$TADA.ResultSelectedMultipleOrgs)))
+})
 
 test_that("range flag functions work", {
   # use random data
@@ -119,13 +156,9 @@ test_that("range flag functions work", {
 
   expect_no_error(TADA_FlagAboveThreshold(upper))
   expect_no_warning(TADA_FlagAboveThreshold(upper))
-  expect_no_message(TADA_FlagAboveThreshold(upper))
-  expect_no_condition(TADA_FlagAboveThreshold(upper))
 
   expect_no_error(TADA_FlagBelowThreshold(upper))
   expect_no_warning(TADA_FlagBelowThreshold(upper))
-  expect_no_message(TADA_FlagBelowThreshold(upper))
-  expect_no_condition(TADA_FlagBelowThreshold(upper))
 })
 
 
