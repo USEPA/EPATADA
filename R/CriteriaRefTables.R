@@ -43,7 +43,7 @@ TADA_GetEPACSTRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")))
+    return(utils::read.csv(system.file("extdata", "EPACST.csv", package = "EPATADA")))
   }
 
   # Creates and formats the CST ref table below:
@@ -80,5 +80,5 @@ TADA_GetEPACSTRef <- function() {
 # (for internal use only)
 
 TADA_UpdateEPACSTRef <- function() {
-  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/CST.csv", row.names = FALSE)
+  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/EPACST.csv", row.names = FALSE)
 }

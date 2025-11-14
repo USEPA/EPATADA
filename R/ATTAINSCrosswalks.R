@@ -1026,9 +1026,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         )
     }
 
-    # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
-    # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA"))
-
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
