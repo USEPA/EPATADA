@@ -1830,8 +1830,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     silent = TRUE
   )
 
-
-  # function to download ATTAINS features API based on their name
+  # function to download ATTAINS features API based on their assessment unit id
 
   fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
     # Split the assessment_unit_ids into chunks of 1000
@@ -3477,7 +3476,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
    # create text to describe number of records
     count.text <- ifelse(record.count == 0, "no", record.count)
 
-    # prinnt message summarizing the results of fetching crosswalk data from ATTAINS
+    # print message summarizing the results of fetching crosswalk data from ATTAINS
     print(paste0(
         "TADA_CreateAUMLCrosswalk: There are ", count.text, " MonitoringLocation records ",
         "in ATTAINS for ", org.text, "."
@@ -3497,6 +3496,20 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         attains_replace = TRUE
       )
     )
+
+    # create list of monitoring location identifiers from TADA df
+    tada.mls <- .data |>
+      dplyr::select(TADA.MonitoringLocationIdentifier) |>
+      dplyr::distinct() |>
+      dplyr::pull()
+
+    # filter attains.cw to remove any assessment units that don't have a monitoring location
+    # match in the TADA df
+    attains.cw <- attains.cw |>
+      dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
+
+    # remove intermediate object
+    rm(tada.mls)
 
     # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
     if (!is.null(au_ref)) {
