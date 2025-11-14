@@ -9,6 +9,12 @@ ATTAINSParamToWQPCharRef_Cached <- NULL
 #' This function caches the table after it has been called once
 #' so subsequent calls will be faster.
 #'
+#' @param charAliasType A string value to indicate the WQX data source to use
+#' for finding an ATTAINS parameter name to WQX characteritic name alias.
+#' An alias may have been determined from another data source outside of ATTAINS
+#' which has an exact spelling to an ATTAINS parameter name that could be used
+#' for finding a match.
+#'
 #' @return Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
 #'
 #' @export
@@ -77,8 +83,10 @@ CriteriaSearchToolRef_Cached <- NULL
 
 #' Criteria Search Tool Reference Table
 #'
-#' Function downloads and returns the newest available criteria search tool from
-#' OST. Table is formatted and cleaned up for easy to
+#' This function downloads the latest criteria search tool from the EPA OST and 
+#' returns it. Before use, the downloaded data is cleaned and formatted as the 
+#' the initial ~200 rows contain the legend and data dictionary, which need to 
+#' be removed.
 #'
 #' This function caches the table after it has been called once
 #' so subsequent calls will be faster.
@@ -245,7 +253,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   rm(CST, WQXCharacteristicRef)
   
   # Look for percent word matches 
-  temp <- dplyr::right_join(WQXCharacteristicRef2, ATTAINSParamRef2, by = "name_words") |>
+  temp <- dplyr::right_join(WQXCharacteristicRef2, ATTAINSParamRef2, by = "name_words", relationship = "many-to-many") |>
     dplyr::distinct(CharacteristicName, name, name_words, .keep_all = TRUE) |>
     dplyr::group_by(CharacteristicName, name) |>
     dplyr::count() |> dplyr::ungroup() |>
@@ -255,7 +263,10 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       percent_match_ATTAINS = n/stringr::str_count(name, "\\S+")
     ) |>
     dplyr::slice_max(order_by = percent_match_WQX + percent_match_ATTAINS ) |>
-    dplyr::right_join(WQXCharacteristicRef, by = "CharacteristicName") |>
+    dplyr::right_join(
+      WQXCharacteristicRef, by = "CharacteristicName",
+      relationship = "many-to-many"
+      ) |>
     dplyr::filter(
       percent_match_WQX + percent_match_ATTAINS > 1
     )
@@ -276,7 +287,7 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
     )
   
   # Look for percent word matches between ATTAINS and CST
-  temp_ATTAINS_CST <- dplyr::right_join(CST2, ATTAINSParamRef2, by = "name_words") |>
+  temp_ATTAINS_CST <- dplyr::right_join(CST2, ATTAINSParamRef2, by = "name_words", relationship = "many-to-many") |>
     dplyr::distinct(POLLUTANT_NAME, name, name_words, .keep_all = TRUE) |>
     dplyr::group_by(POLLUTANT_NAME, name) |>
     dplyr::count() |> dplyr::ungroup() |>
@@ -286,7 +297,10 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
       percent_match_ATTAINS = n/stringr::str_count(name, "\\S+")
     ) |>
     dplyr::slice_max(order_by = percent_match_WQX + percent_match_ATTAINS ) |>
-    dplyr::right_join(CST, by = "POLLUTANT_NAME") |>
+    dplyr::right_join(
+      CST, by = "POLLUTANT_NAME",
+      relationship = "many-to-many"
+      ) |>
     dplyr::filter(
       percent_match_WQX + percent_match_ATTAINS > 1
     )
@@ -310,14 +324,16 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE
   temp_final <- temp_100 |>
     dplyr::full_join(
       temp_100_ATTAINS_CST,
-      by = c("name")
+      by = c("name"),
+      relationship = "many-to-many"
     ) |>
     dplyr::mutate(
       CAS.Number = dplyr::coalesce(CAS.Number, CAS_NO)
     ) |>
     dplyr::full_join(
       WQX_CST_CAS_Ref,
-      by = c("CAS.Number" )
+      by = c("CAS.Number"),
+      relationship = "many-to-many"
     ) |>
     dplyr::mutate(
       CharacteristicName = dplyr::coalesce(CharacteristicName.x, CharacteristicName.y),

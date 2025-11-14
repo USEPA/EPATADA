@@ -750,9 +750,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' TADA.ComparableDataIdentifier present in the input TADA dataframe. The
 #' crosswalk can be filled out by users within R or Excel. By default this
 #' function will generate a user friendly Excel spreadsheet that includes a
-#' drop down list of all ATTAINS parameters that are applicable to the
-#' organization selected by the function input 'org_id'. It also
-#' highlights the cells in which users should input information. The excel
+#' drop down list of all ATTAINS parameters that have been listed as a cause in 
+#' prior ATTAINS cycle for the organization selected in the function input 'org_id'. 
+#' It also highlights the cells in which users should input information. The excel
 #' spreadsheet will be automatically downloaded to a user's downloads folder path.
 #' Users may need to insert additional rows into the crosswalk if:
 #' 1) an ATTAINS.ParameterName corresponds with multiple TADA.ComparableDataIdentifiers
