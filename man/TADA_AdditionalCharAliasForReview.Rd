@@ -17,7 +17,7 @@ decide if these are appropriate aliases.
 }
 \description{
 This function compares the current WQX Characteristic Alias table
-of ATTAINS.ParameterNames and WQX CharacteristicNames to the logic.
+of ATTAINS.ParameterNames and WQX CharacteristicNames to the logic
 used in this function, which looks at the percentage of words that are
 a match between each ATTAINS parameters and WQX Characteristics (and
 within ATTAINS and CST, and CST and WQX by CAS) as an alternative
