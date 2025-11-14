@@ -25,8 +25,8 @@ jobs:
         Rscript -e 'styler::style_pkg()'
         git diff > styled.diff
 
-    - name: Create suggestions
-      uses: juliangruber/suggestion-action@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        diff-file: styled.diff
+    - name: Parse and suggest changes
+      run: |
+        python3 .github/scripts/suggest_changes.py styled.diff
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
