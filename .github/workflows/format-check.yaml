@@ -22,7 +22,8 @@ jobs:
         uses: posit-dev/setup-air@v1
 
       - name: Format
-        run: air format . --check || true
+        run: air format . --check
+        continue-on-error: true
         
       - name: Suggest
         uses: reviewdog/action-suggester@v1
