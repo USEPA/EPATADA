@@ -3498,14 +3498,14 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     )
 
     # create list of monitoring location identifiers from TADA df
-    tada.mls <- .data |>
-      dplyr::select(TADA.MonitoringLocationIdentifier) |>
-      dplyr::distinct() |>
+    tada.mls <- .data %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier) %>%
+      dplyr::distinct() %>%
       dplyr::pull()
 
     # filter attains.cw to remove any assessment units that don't have a monitoring location
     # match in the TADA df
-    attains.cw <- attains.cw |>
+    attains.cw <- attains.cw %>%
       dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
 
     # remove intermediate object
