@@ -1,5 +1,3 @@
-# Workflow derived from https://github.com/posit-dev/setup-air/tree/main/examples
-
 on:
   pull_request_target:
 
@@ -22,9 +20,8 @@ jobs:
         uses: posit-dev/setup-air@v1
 
       - name: Format
-        run: air format . --check
-        continue-on-error: true
-        
+        run: air format .
+
       - name: Suggest
         uses: reviewdog/action-suggester@v1
         with:
