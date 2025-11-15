@@ -78,7 +78,6 @@ Imports:
     DT,
     dataRetrieval (>= 2.7.21),
     dbscan,
-    janitor,
     rExpertQuery,
     readr (>= 1.4.0),
     spsUtil,
