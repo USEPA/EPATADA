@@ -535,13 +535,6 @@ mywaterway@epa.gov.
 - [`TADA_addPolys()`](usepa.github.io/EPATADA/reference/TADA_addPolys.md)
   : Add polygons from an ArcGIS feature layer to a leaflet map
 
-- [`TADA_getNWIS()`](usepa.github.io/EPATADA/reference/TADA_getNWIS.md)
-  : Retrieve and tidy daily values from NWIS (DRAFT - UNDER ACTIVE
-  DEVELOPMENT)
-
-- [`TADA_listNWIS()`](usepa.github.io/EPATADA/reference/TADA_listNWIS.md)
-  : TADA_listNWIS (DRAFT - UNDER ACTIVE DEVELOPMENT)
-
 - [`ask_user()`](usepa.github.io/EPATADA/reference/ask_user.md) : Ask
   user to approve WQP downloads
 
