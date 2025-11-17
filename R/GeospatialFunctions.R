@@ -3507,7 +3507,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       rm(org.text, record.count, count.text)
   }
 
-  if (!is.null(attains.cw)) {
+  if (dim(attains.cw)[1] > 0) {
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
     # we could remove or make this step optional, but it is helpful for making sure
