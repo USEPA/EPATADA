@@ -167,19 +167,27 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       .data <- .data %>%
         dplyr::distinct(geometry, .keep_all = TRUE)
     }
-  } else if (!"LongitudeMeasure" %in% colnames(.data) |
+  }
+
+
+ # stop if WQP latitude and longitude are not available
+  if (!"LongitudeMeasure" %in% colnames(.data) |
     !"LatitudeMeasure" %in% colnames(.data) |
     !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
     stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
-  } else {
+ }
+
+  # if WQP latitude and longitude are available transform to spatial object (if not already spatial)
+  if(!is.null(.data) & !inherits(.data, "sf")){
     # ... Otherwise transform into a spatial object then do the same thing:
     .data <- .data %>%
       data.table::data.table(.) %>%
       dplyr::distinct(LongitudeMeasure, LatitudeMeasure, .keep_all = TRUE) %>%
       # convert dataframe to a spatial object
       TADA_MakeSpatial(.data = ., crs = our_epsg)
-  }
+    }
 
+  # stop if there is not data to use a bounding box
   if (is.null(.data) | nrow(.data) == 0) {
     stop("There is no data in your `data` object to use as a bounding box for selecting ATTAINS features.")
   }
