@@ -347,7 +347,7 @@
       # =======================================
       Data_MT_UseAURef_Water <- TADA_CreateUseAURef(
         waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
-        AUMLRef = Data_MT_AUMLRef,
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
