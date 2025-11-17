@@ -2,7 +2,7 @@
 % Please edit documentation in R/ATTAINSRefTables.R
 \name{TADA_GetATTAINSParamToWQPCharRef}
 \alias{TADA_GetATTAINSParamToWQPCharRef}
-\title{ATTAINS Parameter and WQP Characteristic Exact Match Reference Table}
+\title{ATTAINS Parameter and WQP Characteristic Alias Reference Table}
 \usage{
 TADA_GetATTAINSParamToWQPCharRef(charAliasType = c("All", "ATTAINS"))
 }
@@ -17,7 +17,7 @@ for finding a match.}
 Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
 }
 \description{
-Function downloads and returns the newest available crosswalk of exact
+Function downloads and returns the newest available crosswalk of alias
 matches between ATTAINS.ParameterName and TADA.CharacteristicName.
 }
 \details{

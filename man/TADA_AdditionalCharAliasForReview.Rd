@@ -4,11 +4,42 @@
 \alias{TADA_AdditionalCharAliasForReview}
 \title{TADA Alias Methodology for ATTAINS, WQP and CST Alias Table for Review}
 \usage{
-TADA_AdditionalCharAliasForReview(includeCST = FALSE)
+TADA_AdditionalCharAliasForReview(
+  includeCST = FALSE,
+  displayPercent = FALSE,
+  ATTAINS.CST.tolerance = 1,
+  CST.ATTAINS.tolerance = 1,
+  ATTAINS.WQX.tolerance = 1,
+  WQX.ATTAINS.tolerance = 1
+)
 }
 \arguments{
 \item{includeCST}{a Boolean value. If TRUE, this will include columns
 for CST pollutant Name if it contains an alias between any 3 sources.}
+
+\item{displayPercent}{a Boolean value. If True, this will display the percent
+match in number of words between the WQX characteristic, ATTAINS parameter
+and CST pollutant names.}
+
+\item{ATTAINS.CST.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with CST.ATTAINS.tolerance which
+defines the minimum percentage of the number of words that must be found in an
+ATTAINS parameter to a CST pollutant name for it to be considered an alias match.}
+
+\item{CST.ATTAINS.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with ATTAINS.CST.tolerance which
+defines the minimum percentage of the number of words that must be found in a
+CST pollutant name to an ATTAINS parameter to for it to be considered an alias match.}
+
+\item{ATTAINS.WQX.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with ATTAINS.WQX.tolerance which
+defines the minimum percentage of the number of words that must be found in an
+ATTAINS parameter to a WQX characteristic name for it to be considered an alias match.}
+
+\item{WQX.ATTAINS.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
+Default is 100\%. This value is an OR condition with ATTAINS.WQX.tolerance which
+defines the minimum percentage of the number of words that must be found in a
+WQX characteristic name to an ATTAINS parameter to for it to be considered an alias match.}
 }
 \value{
 a data frame consisting of potential additional ATTAINS.ParameterName
@@ -35,7 +66,19 @@ less strict may result in greater number of matches that shouldn't
 be matched (false positives). Default for now is to be more strict.
 }
 \examples{
-review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
 review <- TADA_AdditionalCharAliasForReview()
+review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
+
+review_more_strict <- TADA_AdditionalCharAliasForReview(
+  displayPercent = TRUE,
+  ATTAINS.WQX.tolerance = 1.0, 
+  WQX.ATTAINS.tolerance = 1.0
+  )
+
+review_less_strict <- TADA_AdditionalCharAliasForReview(
+  displayPercent = TRUE,
+  ATTAINS.WQX.tolerance = 0.5, 
+  WQX.ATTAINS.tolerance = 0.5
+  )
 
 }
