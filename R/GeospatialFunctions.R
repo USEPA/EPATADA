@@ -1643,6 +1643,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
+#' @param
+#'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
 #' fill_USGS_catch = TRUE, an additional dataframe of the observations without
@@ -1686,7 +1688,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE, return_sf = TRUE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1706,9 +1708,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     # print message and stop function
     stop("Your data has already been joined with ATTAINS data.")
   }
-
-  # remove intermediate object
-  rm(attains_names)
 
   if (nrow(.data) == 0) {
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
@@ -2219,6 +2218,34 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # catchment <- magick::image_fill(outline.square, "black", "+500+500")
   #
   # magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
+  #
+  # create images for mapping point AUs
+  #
+  # setupPointMarkers <- function(path, size.string, color, name) {
+  #
+  #   marker <- magick::image_resize(
+  #     magick::image_read(path), size.string)
+  #
+  #   marker <- magick::image_fill(marker, color, "+500+500")
+  #
+  #   magick::image_write(marker, path = paste0(
+  #     "inst/extdata/icons/", name, ".png"))
+  # }
+  #
+  # ns.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                               size.string = "200%",
+  #                               color = tada.pal[3],
+  #                               name = "ns.point.circle")
+  #
+  # s.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                              size.string = "200%",
+  #                              color = tada.pal[4],
+  #                              name = "s.point.circle")
+  #
+  # na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                               size.string = "200%",
+  #                               color = tada.pal[7],
+  #                               name = "na.point.circle")
 
   # Define the paths to the images
   images <- c(
@@ -2227,7 +2254,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     system.file("extdata/icons", "square-na.png", package = "EPATADA"),
     system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
     system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"),
+    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"),
+    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"),
+    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA")
   )
 
   # Check if all image paths exist
@@ -2236,6 +2266,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       stop(sprintf("Image file not found: %s", path))
     }
   }
+
+
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
@@ -2434,11 +2466,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS point features (if they exist):
     try(
       map <- map %>%
-        leaflet::addCircleMarkers(
+        leaflet::addCircles(
           data = points_mapper,
           lng = ~X, lat = ~Y,
           color = ~ points_mapper$col, fillColor = ~ points_mapper$col,
-          fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5,
+          fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 30,
           popup = paste0(
             "Assessment Unit Name: ", points_mapper$assessmentunitname,
             "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
@@ -3491,8 +3523,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
     # get crosswalk from ATTAINS
-    attains.cw <- spsUtil::quiet(
-      TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
+    attains.cw <- #spsUtil::quiet(
+      (TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
     )
 
     # create string to describe ATTAINS orgs for print message
@@ -3642,15 +3674,22 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
+
     user <- user[[df.name]]
     attains <- attains[[df.name]]
     get.attains <- get.attains[[df.name]]
+
+    if(!is.null(user) | !is.null(attains) | !is.null(get.attains)){
 
     df <- user %>%
       plyr::rbind.fill(attains) %>%
       plyr::rbind.fill(get.attains) %>%
       dplyr::distinct() %>%
       sf::st_as_sf()
+    } else {
+
+      df <- NULL
+    }
 
     return(df)
   }
