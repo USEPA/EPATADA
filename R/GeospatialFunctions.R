@@ -3429,6 +3429,28 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         user.matches <- spsUtil::quiet(
           TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
         )
+
+        # add AUIDs if user ref contained AUs not found in ATTAINS
+        # set up user ref for join
+        user.aus <- au_ref %>%
+          dplyr::select(ATTAINS.MonitoringLocationIdentifier,
+                        ATTAINS.AssessmentUnitIdentifier) %>%
+          dplyr::rename(TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+                        UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier)
+
+        # replace NA AUIDs with AUID from user ref where possible
+        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS %>%
+          dplyr::left_join(user.aus) %>%
+          dplyr::mutate(ATTAINS.AssessmentUnitIdentifier =
+                          ifelse(is.na(ATTAINS.AssessmentUnitIdentifier) &
+                                   !is.na(UserRef.AssessmentUnitIdentifier),
+                                 UserRef.AssessmentUnitIdentifier,
+                                 ATTAINS.AssessmentUnitIdentifier)) %>%
+          dplyr::select(-UserRef.AssessmentUnitIdentifier) %>%
+          dplyr::distinct()
+
+        # remove intermediate object
+        rm(user.aus)
       }
     }
   }
