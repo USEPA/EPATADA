@@ -2220,32 +2220,28 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
   #
   # create images for mapping point AUs
-  #
-  # setupPointMarkers <- function(path, size.string, color, name) {
-  #
-  #   marker <- magick::image_resize(
-  #     magick::image_read(path), size.string)
-  #
-  #   marker <- magick::image_fill(marker, color, "+500+500")
-  #
-  #   magick::image_write(marker, path = paste0(
-  #     "inst/extdata/icons/", name, ".png"))
-  # }
-  #
-  # ns.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
-  #                               size.string = "200%",
-  #                               color = tada.pal[3],
-  #                               name = "ns.point.circle")
-  #
-  # s.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
-  #                              size.string = "200%",
-  #                              color = tada.pal[4],
-  #                              name = "s.point.circle")
-  #
-  # na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
-  #                               size.string = "200%",
-  #                               color = tada.pal[7],
-  #                               name = "na.point.circle")
+# #
+#   setupPointMarkers <- function(path, color, name) {
+#
+#     marker <- magick::image_fill(magick::image_read(path), color, "+500+500")
+#
+#     marker <- magick::image_background(marker, color = "none")
+#
+#     magick::image_write(marker, path = paste0(
+#       "inst/extdata/icons/", name, ".png"))
+#   }
+#
+#   ns.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                 color = tada.pal[3],
+#                                 name = "ns.point.circle")
+#
+#   s.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                color = tada.pal[4],
+#                                name = "s.point.circle")
+#
+#   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                 color = tada.pal[7],
+#                                 name = "na.point.circle")
 
   # Define the paths to the images
   images <- c(
@@ -2254,10 +2250,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     system.file("extdata/icons", "square-na.png", package = "EPATADA"),
     system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
     system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"),
-    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"),
-    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"),
-    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA")
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
   )
 
   # Check if all image paths exist
@@ -2463,14 +2456,25 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
+    try(
+    pointIcons <- leaflet::icons(
+      iconUrl = dplyr::case_when(
+        points_mapper$overall == "Fully Supporting" ~ system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"),
+        points_mapper$overall == "Not Supporting" ~ system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"),
+        points_mapper$overall == "Not Assessed" ~ system.file("extdata/icons", "na.point.circle.png", package = "EPATADA")
+      ),
+      iconWidth = 48,
+      iconHeight = 48
+    ),
+    )
+
     # Add ATTAINS point features (if they exist):
     try(
       map <- map %>%
-        leaflet::addCircles(
+        leaflet::addMarkers(
           data = points_mapper,
           lng = ~X, lat = ~Y,
-          color = ~ points_mapper$col, fillColor = ~ points_mapper$col,
-          fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 30,
+        icon = pointIcons,
           popup = paste0(
             "Assessment Unit Name: ", points_mapper$assessmentunitname,
             "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
