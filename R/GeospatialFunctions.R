@@ -3633,6 +3633,9 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       dplyr::filter(
         !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier
       )
+
+    # remove intermediate object
+    rm(au.ref.mls)
   }
 
   # add code here for if there are no remaining mls to match
@@ -3669,7 +3672,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   # remove intermediate objects
-  rm(attains.cw.mls, au.ref.mls, get.attains.mls)
+  rm(attains.cw.mls, get.attains.mls)
 
   # join all the resulting tables within each list to return as one large list
   # TADA_with_ATTAINS
