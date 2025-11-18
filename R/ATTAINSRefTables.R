@@ -54,6 +54,7 @@ TADA_GetATTAINSParamToWQPCharRef <- function(charAliasType = c("All", "ATTAINS")
     ATTAINSWQX <- ATTAINSParamRef |>
       dplyr::left_join(WQX_char_alias_filtered, by = c("name"  = "Alias.Name")) |>
       dplyr::select(CharacteristicName = Characteristic.Name, ATTAINS.ParameterName = name, Alias.Type.Name) |>
+      dplyr::mutate(CharacteristicName = toupper(CharacteristicName)) |>
       dplyr::distinct()
   }
 
@@ -61,6 +62,7 @@ TADA_GetATTAINSParamToWQPCharRef <- function(charAliasType = c("All", "ATTAINS")
     ATTAINSWQX <- ATTAINSParamRef |>
       dplyr::left_join(WQX_char_alias_filtered, by = c("name"  = "Alias.Name")) |>
       dplyr::select(CharacteristicName = Characteristic.Name, ATTAINS.ParameterName = name, Alias.Type.Name) |>
+      dplyr::mutate(CharacteristicName = toupper(CharacteristicName)) |>
       dplyr::distinct()
   }
 

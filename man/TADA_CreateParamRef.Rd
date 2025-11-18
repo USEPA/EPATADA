@@ -97,7 +97,7 @@ two required columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 In addition, users who are interested in performing analyses for more than
 one organization (multiple states and/or tribes) also need to include an additional column name:
 'ATTAINS.OrganizationIdentifier'. This ensures that the crosswalk between
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName are specific and
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName is specific and
 accurate for each organization. If a crosswalk has already been created in the
 past and is entered into this function as a starting point, then any
 TADA.ComparableDataIdentifiers that were previously matched
