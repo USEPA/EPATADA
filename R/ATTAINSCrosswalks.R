@@ -790,7 +790,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' Working Group. You are welcome to reach out to the TADA team to ask for
 #' additional matches to be included. You may run the following line of code
 #' in the console to review this crosswalk:
-#' 'CSTtoATTAINSParamCrosswalk <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.
+#' 'TADAPriorityChar <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.
 #'
 #' If no existing ATTAINS parameter name corresponds with a specific
 #' TADA.ComparableDataIdentifier, users may contact the ATTAINS helpdesk
