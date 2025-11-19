@@ -1,4 +1,27 @@
-url: "usepa.github.io/EPATADA/"
+url: usepa.github.io/EPATADA/
 template:
   bootstrap: 5
   bootswatch: yeti
+  light-switch: true
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+  - CONTRIBUTING
+  - TADAModule1_BeginnerTraining
+  - TADAModule1
+  - TADAModule1_AdvancedTraining
+  - TADAModule2
+  - ExampleMod3Workflow
+  - TADAModule3a
+  - ExampleMod3CriteriaMethodsAltOptions
+- title: Workshops and Demos
+  navbar: Workshops
+  contents:
+  - TADAAssessmentUnitUseCase
+  - WQX3-Migration
+  - WQXValidationService
+  - GeospatialDataIntegration
+  - Participatory-Science-Water-Projects-in-WQX
+  - TADACybertown2025
+  - TADAWaterSciConWorkshopDemo
