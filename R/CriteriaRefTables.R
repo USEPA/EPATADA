@@ -65,7 +65,7 @@ TADA_GetEPACSTRef <- function() {
       use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
       CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
       CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
-    )
+    ) 
 
   # Remove intermediate variables
   rm(CST.begin, tada.char.ref, raw.data)

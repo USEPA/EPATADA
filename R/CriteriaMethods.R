@@ -261,7 +261,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       TADA_ParamRef <- TADA_CreateParamRef(
         .data,
         org_id = org_id,
-        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+        auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     )
