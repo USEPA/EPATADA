@@ -391,6 +391,7 @@
 "Measurement Unit(MeasureUnitCode)",351,"ng/m2/day","()Viscosity, Nanograms per square meter per day","7/28/2017 12:33:44 PM","ng/m2/day",1,0
 "Measurement Unit(MeasureUnitCode)",17,"ng/m3","Density, Nanograms per cubic meter","7/26/2006 10:57:47 AM","ug/L",1e-06,0
 "Measurement Unit(MeasureUnitCode)",280,"ng/mL","()Density, Nanograms per milliliter","6/4/2010 10:57:43 AM","ng/mL",1,0
+"Measurement Unit(MeasureUnitCode)",468,"ng/uL","Density, Nanograms per microliter","11/13/2025 8:07:07 AM","ug/L",1000,0
 "Measurement Unit(MeasureUnitCode)",133,"nm","Length Distance, Nanometers","7/26/2006 10:57:47 AM","in",3.93700787e-08,0
 "Measurement Unit(MeasureUnitCode)",289,"nm-1*^*^*^*^","DO NOT USE, Inverse nanometers or per nanometers ***deprecated***use per nm 19-JUL-10","10/1/2024 9:44:14 AM","per nm",1,0
 "Measurement Unit(MeasureUnitCode)",143,"nmi","Length Distance, Nautical miles","7/26/2006 10:57:47 AM","in",72913.38588,0
@@ -415,7 +416,7 @@
 "Measurement Unit(MeasureUnitCode)",467,"per cm","Concentration Solution, Inverse centimeters or per centimeters or cm-1","6/6/2025 2:04:07 PM","per m",100,0
 "Measurement Unit(MeasureUnitCode)",430,"per day","()Time, Inverse days or per day","12/4/2023 10:07:36 AM","per day",1,0
 "Measurement Unit(MeasureUnitCode)",42,"per m","Inverse meter or per meter or m-1","8/31/2024 12:00:00 AM","per nm",1e+09,0
-"Measurement Unit(MeasureUnitCode)",357,"per mil","Concentration Percentage, Parts per thousand","2/16/2017 11:05:28 AM","ug/kg",1e+06,0
+"Measurement Unit(MeasureUnitCode)",357,"per mil","Concentration Percentage, Parts per thousand (per mille)","2/17/2017 12:00:00 AM","ug/kg",1e+06,0
 "Measurement Unit(MeasureUnitCode)",509,"per nm","Inverse nanometers or per nanometers or nm-1","2/11/2021 12:00:00 AM","per nm",1,0
 "Measurement Unit(MeasureUnitCode)",431,"pfu/100L","()Concentration Solution, Plaque Forming Units per 100 liters","12/5/2023 12:00:00 AM","pfu/100mL",1000,0
 "Measurement Unit(MeasureUnitCode)",257,"pfu/100mL","()Concentration Solution, Plaque Forming Units per 100 milliliters","7/26/2006 10:57:47 AM","pfu/100mL",1,0
@@ -436,7 +437,7 @@
 "Measurement Unit(MeasureUnitCode)",92,"ppm","()Concentration Percentage, Parts per million","7/26/2024 10:57:47 AM","ug/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",619,"ppmv","Concentration Percentage, Parts per million by volume","5/31/2018 1:24:02 PM","ug/kg",1000,0
 "Measurement Unit(MeasureUnitCode)",261,"ppt","Concentration Percentage, Parts per trillion","7/26/2006 10:57:47 AM","ug/kg",0.001,0
-"Measurement Unit(MeasureUnitCode)",93,"ppth","Concentration Percentage, Parts per thousand","7/26/2006 10:57:47 AM","ug/kg",1e+06,0
+"Measurement Unit(MeasureUnitCode)",93,"ppth","Concentration Percentage, Parts per thousand (per mille)","7/27/2006 12:00:00 AM","ug/kg",1e+06,0
 "Measurement Unit(MeasureUnitCode)",369,"psf","()Concentration Solution, Pounds per square foot","1/19/2016 11:12:28 AM","psf",1,0
 "Measurement Unit(MeasureUnitCode)",226,"psi","Pressure, pounds per square inch","7/26/2006 10:57:47 AM","g/m2",703069.579991084,0
 "Measurement Unit(MeasureUnitCode)",231,"pt","Volume, Fluid pints","7/26/2006 10:57:47 AM","m3",0.0004731765,0
