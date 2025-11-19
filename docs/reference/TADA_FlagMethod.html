@@ -124,28 +124,25 @@ The WQX team plans to review and update these new combinations quarterly.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Load example dataset</span></span></span>
-<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Remove Suspect characteristic-analytical method combinations from</span></span></span>
 <span class="r-in"><span><span class="co"># data frame:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_clean</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Flag, but do not remove, Suspect characteristic-analytical method</span></span></span>
 <span class="r-in"><span><span class="co"># combinations</span></span></span>
 <span class="r-in"><span><span class="co"># in new column titled "TADA.AnalyticalMethod.Flag":</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flags</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show only Suspect characteristic-analytical method combinations:</span></span></span>
-<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>,</span></span>
+<span class="r-in"><span><span class="va">SuspectMethod_flaggedonly</span> <span class="op">&lt;-</span> <span class="fu">TADA_FlagMethod</span><span class="op">(</span><span class="va">Data_R5_TADAPackageDemo</span>,</span></span>
 <span class="r-in"><span>  clean <span class="op">=</span> <span class="cn">FALSE</span>, flaggedonly <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "This dataframe is empty because we did not find any Suspect method/characteristic combinations in your dataframe"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
