@@ -1,7 +1,7 @@
 TADA.CharacteristicName,TADA.Target.ResultMeasure.MeasureUnitCode,CST.PollutantName,organization_name
 DISSOLVED OXYGEN SATURATION,%,dissolved oxygen,EPA 304a
-ESCHERICHIA COLI,CFU/100mL,,EPA 304a
-FECAL COLIFORM,CFU/100mL,,EPA 304a
+ESCHERICHIA COLI,CFU/100mL,bacteria,EPA 304a
+FECAL COLIFORM,CFU/100mL,bacteria,EPA 304a
 "TEMPERATURE, WATER",deg C,temperature,EPA 304a
 "DEPTH, SECCHI DISK DEPTH",m,,EPA 304a
 AMMONIA,mg/L,ammonia,EPA 304a
