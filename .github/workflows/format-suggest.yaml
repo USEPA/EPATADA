@@ -36,11 +36,11 @@ jobs:
         uses: posit-dev/setup-air@v1
 
       - name: Format
-        run: air format . --check
+        run: air format .
 
-#      - name: Suggest
-#        uses: reviewdog/action-suggester@v1
-#        with:
-#          level: error
-#          fail_level: error
-#          tool_name: air
+      - name: Suggest
+        uses: reviewdog/action-suggester@v1
+        with:
+          level: error
+          fail_level: error
+          tool_name: air
