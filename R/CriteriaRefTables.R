@@ -43,7 +43,7 @@ TADA_GetEPACSTRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")))
+    return(utils::read.csv(system.file("extdata", "EPACST.csv", package = "EPATADA")))
   }
 
   # Creates and formats the CST ref table below:
@@ -65,7 +65,7 @@ TADA_GetEPACSTRef <- function() {
       use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
       CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
       CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
-    )
+    ) 
 
   # Remove intermediate variables
   rm(CST.begin, tada.char.ref, raw.data)
@@ -80,5 +80,60 @@ TADA_GetEPACSTRef <- function() {
 # (for internal use only)
 
 TADA_UpdateEPACSTRef <- function() {
-  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/CST.csv", row.names = FALSE)
+  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/EPACST.csv", row.names = FALSE)
+}
+
+
+
+# Used to store cached CriteriaSearchToolRef Reference Table
+CriteriaSearchToolRef_Cached <- NULL
+
+#' Criteria Search Tool Reference Table
+#'
+#' This function downloads the latest criteria search tool from the EPA OST and 
+#' returns it. Before use, the downloaded data is cleaned and formatted as the 
+#' the initial ~200 rows contain the legend and data dictionary, which need to 
+#' be removed.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
+#'
+#' @export
+TADA_GetCriteriaSearchToolRef <- function(){
+  CST.raw <- openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
+  
+  # Find the first row that has all values populated. This will indicate the column names of the CST data frame.
+  # Note: Why not use a static row number? The CST may get new entries that may change the start of the data frames.
+  first_filled_row_index <- which(rowSums(is.na(CST.raw)) == 0)[1]
+  
+  # Extract our CST column names
+  CST.cols <- as.character(CST.raw[first_filled_row_index,])
+  
+  # remove rows with "legend" info (rows 1-201)
+  CST <- CST.raw[-c(1:first_filled_row_index), ]
+  
+  # assign column names to the new data frame
+  names(CST) <- CST.cols
+  
+  # filter the dataframe to just the CAS and pollutant numbers for our use case.
+  CST <- CST |>
+    dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
+    dplyr::distinct()
+  
+  # save updated table in cache
+  CriteriaSearchToolRef_Cached <- CST
+  
+  # remove intermediate objects
+  rm(CST.raw, first_filled_row_index, CST.cols)
+  
+  return(CST)
+}
+
+
+# Update CriteriaSearchToolRef Reference Table internal file
+# (for internal use only)
+TADA_UpdateCriteriaSearchToolRef <- function() {
+  utils::write.csv(TADA_GetCriteriaSearchToolRef(), file = "inst/extdata/CriteriaSearchToolRef.csv", row.names = FALSE)
 }
