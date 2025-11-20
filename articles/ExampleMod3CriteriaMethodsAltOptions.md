@@ -159,7 +159,7 @@ A blank template is generated. This can be generated and filled out in
 the excel file.
 
 ``` r
-MT.Criteria_blank <- TADA_DefineCriteriaMethodology(
+MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
   # auto_assign = FALSE,
@@ -188,7 +188,7 @@ show these hidden tabs to allow for an easier review process and
 updating of tables directly in the excel file.)
 
 ``` r
-MT.Criteria_autofill <- TADA_DefineCriteriaMethodology(
+MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
   auto_assign = TRUE,
@@ -207,7 +207,7 @@ are not harmonized or if there are many different combinations of
 Characteristic, Speciation and Fractions to consider.
 
 ``` r
-MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
   auto_assign = TRUE,
@@ -223,10 +223,11 @@ criteria table for any WQP characteristics in your data frame that are
 found.
 
 ``` r
-MT.Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
+MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
   auto_assign = TRUE,
+  epa304a = TRUE,
   displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
@@ -254,7 +255,7 @@ Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ``` r
-MT.Criteria_user_supplied_autofill <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
@@ -279,7 +280,7 @@ criteria table output.
 load(system.file("extdata", "criteria_table.rda", package = "EPATADA"))
 
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
@@ -298,7 +299,7 @@ MT.Criteria_user_supplied_autofill2 <- TADA_DefineCriteriaMethodology(
 # TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)
 
 # We can now reuse this criteria table
-MT.Criteria_reuse <- TADA_DefineCriteriaMethodology(
+MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",

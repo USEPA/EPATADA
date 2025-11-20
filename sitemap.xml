@@ -28,6 +28,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/Data_MT_UseAURef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_Nutrients_UT.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_AdditionalCharAliasForReview.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AutoClean.html</loc></url>
@@ -83,10 +84,11 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSByAUID.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamToWQPCharRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_GetATTAINSParameterWQPCharRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_GetCriteriaSearchToolRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_GetEPACSTRef.html</loc></url>

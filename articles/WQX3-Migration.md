@@ -39,7 +39,7 @@ remotes::install_github("USEPA/EPATADA",
 
     ## Using github PAT from envvar GITHUB_PAT. Use `gitcreds::gitcreds_set()` and unset GITHUB_PAT in .Renviron (or elsewhere) if you want to use the more secure git credential store instead.
 
-    ## Skipping install of 'EPATADA' from a github remote, the SHA1 (e8918bf5) has not changed since last install.
+    ## Skipping install of 'EPATADA' from a github remote, the SHA1 (bc77acb5) has not changed since last install.
     ##   Use `force = TRUE` to force installation
 
 ``` r

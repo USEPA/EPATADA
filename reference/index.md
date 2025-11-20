@@ -29,6 +29,10 @@
 - [`Data_R5_TADAPackageDemo`](usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.md)
   : Data_R5_TADAPackageDemo
 
+- [`TADA_AdditionalCharAliasForReview()`](usepa.github.io/EPATADA/reference/TADA_AdditionalCharAliasForReview.md)
+  : TADA Alias Methodology for ATTAINS, WQP and CST Alias Table for
+  Review
+
 - [`TADA_AggregateMeasurements()`](usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
   : Aggregate multiple result values to a min, max, or mean
 
@@ -204,17 +208,20 @@
 - [`TADA_GetATTAINSOrgIDsRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.md)
   : ATTAINS Organization Identifier Reference Table
 
+- [`TADA_GetATTAINSParamToWQPCharRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamToWQPCharRef.md)
+  : ATTAINS Parameter and WQP Characteristic Alias Reference Table
+
 - [`TADA_GetATTAINSParamUseOrgRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.md)
   : ATTAINS Parameter and Use Name by Organization Reference Key
-
-- [`TADA_GetATTAINSParameterWQPCharRef()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSParameterWQPCharRef.md)
-  : ATTAINS Parameter and WQP Characteristic Exact Match Reference Table
 
 - [`TADA_GetActivityTypeRef()`](usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md)
   : Update Activity Type Reference Table
 
 - [`TADA_GetCharacteristicRef()`](usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.md)
   : Update Characteristic Reference Table
+
+- [`TADA_GetCriteriaSearchToolRef()`](usepa.github.io/EPATADA/reference/TADA_GetCriteriaSearchToolRef.md)
+  : Criteria Search Tool Reference Table
 
 - [`TADA_GetDetCondRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
   : Update Result Detection Condition Reference Table

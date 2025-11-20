@@ -4,9 +4,9 @@ ATTAINS.ParameterName used by a specific state or tribal nation and each
 TADA.ComparableDataIdentifier present in the input TADA dataframe. The
 crosswalk can be filled out by users within R or Excel. By default this
 function will generate a user friendly Excel spreadsheet that includes a
-drop down list list of all ATTAINS parameters that are applicable to the
-organization selected by the function input 'org_id'. It also
-highlights the cells in which users should input information. The excel
+drop down list of all ATTAINS parameters that have been listed as a cause in
+prior ATTAINS cycle for the organization selected in the function input 'org_id'.
+It also highlights the cells in which users should input information. The excel
 spreadsheet will be automatically downloaded to a user's downloads folder path.
 Users may need to insert additional rows into the crosswalk if:
 an ATTAINS.ParameterName corresponds with multiple TADA.ComparableDataIdentifiers
@@ -22,9 +22,9 @@ ATTAINS.ParameterName used by a specific state or tribal nation and each
 TADA.ComparableDataIdentifier present in the input TADA dataframe. The
 crosswalk can be filled out by users within R or Excel. By default this
 function will generate a user friendly Excel spreadsheet that includes a
-drop down list list of all ATTAINS parameters that are applicable to the
-organization selected by the function input 'org_id'. It also
-highlights the cells in which users should input information. The excel
+drop down list of all ATTAINS parameters that have been listed as a cause in
+prior ATTAINS cycle for the organization selected in the function input 'org_id'.
+It also highlights the cells in which users should input information. The excel
 spreadsheet will be automatically downloaded to a user's downloads folder path.
 Users may need to insert additional rows into the crosswalk if:
 an ATTAINS.ParameterName corresponds with multiple TADA.ComparableDataIdentifiers
@@ -100,9 +100,9 @@ ATTAINS.ParameterName used by a specific state or tribal nation and each
 TADA.ComparableDataIdentifier present in the input TADA dataframe. The
 crosswalk can be filled out by users within R or Excel. By default this
 function will generate a user friendly Excel spreadsheet that includes a
-drop down list list of all ATTAINS parameters that are applicable to the
-organization selected by the function input 'org_id'. It also
-highlights the cells in which users should input information. The excel
+drop down list of all ATTAINS parameters that have been listed as a cause in
+prior ATTAINS cycle for the organization selected in the function input 'org_id'.
+It also highlights the cells in which users should input information. The excel
 spreadsheet will be automatically downloaded to a user's downloads folder path.
 Users may need to insert additional rows into the crosswalk if:</p><ol><li><p>an ATTAINS.ParameterName corresponds with multiple TADA.ComparableDataIdentifiers
 Example: An organization uses "ALUMINUM" for all aluminum related parameter causes
@@ -204,7 +204,7 @@ two required columns: TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 In addition, users who are interested in performing analyses for more than
 one organization (multiple states and/or tribes) also need to include an additional column name:
 'ATTAINS.OrganizationIdentifier'. This ensures that the crosswalk between
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName are specific and
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName is specific and
 accurate for each organization. If a crosswalk has already been created in the
 past and is entered into this function as a starting point, then any
 TADA.ComparableDataIdentifiers that were previously matched
@@ -223,7 +223,7 @@ This crosswalk only includes priority characteristics identified by the TADA
 Working Group. You are welcome to reach out to the TADA team to ask for
 additional matches to be included. You may run the following line of code
 in the console to review this crosswalk:
-'CSTtoATTAINSParamCrosswalk &lt;- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.</p>
+'TADAPriorityChar &lt;- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.</p>
 <p>If no existing ATTAINS parameter name corresponds with a specific
 TADA.ComparableDataIdentifier, users may contact the ATTAINS helpdesk
 <a href="mailto:attains@epa.gov">attains@epa.gov</a> to inquire about adding the parameter. Users are

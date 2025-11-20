@@ -84,7 +84,7 @@
       <h1>TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-11-19</h4>
+            <h4 data-toc-skip class="date">2025-11-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/ExampleMod3CriteriaMethodsAltOptions.Rmd" class="external-link"><code>vignettes/ExampleMod3CriteriaMethodsAltOptions.Rmd</code></a></small>
       <div class="d-none name"><code>ExampleMod3CriteriaMethodsAltOptions.Rmd</code></div>
@@ -239,7 +239,7 @@ modification to these defined standards.</p>
 <p>A blank template is generated. This can be generated and filled out
 in the excel file.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.Criteria_blank</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">MT.Criteria.blank</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>, <span class="co"># remove this as an arg input</span></span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>, <span class="co"># can remove this too</span></span>
 <span>  <span class="co"># auto_assign = FALSE,</span></span>
@@ -267,7 +267,7 @@ the table from scratch, but if users may find it worthwhile, we can
 always show these hidden tabs to allow for an easier review process and
 updating of tables directly in the excel file.)</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.Criteria_autofill</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">MT.Criteria.auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -283,7 +283,7 @@ Note: This may generate many additional rows if your WQP data results
 are not harmonized or if there are many different combinations of
 Characteristic, Speciation and Fractions to consider.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.Criteria_autofill_w_uniqueID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">MT.Criteria.auto2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -296,10 +296,11 @@ Characteristic, Speciation and Fractions to consider.</p>
 criteria table for any WQP characteristics in your data frame that are
 found.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.Criteria_autofill_w_uniqueID</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">MT.Criteria.auto3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  epa304a <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  displayUniqueId <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="co"># uncomment to run the excel file</span></span>
@@ -324,7 +325,7 @@ applied to an assessment unit, they should also provide a useAURef
 input. Otherwises the uses will be pulled in from the prior ATTAINS
 assessment cycle.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.Criteria_user_supplied_autofill</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">MT.Criteria.user.auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>,</span>
 <span>  criteriaMethods <span class="op">=</span> <span class="va">criteria_table</span>, <span class="co"># user supplied table - all rows are kept from this table</span></span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
@@ -346,7 +347,7 @@ criteria table output.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"criteria_table.rda"</span>, package <span class="op">=</span> <span class="st">"EPATADA"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName</span></span>
-<span><span class="va">MT.Criteria_user_supplied_autofill2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<span><span class="va">MT.Criteria.user.auto2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>,</span>
 <span>  criteriaMethods <span class="op">=</span> <span class="va">criteria_table</span>, <span class="co"># user supplied table - all rows are kept from this table</span></span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
@@ -365,7 +366,7 @@ criteria table output.</p>
 <span><span class="co"># TADA_CreateCSV(MT.Criteria_user_supplied_autofill2)</span></span>
 <span></span>
 <span><span class="co"># We can now reuse this criteria table</span></span>
-<span><span class="va">MT.Criteria_reuse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
+<span><span class="va">MT.Criteria.reuse</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  .data <span class="op">=</span> <span class="va">tada.MT.clean</span>,</span>
 <span>  criteriaMethods <span class="op">=</span> <span class="va">MT.Criteria_user_supplied_autofill2</span>, <span class="co"># user supplied table - all rows are kept from this table</span></span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
