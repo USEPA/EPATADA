@@ -42,7 +42,7 @@
   tryCatch(
     {
       TADA_UpdateATTAINSOrgIDsRef()
-      TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
+      TADA_UpdateATTAINSParamUseOrgRef() # slow
       TADA_UpdateATTAINSParamToWQPCharRef()
     },
     error = function(e) {
