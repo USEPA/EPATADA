@@ -2486,6 +2486,77 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
+    # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
+    user.refs <- ATTAINS_table %>%
+      dplyr::filter(TADA.AURefSource == "User-supplied Ref") %>%
+      dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+                    TADA.LatitudeMeasure, TADA.LongitudeMeasure, ATTAINS.WaterType) %>%
+      dplyr::distinct()
+
+    # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+
+    if(dim(user.refs)[1] > 0) {
+
+    # internal function to create list of auids
+    listAUIDs <- function(.data) {
+
+      if(dim(.data)[1] == 0) {
+        list <- list()
+      } else {
+        list <- .data %>%
+          sf::st_drop_geometry() %>%
+          dplyr::select(assessmentunitidentifier) %>%
+          dplyr::distinct() %>%
+          dplyr::pull()
+      }
+
+      return(list)
+    }
+
+    # create list of assessment units with geometry
+    point.aus <- listAUIDs(ATTAINS_points)
+
+    line.aus <- listAUIDs(ATTAINS_lines)
+
+    polygon.aus <- listAUIDs(ATTAINS_polygons)
+
+    # combine lists
+    all.attains.aus <- append(point.aus, line.aus)
+
+    all.attains.aus <- append(all.attains.aus, polygon.aus)
+
+    # retain unique assessment unit identifiers
+    all.attains.aus <- unique(all.attains.aus)
+
+    missing.geo <- user.refs %>%
+      dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
+
+    # remove intermediate objects
+    rm(point.aus, line.aus, polygon.aus, all.attains.aus)
+
+    if(dim(missing.geo)[1] > 0) {
+
+      map2 <- map %>%
+        leaflet::addCircleMarkers(
+          data = missing.geo,
+          lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure,
+          radius = 24,
+          fillColor = "white",
+          fillOpacity = 0,
+          color = "black",
+          stroke = TRUE,
+          dashArray = "5,10",
+          popup = paste0(
+            "Assessment Unit Name: ", "not available in ATTAINS",
+            "<br> Assessment Unit ID: ", missing.geo$ATTAINS.AssessmentUnitIdentifier,
+            "<br> Status: ", "not available in ATTAINS",
+            "<br> Assessment Unit Type: ", "not available in ATTAINS"
+          ))
+
+    }
+    }
+
+
     if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
       # set shapes for different ref sources
 
