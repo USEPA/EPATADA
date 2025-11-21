@@ -2532,7 +2532,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
 
       # remove intermediate objects
-      rm(point.aus, line.aus, polygon.aus, all.attains.aus)
+      rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
 
       if (dim(missing.geo)[1] > 0) {
 
@@ -2679,6 +2679,34 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
         position = "bottomright"
       )
+
+  # add button to toggle map legend on/off
+    map <- htmlwidgets::onRender(map, "
+  function(el, x) {
+    var button = document.createElement('button');
+    button.innerHTML = 'Toggle Legend';
+    button.style.position = 'absolute';
+    button.style.top = '10px';
+    button.style.right = '10px'; // Positioning in the top-right corner
+    button.style.zIndex = 1000;
+    button.style.padding = '5px 10px';
+    button.style.backgroundColor = '#fff';
+    button.style.border = '1px solid #ccc';
+    button.style.borderRadius = '4px';
+    button.onclick = function() {
+      var legend = el.querySelector('.leaflet-control.legend'); // Adjust this selector to target the legend only
+      if (legend) {
+        if (legend.style.display === 'none') {
+          legend.style.display = 'block';
+        } else {
+          legend.style.display = 'none';
+        }
+      }
+    };
+    el.appendChild(button);
+  }
+")
+
 
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
