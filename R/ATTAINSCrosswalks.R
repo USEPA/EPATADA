@@ -726,9 +726,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' TADA.ComparableDataIdentifier present in the input TADA dataframe. The
 #' crosswalk can be filled out by users within R or Excel. By default this
 #' function will generate a user friendly Excel spreadsheet that includes a
-#' drop down list list of all ATTAINS parameters that are applicable to the
-#' organization selected by the function input 'org_id'. It also
-#' highlights the cells in which users should input information. The excel
+#' drop down list of all ATTAINS parameters that have been listed as a cause in
+#' prior ATTAINS cycle for the organization selected in the function input 'org_id'.
+#' It also highlights the cells in which users should input information. The excel
 #' spreadsheet will be automatically downloaded to a user's downloads folder path.
 #' Users may need to insert additional rows into the crosswalk if:
 #' 1) an ATTAINS.ParameterName corresponds with multiple TADA.ComparableDataIdentifiers
@@ -746,7 +746,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' In addition, users who are interested in performing analyses for more than
 #' one organization (multiple states and/or tribes) also need to include an additional column name:
 #' 'ATTAINS.OrganizationIdentifier'. This ensures that the crosswalk between
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName are specific and
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName is specific and
 #' accurate for each organization. If a crosswalk has already been created in the
 #' past and is entered into this function as a starting point, then any
 #' TADA.ComparableDataIdentifiers that were previously matched
@@ -766,7 +766,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' Working Group. You are welcome to reach out to the TADA team to ask for
 #' additional matches to be included. You may run the following line of code
 #' in the console to review this crosswalk:
-#' 'CSTtoATTAINSParamCrosswalk <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.
+#' 'TADAPriorityChar <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'.
 #'
 #' If no existing ATTAINS parameter name corresponds with a specific
 #' TADA.ComparableDataIdentifier, users may contact the ATTAINS helpdesk
@@ -1002,9 +1002,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         )
     }
 
-    # 304a parameter name and standards are pulled in from the Criteria Search Tool (CST)
-    # CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA"))
-
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
@@ -1055,7 +1052,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         "auto_assign == 'All' was selected, ",
         "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
+      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))
 
       ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef %>%
         dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName)
@@ -1066,7 +1063,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
           TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) %>%
-        dplyr::left_join(ATTAINSParameterWQPCharRef, by = c("TADA.CharacteristicName" = "CharacteristicName")) %>%
+        dplyr::left_join(ATTAINSParameterWQPCharRef, by = c("TADA.CharacteristicName" = "CharacteristicName"), relationship = "many-to-many") %>%
         dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) %>%
         dplyr::select(
           TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
@@ -1101,7 +1098,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA"))
+      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))
 
       ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef %>%
         dplyr::filter(ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName)

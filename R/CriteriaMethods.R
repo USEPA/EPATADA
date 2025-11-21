@@ -261,7 +261,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       TADA_ParamRef <- TADA_CreateParamRef(
         .data,
         org_id = org_id,
-        auto_assign = "All", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+        auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
         excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     )
@@ -685,7 +685,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     # Handling of auto populating EPA304a Criteria in the future if desired.
     suppressWarnings(
-      CST_param <- utils::read.csv(system.file("extdata", "CST.csv", package = "EPATADA")) %>%
+      CST_param <- utils::read.csv(system.file("extdata", "EPACST.csv", package = "EPATADA")) %>%
         dplyr::full_join(TADA_param, by = c("TADA.CharacteristicName")) %>%
         dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.ParameterName = POLLUTANT_NAME, ATTAINS.UseName = use_name, AcuteChronic = CRITERIATYPE_ACUTECHRONIC, SaltFresh = CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, MagnitudeUnit = UNIT_NAME) %>%
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%

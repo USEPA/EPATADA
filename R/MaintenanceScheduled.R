@@ -43,7 +43,7 @@
     {
       TADA_UpdateATTAINSOrgIDsRef()
       TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
-      TADA_UpdateATTAINSParameterWQPCharRef()
+      TADA_UpdateATTAINSParamToWQPCharRef()
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)
