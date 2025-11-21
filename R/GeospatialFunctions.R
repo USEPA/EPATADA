@@ -2465,6 +2465,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         iconWidth = 48,
         iconHeight = 48
       ),
+      silent = TRUE
     )
 
     # Add ATTAINS point features (if they exist):
@@ -2534,16 +2535,17 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       rm(point.aus, line.aus, polygon.aus, all.attains.aus)
 
       if (dim(missing.geo)[1] > 0) {
+
+        missingIcon <- leaflet::icons(
+          iconUrl = system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"),
+          iconWidth = 48,
+          iconHeight = 48
+        )
         map <- map %>%
-          leaflet::addCircleMarkers(
+          leaflet::addMarkers(
             data = missing.geo,
             lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure,
-            radius = 24,
-            fillColor = "white",
-            fillOpacity = 0,
-            color = "black",
-            stroke = TRUE,
-            dashArray = "5,10",
+            icon = missingIcon,
             popup = paste0(
               "Assessment Unit Name: ", "not available in ATTAINS",
               "<br> Assessment Unit ID: ", missing.geo$ATTAINS.AssessmentUnitIdentifier,
