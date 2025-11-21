@@ -2245,12 +2245,35 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   # Define the paths to the images
   images <- c(
-    system.file("extdata/icons", "square-ns.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-fs.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-na.png", package = "EPATADA"),
-    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
+    system.file("extdata/icons", "square-ns.png", package = "EPATADA"), #1
+    system.file("extdata/icons", "square-fs.png", package = "EPATADA"), #2
+    system.file("extdata/icons", "square-na.png", package = "EPATADA"), #3
+    system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), #4
+    system.file("extdata/icons", "circle-user-solid-full.png", package = "EPATADA"), #5
+    system.file("extdata/icons", "circle-check-solid-full.png", package = "EPATADA"), #6
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #7
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #8
+    system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"), #9
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), #10
+    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), #11
+    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), #12
+    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") #13
+  )
+
+  img.labels <- c(
+    "ATTAINS: Not Supporting", #1
+    "ATTAINS: Supporting", #2
+    "ATTAINS: Not Assessed", #3
+    "ATTAINS: No Geometry Available", #4
+    "WQP: User-supplied Ref", #5
+    "WQP: ATTAINS Crosswalk", #6
+    "WQP: TADA_CreateATTAINSAUMLCrosswalk", #7
+    "WQP: Monitoring Location", #8
+    "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", #9
+    "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", #10
+    "ATTAINS: Not Supporting Point", #11
+    "ATTAINS: Supporting Point", #12
+    "ATTAINS: Not Assessed Point" #13
   )
 
   # Check if all image paths exist
@@ -2418,6 +2441,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
+    # add without ATTAINS catchments if available
+    without_ATTAINS_catchments <- NULL
+    try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
+          dplyr::rename(nhd = 1), silent = TRUE)
+
+    # Add missing catchment outlines (if they exist):
+    try(
+      map <- map %>%
+        leaflet::addPolygons(
+          data = without_ATTAINS_catchments,
+          color = "black",
+          weight = 1, fillOpacity = 0,
+          popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
+        ),
+      silent = TRUE
+    )
+
     # Add ATTAINS polygon features (if they exist):
     try(
       map <- map %>%
@@ -2458,9 +2498,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     try(
       pointIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
-          points_mapper$overall == "Fully Supporting" ~ system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"),
-          points_mapper$overall == "Not Supporting" ~ system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"),
-          points_mapper$overall == "Not Assessed" ~ system.file("extdata/icons", "na.point.circle.png", package = "EPATADA")
+          points_mapper$overall == "Fully Supporting" ~ images[12],
+          points_mapper$overall == "Not Supporting" ~ images[11],
+          points_mapper$overall == "Not Assessed" ~ images[13]
         ),
         iconWidth = 48,
         iconHeight = 48
@@ -2487,12 +2527,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
-    user.refs <- ATTAINS_table %>%
-      dplyr::filter(TADA.AURefSource == "User-supplied Ref") %>%
+    user.refs <- ATTAINS_table |>
+      dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
         TADA.LatitudeMeasure, TADA.LongitudeMeasure, ATTAINS.WaterType
-      ) %>%
+      ) |>
       dplyr::distinct()
 
     # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
@@ -2503,10 +2543,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         if (dim(.data)[1] == 0) {
           list <- list()
         } else {
-          list <- .data %>%
-            sf::st_drop_geometry() %>%
-            dplyr::select(assessmentunitidentifier) %>%
-            dplyr::distinct() %>%
+          list <- .data |>
+            sf::st_drop_geometry() |>
+            dplyr::select(assessmentunitidentifier) |>
+            dplyr::distinct() |>
             dplyr::pull()
         }
 
@@ -2544,7 +2584,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         )
 
         # markers and popup for missing geometry to map
-        map <- map %>%
+        map <- map |>
           leaflet::addMarkers(
             data = missing.geo,
             lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure,
@@ -2556,108 +2596,73 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
               "<br> Assessment Unit Type: ", "not available in ATTAINS"
             )
           )
-
-        # remove intermediate object
-        rm(missing.geo)
       }
     }
 
+    # set base pop up for monitoring locations
+    set.popup <- paste0(
+      "Site ID: ", sumdat$MonitoringLocationIdentifier,
+      "<br> Site Name: ", sumdat$MonitoringLocationName,
+      "<br> Measurement Count: ", sumdat$Sample_Count,
+      "<br> Visit Count: ", sumdat$Visit_Count,
+      "<br> Characteristic Count: ", sumdat$Parameter_Count,
+      "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
+    )
 
-    if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-      # set shapes for different ref sources
-
-      # Make a list of icons. We'll index into it based on name.
-      refIcons <- leaflet::icons(
-        iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ system.file("extdata/icons", "circle-check-solid-full.svg", package = "EPATADA"),
-          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
-          sumdat$TADA.AURefSource == "User-supplied Ref" ~ system.file("extdata/icons", "circle-user-solid-full.svg", package = "EPATADA")
-        ),
-        iconWidth = 24,
-        iconHeight = 24
-      )
-
-      set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
-        "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
-      )
-
-      images.ref <- c(
-        images[1:3],
-        system.file("extdata/icons", "circle-user-solid-full.png", package = "EPATADA"),
-        system.file("extdata/icons", "circle-check-solid-full.png", package = "EPATADA"),
-        images[4:5]
-      )
-
-      leg.labels <- c(
-        "ATTAINS: Not Supporting",
-        "ATTAINS: Supporting",
-        "ATTAINS: Not Assessed",
-        "WQP: User-supplied Ref",
-        "WQP: ATTAINS Crosswalk",
-        "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
-      )
+    # add au ref source to pop up  if available
+    if("TADA.AURefSource" %in% names(ATTAINS_table)) {
+      set.popup <- paste0(set.popup, "<br>", "Crosswalk Source: ", sumdat$TADA.AURefSource)
     }
 
-    if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-      refIcons <- leaflet::icons(
-        iconUrl = system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
-        iconWidth = 24,
-        iconHeight = 24
-      )
+    # set base image and label ref lists for legend
+    attains.imgs <- images[1:3]
+    attains.labels <- img.labels[1:3]
 
-      set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
-      )
+    # add missing geometry image and label if needed
+    if(exists("missing.geo") & dim(missing.geo)[1] > 0) {
+      attains.imgs <- append(attains.imgs, images[4])
+      attains.labels <- append(attains.labels, img.labels[4])
 
-      images.ref <- c(
-        images[1:5]
-      )
-
-      leg.labels <- c(
-        "ATTAINS: Not Supporting",
-        "ATTAINS: Fully Supporting",
-        "ATTAINS: Not Assessed",
-        "WQP: Monitoring Location",
-        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with gray outlines."
-      )
+    # remove intermediate object
+    rm(missing.geo)
     }
+
+    # set image ref, image label, and icon url lists for WQP monitoring locations
+    if(!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
+      wqp.imgs <- images[8]
+      wqp.labels <- img.labels[8]
+
+      wqp.urls <- images[8]
+
+
+      } else {
+        wqp.imgs <- images[5:7]
+          wqp.labels <- img.labels[5:7]
+
+          wqp.urls <- dplyr::case_when(
+            sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
+            sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[7],
+            sumdat$TADA.AURefSource == "User-supplied Ref" ~ images[5])
+
+      }
+
+    # set image ref for catchments
+    catch.imgs <- images[9]
+    catch.labels <- img.labels[9]
 
     if ("without_ATTAINS_catchments" %in% names(.data)) {
-      images.ref <- append(images.ref, images[6])
-
-      leg.labels <- append(
-        leg.labels,
-        "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-      )
-
-      without_ATTAINS_catchments <- NULL
-      try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
-        dplyr::rename(nhd = 1), silent = TRUE)
-
-      # Add missing catchment outlines (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = without_ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
-            popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
-          ),
-        silent = TRUE
-      )
+      catch.imgs <- append(catch.imgs, images[10])
+      catch.labels <- append(catch.labels, img.labels[10])
     }
+
+    # create overall legend labels and images
+    images.ref <- c(attains.imgs, wqp.imgs, catch.imgs)
+
+    leg.labels <- c(attains.labels, wqp.labels, catch.labels)
+
+    # remove intermediate objects
+    rm(attains.imgs, attains.labels, wqp.imgs, wqp.labels, catch.imgs, catch.labels)
+
 
     # Add WQP observation features (should always exist):
     try(
@@ -2665,13 +2670,20 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         leaflet::addMarkers(
           data = sumdat,
           lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-          icon = refIcons,
+          icon = leaflet::icons(iconUrl = wqp.urls,
+                                iconWidth = 24,
+                                iconHeight = 24
+                                ),
           popup = set.popup
         ),
       silent = TRUE
     )
 
-    map <- map %>%
+    # remove intermediate objects
+    rm(wqp.urls, set.popup)
+
+    # add legend to map
+    map <- map |>
       leaflegend::addLegendImage(
         images = images.ref,
         labels = leg.labels,
@@ -2685,6 +2697,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ),
         position = "bottomright"
       )
+
+    # remove intermediate objects
+    rm(images.ref, leg.labels)
 
     # add button to toggle map legend on/off
     map <- htmlwidgets::onRender(map, "
@@ -2712,7 +2727,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     el.appendChild(button);
   }
 ")
-
 
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
