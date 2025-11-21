@@ -2534,13 +2534,16 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # remove intermediate objects
       rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
 
+      # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
       if (dim(missing.geo)[1] > 0) {
-
+        # set up icons for missing geometry
         missingIcon <- leaflet::icons(
           iconUrl = system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"),
           iconWidth = 48,
           iconHeight = 48
         )
+
+        # markers and popup for missing geometry to map
         map <- map %>%
           leaflet::addMarkers(
             data = missing.geo,
@@ -2553,6 +2556,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
               "<br> Assessment Unit Type: ", "not available in ATTAINS"
             )
           )
+
+        # remove intermediate object
+        rm(missing.geo)
       }
     }
 
@@ -2680,7 +2686,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         position = "bottomright"
       )
 
-  # add button to toggle map legend on/off
+    # add button to toggle map legend on/off
     map <- htmlwidgets::onRender(map, "
   function(el, x) {
     var button = document.createElement('button');
