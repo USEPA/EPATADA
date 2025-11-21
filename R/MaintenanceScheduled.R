@@ -160,7 +160,7 @@
         TADA_FindPotentialDuplicatesSingleOrg() %>%
         dplyr::filter(!(MeasureQualifierCode %in% c("D", "H", "ICA", "*"))) %>%
         TADA_SimpleCensoredMethods(
-          nd_method = "multiplier",
+           nd_method = "multiplier",
           nd_multiplier = 0.5,
           od_method = "as-is",
           od_multiplier = "null"
