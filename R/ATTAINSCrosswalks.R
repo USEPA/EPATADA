@@ -923,6 +923,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #'
 TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assign = c("None", "All", "Org"),
                                 excel = FALSE, overwrite = FALSE) {
+  # argument input selection for auto_assign
   auto_assign <- match.arg(auto_assign)
 
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
@@ -964,7 +965,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     # Allows for users to crosswalk parameters by multiple orgs.
     org_id <- as.list(org_id)
 
-    # If  more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
+    # If more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
     if (length(org_id) > 1) {
       print(paste0(
         "TADA.CreateParamRef: More than one org_name was defined in your dataframe. ",
@@ -1087,7 +1088,11 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
           TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) %>%
-        dplyr::left_join(ATTAINSParameterWQPCharRef, by = c("TADA.CharacteristicName" = "CharacteristicName"), relationship = "many-to-many") %>%
+        dplyr::left_join(
+          ATTAINSParameterWQPCharRef, 
+          by = c("TADA.CharacteristicName" = "CharacteristicName"), 
+          relationship = "many-to-many"
+          ) %>%
         dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) %>%
         dplyr::select(
           TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
@@ -1165,69 +1170,21 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
             "No Crosswalk was provided and no exact matches were found for this organization."
           )
         ) %>%
+        dplyr::filter(!is.na(ATTAINS.ParameterName)) %>%
         dplyr::distinct()
     }
 
     # User provides their own user supplied parameter crosswalk
     if (!is.null(paramRef)) {
-      # Identifies NEW rows in your current CreateParamRef data frame that are missing from your paramRef input -
-      # i.e. current WQP Characteristics that you have not defined a crosswalk for
-      Flag1 <- CreateParamRef %>%
-        # anti_join will identify observations that exist in your 1st data frame, but not in the 2nd data frame.
-        dplyr::anti_join(
-          paramRef,
-          by =
-            c(
-              "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier"
-              # "ATTAINS.ParameterName", ATTAINS.FlagParameterName) # Exclude any dynamic values or possible NAs
-            )
-        ) %>%
-        dplyr::mutate(
-          Flag.ParameterInput =
-            "Suspect: Your paramRef argument did not include this TADA.ComparableDataIdentifier. Please ensure this is not a new WQP Characteristic Name entry that needs to be crosswalked."
-        )
-
-      # identifies if a user has MODIFIED any ATTAINS.ParameterName values by TADA.ComparableDataIdentifier and ATTAINS.OrganizationIdentifier
-      Flag2 <- paramRef %>%
-        dplyr::anti_join(
-          CreateParamRef,
-          by = c(
-            "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"
-          )
-        ) %>%
-        dplyr::mutate(
-          Flag.ParameterInput =
-            "This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier."
-        ) %>%
-        dplyr::mutate(
-          ATTAINS.FlagParameterName = dplyr::case_when(
-            ATTAINS.ParameterName == "No parameter match for TADA.ComparableDataIdentifier" | is.na(ATTAINS.ParameterName) ~
-              "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
-            !ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName ~
-              "Parameter name is not included in ATTAINS, contact ATTAINS to add parameter name to Domain List.",
-            ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName & !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
-              "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
-            paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
-              "Parameter name is listed as a prior cause in ATTAINS for this organization."
-          )
-        )
-
-      CreateParamRef <- paramRef %>%
-        dplyr::select("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName") %>%
-        dplyr::full_join(
-          Flag1 %>%
-            dplyr::full_join(
-              Flag2,
-              by =
-                c(
-                  "TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier",
-                  "ATTAINS.ParameterName", "ATTAINS.FlagParameterName", "Flag.ParameterInput"
-                )
-            ),
-          by = c("TADA.ComparableDataIdentifier", "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName")
-        ) %>%
-        dplyr::mutate(Flag.ParameterInput = dplyr::if_else(is.na(ATTAINS.ParameterName), NA, Flag.ParameterInput)) %>%
-        dplyr::rows_patch(CreateParamRef, by = "TADA.ComparableDataIdentifier") %>%
+      paramRef <- paramRef %>% 
+        dplyr::select(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ATTAINS.ParameterName) %>%
+        dplyr::mutate(Flag.ParameterInput = "This crosswalk was provided through a user supplied table") %>% 
+        dplyr::filter(!is.na(ATTAINS.ParameterName))
+      
+      CreateParamRef <- CreateParamRef %>% 
+        dplyr::select(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ATTAINS.ParameterName, Flag.ParameterInput) %>%
+        dplyr::filter(!TADA.ComparableDataIdentifier %in% paramRef$TADA.ComparableDataIdentifier) %>% 
+        dplyr::bind_rows(paramRef[,c("ATTAINS.OrganizationIdentifier", "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "Flag.ParameterInput")]) %>%
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
             ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
@@ -1243,11 +1200,37 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         dplyr::select(
           TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
           ATTAINS.FlagParameterName, Flag.ParameterInput
-        ) %>%
-        dplyr::distinct()
-
-      # remove intermediate object Flag1
-      rm(Flag1, Flag2)
+        ) 
+        
+        
+        # paramRef %>% 
+        # dplyr::select(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ATTAINS.ParameterName) %>% 
+        # dplyr::full_join(
+        #   CreateParamRef, 
+        #   by = dplyr::join_by(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier)) %>% 
+        # dplyr::mutate(
+        #   Flag.ParameterInput = dplyr::if_else(
+        #     paste(TADA.ComparableDataIdentifier, ATTAINS.ParameterName) %in% paste(paramRef$TADA.ComparableDataIdentifier, paramRef$ATTAINS.ParameterName), 
+        #       "This crosswalk was provided through a user supplied table", 
+        #       Flag.ParameterInput
+        #     )
+        #   ) %>%
+        # dplyr::mutate(
+        #   ATTAINS.FlagParameterName = dplyr::case_when(
+        #     ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
+        #       "No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
+        #     !ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName ~
+        #       "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
+        #     ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName & !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
+        #       "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+        #     paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
+        #       "Parameter name is listed as a prior cause in ATTAINS for this organization"
+        #   )
+        # ) %>%
+        # dplyr::select(
+        #   TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
+        #   ATTAINS.FlagParameterName, Flag.ParameterInput
+        # ) 
     }
 
     # Excel ref files to be stored in the Downloads folder location.
@@ -1866,7 +1849,7 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
       if ("IncludeOrExclude" %in% names(useParamRef)) {
         useParamRef <- useParamRef %>%
           dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName, ATTAINS.UseName, IncludeOrExclude) %>%
-          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "IncludeOrExclude"))
+          dplyr::left_join(paramRef, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"))
       } else {
         print("IncludeOrExclude was not found as a column name in your user supplied, assuming all parameter and uses are applicable for your analysis.")
         useParamRef <- useParamRef %>%

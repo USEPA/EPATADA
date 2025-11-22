@@ -300,7 +300,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%
-      dplyr::left_join(MLSummaryRef)
+      dplyr::full_join(MLSummaryRef)
     # }
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
@@ -484,7 +484,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
           DurationValue = as.numeric(NA), DurationUnit = as.character(NA), DurationMethod = as.character(NA),
           FreqValue = as.numeric(NA), FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA), Season = as.character(NA),
+          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA), 
           Season = as.character(NA), SeasonStartDate = as.Date(NA), SeasonEndDate = as.Date(NA),
           DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
