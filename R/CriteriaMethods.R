@@ -297,7 +297,12 @@ TADA_DefineCriteriaMethodology <- function(.data,
       tidyr::uncount(weights = length(org_id)) %>%
       dplyr::select(-TADA.CharacteristicName) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) %>%
+      tidyr::complete(
+        TADA.ComparableDataIdentifier, 
+        ATTAINS.OrganizationIdentifier = org_id
+        ) %>%
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%

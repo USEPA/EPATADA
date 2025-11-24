@@ -962,9 +962,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       stop("TADA.CreateParamRef: org_id must be a character vector")
     }
 
-    # Allows for users to crosswalk parameters by multiple orgs.
-    org_id <- as.list(org_id)
-
     # If more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
     if (length(org_id) > 1) {
       print(paste0(
@@ -1029,10 +1026,20 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
-      .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+      .data[, c("TADA.ComparableDataIdentifier")]
     ) %>%
-      tidyr::uncount(weights = length(org_id)) %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
+      dplyr::distinct() %>%
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) %>%
+      tidyr::complete(
+        TADA.ComparableDataIdentifier,
+        ATTAINS.OrganizationIdentifier = org_id
+      ) %>%
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier)) %>% 
+      dplyr::left_join(
+        .data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")],
+        relationship = "many-to-many"
+        ) %>% 
+      distinct()
 
     # Pulls in all domain values of parameter and use names in ATTAINS.
     ATTAINS_param_all <- utils::read.csv(
