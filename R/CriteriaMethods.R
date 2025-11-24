@@ -177,7 +177,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
   }
 
   # Invalid function input combos - supply one or the other.
-  if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
+  if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
     stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
   }
 
@@ -292,16 +292,14 @@ TADA_DefineCriteriaMethodology <- function(.data,
     unique_param <- unique(.data$TADA.CharacteristicName)
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
-      .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+      .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
     ) %>%
-      tidyr::uncount(weights = length(org_id)) %>%
-      dplyr::select(-TADA.CharacteristicName) %>%
       dplyr::distinct() %>%
       dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) %>%
       tidyr::complete(
-        TADA.ComparableDataIdentifier, 
+        TADA.ComparableDataIdentifier,
         ATTAINS.OrganizationIdentifier = org_id
-        ) %>%
+      ) %>%
       dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
@@ -490,7 +488,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
           DurationValue = as.numeric(NA), DurationUnit = as.character(NA), DurationMethod = as.character(NA),
           FreqValue = as.numeric(NA), FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA), 
+          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA),
           Season = as.character(NA), SeasonStartDate = as.Date(NA), SeasonEndDate = as.Date(NA),
           DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
