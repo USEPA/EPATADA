@@ -3419,7 +3419,10 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param.
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+#' from all organizations will be considered. When org_id = "none" or NULL, no
+#' crosswalk data from ATTAINS will be considered. The default is "all".
 #' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
 #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
 #' with entity submitted assessment unit features - points, lines, and polygons)
@@ -3510,7 +3513,7 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #'
 TADA_CreateAUMLCrosswalk <- function(.data,
                                      au_ref = NULL,
-                                     org_id = NULL,
+                                     org_id = "all",
                                      fill_ATTAINS_catch = FALSE,
                                      fill_USGS_catch = FALSE,
                                      return_nearest = TRUE,
@@ -3640,7 +3643,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (!is.null(org_id)) {
-    if (org_id == "none") {
+    if (org_id == "none" | is.null(org_id)) {
       print(paste0(
         "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
         "should not be checked for monitoring location and assessment unit matches."
@@ -3650,13 +3653,17 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
 
   # if an org id is provided, ATTAINS is checked for a crosswalk
-  if (format(org_id) != "none" | is.null(org_id)) {
+  if (format(org_id) != "none" & !is.null(org_id)) {
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
+    if(org_id == "all") {
+
+      # set org_id to NULL to correctly query ATTAINS for all records
+      org_id = NULL
+    }
+
     # get crosswalk from ATTAINS
-    attains.cw <- # spsUtil::quiet(
-      (TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
-      )
+    attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
     # create string to describe ATTAINS orgs for print message
     org.text <- ifelse(is.null(org_id), "all organizations",
@@ -3872,12 +3879,12 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     sf::st_drop_geometry() %>%
     dplyr::select(
       TADA.MonitoringLocationIdentifier,
+      ATTAINS.OrganizationIdentifier,
       ATTAINS.AssessmentUnitIdentifier,
       ATTAINS.WaterType,
       TADA.AURefSource
     ) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id) %>%
     dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
 
 
