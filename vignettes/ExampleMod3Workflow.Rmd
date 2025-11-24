@@ -73,7 +73,7 @@ Dependency packages will also be downloaded automatically from CRAN. You
 may be prompted in the console to update dependencies. It is recommended
 to update all dependencies (enter 1 into the console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -161,6 +161,7 @@ reference tables were created, see the ExampleMod2Workflow vignette.
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
 # extract ATTAINS_crosswalk data frame from the list
+utils::data(Data_MT_AUMLRef)
 Final.MT.AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
 
 MT.UseAURef <- Data_MT_UseAURef
@@ -665,7 +666,7 @@ MT.UseParamRef.Final <- TADA_CreateUseParamRef(
 # Test if the two data frames are same or not.
 identical(MT.UseParamRef.Final[1:5], MT.UseParamRef.user.supplied.edit[1:5])
 
-TADA_TableExport(MT.useParamRef.Final)
+TADA_TableExport(MT.UseParamRef.Final)
 ```
 
 remove intermediate variable, keep only the crosswalk table that we will
@@ -727,10 +728,13 @@ your WQP data query. If you would like to display all information even
 for sites with no WQP data, please choose displayNA = TRUE
 
 ```{r AU_Summary, eval = FALSE}
+# Load the dataset
+utils::data("Data_MT.UseAURef_Water", package = "EPATADA")
+
 MT.MLSummaryRef.AU <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean,
   useParamRef = MT.UseParamRef.Final,
-  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
   # displayNA = FALSE
@@ -745,7 +749,7 @@ that needs a unique site-specific criteria, certain water types, or
 certain combination of characteristics that have site-specific criteria.
 Let's go through an example of how a user may modify this table.
 
-```{r apply-site-specific-criteria}
+```{r apply-site-specific-criteria, eval = FALSE}
 MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU %>%
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
