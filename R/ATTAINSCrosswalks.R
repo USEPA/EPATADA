@@ -1474,7 +1474,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 #' argument input, by joining the ATTAINS.WaterType of the AUs defined in
 #' your useAURef to the ATTAINS.WaterType found from ATTAINS Expert Query.
 #'
-#'
 #' Otherwise, users can still
 #' proceed by overriding the data validation by value pasting in Excel.
 #' Users will be warned in the ATTAINS.FlagUseName column if they choose to

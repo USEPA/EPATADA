@@ -581,12 +581,12 @@ and joined to an internal parameter and water type extraction from
 rExpertQuery to assign any new uses to parameters.
 
 ```{r useParamRef-with-useAURef}
-MT.UseParamRef.useAURef <- TADA_CreateUseParamRef(
+MT.UseParamRef.with.useAURef <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
   useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-  auto_assign = FALSE,
+  auto_assign = TRUE,
   excel = FALSE
 )
 ```
@@ -665,7 +665,7 @@ MT.UseParamRef.Final <- TADA_CreateUseParamRef(
 # Test if the two data frames are same or not.
 identical(MT.UseParamRef.Final[1:5], MT.UseParamRef.user.supplied.edit[1:5])
 
-TADA_TableExport(MT.useParamRef_Final)
+TADA_TableExport(MT.useParamRef.Final)
 ```
 
 remove intermediate variable, keep only the crosswalk table that we will
@@ -703,7 +703,7 @@ data, please choose displayNA = TRUE
 ```{r ML_Summary}
 MT.MLSummaryRef.ML <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean,
-  useParamRef = MT.UseParamRef.AutoAssign,
+  useParamRef = MT.UseParamRef.Final,
   org_id = "MTDEQ",
   displayNA = FALSE
 )
@@ -800,31 +800,15 @@ Note: Whenever a criteriaMethods argument input value is provided, users
 will be warned if there are additional WQP characteristics (or
 TADA.ComparableDataIdentifier - see argument input uniqueDataId =
 TRUE/FALSE in the R documentation for more information) that are not
-captured in their user supplied table.
+captured in their user supplied table. Thus, auto_assign defaults to
+TRUE even if it is specified as FALSE.
 
 ```{r user-supplied-output}
 MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef.ML,
+  MLSummaryRef = NULL,
   criteriaMethods = criteria_table,
-  excel = FALSE
-)
-```
-
-Note: When a user provides a MLSummaryRef, it is assumed their criteria
-tables parameter crosswalk is based on the paramRef and useParamRef
-crosswalk done. However, whenever a criteriaMethods table is provided,
-all unique WQP Characteristic (or TADA.ComparableDataIdentifier) will be
-shown in the table.
-
-```{r step-by-step-output-with-displayUniqueId}
-MT.CriteriaMethods.User.Supplied2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean,
-  org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef.ML,
-  criteriaMethods = criteria_table,
-  displayUniqueId = TRUE,
   excel = FALSE
 )
 ```
@@ -833,10 +817,10 @@ You can append epa304a recommended standards (if there is one found for
 a TADA.CharacteristicName)
 
 ```{r append-epa304a-recommended-standards}
-MT.CriteriaMethods.User.Supplied3 <- TADA_DefineCriteriaMethodology(
+MT.CriteriaMethods.User.Supplied2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef.ML,
+  MLSummaryRef = NULL,
   criteriaMethods = criteria_table,
   displayUniqueId = TRUE,
   epa304a = TRUE,
@@ -853,13 +837,13 @@ new fraction/speciations) are being queried in your most up to date WQP
 query and to allow you to determine if an assessment magnitude value
 should be developed.
 
-For our example, we will use MT.CriteriaMethods_User_Supplied3 and fill
+For our example, we will use MT.CriteriaMethods_User_Supplied2 and fill
 in the remaining blank PH magnitude values with a range between 6.5 and
 8.5 as MTDEQ criteria of interest.
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods.Final <- MT.CriteriaMethods.User.Supplied3 %>%
+MT.CriteriaMethods.Final <- MT.CriteriaMethods.User.Supplied2 %>%
   dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
     TRUE ~ MagnitudeValueLower
@@ -876,6 +860,7 @@ We will supply this final crosswalk table to be reused and validated.
 MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
+  MLSummaryRef = NULL,
   criteriaMethods = MT.CriteriaMethods.Final,
   displayUniqueId = TRUE,
   excel = FALSE
