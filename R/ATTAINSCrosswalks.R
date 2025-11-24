@@ -1034,7 +1034,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
         TADA.ComparableDataIdentifier,
         ATTAINS.OrganizationIdentifier = org_id
       ) %>%
-      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier)) %>% 
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier)) %>%
       dplyr::left_join(
         .data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")],
         relationship = "many-to-many"
