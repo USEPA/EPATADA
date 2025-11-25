@@ -1643,8 +1643,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
-#' @param
-#'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
 #' fill_USGS_catch = TRUE, an additional dataframe of the observations without
