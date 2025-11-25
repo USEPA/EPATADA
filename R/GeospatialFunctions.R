@@ -1575,12 +1575,12 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
           "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
             dplyr::filter(!is.na(assessmentunitidentifier)) %>%
             renameATTAINSCols(),
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS,
+          "TADA_with_NHD" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
           "ATTAINS_lines" = ATTAINS_lines,
           "ATTAINS_polygons" = ATTAINS_polygons,
-          "without_ATTAINS_catchments" = fill_USGS_catchments
+          "with_NHD_catchments" = fill_USGS_catchments
         )
 
         return(final_list)
@@ -1602,7 +1602,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
           "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
             dplyr::filter(!is.na(assessmentunitidentifier)) %>%
             renameATTAINSCols(),
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS
+          "TADA_with_NHD" = TADA_without_ATTAINS
         )
 
         return(final_list)
@@ -3940,11 +3940,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     final_list <- c(
       final_list,
       list(
-        "without_ATTAINS_catchments" =
+        "with_NHD_catchments" =
           get.attains.matches$without_ATTAINS_catchment
       ),
       list(
-        "TADA_without_ATTAINS" =
+        "TADA_with_NHD" =
           get.attains.matches$TADA_without_ATTAINS
       )
     )

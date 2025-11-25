@@ -16,8 +16,8 @@
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param. When
-#' org_id = NULL, all assessment unit/monitoring locations matches recorded in
-#' ATTAINS from all organizations will be returned.
+#' org_id = "all", all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned. The default is org_id = "all".
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
@@ -58,13 +58,13 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
                                          batch_upload = FALSE) {
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
-  # check to see if org_id is not NULL
-  if (!is.null(org_id)) {
+  # check to see if org_id is not "all"
+  if (org_id != "all") {
     # check to make sure organization ids supplied by user match those in ATTAINS
     if (all(!org_id %in% org.ref$code)) {
       # remove intermediate objects
@@ -79,7 +79,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
   }
 
   # if org_id is NULL return the AU/ML national extract, otherwise query by org_id
-  if (is.null(org_id)) {
+  if (org_id == "all") {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_NationalExtract("au_mls"))
   } else {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
@@ -122,7 +122,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
   rm(au.info)
 
   # if org_id is NULL, set to "all organizations" for printed message
-  if (is.null(org_id)) {
+  if (org_id == "all") {
     org_id <- "all organizations"
   }
 
@@ -198,8 +198,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL,
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param. When
-#' org_id = NULL, all assessment unit/monitoring locations matches recorded in
-#' ATTAINS from all organizations will be returned.
+#' org_id = "all", all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned. The default is org_id = "all".
 #'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
@@ -372,6 +372,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = NULL,
 
   if (attains_replace == FALSE) {
     # create assessment unit crosswalk from ATTAINS
+
     attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
     if (is.null(crosswalk)) {
