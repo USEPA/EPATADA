@@ -95,10 +95,10 @@ testthat::test_that("TADA_CreateParamRef ", {
     excel = FALSE
   )
 
-  # check to make sure all rows contain equal number of rows and for equal number of unique ComparableDataIdentifiers
+  # check to make sure all rows contain all unique ComparableDataIdentifiers in the TADA data frame
   testthat::expect_true(
-    length(unique(test_dat$TADA.ComparableDataIdentifier)) == nrow(param_ref_none) &&
-      nrow(param_ref_none) == nrow(param_ref_all) && nrow(param_ref_all) == nrow(param_ref_org)
+    length(unique(test_dat$TADA.ComparableDataIdentifier)) == length(unique(param_ref_none$TADA.ComparableDataIdentifier)) &&
+      length(unique(param_ref_all$TADA.ComparableDataIdentifier)) == length(unique(param_ref_none$TADA.ComparableDataIdentifier))
   )
 })
 
