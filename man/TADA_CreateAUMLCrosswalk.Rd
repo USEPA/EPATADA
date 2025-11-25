@@ -7,7 +7,7 @@
 TADA_CreateAUMLCrosswalk(
   .data,
   au_ref = NULL,
-  org_id = NULL,
+  org_id = "all",
   fill_ATTAINS_catch = FALSE,
   fill_USGS_catch = FALSE,
   return_nearest = TRUE,
@@ -27,7 +27,10 @@ identifiers can be found
 by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
-contains the organization identifiers that should be used for this param.}
+contains the organization identifiers that should be used for this param. When
+org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+from all organizations will be considered. When org_id = "none" or NULL, no
+crosswalk data from ATTAINS will be considered. The default is "all".}
 
 \item{fill_ATTAINS_catch}{Boolean argument. Specifies whether catchment-based
 ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated

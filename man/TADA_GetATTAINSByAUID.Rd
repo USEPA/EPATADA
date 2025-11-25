@@ -4,7 +4,12 @@
 \alias{TADA_GetATTAINSByAUID}
 \title{TADA_GetATTAINSByAUID}
 \usage{
-TADA_GetATTAINSByAUID(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE)
+TADA_GetATTAINSByAUID(
+  .data,
+  au_ref = NULL,
+  fill_ATTAINS_catch = FALSE,
+  return_sf = TRUE
+)
 }
 \arguments{
 \item{.data}{A TADA data frame including including some results from monitoring
