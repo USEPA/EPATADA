@@ -84,7 +84,7 @@
       <h1>TADA Module 3: Alternative Options to Generate the Criteria and Methodology template for User Input</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-11-20</h4>
+            <h4 data-toc-skip class="date">2025-11-25</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/ExampleMod3CriteriaMethodsAltOptions.Rmd" class="external-link"><code>vignettes/ExampleMod3CriteriaMethodsAltOptions.Rmd</code></a></small>
       <div class="d-none name"><code>ExampleMod3CriteriaMethodsAltOptions.Rmd</code></div>
@@ -242,7 +242,7 @@ in the excel file.</p>
 <code class="sourceCode R"><span><span class="va">MT.Criteria.blank</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>, <span class="co"># remove this as an arg input</span></span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>, <span class="co"># can remove this too</span></span>
-<span>  <span class="co"># auto_assign = FALSE,</span></span>
+<span>  auto_assign <span class="op">=</span> <span class="cn">FALSE</span>, displayUniqueId <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="co"># uncomment to run the excel file</span></span>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>

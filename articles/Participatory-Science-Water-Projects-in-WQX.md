@@ -214,7 +214,7 @@ volunteer_data <- TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 2870, Pass: 34559, Suspect: 689
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 2870, Pass: 34532, Suspect: 688
 
 ``` r
 volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
@@ -223,7 +223,7 @@ volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 2870, Pass: 35248
+    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 2870, Pass: 35220
 
 Harmonize synonyms if found:
 
@@ -238,7 +238,7 @@ TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1 Sample-Routine 34565
+    ## 1 Sample-Routine 34537
     ## 2  Field Msr/Obs  3553
 
 Generate pie chart:
@@ -282,7 +282,7 @@ TADA_SummarizeColumn(volunteer_data)
     ##  4 DEPTH, SECCHI DISK DEPTH                             41       474
     ##  5 DISSOLVED OXYGEN (DO)                                15       589
     ##  6 ENTEROCOCCUS                                         15       117
-    ##  7 ESCHERICHIA COLI                                    411      8641
+    ##  7 ESCHERICHIA COLI                                    410      8613
     ##  8 FECAL COLIFORM                                       16       129
     ##  9 INORGANIC NITROGEN (NO2, NO3, & NH3)                 15       269
     ## 10 NITRATE                                              30       303
@@ -305,7 +305,7 @@ Generate scatter plot for E. coli:
 TADA_GroupedScatterplot(ecoli)
 ```
 
-    ## [1] "TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 236 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp."
+    ## [1] "TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 235 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp."
 
 Filter to a single site and continue exploring E. coli:
 
