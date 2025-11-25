@@ -73,12 +73,12 @@ review_more_strict <- TADA_AdditionalCharAliasForReview(
   displayPercent = TRUE,
   ATTAINS.WQX.tolerance = 1.0,
   WQX.ATTAINS.tolerance = 1.0
-  )
+)
 
 review_less_strict <- TADA_AdditionalCharAliasForReview(
   displayPercent = TRUE,
   ATTAINS.WQX.tolerance = 0.5,
   WQX.ATTAINS.tolerance = 0.5
-  )
+)
 
 }

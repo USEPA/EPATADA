@@ -154,9 +154,12 @@ utils::globalVariables(c(
   "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType",
   "ATTAINS.OrganizationId", "MatchMessage", "Mismatch", "Ref.WaterType",
   "Alias.Type.Name", "CAS_NO CAS.Number", "Char_Flag.x", "Char_Flag.y",
-  "Characteristic.Name", "STD_POLLUTANT_NAME", "name", "name_words", 
-  "percent_match_ATTAINS", "percent_match_WQX",
-  "Characteristic", "WQXcharValRef"
+  "Characteristic.Name", "STD_POLLUTANT_NAME", "name", "name_words",
+  "percent_match_ATTAINS", "percent_match_WQX", "Characteristic", "WQXcharValRef",  
+  "CAS.Number", "CAS_NO CharacteristicName.x", "CharacteristicName.y",
+  "Comparable.Name.x", "Comparable.Name.y", "POLLUTANT_NAME.x", "POLLUTANT_NAME.y",
+  "STD_POLLUTANT_NAME.x", "STD_POLLUTANT_NAME.y", "percent_match_ATTAINS_CST",
+  "percent_match_ATTAINS_WQX", "percent_match_CST"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
