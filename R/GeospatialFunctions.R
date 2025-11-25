@@ -1382,17 +1382,17 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
       if (return_sf == TRUE) {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS,
+          "TADA_with_NHD" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = NULL,
           "ATTAINS_points" = NULL,
           "ATTAINS_lines" = NULL,
           "ATTAINS_polygons" = NULL,
-          "without_ATTAINS_catchments" = fill_USGS_catchments
+          "with_NHD_catchments" = fill_USGS_catchments
         ))
       } else {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS
+          "TADA_with_NHD" = TADA_without_ATTAINS
         ))
       }
     }
@@ -3876,6 +3876,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   ATTAINS_crosswalk <- TADA_with_ATTAINS %>%
     sf::st_drop_geometry() %>%
     dplyr::select(
+      OrganizationIdentifier,
       TADA.MonitoringLocationIdentifier,
       ATTAINS.OrganizationIdentifier,
       ATTAINS.AssessmentUnitIdentifier,
