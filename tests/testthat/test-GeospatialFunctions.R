@@ -70,10 +70,8 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 
 testthat::test_that("fetchATTAINS handles catchments_only parameter", {
   # Create a small valid dataset
-  valid_data <- sf::st_sf(
-    geometry = sf::st_sfc(sf::st_point(c(-80.0, 35.0))),
-    crs = 4326
-  )
+  valid_data <- Data_6Tribes_5y_Harmonized %>%
+    dplyr::filter(OrganizationIdentifier %in% "PUEBLOOFTESUQUE")
 
   # Test with catchments_only = TRUE
   testthat::expect_no_error(

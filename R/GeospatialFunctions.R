@@ -2549,7 +2549,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         }
 
         return(list)
-      }
+
 
       # create list of assessment units with geometry
       point.aus <- listAUIDs(ATTAINS_points)
@@ -2566,7 +2566,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       # retain unique assessment unit identifiers
       all.attains.aus <- unique(all.attains.aus)
 
-      missing.geo <- user.refs %>%
+      # find if any assigned aus are missing geometry
+    missing.geo <- user.refs %>%
         dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
 
       # remove intermediate objects
@@ -2582,7 +2583,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         )
 
         # markers and popup for missing geometry to map
-        map <- map |>
+        try(map <- map |>
           leaflet::addMarkers(
             data = missing.geo,
             lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure,
@@ -2593,7 +2594,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
               "<br> Status: ", "not available in ATTAINS",
               "<br> Assessment Unit Type: ", "not available in ATTAINS"
             )
-          )
+          ),
+          silent = TRUE
+        )
+      }
       }
     }
 
@@ -2617,12 +2621,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     attains.labels <- img.labels[1:3]
 
     # add missing geometry image and label if needed
-    if(exists("missing.geo") & dim(missing.geo)[1] > 0) {
+    if(exists("missing.geo")) {
+      if(dim(missing.geo)[1] > 0) {
       attains.imgs <- append(attains.imgs, images[4])
       attains.labels <- append(attains.labels, img.labels[4])
 
     # remove intermediate object
     rm(missing.geo)
+      }
     }
 
     # set image ref, image label, and icon url lists for WQP monitoring locations
@@ -3690,12 +3696,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
     # we could remove or make this step optional, but it is helpful for making sure
     # monitoring location identifiers are WQP compatible
-    attains.cw <- spsUtil::quiet(
       TADA_UpdateATTAINSAUMLCrosswalk(
+        org_id = org_id,
         crosswalk = attains.cw,
         attains_replace = TRUE
       )
-    )
 
     # create list of monitoring location identifiers from TADA df
     tada.mls <- .data %>%
