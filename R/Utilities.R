@@ -1,19 +1,3 @@
-#' Pipe Operator
-#'
-#' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
-#' For detailed information, refer to magrittr:pipe()
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @importFrom magrittr %>%
-#' @export
-#' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
-#' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
-#' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
-#'
-NULL
-
 #' Silence Print Messages from Code Execution
 #'
 #' This utility function executes the provided code while suppressing any print messages.
