@@ -336,7 +336,7 @@ MT.ParamRef.All <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "All",
-  excel = FALSE
+  excel = TRUE, overwrite = TRUE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
@@ -420,9 +420,9 @@ MT.ParamRef.user.supplied <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Manual,
-  excel = FALSE
+  # excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
+  excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.ParamRef.user.supplied)
@@ -568,7 +568,7 @@ captured by the auto_assign method.
 
 ```{r useparamref-AutoAssign}
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-utils::data(Data_MT.UseAURef_Water)
+utils::data(Data_MT_UseAURef_Water)
 
 MT.UseParamRef.AutoAssign <- TADA_CreateUseParamRef(
   tada.MT.clean,
@@ -598,7 +598,7 @@ MT.UseParamRef.with.useAURef <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
-  useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  useAURef = Data_MT_UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   auto_assign = TRUE,
   excel = FALSE
 )
@@ -674,9 +674,9 @@ MT.UseParamRef.Final <- TADA_CreateUseParamRef(
   paramRef = MT.ParamRef.Final,
   useParamRef = MT.UseParamRef.user.supplied.edit,
   auto_assign = "All",
-  excel = FALSE
+  # excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
-  # excel = TRUE, overwrite = TRUE
+  excel = TRUE, overwrite = TRUE
 )
 
 # Test if the two data frames are same or not.
@@ -722,7 +722,8 @@ MT.MLSummaryRef.ML <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean,
   useParamRef = MT.UseParamRef.Final,
   org_id = "MTDEQ",
-  displayNA = FALSE
+  displayNA = TRUE, 
+  excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.MLSummaryRef.ML)
@@ -747,12 +748,12 @@ for sites with no WQP data, please choose displayNA = TRUE
 
 ```{r AU_Summary, eval = FALSE}
 # Load the dataset
-utils::data("Data_MT.UseAURef_Water", package = "EPATADA")
+utils::data("Data_MT_UseAURef_Water", package = "EPATADA")
 
 MT.MLSummaryRef.AU <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean,
   useParamRef = MT.UseParamRef.Final,
-  useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  useAURef = Data_MT_UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
   # displayNA = FALSE
@@ -814,8 +815,8 @@ MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
   MLSummaryRef = MT.MLSummaryRef.ML,
-  excel = FALSE
-  # excel = TRUE, overwrite = TRUE
+  # excel = FALSE
+  excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.CriteriaMethods)
@@ -854,7 +855,7 @@ MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
   criteriaMethods = criteria_table,
   displayUniqueId = TRUE,
   epa304a = TRUE,
-  excel = FALSE
+  excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.CriteriaMethods.user.supplied2)
@@ -898,6 +899,7 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   criteriaMethods = MT.CriteriaMethods.Final,
   displayUniqueId = TRUE,
   excel = FALSE
+  # excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.CriteriaMethods.Final2)
