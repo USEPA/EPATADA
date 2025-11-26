@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  eval = FALSE
+  eval = TRUE
 )
 ```
 
@@ -73,7 +73,7 @@ Dependency packages will also be downloaded automatically from CRAN. You
 may be prompted in the console to update dependencies. It is recommended
 to update all dependencies (enter 1 into the console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -84,7 +84,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "Updates-to-Mod3-Functions-and-Vignettes",
   dependencies = TRUE
 )
 ```
@@ -161,6 +161,7 @@ reference tables were created, see the ExampleMod2Workflow vignette.
 ```{r load-data}
 # import example data set, example AUML crosswalk and example uses to AU crosswalk.
 # extract ATTAINS_crosswalk data frame from the list
+utils::data(Data_MT_AUMLRef)
 Final.MT.AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
 
 MT.UseAURef <- Data_MT_UseAURef
@@ -177,29 +178,32 @@ data set from Montana. Get bacteria and pH data from Missoula County,
 Montana.
 
 ```{r tada-data}
-# get MT data 
+# get MT data
 tada.MT <- TADA_DataRetrieval(
-   startDate = "2020-01-01", 
-   endDate = "2022-12-31",
-   statecode = "MT",
-   characteristicName = c("Escherichia", 
-                          "Escherichia coli", 
-                          "pH"),
-   countycode = "Missoula County",
-   ask = FALSE)
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c(
+    "Escherichia",
+    "Escherichia coli",
+    "pH"
+  ),
+  countycode = "Missoula County",
+  ask = FALSE
+)
 
 # clean up data set (minimal)
-  tada.MT.clean <- tada.MT %>%
-    TADA_RunKeyFlagFunctions() %>%
-    TADA_SimpleCensoredMethods() %>%
-    TADA_HarmonizeSynonyms()
-  
+tada.MT.clean <- tada.MT %>%
+  TADA_RunKeyFlagFunctions() %>%
+  TADA_SimpleCensoredMethods() %>%
+  TADA_HarmonizeSynonyms()
+
 # remove intermediate objects
-  rm(tada.MT)
-  
+rm(tada.MT)
+
 # if you cannot run TADA_DataRetrieval query, the example data set can be loaded by uncommenting the code below
-  
-  # tada.MT.clean <- Data_MT_MissoulaCounty
+
+# tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
 This example will focus only on Montana. The remainder of this vignette
@@ -216,7 +220,7 @@ Before creating the TADA/WQP CharacteristicName and ATTAINS parameter
 crosswalk table (TADA_CreateParamRef), let's review all the unique
 TADA.ComparableDataIdentifier's (characteristic, fraction and speciation
 combinations) in the example data. How many results are available for
-each within the example data set (Data_NCTC)?
+each within the example data set?
 
 ```{r comparabledataID-counts}
 # create table with counts of TADA.ComparableDataIdentifiers
@@ -306,7 +310,7 @@ this crosswalk out.
 
 ```{r auto_assign-none}
 # create TADA parameter reference table for specified organization
-MT.ParamRef_None <- TADA_CreateParamRef(
+MT.ParamRef.None <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "None",
@@ -314,6 +318,8 @@ MT.ParamRef_None <- TADA_CreateParamRef(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.ParamRef.None)
 ```
 
 ### Auto_assign Options
@@ -326,7 +332,7 @@ in ATTAINS may be included in the assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
-MT.ParamRef_All <- TADA_CreateParamRef(
+MT.ParamRef.All <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "All",
@@ -334,6 +340,8 @@ MT.ParamRef_All <- TADA_CreateParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.ParamRef.All)
 ```
 
 Another option is to set auto_assign = 'Org'. This limits the exact
@@ -342,7 +350,7 @@ organization has used in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
-MT.ParamRef_Org <- TADA_CreateParamRef(
+MT.ParamRef.Org <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   auto_assign = "Org",
@@ -350,6 +358,8 @@ MT.ParamRef_Org <- TADA_CreateParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.ParamRef.Org)
 ```
 
 ### Manual Parameter Crosswalk
@@ -378,13 +388,14 @@ name.
 #   excel = TRUE, overwrite = TRUE
 #   )
 
-ParamRef <- MT.ParamRef_None %>%
+ParamRef <- MT.ParamRef.None %>%
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) ~ "PH",
-    grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)")) %>% 
-  dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ")) 
+    grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)"
+  )) %>%
+  dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ"))
 
-MT.ParamRef_Manual <- TADA_CreateParamRef(
+MT.ParamRef.Manual <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = ParamRef,
@@ -392,6 +403,8 @@ MT.ParamRef_Manual <- TADA_CreateParamRef(
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.ParamRef.Manual)
 ```
 
 ### Provide a User Supplied paramRef
@@ -403,14 +416,16 @@ will determine if any new WQX characteristic names are included in the
 TADA data frame and add additional rows to the crosswalk if needed.
 
 ```{r User-Supplied-ParamRef}
-MT.ParamRef_user_supplied <- TADA_CreateParamRef(
+MT.ParamRef.user.supplied <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_Manual,
+  paramRef = MT.ParamRef.Manual,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.ParamRef.user.supplied)
 ```
 
 ### Review, Save and Re-Use paramRef
@@ -423,36 +438,36 @@ query and to allow you to review how to handle these new additions.
 
 If new WQP characteristics (or new fraction/speciations) do show up,
 your user supplied 'paramRef' is prioritized over the 'auto_assign'
-argument inputs. Thus, the auto_assign option will allow you to fill in
-any remaining blank ATTAINS.ParameterName that you have not filled in
-but will not replace any cross walk that you have defined in your user
+argument inputs. The auto_assign option will allow you to fill in any
+remaining blank ATTAINS.ParameterName that you have not filled in but
+will not replace any cross walk that you have defined in your user
 supplied crosswalk. In our case, since each unique
 TADA.ComparableDataIdentifier was cross walked to an
 ATTAINS.ParameterName in the user supplied 'MT.ParamRef_user_supplied,
 this table will be the same.
 
 ```{r finalize-paramRef}
-MT.ParamRef_Final <- TADA_CreateParamRef(
+MT.ParamRef.Final <- TADA_CreateParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_user_supplied,
+  paramRef = MT.ParamRef.user.supplied,
   auto_assign = "All",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-# Test if the two data frames are same or not. 
-identical(MT.ParamRef_Final[1:4], MT.ParamRef_user_supplied[1:4])
+# Test if the two data frames are same or not.
+identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
 
-TADA_TableExport(MT.ParamRef_Final)
+TADA_TableExport(MT.ParamRef.Final)
 ```
 
 remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ```{r remove-intermediate-variables}
-rm(ParamRef, MT.ParamRef_All, MT.ParamRef_Manual, MT.ParamRef_None, MT.ParamRef_Org, MT.ParamRef_user_supplied)
+rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
 ```
 
 # TADA_CreateUseParamRef() Basics
@@ -492,15 +507,17 @@ for in this current assessment/analysis cycle. Thus, the ATTAINS.UseName
 is left blank for "PH, HIGH".
 
 ```{r useparamref-Manual}
-MT.UseParamRef_Manual <- TADA_CreateUseParamRef(
+MT.UseParamRef.Manual <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_Final,
+  paramRef = MT.ParamRef.Final,
   auto_assign = FALSE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.UseParamRef.Manual)
 ```
 
 If desired, a user can manually assign "PH, HIGH" to any applicable uses
@@ -508,7 +525,7 @@ If desired, a user can manually assign "PH, HIGH" to any applicable uses
 reflect MTDEQ's criteria and assessment process).
 
 ```{r useparamref-Manual-Update}
-add_data <- data.frame(
+add.data <- data.frame(
   "ATTAINS.OrganizationIdentifier" = "MTDEQ",
   "ATTAINS.ParameterName" = rep("PH, HIGH", 2),
   "ATTAINS.UseName" = c(
@@ -518,16 +535,16 @@ add_data <- data.frame(
 )
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = add_data as an argument input.
-UseParamRef <- MT.UseParamRef_Manual %>%
-  dplyr::left_join(add_data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
+UseParamRef <- MT.UseParamRef.Manual %>%
+  dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
   dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
   dplyr::mutate(IncludeOrExclude = "Include")
 
 # PH will now reflect the changes
-MT.UseParamRef_Manual_Update <- TADA_CreateUseParamRef(
+MT.UseParamRef.Manual.Update <- TADA_CreateUseParamRef(
   tada.MT.clean,
-  paramRef = MT.ParamRef_Final,
+  paramRef = MT.ParamRef.Final,
   useParamRef = UseParamRef, # Edits were made to UseParamRef, updates flag column
   org_id = c("MTDEQ"),
   auto_assign = FALSE,
@@ -536,7 +553,7 @@ MT.UseParamRef_Manual_Update <- TADA_CreateUseParamRef(
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.UseParamRef_Manual_Update)
+TADA_TableExport(MT.UseParamRef.Manual.Update)
 ```
 
 ### Auto_assign Option
@@ -551,19 +568,19 @@ captured by the auto_assign method.
 
 ```{r useparamref-AutoAssign}
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-utils::data(MT.UseAURef_with_WaterUseRef)
+utils::data(Data_MT.UseAURef_Water)
 
-MT.UseParamRef_AutoAssign <- TADA_CreateUseParamRef(
+MT.UseParamRef.AutoAssign <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_Final,
-  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  paramRef = MT.ParamRef.Final,
+  # useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
-TADA_TableExport(MT.UseParamRef_AutoAssign)
+TADA_TableExport(MT.UseParamRef.AutoAssign)
 ```
 
 ### User has completed a Use to AU crosswalk
@@ -577,14 +594,14 @@ and joined to an internal parameter and water type extraction from
 rExpertQuery to assign any new uses to parameters.
 
 ```{r useParamRef-with-useAURef}
-MT.UseParamRef_with_useAURef <- TADA_CreateUseParamRef(
-    tada.MT.clean,
-    org_id = c("MTDEQ"),
-    paramRef = MT.ParamRef_Final, 
-    useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
-    auto_assign = FALSE,
-    excel = FALSE)
-
+MT.UseParamRef.with.useAURef <- TADA_CreateUseParamRef(
+  tada.MT.clean,
+  org_id = c("MTDEQ"),
+  paramRef = MT.ParamRef.Final,
+  useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+  auto_assign = TRUE,
+  excel = FALSE
+)
 ```
 
 ### Provide a User Supplied useParamRef
@@ -614,20 +631,24 @@ consider for analysis.
 
 ```{r useparamref-User-Supplied}
 # Load the example MTDEQ criteria table
-load("C:/Users/kwong01/EPATADA/inst/extdata/criteria_table.rda")
+criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 
-MT.UseParam_user_supplied <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
+load(criteria_table)
 
-MT.UseParamRef_user_supplied_Edit <- TADA_CreateUseParamRef(
+MT.UseParam.user.supplied <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
+
+MT.UseParamRef.user.supplied.edit <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_Final,
-  useParamRef = MT.UseParam_user_supplied,
+  paramRef = MT.ParamRef.Final,
+  useParamRef = MT.UseParam.user.supplied,
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.UseParamRef.user.supplied.edit)
 ```
 
 ### Review, Save and Re-Use useParamRef
@@ -647,28 +668,28 @@ have not filled in but will not replace any cross walk that you have
 defined in your user supplied crosswalk.
 
 ```{r finalize-useParamRef}
-MT.UseParamRef_Final <- TADA_CreateUseParamRef(
+MT.UseParamRef.Final <- TADA_CreateUseParamRef(
   tada.MT.clean,
   org_id = c("MTDEQ"),
-  paramRef = MT.ParamRef_Final,
-  useParamRef = MT.UseParamRef_user_supplied_Edit,
+  paramRef = MT.ParamRef.Final,
+  useParamRef = MT.UseParamRef.user.supplied.edit,
   auto_assign = "All",
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-# Test if the two data frames are same or not. 
-identical(MT.UseParamRef_Final[1:5], MT.UseParamRef_user_supplied_Edit[1:5])
+# Test if the two data frames are same or not.
+identical(MT.UseParamRef.Final[1:5], MT.UseParamRef.user.supplied.edit[1:5])
 
-TADA_TableExport(MT.useParamRef_Final)
+TADA_TableExport(MT.UseParamRef.Final)
 ```
 
 remove intermediate variable, keep only the crosswalk table that we will
 continue to use in the workflow.
 
 ```{r remove-intermediate-variables-useParam}
-rm(MT.UseParamRef_AutoAssign, MT.UseParam_user_supplied, MT.UseParamRef_Manual, MT.UseParamRef_Manual_Update)
+rm(MT.UseParamRef.AutoAssign, MT.UseParam.user.supplied, MT.UseParamRef.Manual, MT.UseParamRef.Manual.Update)
 ```
 
 # TADA_CreateMLSummaryRef(): Create and Define Spatial Reference Tables
@@ -697,12 +718,14 @@ If you would like to display all information even for sites with no WQP
 data, please choose displayNA = TRUE
 
 ```{r ML_Summary}
-MT.MLSummaryRef_ML <- TADA_CreateMLSummaryRef(
-  .data = tada.MT.clean, 
-  useParamRef = MT.UseParamRef_Final,
+MT.MLSummaryRef.ML <- TADA_CreateMLSummaryRef(
+  .data = tada.MT.clean,
+  useParamRef = MT.UseParamRef.Final,
   org_id = "MTDEQ",
   displayNA = FALSE
-  )
+)
+
+TADA_TableExport(MT.MLSummaryRef.ML)
 ```
 
 ## Define Spatial Summary by Monitoring Location (AU)
@@ -723,14 +746,19 @@ your WQP data query. If you would like to display all information even
 for sites with no WQP data, please choose displayNA = TRUE
 
 ```{r AU_Summary, eval = FALSE}
-MT.MLSummaryRef_AU <- TADA_CreateMLSummaryRef(
-  .data = tada.MT.clean, 
-  useParamRef = MT.UseParamRef_Final, 
-  useAURef = MT.UseAURef_with_WaterUseRef, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
+# Load the dataset
+utils::data("Data_MT.UseAURef_Water", package = "EPATADA")
+
+MT.MLSummaryRef.AU <- TADA_CreateMLSummaryRef(
+  .data = tada.MT.clean,
+  useParamRef = MT.UseParamRef.Final,
+  useAURef = Data_MT.UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
   # displayNA = FALSE
-  )
+)
+
+TADA_TableExport(MT.MLSummaryRef.AU)
 ```
 
 ## Assign site-specific spatial criteria
@@ -741,13 +769,15 @@ that needs a unique site-specific criteria, certain water types, or
 certain combination of characteristics that have site-specific criteria.
 Let's go through an example of how a user may modify this table.
 
-```{r apply-site-specific-criteria}
-MT.MLSummaryRef_AU2 <- MT.MLSummaryRef_AU %>%
+```{r apply-site-specific-criteria, eval = FALSE}
+MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU %>%
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
       MonitoringLocationIdentifier == "MTVOLWQM_WQX-CLEARWATERR_1" ~ "Example Site Specific"
-      )
     )
+  )
+
+TADA_TableExport(MT.MLSummaryRef.AU2)
 ```
 
 Compare the nrow for each of the ML versus AU level of summary. The AU
@@ -762,8 +792,8 @@ This could be included in the final summary table and labeled as NA or
 insufficient data.)
 
 ```{r compare-AU-versus-ML-Summary,, eval = FALSE}
-nrow(MT.MLSummaryRef_AU)
-nrow(MT.MLSummaryRef_ML)
+nrow(MT.MLSummaryRef.AU)
+nrow(MT.MLSummaryRef.ML)
 ```
 
 # TADA DefineCriteriaMethodology()
@@ -783,10 +813,12 @@ allowable values and easy interface for inputs to the table.
 MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef_ML,
+  MLSummaryRef = MT.MLSummaryRef.ML,
   excel = FALSE
-  #excel = TRUE, overwrite = TRUE
+  # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.CriteriaMethods)
 ```
 
 Now, if MTDEQ, already has a filled out/partially filled out criteria
@@ -796,48 +828,36 @@ Note: Whenever a criteriaMethods argument input value is provided, users
 will be warned if there are additional WQP characteristics (or
 TADA.ComparableDataIdentifier - see argument input uniqueDataId =
 TRUE/FALSE in the R documentation for more information) that are not
-captured in their user supplied table.
+captured in their user supplied table. Thus, auto_assign defaults to
+TRUE even if it is specified as FALSE.
 
 ```{r user-supplied-output}
-MT.CriteriaMethods_user_supplied <- TADA_DefineCriteriaMethodology(
+MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef_ML,
+  MLSummaryRef = NULL,
   criteriaMethods = criteria_table,
   excel = FALSE
 )
-```
 
-Note: When a user provides a MLSummaryRef, it is assumed their criteria
-tables parameter crosswalk is based on the paramRef and useParamRef
-crosswalk done. However, whenever a criteriaMethods table is provided,
-all unique WQP Characteristic (or TADA.ComparableDataIdentifier) will be
-shown in the table.
-
-```{r step-by-step-output-with-displayUniqueId}
-MT.CriteriaMethods_User_Supplied2 <- TADA_DefineCriteriaMethodology(
-  .data = tada.MT.clean,
-  org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef_ML,
-  criteriaMethods = criteria_table,
-  displayUniqueId = TRUE,
-  excel = FALSE
-)
+TADA_TableExport(MT.CriteriaMethods.user.supplied)
 ```
 
 You can append epa304a recommended standards (if there is one found for
 a TADA.CharacteristicName)
 
 ```{r append-epa304a-recommended-standards}
-MT.CriteriaMethods_User_Supplied3 <- TADA_DefineCriteriaMethodology(
+MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  MLSummaryRef = MT.MLSummaryRef_ML,
+  MLSummaryRef = NULL,
   criteriaMethods = criteria_table,
   displayUniqueId = TRUE,
   epa304a = TRUE,
   excel = FALSE
 )
+
+TADA_TableExport(MT.CriteriaMethods.user.supplied2)
 ```
 
 ### Review, Save and Re-Use Criteria and Methodology Table
@@ -849,28 +869,36 @@ new fraction/speciations) are being queried in your most up to date WQP
 query and to allow you to determine if an assessment magnitude value
 should be developed.
 
-For our example, we will use MT.CriteriaMethods_User_Supplied3 and fill
+For our example, we will use MT.CriteriaMethods_User_Supplied2 and fill
 in the remaining blank PH magnitude values with a range between 6.5 and
 8.5 as MTDEQ criteria of interest.
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods_Final <- MT.CriteriaMethods_User_Supplied3 %>% dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
+MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2 %>%
+  dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
-    TRUE ~ MagnitudeValueLower)) %>% 
- dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
+    TRUE ~ MagnitudeValueLower
+  )) %>%
+  dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 8.5,
-    TRUE ~ MagnitudeValueUpper))
+    TRUE ~ MagnitudeValueUpper
+  ))
+
+TADA_TableExport(MT.CriteriaMethods.Final)
 ```
 
 We will supply this final crosswalk table to be reused and validated.
 
 ```{r re-use criteria table}
-MT.CriteriaMethods_Final2 <- TADA_DefineCriteriaMethodology(
+MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   org_id = "MTDEQ",
-  criteriaMethods = MT.CriteriaMethods_Final,
+  MLSummaryRef = NULL,
+  criteriaMethods = MT.CriteriaMethods.Final,
   displayUniqueId = TRUE,
   excel = FALSE
 )
+
+TADA_TableExport(MT.CriteriaMethods.Final2)
 ```

@@ -175,7 +175,7 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 TADA_DecimalPlaces <- function(x) {
   # Convert the number to a character string, remove trailing zeros, and split by the decimal point
   parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
-
+  
   # If there is a decimal part, return its length; otherwise, return 0
   if (length(parts) > 1) {
     return(nchar(parts[[2]]))
@@ -219,13 +219,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
   if (!inherits(.data, "data.frame")) {
     stop("Input must be a dataframe.")
   }
-
+  
   if (!is.vector(expected_cols) || !is.character(expected_cols)) {
     stop("Expected columns must be a character vector.")
   }
-
+  
   missing_cols <- setdiff(expected_cols, colnames(.data))
-
+  
   if (length(missing_cols) > 0) {
     stop(paste(
       "The dataframe does not contain the required field(s):",
@@ -233,7 +233,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
       ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
     ))
   }
-
+  
   invisible(NULL)
 }
 
@@ -295,52 +295,52 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
                                      clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   if (!col %in% names(.data)) {
     stop("Suspect column name specified for input dataset.")
   }
-
+  
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   if (!any(grepl("TADA.", col))) {
     # Define new column names
     numcol <- paste0("TADA.", col)
     flagcol <- paste0("TADA.", col, "DataTypes.Flag")
-
+    
     # Create dummy columns for easy handling in function
     chars.data <- .data
     names(chars.data)[names(chars.data) == col] <- "orig"
     chars.data <- chars.data |>
       dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
     chars.data$masked <- chars.data$orig
-
+    
     # Add percentage character to dissolved oxygen saturation ResultMeasureValue
     # so percentage and percentage - range averaged can be identified correctly
     if (col == "ResultMeasureValue") {
       do.units <- c("%", "% SATURATN")
-
+      
       chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-        paste(chars.data$masked, "%"), chars.data$masked
+                                  paste(chars.data$masked, "%"), chars.data$masked
       )
-
+      
       # updates percentage units where NA
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
         grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
       )
-
+      
       # TADA.ResultMeasure.MeasureUnitCode to uppercase
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
     }
-
+    
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
       clean.data <- chars.data |>
@@ -372,22 +372,22 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
             TRUE ~ "Coerced to NA"
           ),
           flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged", flag
+                        "Percentage Range - Averaged", flag
           ),
           flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged", flag
+                        "Percentage Range - Averaged", flag
           )
         )
     }
-
+    
     if (percent.ave == FALSE) {
       num.range.filter <- c("Numeric Range - Averaged")
     }
-
+    
     if (percent.ave == TRUE) {
       num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
     }
-
+    
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
@@ -404,10 +404,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] |>
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-
+      
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
-
+    
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
@@ -421,49 +421,49 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
         "\\+" = ""
       )
     )))
-
+    
     # this updates the DataTypes.Flag to "NA - Not Available" if flag is NA
     clean.data$flag <- ifelse(
       is.na(clean.data$flag),
       "NA - Not Available",
       clean.data$flag
     )
-
+    
     # remove columns to be replaced
     clean.data <- clean.data |>
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-
+    
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
+    
     clean.data <- TADA_OrderCols(clean.data)
   } else {
     flagcol <- paste0(col, "DataTypes.Flag")
     numcol <- col
-
+    
     clean.data <- .data
-
+    
     # this updates the flagcol to "NA - Not Available" if numcol is NA
     clean.data[[flagcol]] <- ifelse(
       is.na(clean.data[[numcol]]),
       "NA - Not Available",
       clean.data[[flagcol]]
     )
-
+    
     # remove columns to be replaced
     clean.data <- clean.data |>
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-
+    
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-
+    
     clean.data <- TADA_OrderCols(clean.data)
   }
-
+  
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data |>
@@ -474,15 +474,15 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
           "Result Value/Unit Cannot Be Estimated From Detection Limit",
           "Coerced to NA"
         ))
-
+      
       return(clean.data)
     }
-
+    
     if (clean == FALSE) {
       return(clean.data)
     }
   }
-
+  
   if (flaggedonly == TRUE) {
     clean.data <- clean.data |>
       dplyr::filter(!!rlang::sym(flagcol) %in% c(
@@ -550,22 +550,22 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 TADA_SubstituteDeprecatedChars <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
-
+  
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
   } else {
     # create uppercase version of original CharacteristicName
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
-
+  
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
   nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) |>
@@ -574,22 +574,22 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
       grepl("retired", CharacteristicName)
     ) |>
     dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
-
+  
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
   ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) |>
     dplyr::filter(Char_Flag == "Deprecated") |>
     rbind(nwis.table)
-
+  
   rm(nwis.table)
-
+  
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
   # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
   .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""), .data$Comparable.Name, .data$TADA.CharacteristicName)
-
+  
   howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
-
+  
   if (howmany > 0) {
     chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
     chars <- paste0(chars, collapse = "; ")
@@ -597,7 +597,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
   } else {
     print("No deprecated characteristic names found in dataset.")
   }
-
+  
   .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
@@ -617,27 +617,27 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 TADA_CreateComparableID <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   TADA_CheckColumns(.data,
-    expected_cols = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    )
+                    expected_cols = c(
+                      "TADA.CharacteristicName",
+                      "TADA.ResultSampleFractionText",
+                      "TADA.MethodSpeciationName",
+                      "TADA.ResultMeasure.MeasureUnitCode"
+                    )
   )
   .data$TADA.ComparableDataIdentifier <-
     paste(.data$TADA.CharacteristicName,
-      .data$TADA.ResultSampleFractionText,
-      .data$TADA.MethodSpeciationName,
-      .data$TADA.ResultMeasure.MeasureUnitCode,
-      sep = "_"
+          .data$TADA.ResultSampleFractionText,
+          .data$TADA.MethodSpeciationName,
+          .data$TADA.ResultMeasure.MeasureUnitCode,
+          sep = "_"
     )
   return(.data)
 }
@@ -853,36 +853,36 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
-
+  
   # Find multiple values in groups
   ncount <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
     dplyr::summarise(ncount = length(ResultIdentifier))
-
+  
   if (max(ncount$ncount) < 2) {
     print("No rows to aggregate.")
     return(.data)
   } else {
     dat <- merge(.data, ncount, all.x = TRUE)
-
+    
     if (any(is.na(dat$TADA.ResultMeasureValue))) {
       "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
     }
-
+    
     dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
     multiples <- dat |> dplyr::filter(ncount > 1)
-
+    
     dat <- dat |> dplyr::select(-ncount)
-
+    
     if (agg_fun == "max") {
       out <- multiples |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
@@ -907,11 +907,11 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
         dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
       dat <- plyr::rbind.fill(dat, out)
     }
-
+    
     if (clean == TRUE) {
       dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
     }
-
+    
     dat <- TADA_OrderCols(dat)
     print("Aggregation results:")
     print(table(dat$TADA.ResultValueAggregation.Flag))
@@ -978,9 +978,9 @@ pchIcons <- function(pch = 1,
   for (i in seq_len(n)) {
     f <- tempfile(fileext = ".png")
     grDevices::png(f,
-      width = width,
-      height = height,
-      bg = bg
+                   width = width,
+                   height = height,
+                   bg = bg
     )
     graphics::par(mar = c(0, 0, 0, 0))
     graphics::plot.new()
@@ -1124,7 +1124,7 @@ getPopup <- function(layer, layername) {
       "EPA_ID" = "EPA ID",
       "TYPE" = "Type"
     )
-
+  
   for (i in seq(1, length(cols))) {
     if (names(cols[i]) %in% colnames(layer)) {
       text <- paste0(text, "<strong>", cols[i], "</strong>: ", layer[[names(cols[i])]], "<br>")
@@ -1168,7 +1168,7 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
   if (!(areaColumn %in% colnames(layer))) {
     areaColumn <- "AREA_KM"
   }
-
+  
   map <-
     leaflet::addPolygons(
       map,
@@ -1261,25 +1261,25 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-
+  
   # Check to see if TADA_Autoclean has been run
   if (any(required_cols %in% colnames(.data)) == FALSE) {
     print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
-
+  
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data |>
     dplyr::select(
@@ -1287,7 +1287,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) |>
     dplyr::distinct()
-
+  
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data |>
     dplyr::select(
@@ -1300,7 +1300,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
     )
-
+  
   # Create combined df with all unique codes (both result and det units) and characteristic names
   data.units <- data.units.result |>
     dplyr::full_join(data.units.det, by = c(
@@ -1309,7 +1309,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
     )) |>
     dplyr::distinct() |>
     dplyr::group_by(TADA.CharacteristicName)
-
+  
   return(data.units)
 }
 
@@ -1342,12 +1342,12 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
     "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
     "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
   )
-
+  
   # Defines two color columns to be used as the color pairings in a dataframe
   col1 <- c()
   col2 <- c()
   col_combo <- data.frame()
-
+  
   # Each row defines the pairing of colors to be used if col_pair is TRUE
   if (col_pair == TRUE) {
     col1 <- c(pal[5], pal[3], pal[7], pal[14])
@@ -1355,7 +1355,7 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
     col_combo <- data.frame(col1, col2)
     pal <- col_combo
   }
-
+  
   return(pal)
 }
 
@@ -1381,49 +1381,49 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
 TADA_ViewColorPalette <- function(col_pair = FALSE) {
   # call TADA color palette
   pal <- TADA_ColorPalette()
-
+  
   # determine length of color palette
   n <- length(pal)
-
+  
   # create list of label colors, first one needs to be white to show up clearly
   label_colors <- rep("black", n)
   label_colors[1] <- "white"
-
+  
   # create color swatch graphic
   graphics::par(mar = c(1, 0, 1, 0))
   swatch <- graphics::plot(1,
-    type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
-    main = "TADA Palette", axes = FALSE
+                           type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
+                           main = "TADA Palette", axes = FALSE
   )
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
   text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
-
+  
   col_combo <- TADA_ColorPalette(col_pair = TRUE)
-
+  
   if (col_pair == TRUE) {
     swatch <- list()
     # Create a 2 x nrow/2 plotting matrix, can handle additional color pairings, in one view, if more are added in the future.
     graphics::par(mfrow = c(2, nrow(col_combo) / 2))
     # create list of label colors for pairs
     label_colors <- rep("black", 2)
-
+    
     for (i in 1:nrow(col_combo)) {
       one_swatch <- graphics::plot(1,
-        type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
-        main = paste0("TADA Palette Pair ", i), axes = FALSE
+                                   type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
+                                   main = paste0("TADA Palette Pair ", i), axes = FALSE
       )
       rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i, ]), border = NA)
       # text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
       text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i, ], pos = 2, col = label_colors, cex = 0.7)
-
+      
       swatch[[i]] <- one_swatch
     }
   }
-
+  
   graphics::par(mfrow = c(1, 1))
   swatch <- grDevices::recordPlot()
-
+  
   return(swatch)
 }
 
@@ -1457,10 +1457,10 @@ TADA_CharStringRemoveNA <- function(char_string) {
   if (!is.character(char_string)) {
     stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
   }
-
+  
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
-
+  
   # Looks through each item in the vector and removes NAs from each.
   labs <- c()
   for (i in 1:length(char_string)) {
@@ -1470,7 +1470,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
     labs[i] <- gsub("\\s+", " ", labs[i])
     labs <- as.vector(labs)
   }
-
+  
   return(labs)
 }
 
@@ -1494,22 +1494,22 @@ TADA_TableExport <- function(.data = NULL) {
   if (is.null(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
-
+  
   data <- DT::datatable(.data,
-    extensions = c("Buttons", "FixedColumns"),
-    options = list(
-      paging = TRUE,
-      dom = "Bfrtip",
-      autoWidth = TRUE,
-      pageLength = 5,
-      scrollX = TRUE,
-      scrollCollapse = TRUE,
-      buttons = c("copy", "csv", "excel", "pdf")
-      # fixedColumns = list(leftColumns = 1
-    ), class = "display"
+                        extensions = c("Buttons", "FixedColumns"),
+                        options = list(
+                          paging = TRUE,
+                          dom = "Bfrtip",
+                          autoWidth = TRUE,
+                          pageLength = 5,
+                          scrollX = TRUE,
+                          scrollCollapse = TRUE,
+                          buttons = c("copy", "csv", "excel", "pdf")
+                          # fixedColumns = list(leftColumns = 1
+                        ), class = "display"
   ) |>
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
-
+  
   return(data)
 }
 
@@ -1532,19 +1532,19 @@ TADA_CreateCSV <- function(.data) {
   if (!is.data.frame(.data)) {
     stop("Input object must be of class 'data.frame'")
   }
-
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
+  
   df_name <- deparse(substitute(.data))
-
+  
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
-
+  
   utils::write.csv(.data, file = downloads_path, row.names = FALSE)
-
+  
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
 
@@ -1582,9 +1582,9 @@ TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
   wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
-    show_col_types = FALSE
+                              show_col_types = FALSE
   )
-
+  
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |>
     dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
@@ -1614,29 +1614,29 @@ TADA_RenametoLegacy <- function(.data) {
     # elements returned with dataRetrieval
     # Using stringr to identify special characters replacing "_" with "." and "/" with "."
     dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c("_" = ".", "/" = ".")))
-
+  
   # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames
   # will overwrite original dataframe
   df <- data.table::copy(.data)
   beta_names_dr <- names(.data) # copy of original elements
-
+  
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
-
+  
   rm(WqxV2.FieldName)
-
+  
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
-
+  
   df <- data.table::setnames(df,
-    old = beta_names,
-    new = legacy_names, skip_absent = TRUE
+                             old = beta_names,
+                             new = legacy_names, skip_absent = TRUE
   )
-
+  
   df <- TADA_OrderCols(df)
-
+  
   return(df)
 }
 
@@ -1662,28 +1662,28 @@ checkColName <- function(.data, partial.string = NULL) {
     partial.string == "MonitoringLocationIdentifier" ~ "ml.col",
     partial.string == "WaterType" ~ "type.col"
   )
-
+  
   if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
     stop(paste0(
       "TADA_CreateAUMLCrosswalk: The ",
       partial.string, " column is missing from the user-supplied reference (au_ref)."
     ))
   }
-
+  
   if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
     select.col <- .data %>%
       dplyr::select(dplyr::contains(partial.string)) %>%
       names()
-
+    
     if (length(select.col) > 1) {
       stop(paste0(
         "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
         partial.string, " column in the user-supplied reference (au_ref)."
       ))
     }
-
+    
     col.lab <- data.frame(col.id, select.col)
-
+    
     rm(col.id, select.col)
   }
   return(col.lab)
@@ -1743,7 +1743,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
     "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
   )
-
+  
   # list of original ATTAINS column names
   attains.orig <- c(
     "organizationid", "submissionid", "hasprotectionplan",
@@ -1771,44 +1771,44 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "toxic_inorganics", "toxic_organics", "trash", "turbidity",
     "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
     "chlorine", "biotoxins")
-
+  
   # if return list equals TRUE, return the list of tada formatted column names
   if (return_list == TRUE & format == "tada") {
     return(attains.tada)
   }
-
+  
   # if return list equals TRUE, return the list of attains formatted column names
   if (return_list == TRUE & format == "attains") {
     return(attains.orig)
   }
-
+  
   # if return equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-
+    
     # assign old and new name vectors based on format selected by user
     old.names <- dplyr::case_when(format == "tada" ~ attains.orig,
-      format == "attains" ~ attains.tada
+                                  format == "attains" ~ attains.tada
     )
-
+    
     new.names <- dplyr::case_when(format == "tada" ~ attains.tada,
-      format == "attains" ~ attains.orig
+                                  format == "attains" ~ attains.orig
     )
-
-
+    
+    
     .data
-
+    
     view <-
       data.table::setnames(
-      .data,
-      old = old.names,
-      new = new.names,
-      skip_absent = TRUE
-    )
-
+        .data,
+        old = old.names,
+        new = new.names,
+        skip_absent = TRUE
+      )
+    
     # remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
-
-
+    
+    
     # return data frame with changed column names
     return(.data)
   }

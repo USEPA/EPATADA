@@ -10,9 +10,9 @@ spelling::spell_check_package(
   pkg = ".",
   vignettes = TRUE
 )
-# run to update spelling word list
 spelling::get_wordlist()
-spelling::update_wordlist()
+# # run to update spelling word list
+# spelling::update_wordlist() # do not run until after checking wordlist & fixing spelling issues!
 
 ###########################################################
 

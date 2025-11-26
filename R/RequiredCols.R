@@ -341,7 +341,6 @@ TADA_OrderCols <- function(.data) {
 }
 
 
-
 #' Get TADA Template
 #'
 #' This function returns a blank TADA template that can be used as a starting
@@ -363,7 +362,6 @@ TADA_GetTemplate <- function() {
   colnames(templatedata) <- template_cols
   return(templatedata)
 }
-
 
 
 #' TADA Required Fields Check

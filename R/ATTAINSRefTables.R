@@ -17,19 +17,19 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
   if (!is.null(ATTAINSParameterWQPCharRef_Cached)) {
     return(ATTAINSParameterWQPCharRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
       attainsParamRef <- spsUtil::quiet(data.frame(name = rExpertQuery::EQ_DomainValues("param_name")[, "name"]))
-
+      
       WQXCharRef <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"))
-
+      
       WQXCharRef$CharacteristicName <- toupper(WQXCharRef$CharacteristicName)
-
+      
       matches <- intersect(WQXCharRef$CharacteristicName, attainsParamRef$name)
-
+      
       ## Add manual additional TADA.ComparableDataIdentifier and ATTAINS Parameter alias
       others <- data.frame(
         CharacteristicName = c(
@@ -60,7 +60,7 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
           "TOTAL DISSOLVED SOLIDS (TDS)"
         )
       )
-
+      
       attainsWQXRef <- WQXCharRef |>
         dplyr::inner_join(attainsParamRef, by = c("CharacteristicName" = "name")) |>
         dplyr::mutate(ATTAINS.ParameterName = CharacteristicName) |>
@@ -71,20 +71,20 @@ TADA_GetATTAINSParameterWQPCharRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest ATTAINS and WQP Char Ref Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSParameterWQPCharRef.csv", package = "EPATADA")))
   }
-
+  
   ATTAINSParameterWQPCharRef <- raw.data |>
     dplyr::distinct()
-
+  
   # Save updated table in cache
   ATTAINSParameterWQPCharRef_Cached <- ATTAINSParameterWQPCharRef
-
+  
   ATTAINSParameterWQPCharRef
 }
 
@@ -113,9 +113,9 @@ TADA_GetATTAINSOrgIDsRef <- function() {
   if (!is.null(ATTAINSOrgIDsRef_Cached)) {
     return(ATTAINSOrgIDsRef_Cached)
   }
-
+  
   # Try to download up-to-date raw data
-
+  
   raw.data <- tryCatch(
     {
       # get data from ATTAINS
@@ -125,20 +125,20 @@ TADA_GetATTAINSOrgIDsRef <- function() {
       NULL
     }
   )
-
+  
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest ATTAINS Organization Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSOrgIDsRef.csv", package = "EPATADA")))
   }
-
+  
   ATTAINSOrgIDsRef <- raw.data |>
     dplyr::distinct()
-
+  
   # Save updated table in cache
   ATTAINSOrgIDsRef_Cached <- ATTAINSOrgIDsRef
-
+  
   ATTAINSOrgIDsRef
 }
 
@@ -170,26 +170,26 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   if (!is.null(ATTAINSParamUseOrgRef_Cached)) {
     return(ATTAINSParamUseOrgRef_Cached)
   }
-
+  
   # from national download
   nat.assessments <- spsUtil::quiet(rExpertQuery::EQ_NationalExtract("assessments"))
-
+  
   if (!exists("nat.assessments")) {
     message("Downloading latest ATTAINSParamUseOrg Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file("extdata", "ATTAINSParamUseEntityRef.csv", package = "EPATADA")))
   }
-
+  
   # considers only the latest cycle form each org, you could skip this step
   # and use params from all assessment cycles - What is preferred?
-
+  
   latest.assessments <- nat.assessments |>
     dplyr::group_by(organizationId) |>
     # dplyr::slice_max(reportingCycle) %>%
     dplyr::select(-objectId) |>
     dplyr::distinct() |>
     dplyr::ungroup()
-
+  
   latest.params <- latest.assessments |>
     dplyr::select(
       organizationId, organizationName,
@@ -203,20 +203,20 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       ATTAINS.ParameterName = parameterName,
       ATTAINS.UseName = useName,
       ATTAINS.WaterType = waterType
-  ) |>
+    ) |>
     dplyr::distinct()
-
+  
   # remove intermediate variables
   rm(nat.assessments, latest.assessments)
   # If the download failed fall back to internal data (and report it)
-
+  
   ATTAINSParamUseOrgRef <- latest.params
-
+  
   rm(latest.params)
-
+  
   # Save updated table in cache
   ATTAINSParamUseOrgRef_Cached <- ATTAINSParamUseOrgRef
-
+  
   ATTAINSParamUseOrgRef
 }
 

@@ -300,7 +300,6 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::rename_with(~ paste0("TADA.", group.id, "MethodSpeciationName"), TADA.MethodSpeciationName)
 
 
-
     # identify dynamically named columns
     pair_char_name <- paste0("TADA.", group.id, "Name")
     pair_result_val <- paste0("TADA.", group.id, ".ResultMeasureValue")

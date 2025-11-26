@@ -63,16 +63,7 @@
 #' }
 #'
 TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  # check .data has the required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -80,20 +71,11 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # define which columns are expected in ref
-  expected_ref_cols <- c(
-    "TADA.CharacteristicName",
-    "Target.TADA.CharacteristicName",
-    "TADA.CharacteristicNameAssumptions",
-    "TADA.ResultSampleFractionText",
-    "Target.TADA.ResultSampleFractionText",
-    "TADA.FractionAssumptions",
-    "TADA.MethodSpeciationName",
-    "Target.TADA.MethodSpeciationName",
-    "TADA.SpeciationAssumptions",
-    "Target.TADA.SpeciationConversionFactor",
-    "HarmonizationGroup"
-  )
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
+  }
 
   # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
@@ -110,10 +92,17 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # define harm.ref
   # if input for ref exists, use that data
   if (!missing(ref)) {
-    # check ref is data.frame
-    TADA_CheckType(ref, "data.frame")
-
     # check ref has all of the required columns
+    expected_ref_cols <- c(expected_cols, c(
+      "Target.TADA.CharacteristicName",
+      "Target.TADA.ResultSampleFractionText",
+      "Target.TADA.MethodSpeciationName",
+      "TADA.CharacteristicNameAssumptions",
+      "TADA.FractionAssumptions",
+      "TADA.SpeciationAssumptions",
+      "Target.TADA.SpeciationConversionFactor",
+      "HarmonizationGroup"
+    ))
     TADA_CheckColumns(ref, expected_ref_cols)
 
     harm.ref <- ref
@@ -321,19 +310,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 TADA_CalculateTotalNP <- function(.data,
                                   sum_ref,
                                   daily_agg = c("max", "min", "mean")) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
-  }
-
-  # check to make sure daily_agg is populated with allowable value
-  daily_agg <- match.arg(daily_agg)
-
-  # check required columns for TADA dataset
+  # check .data is data.frame and has required columns
   req_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -360,8 +337,15 @@ TADA_CalculateTotalNP <- function(.data,
     "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
-  TADA_CheckColumns(.data, expected_cols = req_cols)
+  TADA_CheckColumns(.data, req_cols)
+  # Check if the input data frame is empty
+  if (nrow(.data) == 0) {
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
+  }
 
+  # check to make sure daily_agg is populated with allowable value
+  daily_agg <- match.arg(daily_agg)
 
   # check if QC flag function ran and message warning if not
   if (!"TADA.ActivityType.Flag" %in% names(.data)) {
@@ -478,8 +462,7 @@ TADA_CalculateTotalNP <- function(.data,
 
   # bring in custom reference df if provided
   if (!missing(sum_ref)) {
-    ref_cols <- names(TADA_GetNutrientSummationRef())
-    TADA_CheckColumns(sum_ref, expected_cols = ref_cols)
+    TADA_CheckColumns(sum_ref, names(TADA_GetNutrientSummationRef()))
   } else {
     sum_ref <- TADA_GetNutrientSummationRef()
   }
@@ -746,7 +729,6 @@ TADA_CalculateTotalNP <- function(.data,
 }
 
 
-
 #' Aggregate multiple result values to a min, max, or mean
 #'
 #' This function groups TADA data by user-defined columns and aggregates the
@@ -818,16 +800,14 @@ TADA_AggregateMeasurements <- function(.data,
                                        ),
                                        agg_fun = c("max", "min", "mean"),
                                        clean = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, grouping_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
 
-  TADA_CheckColumns(.data, grouping_cols)
   agg_fun <- match.arg(agg_fun)
 
   # Find multiple values in groups

@@ -70,7 +70,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.AnalyticalMethod.Flag" %in% colnames(.data)) == TRUE) {
@@ -79,51 +79,51 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # read in WQX val reference table and filter
   meth.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) |>
     dplyr::filter(Type == "CharacteristicMethod")
-
+  
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, meth.ref[, c("Characteristic", "Source", "Value", "TADA.WQXVal.Flag")],
-    by.x = c(
-      "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
-      "ResultAnalyticalMethod.MethodIdentifierContext"
-    ),
-    by.y = c("Characteristic", "Value", "Source"), all.x = TRUE
+                      by.x = c(
+                        "TADA.CharacteristicName", "ResultAnalyticalMethod.MethodIdentifier",
+                        "ResultAnalyticalMethod.MethodIdentifierContext"
+                      ),
+                      by.y = c("Characteristic", "Value", "Source"), all.x = TRUE
   )
-
+  
   # rename TADA.WQXVal.Flag column to WQX.AnalyticalMethodValidity
   check.data <- check.data |>
     dplyr::rename(TADA.AnalyticalMethod.Flag = TADA.WQXVal.Flag) |>
     dplyr::distinct()
   # rename NA values to NonStandardized in WQX.AnalyticalMethodValidity column
   check.data["TADA.AnalyticalMethod.Flag"][is.na(check.data["TADA.AnalyticalMethod.Flag"])] <- "Not Reviewed"
-
+  
   if (flaggedonly == FALSE) {
     # if all rows are "Pass" or NA "Not Reviewed", return input unchanged
     ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Suspect data is removed.
     if (any("Suspect" %in%
-      unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
+            unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE) {
       print("No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking.")
       check.data <- TADA_OrderCols(check.data)
       return(check.data)
     }
-
+    
     # flagged output, all data
     if (clean == FALSE) {
       check.data <- TADA_OrderCols(check.data)
       return(check.data)
     }
-
+    
     # clean output
     if (clean == TRUE) {
       # filter out Suspect characteristic-unit-method combinations
       clean.data <- dplyr::filter(check.data, TADA.AnalyticalMethod.Flag != "Suspect")
-
+      
       # remove WQX.AnalyticalMethodValidity column
       # clean.data <- dplyr::select(clean.data, -TADA.AnalyticalMethod.Flag)
       clean.data <- TADA_OrderCols(clean.data)
       return(clean.data)
     }
   }
-
+  
   # flagged output, errors only
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only Suspect characteristic-unit-method combinations
@@ -236,12 +236,12 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     "OrganizationIdentifier",
     "ActivityRelativeDepthName"
   ))
-
+  
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   # run autoclean if it has not already been run
   if ("TADA.ActivityMediaName" %in% colnames(.data)) {
     .data <- .data
@@ -249,21 +249,21 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-
+  
   if ("TADA.LatitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-
+  
   if ("TADA.LongitudeMeasure" %in% colnames(.data)) {
     .data <- .data
   } else {
     # run autoclean
     .data <- TADA_AutoClean(.data)
   }
-
+  
   # run TADA_FindQCActivities if it has not already been run
   if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- .data
@@ -271,7 +271,7 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run TADA_FindQCActivities
     .data <- TADA_FindQCActivities(.data)
   }
-
+  
   # run TADA_CreateComparableID if it has not already been run
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data
@@ -279,32 +279,32 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
     # run TADA_CreateComparableID
     .data <- TADA_CreateComparableID(.data)
   }
-
+  
   # execute function after checks are passed: flag continuous data and make cont.data dataframe
-
+  
   # set default flag to "Discrete"
   .data$TADA.ContinuousData.Flag <- "Discrete"
-
+  
   # once new 3.0 profiles come out, check for zip files in ActivityFileURL and flag data that populates the DataLoggerLine
   cont.data <- .data |>
     dplyr::filter(TADA.ActivityType.Flag == "Non_QC") |>
     dplyr::filter(ActivityTypeCode == "Field Msr/Obs-Continuous Time Series" | # ID cont data with new activity type code from 2023
-      grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
-      grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
-      (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
-      (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
-      (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) |>
+                    grepl("Continuous", ProjectIdentifier) | # ID cont data by looking for string in project ID
+                    grepl("CONTINUOUS", ProjectIdentifier) | # ID cont data by looking for string in project ID
+                    (ActivityTypeCode == "Sample-Integrated Time Series" & SampleCollectionEquipmentName == "Probe/Sensor") |
+                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(ResultTimeBasisText)) |
+                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & !is.na(StatisticalBaseCode)) |
+                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Calculated") |
+                    (ActivityTypeCode == "Field Msr/Obs-Portable Data Logger" & ResultValueTypeName == "Estimated") |
+                    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(ResultTimeBasisText)) |
+                    (SampleCollectionEquipmentName == "Probe/Sensor" & !is.na(StatisticalBaseCode)) |
+                    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Calculated") |
+                    (SampleCollectionEquipmentName == "Probe/Sensor" & ResultValueTypeName == "Estimated")) |>
     dplyr::mutate(TADA.ContinuousData.Flag = "Continuous")
-
+  
   # everything not YET in cont dataframe
   noncont.data <- subset(.data, !.data$ResultIdentifier %in% cont.data$ResultIdentifier)
-
+  
   # if time field is not NA, find time difference between results
   if (length(noncont.data) >= 1) {
     info_match <- noncont.data |>
@@ -330,42 +330,42 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
         time_diff_lead = abs(difftime(ActivityStartDateTime, dplyr::lead(ActivityStartDateTime), units = "hours"))
       ) |>
       dplyr::ungroup()
-
+    
     # find results where the time differences is <= time_difference (default is 4 hours)
     within_window <- info_match |>
       dplyr::filter(time_diff_lead <= time_difference |
-        time_diff_lag <= time_difference)
-
+                      time_diff_lag <= time_difference)
+    
     rm(info_match)
-
+    
     # if matches are identified change flag to continuous
     noncont.data <- noncont.data |>
       dplyr::mutate(TADA.ContinuousData.Flag = ifelse(ResultIdentifier %in% within_window$ResultIdentifier,
-        "Continuous", TADA.ContinuousData.Flag
+                                                      "Continuous", TADA.ContinuousData.Flag
       ))
-
+    
     rm(within_window)
   }
-
+  
   # check if noncont.data is blank. If TRUE, flag.data = cont.data
   if (nrow(noncont.data) == 0) {
     print("All data is flagged as continuous in TADA.ContinuousData.Flag column.")
     flag.data <- cont.data
   }
-
+  
   # if noncont.data is NOT blank, flag.data = join of noncont.data with cont.data
   if (nrow(noncont.data) != 0) {
     flag.data <- cont.data |>
       dplyr::full_join(noncont.data, by = c(names(cont.data)))
   }
-
+  
   # flagged output, all data
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
-
+    
     return(flag.data)
   }
-
+  
   # clean output
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out Suspect characteristic-unit-media combinations
@@ -373,37 +373,37 @@ TADA_FlagContinuousData <- function(.data, clean = FALSE, flaggedonly = FALSE, t
       dplyr::filter(!(TADA.ContinuousData.Flag %in% "Continuous")) |>
       dplyr::select(-TADA.ContinuousData.Flag) |>
       TADA_OrderCols()
-
+    
     return(clean.data)
   }
-
+  
   # flagged output, only aggregated continuous data
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only Suspect characteristic-unit-media combinations
-
+    
     onlycont.data <- flag.data |>
       dplyr::filter(TADA.ContinuousData.Flag == "Continuous") |>
       TADA_OrderCols()
-
+    
     return(onlycont.data)
   }
-
-
+  
+  
   # if no aggregated continuous data is in the data set
   if (nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0) {
     if (flaggedonly == FALSE) {
       print("No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking.")
       .data <- TADA_OrderCols(.data)
-
+      
       return(.data)
     }
-
+    
     if (flaggedonly == TRUE) {
       print("This dataframe is empty because we did not find any aggregated continuous data in your dataframe")
-
+      
       all.cont.data <- flag.data |>
         dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
-
+      
       return(all.cont.data)
     }
   }
@@ -495,30 +495,30 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   # check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
-
+  
   # execute function after checks are passed
-
+  
   # delete existing flag column - removes flag column in case reference table has changed.
   if (("TADA.ResultValueAboveUpperThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueAboveUpperThreshold.Flag)
   }
-
+  
   # get WQXcharVal.ref and filter to include only CharacteristicUnit domain
   # Note that status is not applicable to ranges (only unit/char combos)
   # Any with "suspect" char/unit combos should also be flagged as suspect
   unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) |>
     dplyr::filter(Type == "CharacteristicUnit")
-
+  
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
   names(unit.ref)[names(unit.ref) == "Source"] <- "TADA.ActivityMediaName"
   names(unit.ref)[names(unit.ref) == "Value.Unit"] <- "TADA.ResultMeasure.MeasureUnitCode"
-
+  
   # remove extraneous columns from unit.ref
   unit.ref <- dplyr::select(unit.ref, c(
     -Domain, -Status,
@@ -530,25 +530,25 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     -Value,
     -Minimum
   ))
-
+  
   # remove duplicates
   unit.ref <- unique(unit.ref)
-
+  
   # separate out valid ranges from invalid units
   unit.ref <- unit.ref |>
     dplyr::filter(TADA.WQXVal.Flag == "Pass")
-
+  
   check.data <- dplyr::left_join(.data,
-    unit.ref,
-    by = c(
-      "TADA.CharacteristicName",
-      "TADA.ActivityMediaName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    ),
-    multiple = "all",
-    relationship = "many-to-one"
+                                 unit.ref,
+                                 by = c(
+                                   "TADA.CharacteristicName",
+                                   "TADA.ActivityMediaName",
+                                   "TADA.ResultMeasure.MeasureUnitCode"
+                                 ),
+                                 multiple = "all",
+                                 relationship = "many-to-one"
   )
-
+  
   # Create flag column, flag rows where ResultMeasureValue > Maximum
   flag.data <- check.data |>
     # create flag column
@@ -558,24 +558,24 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       is.na(Maximum) ~ as.character("Not Reviewed"), # in QAQC table, but not yet reviewed
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
     ))
-
+  
   # # Add different flags for unit issues (ranges also suspect)
   # flag.data <- flag.data |>
   #   dplyr::mutate(TADA.ResultValueAboveUpperThreshold.Flag = dplyr::case_when(
   #     TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect: Invalid Unit"), # suspect char/unit combos are also suspect ranges
   #     TADA.WQXVal.Flag == "NonStandardized" ~ as.character("Suspect: NonStandardized Unit")
   #     ))
-
+  
   # remove Maximum and TADA.WQXVal.Flag column from unit.ref
   flag.data <- flag.data |>
     dplyr::select(c(
       -"Maximum",
       -"TADA.WQXVal.Flag"
     ))
-
+  
   # if no data above WQX threshold is found
   if (any("Suspect" %in%
-    unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
+          unique(flag.data$TADA.ResultValueAboveUpperThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("No data above the WQX Upper Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueAboveUpperThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
@@ -588,13 +588,13 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-
+  
   # flagged, all data
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-
+  
   # clean data
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueAboveUpperThreshold.Flag = Suspect; remove TADA.ResultValueAboveUpperThreshold.Flag column
@@ -604,7 +604,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-
+  
   # flagged, errors only
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows above WQX upper threshold
@@ -703,18 +703,18 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (clean == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
-
+  
   # check ResultMeasureValue column is of class numeric
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop("The ResultMeasureValue column must be of class 'numeric'.")
   }
-
+  
   # execute function after checks are passed - removes flag column in case reference table has changed.
   # delete existing flag column
   if (("TADA.ResultValueBelowLowerThreshold.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ResultValueBelowLowerThreshold.Flag)
   }
-
+  
   # get WQXcharVal.ref and filter to include only CharacteristicUnit
   # Note that status is not applicable to ranges.
   # Instead, we generate a validation flag later in this function
@@ -722,12 +722,12 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     dplyr::filter(
       Type == "CharacteristicUnit"
     )
-
+  
   # update ref table names to prepare for left join with df
   names(unit.ref)[names(unit.ref) == "Characteristic"] <- "TADA.CharacteristicName"
   names(unit.ref)[names(unit.ref) == "Source"] <- "TADA.ActivityMediaName"
   names(unit.ref)[names(unit.ref) == "Value.Unit"] <- "TADA.ResultMeasure.MeasureUnitCode"
-
+  
   # remove extraneous columns from unit.ref
   unit.ref <- dplyr::select(unit.ref, c(
     -Type, -Unique.Identifier, -Domain,
@@ -739,24 +739,24 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     -Value,
     -Maximum
   ))
-
+  
   unit.ref <- unique(unit.ref)
-
+  
   # separate out valid ranges from invalid units
   unit.ref <- unit.ref |>
     dplyr::filter(TADA.WQXVal.Flag == "Pass")
-
+  
   check.data <- dplyr::left_join(.data,
-    unit.ref,
-    by = c(
-      "TADA.CharacteristicName",
-      "TADA.ActivityMediaName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    ),
-    multiple = "all",
-    relationship = "many-to-one"
+                                 unit.ref,
+                                 by = c(
+                                   "TADA.CharacteristicName",
+                                   "TADA.ActivityMediaName",
+                                   "TADA.ResultMeasure.MeasureUnitCode"
+                                 ),
+                                 multiple = "all",
+                                 relationship = "many-to-one"
   )
-
+  
   # Create flag column, flag rows where TADA.ResultMeasureValue < Minimum
   flag.data <- check.data |>
     # create flag column
@@ -766,24 +766,24 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       is.na(Minimum) ~ as.character("Not Reviewed"), # in QAQC table but not reviewed
       TRUE ~ as.character("NA - Not Available") # this occurs when the char/unit/media combo is not in the WQX QAQC table at all. USGS data may not be in QAQC table because it does not adhere to the WQX domain tables.
     ))
-
+  
   # # Add different flags for unit issues (ranges also suspect)
   # flag.data <- flag.data |>
   #   dplyr::mutate(TADA.ResultValueAboveBelowThreshold.Flag = dplyr::case_when(
   #     TADA.WQXVal.Flag == "Suspect" ~ as.character("Suspect: Invalid Unit"), # suspect char/unit combos are also suspect ranges
   #     TADA.WQXVal.Flag == "NonStandardized" ~ as.character("Suspect: NonStandardized Unit")
   #     ))
-
+  
   # remove Min column
   flag.data <- flag.data |>
     dplyr::select(c(
       -"Minimum",
       -"TADA.WQXVal.Flag"
     ))
-
+  
   # if no data below WQX lower threshold is found
   if (any("Suspect" %in%
-    unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
+          unique(flag.data$TADA.ResultValueBelowLowerThreshold.Flag)) == FALSE) {
     if (flaggedonly == FALSE) {
       print("No data below the WQX Lower Threshold were found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking.")
       flag.data <- TADA_OrderCols(flag.data)
@@ -796,13 +796,13 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       return(emptyflag.data)
     }
   }
-
+  
   # flagged, all data
   if (clean == FALSE & flaggedonly == FALSE) {
     flag.data <- TADA_OrderCols(flag.data)
     return(flag.data)
   }
-
+  
   # clean data
   if (clean == TRUE & flaggedonly == FALSE) {
     # filter out rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect; remove TADA.ResultValueBelowLowerThreshold.Flag column
@@ -811,7 +811,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- TADA_OrderCols(clean.data)
     return(clean.data)
   }
-
+  
   # only flagged data
   if (clean == FALSE & flaggedonly == TRUE) {
     # filter to show only rows where TADA.ResultValueBelowLowerThreshold.Flag = Suspect
@@ -918,21 +918,21 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
   if (clean == TRUE & cleanNA == TRUE & flaggedonly == TRUE) {
     stop("Function not executed because clean, cleanNA, and flaggedonly cannot all be TRUE")
   }
-
+  
   # execute function after checks are passed
-
+  
   # if flaggedonly = FALSE
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE | QAPPApprovedIndicator == "Y")
-
+      
       if (nrow(.data) == 0) {
         print("All QAPPApprovedIndicator data is N")
       }
     }
     if (cleanNA == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == FALSE)
-
+      
       if (nrow(.data) == 0 & clean == TRUE) {
         print("All QAPPApprovedIndicator data is NA or N")
       } else if (nrow(.data) == 0 & clean == FALSE) {
@@ -945,7 +945,7 @@ TADA_FindQAPPApproval <- function(.data, clean = FALSE, cleanNA = FALSE, flagged
     .data <- TADA_OrderCols(.data)
     return(.data)
   }
-
+  
   # if flaggedonly = TRUE
   if (flaggedonly == TRUE & clean == TRUE & cleanNA == FALSE) {
     NA.data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == TRUE)
@@ -1013,7 +1013,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check .data has required columns
-
+  
   # generate required column if it does not exist (there is no project data)
   if ("ProjectFileUrl" %in% colnames(.data)) {
     .data <- .data
@@ -1021,45 +1021,45 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
     # create empty ProjectFileUrl column
     .data[, "ProjectFileUrl"] <- NA
   }
-
+  
   # check .data has required columns
   TADA_CheckColumns(.data, "ProjectFileUrl")
-
+  
   # default flag column
   .data$TADA.QAPPDocAvailable <- "N"
-
+  
   # execute function after checks are passed
   # flag data where QAPP document url is provided
   # make QAPPdoc.data dataframe
   QAPPdoc.data <- dplyr::filter(.data, grepl("/", ProjectFileUrl))
   NQAPPdoc.data <- subset(.data, !.data$ResultIdentifier %in% QAPPdoc.data$ResultIdentifier)
-
+  
   # if there is data without an associated QAPP url in the data set
   if (nrow(QAPPdoc.data) != 0) {
     # change flag column
     QAPPdoc.data$TADA.QAPPDocAvailable <- "Y_ProjectFileUrlProvided"
-
+    
     # join QAPPdoc.data to flag.data
     flag.data <- plyr::rbind.fill(QAPPdoc.data, NQAPPdoc.data)
-
+    
     # flagged output
     if (clean == FALSE) {
       flag.data <- TADA_OrderCols(flag.data)
       return(flag.data)
     }
-
+    
     # clean output
     if (clean == TRUE) {
       # remove data without an associated QAPP url
       clean.data <- dplyr::filter(flag.data, grepl("/", ProjectFileUrl))
-
+      
       # remove TADA.QAPPDocAvailable column
       # clean.data <- dplyr::select(clean.data, -TADA.QAPPDocAvailable)
       clean.data <- TADA_OrderCols(clean.data)
       return(clean.data)
     }
   }
-
+  
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
     if (clean == FALSE) {
@@ -1176,15 +1176,15 @@ TADA_FlagCoordinates <- function(.data,
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
   }
-
+  
   if (!is.numeric(.data$TADA.LatitudeMeasure)) {
     warning("TADA.LatitudeMeasure field must be numeric")
   }
   # check that clean_outsideUSA is either "no", "remove", or "change sign"
   clean_outsideUSA <- match.arg(clean_outsideUSA)
-
+  
   orig_dim <- dim(.data)[1]
-
+  
   # execute function after checks are passed
   .data <- .data |>
     dplyr::mutate(TADA.SuspectCoordinates.Flag = dplyr::case_when(
@@ -1199,10 +1199,10 @@ TADA_FlagCoordinates <- function(.data,
       sapply(.data$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3 |
         sapply(.data$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3 ~ "Imprecise_lessthan3decimaldigits"
     ))
-
+  
   # Fill in flag for coordinates that appear OK/PASS tests
   .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
-
+  
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (clean_imprecise == TRUE) {
     .data <- dplyr::filter(
@@ -1210,7 +1210,7 @@ TADA_FlagCoordinates <- function(.data,
       !TADA.SuspectCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
     )
   }
-
+  
   # if clean_outsideUSA is "remove", remove stations flagged as outside the USA
   if (clean_outsideUSA == "remove") {
     .data <- dplyr::filter(
@@ -1218,7 +1218,7 @@ TADA_FlagCoordinates <- function(.data,
       !TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA")
     )
   }
-
+  
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
     print("When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).")
@@ -1234,12 +1234,12 @@ TADA_FlagCoordinates <- function(.data,
         )
       )
   }
-
+  
   # return only flagged data if flaggedonly = true
   if ((flaggedonly == TRUE)) {
     .data <- dplyr::filter(.data, !TADA.SuspectCoordinates.Flag %in% c("OK"))
   }
-
+  
   if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
     if (orig_dim == dim(.data)[1]) {
       print("Your dataframe does not contain monitoring stations with Suspect coordinates. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking.")
@@ -1312,21 +1312,21 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
   # from those datapoints, determine which are in adjacent sites
   if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(.data,
-      dist_buffer = dist_buffer,
-      org_hierarchy = org_hierarchy
+                                  dist_buffer = dist_buffer,
+                                  org_hierarchy = org_hierarchy
     )
   }
-
+  
   dupsites <- unique(.data[, c(
     "MonitoringLocationIdentifier", "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure", "TADA.MonitoringLocationIdentifier",
     "TADA.NearbySiteGroup"
   )])
-
+  
   # get rid of results with no site group added - not duplicated spatially
   dupsites <- dupsites |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup))
-
+  
   # remove results with no nearby sites get all data that are not NA and round to 2 digits
   dupsprep <- .data |>
     dplyr::filter(MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier) |>
@@ -1337,10 +1337,10 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     ) |>
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) |>
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
-
+  
   # remove intermediate object
   rm(dupsites)
-
+  
   # group by date, time, characteristic, and rounded result value and determine the number of
   # organizations that have those same row values, and filter to those summary rows with more than
   # one organization
@@ -1356,7 +1356,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     dplyr::mutate(TADA.MultipleOrgDupGroupID = dplyr::cur_group_id()) |>
     dplyr::select(-numorgs) |>
     dplyr::ungroup()
-
+  
   # merge to data
   dupsdat <- dplyr::left_join(dups_sum, .data, by = c(
     "ActivityStartDate",
@@ -1375,10 +1375,10 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     dplyr::slice_sample(n = 1) |>
     dplyr::ungroup() |>
     dplyr::select(-roundRV)
-
+  
   # remove intermediate object
   rm(dups_sum)
-
+  
   # select representative results
   if (dim(dupsdat)[1] > 0) {
     # make a selection of a representative result
@@ -1397,9 +1397,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
         dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID) |>
         dplyr::mutate(rank = 99)
     }
-
+    
     dupranks$rank[is.na(dupranks$rank)] <- 99
-
+    
     duppicks <- dupranks |>
       dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID, rank) |>
       dplyr::group_by(TADA.MultipleOrgDupGroupID) |>
@@ -1409,7 +1409,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
       dplyr::group_by(ResultIdentifier) |>
       dplyr::slice_min(rank) |>
       dplyr::slice_sample(n = 1)
-
+    
     dupsdat <- dupsdat |>
       dplyr::rename(SingleNearbyGroup = TADA.MonitoringLocationIdentifier) |>
       dplyr::mutate(
@@ -1417,7 +1417,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
         TADA.ResultSelectedMultipleOrgs = ifelse(ResultIdentifier %in% duppicks$ResultIdentifier, "Y", "N")
       ) |>
       dplyr::select(-SingleNearbyGroup)
-
+    
     # connect back to original dataset
     .data <- .data |>
       dplyr::mutate(
@@ -1432,8 +1432,8 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
       dplyr::mutate(
         TADA.MonitoringLocationIdentifier = ifelse(TADA.MonitoringLocationIdentifier %in% "NA", "NA - Not Available", TADA.MonitoringLocationIdentifier)
       )
-
-
+    
+    
     print(paste0(length(dupsdat$TADA.MultipleOrgDuplicate[dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")]), " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."))
   } else { # no duplicate results
     .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
@@ -1441,9 +1441,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
     .data$TADA.ResultSelectedMultipleOrgs <- "Y"
     print("No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'.")
   }
-
+  
   .data <- TADA_OrderCols(.data)
-
+  
   return(.data)
 }
 
@@ -1482,10 +1482,10 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(.data, dist_buffer = 100,
 TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
   # find the depth columns in the dataset
   depthcols <- names(.data)[grepl("^TADA.*DepthHeightMeasure.MeasureValue$", names(.data))]
-
+  
   # tack depth columns onto additional grouping columns
   cols <- c("OrganizationIdentifier", "MonitoringLocationIdentifier", "ActivityStartDate", "ActivityStartTime.Time", "ActivityTypeCode", "TADA.CharacteristicName", "SubjectTaxonomicName", "TADA.ResultSampleFractionText", "TADA.ResultMeasureValue", depthcols)
-
+  
   # find where the grouping using the columns above results in more than one result identifier
   dups_sum_org <- .data |>
     dplyr::group_by(dplyr::across(tidyselect::any_of(cols))) |>
@@ -1495,16 +1495,16 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
     ) |>
     dplyr::filter(numres > 1) |>
     dplyr::mutate(TADA.SingleOrgDupGroupID = dplyr::cur_group_id())
-
+  
   # remove intermediate objects
   rm(depthcols, cols)
-
+  
   if (dim(dups_sum_org)[1] > 0) {
     # apply to .data and remove numbers column
     .data <- merge(.data, dups_sum_org, all.x = TRUE)
     .data <- .data |> dplyr::select(-numres)
     .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] <- "Not a duplicate"
-
+    
     # flag rows randomly within a duplicate group for potential removal
     dup_rids <- subset(.data, !is.na(.data$TADA.SingleOrgDupGroupID))$ResultIdentifier
     picks <- .data |>
@@ -1525,28 +1525,28 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
       "TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' ",
       "for easy filtering."
     ))
-
+    
     # remove intermediate objects
     rm(dup_rids)
   }
-
+  
   if (dim(dups_sum_org)[1] == 0) {
     # apply to .data and remove numbers column
     .data <- merge(.data, dups_sum_org, all.x = TRUE)
     .data <- .data |> dplyr::select(-numres)
     .data$TADA.SingleOrgDupGroupID[is.na(.data$TADA.SingleOrgDupGroupID)] <- "Not a duplicate"
-
+    
     # flags non-duplicates as passing
     .data$TADA.SingleOrgDup.Flag <- ifelse(.data$TADA.SingleOrgDupGroupID == "Not a duplicate", "Unique", .data$TADA.SingleOrgDup.Flag)
     print("No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'")
   }
-
+  
   # remove intermediate objects
   rm(dups_sum_org)
-
+  
   # reorder columns
   .data <- TADA_OrderCols(.data)
-
+  
   # return TADA df
   return(.data)
 }

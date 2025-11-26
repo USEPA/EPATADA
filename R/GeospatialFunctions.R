@@ -540,7 +540,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     )
 
 
-
     return(final_features)
 
     # If area is small (< 6e+9 square meters), just use the bbox in one pull:
@@ -2074,10 +2073,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     )  |> 
     dplyr::mutate(
       ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
-                                 "NA", ATTAINS.WaterType
+        "NA", ATTAINS.WaterType
       ),
       Ref.WaterType = ifelse(is.na(Ref.WaterType),
-                             "NA", Ref.WaterType
+        "NA", Ref.WaterType
       ),
       Mismatch = ATTAINS.WaterType != Ref.WaterType
     )  |> 
@@ -2100,7 +2099,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
       dplyr::pull()
 
     mismatch.text <- stringi::stri_replace_last(paste(mismatch.text, collapse = "; "),
-                                                fixed = "; ", " and "
+      fixed = "; ", " and "
     )
 
     print(paste0(
@@ -2198,7 +2197,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 #' }
 #'
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
-
   if (!any(c(
     "ATTAINS_catchments", "ATTAINS_points",
     "ATTAINS_lines", "ATTAINS_polygons"
@@ -2358,8 +2356,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         Organization_Count = length(unique(OrganizationIdentifier)),
         ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
         TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
-                                  as.character(TADA.AURefSource),
-                                  "not provided"
+          as.character(TADA.AURefSource),
+          "not provided"
         )
       )  |> 
       dplyr::mutate(
@@ -2591,7 +2589,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         height = 14,
         orientation = "vertical",
         title = htmltools::tags$div("Legend",
-                                    style = "font-size: 14px;
+          style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
         ),
         position = "bottomright"
@@ -2601,7 +2599,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     return(map)
   }))
 }
-
 
 
 #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
@@ -2685,20 +2682,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
                                  nhd_res = "Hi",
                                  org_hierarchy = "none",
                                  meta_select = "random") {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # .data required columns
-  required_cols <- c(
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
     "TADA.MonitoringLocationIdentifier",
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure"
   )
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, required_cols)
-
-  rm(required_cols)
+  TADA_CheckColumns(.data, expected_cols)
+  rm(expected_cols)
 
   # retain only necessary columns unique Monitoring Locations
   unique.mls <- .data |>
@@ -3144,7 +3135,6 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 }
 
 
-
 #' Get grouped monitoring stations that are near each other
 #'
 #' This function takes a TADA dataset that contains grouped nearby monitoring stations
@@ -3160,11 +3150,8 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 #'
 #' @export
 TADA_GetUniqueNearbySites <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # .data required columns
-  required_cols <- c(
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
     "MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier",
     "MonitoringLocationName", "TADA.MonitoringLocationName",
     "LongitudeMeasure", "TADA.LongitudeMeasure",
@@ -3173,8 +3160,7 @@ TADA_GetUniqueNearbySites <- function(.data) {
     "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag",
     "TADA.NearbySiteGroup"
   )
-  # check .data has required columns
-  TADA_CheckColumns(.data, required_cols)
+  TADA_CheckColumns(.data, expected_cols)
 
   # filter only for locations with nearby sites
   .data <- .data |>
@@ -3189,7 +3175,6 @@ TADA_GetUniqueNearbySites <- function(.data) {
 
   return(.data)
 }
-
 
 
 #' Generate a random WQP dataset
@@ -3283,7 +3268,6 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
   df <- verify_random_data()
   return(df)
 }
-
 
 
 #' TADA_CreateAUMLCrosswalk
@@ -3398,7 +3382,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
                                      fill_USGS_catch = FALSE,
                                      return_nearest = TRUE,
                                      batch_upload = TRUE) {
-
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,
@@ -3410,9 +3393,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
-
-    print(paste0("TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
-                  "was provided."))
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
+      "was provided."
+    ))
   }
 
   # check to see if user supplied ref is not NULL
@@ -3429,9 +3413,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
     # check to see if user supplied ref is a data frame
     if (is.data.frame(au_ref)) {
-
-      print(paste0("TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-                   "for assessment units in the user-supplied crosswalk."))
+      print(paste0(
+        "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+        "for assessment units in the user-supplied crosswalk."
+      ))
 
 
       # list of partial string matches for columns in au_ref
@@ -3469,12 +3454,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) |>
         dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
-      if(dim(au.ref.mls)[1] > 0) {
-
-      # get geospatial data for au_ref monitoring locations
-      user.matches <- spsUtil::quiet(
-        TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
-      )
+      if (dim(au.ref.mls)[1] > 0) {
+        # get geospatial data for au_ref monitoring locations
+        user.matches <- spsUtil::quiet(
+          TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
+        )
       }
     }
   }
@@ -3547,8 +3531,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains.cw.mls <- attains.cw.mls  |> 
       dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
-    print(paste0("TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-                 "for assessment units from the ATTAINS crosswalk."))
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+      "for assessment units from the ATTAINS crosswalk."
+    ))
     # get geospatial data for attains cw monitoring locations
     attains.matches <- spsUtil::quiet(
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, fill_ATTAINS_catch = fill_ATTAINS_catch)
@@ -3560,8 +3546,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # TADA_CreateATTAINSAUMLCrosswalk section
 
-  print(paste0("TADA_CreateAUMLCrosswalk: checking to see if any unmatched ",
-               "monitoring locations remain in the original TADA data frame."))
+  print(paste0(
+    "TADA_CreateAUMLCrosswalk: checking to see if any unmatched ",
+    "monitoring locations remain in the original TADA data frame."
+  ))
 
   get.attains.mls <- .data
   
@@ -3581,8 +3569,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # add code here for if there are no remaining mls to match
   if (dim(get.attains.mls)[1] == 0) {
-    print(paste0("TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
-                 "already been matched to an assessment unit by the user or ATTAINS."))
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
+      "already been matched to an assessment unit by the user or ATTAINS."
+    ))
 
     get.attains.matches <- list(
       "TADA_with_ATTAINS" = NULL,
