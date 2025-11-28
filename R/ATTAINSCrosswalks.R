@@ -958,7 +958,7 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
-    if ( !is.character(org_id) & is.null(org_id)) {
+    if (!is.character(org_id) & is.null(org_id)) {
       org_id = ""
     }
     
