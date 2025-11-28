@@ -961,7 +961,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
     if (!is.character(org_id) & is.null(org_id)) {
       org_id = ""
     }
-    
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if( tolower(org_id) == "all"){
       org_id = rExpertQuery::EQ_DomainValues("org_id")[,"code"]
