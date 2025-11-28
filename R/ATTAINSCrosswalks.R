@@ -957,9 +957,14 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       ))
     }
 
-    # if a user provides an org_id argument, it must be a character vector.
-    if (!is.character(org_id) & is.null(org_id)) {
-      stop("TADA.CreateParamRef: org_id must be a character vector")
+    # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
+    if ( !is.character(org_id) & is.null(org_id)) {
+      org_id = ""
+    }
+    
+    # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
+    if( tolower(org_id) == "all"){
+      org_id = rExpertQuery::EQ_DomainValues("org_id")[,"code"]
     }
 
     # If more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
@@ -1738,13 +1743,15 @@ TADA_CreateUseParamRef <- function(.data, org_id = NULL, paramRef = NULL, usePar
         )
     }
 
-    # if user doesn't provide an org_id argument,
-    # Selection of org_id will filter the drop down lists in future steps of creating the reference tables.
-    if (is.null(org_id)) {
-      stop("TADA.CreateUseParamRef: No organization identifier(s) provided.")
+    # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
+    if ( !is.character(org_id) & is.null(org_id)) {
+      org_id = ""
     }
-
-    org_id <- as.list(org_id)
+    
+    # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
+    if( tolower(org_id) == "all"){
+      org_id = rExpertQuery::EQ_DomainValues("org_id")[,"code"]
+    }
 
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.

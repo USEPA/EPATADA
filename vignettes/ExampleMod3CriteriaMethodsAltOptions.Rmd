@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE,
   message = FALSE,
-  eval = F
+  eval = TRUE
 )
 ```
 
@@ -71,7 +71,7 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -82,7 +82,7 @@ remotes::install_github("USEPA/EPATADA",
 
 ```{r dev_install, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "update-mod-3-alt-option-vignette",
   dependencies = TRUE
 )
 ```
@@ -206,6 +206,8 @@ MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.blank)
 ```
 
 ## Option B: Auto Fill option (Intermediate Tabs are Hidden)
@@ -236,6 +238,8 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.auto)
 ```
 
 Users who would like to ensure all Characteristic, Speciation and
@@ -255,13 +259,15 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.auto2)
 ```
 
 We can also choose to append epa304a recommended standards into the
 criteria table for any WQP characteristics in your data frame that are
 found.
 
-```{r auto-fill-epa304a-and-display-TADA.ComparableDataIdentifier}
+```{r auto-fill-epa304a-and-display}
 MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -272,6 +278,8 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.auto3)
 ```
 
 ## Option C: User Supplied Table
@@ -293,7 +301,12 @@ to an assessment unit, they should also provide a useAURef input.
 Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
-```{r user-supplied-epa304a-and-autofill-output}
+```{r user.supplied.w.epa304a}
+# Load the example MTDEQ criteria table
+criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
+
+load(criteria_table)
+
 MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
@@ -305,6 +318,8 @@ MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.user.auto)
 ```
 
 Users will need to determine their level of desired grouping of
@@ -315,9 +330,7 @@ ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
 displayUniqueId = TRUE, this will display all combinations in the
 criteria table output.
 
-```{r display-TADA.ComparableDataIdentifier-user-supplied-epa304a-and-autofill-output}
-load(system.file("extdata", "criteria_table.rda", package = "EPATADA"))
-
+```{r displayID.and.user.supplied.w.epa304a}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
@@ -329,6 +342,8 @@ MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.user.auto2)
 ```
 
 ## Choose a Final Criteria Template, Save and Re-use
@@ -340,13 +355,15 @@ MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user.auto2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.reuse)
 ```
 
 Users are recommended to go through each of the 3 reference files one at

@@ -8,6 +8,6 @@
 A data frame with 48 rows and 6 variables.
 }
 \description{
-Generate Data_MT.UseAURef_Water used in ExampleMod2Workflow.Rmd and
+Generate Data_MT_UseAURef_Water used in ExampleMod2Workflow.Rmd and
 ExampleMod3Workflow.Rmd
 }

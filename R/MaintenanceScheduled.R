@@ -343,7 +343,7 @@
       )
 
       # =======================================
-      # Generate Data_MT.UseAURef_Water
+      # Generate Data_MT_UseAURef_Water
       # =======================================
       Data_MT_UseAURef_Water <- TADA_CreateUseAURef(
         waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),

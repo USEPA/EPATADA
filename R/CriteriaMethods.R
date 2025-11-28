@@ -187,7 +187,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
   }
 
   # Generates a blank Criteria and Methods file.
-  # Users can still append the epa304a recommended standards if desired.
   if (auto_assign == FALSE && is.null(MLSummaryRef)) {
     desired_cols <- c(
       "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName", "TADA.ComparableDataIdentifier",
@@ -930,6 +929,17 @@ TADA_DefineCriteriaMethodology <- function(.data,
     )
 
     # The list of allowable values for each column in excel tab [DefineCriteriaMethodology] will be defined by the [Index-Criteria] tab
+    suppressWarnings(
+      openxlsx::dataValidation(
+        wb,
+        sheet = "CreateParamRef",
+        cols = 3, rows = 2:1000,
+        type = "list",
+        value = sprintf("'Index'!$E$2:$E$30000"), # please ensure this covers all values in the column E in the Index tab for future development.
+        allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE
+      )
+    )
+    
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 4, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$F$2:$F$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
 
     suppressWarnings(openxlsx::dataValidation(wb, sheet = "DefineCriteriaMethodology", cols = 5, rows = 2:1000, type = "list", value = sprintf("'Index-Criteria'!$G$2:$G$1000"), allowBlank = TRUE, showErrorMsg = TRUE, showInputMsg = TRUE))
