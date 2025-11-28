@@ -54,11 +54,11 @@
 #' be identified, however TADA.ConsolidatedDepth and TADA.ConsolidatedDepth.Bottom
 #' will still be determined.
 #'
-#' @param aggregatedonly Boolean argument with options "TRUE" or "FALSE". The
-#' default is aggregatedonly = "FALSE" which means that all results are returned.
-#' When aggregatedonly = "TRUE", only aggregate values are returned.
+#' @param aggregatedonly Boolean argument with options TRUE or FALSE. The
+#' default is aggregatedonly = FALSE which means that all results are returned.
+#' When aggregatedonly = TRUE, only aggregate values are returned.
 #'
-#' @param clean Boolean argument with options "TRUE" or "FALSE". The
+#' @param clean Boolean argument with options TRUE or FALSE. The
 #' default is clean = "FALSE" which means that all results are returned.
 #' When clean = "TRUE", only aggregate results which can be assigned to a depth
 #' category are included in the returned dataframe.
@@ -78,7 +78,7 @@
 #'
 #' @examples
 #' # Load data frame
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # assign TADA.DepthCategory.Flag with no aggregation
 #' Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
@@ -89,17 +89,11 @@
 #'   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 #' )
 #'
-TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2, 
-                                   surfacevalue = 2, dailyagg = "none", 
+TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
+                                   surfacevalue = 2, dailyagg = "none",
                                    aggregatedonly = FALSE, clean = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check aggregatedonly is boolean
-  TADA_CheckType(aggregatedonly, "logical")
-  # check clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "ActivityRelativeDepthName",
@@ -111,7 +105,12 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
     "TADA.MonitoringLocationIdentifier",
     "OrganizationIdentifier",
     "ActivityStartDate"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
+  # check aggregatedonly is boolean
+  TADA_CheckType(aggregatedonly, "logical")
+  # check clean is boolean
+  TADA_CheckType(clean, "logical")
 
   # execute function after checks are passed
 
@@ -507,7 +506,7 @@ TADA_FlagDepthCategory <- function(.data, bycategory = "no", bottomvalue = 2,
 #'
 #' @examples
 #' # Load data frame
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # find depth profile data without showing number of results
 #' Data_6Tribes_5y_DepthProfileID_Nresults <-
@@ -676,7 +675,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with three parameters for a single
 #' # monitoring location and date
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -689,7 +688,7 @@ TADA_IDDepthProfiles <- function(.data, nresults = TRUE, nvalue = 2, aggregates 
 #' )
 #'
 #' # Load example data frame:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a depth profile figure with two parameters for a single monitoring
 #' # location and date without displaying depth categories
 #' TADA_DepthProfilePlot(Data_6Tribes_5y_Harmonized,
@@ -878,7 +877,7 @@ TADA_DepthProfilePlot <- function(.data,
   rm(param.check)
 
   # list required columns
-  reqcols <- c(
+  required_cols <- c(
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
     "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
@@ -896,7 +895,7 @@ TADA_DepthProfilePlot <- function(.data,
   )
 
   # check .data has required columns
-  TADA_CheckColumns(.data, reqcols)
+  TADA_CheckColumns(.data, required_cols)
 
   print("TADA_DepthProfilePlot: Identifying available depth profile data.")
 
@@ -1028,7 +1027,7 @@ TADA_DepthProfilePlot <- function(.data,
   # this subset must include all fields included in plot hover below
   plot.data <- profile.data %>%
     dplyr::filter(dplyr::if_any(TADA.ComparableDataIdentifier, ~ .x %in% groups)) %>%
-    dplyr::select(dplyr::all_of(reqcols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
+    dplyr::select(dplyr::all_of(required_cols), "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "TADA.MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText") %>%
     dplyr::mutate(TADA.ResultMeasure.MeasureUnitCode = ifelse(is.na(TADA.ResultMeasure.MeasureUnitCode),
       "NA", TADA.ResultMeasure.MeasureUnitCode
     ))

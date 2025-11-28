@@ -56,29 +56,29 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_R5_TADAPackageDemo)
 
 # Flag, but do not remove, data with Suspect coordinates in new column
 # titled "TADA.SuspectCoordinates.Flag":
 # Return ALL data:
-SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
+SuspectCoord_flags <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo)
 
 # Flag, but do not remove, data with Suspect coordinates in new column
 # titled "TADA.SuspectCoordinates.Flag"
 # Return ONLY the flagged data:
-SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_Nutrients_UT,
+SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
   flaggedonly = TRUE
 )
 
 # Remove data with coordinates outside the USA, but keep flagged data with
 # imprecise coordinates:
-OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT,
+OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
   clean_outsideUSA = "remove"
 )
 
 # Change the sign of coordinates flagged as outside the USA and keep all
 # flagged data:
-OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT,
+OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
   clean_outsideUSA = "change sign"
 )
 
@@ -86,13 +86,13 @@ OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_Nutrients_UT,
 # coordinates outside the USA;
 # imprecise data may have less than 3 significant figures to the right
 # of the decimal point:
-ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT,
+ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
   clean_imprecise = TRUE
 )
 
 # Remove data with imprecise coordinates or coordinates outside the USA
 # from the dataframe:
-SuspectCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT,
+SuspectCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
   clean_outsideUSA = "remove", clean_imprecise = TRUE
 )
 

@@ -37,7 +37,7 @@
 #' @examples
 #'
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a unit reference dataframe
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
@@ -104,9 +104,10 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
   # import TADA specific conversion reference, created by HRM on 4/30/2024
   file_path <- system.file("extdata",
-                           "TADAPriorityCharConvertRef.csv",
-                           package = "EPATADA")
-  
+    "TADAPriorityCharConvertRef.csv",
+    package = "EPATADA"
+  )
+
   if (file.exists(file_path)) {
     # Specify all columns as character using readr
     tada.unit.ref <- readr::read_csv(
@@ -120,13 +121,13 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       ),
       show_col_types = FALSE # Suppress the column specification message
     )
-    
+
     # # Print column names to verify
     # print(colnames(tada.unit.ref))
   } else {
     stop("File not found: TADAPriorityCharConvertRef.csv")
   }
-  
+
   # make all codes and target units uppercase
   tada.unit.ref <- tada.unit.ref %>%
     dplyr::mutate(
@@ -313,7 +314,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Do not convert result values and units, but add four new columns titled
 #' # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",
@@ -403,7 +404,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     "TADA.DetectionQuantitationLimitMeasure.MeasureValue",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
-
   TADA_CheckColumns(.data, expected_cols)
 
   # list of conversion columns
@@ -443,7 +443,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   usgs.results <- .data %>%
     dplyr::filter(ResultMeasure.MeasureUnitCode %in% usgs.spec$ResultMeasure.MeasureUnitCode)
 
-  if(dim(usgs.results)[1] == 0) {
+  if (dim(usgs.results)[1] == 0) {
     # remove intermediate objects
     rm(usgs.ref, usgs.spec, usgs.unit)
   }
@@ -455,7 +455,6 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # internal functions
   # internal function to join unit.ref to data
   joinUnitRef <- function(.data, ref, convert.col = conversion.cols, spec = FALSE) {
-
     # ref join
     ref.join <- c(
       "TADA.CharacteristicName",
@@ -493,28 +492,27 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
   # internal function to create usgs unit ref from main unit ref if needed
-  if(dim(usgs.results)[1] > 0){
+  if (dim(usgs.results)[1] > 0) {
+    createUSGSUnitRef <- function(.data, ref, spec) {
+      meth.spec.usgs <- .data %>%
+        dplyr::select(
+          ResultMeasure.MeasureUnitCode,
+          TADA.MethodSpeciationName
+        ) %>%
+        dplyr::distinct()
 
-  createUSGSUnitRef <- function(.data, ref, spec) {
-    meth.spec.usgs <- .data %>%
-      dplyr::select(
-        ResultMeasure.MeasureUnitCode,
-        TADA.MethodSpeciationName
-      ) %>%
-      dplyr::distinct()
+      unit.ref.usgs <- ref %>%
+        dplyr::filter(ResultMeasure.MeasureUnitCode %in%
+          usgs.spec$ResultMeasure.MeasureUnitCode) %>%
+        dplyr::left_join(spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::left_join(meth.spec.usgs, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
+        dplyr::distinct()
 
-    unit.ref.usgs <- ref %>%
-      dplyr::filter(ResultMeasure.MeasureUnitCode %in%
-        usgs.spec$ResultMeasure.MeasureUnitCode) %>%
-      dplyr::left_join(spec, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
-      dplyr::left_join(meth.spec.usgs, by = dplyr::join_by(ResultMeasure.MeasureUnitCode)) %>%
-      dplyr::distinct()
+      rm(meth.spec.usgs)
 
-    rm(meth.spec.usgs)
-
-    return(unit.ref.usgs)
+      return(unit.ref.usgs)
+    }
   }
-}
 
   # if user supplied unit reference was provided
   if (is.data.frame(ref)) {
@@ -650,8 +648,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   # internal function to set other.results or usgs.results as null if not included in df
   setNull <- function(df.name) {
-
-    if(dim(df.name)[1] == 0) {
+    if (dim(df.name)[1] == 0) {
       df.name <- NULL
     }
 
@@ -739,13 +736,13 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     if (!is.null(usgs.data)) {
       print(paste0("NOTE: Dataset contains ", dim(usgs.data)[1], " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."))
 
-    # add target method speciation name when needed
-    usgs.data <- usgs.data %>%
-      dplyr::mutate(
-        TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
-        # replace UNKNOWN or NONE method speciation name with NA
-        TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
-      )
+      # add target method speciation name when needed
+      usgs.data <- usgs.data %>%
+        dplyr::mutate(
+          TADA.MethodSpeciationName = ifelse(!is.na(TADA.Target.MethodSpeciationName), TADA.Target.MethodSpeciationName, toupper(TADA.MethodSpeciationName)),
+          # replace UNKNOWN or NONE method speciation name with NA
+          TADA.MethodSpeciationName = ifelse(TADA.MethodSpeciationName %in% c("UNKNOWN", "NONE"), NA, TADA.MethodSpeciationName)
+        )
     }
 
     clean.data <- joinUSGSOther(usgs.data = usgs.data, other.data = other.data)
@@ -806,8 +803,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # Remove unneccessary conversion columns
       dplyr::select(-tidyselect::any_of(conversion.cols)) %>%
       # update ID and column ordering
-     TADA_CreateComparableID() %>%
-     TADA_OrderCols()
+      TADA_CreateComparableID() %>%
+      TADA_OrderCols()
 
     rm(clean.data, det.data, det.ref)
   }
@@ -873,7 +870,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Convert all depth units to meters and review unit harmonization:
 #' # "ActivityDepthHeightMeasure.MeasureUnitCode" and
@@ -906,8 +903,19 @@ TADA_ConvertDepthUnits <- function(.data,
                                    #   "ResultDepthHeightMeasure"
                                    # ),
                                    transform = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
+    "ActivityDepthHeightMeasure.MeasureValue",
+    "ActivityDepthHeightMeasure.MeasureUnitCode",
+    "ActivityTopDepthHeightMeasure.MeasureValue",
+    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
+    "ActivityBottomDepthHeightMeasure.MeasureValue",
+    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
+    "ResultDepthHeightMeasure.MeasureValue",
+    "ResultDepthHeightMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, expected_cols)
+
   # check unit is character
   TADA_CheckType(unit, "character")
   # check unit argument for valid number of inputs (e.g., vector of character)
@@ -937,19 +945,6 @@ TADA_ConvertDepthUnits <- function(.data,
 
   # check transform is boolean
   TADA_CheckType(transform, "logical")
-
-  # .data required columns
-  expected_cols <- c(
-    "ActivityDepthHeightMeasure.MeasureValue",
-    "ActivityDepthHeightMeasure.MeasureUnitCode",
-    "ActivityTopDepthHeightMeasure.MeasureValue",
-    "ActivityTopDepthHeightMeasure.MeasureUnitCode",
-    "ActivityBottomDepthHeightMeasure.MeasureValue",
-    "ActivityBottomDepthHeightMeasure.MeasureUnitCode",
-    "ResultDepthHeightMeasure.MeasureValue",
-    "ResultDepthHeightMeasure.MeasureUnitCode"
-  )
-  TADA_CheckColumns(.data, expected_cols)
 
   tadacols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
@@ -983,9 +978,10 @@ TADA_ConvertDepthUnits <- function(.data,
 
   # import TADA specific conversion reference, created by HRM on 4/30/2024
   file_path <- system.file("extdata",
-                           "TADAPriorityCharConvertRef.csv",
-                           package = "EPATADA")
-  
+    "TADAPriorityCharConvertRef.csv",
+    package = "EPATADA"
+  )
+
   if (file.exists(file_path)) {
     # Specify all columns as character using readr
     length.ref <- readr::read_csv(
@@ -999,13 +995,13 @@ TADA_ConvertDepthUnits <- function(.data,
       ),
       show_col_types = FALSE # Suppress the column specification message
     )
-    
+
     # # Print column names to verify
     # print(colnames(tada.unit.ref))
   } else {
     stop("File not found: TADAPriorityCharConvertRef.csv")
   }
-  
+
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
   length.ref <- length.ref %>%
     dplyr::filter(Code %in% c(
@@ -1074,23 +1070,23 @@ TADA_ConvertDepthUnits <- function(.data,
     # function to run through each depth column
     conv_unit <- function(.data, coln) {
       if (coln %in% colnames(.data)) {
-        .data$cf <- as.numeric(.data[, coln])  # Convert to numeric
+        .data$cf <- as.numeric(.data[, coln]) # Convert to numeric
         colnv <- paste0(gsub("TADA.WQXConversionFactor", "TADA", coln), ".MeasureValue")
-        .data$val <- as.numeric(.data[, colnv])  # Convert to numeric
+        .data$val <- as.numeric(.data[, colnv]) # Convert to numeric
         colnu <- paste0(gsub("TADA.WQXConversionFactor", "TADA", coln), ".MeasureUnitCode")
         .data$unit <- .data[, colnu]
-        
+
         # Apply conversion factor, handling NA values
         .data$val <- ifelse(!is.na(.data$val), .data$val * .data$cf, .data$val)
-        
+
         # Update units
         .data$unit[which(!is.na(.data$unit))] <- unit
-        
+
         # Remove unnecessary columns and rename
         .data <- dplyr::select(.data, -cf, -dplyr::all_of(coln), -dplyr::all_of(colnv), -dplyr::all_of(colnu))
         names(.data)[names(.data) == "val"] <- colnv
         names(.data)[names(.data) == "unit"] <- colnu
-        
+
         return(.data)
       } else {
         return(.data)

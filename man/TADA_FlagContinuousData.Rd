@@ -73,7 +73,7 @@ all_data_flaggedonly <- TADA_FlagContinuousData(all_data,
 # have 0 results because all are flagged in the example)
 all_data_clean <- TADA_FlagContinuousData(all_data, clean = TRUE)
 
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Flag continuous data in new column titled "TADA.ContinuousData.Flag"
 Data_Nutrients_UT_flags <- TADA_FlagContinuousData(Data_Nutrients_UT,

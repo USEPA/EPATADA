@@ -21,7 +21,7 @@ Function creates a dataframe containing the relative proportions of values in a 
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Create a list of parameters in the dataset and the number of records of
 # each parameter:

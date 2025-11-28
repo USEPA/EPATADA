@@ -7,9 +7,6 @@
 \format{
 A data frame with 84 rows and 161 variables
 }
-\usage{
-data(Data_HUC8_02070004_Mod1Output)
-}
 \description{
 See Module 1 Workflow.R script in vignettes folder
 This is the final data after running a recommended module 1 workflow.

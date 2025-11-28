@@ -43,23 +43,23 @@ The WQX team plans to review and update these new combinations quarterly.
 }
 \examples{
 # Load example dataset
-data(Data_Nutrients_UT)
+utils::data(Data_R5_TADAPackageDemo)
 
 # Remove Suspect characteristic-analytical method combinations from
 # data frame:
-SuspectMethod_clean <- TADA_FlagMethod(Data_Nutrients_UT,
+SuspectMethod_clean <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
   clean = TRUE
 )
 
 # Flag, but do not remove, Suspect characteristic-analytical method
 # combinations
 # in new column titled "TADA.AnalyticalMethod.Flag":
-SuspectMethod_flags <- TADA_FlagMethod(Data_Nutrients_UT,
+SuspectMethod_flags <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
   clean = FALSE
 )
 
 # Show only Suspect characteristic-analytical method combinations:
-SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_Nutrients_UT,
+SuspectMethod_flaggedonly <- TADA_FlagMethod(Data_R5_TADAPackageDemo,
   clean = FALSE, flaggedonly = TRUE
 )
 

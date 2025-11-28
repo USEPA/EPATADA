@@ -1,27 +1,17 @@
 #' Pipe Operator
 #'
 #' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
-#' It allows you to pass the left-hand side (`lhs`) value into the right-hand side (`rhs`) function call.
-#' For detailed information, refer to \code{magrittr::\link[magrittr:pipe]{\%>\%}}.
+#' For detailed information, refer to magrittr:pipe()
 #'
 #' @name %>%
 #' @rdname pipe
 #' @keywords internal
 #' @importFrom magrittr %>%
-#' @usage lhs \%>\% rhs
 #' @export
 #' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
 #' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
 #' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
 #'
-#' @examples
-#' # Example: Using the pipe operator to transform data
-#' library(magrittr)
-#' result <- iris %>%
-#' head(10) %>%
-#' subset(Species == "setosa") %>%
-#' summary()
-#' print(result)
 NULL
 
 #' Silence Print Messages from Code Execution
@@ -135,7 +125,7 @@ utils::globalVariables(c(
   "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
   "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
   "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
-  "ATTAINS.OrganizationId", "ATTAINS.WaterType", "useName", "waterType",
+  "ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "useName", "waterType",
   "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
   "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
   "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
@@ -143,19 +133,33 @@ utils::globalVariables(c(
   "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
   "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
   "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType",
-  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New", 
-  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier", 
-  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK", 
+  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New",
+  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK",
   "OLD_ATTAINS.MonitoringLocationIdentifier", "Shape_Area", "Shape_Length",
-  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname", 
-  "assmnt_joinkey", "catchmentistribal", "catchmentresolution", 
+  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname",
+  "assmnt_joinkey", "catchmentistribal", "catchmentresolution",
   "catchmentstatecode", "has4bplan", "hasalternativeplan", "hasprotectionplan",
-  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened", 
+  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened",
   "objectId", "on303dlist", "organizationid", "organizationname", "orgtype",
-  "overallstatus", "permid_joinkey", "region", "reportingCycle", 
-  "reportingcycle", "response.code", "return_sf", "state", "submissionid", 
-  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version", 
-  "xwalk_method"
+  "overallstatus", "permid_joinkey", "region", "reportingCycle",
+  "reportingcycle", "response.code", "return_sf", "state", "submissionid",
+  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
+  "xwalk_method", "WqxV2.FieldName", "auid.col", "ml.col", "type.col",
+  "AggregatedActivityEndDateTime", "AggregatedActivityStartDateTime",
+  "ATTAINS.AssessmentUnitIdentifier.y", "ATTAINS.WaterType.y DepthCategory",
+  "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
+  "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
+  "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
+  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType",
+  "ATTAINS.OrganizationId", "MatchMessage", "Mismatch", "Ref.WaterType",
+  "Alias.Type.Name", "CAS_NO CAS.Number", "Char_Flag.x", "Char_Flag.y",
+  "Characteristic.Name", "STD_POLLUTANT_NAME", "name", "name_words",
+  "percent_match_ATTAINS", "percent_match_WQX", "Characteristic", "WQXcharValRef",  
+  "CAS.Number", "CAS_NO CharacteristicName.x", "CharacteristicName.y",
+  "Comparable.Name.x", "Comparable.Name.y", "POLLUTANT_NAME.x", "POLLUTANT_NAME.y",
+  "STD_POLLUTANT_NAME.x", "STD_POLLUTANT_NAME.y", "percent_match_ATTAINS_CST",
+  "percent_match_ATTAINS_WQX", "percent_match_CST"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -168,17 +172,17 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 
 #' Calculate Decimal Places
 #'
-#' This function calculates the number of decimal places in a numeric value. 
+#' This function calculates the number of decimal places in a numeric value.
 #' It returns the number of digits to the right of the decimal point for numeric data.
 #'
 #' @param x A numeric value or vector from the TADA profile.
-#' 
+#'
 #' @return An integer representing the number of decimal places in the numeric value.
 #' If the input is an integer or a numeric value with no decimal places, the function returns 0.
 TADA_DecimalPlaces <- function(x) {
   # Convert the number to a character string, remove trailing zeros, and split by the decimal point
   parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
-  
+
   # If there is a decimal part, return its length; otherwise, return 0
   if (length(parts) > 1) {
     return(nchar(parts[[2]]))
@@ -186,7 +190,6 @@ TADA_DecimalPlaces <- function(x) {
     return(0)
   }
 }
-
 
 
 #' Check Type
@@ -206,7 +209,6 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 }
 
 
-
 #' Check Columns
 #'
 #' This function checks if the expected column names are in the dataframe. It is
@@ -219,16 +221,14 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 #' @param expected_cols A vector of expected column names as strings
 #' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
 TADA_CheckColumns <- function(.data, expected_cols) {
-  if (!inherits(.data, "data.frame")) {
-    stop("Input must be a dataframe.")
-  }
-  
+  TADA_CheckType(.data, "data.frame", "Input object") # check .data is data.frame
+
   if (!is.vector(expected_cols) || !is.character(expected_cols)) {
     stop("Expected columns must be a character vector.")
   }
-  
+
   missing_cols <- setdiff(expected_cols, colnames(.data))
-  
+
   if (length(missing_cols) > 0) {
     stop(paste(
       "The dataframe does not contain the required field(s):",
@@ -236,10 +236,9 @@ TADA_CheckColumns <- function(.data, expected_cols) {
       ". Use either the full physical/chemical profile downloaded from WQP or download the TADA profile template available on the EPA TADA webpage."
     ))
   }
-  
+
   invisible(NULL)
 }
-
 
 
 #' TADA_ConvertSpecialChars
@@ -296,16 +295,15 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
                                      clean = FALSE, flaggedonly = FALSE) {
-  
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   if (!col %in% names(.data)) {
     stop("Suspect column name specified for input dataset.")
   }
@@ -316,36 +314,35 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
   }
 
   if (!any(grepl("TADA.", col))) {
-
     # Define new column names
     numcol <- paste0("TADA.", col)
     flagcol <- paste0("TADA.", col, "DataTypes.Flag")
-    
+
     # Create dummy columns for easy handling in function
     chars.data <- .data
     names(chars.data)[names(chars.data) == col] <- "orig"
     chars.data <- chars.data %>%
       dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
     chars.data$masked <- chars.data$orig
-    
+
     # Add percentage character to dissolved oxygen saturation ResultMeasureValue
     # so percentage and percentage - range averaged can be identified correctly
     if (col == "ResultMeasureValue") {
       do.units <- c("%", "% SATURATN")
-      
+
       chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-                                  paste(chars.data$masked, "%"), chars.data$masked
+        paste(chars.data$masked, "%"), chars.data$masked
       )
-      
+
       # updates percentage units where NA
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
         grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
       )
-      
+
       # TADA.ResultMeasure.MeasureUnitCode to uppercase
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
     }
-    
+
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
       clean.data <- chars.data %>%
@@ -377,22 +374,22 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
             TRUE ~ "Coerced to NA"
           ),
           flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-                        "Percentage Range - Averaged", flag
+            "Percentage Range - Averaged", flag
           ),
           flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-                        "Percentage Range - Averaged", flag
+            "Percentage Range - Averaged", flag
           )
         )
     }
-    
+
     if (percent.ave == FALSE) {
       num.range.filter <- c("Numeric Range - Averaged")
     }
-    
+
     if (percent.ave == TRUE) {
       num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
     }
-    
+
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
@@ -409,73 +406,76 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
       numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
         dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
-      
+
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
-    
+
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c("<" = "", 
-                           ">" = "", 
-                           "~" = "", 
-                           "%" = "", 
-                           "\\*" = "", 
-                           "1\\)" = "",
-                           "\\+" = "")
+      clean.data$masked, c(
+        "<" = "",
+        ">" = "",
+        "~" = "",
+        "%" = "",
+        "\\*" = "",
+        "1\\)" = "",
+        "\\+" = ""
+      )
     )))
- 
+
     # this updates the DataTypes.Flag to "NA - Not Available" if flag is NA
     clean.data$flag <- ifelse(
       is.na(clean.data$flag),
       "NA - Not Available",
       clean.data$flag
     )
-    
+
     # remove columns to be replaced
     clean.data <- clean.data %>%
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-    
+
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-    
+
     clean.data <- TADA_OrderCols(clean.data)
   } else {
     flagcol <- paste0(col, "DataTypes.Flag")
     numcol <- col
-    
-    clean.data = .data
-    
+
+    clean.data <- .data
+
     # this updates the flagcol to "NA - Not Available" if numcol is NA
     clean.data[[flagcol]] <- ifelse(
       is.na(clean.data[[numcol]]),
       "NA - Not Available",
       clean.data[[flagcol]]
     )
-    
+
     # remove columns to be replaced
     clean.data <- clean.data %>%
       dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
-    
+
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
     names(clean.data)[names(clean.data) == "masked"] <- numcol
     names(clean.data)[names(clean.data) == "flag"] <- flagcol
-    
+
     clean.data <- TADA_OrderCols(clean.data)
-    
   }
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c("NA - Not Available",
-                                                      "Text",
-                                                      "Non-ASCII Character(s)",
-                                                      "Result Value/Unit Cannot Be Estimated From Detection Limit",
-                                                      "Coerced to NA"))
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c(
+          "NA - Not Available",
+          "Text",
+          "Non-ASCII Character(s)",
+          "Result Value/Unit Cannot Be Estimated From Detection Limit",
+          "Coerced to NA"
+        ))
 
       return(clean.data)
     }
@@ -487,11 +487,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c("NA - Not Available",
-                                                 "Text",
-                                                 "Non-ASCII Character(s)",
-                                                 "Result Value/Unit Cannot Be Estimated From Detection Limit",
-                                                 "Coerced to NA"))
+      dplyr::filter(!!rlang::sym(flagcol) %in% c(
+        "NA - Not Available",
+        "Text",
+        "Non-ASCII Character(s)",
+        "Result Value/Unit Cannot Be Estimated From Detection Limit",
+        "Coerced to NA"
+      ))
   }
 }
 
@@ -548,16 +550,13 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 #' unique(df4$TADA.CharacteristicName)
 #' }
 TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("CharacteristicName"))
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
-  TADA_CheckColumns(.data, expected_cols = c("CharacteristicName"))
+    return(NULL) # Exit the function early
+  }
 
   if ("TADA.CharacteristicName" %in% colnames(.data)) {
     .data <- .data
@@ -615,23 +614,20 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )
+  TADA_CheckColumns(.data, expected_cols)
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
-  TADA_CheckColumns(.data,
-    expected_cols = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText",
-      "TADA.MethodSpeciationName",
-      "TADA.ResultMeasure.MeasureUnitCode"
-    )
-  )
+    return(NULL) # Exit the function early
+  }
+
   .data$TADA.ComparableDataIdentifier <-
     paste(.data$TADA.CharacteristicName,
       .data$TADA.ResultSampleFractionText,
@@ -667,70 +663,75 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 }
 
 
-
 #' Generate a Random Water Quality Portal (WQP) Dataset
 #'
-#' This function retrieves water quality data for a randomly selected period within the past 20 years using `TADA_DataRetrieval`.
-#' It can be used to test functions on random datasets. The function ensures that the returned dataset contains at least 10 results.
-#' If the initial random dataset contains fewer than 10 results, the function automatically queries another random dataset until the criteria are met.
+#' This function retrieves water quality data for a randomly selected period
+#' within the past 20 years using `TADA_DataRetrieval`. It can be used to test
+#' functions on random datasets. The function ensures that the returned dataset
+#' contains at least 10 results. If the initial random dataset contains fewer
+#' than 10 results, the function automatically queries another random dataset
+#' until the criteria are met.
 #'
-#' @param number_of_days Numeric. Specifies the number of days for which data will be queried. The default is 1, which queries data for a random two-day period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
+#' @param number_of_days Numeric. Specifies the number of days for which data
+#' will be queried. The default is 1, which queries data for a random two-day
+#' period (e.g., startDate = "2015-04-21", endDate = "2015-04-22").
 #' Users can increase this number to retrieve data for more days.
 #'
 #' @param choose_random_state Boolean (TRUE or FALSE). Default is FALSE.
-#' If FALSE, the function queries all available WQP data for the specified number_of_days (national query).
-#' If TRUE, the function selects a random state and retrieves data only for that state.
+#' If FALSE, the function queries all available WQP data for the specified
+#' number_of_days (national query). If TRUE, the function selects a random state
+#' and retrieves data only for that state.
 #'
 #' @param autoclean Boolean (TRUE or FALSE). Default is TRUE.
 #' If TRUE, the function applies `TADA_AutoClean` as part of the `TADA_DataRetrieval`.
 #' If FALSE, the function does not apply `TADA_AutoClean`.
 #'
-#' @return A data frame containing a random WQP dataset with at least 10 results.
+#' @param max_attempts Numeric. Specifies the maximum number of attempts to
+#' retrieve data if an error occurs. Default is 3.
+#'
+#' @return A data frame containing a random WQP dataset with at least 10 results,
+#' or an empty data frame if data retrieval fails after the specified number of attempts.
+#' If a 500 Internal Server Error or any other error occurs during data retrieval,
+#' the function will retry up to `max_attempts` times. If all attempts fail,
+#' an empty data frame is returned, and a message is logged indicating the failure.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Example 1: Retrieve a random dataset for a single day 
+#' # Example 1: Retrieve a random dataset for random 2-day period
 #' # across the entire nation
-#' random_data_national <- TADA_RandomTestingData(number_of_days = 1, 
-#' choose_random_state = FALSE)
-#' print(random_data_national)
+#' random_data_national <- TADA_RandomTestingData(
+#'   number_of_days = 1,
+#'   choose_random_state = FALSE
+#' )
 #'
-#' # Example 2: Retrieve a random dataset for a 10-day period within 
+#' # Example 2: Retrieve a random dataset for a 3-day period within
 #' # a randomly selected state
-#' random_data_state <- TADA_RandomTestingData(number_of_days = 10, 
-#' choose_random_state = TRUE)
-#' print(random_data_state)
+#' random_data_state <- TADA_RandomTestingData(
+#'   number_of_days = 3,
+#'   choose_random_state = TRUE
+#' )
 #'
-#' # Example 3: Retrieve a random dataset for a 5-day period 
+#' # Example 3: Retrieve a random dataset for a 5-day period
 #' # within a randomly selected state without auto-cleaning
-#' random_data_state_no_clean <- TADA_RandomTestingData(number_of_days = 5, 
-#' choose_random_state = TRUE, autoclean = FALSE)
-#' print(random_data_state_no_clean)
-#'
-#' # Example 4: Retrieve a random dataset for a 30-day period 
-#' # across the entire nation with auto-cleaning
-#' random_data_large_period <- TADA_RandomTestingData(number_of_days = 30, 
-#' choose_random_state = FALSE, autoclean = TRUE)
-#' print(random_data_large_period)
-#'
-#' # Example 5: Retrieve a random dataset for a 15-day period 
-#' # across the entire nation without auto-cleaning
-#' random_data_no_clean <- TADA_RandomTestingData(number_of_days = 15, 
-#' choose_random_state = FALSE, autoclean = FALSE)
-#' print(random_data_no_clean)
+#' random_data_state_no_clean <- TADA_RandomTestingData(
+#'   number_of_days = 5,
+#'   choose_random_state = TRUE,
+#'   autoclean = FALSE
+#' )
 #' }
-TADA_RandomTestingData <- function(number_of_days = 1, 
+TADA_RandomTestingData <- function(number_of_days = 1,
                                    choose_random_state = FALSE,
-                                   autoclean = TRUE) {
-  # Internal function to retrieve random data
+                                   autoclean = TRUE,
+                                   max_attempts = 3) {
+  # Retrieve random data
   get_random_data <- function(ndays, state_choice, ac) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
-    
+
     # Determine if a random state should be selected
     if (state_choice) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
@@ -738,161 +739,71 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     } else {
       state <- "null"
     }
-    
+
     # Print the selected date range and state code
     print(list(
       startDate = as.character(random_start_date),
       endDate = as.character(end_date),
       statecode = state
     ))
-    
-    # Retrieve data with or without auto-cleaning
-    dat <- TADA_DataRetrieval(
-      startDate = as.character(random_start_date),
-      endDate = as.character(end_date),
-      statecode = state,
-      applyautoclean = ac,
-      ask = FALSE
-    )
-    
-    return(dat)
+
+    # Attempt to retrieve data, retrying if an error occurs
+    attempt <- 1
+    while (attempt <= max_attempts) {
+      dat <- tryCatch(
+        {
+          TADA_DataRetrieval(
+            startDate = as.character(random_start_date),
+            endDate = as.character(end_date),
+            statecode = state,
+            applyautoclean = ac,
+            ask = FALSE
+          )
+        },
+        httr2_http_500 = function(e) {
+          # Log the occurrence of a 500 error
+          message("Attempt ", attempt, ": 500 Internal Server Error occurred.")
+          return(NULL) # Return NULL to indicate failure
+        },
+        error = function(e) {
+          # Log other errors
+          message("Attempt ", attempt, ": An error occurred - ", e$message)
+          return(NULL) # Return NULL to indicate failure
+        }
+      )
+
+      # If data retrieval was successful, return the data
+      if (!is.null(dat)) {
+        return(dat)
+      }
+
+      # Increment attempt counter and try a new query
+      attempt <- attempt + 1
+      random_start_date <- twenty_years_ago + sample(20 * 365, 1)
+      end_date <- random_start_date + ndays
+      if (state_choice) {
+        state <- sample(statecodes_df$STUSAB, 1)
+      }
+    }
+
+    # If all attempts fail, return an empty data frame
+    message("Failed to retrieve data after ", max_attempts, " attempts due to persistent errors.")
+    return(data.frame())
   }
-  
+
   # Internal function to ensure dataset has at least 10 results
   verify_random_data <- function() {
     repeat {
       df <- get_random_data(number_of_days, choose_random_state, autoclean)
-      if (nrow(df) >= 10) break
+      if (!is.null(df) && nrow(df) >= 10) break
     }
     return(df)
   }
-  
+
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
 }
-
-
-
-#' Aggregate multiple result values to a min, max, or mean
-#'
-#' This function groups TADA data by user-defined columns and aggregates the
-#' TADA.ResultMeasureValue to a minimum, maximum, or average value.
-#'
-#' @param .data A TADA dataframe
-#' @param grouping_cols The column names used to group the data
-#' @param agg_fun The aggregation function used on the grouped data. This can
-#'   either be 'min', 'max', or 'mean'.
-#' @param clean Boolean. Determines whether other measurements from the group
-#'   aggregation should be removed or kept in the dataframe. If clean = FALSE,
-#'   additional measurements are indicated in the
-#'   TADA.ResultValueAggregation.Flag as "Used in aggregation function but not
-#'   selected".
-#'
-#' @return A TADA dataframe with aggregated values combined into one row. If the
-#'   agg_fun is 'min' or 'max', the function will select the row matching the
-#'   aggregation condition and flag it as the selected measurement. If the
-#'   agg_fun is 'mean', the function will select a random row from the
-#'   aggregated rows to represent the metadata associated with the mean value,
-#'   and gives the row a unique ResultIdentifier: the original ResultIdentifier
-#'   with the prefix "TADA-". Function adds a TADA.ResultValueAggregation.Flag
-#'   to indicate which rows have been aggregated.
-#'
-#' @export
-#'
-#' @examples
-#' # Load example dataset
-#' data(Data_6Tribes_5y)
-#' # Select maximum value per day, site, comparable data identifier, result detection condition,
-#' # and activity type code. Clean all non-maximum measurements from grouped data.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c(
-#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
-#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'     "ActivityTypeCode"
-#'   ),
-#'   agg_fun = "max", clean = TRUE
-#' )
-#'
-#' # Calculate a mean value per day, site, comparable data identifier, result detection condition,
-#' # and activity type code. Keep all measurements used to calculate mean measurement.
-#' Data_6Tribes_5y_agg <- TADA_AggregateMeasurements(Data_6Tribes_5y,
-#'   grouping_cols = c(
-#'     "ActivityStartDate", "TADA.MonitoringLocationIdentifier",
-#'     "TADA.ComparableDataIdentifier", "ResultDetectionConditionText",
-#'     "ActivityTypeCode"
-#'   ),
-#'   agg_fun = "mean", clean = FALSE
-#' )
-TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDate", "TADA.MonitoringLocationIdentifier", "TADA.ComparableDataIdentifier", "ResultDetectionConditionText", "ActivityTypeCode"), agg_fun = c("max", "min", "mean"), clean = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
-  TADA_CheckColumns(.data, grouping_cols)
-  agg_fun <- match.arg(agg_fun)
-
-  # Find multiple values in groups
-  ncount <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-    dplyr::summarise(ncount = length(ResultIdentifier))
-
-  if (max(ncount$ncount) < 2) {
-    print("No rows to aggregate.")
-    return(.data)
-  } else {
-    dat <- merge(.data, ncount, all.x = TRUE)
-
-    if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      "Warning: your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
-    }
-
-    dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ncount == 1, "No aggregation needed", paste0("Considered in ", agg_fun, " aggregation function but not selected"))
-    multiples <- dat %>% dplyr::filter(ncount > 1)
-
-    dat <- dat %>% dplyr::select(-ncount)
-
-    if (agg_fun == "max") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::slice_max(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
-    }
-    if (agg_fun == "min") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::slice_min(order_by = TADA.ResultMeasureValue, n = 1, with_ties = FALSE)
-      dat$TADA.ResultValueAggregation.Flag <- ifelse(dat$ResultIdentifier %in% out$ResultIdentifier, paste0("Selected as ", agg_fun, " aggregate value"), dat$TADA.ResultValueAggregation.Flag)
-    }
-    if (agg_fun == "mean") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
-        dplyr::mutate(TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)) %>%
-        dplyr::slice_sample(n = 1) %>%
-        dplyr::mutate(TADA.ResultValueAggregation.Flag = paste0("Selected as ", agg_fun, " aggregate value, with randomly selected metadata from a row in the aggregate group"))
-      out <- out %>%
-        dplyr::select(-TADA.ResultMeasureValue) %>%
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
-        dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
-      dat <- plyr::rbind.fill(dat, out)
-    }
-
-    if (clean == TRUE) {
-      dat <- subset(dat, !dat$TADA.ResultValueAggregation.Flag %in% c(paste0("Considered in ", agg_fun, " aggregation function but not selected")))
-    }
-
-    dat <- TADA_OrderCols(dat)
-    print("Aggregation results:")
-    print(table(dat$TADA.ResultValueAggregation.Flag))
-    return(dat)
-  }
-}
-
 
 
 #' Get bounding box JSON
@@ -904,7 +815,7 @@ TADA_AggregateMeasurements <- function(.data, grouping_cols = c("ActivityStartDa
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -982,7 +893,7 @@ pchIcons <- function(pch = 1,
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1048,7 +959,7 @@ writeLayer <- function(url, layerfilepath) {
 #' @examples
 #' \dontrun{
 #' # Load example dataset
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Get the bounding box of the data
 #' bbox <- sf::st_bbox(
 #'   c(
@@ -1235,13 +1146,13 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
 TADA_UniqueCharUnitSpeciation <- function(.data) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-  
+
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   required_cols <- c(
     "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
@@ -1422,7 +1333,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #'
 #' @examples
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 #' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
@@ -1587,9 +1498,9 @@ TADA_CreateCSV <- function(.data) {
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL)  # Exit the function early
-  }  
-  
+    return(NULL) # Exit the function early
+  }
+
   df_name <- deparse(substitute(.data))
 
   downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
@@ -1599,9 +1510,8 @@ TADA_CreateCSV <- function(.data) {
   cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
 }
 
-
 #' TADA_RenametoLegacy
-#' 
+#'
 #' This function renames columns in a dataframe from WQX3.0 (beta) names to WQX2.0 (legacy) names.
 #'  Water Quality Portal data are retrieved using USGS dataRetrieval service = "ResultWQX3".
 #'  The purpose of this function is to aid in integrating and updating TADA dependencies
@@ -1614,28 +1524,31 @@ TADA_CreateCSV <- function(.data) {
 #'  by reference - in this case where there are beta names, rename to legacy names, and skip where there are no matches.
 #'
 #'
-#' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services 
+#' @param .data A water quality monitoring dataframe retrieved using dataRetrieval::readWQPdata using WQX3.0 Beta services
 #'
 #' @return A water quality monitoring dataframe with WQX2.0 Legacy column names
-#' 
+#'
 #' @export
 #'
-#' @examples 
-#' DeWitt_wqx3 <- dataRetrieval::readWQPdata(statecode = "Illinois",
-#' countycode = "DeWitt", characteristicName = "Nitrogen",
-#' service = "ResultWQX3", dataProfile = "fullPhysChem", 
-#' ignore_attributes = TRUE)
-#' 
+#' @examples
+#' DeWitt_wqx3 <- dataRetrieval::readWQPdata(
+#'   statecode = "Illinois",
+#'   countycode = "DeWitt", characteristicName = "Nitrogen",
+#'   service = "ResultWQX3", dataProfile = "fullPhysChem",
+#'   ignore_attributes = TRUE
+#' )
+#'
 #' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
-#' 
-TADA_RenametoLegacy  <- function(.data) {
+#'
+TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
   wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
-                              show_col_types = FALSE)
-  
+    show_col_types = FALSE
+  )
+
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
-  wqxnames_mod <- wqxnames |> 
+  wqxnames_mod <- wqxnames |>
     dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
       FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
       FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
@@ -1643,9 +1556,9 @@ TADA_RenametoLegacy  <- function(.data) {
       FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
       FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
       FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
-      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure",  # Changing to what is returned in legacy Site profile 
-      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile 
-      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile 
+      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
       FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
       FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
       FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
@@ -1656,31 +1569,211 @@ TADA_RenametoLegacy  <- function(.data) {
       FieldName3.0 == "ResultAttachment_FileName" ~ NA,
       FieldName3.0 == "ResultAttachment_FileType" ~ NA,
       TRUE ~ WqxV2.FieldName
-    )) |> 
+    )) |>
     # Remove rows without a legacy name in the crosswalk table
     dplyr::filter(!is.na(WqxV2.FieldName)) |>
-    # Some elements in the crosswalk table have different special characters compared to 
-    # elements returned with dataRetrieval 
+    # Some elements in the crosswalk table have different special characters compared to
+    # elements returned with dataRetrieval
     # Using stringr to identify special characters replacing "_" with "." and "/" with "."
-    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c('_' = '.', '/' = '.')))
-    
-  # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames 
+    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c("_" = ".", "/" = ".")))
+
+  # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames
   # will overwrite original dataframe
   df <- data.table::copy(.data)
   beta_names_dr <- names(.data) # copy of original elements
-  
+
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
-  beta_names = wqxnames_mod$FieldName3.0
-  legacy_names = wqxnames_mod$WqxV2.FieldName
-  
+  beta_names <- wqxnames_mod$FieldName3.0
+  legacy_names <- wqxnames_mod$WqxV2.FieldName
+
+  rm(WqxV2.FieldName)
+
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
-  
-  df <- data.table::setnames(df, old = beta_names,
-                             new = legacy_names, skip_absent = TRUE) 
-  
-  df = TADA_OrderCols(df)
-  
+
+  df <- data.table::setnames(df,
+    old = beta_names,
+    new = legacy_names, skip_absent = TRUE
+  )
+
+  df <- TADA_OrderCols(df)
+
   return(df)
+}
+
+#' checkColNames
+#'
+#' This function checks column names using partial string matches. It is designed
+#' to facilitate the use of user-supplied refs with differently prefixed columns
+#' in Module 2 and 3 functions.
+#'
+#' @param .data A user-supplied ref data frame containing AssessmentUnitIdentifier,
+#' MonitoringLocationIdentifier, and WaterType columns. It is permitted (but not
+#' required) for these columns to use ATTAINS, TADA or other prefixes.
+#' @param partial.string The character string used for partial string matching when
+#' checking column names.
+#'
+#' @return A data frame with two columns identifying the exact column names for the
+#' AssessmentUnitIdentifier, MonitoringLocationIdentifier, and WaterType columns in
+#' a user-supplied ref file.
+#'
+checkColName <- function(.data, partial.string = NULL) {
+  col.id <- dplyr::case_when(
+    partial.string == "AssessmentUnitIdentifier" ~ "auid.col",
+    partial.string == "MonitoringLocationIdentifier" ~ "ml.col",
+    partial.string == "WaterType" ~ "type.col"
+  )
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
+    stop(paste0(
+      "TADA_CreateAUMLCrosswalk: The ",
+      partial.string, " column is missing from the user-supplied reference (au_ref)."
+    ))
+  }
+
+  if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
+    select.col <- .data %>%
+      dplyr::select(dplyr::contains(partial.string)) %>%
+      names()
+
+    if (length(select.col) > 1) {
+      stop(paste0(
+        "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
+        partial.string, " column in the user-supplied reference (au_ref)."
+      ))
+    }
+
+    col.lab <- data.frame(col.id, select.col)
+
+    rm(col.id, select.col)
+  }
+  return(col.lab)
+}
+
+#' renameATTAINSCols
+#'
+#' This function adds the ATTAINS prefix and changes column name capitalization to
+#' match the TADA format.
+#'
+#' @param .data A data frame containing columns from ATTAINS geospatial web services.
+#'
+#' @param return_list Boolean argument. When return_list = TRUE, the function returns
+#' a list of the TADA formatted names for ATTAINS columns. When return_list = FALSE,
+#' the input .data data frame is updated so column names from ATTAINS geospatial web
+#' services match the TADA format. Default is return_list = FALSE.
+#'
+#' @param format Character argument. The format the user wants to switch the column
+#' names too. When format = "tada", the ATTAINS prefix and TADA capitalization will
+#' be applied. When format = "attains", TADA formatted columns will be renamed to the
+#' original ATTAINS names. Default = "tada".
+#'
+#' @return A data frame with column name from ATTAINS geospatial web service updated
+#' to match the TADA format. Or when return_list = TRUE, a list of all TADA
+#' formatted ATTAINS column names.
+#'
+renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
+  # list of TADA formatted column names
+  attains.tada <- c(
+    "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+    "ATTAINS.ShapeArea", "ATTAINS.CulturalUse", "ATTAINS.DrinkingWaterUse",
+    "ATTAINS.EcologicalUse", "ATTAINS.FishConsumptionUse", "ATTAINS.RecreationUse",
+    "ATTAINS.OtherUse", "ATTAINS.AlgalGrowth", "ATTAINS.Ammonia",
+    "ATTAINS.CauseUnknown", "ATTAINS.CauseUnknownFishKills",
+    "ATTAINS.CauseUnknownImpairedBiota", "ATTAINS.Dioxins",
+    "ATTAINS.FishConsumptionAdvisory", "ATTAINS.FlowAlterations",
+    "ATTAINS.HabitatAlterations", "ATTAINS.HydrologicAlteration",
+    "ATTAINS.Mercury", "ATTAINS.MetalsOtherThanMercury", "ATTAINS.NoxiousAquaticPlants",
+    "ATTAINS.NuisanceExoticSpecies", "ATTAINS.NuisanceNativeSpecies", "ATTAINS.Nutrients",
+    "ATTAINS.OilAndGrease", "ATTAINS.OxygenDepletion", "ATTAINS.OtherCause",
+    "ATTAINS.Pathogens", "ATTAINS.Pesticides", "ATTAINS.Pfas",
+    "ATTAINS.PhAcidityCausticConditions", "ATTAINS.PolychlorinatedBiphenylsPcbs",
+    "ATTAINS.Radiation", "ATTAINS.SolidsChloridesSulfates",
+    "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
+    "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
+    "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
+    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
+    "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
+  )
+
+  # list of original ATTAINS column names
+  attains.orig <- c(
+    "organizationid", "submissionid", "hasprotectionplan",
+    "assessmentunitname", "nhdplusid", "tas303d",
+    "isthreatened", "state", "on303dlist",
+    "organizationname", "region", "Shape_Length",
+    "reportingcycle", "assmnt_joinkey", "hastmdl",
+    "orgtype", "permid_joinkey", "catchmentistribal",
+    "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+    "overallstatus", "isassessed", "isimpaired",
+    "has4bplan", "huc12", "hasalternativeplan",
+    "visionpriority303d", "areasqkm", "catchmentareasqkm",
+    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+    "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
+    "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
+    "ammonia", "cause_unknown", "cause_unknown_fish_kills",
+    "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
+    "flow_alterations", "habitat_alterations", "hydrologic_alteration",
+    "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
+    "nuisance_exotic_species", "nuisance_native_species", "nutrients",
+    "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
+    "pesticides", "pfas", "ph_acidity_caustic_conditions",
+    "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
+    "sediment", "taste_color_and_odor", "temperature", "total_toxics",
+    "toxic_inorganics", "toxic_organics", "trash", "turbidity",
+    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
+    "chlorine", "biotoxins"
+  )
+
+  # if return list equals TRUE, return the list of tada formatted column names
+  if (return_list == TRUE & format == "tada") {
+    return(attains.tada)
+  }
+
+  # if return list equals TRUE, return the list of attains formatted column names
+  if (return_list == TRUE & format == "attains") {
+    return(attains.orig)
+  }
+
+  # if return equals FALSE, proceed with renaming columns
+  if (return_list == FALSE) {
+    # assign old and new name vectors based on format selected by user
+    old.names <- dplyr::case_when(
+      format == "tada" ~ attains.orig,
+      format == "attains" ~ attains.tada
+    )
+
+    new.names <- dplyr::case_when(
+      format == "tada" ~ attains.tada,
+      format == "attains" ~ attains.orig
+    )
+
+
+    .data
+
+    view <-
+      data.table::setnames(
+        .data,
+        old = old.names,
+        new = new.names,
+        skip_absent = TRUE
+      )
+
+    # remove intermediate objects
+    rm(attains.tada, attains.orig, old.names, new.names)
+
+
+    # return data frame with changed column names
+    return(.data)
+  }
 }

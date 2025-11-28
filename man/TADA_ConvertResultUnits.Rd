@@ -70,7 +70,7 @@ those with speciation in units.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Do not convert result values and units, but add four new columns titled
 # "TADA.WQXUnitConversionFactor", "TADA.WQXUnitConversionCoefficient",

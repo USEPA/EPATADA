@@ -4,26 +4,43 @@
 \alias{TADA_ViewATTAINS}
 \title{TADA_ViewATTAINS}
 \usage{
-TADA_ViewATTAINS(.data)
+TADA_ViewATTAINS(.data, ref_icons = TRUE)
 }
 \arguments{
-\item{.data}{A list containing a data frame and ATTAINS shapefile objects created by \code{TADA_CreateATTAINSAUMLCrosswalk()} with the return_sf argument set to TRUE.}
+\item{.data}{\code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} and \code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}} can be run
+to get a list containing WQP monitoring locations and ATTAINS shapefile objects.}
+
+\item{ref_icons}{Boolean argument. Determines whether custom icons are displayed to differentiate between
+different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
+information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
+ref_icons = TRUE three different icons will be used for the map.
+\enumerate{
+\item The circle with the user icon is for matches from the user supplied
+ref if that was supplied as an input to TADA_CreateAUMLCrosswalk().
+\item The circle with a check mark is for matches from \code{\link[=TADA_GetATTAINSAUMLCrosswalk]{TADA_GetATTAINSAUMLCrosswalk()}} which
+runs within TADA_CreateAUMLCrosswalk(). If an organization has recorded this
+information in ATTAINS, this gets the organizations crosswalk of known
+monitoring location identifiers and assessment unit associations.
+\item The plain circle represents matches
+made with \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}} which also runs within
+TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit
+data to Water Quality Portal observations.
+When rec_icons = FALSE or the source is not provided in .data, all
+Monitoring Locations are show with a plain circle.
+}}
 }
 \value{
-A leaflet map visualizing the TADA water quality observations and the linked ATTAINS assessment units. All maps are in WGS84.
+A leaflet map visualizing Monitoring Locations and linked ATTAINS assessment units. All maps are in WGS84.
 }
 \description{
-Visualizes the data returned from TADA_CreateAUMLCrosswalk or TADA_CreateATTAINSAUMLCrosswalk if return_sf was set to TRUE.
-}
-\details{
-This function visualizes the shapefile features generated with TADA_CreateATTAINSAUMLCrosswalk and the associated
-TADA Water Quality Portal monitoring locations used to find the ATTAINS features. For the function to work properly,
-.data must be the list produced from \code{TADA_CreateATTAINSAUMLCrosswalk()}
-with \code{return_sf = TRUE}. Check out the
-TADAModule2.Rmd for an example workflow.
+This function is designed to visualize the data included in the list returned
+from TADA_CreateAUMLCrosswalk. The map can be used to review different
+crosswalk sources used for the assignment of WQP Monitoring Locations to
+ATTAINS Assessment Units. Please check out the TADAModule2.Rmd for an example workflow.
 }
 \examples{
 \dontrun{
+# Get WQP Monitoring Locations
 tada_data <- TADA_DataRetrieval(
   startDate = "1990-01-01",
   endDate = "1995-12-31",
@@ -33,16 +50,24 @@ tada_data <- TADA_DataRetrieval(
   ask = FALSE
 )
 
-attains_data <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_catchments = TRUE,
+# Match AUs using all available methods
+all_sources <- TADA_CreateAUMLCrosswalk(tada_data, org_id = "21NEV1")
+
+TADA_ViewATTAINS(all_sources)
+
+# Only use ATTAINS catchments to match AUs
+attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
+  fill_USGS_catch = TRUE,
   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 )
 
-TADA_ViewATTAINS(attains_data)
+TADA_ViewATTAINS(attains_catchments)
 }
+
 }
 \seealso{
-\code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}
+\code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} must be run first to get WQP monitoring locations and results.
 
-\code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}
+\code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}} which runs \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}} with
+return_sf argument set to TRUE and \code{\link[=TADA_GetATTAINSAUMLCrosswalk]{TADA_GetATTAINSAUMLCrosswalk()}} by default.
 }

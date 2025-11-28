@@ -56,11 +56,9 @@ organizations most in need.
 
 This article will walk through how to contribute to the TADA package via
 a pull request workflow. This is also not a complete guide to R package
-development (a comprehensive guide is [R
-Packages](https://r-pkgs.org/)), instead this is meant as more of a
+development, instead this is meant as more of a
 checklist for the general steps. Several references are included at the
-bottom for more information on [R-package](https://r-pkgs.org/)
-development and [git](https://happygitwithr.com/) workflows.
+bottom for more information on R-package development and git workflows.
 
 ## What is GitHub?
 

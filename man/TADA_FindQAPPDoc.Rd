@@ -29,13 +29,13 @@ accompanying QAPP document is required to use data in assessments.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_R5_TADAPackageDemo)
 
 # Flag, but do not remove, data without an associated QAPP document in
 # new column titled "TADA.QAPPDocAvailable":
-FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT)
+FlagData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_R5_TADAPackageDemo)
 
 # Remove data without an associated QAPP document available:
-RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_Nutrients_UT, clean = TRUE)
+RemoveData_MissingQAPPDocURLs <- TADA_FindQAPPDoc(Data_R5_TADAPackageDemo, clean = TRUE)
 
 }

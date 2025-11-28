@@ -30,7 +30,7 @@ be filtered to remove any rows where the QAPPApprovedIndicator equals "Y".}
 \value{
 Several combinations of inputs are possible:
 When clean = TRUE, cleanNA = FALSE, and flaggedonly = FALSE, the dataframe will
-be filtered to show only rows where QAPPAprrovedIndicator is "Y" or "NA";
+be filtered to show only rows where QAPPApprovedIndicator is "Y" or "NA";
 When clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
 be filtered to show only rows where QAPPApprovedIndicator is "Y";
 When clean = FALSE, cleanNA = TRUE, and flaggedonly = FALSE, the dataframe will
@@ -68,22 +68,22 @@ submitted to WQP is NA.
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_R5_TADAPackageDemo)
 
 # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
-QAPPapproved_clean <- TADA_FindQAPPApproval(Data_Nutrients_UT)
+QAPPapproved_clean <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo)
 
 # Show only data where the QAPPApprovedIndicator equals "Y":
-QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_Nutrients_UT, cleanNA = TRUE)
+QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo, cleanNA = TRUE)
 
 # Show data where the QAPPApprovedIndicator equals "N" or "NA":
-QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_Nutrients_UT,
+QAPPIndicator_N_NA <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo,
   clean = FALSE,
   cleanNA = FALSE, flaggedonly = TRUE
 )
 
 # Show data where the QAPPApprovedIndicator equals "N":
-QAPPIndicator_N <- TADA_FindQAPPApproval(Data_Nutrients_UT,
+QAPPIndicator_N <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo,
   clean = FALSE,
   cleanNA = TRUE, flaggedonly = TRUE
 )

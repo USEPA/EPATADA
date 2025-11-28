@@ -77,8 +77,10 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
 
   # Test with catchments_only = TRUE
   testthat::expect_no_error(
-    result_catchments_only <- EPATADA:::fetchATTAINS(.data = valid_data, 
-                                                     catchments_only = TRUE)
+    result_catchments_only <- EPATADA:::fetchATTAINS(
+      .data = valid_data,
+      catchments_only = TRUE
+    )
   )
 
   # Test with catchments_only = FALSE
@@ -121,7 +123,7 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
 
 testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
   testthat::expect_error(
-    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_catchments = TRUE, resolution = "Invalid", return_sf = FALSE),
+    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_USGS_catch = TRUE, resolution = "Invalid", return_sf = FALSE),
     "User-supplied resolution unavailable"
   )
 })
@@ -167,4 +169,3 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
     "Your WQP dataframe has no observations"
   )
 })
-

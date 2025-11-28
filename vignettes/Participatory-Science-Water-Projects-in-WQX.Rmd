@@ -20,62 +20,17 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   echo = TRUE,
   warning = FALSE
 )
 ```
 
-```{css, include = F}
-pre {
-  max-height: 300px;
-  overflow-y: auto;
-}
+#### Load the EPATADA R Package
 
-pre[class] {
-  max-height: 300px;
-}
-```
-
-#### Install and load packages
-
-First, install and load the remotes package specifying the repo. This is
-needed before installing EPATADA because it is only available on GitHub
-(not CRAN).
-
-```{r install_remotes, results = 'hide'}
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
-library(remotes)
-```
-
-Next, install and load EPATADA using the remotes package. USGS's
-dataRetrieval and other TADA R Package dependencies will also be
-downloaded automatically from CRAN with the TADA install. If desired,
-the development version of dataRetrieval can be downloaded directly from
-GitHub (un-comment).
-
-```{r install_TADA, eval = F, results = 'hide'}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-```
-
-```{r dev_install, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-Finally, use the **library()** function to load the TADA R Package into
-your R session.
-
-```{r library, results = 'hide'}
+```{r libraries, results=F}
+# Load necessary libraries
 library(EPATADA)
 ```
 
@@ -89,22 +44,27 @@ organizations who have submitted data to EPA's Water Quality eXchange
 (WQX) by reviewing the `organization` domain table available
 [here](https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads).
 
-```{r get org domain}
+```{r get org domain, eval = F}
 # Get the WQX organizations domain
 organizations <- read.csv(url("https://cdx.epa.gov/wqx/download/DomainValues/Organization.CSV"))
 
 # Subset to include only "Volunteer" organizations and exclude WQX test/training orgs
-volunteer_orgs <- subset(organizations, 
-                         Type == "Volunteer" &
-                           !grepl("training", 
-                                  Name, 
-                                  ignore.case = TRUE) &
-                           !grepl("test", 
-                                  Name, 
-                                  ignore.case = TRUE) &
-                           !grepl("\\*", 
-                                  Name, 
-                                  ignore.case = TRUE))
+volunteer_orgs <- subset(
+  organizations,
+  Type == "Volunteer" &
+    !grepl("training",
+      Name,
+      ignore.case = TRUE
+    ) &
+    !grepl("test",
+      Name,
+      ignore.case = TRUE
+    ) &
+    !grepl("\\*",
+      Name,
+      ignore.case = TRUE
+    )
+)
 
 unique(volunteer_orgs$Name)
 ```
@@ -141,12 +101,14 @@ WQP. We will move forward with this example of volunteer organizations
 in CT:
 
 ```{r}
-selected_orgs <- 
-  c("CONNRIVERCONSERVANCY",
+selected_orgs <-
+  c(
+    "CONNRIVERCONSERVANCY",
     "CT_NERR",
     "BANTAMLAKE_WQX",
     "CTVOLMON",
-    "CT_NERR")
+    "CT_NERR"
+  )
 
 volunteer_data <- TADA_DataRetrieval(
   # startDate = "2022-01-01",
@@ -170,19 +132,14 @@ Generate pie chart:
 TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
 ```
 
-Review monitoring locations:
-
-```{r}
-TADA_FlaggedSitesMap(volunteer_data)
-```
-
 Review and remove sites if coordinates are imprecise or outside US:
 
 ```{r, results=F}
-volunteer_data <- TADA_FlagCoordinates(volunteer_data, 
-                                       clean_outsideUSA = "remove", 
-                                       clean_imprecise = TRUE, 
-                                       flaggedonly = FALSE)
+volunteer_data <- TADA_FlagCoordinates(volunteer_data,
+  clean_outsideUSA = "remove",
+  clean_imprecise = TRUE,
+  flaggedonly = FALSE
+)
 ```
 
 Use `TADA_OverviewMap` to generate a map:
@@ -207,7 +164,7 @@ volunteer_data <- TADA_SimpleCensoredMethods(
   nd_multiplier = 0.5,
   od_method = "as-is",
   od_multiplier = "null"
-  )
+)
 ```
 
 Run key TADA quality control flagging functions and remove suspect
@@ -217,20 +174,22 @@ results:
 volunteer_data <- TADA_RunKeyFlagFunctions(
   volunteer_data,
   clean = TRUE
-  )
+)
 ```
 
 Flag results above and below thresholds. Review carefully and consider
 removing.
 
 ```{r}
-volunteer_data <- TADA_FlagAboveThreshold(volunteer_data, 
-                                   clean = FALSE, 
-                                   flaggedonly = FALSE)
+volunteer_data <- TADA_FlagAboveThreshold(volunteer_data,
+  clean = FALSE,
+  flaggedonly = FALSE
+)
 
-volunteer_data <- TADA_FlagBelowThreshold(volunteer_data, 
-                                   clean = FALSE, 
-                                   flaggedonly = FALSE)
+volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
+  clean = FALSE,
+  flaggedonly = FALSE
+)
 ```
 
 Harmonize synonyms if found:
@@ -254,16 +213,17 @@ TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
 Generate pie chart:
 
 ```{r}
-TADA_FieldValuesPie(volunteer_data, field = "TADA.MonitoringLocationName")
+TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
 ```
 
 Remove non-numeric results:
 
 ```{r}
 volunteer_data <- TADA_ConvertSpecialChars(
-  volunteer_data, 
+  volunteer_data,
   col = "TADA.ResultMeasureValue",
-  clean = TRUE)
+  clean = TRUE
+)
 ```
 
 Review the number of sites and records for each characteristic:
@@ -334,7 +294,7 @@ ecoli <- ecoli %>%
 # review subset
 ecoli_subset_review <- ecoli %>%
   dplyr::select(
-    TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
+    MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
     meets_criteria_mag
   )
 
@@ -342,13 +302,13 @@ TADA_TableExport(ecoli_subset_review)
 ```
 
 Generate stats table. Review percentiles. Less than 5% of results fall
-above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m.
+above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m
 
 ```{r stats}
 TADA_TableExport(TADA_Stats(ecoli))
 ```
 
-Generate a scatterplot. 
+Generate a scatterplot. One result value is above the threshold.
 
 ```{r}
 TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%

@@ -8,22 +8,49 @@ TADA_CreateAUMLCrosswalk(
   .data,
   au_ref = NULL,
   org_id = NULL,
-  add_catch = FALSE,
+  fill_ATTAINS_catch = FALSE,
+  fill_USGS_catch = FALSE,
+  return_nearest = TRUE,
   batch_upload = TRUE
 )
 }
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()}.}
 
-\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier
-and MonitoringLocationIdentifier.}
+\item{au_ref}{Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+MonitoringLocationIdentifier and WaterType.}
 
-\item{org_id}{Organization id to match AUs.}
+\item{org_id}{ATTAINS organization identifier(s) as a character string.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param.}
 
-\item{add_catch}{Optional. When add_catch = TRUE, catchments are matched to monitoring
-locations from  the user-supplied and ATTAINS crosswalk monitoring locations. Fetching
-and matching these additional geospatial data will increase the run time of this function
-significantly. Default is add_catch = FALSE.}
+\item{fill_ATTAINS_catch}{Boolean argument. Specifies whether catchment-based
+ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+with entity submitted assessment unit features - points, lines, and polygons)
+should be queried and downloaded for the assessment units included in the
+USER-SUPPLIED \code{au_ref}. When fill_ATTAINS_catch = TRUE, the catchment data
+are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
+
+\item{fill_USGS_catch}{Boolean argument. Whether the user would like to return
+NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
+with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
+the returned list splits observations into two dataframes: WQP observations
+with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
+observations without ATTAINS catchment data. Defaults to FALSE. This param
+applies only to WQP observations that do not have matches in the user-supplied ref
+or ATTAINS.}
+
+\item{return_nearest}{If a WQP observation falls within more than one AU,
+return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+(return_nearest = FALSE). This param applies only to WQP observations that do
+not have matches in the user-supplied ref or ATTAINS.}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, an additional data frame
 which matches the format required for batch upload to ATTAINS is included in the
@@ -37,12 +64,62 @@ function's output.}
 A list containing a modified TADA data frame with added ATTAINS columns and
 data frames for ATTAINS data and features for points, lines, polygons and catchments.
 When batch_upload = TRUE, the list will contain an additional data frame formatted
-for compatibilty with ATTAINS batch upload for Monitoring_Stations.
+for compatibility with ATTAINS batch upload for Monitoring_Stations.
 }
 \description{
 Create the assessment unit and monitoring location ref by utilizing an optional
 user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
 and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
+}
+\examples{
+\dontrun{
+# Load the example data
+utils::data(Data_MT_MissoulaCounty)
+
+# Example 1: Basic use with default settings
+result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
+
+# Example 2: Using a user-supplied crosswalk
+user_crosswalk <- data.frame(
+  AssessmentUnitIdentifier = c("AU1", "AU2"),
+  MonitoringLocationIdentifier = c("ML1", "ML2"),
+  WaterType = c("River", "Lake")
+)
+result <- TADA_CreateAUMLCrosswalk(
+  Data_MT_MissoulaCounty,
+  au_ref = user_crosswalk
+)
+
+# Example 3: Including ATTAINS catchment data
+result <- TADA_CreateAUMLCrosswalk(
+  Data_MT_MissoulaCounty,
+  fill_ATTAINS_catch = TRUE
+)
+
+# Example 4: Preparing for batch upload
+result <- TADA_CreateAUMLCrosswalk(
+  Data_MT_MissoulaCounty,
+  batch_upload = TRUE
+)
+
+# Example 5: Using multiple options together
+org_id <- "EPA"
+result <- TADA_CreateAUMLCrosswalk(
+  Data_MT_MissoulaCounty,
+  au_ref = user_crosswalk,
+  org_id = org_id,
+  fill_ATTAINS_catch = TRUE,
+  fill_USGS_catch = TRUE,
+  return_nearest = FALSE,
+  batch_upload = TRUE
+)
+
+# View the results
+print(result$TADA_with_ATTAINS)
+print(result$ATTAINS_catchments)
+print(result$ATTAINS_batchupload)
+}
+
 }
 \seealso{
 \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}

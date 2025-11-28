@@ -73,6 +73,12 @@ Package for use with data retrieved from the WQP:
 
         -   [TADA_FlagSpeciation()](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.html)
 
+    -   Flag monitoring locations with imprecise coordinates (accuracy
+        of lat/long is less than three three decimal degrees (e.g.,
+        38.88°, -77.00°)] and/or coordinates outside of the US.
+
+        -   [TADA_FlagCoordinates()](https://usepa.github.io/EPATADA/reference/TADA_FlagCoordinates.html)
+
     -   Flag results that do not have an approved QAPP and/or do not
         include a QAPP attachment
 
@@ -95,30 +101,19 @@ Package for use with data retrieved from the WQP:
 
             -   [TADA_FlagBelowThreshold()](https://usepa.github.io/EPATADA/reference/TADA_FlagBelowThreshold.html)
 
-[![[Boxplot](https://en.wikipedia.org/wiki/Boxplot "Boxplot") (with an
-interquartile range) and a [probability density
-function](https://en.wikipedia.org/wiki/Probability_density_function
-"Probability density function") (pdf) of a Normal N(0,σ2) Population.
-Attribution: Jhguch at en.wikipedia, [CC BY-SA
-2.5](https://creativecommons.org/licenses/by-sa/2.5/), via Wikimedia
+[![[Boxplot](https://en.wikipedia.org/wiki/Boxplot) with an
+interquartile range and normal
+[probability](https://en.wikipedia.org/wiki/Probability_density_function).
+Attribution: [Jhguch](https://creativecommons.org/licenses/by-sa/2.5/)
+via Wikimedia
 Commons.](images/IQR.png)](https://commons.wikimedia.org/wiki/File:Boxplot_vs_PDF.svg)
 
-Additional tests only available in WQX Web and Node Submissions (for
-now):
+Additional tests only available in WQX Web and Node Submissions:
 
 -   Location
 
-    -   Flag data where accuracy of lat/long is less than three three
-        decimal degrees (e.g., 38.88°, -77.00°)
-
     -   Flag data where the lat/long assigned to monitoring sites is NOT
-        in the state and country included in metadata
-
-    -   Flag if monitoring locations nearby each other are likely the
-        same based on three decimal degrees precision. Includes two
-        flags - one within your org and one national (across all orgs).
-        If they are, then provide user an option to use the existing
-        monitoring location instead of creating a new one [expand here].
+        in the state and country included in metadata.
 
 ## Providing Feedback on Validation Tables
 
@@ -156,7 +151,7 @@ TADA leverages many of the WQX domain tables.
         for each unique characteristic to a consistent unit, so that
         results can then we assessed against the WQX upper and lower
         thresholds in the validation table. Target units for each
-        charactersitic are included in the MeasureUnit domain table.
+        characteristic are included in the MeasureUnit domain table.
         TADA leverages this table to convert all data for each unique
         characteristic to a consistent target unit. See relevant TADA
         functions:
@@ -168,12 +163,7 @@ All TADA Reference and Validation Tables are also available in the R
 Package
 [HERE](https://github.com/USEPA/EPATADA/tree/develop/inst/extdata). TADA
 pulls the WQX Validation Table and other domain tables into TADA and
-updates them automatically whenever changes are made
-
--   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXcharValRef.csv>
-
--   <https://github.com/USEPA/EPATADA/blob/develop/inst/extdata/WQXunitRef.csv>
-
-WQX and TADA users can review and provide feedback on the validation
-table and/or target units assigned, and provide feedback by emailing the
-WQX helpdesk (WQX\@epa.gov).
+updates them automatically whenever changes are made. WQX and TADA users
+can review and provide feedback on the validation table and/or target
+units assigned, and provide feedback by emailing the WQX helpdesk
+(WQX\@epa.gov).

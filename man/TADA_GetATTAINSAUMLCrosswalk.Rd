@@ -8,12 +8,15 @@ Crosswalk from ATTAINS}
 TADA_GetATTAINSAUMLCrosswalk(org_id = NULL, batch_upload = FALSE)
 }
 \arguments{
-\item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. A list of organization identifiers can be found by downloading the
-ATTAINS Domains Excel file:
+\item{org_id}{Character string. The ATTAINS organization identifier must be
+supplied by the user. More than one org_id may be provided. A list of
+organization identifiers can be found by downloading the ATTAINS Domains
+Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
-contains the organization identifiers that should be used for this param.}
+contains the organization identifiers that should be used for this param. When
+org_id = NULL, all assessment unit/monitoring locations matches recorded in
+ATTAINS from all organizations will be returned.}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, the final column
 names in the output will match those required for batch upload to ATTAINS. When
@@ -45,11 +48,13 @@ tribal nations record this information in ATTAINS but only a few states.
 \dontrun{
 # Alaska example in
 AK_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = TRUE)
+  org_id = "AKDECWQ", batch_upload = TRUE
+)
 
 # Alaska example with ATTAINS prefix compatible with TADA Analysis workflow
 AK_crosswalk2 <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "AKDECWQ", batch_upload = FALSE)
+  org_id = "AKDECWQ", batch_upload = FALSE
+)
 
 # Pueblo of Tesuque example
 PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(

@@ -26,10 +26,12 @@ The function uses data.table::setnames() to rename columns in the dataframe
 by reference - in this case where there are beta names, rename to legacy names, and skip where there are no matches.
 }
 \examples{
-DeWitt_wqx3 <- dataRetrieval::readWQPdata(statecode = "Illinois",
-countycode = "DeWitt", characteristicName = "Nitrogen",
-service = "ResultWQX3", dataProfile = "fullPhysChem", 
-ignore_attributes = TRUE)
+DeWitt_wqx3 <- dataRetrieval::readWQPdata(
+  statecode = "Illinois",
+  countycode = "DeWitt", characteristicName = "Nitrogen",
+  service = "ResultWQX3", dataProfile = "fullPhysChem",
+  ignore_attributes = TRUE
+)
 
 DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
 

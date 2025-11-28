@@ -4,7 +4,7 @@
 \alias{TADA_GetATTAINSByAUID}
 \title{TADA_GetATTAINSByAUID}
 \usage{
-TADA_GetATTAINSByAUID(.data, au_ref = NULL, add_catch = FALSE)
+TADA_GetATTAINSByAUID(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE)
 }
 \arguments{
 \item{.data}{A TADA data frame including including some results from monitoring
@@ -18,16 +18,19 @@ and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
 match those in the WQP, which may contain the organization and provider in
 the MonitoringLocationIdentifier.}
 
-\item{add_catch}{Boolean argument. Specify whether catchment data should be queried
-and downloaded for the user-supplied assessment units. When add_catch = TRUE,
-the catchment data are included in the output. When add_catch = FALSE,
-catchment data are not included. Setting add_catch = TRUE, may increase the
-run time of the function significantly. Default is add_catch = FALSE.}
+\item{fill_ATTAINS_catch}{Boolean argument. Specifies whether catchment-based
+ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+with entity submitted assessment unit features - points, lines, and polygons)
+should be queried and downloaded for the assessment units included in the
+USER-SUPPLIED \code{au_ref}. When fill_ATTAINS_catch = TRUE, the catchment data
+are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
 columns associated with the ATTAINS assessment unit data, and, if
-fill_catchments = TRUE, an additional dataframe of the observations without
+fill_USGS_catch = TRUE, an additional dataframe of the observations without
 intersecting ATTAINS features.
 Moreover, if return_sf = TRUE, this function will additionally return the
 raw ATTAINS and catchment shapefile features associated with those
@@ -44,20 +47,22 @@ identifier/monitoring location combinations.
 }
 \examples{
 \dontrun{
-# Example 1: Basic usage with default settings
-# Assume `my_data` is a TADA data frame with some monitoring 
+# Example 1: Basic use with default settings
+# Assume my_data is a TADA data frame with some monitoring
 # location results
-# Assume `my_au_ref` is a data frame containing known AU and monitoring
+# Assume my_au_ref is a data frame containing known AU and monitoring
 # location combinations
 result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
 
 # Example 2: Fetching ATTAINS data with catchment information
-# Set `add_catch` to TRUE to include catchment data in the output
-result_with_catch <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref, 
-add_catch = TRUE)
+# Set fill_ATTAINS_catch to TRUE to include catchment data in the output
+result_with_catch <- TADA_GetATTAINSByAUID(my_data,
+  au_ref = my_au_ref,
+  fill_ATTAINS_catch = TRUE
+)
 
 # Example 3: Handling empty data frames
-# If the input data frame has no observations, the function returns an 
+# If the input data frame has no observations, the function returns an
 # empty data frame with ATTAINS columns
 empty_data <- data.frame()
 empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
@@ -65,8 +70,9 @@ empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
 # Example 4: Custom AU reference data from an external file
 # Load AU reference data from a CSV file and use it in the function
 au_ref_from_file <- read.csv("path/to/au_ref.csv")
-result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data, 
-au_ref = au_ref_from_file)
+result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
+  au_ref = au_ref_from_file
+)
 }
 
 }

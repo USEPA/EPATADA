@@ -27,7 +27,7 @@ TADAProfile <- data.frame(
 test_that("TADA_CheckColumns catches non-dataframe input", {
   expect_error(
     TADA_CheckColumns("string", c("A", "B")),
-    "Input must be a dataframe."
+    "Input object must be of class 'data.frame'"
   )
 })
 
@@ -43,9 +43,10 @@ test_that("TADA_CheckColumns catches non-character expected columns", {
 test_that("TADA_CheckColumns catches missing columns", {
   # Drop required column by name
   TADAProfile2 <- dplyr::select(TADAProfile, -ActivityDepthHeightMeasure.MeasureValue)
-  # pass a regular expression to expect_error() since error message can change 
+  # pass a regular expression to expect_error() since error message can change
   expect_error(TADA_CheckColumns(TADAProfile2, c("ActivityDepthHeightMeasure.MeasureValue")),
-               regexp = "The dataframe does not contain the required field\\(s\\): ActivityDepthHeightMeasure.MeasureValue")
+    regexp = "The dataframe does not contain the required field\\(s\\): ActivityDepthHeightMeasure.MeasureValue"
+  )
 })
 
 # Test: All required columns are present
@@ -99,10 +100,16 @@ test_that("TADA_ConvertDepthUnits converts meters to m", {
   expect_false("meters" %in% check_depth_meters$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
 })
 
-# check that TADA_CreateUnitRef contains a row for each TADA.CharacteristicName,
+# Check that TADA_CreateUnitRef contains a row for each TADA.CharacteristicName,
 # and ResultMeasure.MeasureUnitCode
 test_that("TADA_CreateUnitRef output contains a row for each TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, and ResultMeasure.MeasureUnitCode.", {
-  testdat <- TADA_RandomTestingData(number_of_days = 3, choose_random_state = TRUE)
+  testdat <- TADA_RandomTestingData(number_of_days = 2, choose_random_state = TRUE)
+
+  # Skip the test if the data retrieval results in an empty data frame
+  if (nrow(testdat) == 0) {
+    skip("Data retrieval failed after multiple attempts, skipping the test.")
+  }
+
   unit.ref <- TADA_CreateUnitRef(testdat)
   unit.ref <- unit.ref %>%
     dplyr::select(
@@ -110,7 +117,6 @@ test_that("TADA_CreateUnitRef output contains a row for each TADA.Characteristic
       ResultMeasure.MeasureUnitCode
     ) %>%
     dplyr::distinct()
-
 
   unit.combs <- TADA_UniqueCharUnitSpeciation(testdat)
   unit.combs <- unit.combs %>%

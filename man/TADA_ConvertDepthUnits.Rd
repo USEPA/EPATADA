@@ -59,7 +59,7 @@ unit = "m".
 }
 \examples{
 # Load example dataset:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 # Convert all depth units to meters and review unit harmonization:
 # "ActivityDepthHeightMeasure.MeasureUnitCode" and

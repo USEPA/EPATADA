@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-fraction combinations:
 #' SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
@@ -46,27 +46,27 @@
 #' )
 #'
 TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"))
   # check that both clean and flaggedonly are not TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
-    message("Function not executed because clean and flaggedonly cannot both be TRUE")
-    return(.data)
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   # execute function after checks are passed - removes flag column in case reference table has changed.
   if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
-  # read in sample fraction reference table from extdata and filter
-  frac.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicFraction")
+  # read in fraction reference table from extdata and filter
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  frac.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicFraction")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (SampleFraction)
   check.data <- merge(.data, frac.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -166,7 +166,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-method speciation combinations
 #' # from dataframe,
@@ -205,14 +205,12 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' )
 #'
 TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
   # check clean is boolean
   TADA_CheckType(clean, "character")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.MethodSpeciationName"))
   # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -222,8 +220,11 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in speciation reference table from extdata and filter
-  spec.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicSpeciation")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (Speciation)
   check.data <- merge(.data, spec.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
@@ -304,7 +305,6 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 }
 
 
-
 #' Check Result Unit Validity
 #'
 #' Function checks the validity of each characteristic-media-result unit
@@ -348,7 +348,7 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Remove data with Suspect characteristic-media-result unit combinations
 #' # from dataframe, but retain "NonStandardized" combinations flagged in new
@@ -382,8 +382,9 @@ TADA_FlagSpeciation <- function(.data, clean = c("suspect_only", "nonstandardize
 #' )
 #'
 TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardized_only", "both", "none"), flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  expected_cols <- c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName")
+  TADA_CheckColumns(.data, expected_cols)
   # check clean is character
   TADA_CheckType(clean, "character")
   # check flaggedonly is boolean
@@ -411,7 +412,6 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
     .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
   }
 
-  TADA_CheckColumns(.data, c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ActivityMediaName"))
   # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
   clean <- match.arg(clean)
 
@@ -421,8 +421,11 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
   }
 
   # read in unit reference table from extdata and filter
-  unit.ref <- utils::read.csv(system.file("extdata", "WQXcharValRef.csv", package = "EPATADA")) %>%
-    dplyr::filter(Type == "CharacteristicUnit")
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  load(file_path)
+  rm(file_path)
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
+  rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
   check.data <- merge(.data, unit.ref[, c("Characteristic", "Source", "TADA.WQXVal.Flag", "Value")],
@@ -549,7 +552,7 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag and keep all QC samples:
 #' QC_flagged <- TADA_FindQCActivities(Data_Nutrients_UT)
@@ -561,14 +564,12 @@ TADA_FlagResultUnit <- function(.data, clean = c("suspect_only", "nonstandardize
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 #'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, c("ActivityTypeCode"))
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c("ActivityTypeCode"))
 
   # execute function after checks are passed
   # delete existing flag column
@@ -640,7 +641,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 }
 
 
-
 #' Pair Replicates with Original Samples
 #'
 #' This function looks for replicate samples and pairs them to their original or
@@ -682,7 +682,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Run TADA_FindQCActivities to add TADA.ActivityType.Flag column:
 #' df <- TADA_FindQCActivities(Data_Nutrients_UT)
@@ -696,10 +696,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference = 600) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
+  # check .data is data.frame and has required columns
+  expected_cols <- c(
     "OrganizationIdentifier", "ActivityTypeCode",
     "ActivityStartDate", "ActivityStartDateTime",
     "ResultIdentifier", "ActivityRelativeDepthName",
@@ -709,7 +707,8 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
     "TADA.ResultDepthHeightMeasure.MeasureValue",
     "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
     "TADA.ActivityBottomDepthHeightMeasure.MeasureValue"
-  ))
+  )
+  TADA_CheckColumns(.data, expected_cols)
 
   # run TADA_FindQCActivities if needed
   if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
@@ -723,13 +722,11 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
   # execute function after checks are passed
   if ("QC_replicate" %in% type) {
     if (nrow(dplyr::filter(.data, .data$TADA.ActivityType.Flag == "QC_replicate")) == 0) {
-      message("Function not executed because no replicates found in dataframe.")
-      return(.data)
+      stop("Function not executed because no replicates found in dataframe.")
     }
   } else {
     if (nrow(dplyr::filter(.data, .data$ActivityTypeCode %in% type)) == 0) {
-      message(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
-      return(.data)
+      stop(paste0("Function not executed because no replicates of type '", type, "' found in dataframe."))
     }
   }
   # check type is character
@@ -791,7 +788,6 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 }
 
 
-
 #' Check for results with suspect result Measure Qualifier Codes
 #'
 #' This function checks for and flags or removes samples denoted as suspect
@@ -826,7 +822,7 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Flag and keep all suspect samples:
 #' MeasureQualifierCode_flagged <-
@@ -850,14 +846,12 @@ TADA_PairReplicates <- function(.data, type = c("QC_replicate"), time_difference
 #'   clean = TRUE, define = FALSE
 #' )
 TADA_FlagMeasureQualifierCode <- function(.data, clean = FALSE, flaggedonly = FALSE, define = TRUE) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
+  # check .data is data.frame and has required columns
+  TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check that clean is boolean
   TADA_CheckType(clean, "logical")
   # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-  TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
   if (all(is.na(.data$MeasureQualifierCode))) {
     print("TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode.")

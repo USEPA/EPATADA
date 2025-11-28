@@ -26,7 +26,7 @@ where all values are equal to NA. It provides a warning message identifying
 any TADA required columns containing only NA values.
 }
 \examples{
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 reducedcols_Data_Nutrients_UT <- TADA_RetainRequired(Data_Nutrients_UT)
 
 }

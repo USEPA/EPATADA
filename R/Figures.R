@@ -24,7 +24,7 @@
 #' # Create a single boxplot using defaults. The input dataframe in this example
 #' # includes only one unique TADA.ComparableDataIdentifier:
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Filter data down to a single TADA.ComparableDataIdentifier
 #' df <- dplyr::filter(
 #'   Data_6Tribes_5y_Harmonized,
@@ -50,7 +50,7 @@
 #' # by both the TADA.ComparableDataIdentifier and the MonitoringLocationTypeName
 #' # (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Boxplot_output <- TADA_Boxplot(Data_Nutrients_UT,
 #'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 #' )
@@ -60,9 +60,6 @@
 #' Boxplot_output[[30]]
 #'
 TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
   # ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -71,14 +68,9 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
-  # check .data has required columns
-  TADA_CheckColumns(.data, id_cols)
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ))
+  # check .data is data.frame and has required columns (including id_cols)
+  expected_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, expected_cols)
 
   # load TADA color palette
 
@@ -212,7 +204,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'
 #' @examples
 #' # Load example dataframe:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a histogram for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
@@ -231,7 +223,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Histogram_output <- TADA_Histogram(Data_Nutrients_UT,
 #'   id_cols = c(
 #'     "TADA.ComparableDataIdentifier",
@@ -244,9 +236,6 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' Histogram_output[[30]]
 #'
 TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
   # ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -255,14 +244,9 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
     warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
-  # check .data has required columns
-  TADA_CheckColumns(.data, id_cols)
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ))
+  # check .data is data.frame and has required columns (including id_cols)
+  expected_cols <- c(id_cols, c("TADA.ResultMeasureValue", "TADA.ResultMeasure.MeasureUnitCode"))
+  TADA_CheckColumns(.data, expected_cols)
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
@@ -398,8 +382,8 @@ TADA_Histogram <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) 
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_OverviewMap(Data_Nutrients_UT)
@@ -589,8 +573,8 @@ TADA_OverviewMap <- function(.data) {
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create maps:
 #' TADA_FlaggedSitesMap(Data_Nutrients_UT)
@@ -654,7 +638,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' @examples
 #' \dontrun{
 #' # Load example dataframe:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #'
 #' # Create maps:
@@ -744,7 +728,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Create a list of parameters in the dataset and the number of records of
 #' # each parameter:
@@ -811,7 +795,6 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 }
 
 
-
 #' Create Scatterplot(s)
 #'
 #' @param .data TADA dataframe containing the data downloaded from the
@@ -837,7 +820,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Create a scatterplot for each comparable data group (TADA.ComparableDataIdentifier)
 #' # in the input dataframe:
@@ -858,7 +841,7 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' # plot in list. In this example, we will group by both TADA.ComparableDataIdentifier
 #' # and MonitoringLocationTypeName (e.g. stream, reservoir, canal, etc.)
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' Scatterplot_output <- TADA_Scatterplot(Data_Nutrients_UT,
 #'   id_cols = c("TADA.ComparableDataIdentifier", "MonitoringLocationTypeName")
 #' )
@@ -868,9 +851,6 @@ TADA_FieldValuesPie <- function(.data, field = "null", characteristicName = "nul
 #' Scatterplot_output[[35]]
 #'
 TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
   # ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -880,15 +860,14 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
     warning("TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended: plotting without it may produce errors in the plot.")
   }
 
-  # check .data has required columns
-  TADA_CheckColumns(.data, id_cols)
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, c(
+  # check .data is data.frame and has required columns (including id_cols)
+  expected_cols <- c(id_cols, c(
     "ActivityStartDate",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode"
   ))
+  TADA_CheckColumns(.data, expected_cols)
+
 
   .data <- .data %>%
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
@@ -1019,7 +998,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
 #'   id_cols = "TADA.ComparableDataIdentifier",
@@ -1030,7 +1009,7 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' )
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
@@ -1038,26 +1017,18 @@ TADA_Scatterplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")
 #' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableDataIdentifier", groups) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, id_cols)
-
-  # check .data has required columns
-  reqcols <- c(
-    "TADA.ResultMeasureValue",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "ActivityStartDate"
-  )
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, reqcols)
-
   # if left blank, ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
   }
+
+  # check .data is data.frame and has required columns (including id_cols)
+  expected_cols <- c(id_cols, c(
+    "ActivityStartDate",
+    "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  ))
+  TADA_CheckColumns(.data, expected_cols)
 
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
     print("Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended.")
@@ -1075,7 +1046,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, reqcols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
+  plot.data <- subset(plot.data, plot.data[, id_cols] %in% groups)[, c(id_cols, expected_cols, depthcols, "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText")]
   plot.data$name <- gsub("_NA", "", plot.data[, id_cols])
   plot.data$name <- gsub("_", " ", plot.data$name)
 
@@ -1273,7 +1244,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_Nutrients_UT)
+#' utils::data(Data_Nutrients_UT)
 #' # UT Nutrients results grouped by county
 #' # transform non-detect data
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
@@ -1287,7 +1258,7 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' UT_Nutrients_by_CountyCode[[4]]
 #'
 #' # Load example dataset:
-#' data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized)
 #'
 #' # Filter the example data so it includes only one
 #' # TADA.ComparableDataIdentifier
@@ -1312,11 +1283,8 @@ TADA_TwoCharacteristicScatterplot <- function(.data, id_cols = "TADA.ComparableD
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 #'
 TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName", groups = NULL) {
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # check .data has required columns
-  reqcols <- c(
+  # check .data is data.frame and has required columns (including group_col)
+  required_cols <- c(
     "TADA.ComparableDataIdentifier",
     "TADA.ResultMeasureValue",
     "TADA.ResultMeasure.MeasureUnitCode",
@@ -1324,14 +1292,10 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
     "ActivityStartDateTime",
     "MonitoringLocationName"
   )
-
-  # add user-selected group_col to list of required columns
-  reqcols <- reqcols %>%
+  required_cols <- required_cols %>%
     append(group_col) %>%
     unique()
-
-  # check .data has required columns
-  TADA_CheckColumns(.data, reqcols)
+  TADA_CheckColumns(.data, required_cols)
 
 
   # only allows for 1 column selection in id_cols
@@ -1420,7 +1384,7 @@ TADA_GroupedScatterplot <- function(.data, group_col = "MonitoringLocationName",
   plot.data <- as.data.frame(.data)
 
   # this subset must include all fields included in plot hover below
-  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, reqcols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
+  plot.data <- subset(plot.data, plot.data[, group_col] %in% groups)[, unique(c(group_col, required_cols, depthcols, "TADA.ComparableDataIdentifier", "ActivityStartDateTime", "MonitoringLocationName", "TADA.ActivityMediaName", "ActivityMediaSubdivisionName", "ActivityRelativeDepthName", "TADA.CharacteristicName", "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText"))]
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
 

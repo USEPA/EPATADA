@@ -22,7 +22,7 @@ Create Nearby Sites Map
 \examples{
 \dontrun{
 # Load example dataframe:
-data(Data_Nutrients_UT)
+utils::data(Data_Nutrients_UT)
 
 
 # Create maps:

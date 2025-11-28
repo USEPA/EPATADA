@@ -12,8 +12,7 @@ targets/synonyms.
 }
 \description{
 This internal reference file includes USGS only units/speciations. It was
-created in July 2023 using the pcodes domain table from NWIS
-(https://help.waterdata.usgs.gov/codes-and-parameters/parameters). All USGS units
+created in July 2023 using the pcodes domain table from NWIS. All USGS units
 and speciations are given a target unit and speciation that is synonymous, but
 adheres to the WQX schema (WQX measure unit domain table).
 }

@@ -11,9 +11,10 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", 
-                                     "NPsummation_key.csv", 
-                                     package = "EPATADA"))
+  ref <- utils::read.csv(system.file("extdata",
+    "NPsummation_key.csv",
+    package = "EPATADA"
+  ))
   return(ref)
 }
 
@@ -41,7 +42,7 @@ TADA_GetNutrientSummationRef <- function() {
 #'
 #' @examples
 #' # Load example dataset:
-#' data(Data_6Tribes_5y)
+#' utils::data(Data_6Tribes_5y)
 #'
 #' # Create a synonym reference table for flagged, cleaned dataframe:
 #' Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
@@ -59,10 +60,7 @@ TADA_GetSynonymRef <- function(.data) {
     return(ref)
   }
 
-  # check .data is data.frame
-  TADA_CheckType(.data, "data.frame", "Input object")
-
-  # check .data has the required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -111,8 +109,7 @@ TADA_GetSynonymRef <- function(.data) {
 #' Nutrient Summation Reference Key
 #'
 #' This internal reference file includes USGS only units/speciations. It was
-#' created in July 2023 using the pcodes domain table from NWIS
-#' (https://help.waterdata.usgs.gov/codes-and-parameters/parameters). All USGS units
+#' created in July 2023 using the pcodes domain table from NWIS. All USGS units
 #' and speciations are given a target unit and speciation that is synonymous, but
 #' adheres to the WQX schema (WQX measure unit domain table).
 #'

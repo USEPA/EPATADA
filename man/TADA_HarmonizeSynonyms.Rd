@@ -46,7 +46,7 @@ also apply multiplication conversion factors to the TADA.ResultMeasureValue.
 \examples{
 \dontrun{
 # Load example dataset:
-data(Data_6Tribes_5y)
+utils::data(Data_6Tribes_5y)
 
 # Create a synonym reference table for flagged, cleaned dataframe:
 Data_6Tribes_5yClean <- subset(
