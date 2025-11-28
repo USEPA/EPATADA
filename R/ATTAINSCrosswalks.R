@@ -962,8 +962,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       org_id = ""
     }
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if( tolower(org_id) == "all"){
-      org_id = rExpertQuery::EQ_DomainValues("org_id")[,"code"]
+    if (tolower(org_id) == "all") {
+      org_id = rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
 
     # If more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
