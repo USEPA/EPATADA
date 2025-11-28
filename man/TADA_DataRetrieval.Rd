@@ -25,7 +25,8 @@ TADA_DataRetrieval(
   bBox = "null",
   maxrecs = 350000,
   ask = TRUE,
-  applyautoclean = TRUE
+  applyautoclean = TRUE,
+  renametolegacy = FALSE
 )
 }
 \arguments{
@@ -98,6 +99,9 @@ downloads begin. Defaults to TRUE.}
 
 \item{applyautoclean}{Logical, defaults to TRUE. Applies TADA_AutoClean function on the returned
 data profile. Suggest switching to FALSE for queries that are expected to be large.}
+
+\item{renametolegacy}{Logical, defaults to FALSE. If true, will revert column names back to legacy schema (WQX2.0)
+for dataRetrieval queries using the WQX3.0 service.}
 }
 \value{
 TADA-compatible data frame
