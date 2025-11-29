@@ -599,7 +599,7 @@ MT.UseParamRef.with.useAURef <- TADA_CreateUseParamRef(
   paramRef = MT.ParamRef.Final,
   useAURef = Data_MT_UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   auto_assign = TRUE,
-    excel = FALSE
+  excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
 ```
@@ -756,8 +756,8 @@ MT.MLSummaryRef.AU <- TADA_CreateMLSummaryRef(
   useParamRef = MT.UseParamRef.Final,
   useAURef = Data_MT_UseAURef_Water, # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
   AUMLRef = Final.MT.AUMLRef,
-  org_id = "MTDEQ"
-  # displayNA = FALSE
+  org_id = "MTDEQ",
+  displayNA = FALSE,
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
