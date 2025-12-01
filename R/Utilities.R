@@ -1701,3 +1701,41 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     return(.data)
   }
 }
+
+#' correctColType (UNDER ACTIVE DEVELOPMENT)
+#'
+#' This function corrects the column data types for TADA, ATTAINS and User Ref data to
+#' ensure all TADA functions can function correctly.
+#'
+#' @param .data A data frame containing columns required for TADA functions.
+#'
+#' @return A data frame with correct column data types to use TADA functions.
+#'
+# coerce column types based TADA ref file
+correctColType <- function(.data) {
+
+  # read in ref csv
+  coltype.ref <- utils::read.csv(system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA"))
+
+  # Iterate over each row in the type specification
+  for (i in 1:nrow(coltype.ref)) {
+    col.name <- coltype.ref$column_name[i]
+    col.type <- coltype.ref$column_type[i]
+
+    # check to see if each col.name is in .data
+    if (col.name %in% names(.data)) {
+      # coerce to correct type
+      .data[[col.name]] <- switch(
+        col.type,
+        "character" = as.character(.data[[col.name]]),
+        "numeric" = as.numeric(.data[[col.name]]),
+        "integer" = as.integer(.data[[col.name]]),
+        "logical" = as.logical(.data[[col.name]]),
+        "factor" = as.factor(.data[[col.name]])
+      )
+    }
+  }
+
+  return(.data)
+}
+

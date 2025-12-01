@@ -2318,7 +2318,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "HorizontalCoordinateReferenceSystemDatumName",
     "TADA.CharacteristicName", "TADA.MonitoringLocationIdentifier",
     "TADA.MonitoringLocationName", "ResultIdentifier",
-    "ActivityStartDate", "TADA.OrganizationIdentifier"
+    "ActivityStartDate", "OrganizationIdentifier"
   )
 
   if (!any(required_columns %in% colnames(ATTAINS_table))) {
@@ -2377,12 +2377,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
     sumdat <- ATTAINS_table %>%
-      dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
+      dplyr::group_by(TADA.MonitoringLocationIdentifier, TADA.MonitoringLocationName,
+                      TADA.LatitudeMeasure, TADA.LongitudeMeasure) %>%
       dplyr::summarize(
         Sample_Count = length(unique(ResultIdentifier)),
         Visit_Count = length(unique(ActivityStartDate)),
-        Parameter_Count = length(unique(CharacteristicName)),
-        Organization_Count = length(unique(OrganizationIdentifier)),
+        Parameter_Count = length(unique(TADA.CharacteristicName)),
+        Organization_Count = length(unique(TADA.OrganizationIdentifier)),
         ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
         TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
           as.character(TADA.AURefSource),
@@ -2391,8 +2392,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       ) %>%
       dplyr::mutate(
         ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
-        LatitudeMeasure = as.numeric(LatitudeMeasure),
-        LongitudeMeasure = as.numeric(LongitudeMeasure)
+        LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
+        LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
       )
 
     # Basemap for AOI:
@@ -2406,10 +2407,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       ) %>%
       leaflet::clearShapes() %>%
       leaflet::fitBounds(
-        lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
-        lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
-        lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
-        lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
+        lng1 = min(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+        lat1 = min(sumdat$TADA.LatitudeMeasure, na.rm = TRUE),
+        lng2 = max(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+        lat2 = max(sumdat$TADA.LatitudeMeasure, na.rm = TRUE)
       ) %>%
       leaflet.extras::addResetMapButton()
 
@@ -2611,8 +2612,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # set base pop up for monitoring locations
     set.popup <- paste0(
-      "Site ID: ", sumdat$MonitoringLocationIdentifier,
-      "<br> Site Name: ", sumdat$MonitoringLocationName,
+      "Site ID: ", sumdat$TADA.MonitoringLocationIdentifier,
+      "<br> Site Name: ", sumdat$TADA.MonitoringLocationName,
       "<br> Measurement Count: ", sumdat$Sample_Count,
       "<br> Visit Count: ", sumdat$Visit_Count,
       "<br> Characteristic Count: ", sumdat$Parameter_Count,
@@ -2681,7 +2682,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       map <- map %>%
         leaflet::addMarkers(
           data = sumdat,
-          lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
+          lng = ~TADA.LongitudeMeasure, lat = ~TADA.LatitudeMeasure,
           icon = leaflet::icons(iconUrl = wqp.urls,
                                 iconWidth = 24,
                                 iconHeight = 24
@@ -3822,10 +3823,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
-    user <- user[[df.name]]
-    attains <- attains[[df.name]]
-    get.attains <- get.attains[[df.name]]
+    user <- correctColType(user[[df.name]])
+    attains <- correctColType(attains[[df.name]])
+    get.attains <- correctColType(get.attains[[df.name]])
 
+    # need to trouble shoot the attains and get.attains column results (HRM 12/1/2025)
     if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
       # Bind rows and remove duplicates
       df <- dplyr::bind_rows(user, attains, get.attains) %>%
