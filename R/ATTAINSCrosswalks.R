@@ -334,7 +334,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
     ))
   }
 
-  if(org_id == "all" | length(org_id) > 1 & batch_upload == TRUE) {
+  if((org_id == "all" & batch_upload == TRUE)
+     | (length(org_id) > 1 & batch_upload == TRUE)) {
 
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",

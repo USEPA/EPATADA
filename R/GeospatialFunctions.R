@@ -2531,6 +2531,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
+    if("TADA.AURefSource" %in% names(ATTAINS_table)) {
     user.refs <- ATTAINS_table |>
       dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
       dplyr::select(
@@ -2605,6 +2606,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         )
       }
       }
+    }
     }
 
     # set base pop up for monitoring locations
@@ -3666,12 +3668,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   if (format(org_id) != "none" & !is.null(org_id)) {
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
-    if(org_id == "all") {
-
-      # set org_id to NULL to correctly query ATTAINS for all records
-      org_id = NULL
-    }
-
     # get crosswalk from ATTAINS
     attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
 
@@ -3830,12 +3826,15 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains <- attains[[df.name]]
     get.attains <- get.attains[[df.name]]
 
-    if (!is.null(user) | !is.null(attains) | !is.null(get.attains)) {
-      df <- user %>%
-        plyr::rbind.fill(attains) %>%
-        plyr::rbind.fill(get.attains) %>%
-        dplyr::distinct() %>%
-        sf::st_as_sf()
+    if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
+      # Bind rows and remove duplicates
+      df <- dplyr::bind_rows(user, attains, get.attains) %>%
+        dplyr::distinct()
+
+      if ("geometry" %in% names(df)) {
+        df <- sf::st_as_sf(df)
+      }
+
     } else {
       df <- NULL
     }
