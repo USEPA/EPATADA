@@ -102,6 +102,7 @@ Suggests:
     pkgdown,
     spelling,
     htmltools,
+    htmlwidgets,
     tigris,
     yaml,
     rvest,
