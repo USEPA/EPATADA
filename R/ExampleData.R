@@ -130,6 +130,6 @@ NULL
 #' ExampleMod3Workflow.Rmd
 #'
 #' @docType data
-#' @name Data_MT.UseAURef_Water
+#' @name Data_MT_UseAURef_Water
 #' @format A data frame with 48 rows and 6 variables.
 NULL
