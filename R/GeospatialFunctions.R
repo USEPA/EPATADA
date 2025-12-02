@@ -3530,7 +3530,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
                                      fill_ATTAINS_catch = FALSE,
                                      fill_USGS_catch = FALSE,
                                      return_nearest = TRUE,
-                                     batch_upload = TRUE) {
+                                     batch_upload = FALSE) {
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,
@@ -3736,7 +3736,18 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         )
     }
 
+    # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
+    if(dim(attains.cw.mls)[1] == 0) {
 
+      attains.matches <- list(
+        "TADA_with_ATTAINS" = NULL,
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
+      )
+
+    } else {
     # add source column for ATTAINS Crosswalk matched records
     attains.cw.mls <- attains.cw.mls %>%
       dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
@@ -3749,6 +3760,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     attains.matches <- spsUtil::quiet(
       TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, fill_ATTAINS_catch = fill_ATTAINS_catch)
     )
+    }
 
     # remove intermediate objects
     rm(attains.cw)
@@ -3824,20 +3836,44 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
+    # Correct column types and filter out invalid geometries for each dataframe
     user <- correctColType(user[[df.name]])
-    attains <- correctColType(attains[[df.name]])
-    get.attains <- correctColType(get.attains[[df.name]])
+    if (!is.null(user) && "geometry" %in% names(user)) {
+      invalid_user <- user %>% dplyr::filter(!sf::st_is_valid(geometry))
+      if (nrow(invalid_user) > 0) {
+        message("Removed invalid geometries from au_ref: ", paste(invalid_user$assessmentunitidentifier, collapse = ", "))
+      }
+      user <- user %>% dplyr::filter(sf::st_is_valid(geometry))
+    }
 
-    # need to trouble shoot the attains and get.attains column results (HRM 12/1/2025)
+    attains <- correctColType(attains[[df.name]])
+    if (!is.null(attains) && "geometry" %in% names(attains)) {
+      invalid_attains <- attains %>% dplyr::filter(!sf::st_is_valid(geometry))
+      if (nrow(invalid_attains) > 0) {
+        message("Removed invalid geometries from ATTAINS crosswalk: ", paste(invalid_attains$assessmentunitidentifier, collapse = ", "))
+      }
+      attains <- attains %>% dplyr::filter(sf::st_is_valid(geometry))
+    }
+
+    get.attains <- correctColType(get.attains[[df.name]])
+    if (!is.null(get.attains) && "geometry" %in% names(get.attains)) {
+      invalid_get_attains <- get.attains %>% dplyr::filter(!sf::st_is_valid(geometry))
+      if (nrow(invalid_get_attains) > 0) {
+        message("Removed invalid geometries from TADA_CreateATTAINSAUMLRef: ", paste(invalid_get_attains$assessmentunitidentifier, collapse = ", "))
+      }
+      get.attains <- get.attains %>% dplyr::filter(sf::st_is_valid(geometry))
+    }
+
+    # Check if any of the inputs are not NULL
     if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
       # Bind rows and remove duplicates
       df <- dplyr::bind_rows(user, attains, get.attains) %>%
         dplyr::distinct()
 
+      # Convert to sf object
       if ("geometry" %in% names(df)) {
         df <- sf::st_as_sf(df)
       }
-
     } else {
       df <- NULL
     }
