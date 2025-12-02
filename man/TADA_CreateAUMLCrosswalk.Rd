@@ -11,7 +11,7 @@ TADA_CreateAUMLCrosswalk(
   fill_ATTAINS_catch = FALSE,
   fill_USGS_catch = FALSE,
   return_nearest = TRUE,
-  batch_upload = TRUE
+  batch_upload = FALSE
 )
 }
 \arguments{
