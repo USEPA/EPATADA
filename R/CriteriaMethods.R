@@ -172,17 +172,18 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
   # If user supplies criteria methods table, then auto_assign = T for any non-matched values
   if (!is.null(criteriaMethods)) {
+    print("A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs.")
     auto_assign <- TRUE
   }
 
   # Invalid function input combos - supply one or the other.
-  # if ( !is.null(MLSummaryRef) && !is.null(criteriaMethods) ) {
-  #   stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
-  # }
+  if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
+    stop("TADA_DefineCriteriaMethodology: MLSummaryRef and criteriaMethods are both provided. You can only proceed with one (or none) of these options provided.")
+  }
 
-  # Invalid function input combos - MLSummaryRef and autofill = TRUE cannot be used together
+  # Invalid function input combos - MLSummaryRef and auto_assign = TRUE cannot be used together
   if (!is.null(MLSummaryRef) && auto_assign == TRUE) {
-    stop("TADA_DefineCriteriaMethodology: MLSummaryRef is provided and autofill = TRUE are not valid function argument input combinations.")
+    stop("TADA_DefineCriteriaMethodology: MLSummaryRef is provided and auto_assign = TRUE are not valid function argument input combinations.")
   }
 
   # Generates a blank Criteria and Methods file.
@@ -291,16 +292,19 @@ TADA_DefineCriteriaMethodology <- function(.data,
     unique_param <- unique(.data$TADA.CharacteristicName)
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
-      .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
+      .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
     ) %>%
-      tidyr::uncount(weights = length(org_id)) %>%
-      dplyr::select(-TADA.CharacteristicName) %>%
       dplyr::distinct() %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) %>%
+      tidyr::complete(
+        TADA.ComparableDataIdentifier,
+        ATTAINS.OrganizationIdentifier = org_id
+      ) %>%
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%
-      dplyr::left_join(MLSummaryRef)
+      dplyr::full_join(MLSummaryRef)
     # }
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
@@ -484,7 +488,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
           DurationValue = as.numeric(NA), DurationUnit = as.character(NA), DurationMethod = as.character(NA),
           FreqValue = as.numeric(NA), FreqMethod = as.character(NA),
           # Data Sufficiency Columns
-          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA), Season = as.character(NA),
+          AssessPeriod = as.character(NA), AssessPeriodStartDate = as.Date(NA), AssessPeriodEndDate = as.Date(NA),
           Season = as.character(NA), SeasonStartDate = as.Date(NA), SeasonEndDate = as.Date(NA),
           DistrCount = as.numeric(NA), DistrPeriod = as.character(NA), DistrMinSample = as.numeric(NA), Notes = as.character(NA)
         )
@@ -585,22 +589,24 @@ TADA_DefineCriteriaMethodology <- function(.data,
 
     if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
       warning(paste0(
-        "Your user supplied criteriaMethods file contains ",
+        "Your user supplied criteriaMethods file is missing ",
         length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-        " unique TADA.ComparableDataIdentifier(s) without a valid ",
-        "ATTAINS.ParameterName crosswalk ",
-        "when compared to the domain value of ATTAINS from the prior ",
-        "ATTAINS assessment cycle for your organization(s). ",
+        " unique TADA.ComparableDataIdentifier(s) ",
+        ": ",
+        unique(non_definedCriteria$TADA.ComparableDataIdentifier),
+        " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
     }
 
     if (nrow(non_definedCriteria) > 0 && displayUniqueId == FALSE) {
       warning(paste0(
-        "Your user supplied criteriaMethods file contains ",
+        "Your user supplied criteriaMethods file is missing ",
         length(unique(non_definedCriteria$TADA.CharacteristicName)),
-        " unique TADA.CharacteristicName(s) without a valid ATTAINS.ParameterName crosswalk ",
-        "when compared to the domain value of ATTAINS from the prior ATTAINS assessment cycle for your organization(s). ",
+        " unique TADA.CharacteristicName(s) ",
+        ": ",
+        unique(non_definedCriteria$TADA.CharacteristicName),
+        " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
     }

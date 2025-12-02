@@ -7,7 +7,7 @@ test_that("Does the current TADA_GetATTAINSParamToWQPCharRef contain all ATTAINS
 
   # extract unique ATTAINS parameter names
   ref <- ATTAINS.raw[, "name"]
-  old <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))[,"ATTAINS.ParameterName"]
+  old <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))[, "ATTAINS.ParameterName"]
 
   expect_in(ref, old)
 })
@@ -21,7 +21,7 @@ test_that("Does the current TADA_GetCriteriaSearchToolRef contain all CST pollut
   first_filled_row_index <- which(rowSums(is.na(CST.raw)) == 0)[1]
 
   # Extract our CST column names
-  CST.cols <- as.character(CST.raw[first_filled_row_index,])
+  CST.cols <- as.character(CST.raw[first_filled_row_index, ])
 
   # remove rows with "legend" info (rows 1-201)
   CST <- CST.raw[-c(1:first_filled_row_index), ]
@@ -34,7 +34,7 @@ test_that("Does the current TADA_GetCriteriaSearchToolRef contain all CST pollut
     dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) %>%
     dplyr::distinct()
   ref <- CST$POLLUTANT_NAME
-  old <- utils::read.csv(system.file("extdata", "CriteriaSearchToolRef.csv", package = "EPATADA"))[,"POLLUTANT_NAME"]
+  old <- utils::read.csv(system.file("extdata", "CriteriaSearchToolRef.csv", package = "EPATADA"))[, "POLLUTANT_NAME"]
 
   expect_in(ref, old)
 })

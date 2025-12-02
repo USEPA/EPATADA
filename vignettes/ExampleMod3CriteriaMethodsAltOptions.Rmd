@@ -201,7 +201,7 @@ the excel file.
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
   tada.MT.clean, # remove this as an arg input
   org_id = "MTDEQ", # can remove this too
-  # auto_assign = FALSE,
+  auto_assign = FALSE, displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
