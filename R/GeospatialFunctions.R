@@ -2383,7 +2383,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         Sample_Count = length(unique(ResultIdentifier)),
         Visit_Count = length(unique(ActivityStartDate)),
         Parameter_Count = length(unique(TADA.CharacteristicName)),
-        Organization_Count = length(unique(TADA.OrganizationIdentifier)),
+        Organization_Count = length(unique(OrganizationIdentifier)),
         ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
         TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
           as.character(TADA.AURefSource),
@@ -3814,6 +3814,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   # remove intermediate objects
+  # HRM note - attains.cw.mls not found in some examples, need to address this later (12/2/25)
   rm(attains.cw.mls, get.attains.mls)
 
   # join all the resulting tables within each list to return as one large list
