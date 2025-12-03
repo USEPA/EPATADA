@@ -1147,17 +1147,20 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       CreateParamRef <- TADA_param %>%
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
         dplyr::select(
-          TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
+          TADA.CharacteristicName, 
+          TADA.ComparableDataIdentifier, 
+          ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) %>%
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef, 
+          ATTAINSParameterWQPCharRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
-          ) %>%
+        ) %>%
         dplyr::mutate(ATTAINS.ParameterName = ATTAINS.ParameterName.y) %>%
         dplyr::select(
-          TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
+          TADA.ComparableDataIdentifier,
+          ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) %>%
         dplyr::arrange(ATTAINS.OrganizationIdentifier) %>%

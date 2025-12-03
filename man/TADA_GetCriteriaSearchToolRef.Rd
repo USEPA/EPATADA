@@ -18,6 +18,6 @@ file is reformatted as a data frame for use in R. This function caches
 the table after it has been called once so subsequent calls will be faster.
 }
 \examples{
-CWACriteria = TADA_GetCriteriaSearchToolRef()
+CWACriteria <- TADA_GetCriteriaSearchToolRef()
 
 }
