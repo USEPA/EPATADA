@@ -722,7 +722,7 @@ MT.MLSummaryRef.ML <- TADA_CreateMLSummaryRef(
   .data = tada.MT.clean,
   useParamRef = MT.UseParamRef.Final,
   org_id = "MTDEQ",
-  displayNA = TRUE, 
+  displayNA = TRUE,
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )

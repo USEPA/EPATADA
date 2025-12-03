@@ -84,26 +84,25 @@ TADA_UpdateEPACSTRef <- function() {
 }
 
 
-
 # Used to store cached CriteriaSearchToolRef Reference Table
 CriteriaSearchToolRef_Cached <- NULL
 
 #' Criteria Search Tool Reference Table
 #'
-#' This function downloads State-Specific Water Quality Standards Effective 
+#' This function downloads State-Specific Water Quality Standards Effective
 #' under the Clean Water Act (CWA) from EPA's Criteria Search Tool. The full
-#' Excel spreadsheet includes a legend and data dictionary in the first 
-#' ~200 rows. To prepare this data for use in R, those rows are removed. The 
-#' file is reformatted as a data frame for use in R. This function caches 
+#' Excel spreadsheet includes a legend and data dictionary in the first
+#' ~200 rows. To prepare this data for use in R, those rows are removed. The
+#' file is reformatted as a data frame for use in R. This function caches
 #' the table after it has been called once so subsequent calls will be faster.
 #'
 #' @return Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
 #'
 #' @export
-#' 
+#'
 #' @examples
-#' CWACriteria = TADA_GetCriteriaSearchToolRef()
-#' 
+#' CWACriteria <- TADA_GetCriteriaSearchToolRef()
+#'
 TADA_GetCriteriaSearchToolRef <- function() {
   CST.raw <- openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
 
