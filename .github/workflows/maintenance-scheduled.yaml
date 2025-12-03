@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout repo (existing branch)
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         id: bad-checkout
         continue-on-error: true
         with:
@@ -23,7 +23,7 @@ jobs:
         # If the first checkout fails, we checkout the `develop` branch by default
       - name: Fallback to default branch
         if: steps.bad-checkout.outcome == 'failure'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
 
