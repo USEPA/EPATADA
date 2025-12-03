@@ -3836,32 +3836,23 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
-    # Correct column types and filter out invalid geometries for each dataframe
+    # correct column types and filter out invalid geometries for each dataframe
     user <- correctColType(user[[df.name]])
-    if (!is.null(user) && "geometry" %in% names(user)) {
-      invalid_user <- user %>% dplyr::filter(!sf::st_is_valid(geometry))
-      if (nrow(invalid_user) > 0) {
-        message("Removed invalid geometries from au_ref: ", paste(invalid_user$assessmentunitidentifier, collapse = ", "))
-      }
-      user <- user %>% dplyr::filter(sf::st_is_valid(geometry))
+    if (!is.null(user)) {
+
+      user <- findInvalidGeometry(user)
     }
 
     attains <- correctColType(attains[[df.name]])
-    if (!is.null(attains) && "geometry" %in% names(attains)) {
-      invalid_attains <- attains %>% dplyr::filter(!sf::st_is_valid(geometry))
-      if (nrow(invalid_attains) > 0) {
-        message("Removed invalid geometries from ATTAINS crosswalk: ", paste(invalid_attains$assessmentunitidentifier, collapse = ", "))
-      }
-      attains <- attains %>% dplyr::filter(sf::st_is_valid(geometry))
+    if (!is.null(attains)) {
+
+      attains <- findInvalidGeometry(attains)
     }
 
     get.attains <- correctColType(get.attains[[df.name]])
-    if (!is.null(get.attains) && "geometry" %in% names(get.attains)) {
-      invalid_get_attains <- get.attains %>% dplyr::filter(!sf::st_is_valid(geometry))
-      if (nrow(invalid_get_attains) > 0) {
-        message("Removed invalid geometries from TADA_CreateATTAINSAUMLRef: ", paste(invalid_get_attains$assessmentunitidentifier, collapse = ", "))
-      }
-      get.attains <- get.attains %>% dplyr::filter(sf::st_is_valid(geometry))
+    if (!is.null(get.attains)) {
+
+      get.attains <- findInvalidGeometry(get.attains)
     }
 
     # Check if any of the inputs are not NULL
@@ -3870,10 +3861,35 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       df <- dplyr::bind_rows(user, attains, get.attains) %>%
         dplyr::distinct()
 
-      # Convert to sf object
-      if ("geometry" %in% names(df)) {
-        df <- sf::st_as_sf(df)
+      # select column name for auid
+      auid.col <- dplyr::case_when(df.name %in% c("ATTAINS_catchments",
+                                                  "ATTAINS_lines",
+                                                  "ATTAINS_points",
+                                                  "ATTAINS_polygons") ~ "assessmentunitidentifier",
+                                   df.name == "TADA_with_ATTAINS" ~ "ATTAINS.AssessmentUnitIdentifier")
+
+      # create list of invalid assessment units
+      invalid.list <- df |>
+        dplyr::filter(TADA.GeometryValidity == "Invalid") %>%
+        dplyr::select(!!rlang::sym(auid.col)) %>%
+        dplyr::distinct() %>%
+        dplyr::pull()
+
+      # check to see if any invalid assessment units were found
+      if(length(invalid.list) > 1) {
+
+        # create string for print message
+        invalid.list <- stringi::stri_replace_last(paste0(invalid.list, sep = ", "),
+                                                 " and ", fixed = ", ")
+
+        # print message listing invalid assessment units
+        print(paste0("TADA_CreateAUMLRef: The following assessment units have invalid geometry: ",
+                   invalid.list, ". ", "Contact the ATTAINS team at ATTAINS@epa.gov to resolve."))
       }
+
+      # remove intermediate objects
+      rm(invalid.list, auid.col)
+
     } else {
       df <- NULL
     }
