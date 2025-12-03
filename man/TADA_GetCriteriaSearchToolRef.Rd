@@ -2,20 +2,20 @@
 % Please edit documentation in R/CriteriaRefTables.R
 \name{TADA_GetCriteriaSearchToolRef}
 \alias{TADA_GetCriteriaSearchToolRef}
-\title{Criteria Search Tool Reference Table}
+\title{Criteria Search Tool (CST) Reference Table}
 \usage{
 TADA_GetCriteriaSearchToolRef()
 }
 \value{
-Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
+Updated sysdata.rda with updated CriteriaSearchToolRef object
 }
 \description{
 This function downloads State-Specific Water Quality Standards Effective
-under the Clean Water Act (CWA) from EPA's Criteria Search Tool. The full
-Excel spreadsheet includes a legend and data dictionary in the first
-~200 rows. To prepare this data for use in R, those rows are removed. The
-file is reformatted as a data frame for use in R. This function caches
-the table after it has been called once so subsequent calls will be faster.
+under the Clean Water Act (CWA) from EPA's Criteria Search Tool. This file is
+reformatted as a data frame for use in R. This function caches the table after
+it has been called once so subsequent calls will be faster. To get the data
+dictionary for the CST see TADA_GetLegendCSTRef. For the WQS document sources
+see TADA_GetSourcesCSTRef.
 }
 \examples{
 CWACriteria <- TADA_GetCriteriaSearchToolRef()

@@ -1566,7 +1566,6 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
 #' ATTAINS.ParameterName, ATTAINS.UseName and TADA.ComparableDataIdentifier.
 #'
 #' @seealso [TADA_CreateParamRef()]
-#' @seealso [TADA_GetEPACSTRef()]
 #'
 #' @export
 #'

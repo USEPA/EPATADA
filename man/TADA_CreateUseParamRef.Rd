@@ -170,6 +170,4 @@ UseParamRef_UT3 <- TADA_CreateUseParamRef(
 }
 \seealso{
 \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}}
-
-\code{\link[=TADA_GetEPACSTRef]{TADA_GetEPACSTRef()}}
 }
