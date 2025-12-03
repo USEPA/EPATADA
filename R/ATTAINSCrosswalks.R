@@ -1147,8 +1147,8 @@ TADA_CreateParamRef <- function(.data, org_id = NULL, paramRef = NULL, auto_assi
       CreateParamRef <- TADA_param %>%
         dplyr::mutate(ATTAINS.ParameterName = as.character(NA)) %>%
         dplyr::select(
-          TADA.CharacteristicName, 
-          TADA.ComparableDataIdentifier, 
+          TADA.CharacteristicName,
+          TADA.ComparableDataIdentifier,
           ATTAINS.OrganizationIdentifier,
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) %>%
