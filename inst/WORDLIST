@@ -1,7 +1,7 @@
 ANDs
 AOI
 ATTAINSOrgIDsRef
-ATTAINSParameterWQPCharRef
+ATTAINSParamToWQPCharRef
 AU's
 AUML
 AUMLRef
@@ -35,12 +35,12 @@ BiasValue
 BigDataRetrieval
 BiologicalIntentName
 Blodgett
+CAS
 CCO
 CFU
 CNENVSER
 COLI
 COMIDs
-CSTtoATTAINSParamCrosswalk
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -79,7 +79,6 @@ CreateWaterUseParamRef
 CreateWaterUseRef
 CriteriaMethods
 Cybertown
-DV
 DataFrame
 DataQuality
 DataRetrieval
@@ -323,6 +322,7 @@ TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
+TADAPriorityChar
 TADAPriorityCharUnitRef
 TADAProfile
 TADAProfileClean
@@ -396,7 +396,6 @@ bbox
 bnd
 bottomvalue
 bycategory
-cd
 cdx
 characteristicName
 characteristicType
@@ -424,7 +423,6 @@ displayNA
 displayUniqueId
 dplyr
 du
-dv
 eXchange
 ecc
 ecoregions
@@ -460,7 +458,6 @@ hydroloom
 importWQP
 io
 lessthan
-listNWIS
 mL
 magrittr
 manys
@@ -534,7 +531,6 @@ useAURef
 useParamRef
 useR
 usepa
-usgs
 waterbodies
 waterbody
 waterdata

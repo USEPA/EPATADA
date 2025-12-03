@@ -8,7 +8,7 @@ TADA_GetATTAINSParamToWQPCharRef(charAliasType = c("All", "ATTAINS"))
 }
 \arguments{
 \item{charAliasType}{A string value to indicate the WQX data source to use
-for finding an ATTAINS parameter name to WQX characteritic name alias.
+for finding an ATTAINS parameter name to WQX characteristic name alias.
 An alias may have been determined from another data source outside of ATTAINS
 which has an exact spelling to an ATTAINS parameter name that could be used
 for finding a match.}
