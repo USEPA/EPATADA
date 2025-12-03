@@ -3922,32 +3922,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     dplyr::distinct() %>%
     dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
 
-
-#
-#   # create list of invalid assessment units
-#   invalid.list <- TADA_with_ATTAINS |>
-#     dplyr::filter(TADA.GeometryValidity == "Invalid") %>%
-#     dplyr::select(ATTAINS.AssessmentUnitIdentifier) %>%
-#     dplyr::distinct() %>%
-#     dplyr::pull()
-#
-#   # check to see if any invalid assessment units were found
-#   if(length(invalid.list) > 0) {
-#
-#     # create string for print message
-#     invalid.list <- stringi::stri_replace_last(paste0(invalid.list, sep = ", "),
-#                                                " and ", fixed = ", ")
-#
-#     # print message listing invalid assessment units
-#     print(paste0("TADA_CreateAUMLRef: The following assessment units have invalid geometry: ",
-#                  invalid.list, ". ", "Contact the ATTAINS team at ATTAINS@epa.gov to resolve."))
-#   }
-#
-#   # remove intermediate objects
-#   rm(invalid.list, auid.col)
-
-
-
   # create final output list of all dfs
   final_list <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
