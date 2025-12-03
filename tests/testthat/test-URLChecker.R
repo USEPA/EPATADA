@@ -21,11 +21,23 @@ suppressWarnings(
       system.file("NAMESPACE", package = "EPATADA")
     )
 
-    vignettes <- list.files(system.file("vignettes", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+    vignettes <- list.files(
+      system.file("vignettes", package = "EPATADA"),
+      pattern = ".Rmd",
+      full.names = TRUE
+    )
 
-    articles <- list.files(system.file("vignettes/articles", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+    articles <- list.files(
+      system.file("vignettes/articles", package = "EPATADA"),
+      pattern = ".Rmd",
+      full.names = TRUE
+    )
 
-    r_files <- list.files(system.file("R", package = "EPATADA"), pattern = ".R", full.names = TRUE)
+    r_files <- list.files(
+      system.file("R", package = "EPATADA"),
+      pattern = ".R",
+      full.names = TRUE
+    )
 
     # combine file lists
     files <- append(other_files, vignettes) %>%
@@ -62,9 +74,11 @@ suppressWarnings(
 
     # filter for any response codes that are not successful or redirect responses
     df_false <- df %>%
-      dplyr::filter(!grepl("200", response_code) &
-        !grepl("301", response_code) &
-        !grepl("302", response_code))
+      dplyr::filter(
+        !grepl("200", response_code) &
+          !grepl("301", response_code) &
+          !grepl("302", response_code)
+      )
 
     # count number of failed responses
     n <- nrow(df_false)

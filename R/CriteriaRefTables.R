@@ -32,7 +32,9 @@ TADA_GetEPACSTRef <- function() {
   raw.data <- tryCatch(
     {
       # read raw xlsx from url
-      openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
+      openxlsx::read.xlsx(
+        "https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx"
+      )
     },
     error = function(err) {
       NULL
@@ -43,7 +45,11 @@ TADA_GetEPACSTRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file("extdata", "EPACST.csv", package = "EPATADA")))
+    return(utils::read.csv(system.file(
+      "extdata",
+      "EPACST.csv",
+      package = "EPATADA"
+    )))
   }
 
   # Creates and formats the CST ref table below:
@@ -53,18 +59,32 @@ TADA_GetEPACSTRef <- function() {
   colnames(raw.data) <- as.character(raw.data[CST.begin, ])
 
   # import TADA unit reference for priority characteristics (characteristic specific)
-  tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
+  tada.char.ref <- utils::read.csv(system.file(
+    "extdata",
+    "TADAPriorityCharUnitRef.csv",
+    package = "EPATADA"
+  ))
 
   # Pulls in column names that will be used as a reference table
   EPACSTRef <- raw.data %>%
     utils::tail(-CST.begin) %>%
     dplyr::filter(ENTITY_ABBR == "304A") %>%
-    dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
-    dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME,
+    dplyr::left_join(
+      tada.char.ref,
+      by = c("POLLUTANT_NAME" = "CST.PollutantName"),
+      relationship = "many-to-many"
+    ) %>%
+    dplyr::select(
+      TADA.CharacteristicName,
+      POLLUTANT_NAME,
       organization_identifier = ENTITY_ABBR,
-      use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
-      CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-      CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
+      use_name = USE_CLASS_NAME_LOCATION_ETC,
+      CRITERION_VALUE,
+      CRITERIATYPEAQUAHUMHLTH,
+      CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC,
+      CRITERIATYPE_WATERORG,
+      UNIT_NAME
     )
 
   # Remove intermediate variables
@@ -80,9 +100,12 @@ TADA_GetEPACSTRef <- function() {
 # (for internal use only)
 
 TADA_UpdateEPACSTRef <- function() {
-  utils::write.csv(TADA_GetEPACSTRef(), file = "inst/extdata/EPACST.csv", row.names = FALSE)
+  utils::write.csv(
+    TADA_GetEPACSTRef(),
+    file = "inst/extdata/EPACST.csv",
+    row.names = FALSE
+  )
 }
-
 
 
 # Used to store cached CriteriaSearchToolRef Reference Table
@@ -102,7 +125,9 @@ CriteriaSearchToolRef_Cached <- NULL
 #'
 #' @export
 TADA_GetCriteriaSearchToolRef <- function() {
-  CST.raw <- openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
+  CST.raw <- openxlsx::read.xlsx(
+    "https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx"
+  )
 
   # Find the first row that has all values populated. This will indicate the column names of the CST data frame.
   # Note: Why not use a static row number? The CST may get new entries that may change the start of the data frames.
@@ -135,5 +160,9 @@ TADA_GetCriteriaSearchToolRef <- function() {
 # Update CriteriaSearchToolRef Reference Table internal file
 # (for internal use only)
 TADA_UpdateCriteriaSearchToolRef <- function() {
-  utils::write.csv(TADA_GetCriteriaSearchToolRef(), file = "inst/extdata/CriteriaSearchToolRef.csv", row.names = FALSE)
+  utils::write.csv(
+    TADA_GetCriteriaSearchToolRef(),
+    file = "inst/extdata/CriteriaSearchToolRef.csv",
+    row.names = FALSE
+  )
 }

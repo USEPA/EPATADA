@@ -11,7 +11,8 @@
 #' @export
 
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file("extdata",
+  ref <- utils::read.csv(system.file(
+    "extdata",
     "NPsummation_key.csv",
     package = "EPATADA"
   ))
@@ -56,7 +57,11 @@ TADA_GetNutrientSummationRef <- function() {
 #' reference <- TADA_GetSynonymRef()
 TADA_GetSynonymRef <- function(.data) {
   if (missing(.data)) {
-    ref <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
+    ref <- utils::read.csv(system.file(
+      "extdata",
+      "HarmonizationTemplate.csv",
+      package = "EPATADA"
+    ))
     return(ref)
   }
 
@@ -68,12 +73,30 @@ TADA_GetSynonymRef <- function(.data) {
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  if (!any(c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag") %in% names(.data))) {
-    print("Warning: This dataframe is missing TADA QC flagging columns, indicating that you have not yet run the TADA_FlagResultUnit, TADA_FlagFraction, or TADA_FlagSpeciation functions. It is highly recommended you run these flagging functions and remove Suspect combinations before proceeding to this step.")
+  if (
+    !any(
+      c(
+        "TADA.MethodSpeciation.Flag",
+        "TADA.SampleFraction.Flag",
+        "TADA.ResultUnit.Flag"
+      ) %in%
+        names(.data)
+    )
+  ) {
+    print(
+      "Warning: This dataframe is missing TADA QC flagging columns, indicating that you have not yet run the TADA_FlagResultUnit, TADA_FlagFraction, or TADA_FlagSpeciation functions. It is highly recommended you run these flagging functions and remove Suspect combinations before proceeding to this step."
+    )
   }
 
   # check to see if any suspect data flags exist
-  check_inv <- .data[, names(.data) %in% c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag")]
+  check_inv <- .data[,
+    names(.data) %in%
+      c(
+        "TADA.MethodSpeciation.Flag",
+        "TADA.SampleFraction.Flag",
+        "TADA.ResultUnit.Flag"
+      )
+  ]
   check_inv <- check_inv %>%
     tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") %>%
     dplyr::filter(value == "Suspect")
@@ -82,15 +105,22 @@ TADA_GetSynonymRef <- function(.data) {
     check_inv <- check_inv %>%
       dplyr::group_by(Flag_Column) %>%
       dplyr::summarise("Result Count" = length(value))
-    print("Warning: Your dataframe contains suspect metadata combinations in the following flag columns:")
+    print(
+      "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
+    )
     print(as.data.frame(check_inv))
   }
 
   # execute function after checks are passed
   # define raw harmonization table as an object
-  harm.raw <- utils::read.csv(system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"))
+  harm.raw <- utils::read.csv(system.file(
+    "extdata",
+    "HarmonizationTemplate.csv",
+    package = "EPATADA"
+  ))
 
-  join.data <- merge(unique(.data[, expected_cols]),
+  join.data <- merge(
+    unique(.data[, expected_cols]),
     harm.raw,
     by = expected_cols,
     all.x = TRUE
@@ -124,6 +154,10 @@ TADA_GetSynonymRef <- function(.data) {
 #' @export
 
 TADA_GetUSGSSynonymRef <- function() {
-  ref <- utils::read.csv(system.file("extdata", "USGS_units_speciation.csv", package = "EPATADA"))
+  ref <- utils::read.csv(system.file(
+    "extdata",
+    "USGS_units_speciation.csv",
+    package = "EPATADA"
+  ))
   return(ref)
 }

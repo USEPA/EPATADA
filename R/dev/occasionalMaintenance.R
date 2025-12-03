@@ -9,9 +9,25 @@ FindSynonyms <- function() {
   test1 <- TADA_RunKeyFlagFunctions(test, clean = TRUE)
   ref <- TADA_GetSynonymRef()
   ref_chars <- unique(ref$TADA.CharacteristicName)
-  test_chars <- unique(subset(test1, test1$TADA.CharacteristicName %in% ref_chars)[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode")])
+  test_chars <- unique(subset(
+    test1,
+    test1$TADA.CharacteristicName %in% ref_chars
+  )[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )])
   test_chars_ref <- merge(test_chars, ref, all.x = TRUE)
-  new_combos <- subset(test_chars_ref, is.na(test_chars_ref$HarmonizationGroup))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode")]
+  new_combos <- subset(
+    test_chars_ref,
+    is.na(test_chars_ref$HarmonizationGroup)
+  )[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )]
   if (dim(new_combos)[1] > 0) {
     print("New combinations found in random dataset test.")
   }
@@ -40,11 +56,23 @@ other_files <- c(
   system.file("NAMESPACE", package = "EPATADA")
 )
 
-vignettes <- list.files(system.file("vignettes", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+vignettes <- list.files(
+  system.file("vignettes", package = "EPATADA"),
+  pattern = ".Rmd",
+  full.names = TRUE
+)
 
-articles <- list.files(system.file("vignettes/articles", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+articles <- list.files(
+  system.file("vignettes/articles", package = "EPATADA"),
+  pattern = ".Rmd",
+  full.names = TRUE
+)
 
-r_files <- list.files(system.file("R", package = "EPATADA"), pattern = ".R", full.names = TRUE)
+r_files <- list.files(
+  system.file("R", package = "EPATADA"),
+  pattern = ".R",
+  full.names = TRUE
+)
 
 # combine file lists
 files <- append(other_files, vignettes) %>%
@@ -80,16 +108,17 @@ df <- data.frame(urls, response_code)
 
 # filter for any response codes that are not successful or redirect responses
 df_false <- df %>%
-  dplyr::filter(!grepl("200", response_code) &
-    !grepl("301", response_code) &
-    !grepl("302", response_code))
+  dplyr::filter(
+    !grepl("200", response_code) &
+      !grepl("301", response_code) &
+      !grepl("302", response_code)
+  )
 
 # Review the output of df_false.
 # More information about http response codes can be found here:
 # [Mozilla Developer HTTP response status codes] (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 # Replace the broken links with functional ones or remove if no acceptable substitute is available.
 # Rerun code above to verify that df_false contains zero rows.
-
 
 ###########################################################
 
@@ -113,11 +142,17 @@ find.dups <- unit.ref %>%
     Min_n = length(unique(Minimum)),
     Max_n = length(unique(Maximum))
   ) %>%
-  dplyr::filter(Min_n > 1 |
-    Max_n > 1)
+  dplyr::filter(
+    Min_n > 1 |
+      Max_n > 1
+  )
 
 # create download path
-download.path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "WQXcharValRef_multiples.csv")
+download.path <- file.path(
+  Sys.getenv("USERPROFILE"),
+  "Downloads",
+  "WQXcharValRef_multiples.csv"
+)
 
 # create csv to send to WQX team and save in test results folder
 readr::write_csv(find.dups, download.path)
@@ -161,7 +196,10 @@ TADA_OvernightTesting <- function() {
   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
 
   num_iterations <- 2
-  master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
+  master_missing_codes_df <- data.frame(
+    MeasureQualifierCode = NA,
+    TADA.MeasureQualifierCode.Flag = NA
+  )
 
   for (i in 1:num_iterations) {
     testing <- TADA_RandomTestingData()
@@ -181,11 +219,19 @@ TADA_OvernightTesting <- function() {
     codes <- unique(testing2$MeasureQualifierCode)
     missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
 
-    missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "Not Reviewed")
+    missing_codes_df <- data.frame(
+      MeasureQualifierCode = missing_codes,
+      TADA.MeasureQualifierCode.Flag = "Not Reviewed"
+    )
 
     View(missing_codes_df)
 
-    master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
+    master_missing_codes_df <- dplyr::full_join(
+      missing_codes_df,
+      master_missing_codes_df,
+      by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"),
+      copy = TRUE
+    )
 
     View(master_missing_codes_df)
   }

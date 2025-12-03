@@ -20,9 +20,18 @@ testthat::test_that("TADA_listNWIS returns empty sf with correct structure when 
   testthat::expect_s3_class(result, "sf")
   testthat::expect_equal(nrow(result), 0)
   expected_cols <- c(
-    "site_no", "site_name", "site_type", "site_type_cd",
-    "data_type", "data_type_cd", "parameter", "parameter_code",
-    "n_obs", "begin_date", "end_date", "geometry"
+    "site_no",
+    "site_name",
+    "site_type",
+    "site_type_cd",
+    "data_type",
+    "data_type_cd",
+    "parameter",
+    "parameter_code",
+    "n_obs",
+    "begin_date",
+    "end_date",
+    "geometry"
   )
   testthat::expect_true(all(expected_cols %in% colnames(result)))
 })
@@ -106,7 +115,16 @@ testthat::test_that("TADA_getNWIS returns correct structure with site query", {
 
   # Check structure and content
   testthat::expect_s3_class(result, "data.frame")
-  testthat::expect_true(all(c("NWIS.site_no", "NWIS.date", "NWIS.parameter", "NWIS.value", "NWIS.status") %in% colnames(result)))
+  testthat::expect_true(all(
+    c(
+      "NWIS.site_no",
+      "NWIS.date",
+      "NWIS.parameter",
+      "NWIS.value",
+      "NWIS.status"
+    ) %in%
+      colnames(result)
+  ))
   testthat::expect_true(all(result$NWIS.site_no == site_num))
   testthat::expect_true(all(as.Date(result$NWIS.date) >= as.Date(start_date)))
   testthat::expect_true(all(as.Date(result$NWIS.date) <= as.Date(end_date)))

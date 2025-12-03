@@ -22,8 +22,15 @@ test_that("TADA_PairForCriteriaCalc function does not grow dataset", {
         )
         # Checks if testdat2 will run without error with the new testdat1 data pull.
         # If try() is able to run without error, then the loop will stop.
-        if (class(try(testdat2 <- TADA_PairForCriteriaCalc(testdat1))) != "try-error") {
-          message("Initial test failed. Retrying. Loop has ran through ", i, " time(s)")
+        if (
+          class(try(testdat2 <- TADA_PairForCriteriaCalc(testdat1))) !=
+            "try-error"
+        ) {
+          message(
+            "Initial test failed. Retrying. Loop has ran through ",
+            i,
+            " time(s)"
+          )
           testdat2 <- TADA_PairForCriteriaCalc(testdat1)
           testdat <- list(testdat1, testdat2)
           return(testdat)

@@ -85,12 +85,18 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
 
   # Test with catchments_only = FALSE
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(.data = valid_data, catchments_only = FALSE)
+    result_all_features <- EPATADA:::fetchATTAINS(
+      .data = valid_data,
+      catchments_only = FALSE
+    )
   )
 
   # If we got data back, check that catchments_only returns fewer elements
   if (!is.null(result_catchments_only) && !is.null(result_all_features)) {
-    testthat::expect_lte(length(result_catchments_only), length(result_all_features))
+    testthat::expect_lte(
+      length(result_catchments_only),
+      length(result_all_features)
+    )
   }
 })
 
@@ -123,7 +129,12 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
 
 testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
   testthat::expect_error(
-    TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_dataframe, fill_USGS_catch = TRUE, resolution = "Invalid", return_sf = FALSE),
+    TADA_CreateATTAINSAUMLCrosswalk(
+      .data = TADA_dataframe,
+      fill_USGS_catch = TRUE,
+      resolution = "Invalid",
+      return_sf = FALSE
+    ),
     "User-supplied resolution unavailable"
   )
 })
