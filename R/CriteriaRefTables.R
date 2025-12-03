@@ -104,7 +104,9 @@ CriteriaSearchToolRef_Cached <- NULL
 #' CWACriteria <- TADA_GetCriteriaSearchToolRef()
 #'
 TADA_GetCriteriaSearchToolRef <- function() {
-  CST.raw <- openxlsx::read.xlsx("https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx")
+  CST.raw <- openxlsx::read.xlsx(
+    "https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx"
+  )
 
   # Find the first row that has all values populated. This will indicate the column names of the CST data frame.
   # Note: Why not use a static row number? The CST may get new entries that may change the start of the data frames.
