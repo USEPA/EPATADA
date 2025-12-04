@@ -213,3 +213,5 @@ ATTAINS.CatchmentIsTribal,character
 ATTAINS.CatchmentResolution,character
 ATTAINS.ShapeLength,numeric
 TADA.DistanceAway.Meters,numeric
+ATTAINS.CulturalUse,character
+ATTAINS.DrinkingWaterUse,character

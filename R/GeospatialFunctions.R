@@ -141,7 +141,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
-fetchATTAINS <- function(.data, catchments_only = FALSE) {
+fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -264,7 +264,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       dplyr::distinct(.keep_all = TRUE)
   }
 
-  # function to download ATTAINS features API based on their name
+  if(org_id == "all") {
+    org_filter <- "1=1"  # This effectively means no filtering on organizationidentifier
+  } else {
+    org_filter <- paste0("organizationidentifier IN ('", paste(org_id, collapse = "','"), "')")
+  }
+
   fetch_au <- function(baseurls, assessment_unit_ids) {
     # Split the assessment_unit_ids into chunks of 1000
     # API cannot handle more than 1000 features
@@ -272,7 +277,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
 
     # Query API for a chunk of assessment unit IDs
     fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0("assessmentunitidentifier IN ('", paste(id_chunk, collapse = "','"), "')")
+      # Construct the where clause
+      where_clause <- paste0(
+        "assessmentunitidentifier IN ('", paste(id_chunk, collapse = "','"), "') AND ",
+        org_filter
+      )
+
       query_params <- list(
         where = where_clause,
         outFields = "*",
@@ -1163,6 +1173,17 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf
 #' equivalent made by `TADA_MakeSpatial()`.
+#' @param org_id ATTAINS organization identifier(s) as a character string.
+#' If populated, Monitoring Locations will only be matched to Assessment Units from the
+#' specified organization(s). A list of organization
+#' identifiers can be found
+#' by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+#' from all organizations will be considered. When org_id = "none" or NULL, no
+#' crosswalk data from ATTAINS will be considered. The default is "all".
 #' @param return_nearest If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE).
@@ -1244,6 +1265,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' )
 #' }
 TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
+                                            org_id = "all",
                                             return_nearest = TRUE,
                                             fill_USGS_catch = FALSE,
                                             resolution = "Hi",
@@ -1321,12 +1343,14 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
       # ... Otherwise transform into a spatial object then do the same thing:
       TADA_DataRetrieval_data <- .data %>%
         # convert dataframe to a spatial object
-        TADA_MakeSpatial(.data = ., crs = 4326)
+        TADA_MakeSpatial(.data = ., crs = 4326) %>%
+        sf::st_make_valid(geometry)
     }
   }))
 
   # grab all ATTAINS features in catchments that intersect our WQP objects:
-  attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data), silent = TRUE)
+  attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data,
+                                       org_id = org_id), silent = TRUE)
 
   # Tidy up the intersecting catchment objects:
   suppressMessages(suppressWarnings({
@@ -3820,7 +3844,8 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls,
         return_nearest = return_nearest,
         fill_USGS_catch = fill_USGS_catch,
-        return_sf = TRUE
+        return_sf = TRUE,
+        org_id = org_id
       )
     )
   }
@@ -3838,27 +3863,67 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   outputPrep <- function(df.name, user, attains, get.attains) {
     # correct column types and filter out invalid geometries for each dataframe
     user <- correctColType(user[[df.name]])
-    if (!is.null(user)) {
 
-      user <- sf::st_make_valid(user)
+    if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
+        user <- sf::st_set_crs(user, 4326) |>
+          sf::st_make_valid()}
+
+    if(!is.null(user) & df.name == "TADA_with_ATTAINS") {
+
+      user.lat.long <- user |>
+        dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
+        dplyr::distinct()
+
+      user <- sf::st_as_sf(user, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
+        dplyr::left_join(user.lat.long, by = dplyr::join_by(ResultIdentifier))
+
+      # cast to geometry type
+      user <- st_cast(user, "GEOMETRY")
     }
 
     attains <- correctColType(attains[[df.name]])
-    if (!is.null(attains)) {
 
-      attains <- sf::st_make_valid(attains)
+    if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
+      attains <- sf::st_set_crs(attains, 4326) |>sf::st_make_valid()
+    }
+
+    if(!is.null(attains) & df.name == "TADA_with_ATTAINS") {
+
+      attains.lat.long <- attains |>
+        dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
+        dplyr::distinct()
+
+      attains <- sf::st_as_sf(attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
+        dplyr::left_join(attains.lat.long, by = dplyr::join_by(ResultIdentifier))
+
+      # cast to geometry type
+      attains <- st_cast(attains, "GEOMETRY")
     }
 
     get.attains <- correctColType(get.attains[[df.name]])
-    if (!is.null(get.attains)) {
 
-      get.attains <- sf::st_make_valid(get.attains)
-    }
+
+      if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
+        attains <- sf::st_set_crs(get.attains, 4326) |>sf::st_make_valid()
+      }
+
+        if(!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
+
+          get.attains.lat.long <- get.attains |>
+            dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
+            dplyr::distinct()
+
+          get.attains <- sf::st_as_sf(get.attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
+            dplyr::left_join(get.attains.lat.long, by = dplyr::join_by(ResultIdentifier))
+
+          # cast to geometry type
+          get.attains <- st_cast(get.attains, "GEOMETRY")
+        }
 
     # Check if any of the inputs are not NULL
     if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
       # Bind rows and remove duplicates
-      df <- dplyr::bind_rows(user, attains, get.attains) %>%
+      df <- dplyr::bind_rows(user, attains, get.attains) |>
         dplyr::distinct()
 
     } else {
@@ -3867,7 +3932,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
     return(df)
   }
-
   # create TADA_with_ATTAINS for output list
   TADA_with_ATTAINS <- outputPrep(
     df.name = "TADA_with_ATTAINS",

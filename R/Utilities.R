@@ -1597,7 +1597,7 @@ checkColName <- function(.data, partial.string = NULL) {
 #' formatted ATTAINS column names.
 #'
 renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
-  # list of TADA formatted column names
+  # List of TADA formatted column names
   attains.tada <- c(
     "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
     "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
@@ -1626,11 +1626,11 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
     "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
     "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
-    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
+    "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
     "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
   )
 
-  # list of original ATTAINS column names
+  # List of original ATTAINS column names
   attains.orig <- c(
     "organizationid", "submissionid", "hasprotectionplan",
     "assessmentunitname", "nhdplusid", "tas303d",
@@ -1642,7 +1642,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "overallstatus", "isassessed", "isimpaired",
     "has4bplan", "huc12", "hasalternativeplan",
     "visionpriority303d", "areasqkm", "catchmentareasqkm",
-    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+    "catchmentstatecode", "catchmentresolution", "waterTypeCode", # Potential column
     "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
     "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
     "ammonia", "cause_unknown", "cause_unknown_fish_kills",
@@ -1655,49 +1655,43 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
     "sediment", "taste_color_and_odor", "temperature", "total_toxics",
     "toxic_inorganics", "toxic_organics", "trash", "turbidity",
-    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
+    "cyclestatus", "orig_fid", "xwalk_method", "xwalk_huc12_version",
     "chlorine", "biotoxins"
   )
 
-  # if return list equals TRUE, return the list of tada formatted column names
+  # If return_list equals TRUE, return the list of TADA formatted column names
   if (return_list == TRUE & format == "tada") {
     return(attains.tada)
   }
 
-  # if return list equals TRUE, return the list of attains formatted column names
+  # If return_list equals TRUE, return the list of ATTAINS formatted column names
   if (return_list == TRUE & format == "attains") {
     return(attains.orig)
   }
 
-  # if return equals FALSE, proceed with renaming columns
+  # If return_list equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-    # assign old and new name vectors based on format selected by user
-    old.names <- dplyr::case_when(
-      format == "tada" ~ attains.orig,
-      format == "attains" ~ attains.tada
+    # Determine which water type column exists and adjust the lists accordingly
+    if ("waterType" %in% names(.data)) {
+      attains.orig <- gsub("waterTypeCode", "waterType", attains.orig)
+    }
+
+    # Assign old and new name vectors based on format selected by user
+    old.names <- if (format == "tada") attains.orig else attains.tada
+    new.names <- if (format == "tada") attains.tada else attains.orig
+
+    # Rename columns
+    data.table::setnames(
+      .data,
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
     )
 
-    new.names <- dplyr::case_when(
-      format == "tada" ~ attains.tada,
-      format == "attains" ~ attains.orig
-    )
-
-
-    .data
-
-    view <-
-      data.table::setnames(
-        .data,
-        old = old.names,
-        new = new.names,
-        skip_absent = TRUE
-      )
-
-    # remove intermediate objects
+    # Remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
 
-
-    # return data frame with changed column names
+    # Return data frame with changed column names
     return(.data)
   }
 }
