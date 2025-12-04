@@ -161,7 +161,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
   if (!is.logical(auto_assign)){
     stop("TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value.")
   }
-  
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
   # # Ensures users have entered a valid input to updateRef
   # if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
@@ -438,11 +437,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
   }
-  
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
   if (tolower(org_id) == "all") {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-    if (is.null(AUMLRef) ){
+    if (is.null(AUMLRef)) {
       print(paste0(
         "org_id == 'All' was selected, ",
         "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
@@ -450,7 +448,7 @@ TADA_DefineCriteriaMethodology <- function(.data,
       org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-    if (!is.null(AUMLRef) ){
+    if (!is.null(AUMLRef)) {
       print(paste0(
         "org_id == 'All' was selected, ",
         "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
@@ -458,7 +456,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
       org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
     }
   }
-  
   # User has went through the recommended workflow. Criteria table is generated
   # from the MLSummaryRef file. This file also contains unique spatial criteria
   # as an option and will include these values if they have been populated.
@@ -761,7 +758,6 @@ TADA_DefineCriteriaMethodology <- function(.data,
       )
     # Remove intermediate variables
     rm(tada.char.ref)
-    
     # Handling of auto populating EPA304a Criteria in the future if desired.
     suppressWarnings(
       CST_param <- EPACSTRef %>%
