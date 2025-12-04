@@ -36,12 +36,12 @@ this crosswalk contains the appropriate column names in order to run this functi
 See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
 
 \item{useAURef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with each assessment unit.
+will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
 \item{waterUseRef}{An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with a water type.
+will contain a user supplied list of ATTAINS uses to ATTAINS water type.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 

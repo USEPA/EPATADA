@@ -10,6 +10,7 @@ TADA_CreateParamRef(
   org_id = NULL,
   paramRef = NULL,
   auto_assign = c("None", "All", "Org"),
+  AUMLRef = NULL,
   excel = FALSE,
   overwrite = FALSE
 )
@@ -50,6 +51,12 @@ organization to specify. "None" will result in an empty ATTAINS.ParameterName
 column. Users will be required to fill this out on their own completely or
 through a prior paramRef crosswalk. See paramRef argument input above for more
 information.}
+
+\item{AUMLRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
+to ensure this crosswalk contains the appropriate column names in order to run
+the function. See module 2 vignette and sample output of \code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}}.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.

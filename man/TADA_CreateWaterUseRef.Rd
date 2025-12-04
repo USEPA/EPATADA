@@ -4,7 +4,12 @@
 \alias{TADA_CreateWaterUseRef}
 \title{Helper Function to Apply Uses to Unassigned Assessment Units by Water Type}
 \usage{
-TADA_CreateWaterUseRef(.data, org_id = NULL, waterUseRef = NULL)
+TADA_CreateWaterUseRef(
+  .data,
+  org_id = NULL,
+  waterUseRef = NULL,
+  AUMLRef = NULL
+)
 }
 \arguments{
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
@@ -25,6 +30,12 @@ based on the unique ATTAINS organization identifiers found in the dataframe.}
 should contain a completed crosswalk of use names associated with a water type.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
+
+\item{AUMLRef}{A required data frame input. This data frame
+should contain a completed crosswalk of WQP Monitoring Locations
+associated with each ATTAINS Assessment Unit. Users will need to ensure
+this crosswalk contains the appropriate column names in order to run this function.
+See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.

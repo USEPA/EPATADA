@@ -10,6 +10,7 @@ TADA_CreateUseParamRef(
   paramRef = NULL,
   useParamRef = NULL,
   useAURef = NULL,
+  AUMLRef = NULL,
   auto_assign = FALSE,
   excel = FALSE,
   overwrite = FALSE

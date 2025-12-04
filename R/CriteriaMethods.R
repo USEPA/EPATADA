@@ -134,8 +134,8 @@
 #'
 TADA_DefineCriteriaMethodology <- function(.data,
                                            MLSummaryRef = NULL,
-                                           org_id = NULL, # required inputs for the recommended workflow
-                                           criteriaMethods = NULL,
+                                           org_id = NULL,
+                                           criteriaMethods = NULL, # user supplied input here
                                            auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
                                            AUMLRef = NULL,
                                            useAURef = NULL, # Optional if auto_assign = TRUE
@@ -157,6 +157,11 @@ TADA_DefineCriteriaMethodology <- function(.data,
     downloads_path <- default_downloads_path
   }
 
+  # Check if auto_assign is boolean
+  if (!is.bool(auto_assign)){
+    stop("TADA")
+  }
+  
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
   # # Ensures users have entered a valid input to updateRef
   # if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
@@ -429,6 +434,31 @@ TADA_DefineCriteriaMethodology <- function(.data,
     }
   }
 
+  # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
+  if (!is.character(org_id) & is.null(org_id)) {
+    org_id <- ""
+  }
+  
+  # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
+  if (tolower(org_id) == "all") {
+    # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
+    if (is.null(AUMLRef) ){
+      print(paste0(
+        "org_id == 'All' was selected, ",
+        "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
+      ))
+      org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
+    }
+    # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
+    if (!is.null(AUMLRef) ){
+      print(paste0(
+        "org_id == 'All' was selected, ",
+        "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
+      ))
+      org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+    }
+  }
+  
   # User has went through the recommended workflow. Criteria table is generated
   # from the MLSummaryRef file. This file also contains unique spatial criteria
   # as an option and will include these values if they have been populated.
