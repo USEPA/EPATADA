@@ -3865,59 +3865,56 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     user <- correctColType(user[[df.name]])
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
-        user <- sf::st_set_crs(user, 4326) |>
-          sf::st_make_valid()}
+        user <- sf::st_make_valid(user)}
 
     if(!is.null(user) & df.name == "TADA_with_ATTAINS") {
 
-      user.lat.long <- user |>
-        dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
-        dplyr::distinct()
+      user_geometry <- sf::st_as_sf(user, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326)
 
-      user <- sf::st_as_sf(user, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
-        dplyr::left_join(user.lat.long, by = dplyr::join_by(ResultIdentifier))
+      geometry <- sf::st_geometry(user_geometry)
 
-      # cast to geometry type
-      user <- st_cast(user, "GEOMETRY")
+      user$geometry <- geometry
+
+      user <- sf::st_as_sf(user)
+
+      rm(geometry)
     }
 
     attains <- correctColType(attains[[df.name]])
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
-      attains <- sf::st_set_crs(attains, 4326) |>sf::st_make_valid()
+      attains <- sf::st_make_valid(attains)
     }
 
     if(!is.null(attains) & df.name == "TADA_with_ATTAINS") {
 
-      attains.lat.long <- attains |>
-        dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
-        dplyr::distinct()
+      attains_geometry <- sf::st_as_sf(attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326)
+      geometry <- sf::st_geometry(attains_geometry)
 
-      attains <- sf::st_as_sf(attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
-        dplyr::left_join(attains.lat.long, by = dplyr::join_by(ResultIdentifier))
+      attains$geometry <- geometry
 
-      # cast to geometry type
-      attains <- st_cast(attains, "GEOMETRY")
+      attains <- sf::st_as_sf(attains)
+
+      rm(geometry)
     }
 
     get.attains <- correctColType(get.attains[[df.name]])
 
 
       if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
-        attains <- sf::st_set_crs(get.attains, 4326) |>sf::st_make_valid()
+        get.attains <- sf::st_make_valid(get.attains)
       }
 
         if(!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
 
-          get.attains.lat.long <- get.attains |>
-            dplyr::select(ResultIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure) |>
-            dplyr::distinct()
+          get.attains_geometry <- sf::st_as_sf(get.attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326)
+          geometry <- sf::st_geometry(get.attains_geometry)
 
-          get.attains <- sf::st_as_sf(get.attains, coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"), crs = 4326) |>
-            dplyr::left_join(get.attains.lat.long, by = dplyr::join_by(ResultIdentifier))
+          get.attains$geometry <- geometry
 
-          # cast to geometry type
-          get.attains <- st_cast(get.attains, "GEOMETRY")
+          get.attains <- sf::st_as_sf(get.attains)
+
+          rm(geometry)
         }
 
     # Check if any of the inputs are not NULL
