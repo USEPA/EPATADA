@@ -77,7 +77,6 @@
       message("Error updating EPA CST reference: ", e$message)
     }
   )
-  
   # Legend for CriteriaRefTables.R
   tryCatch(
     {
@@ -87,7 +86,6 @@
       message("Error updating Legend for EPA CST reference: ", e$message)
     }
   )
-  
   # Sources for CriteriaRefTables.R
   tryCatch(
     {

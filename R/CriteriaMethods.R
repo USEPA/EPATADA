@@ -686,27 +686,49 @@ TADA_DefineCriteriaMethodology <- function(.data,
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) %>%
       tidyr::uncount(weights = length(org_id)) %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = as.character(rep(org_id, nrow(.) / length(org_id))))
+      dplyr::mutate(
+        ATTAINS.OrganizationIdentifier = as.character(rep(
+          org_id,
+          nrow(.) / length(org_id)
+        ))
+      )
 
     # Load CST
-    CriteriaSearchToolRef <- system.file("extdata", "CriteriaSearchToolRef.rda", package = "EPATADA")
+    CriteriaSearchToolRef <- system.file(
+      "extdata",
+      "CriteriaSearchToolRef.rda",
+      package = "EPATADA"
+    )
     load(CriteriaSearchToolRef)
     CST <- CriteriaSearchToolRef
 
     # import TADA unit reference for priority characteristics (characteristic specific)
-    tada.char.ref <- utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))
-    
+    tada.char.ref <- utils::read.csv(system.file(
+      "extdata",
+      "TADAPriorityCharUnitRef.csv",
+      package = "EPATADA"
+    ))
+
     # Pulls in column names that will be used as a reference table
     EPACSTRef <- CST %>%
       dplyr::filter(ENTITY_ABBR == "304A") %>%
-      dplyr::left_join(tada.char.ref, by = c("POLLUTANT_NAME" = "CST.PollutantName"), relationship = "many-to-many") %>%
-      dplyr::select(TADA.CharacteristicName, POLLUTANT_NAME,
-                    organization_identifier = ENTITY_ABBR,
-                    use_name = USE_CLASS_NAME_LOCATION_ETC, CRITERION_VALUE,
-                    CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER,
-                    CRITERIATYPE_ACUTECHRONIC, CRITERIATYPE_WATERORG, UNIT_NAME
+      dplyr::left_join(
+        tada.char.ref,
+        by = c("POLLUTANT_NAME" = "CST.PollutantName"),
+        relationship = "many-to-many"
+      ) %>%
+      dplyr::select(
+        TADA.CharacteristicName,
+        POLLUTANT_NAME,
+        organization_identifier = ENTITY_ABBR,
+        use_name = USE_CLASS_NAME_LOCATION_ETC,
+        CRITERION_VALUE,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        CRITERIATYPE_WATERORG,
+        UNIT_NAME
       )
-    
     # Remove intermediate variables
     rm(tada.char.ref)
     
@@ -714,7 +736,16 @@ TADA_DefineCriteriaMethodology <- function(.data,
     suppressWarnings(
       CST_param <- EPACSTRef %>%
         dplyr::full_join(TADA_param, by = c("TADA.CharacteristicName")) %>%
-        dplyr::select(TADA.CharacteristicName, TADA.ComparableDataIdentifier, ATTAINS.ParameterName = POLLUTANT_NAME, ATTAINS.UseName = use_name, AcuteChronic = CRITERIATYPE_ACUTECHRONIC, SaltFresh = CRITERIATYPEFRESHSALTWATER, CRITERION_VALUE, MagnitudeUnit = UNIT_NAME) %>%
+        dplyr::select(
+          TADA.CharacteristicName,
+          TADA.ComparableDataIdentifier,
+          ATTAINS.ParameterName = POLLUTANT_NAME,
+          ATTAINS.UseName = use_name,
+          AcuteChronic = CRITERIATYPE_ACUTECHRONIC,
+          SaltFresh = CRITERIATYPEFRESHSALTWATER,
+          CRITERION_VALUE,
+          MagnitudeUnit = UNIT_NAME
+        ) %>%
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
         dplyr::mutate(MagnitudeValueLower = dplyr::if_else(
           stringr::str_detect(CRITERION_VALUE, "-"), stringr::str_extract(CRITERION_VALUE, "[^-]+"),

@@ -208,10 +208,13 @@ TADA_AdditionalCharAliasForReview <- function(includeCST = FALSE,
   rm(ATTAINSParamRef, ATTAINS.raw)
 
   # Extracts all words from each CST Pollutant Name
-  CriteriaSearchToolRef <- system.file("extdata", "CriteriaSearchToolRef.rda", package = "EPATADA")
+  CriteriaSearchToolRef <- system.file(
+    "extdata",
+    "CriteriaSearchToolRef.rda",
+    package = "EPATADA"
+  )
   load(CriteriaSearchToolRef)
   CST <- CriteriaSearchToolRef
-  
   CST <- CST |>
     dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
     dplyr::distinct() |>
