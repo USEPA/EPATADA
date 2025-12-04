@@ -158,8 +158,8 @@ TADA_DefineCriteriaMethodology <- function(.data,
   }
 
   # Check if auto_assign is boolean
-  if (!is.bool(auto_assign)){
-    stop("TADA")
+  if (!is.logical(auto_assign)){
+    stop("TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value.")
   }
   
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
