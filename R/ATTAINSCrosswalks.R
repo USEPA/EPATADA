@@ -132,7 +132,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
       # create string for print message
       org_id <- stringi::stri_replace_last(
         paste(org_id, collapse = ", "),
-        fixed = ", ", replacement = " and "
+        fixed = ", ",
+        replacement = " and "
       )
     }
   }
