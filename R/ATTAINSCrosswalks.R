@@ -1855,7 +1855,7 @@ TADA_CreateParamRef <- function(
 #' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
-#' 
+#'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
 #' with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
@@ -1867,7 +1867,7 @@ TADA_CreateParamRef <- function(
 #' use names to an ATTAINS.ParameterName that has not been defined by your
 #' organization from ATTAINS. If FALSE, the values will be left blank and
 #' will need you to manually assign use names as needed.
-#' 
+#'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
