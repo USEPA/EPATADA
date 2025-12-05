@@ -41,7 +41,7 @@ See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCr
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 }
 \description{
-This is a helper function to TADA_CreateAU_UsesRef and is meant to help users
+This is a helper function to TADA_AssignUsesToAU and is meant to help users
 with reviewing all water type and use name combination from their org.
 This function will help to assign ATTAINS use names to any new or modified
 assessment unit provided from a user's AUMLRef if there are any.
@@ -52,9 +52,9 @@ prior assessment cycles are being done for an organization's assessment.
 Users are expected to modify this ref file as needed.
 }
 \examples{
-TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
+TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 
 }
 \seealso{
-\code{\link[=TADA_CreateAU_UsesRef]{TADA_CreateAU_UsesRef()}}
+\code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}}
 }

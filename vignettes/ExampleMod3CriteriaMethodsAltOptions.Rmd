@@ -231,7 +231,7 @@ updating of tables directly in the excel file.)
 ```{r auto-fill-output}
 MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = "ALL",
+  org_id = "MTDEQ",
   auto_assign = TRUE,
   # displayUniqueId = FALSE,
   excel = FALSE

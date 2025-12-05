@@ -79,7 +79,7 @@ into ATTAINS in the prior ATTAINS cycle (most recent assessment).
 
 For any NEW AUs and/or NEW uses, users must modify
 the output of this function to manually add those uses and AU's to the crosswalk.
-Alternatively, we have developed a helper function, \code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}},
+Alternatively, we have developed a helper function, \code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}},
 to assist with assigning uses to NEW AU's. This can be leveraged to assign
 uses for any new AUs based on the water type of the AU.
 Users can either supply their own Water
@@ -151,7 +151,7 @@ AK_appenduserdata <- TADA_UpdateATTAINSAUMLCrosswalk(
 )
 
 # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
-AK_CreateAU_UsesRef <- TADA_CreateAU_UsesRef(
+AK_CreateAU_UsesRef <- TADA_AssignUsesToAU(
   TADA_AK_Example,
   org_id = "AKDECWQ",
   AUMLRef = AK_appenduserdata,
@@ -159,16 +159,16 @@ AK_CreateAU_UsesRef <- TADA_CreateAU_UsesRef(
 )
 
 # Let's use a wateruseRef now to fill in these values.
-AK_CreateAU_UsesRef_auto_assign <- TADA_CreateAU_UsesRef(
+AK_CreateAU_UsesRef_auto_assign <- TADA_AssignUsesToAU(
   TADA_AK_Example,
   org_id = "AKDECWQ",
   AUMLRef = AK_appenduserdata,
-  waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
+  waterUseRef = TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
   excel = FALSE
 )
 
 # We can save and reuse a AU_UsesRef as desired.
-AK_CreateAU_UsesRef2 <- TADA_CreateAU_UsesRef(
+AK_CreateAU_UsesRef2 <- TADA_AssignUsesToAU(
   TADA_AK_Example,
   org_id = "AKDECWQ",
   AU_UsesRef = AK_CreateAU_UsesRef_auto_assign,
@@ -187,5 +187,5 @@ AK_CreateAU_UsesRef2 <- TADA_CreateAU_UsesRef(
 
 \code{\link[=TADA_UpdateATTAINSAUMLCrosswalk]{TADA_UpdateATTAINSAUMLCrosswalk()}} to help generate the required AUMLRef
 
-\code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}} to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
+\code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}} to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
 }

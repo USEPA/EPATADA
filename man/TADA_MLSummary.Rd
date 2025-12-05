@@ -46,7 +46,7 @@ See module 2 vignette and sample output of \code{\link[=TADA_CreateAUMLCrosswalk
 \item{AU_UsesRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with an assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function. See output of \code{\link[=TADA_CreateAU_UsesRef]{TADA_CreateAU_UsesRef()}} for column names.}
+order to run the function. See output of \code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}} for column names.}
 
 \item{MLSummaryRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
@@ -89,7 +89,7 @@ Units, users will need to provide an AUMLRef and AU_UsesRef file which
 (see TADA Module 2 tools) to assist in their monitoring location to assessment
 unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
 and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
-(see TADA_CreateWaterusesRef and TADA_CreateAU_UsesRef) prior to this step.
+(see TADA_CreateWaterusesRef and TADA_AssignUsesToAU) prior to this step.
 
 Users can apply any unique site-specific criteria (for example, warm waters,
 cold waters, water classifications, species-based waters, ecoregions etc.) to
@@ -132,7 +132,7 @@ MLSummaryRef_UT <- TADA_MLSummary(
 \seealso{
 \code{\link[=TADA_UsesForAnalysis]{TADA_UsesForAnalysis()}}
 
-\code{\link[=TADA_CreateAU_UsesRef]{TADA_CreateAU_UsesRef()}}
+\code{\link[=TADA_AssignUsesToAU]{TADA_AssignUsesToAU()}}
 
-\code{\link[=TADA_CreateWaterUseRef]{TADA_CreateWaterUseRef()}}
+\code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}}
 }

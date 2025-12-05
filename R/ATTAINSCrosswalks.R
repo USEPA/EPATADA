@@ -2770,7 +2770,7 @@ TADA_UsesForAnalysis <- function(
 #'
 #' For any NEW AUs and/or NEW uses, users must modify
 #' the output of this function to manually add those uses and AU's to the crosswalk.
-#' Alternatively, we have developed a helper function, [TADA_CreateWaterUseRef()],
+#' Alternatively, we have developed a helper function, [TADA_AssignUsesToWaterType()],
 #' to assist with assigning uses to NEW AU's. This can be leveraged to assign
 #' uses for any new AUs based on the water type of the AU.
 #' Users can either supply their own Water
@@ -2827,7 +2827,7 @@ TADA_UsesForAnalysis <- function(
 #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
 #' @seealso [TADA_GetATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
 #' @seealso [TADA_UpdateATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
-#' @seealso [TADA_CreateWaterUseRef()] to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
+#' @seealso [TADA_AssignUsesToWaterType()] to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on ATTAINS Water Type
 #'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
 #'
@@ -2893,7 +2893,7 @@ TADA_UsesForAnalysis <- function(
 #' )
 #'
 #' # New AUs that are not found in ATTAINS show blank ATTAINS.UseName
-#' AK_CreateAU_UsesRef <- TADA_CreateAU_UsesRef(
+#' AK_CreateAU_UsesRef <- TADA_AssignUsesToAU(
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
 #'   AUMLRef = AK_appenduserdata,
@@ -2901,16 +2901,16 @@ TADA_UsesForAnalysis <- function(
 #' )
 #'
 #' # Let's use a wateruseRef now to fill in these values.
-#' AK_CreateAU_UsesRef_auto_assign <- TADA_CreateAU_UsesRef(
+#' AK_CreateAU_UsesRef_auto_assign <- TADA_AssignUsesToAU(
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
 #'   AUMLRef = AK_appenduserdata,
-#'   waterUseRef = TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
+#'   waterUseRef = TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ"),
 #'   excel = FALSE
 #' )
 #'
 #' # We can save and reuse a AU_UsesRef as desired.
-#' AK_CreateAU_UsesRef2 <- TADA_CreateAU_UsesRef(
+#' AK_CreateAU_UsesRef2 <- TADA_AssignUsesToAU(
 #'   TADA_AK_Example,
 #'   org_id = "AKDECWQ",
 #'   AU_UsesRef = AK_CreateAU_UsesRef_auto_assign,
@@ -2957,7 +2957,7 @@ TADA_AssignUsesToAU <- function(
 
     if (is.null(AUMLRef)) {
       stop(paste0(
-        "TADA_CreateAU_UsesRef: ",
+        "TADA_AssignUsesToAU: ",
         "You must provide a AUMLRef to run this function."
       ))
     }
@@ -2976,7 +2976,7 @@ TADA_AssignUsesToAU <- function(
     if (!is.null(AUMLRef) & !is.character(AUMLRef)) {
       if (!is.data.frame(AUMLRef)) {
         stop(paste0(
-          "TADA_CreateAU_UsesRef: 'AUMLRef' must be a data frame with these 3 columns:",
+          "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
           "ATTAINS.WaterType, ATTAINS.AssessmentUnitIdentifier, and ATTAINS.OrganizationIdentifier."
         ))
       }
@@ -2990,7 +2990,7 @@ TADA_AssignUsesToAU <- function(
 
         if (!any(col.names %in% names(AUMLRef))) {
           stop(paste0(
-            "TADA_CreateAU_UsesRef: 'AUMLRef' must be a data frame with these 3 columns:",
+            "TADA_AssignUsesToAU: 'AUMLRef' must be a data frame with these 3 columns:",
             "ATTAINS.WaterType, ATTAINS.OrganizationIdentifier and ATTAINS.AssessmentUnitIdentifier"
           ))
         }
@@ -3040,14 +3040,14 @@ TADA_AssignUsesToAU <- function(
         0
     ) {
       warning(paste0(
-        "TADA_CreateAU_UsesRef: ",
+        "TADA_AssignUsesToAU: ",
         "One or more organization identifiers entered by user is not found in ATTAINS. "
       ))
     }
 
     # Pulls in Existing Uses by Existing AU from ATTAINS EQ
     print(
-      "TADA_CreateAU_UsesRef: Importing existing uses by AU from Expert Query."
+      "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
     )
 
     OrgID_assessments <- spsUtil::quiet(
@@ -3315,7 +3315,7 @@ TADA_AssignUsesToAU <- function(
 
 #' Helper Function to Apply Uses to Unassigned Assessment Units by Water Type
 #'
-#' This is a helper function to TADA_CreateAU_UsesRef and is meant to help users
+#' This is a helper function to TADA_AssignUsesToAU and is meant to help users
 #' with reviewing all water type and use name combination from their org.
 #' This function will help to assign ATTAINS use names to any new or modified
 #' assessment unit provided from a user's AUMLRef if there are any.
@@ -3351,12 +3351,12 @@ TADA_AssignUsesToAU <- function(
 #'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
-#' @seealso [TADA_CreateAU_UsesRef()]
+#' @seealso [TADA_AssignUsesToAU()]
 #'
 #' @export
 #'
 #' @examples
-#' TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
+#' TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 #'
 TADA_AssignUsesToWaterType <- function(
   .data,
@@ -3478,7 +3478,7 @@ TADA_AssignUsesToWaterType <- function(
 #' (see TADA Module 2 tools) to assist in their monitoring location to assessment
 #' unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk,
 #' and TADA_GetATTAINSByAUID) and uses to assessment unit crosswalk
-#' (see TADA_CreateWaterusesRef and TADA_CreateAU_UsesRef) prior to this step.
+#' (see TADA_CreateWaterusesRef and TADA_AssignUsesToAU) prior to this step.
 #'
 #' Users can apply any unique site-specific criteria (for example, warm waters,
 #' cold waters, water classifications, species-based waters, ecoregions etc.) to
@@ -3520,7 +3520,7 @@ TADA_AssignUsesToWaterType <- function(
 #' @param AU_UsesRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with an assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function. See output of [TADA_CreateAU_UsesRef()] for column names.
+#' order to run the function. See output of [TADA_AssignUsesToAU()] for column names.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
@@ -3545,8 +3545,8 @@ TADA_AssignUsesToWaterType <- function(
 #' @return A data frame with any unique spatial descriptions defined for
 #'
 #' @seealso [TADA_UsesForAnalysis()]
-#' @seealso [TADA_CreateAU_UsesRef()]
-#' @seealso [TADA_CreateWaterUseRef()]
+#' @seealso [TADA_AssignUsesToAU()]
+#' @seealso [TADA_AssignUsesToWaterType()]
 #'
 #' @export
 #'
@@ -3907,11 +3907,11 @@ TADA_MLSummary <- function(
       print(
         "An AUMLRef was provided, but no AU_UsesRef was provided. Please provide this as an argument input."
       )
-      AU_UsesRef <- TADA_CreateAU_UsesRef(
+      AU_UsesRef <- TADA_AssignUsesToAU(
         .data = .data,
         org_id = org_id,
         AUMLRef = AUMLRef,
-        waterUseRef = TADA_CreateWaterUseRef(
+        waterUseRef = TADA_AssignUsesToWaterType(
           .data,
           org_id = org_id,
           AUMLRef = AUMLRef
