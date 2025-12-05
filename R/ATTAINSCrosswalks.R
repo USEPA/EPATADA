@@ -942,7 +942,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' into paramRef AND a user does not provide an org_id argument,
 #' the function can identify which organization identifier(s) to include
 #' based on the unique ATTAINS organization identifiers found in the dataframe.
-#' 
+#'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
 #' with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
@@ -1048,13 +1048,15 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-TADA_CreateParamRef <- function(.data, 
-                                org_id = NULL, 
-                                paramRef = NULL, 
-                                auto_assign = c("None", "All", "Org"),
-                                AUMLRef = NULL, # If org_id = ALL, filters by this arg input.
-                                excel = FALSE, 
-                                overwrite = FALSE) {
+TADA_CreateParamRef <- function(
+  .data,
+  org_id = NULL,
+  paramRef = NULL,
+  auto_assign = c("None", "All", "Org"),
+  AUMLRef = NULL, # If org_id = ALL, filters by this arg input.
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # argument input selection for auto_assign
   auto_assign <- match.arg(auto_assign)
 
@@ -1107,7 +1109,7 @@ TADA_CreateParamRef <- function(.data,
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower(org_id) == "all") {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-      if (is.null(AUMLRef) ){
+      if (is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
@@ -1115,7 +1117,7 @@ TADA_CreateParamRef <- function(.data,
         org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef) ){
+      if (!is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
@@ -1861,7 +1863,7 @@ TADA_CreateParamRef <- function(.data,
 #' this crosswalk table can re-use it and review this output for accuracy.
 #'
 #' @param useAURef An optional data frame input. If provided, this data frame
-#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units. 
+#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #'
@@ -1919,15 +1921,17 @@ TADA_CreateParamRef <- function(.data,
 #'   paramRef = paramRef_UT4, auto_assign = TRUE, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-TADA_CreateUseParamRef <- function(.data,
-                                   org_id = NULL,
-                                   paramRef = NULL,
-                                   useParamRef = NULL,
-                                   useAURef = NULL,
-                                   AUMLRef = NULL,
-                                   auto_assign = FALSE,
-                                   excel = FALSE,
-                                   overwrite = FALSE) {
+TADA_CreateUseParamRef <- function(
+  .data,
+  org_id = NULL,
+  paramRef = NULL,
+  useParamRef = NULL,
+  useAURef = NULL,
+  AUMLRef = NULL,
+  auto_assign = FALSE,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
@@ -2101,7 +2105,7 @@ TADA_CreateUseParamRef <- function(.data,
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower(org_id) == "all") {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-      if (is.null(AUMLRef) ){
+      if (is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
@@ -2109,7 +2113,7 @@ TADA_CreateUseParamRef <- function(.data,
         org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef) ){
+      if (!is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
@@ -2793,7 +2797,7 @@ TADA_CreateUseParamRef <- function(.data,
 #' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
 #'
 #' @param useAURef An optional data frame input. If provided, this data frame
-#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units. 
+#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #'
@@ -2909,13 +2913,15 @@ TADA_CreateUseParamRef <- function(.data,
 #' )
 #' }
 #'
-TADA_CreateUseAURef <- function(.data,
-                                org_id = NULL,
-                                AUMLRef = NULL,
-                                useAURef = NULL,
-                                waterUseRef = NULL,
-                                excel = FALSE,
-                                overwrite = FALSE) {
+TADA_CreateUseAURef <- function(
+  .data,
+  org_id = NULL,
+  AUMLRef = NULL,
+  useAURef = NULL,
+  waterUseRef = NULL,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(excel) && missing(overwrite)
@@ -2996,11 +3002,10 @@ TADA_CreateUseAURef <- function(.data,
     if (!is.character(org_id) & is.null(org_id)) {
       org_id <- ""
     }
-    
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
     if (tolower(org_id) == "all") {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-      if (is.null(AUMLRef) ){
+      if (is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
@@ -3008,7 +3013,7 @@ TADA_CreateUseAURef <- function(.data,
         org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef) ){
+      if (!is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
@@ -3331,7 +3336,7 @@ TADA_CreateUseAURef <- function(.data,
 #' should contain a completed crosswalk of use names associated with a water type.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
-#' 
+#'
 #' @param AUMLRef A required data frame input. This data frame
 #' should contain a completed crosswalk of WQP Monitoring Locations
 #' associated with each ATTAINS Assessment Unit. Users will need to ensure
@@ -3347,16 +3352,20 @@ TADA_CreateUseAURef <- function(.data,
 #' @examples
 #' TADA_CreateWaterUseRef(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 #'
-TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL, AUMLRef = NULL) {
+TADA_CreateWaterUseRef <- function(
+  .data,
+  org_id = NULL,
+  waterUseRef = NULL,
+  AUMLRef = NULL
+) {
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
   }
-  
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
   if (tolower(org_id) == "all") {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-    if (is.null(AUMLRef) ){
+    if (is.null(AUMLRef)) {
       print(paste0(
         "org_id == 'All' was selected, ",
         "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
@@ -3364,7 +3373,7 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL, AUM
       org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
     }
     # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-    if (!is.null(AUMLRef) ){
+    if (!is.null(AUMLRef)) {
       print(paste0(
         "org_id == 'All' was selected, ",
         "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
@@ -3566,15 +3575,17 @@ TADA_CreateWaterUseRef <- function(.data, org_id = NULL, waterUseRef = NULL, AUM
 #' )
 #' }
 #'
-TADA_CreateMLSummaryRef <- function(.data, 
-                                    org_id = NULL,
-                                    useParamRef = NULL,
-                                    displayNA = FALSE,
-                                    AUMLRef = NULL,
-                                    useAURef = NULL,
-                                    MLSummaryRef = NULL,
-                                    excel = FALSE,
-                                    overwrite = FALSE) {
+TADA_CreateMLSummaryRef <- function(
+  .data,
+  org_id = NULL,
+  useParamRef = NULL,
+  displayNA = FALSE,
+  AUMLRef = NULL,
+  useAURef = NULL,
+  MLSummaryRef = NULL,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # overwrite argument should only be used when creating an excel file.
   if (excel == FALSE && overwrite == TRUE) {
     stop(paste0(
@@ -3877,21 +3888,25 @@ TADA_CreateMLSummaryRef <- function(.data,
     # If a user provides output from TADA_GetATTAINS, select only relevant columns
     AUMLRef <- dplyr::select(
       AUMLRef,
-      ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-      MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier, ATTAINS.WaterType
+      ATTAINS.OrganizationIdentifier,
+      ATTAINS.AssessmentUnitIdentifier,
+      MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+      ATTAINS.WaterType
     )
 
     # If user does not provide a UseAURef, run it to pull in prior uses for AU,
     # Otherwise, if a user has already customized this and provided this useAURef, then use that table.
     if (is.null(useAURef)) {
       # Pulls in UseAURef
-      print("An AUMLRef was provided, but no UseAURef was provided. Please provide this as an argument input.")
+      print(
+        "An AUMLRef was provided, but no UseAURef was provided. Please provide this as an argument input."
+      )
       useAURef <- TADA_CreateUseAURef(
         .data = .data,
-        org_id = org_id, 
-        AUMLRef = AUMLRef, 
+        org_id = org_id,
+        AUMLRef = AUMLRef,
         waterUseRef = TADA_CreateWaterUseRef(
-          .data, 
+          .data,
           org_id = org_id,
           AUMLRef = AUMLRef
         )

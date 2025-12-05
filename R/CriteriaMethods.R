@@ -132,17 +132,19 @@
 #' )
 #' }
 #'
-TADA_DefineCriteriaMethodology <- function(.data,
-                                           MLSummaryRef = NULL,
-                                           org_id = NULL,
-                                           criteriaMethods = NULL, # user supplied input here
-                                           auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-                                           AUMLRef = NULL,
-                                           useAURef = NULL, # Optional if auto_assign = TRUE
-                                           epa304a = FALSE,
-                                           displayUniqueId = FALSE,
-                                           excel = TRUE,
-                                           overwrite = FALSE) {
+TADA_DefineCriteriaMethodology <- function(
+  .data,
+  MLSummaryRef = NULL,
+  org_id = NULL,
+  criteriaMethods = NULL, # user supplied input here
+  auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+  AUMLRef = NULL,
+  useAURef = NULL, # Optional if auto_assign = TRUE
+  epa304a = FALSE,
+  displayUniqueId = FALSE,
+  excel = TRUE,
+  overwrite = FALSE
+) {
   # Excel ref files to be stored in the Downloads folder location.
   # Define the OneDrive Downloads path
   onedrive_downloads_path <- file.path(
@@ -167,8 +169,10 @@ TADA_DefineCriteriaMethodology <- function(.data,
   }
 
   # Check if auto_assign is boolean
-  if (!is.logical(auto_assign)){
-    stop("TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value.")
+  if (!is.logical(auto_assign)) {
+    stop(
+      "TADA_DefineCriteriaMethodology: auto_assign must be a boolean (TRUE/FALSE) value."
+    )
   }
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
   # # Ensures users have entered a valid input to updateRef
