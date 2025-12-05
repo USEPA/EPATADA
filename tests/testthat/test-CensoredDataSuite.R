@@ -16,7 +16,10 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   copycheck1 <- TADA_IDCensoredData(copycheck)
 
   # Subset rows where the original result value is NA
-  copycheck2 <- subset(copycheck1, subset = is.na(copycheck1$ResultMeasureValue))
+  copycheck2 <- subset(
+    copycheck1,
+    subset = is.na(copycheck1$ResultMeasureValue)
+  )
 
   # Skip the test if there are no rows in copycheck2
   if (nrow(copycheck2) == 0) {
@@ -29,12 +32,17 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
     "Result Value/Unit Cannot Be Estimated From Detection Limit",
     "NA - Not Available"
   )
-  expect_true(all(copycheck2$TADA.ResultMeasureValueDataTypes.Flag %in% valid_flags))
+  expect_true(all(
+    copycheck2$TADA.ResultMeasureValueDataTypes.Flag %in% valid_flags
+  ))
 
   # Subset data where DetectionQuantitationLimitMeasure.MeasureValue is not NA
-  copycheck_NAs <- subset(copycheck2, subset = !is.na(
-    copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue
-  ))
+  copycheck_NAs <- subset(
+    copycheck2,
+    subset = !is.na(
+      copycheck2$TADA.DetectionQuantitationLimitMeasure.MeasureValue
+    )
+  )
 
   # Skip the test if there are no rows in copycheck_NAs
   if (nrow(copycheck_NAs) == 0) {
@@ -42,8 +50,10 @@ test_that("TADA_IDCensoredData copies det lim values to result values if applica
   }
 
   # Check flags and result measure values for non-NA detection limit measure values
-  expect_true(all(copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag ==
-    "Result Value/Unit Copied from Detection Limit"))
+  expect_true(all(
+    copycheck_NAs$TADA.ResultMeasureValueDataTypes.Flag ==
+      "Result Value/Unit Copied from Detection Limit"
+  ))
 })
 
 test_that("TADA_IDCensoredData correctly handles specific text values such as ND", {
@@ -56,14 +66,20 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
 
   df1 <- TADA_IDCensoredData(df)
 
-  df2 <- subset(df1, subset = df1$ResultMeasureValue == "BPQL" |
-    df1$ResultMeasureValue == "BDL" |
-    df1$ResultMeasureValue == "ND")
+  df2 <- subset(
+    df1,
+    subset = df1$ResultMeasureValue == "BPQL" |
+      df1$ResultMeasureValue == "BDL" |
+      df1$ResultMeasureValue == "ND"
+  )
 
   unique(df2$ResultMeasureValue)
 
   # subset df: TADA.DetectionQuantitationLimitMeasure.MeasureValue = NA or None
-  df3 <- subset(df2, subset = (!is.na(df2$TADA.DetectionQuantitationLimitMeasure.MeasureValue)))
+  df3 <- subset(
+    df2,
+    subset = (!is.na(df2$TADA.DetectionQuantitationLimitMeasure.MeasureValue))
+  )
 
   df3_subset <- dplyr::select(
     df3,
@@ -85,7 +101,10 @@ test_that("TADA_IDCensoredData correctly handles specific text values such as ND
     ProviderName
   )
 
-  expect_true(all(df3_subset$TADA.ResultMeasureValueDataTypes.Flag == "Result Value/Unit Copied from Detection Limit"))
+  expect_true(all(
+    df3_subset$TADA.ResultMeasureValueDataTypes.Flag ==
+      "Result Value/Unit Copied from Detection Limit"
+  ))
 
   expect_true(all(!is.na(df3_subset$TADA.ResultMeasureValue)))
 
@@ -99,7 +118,8 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
     autoclean = TRUE
   )
 
-  testdat <- TADA_ConvertSpecialChars(testdat,
+  testdat <- TADA_ConvertSpecialChars(
+    testdat,
     col = "TADA.ResultMeasureValue",
     clean = TRUE
   )
@@ -109,17 +129,23 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
 
   # Check if either na_values or na_flags has observations and fail if they do
   if (nrow(na_flags) > 0) {
-    stop("Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag.")
+    stop(
+      "Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag."
+    )
   }
 
   testdat2 <- TADA_IDCensoredData(testdat)
 
   # Create a list of values with NA in TADA.ResultMeasureValueDataTypes.Flag
-  na_flags_2 <- testdat2[is.na(testdat2$TADA.ResultMeasureValueDataTypes.Flag), ]
+  na_flags_2 <- testdat2[
+    is.na(testdat2$TADA.ResultMeasureValueDataTypes.Flag),
+  ]
 
   # Check if either na_values or na_flags has observations and fail if they do
   if (nrow(na_flags_2) > 0) {
-    stop("Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag.")
+    stop(
+      "Failure: There are NA observations in TADA.ResultMeasureValueDataTypes.Flag."
+    )
   }
 
   # Test to ensure the value column is entirely numeric
@@ -138,7 +164,8 @@ test_that("TADA_IDCensoredData does not introduce NAs in TADA.ResultMeasureValue
 test_that("TADA_SimpleCensoredMethods does not introduce duplicates or NAs in result or unit cols that cannot be handled in TADA_ConvertSpecialChars", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
 
-  testdat <- TADA_ConvertSpecialChars(testdat,
+  testdat <- TADA_ConvertSpecialChars(
+    testdat,
     col = "TADA.ResultMeasureValue",
     clean = TRUE
   )
@@ -153,14 +180,16 @@ test_that("TADA_SimpleCensoredMethods does not introduce duplicates or NAs in re
   # # Test to ensure unit column does not contain any NA values
   # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
 
-  testdat2 <- TADA_SimpleCensoredMethods(testdat,
+  testdat2 <- TADA_SimpleCensoredMethods(
+    testdat,
     nd_method = "multiplier",
     nd_multiplier = 0.5,
     od_method = "as-is",
     od_multiplier = "null"
   )
 
-  testdat3 <- TADA_ConvertSpecialChars(testdat2,
+  testdat3 <- TADA_ConvertSpecialChars(
+    testdat2,
     col = "TADA.ResultMeasureValue",
     clean = TRUE
   )

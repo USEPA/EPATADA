@@ -7,7 +7,11 @@ test_that("Does the current TADA_GetATTAINSParamToWQPCharRef contain all ATTAINS
 
   # extract unique ATTAINS parameter names
   ref <- ATTAINS.raw[, "name"]
-  old <- utils::read.csv(system.file("extdata", "ATTAINSParamToWQPCharRef.csv", package = "EPATADA"))[, "ATTAINS.ParameterName"]
+  old <- utils::read.csv(system.file(
+    "extdata",
+    "ATTAINSParamToWQPCharRef.csv",
+    package = "EPATADA"
+  ))[, "ATTAINS.ParameterName"]
 
   expect_in(ref, old)
 })

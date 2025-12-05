@@ -138,9 +138,13 @@
       )
       message("Data_Nutrients_UT")
       message(dim(Data_Nutrients_UT))
-      usethis::use_data(Data_Nutrients_UT,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_Nutrients_UT,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
       rm(Data_Nutrients_UT)
 
@@ -149,8 +153,12 @@
       # =======================================
       Data_6Tribes_5y <- TADA_DataRetrieval(
         organization = c(
-          "REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE",
-          "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"
+          "REDLAKE_WQX",
+          "SFNOES_WQX",
+          "PUEBLO_POJOAQUE",
+          "FONDULAC_WQX",
+          "PUEBLOOFTESUQUE",
+          "CNENVSER"
         ),
         startDate = "2018-01-01",
         endDate = "2023-01-01",
@@ -158,15 +166,22 @@
       )
       message("Data_6Tribes_5y")
       message(dim(Data_6Tribes_5y))
-      usethis::use_data(Data_6Tribes_5y,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_6Tribes_5y,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
 
       # =======================================
       # Harmonize Data_6Tribes_5y
       # =======================================
-      harmonized_data <- subset(Data_6Tribes_5y, Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER"))
+      harmonized_data <- subset(
+        Data_6Tribes_5y,
+        Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER")
+      )
       harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
       rm(Data_6Tribes_5y)
 
@@ -183,16 +198,22 @@
           od_method = "as-is",
           od_multiplier = "null"
         ) %>%
-        dplyr::filter(TADA.ResultMeasureValueDataTypes.Flag != "Text" &
-          TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
-          !is.na(TADA.ResultMeasureValue))
+        dplyr::filter(
+          TADA.ResultMeasureValueDataTypes.Flag != "Text" &
+            TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
+            !is.na(TADA.ResultMeasureValue)
+        )
 
       Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
       message("Data_6Tribes_5y_Harmonized")
       message(dim(Data_6Tribes_5y_Harmonized))
-      usethis::use_data(Data_6Tribes_5y_Harmonized,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_6Tribes_5y_Harmonized,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
       rm(Data_6Tribes_5y_Harmonized, harmonized_data)
 
@@ -207,9 +228,13 @@
       )
       message("Data_R5_TADAPackageDemo")
       message(dim(Data_R5_TADAPackageDemo))
-      usethis::use_data(Data_R5_TADAPackageDemo,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_R5_TADAPackageDemo,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
       rm(Data_R5_TADAPackageDemo)
 
@@ -247,19 +272,32 @@
       Data_WV <- TADA_FindPotentialDuplicatesMultipleOrgs(Data_WV)
       Data_WV <- dplyr::filter(Data_WV, TADA.ResultSelectedMultipleOrgs == "Y")
       # Convert special characters
-      Data_WV <- TADA_ConvertSpecialChars(Data_WV, col = "TADA.ResultMeasureValue", clean = TRUE)
+      Data_WV <- TADA_ConvertSpecialChars(
+        Data_WV,
+        col = "TADA.ResultMeasureValue",
+        clean = TRUE
+      )
       # Remove results with quality control issues (required)
       Data_WV <- TADA_RunKeyFlagFunctions(Data_WV, clean = TRUE)
       # Flag above and below threshold (do not remove)
-      Data_WV <- TADA_FlagAboveThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
-      Data_WV <- TADA_FlagBelowThreshold(Data_WV, clean = FALSE, flaggedonly = FALSE)
+      Data_WV <- TADA_FlagAboveThreshold(
+        Data_WV,
+        clean = FALSE,
+        flaggedonly = FALSE
+      )
+      Data_WV <- TADA_FlagBelowThreshold(
+        Data_WV,
+        clean = FALSE,
+        flaggedonly = FALSE
+      )
       # Harmonize synonyms
       Data_WV <- TADA_HarmonizeSynonyms(Data_WV)
       # Save example data
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
       message(dim(Data_HUC8_02070004_Mod1Output))
-      usethis::use_data(Data_HUC8_02070004_Mod1Output,
+      usethis::use_data(
+        Data_HUC8_02070004_Mod1Output,
         internal = FALSE,
         overwrite = TRUE,
         compress = "xz",
@@ -285,9 +323,13 @@
 
       message("Data_MT_MissoulaCounty")
       message(dim(Data_MT_MissoulaCounty))
-      usethis::use_data(Data_MT_MissoulaCounty,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_MT_MissoulaCounty,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
 
       # =======================================
@@ -295,7 +337,9 @@
       # =======================================
       # Retrieve and clean crosswalk from ATTAINS
       attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-      clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+      clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
+        org_id = "MTDEQ"
+      )
 
       # Create a user-supplied crosswalk for demonstration purposes
       user_supplied_cw <- clean.existing.attains.MT %>%
@@ -304,10 +348,16 @@
           ATTAINS.MonitoringLocationIdentifier,
           ATTAINS.WaterType
         ) %>%
-        dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
-          "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
-          "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-        )) %>%
+        dplyr::filter(
+          ATTAINS.MonitoringLocationIdentifier %in%
+            c(
+              "MDEQ_WQ_WQX-C04CKFKR05",
+              "MDEQ_WQ_WQX-C04KNDYC01",
+              "MDEQ_WQ_WQX-C04KNDYC02",
+              "MDEQ_WQ_WQX-C04KNDYC04",
+              "MDEQ_WQ_WQX-C04KNDYC54"
+            )
+        ) %>%
         dplyr::rename(
           AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
           MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
@@ -336,7 +386,8 @@
 
       message("Data_MT_AUMLRef")
       message(dim(Data_MT_AUMLRef))
-      usethis::use_data(Data_MT_AUMLRef,
+      usethis::use_data(
+        Data_MT_AUMLRef,
         internal = FALSE,
         overwrite = TRUE,
         compress = "xz",
@@ -347,16 +398,25 @@
       # =======================================
       # Generate Data_MT_UseAURef
       # =======================================
-      Data_MT_UseAURef <- TADA_CreateUseAURef(AUMLRef = Data_MT_AUMLRef, org_id = "MTDEQ")
+      Data_MT_UseAURef <- TADA_CreateUseAURef(
+        AUMLRef = Data_MT_AUMLRef,
+        org_id = "MTDEQ"
+      )
 
       message("Data_MT_UseAURef")
       message(dim(Data_MT_UseAURef))
-      usethis::use_data(Data_MT_UseAURef,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_MT_UseAURef,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
       rm(
-        attains.existing.MT, clean.existing.attains.MT, user_supplied_cw,
+        attains.existing.MT,
+        clean.existing.attains.MT,
+        user_supplied_cw,
         MT_AUMLRef
       )
 
@@ -372,9 +432,13 @@
       message("Data_MT_UseAURef_Water")
       message(dim(Data_MT_UseAURef_Water))
 
-      usethis::use_data(Data_MT_UseAURef_Water,
-        internal = FALSE, overwrite = TRUE,
-        compress = "xz", version = 3, ascii = FALSE
+      usethis::use_data(
+        Data_MT_UseAURef_Water,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
       rm(Data_MT_UseAURef_Water)
     },

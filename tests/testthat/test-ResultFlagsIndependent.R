@@ -2,7 +2,12 @@ test_that("SuspectCoordinates works", {
   # flagonly
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
   unique(SuspectCoord_flags$TADA.SuspectCoordinates)
-  reviewselectcolumns <- SuspectCoord_flags %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
+  reviewselectcolumns <- SuspectCoord_flags %>%
+    dplyr::select(
+      TADA.SuspectCoordinates.Flag,
+      TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure
+    )
   reviewflagsonly <- dplyr::filter(
     reviewselectcolumns,
     is.na(TADA.SuspectCoordinates.Flag) != TRUE
@@ -10,20 +15,35 @@ test_that("SuspectCoordinates works", {
   unique(reviewflagsonly$TADA.SuspectCoordinates.Flag)
 
   # removeimprecise
-  ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_imprecise = TRUE)
+  ImpreciseCoord_removed <- TADA_FlagCoordinates(
+    Data_Nutrients_UT,
+    clean_imprecise = TRUE
+  )
   unique(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag != "Imprecise_lessthan3decimaldigits"))
+  expect_true(any(
+    ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag !=
+      "Imprecise_lessthan3decimaldigits"
+  ))
 
   # Remove data with coordinates outside the USA, but keep flagged data with imprecise coordinates:
-  OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove")
+  OutsideUSACoord_removed <- TADA_FlagCoordinates(
+    Data_Nutrients_UT,
+    clean_outsideUSA = "remove"
+  )
   unique(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag)
 
-  expect_true(any(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LONG_OutsideUSA" |
-    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LAT_OutsideUSA"))
+  expect_true(any(
+    OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LONG_OutsideUSA" |
+      OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag != "LAT_OutsideUSA"
+  ))
 
   ## Remove data with imprecise coordinates or coordinates outside the USA from the dataframe:
-  Suspect_removed <- TADA_FlagCoordinates(Data_Nutrients_UT, clean_outsideUSA = "remove", clean_imprecise = TRUE)
+  Suspect_removed <- TADA_FlagCoordinates(
+    Data_Nutrients_UT,
+    clean_outsideUSA = "remove",
+    clean_imprecise = TRUE
+  )
   unique(Suspect_removed$TADA.SuspectCoordinates.Flag)
 })
 
@@ -31,37 +51,81 @@ test_that("SuspectCoordinates works", {
 test_that("Imprecise_lessthan3decimaldigits works", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
+  FLAGSONLY <- FLAGSONLY %>%
+    dplyr::select(
+      TADA.SuspectCoordinates.Flag,
+      TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure
+    )
+  FLAGSONLY <- dplyr::filter(
+    FLAGSONLY,
+    FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits"
+  )
+  FLAGSONLY <- dplyr::filter(
+    FLAGSONLY,
+    sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3
+  ) %>%
+    dplyr::distinct()
 
-  expect_true(all(sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 4))
+  expect_true(all(
+    sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 4
+  ))
 })
 
 test_that("Imprecise_lessthan3decimaldigits works again", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>% dplyr::select(TADA.SuspectCoordinates.Flag, TADA.LatitudeMeasure, TADA.LongitudeMeasure)
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits")
-  FLAGSONLY <- dplyr::filter(FLAGSONLY, sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3) %>% dplyr::distinct()
+  FLAGSONLY <- FLAGSONLY %>%
+    dplyr::select(
+      TADA.SuspectCoordinates.Flag,
+      TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure
+    )
+  FLAGSONLY <- dplyr::filter(
+    FLAGSONLY,
+    FLAGSONLY$TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits"
+  )
+  FLAGSONLY <- dplyr::filter(
+    FLAGSONLY,
+    sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3
+  ) %>%
+    dplyr::distinct()
 
-  expect_true(all(sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4))
+  expect_true(all(
+    sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 4
+  ))
 })
 
 test_that("No NA's in independent flag columns", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
-  testdat <- suppressWarnings(TADA_FlagMethod(testdat, clean = FALSE, flaggedonly = FALSE))
+  testdat <- suppressWarnings(TADA_FlagMethod(
+    testdat,
+    clean = FALSE,
+    flaggedonly = FALSE
+  ))
   expect_false(any(is.na(testdat$TADA.AnalyticalMethod.Flag)))
 
-  testdat <- TADA_FlagContinuousData(testdat, clean = FALSE, flaggedonly = FALSE)
+  testdat <- TADA_FlagContinuousData(
+    testdat,
+    clean = FALSE,
+    flaggedonly = FALSE
+  )
   expect_false(any(is.na(testdat$TADA.ContinuousData.Flag)))
 
-  testdat <- TADA_FlagAboveThreshold(testdat, clean = FALSE, flaggedonly = FALSE)
+  testdat <- TADA_FlagAboveThreshold(
+    testdat,
+    clean = FALSE,
+    flaggedonly = FALSE
+  )
   expect_false(any(is.na(testdat$TADA.ResultValueAboveUpperThreshold.Flag)))
 
-  testdat <- TADA_FlagBelowThreshold(testdat, clean = FALSE, flaggedonly = FALSE)
+  testdat <- TADA_FlagBelowThreshold(
+    testdat,
+    clean = FALSE,
+    flaggedonly = FALSE
+  )
   expect_false(any(is.na(testdat$TADA.ResultValueBelowLowerThreshold.Flag)))
 
   testdat <- TADA_FindQAPPDoc(testdat, clean = FALSE)
@@ -123,7 +187,8 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   rm(file_path)
 
   unit.ref <- dplyr::filter(
-    WQXcharValRef, Type == "CharacteristicUnit",
+    WQXcharValRef,
+    Type == "CharacteristicUnit",
     Status == "Accepted"
   )
 
@@ -134,8 +199,10 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
       Min_n = length(unique(Minimum)),
       Max_n = length(unique(Maximum))
     ) %>%
-    dplyr::filter(Min_n > 1 |
-      Max_n > 1)
+    dplyr::filter(
+      Min_n > 1 |
+        Max_n > 1
+    )
 
   expect_true(nrow(find.dups) == 0)
 })
@@ -173,11 +240,16 @@ test_that("QC results are not flagged as Continuous", {
     dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
 
   if (nrow(cont_QC_filt) > 0) {
-    expect_true(!(unique(cont_QC_filt$TADA.ActivityType.Flag)) %in% c(
-      "QC_duplicate", "QC_calibration",
-      "QC_replicate", "QC_blank",
-      "QC_other"
-    ))
+    expect_true(
+      !(unique(cont_QC_filt$TADA.ActivityType.Flag)) %in%
+        c(
+          "QC_duplicate",
+          "QC_calibration",
+          "QC_replicate",
+          "QC_blank",
+          "QC_other"
+        )
+    )
   }
 
   if (nrow(cont_QC_filt) == 0) {
