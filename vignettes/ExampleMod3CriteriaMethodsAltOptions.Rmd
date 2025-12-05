@@ -304,8 +304,9 @@ cycle.
 ```{r user.supplied.w.epa304a}
 # Load the example MTDEQ criteria table
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-
 load(criteria_table)
+# Load example uses to AU Ref table
+utils::data(Data_MT_AU_UsesRef)
 
 MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
