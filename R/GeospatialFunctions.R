@@ -178,12 +178,15 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
   }
 
-
   # stop if WQP latitude and longitude are not available
-  if (!"LongitudeMeasure" %in% colnames(.data) |
-    !"LatitudeMeasure" %in% colnames(.data) |
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
-    stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
+  if (
+    !"LongitudeMeasure" %in% colnames(.data) |
+      !"LatitudeMeasure" %in% colnames(.data) |
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
+  ) {
+    stop(
+      "The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`."
+    )
   }
 
   # if WQP latitude and longitude are available transform to spatial object (if not already spatial)
@@ -198,7 +201,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   # stop if there is not data to use a bounding box
   if (is.null(.data) | nrow(.data) == 0) {
-    stop("There is no data in your `data` object to use as a bounding box for selecting ATTAINS features.")
+    stop(
+      "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
+    )
   }
 
   # REST for ATTAINS geospatial data:
@@ -273,10 +278,14 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       dplyr::distinct(.keep_all = TRUE)
   }
 
-  if(org_id == "all") {
-    org_filter <- "1=1"  # This effectively means no filtering on organizationidentifier
+  if (org_id == "all") {
+    org_filter <- "1=1" # This effectively means no filtering on organizationidentifier
   } else {
-    org_filter <- paste0("organizationid IN ('", paste(org_id, collapse = "','"), "')")
+    org_filter <- paste0(
+      "organizationid IN ('",
+      paste(org_id, collapse = "','"),
+      "')"
+    )
   }
 
   fetch_au <- function(baseurls, assessment_unit_ids) {
@@ -288,7 +297,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     fetch_chunk <- function(id_chunk) {
       # Construct the where clause
       where_clause <- paste0(
-        "assessmentunitidentifier IN ('", paste(id_chunk, collapse = "','"), "') AND ",
+        "assessmentunitidentifier IN ('",
+        paste(id_chunk, collapse = "','"),
+        "') AND ",
         org_filter
       )
 
@@ -1358,8 +1369,10 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
   }))
 
   # grab all ATTAINS features in catchments that intersect our WQP objects:
-  attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data,
-                                       org_id = org_id), silent = TRUE)
+  attains_features <- try(
+    fetchATTAINS(.data = TADA_DataRetrieval_data, org_id = org_id),
+    silent = TRUE
+  )
 
   # Tidy up the intersecting catchment objects:
   suppressMessages(suppressWarnings({
@@ -1724,8 +1737,12 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
-                                  fill_ATTAINS_catch = FALSE, return_sf = TRUE) {
+TADA_GetATTAINSByAUID <- function(
+  .data,
+  au_ref = NULL,
+  fill_ATTAINS_catch = FALSE,
+  return_sf = TRUE
+) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1748,7 +1765,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
 
   if (nrow(.data) == 0) {
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-    message("Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features.")
+    message(
+      "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+    )
 
     # Add ATTAINS columns with NA values
     col_val_list <- stats::setNames(
@@ -1918,7 +1937,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
   try(
     points <- fetch_au(
       baseurls = baseurls[2],
-      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1927,7 +1948,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
   try(
     lines <- fetch_au(
       baseurls = baseurls[3],
-      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1936,7 +1959,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
   try(
     polygons <- fetch_au(
       baseurls = baseurls[4],
-      assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1986,7 +2011,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(filt.data$ATTAINS.AssessmentUnitIdentifier)),
+        assessment_unit_ids = paste0(unique(
+          filt.data$ATTAINS.AssessmentUnitIdentifier
+        )),
         chunk_n = 10
       ),
       silent = TRUE
@@ -2014,7 +2041,13 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL,
       sf::st_drop_geometry() %>%
       dplyr::distinct()
 
-    try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+    try(
+      catchments <- catchments.filt %>%
+        dplyr::left_join(
+          .,
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitId")
+        ),
       silent = TRUE
     )
   }
@@ -2286,11 +2319,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     system.file("extdata/icons", "square-fs.png", package = "EPATADA"), #2
     system.file("extdata/icons", "square-na.png", package = "EPATADA"), #3
     system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), #4
-    system.file("extdata/icons", "circle-user-solid-full.png", package = "EPATADA"), #5
-    system.file("extdata/icons", "circle-check-solid-full.png", package = "EPATADA"), #6
+    system.file(
+      "extdata/icons",
+      "circle-user-solid-full.png",
+      package = "EPATADA"
+    ), #5
+    system.file(
+      "extdata/icons",
+      "circle-check-solid-full.png",
+      package = "EPATADA"
+    ), #6
     system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #7
     system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #8
-    system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"), #9
+    system.file(
+      "extdata/icons",
+      "square-catchment-gray.png",
+      package = "EPATADA"
+    ), #9
     system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), #10
     system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), #11
     system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), #12
