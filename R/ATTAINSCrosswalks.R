@@ -58,8 +58,7 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
-                                         batch_upload = FALSE) {
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
@@ -133,7 +132,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
       # create string for print message
       org_id <- stringi::stri_replace_last(
         paste(org_id, collapse = ", "),
-        fixed = ", ", replacement = " and "
+        fixed = ", ",
+        replacement = " and "
       )
     }
   }
@@ -145,7 +145,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
       "TADA_GetATTAINSAUMLCrosswalk: ",
       "There are ", nrow(au.crosswalk),
       " monitoring location identifiers associated with assessment units for ",
-      org_id, " in ATTAINS."
+      org_id,
+      " in ATTAINS."
     ))
   }
 
