@@ -58,8 +58,7 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
-                                         batch_upload = FALSE) {
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
