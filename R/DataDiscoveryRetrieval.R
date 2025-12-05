@@ -171,27 +171,29 @@
 #' tada8 <- TADA_DataRetrieval(bBox = bbox)
 #' }
 #'
-TADA_DataRetrieval <- function(startDate = "null",
-                               endDate = "null",
-                               aoi_sf = NULL,
-                               countrycode = "null",
-                               countycode = "null",
-                               huc = "null",
-                               siteid = "null",
-                               siteType = "null",
-                               tribal_area_type = "null",
-                               tribe_name_parcel = "null",
-                               characteristicName = "null",
-                               characteristicType = "null",
-                               sampleMedia = "null",
-                               statecode = "null",
-                               organization = "null",
-                               project = "null",
-                               providers = "null",
-                               bBox = "null",
-                               maxrecs = 350000,
-                               ask = TRUE,
-                               applyautoclean = TRUE) {
+TADA_DataRetrieval <- function(
+  startDate = "null",
+  endDate = "null",
+  aoi_sf = NULL,
+  countrycode = "null",
+  countycode = "null",
+  huc = "null",
+  siteid = "null",
+  siteType = "null",
+  tribal_area_type = "null",
+  tribe_name_parcel = "null",
+  characteristicName = "null",
+  characteristicType = "null",
+  sampleMedia = "null",
+  statecode = "null",
+  organization = "null",
+  project = "null",
+  providers = "null",
+  bBox = "null",
+  maxrecs = 350000,
+  ask = TRUE,
+  applyautoclean = TRUE
+) {
   # Require one tribal area type:
   if (length(tribal_area_type) > 1) {
     stop("tribal_area_type must be of length 1.")
@@ -201,8 +203,10 @@ TADA_DataRetrieval <- function(startDate = "null",
 
   # If both an sf object and tribe information are provided it's unclear what
   # the priority should be for the query
-  if (!is.null(aoi_sf) &
-    any((tribal_area_type != "null") | (tribe_name_parcel != "null"))) {
+  if (
+    !is.null(aoi_sf) &
+      any((tribal_area_type != "null") | (tribe_name_parcel != "null"))
+  ) {
     stop(
       paste0(
         "Both sf data and tribal information have been provided. ",
@@ -218,8 +222,11 @@ TADA_DataRetrieval <- function(startDate = "null",
     (!is.null(aoi_sf) & inherits(aoi_sf, "sf")) &
       # with additional location info
       any(
-        (countrycode != "null"), (countycode != "null"), (huc != "null"),
-        (siteid != "null"), (statecode != "null")
+        (countrycode != "null"),
+        (countycode != "null"),
+        (huc != "null"),
+        (siteid != "null"),
+        (statecode != "null")
       )
   ) {
     warning(
@@ -233,8 +240,11 @@ TADA_DataRetrieval <- function(startDate = "null",
     (tribal_area_type != "null") &
       # with additional location info
       any(
-        (countrycode != "null"), (countycode != "null"), (huc != "null"),
-        (siteid != "null"), (statecode != "null")
+        (countrycode != "null"),
+        (countycode != "null"),
+        (huc != "null"),
+        (siteid != "null"),
+        (statecode != "null")
       )
   ) {
     warning(
@@ -263,7 +273,9 @@ TADA_DataRetrieval <- function(startDate = "null",
 
   # If an sf object OR tribal info are provided they will be the basis of the query
   # (The tribal data handling uses sf objects as well)
-  if ((!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null")) {
+  if (
+    (!is.null(aoi_sf) & inherits(aoi_sf, "sf")) | (tribal_area_type != "null")
+  ) {
     # Build the non-sf part of the query:
 
     # Set query parameters
@@ -271,12 +283,22 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     # StartDate
     if (length(startDate) > 1) {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(startDate[1], orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          startDate[1],
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = list(startDate))
     } else if (startDate != "null") {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(startDate, orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          startDate,
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = startDate)
@@ -333,12 +355,22 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
     # EndDate
     if (length(endDate) > 1) {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(endDate[1], orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          endDate[1],
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = list(endDate))
     } else if (endDate != "null") {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(endDate, orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          endDate,
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = endDate)
@@ -351,28 +383,34 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Make a reference table for tribal area type + url matching
       # (options that don't return results are commented out)
       map_service_urls <- tibble::tribble(
-        ~tribal_area,                            ~url,
-        "Alaska Native Allotments",              "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+        ~tribal_area                        , ~url                                                                  ,
+        "Alaska Native Allotments"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
         # "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-        "American Indian Reservations",          "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-        "Off-reservation Trust Lands",           "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-        "Oklahoma Tribal Statistical Areas",     "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
+        "American Indian Reservations"      , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+        "Off-reservation Trust Lands"       , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+        "Oklahoma Tribal Statistical Areas" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
         # "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
       )
 
       # These two layers will not return any data when used for bboxes
       if (tribal_area_type == "Alaska Native Villages") {
-        stop("Alaska Native Villages data are centroid points, not spatial boundaries.")
+        stop(
+          "Alaska Native Villages data are centroid points, not spatial boundaries."
+        )
       } else if (tribal_area_type == "Virginia Federally Recognized Tribes") {
-        stop("Federally recognized tribal entities in Virginia do not have any available spatial boundaries.")
+        stop(
+          "Federally recognized tribal entities in Virginia do not have any available spatial boundaries."
+        )
       }
 
       # These area types allow filtering by TRIBE_NAME (unique within each type)
-      if (tribal_area_type %in% c(
-        "American Indian Reservations",
-        "Off-reservation Trust Lands",
-        "Oklahoma Tribal Statistical Areas"
-      )
+      if (
+        tribal_area_type %in%
+          c(
+            "American Indian Reservations",
+            "Off-reservation Trust Lands",
+            "Oklahoma Tribal Statistical Areas"
+          )
       ) {
         # Get the relevant url
         aoi_sf <- dplyr::filter(
@@ -408,7 +446,9 @@ TADA_DataRetrieval <- function(startDate = "null",
             }
           }
       } else {
-        stop("Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options.")
+        stop(
+          "Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options."
+        )
       }
     }
 
@@ -431,15 +471,26 @@ TADA_DataRetrieval <- function(startDate = "null",
     # Don't want to print every message that's returned by WQP
     quiet_bbox_avail <- quiet_whatWQPdata(
       WQPquery,
-      bBox = c(input_bbox$xmin, input_bbox$ymin, input_bbox$xmax, input_bbox$ymax)
+      bBox = c(
+        input_bbox$xmin,
+        input_bbox$ymin,
+        input_bbox$xmax,
+        input_bbox$ymax
+      )
     )
 
     # Alert & stop if an http error was received
     if (is.null(quiet_bbox_avail$result)) {
       stop_message <- quiet_bbox_avail$messages %>%
-        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        grep(
+          pattern = "failed|HTTP",
+          x = .,
+          ignore.case = FALSE,
+          value = TRUE
+        ) %>%
         paste("\n", ., collapse = "") %>%
-        paste("The WQP request returned a NULL with the following message(s): \n",
+        paste(
+          "The WQP request returned a NULL with the following message(s): \n",
           .,
           "The bounding box may be too large for this process. Reduce your area of interest and try again.",
           collapse = "\n"
@@ -453,7 +504,9 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     # Check if any sites are within the aoi
     if ((nrow(bbox_avail) > 0) == FALSE) {
-      stop("No monitoring sites were returned within your area of interest (no data available).")
+      stop(
+        "No monitoring sites were returned within your area of interest (no data available)."
+      )
     }
 
     quiet_bbox_sites <- quiet_whatWQPsites(
@@ -462,9 +515,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     if (is.null(quiet_bbox_sites$result)) {
       stop_message <- quiet_bbox_sites$messages %>%
-        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        grep(
+          pattern = "failed|HTTP",
+          x = .,
+          ignore.case = FALSE,
+          value = TRUE
+        ) %>%
         paste("\n", ., collapse = "") %>%
-        paste("The WQP request returned a NULL with the following message(s): \n",
+        paste(
+          "The WQP request returned a NULL with the following message(s): \n",
           .,
           collapse = "\n"
         )
@@ -490,7 +549,9 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     # Check if any sites are within the clip
     if ((length(clipped_site_ids) > 0) == FALSE) {
-      stop("No monitoring sites were returned within your area of interest (no data available).")
+      stop(
+        "No monitoring sites were returned within your area of interest (no data available)."
+      )
     }
 
     record_count <- bbox_avail %>%
@@ -536,7 +597,6 @@ TADA_DataRetrieval <- function(startDate = "null",
         message = function(m) message(m$message)
       )
 
-
       rm(bbox_avail, bbox_sites_sf)
       gc()
 
@@ -568,9 +628,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages %>%
-            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+            grep(
+              pattern = "failed|HTTP",
+              x = .,
+              ignore.case = FALSE,
+              value = TRUE
+            ) %>%
             paste("\n", ., collapse = "") %>%
-            paste("The WQP request returned a NULL with the following message(s): \n",
+            paste(
+              "The WQP request returned a NULL with the following message(s): \n",
               .,
               collapse = "\n"
             )
@@ -585,13 +651,16 @@ TADA_DataRetrieval <- function(startDate = "null",
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        ) %>%
+          dplyr::mutate(
+            dplyr::across(tidyselect::everything(), as.character)
+          )
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print("Data successfully downloaded. Running TADA_AutoClean function.")
+          print(
+            "Data successfully downloaded. Running TADA_AutoClean function."
+          )
 
           TADAprofile.clean <- TADA_AutoClean(TADAprofile)
         } else {
@@ -604,7 +673,9 @@ TADA_DataRetrieval <- function(startDate = "null",
       # Doesn't meet "big data" threshold:
     } else {
       # Retrieve all 3 profiles
-      print("Downloading WQP query results. This may take some time depending upon the query size.")
+      print(
+        "Downloading WQP query results. This may take some time depending upon the query size."
+      )
       print(WQPquery)
 
       # Get results
@@ -642,9 +713,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages %>%
-            grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+            grep(
+              pattern = "failed|HTTP",
+              x = .,
+              ignore.case = FALSE,
+              value = TRUE
+            ) %>%
             paste("\n", ., collapse = "") %>%
-            paste("The WQP request returned a NULL with the following message(s): \n",
+            paste(
+              "The WQP request returned a NULL with the following message(s): \n",
               .,
               collapse = "\n"
             )
@@ -659,13 +736,16 @@ TADA_DataRetrieval <- function(startDate = "null",
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        ) %>%
+          dplyr::mutate(
+            dplyr::across(tidyselect::everything(), as.character)
+          )
 
         # Run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print("Data successfully downloaded. Running TADA_AutoClean function.")
+          print(
+            "Data successfully downloaded. Running TADA_AutoClean function."
+          )
 
           TADAprofile.clean <- TADA_AutoClean(TADAprofile)
         } else {
@@ -687,7 +767,9 @@ TADA_DataRetrieval <- function(startDate = "null",
       statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
       statecd <- paste0("US:", statecodes_sub$STATE)
       if (nrow(statecodes_sub) == 0) {
-        stop("State code is not valid. Check FIPS state/territory abbreviations.")
+        stop(
+          "State code is not valid. Check FIPS state/territory abbreviations."
+        )
       }
       if (length(statecode) >= 1) {
         WQPquery <- c(WQPquery, statecode = list(statecd))
@@ -701,12 +783,22 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
 
     if (length(startDate) > 1) {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(startDate[1], orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          startDate[1],
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = list(startDate))
     } else if (startDate != "null") {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(startDate, orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          startDate,
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = startDate)
@@ -780,12 +872,22 @@ TADA_DataRetrieval <- function(startDate = "null",
     }
 
     if (length(endDate) > 1) {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(endDate[1], orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          endDate[1],
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = list(endDate))
     } else if (endDate != "null") {
-      if (is.na(suppressWarnings(lubridate::parse_date_time(endDate, orders = "ymd")))) {
+      if (
+        is.na(suppressWarnings(lubridate::parse_date_time(
+          endDate,
+          orders = "ymd"
+        )))
+      ) {
         stop("Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = endDate)
@@ -799,9 +901,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
     if (is.null(quiet_query_avail$result)) {
       stop_message <- quiet_query_avail$messages %>%
-        grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+        grep(
+          pattern = "failed|HTTP",
+          x = .,
+          ignore.case = FALSE,
+          value = TRUE
+        ) %>%
         paste("\n", ., collapse = "") %>%
-        paste("The WQP request returned a NULL with the following message(s): \n",
+        paste(
+          "The WQP request returned a NULL with the following message(s): \n",
           .,
           collapse = "\n"
         )
@@ -851,13 +959,21 @@ TADA_DataRetrieval <- function(startDate = "null",
       gc()
 
       # Get site metadata
-      quiet_sites.DR <- quiet_whatWQPsites(siteid = unique(results.DR$MonitoringLocationIdentifier))
+      quiet_sites.DR <- quiet_whatWQPsites(
+        siteid = unique(results.DR$MonitoringLocationIdentifier)
+      )
 
       if (is.null(quiet_sites.DR$result)) {
         stop_message <- quiet_sites.DR$messages %>%
-          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+          grep(
+            pattern = "failed|HTTP",
+            x = .,
+            ignore.case = FALSE,
+            value = TRUE
+          ) %>%
           paste("\n", ., collapse = "") %>%
-          paste("The WQP request returned a NULL with the following message(s): \n",
+          paste(
+            "The WQP request returned a NULL with the following message(s): \n",
             .,
             collapse = "\n"
           )
@@ -877,9 +993,15 @@ TADA_DataRetrieval <- function(startDate = "null",
 
       if (is.null(quiet_projects.DR$result)) {
         stop_message <- quiet_projects.DR$messages %>%
-          grep(pattern = "failed|HTTP", x = ., ignore.case = FALSE, value = TRUE) %>%
+          grep(
+            pattern = "failed|HTTP",
+            x = .,
+            ignore.case = FALSE,
+            value = TRUE
+          ) %>%
           paste("\n", ., collapse = "") %>%
-          paste("The WQP request returned a NULL with the following message(s): \n",
+          paste(
+            "The WQP request returned a NULL with the following message(s): \n",
             .,
             collapse = "\n"
           )
@@ -894,9 +1016,10 @@ TADA_DataRetrieval <- function(startDate = "null",
         FullPhysChem = results.DR,
         Sites = sites.DR,
         Projects = projects.DR
-      ) %>% dplyr::mutate(
-        dplyr::across(tidyselect::everything(), as.character)
-      )
+      ) %>%
+        dplyr::mutate(
+          dplyr::across(tidyselect::everything(), as.character)
+        )
 
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
@@ -912,10 +1035,13 @@ TADA_DataRetrieval <- function(startDate = "null",
       # If not a "big data" pull:
     } else {
       # Retrieve all 3 profiles
-      print("Downloading WQP query results. This may take some time depending upon the query size.")
+      print(
+        "Downloading WQP query results. This may take some time depending upon the query size."
+      )
       print(WQPquery)
       results.DR <- suppressMessages(
-        dataRetrieval::readWQPdata(WQPquery,
+        dataRetrieval::readWQPdata(
+          WQPquery,
           dataProfile = "resultPhysChem",
           ignore_attributes = TRUE
         )
@@ -923,13 +1049,16 @@ TADA_DataRetrieval <- function(startDate = "null",
 
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
-        print("Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help.")
+        print(
+          "Returning empty results dataframe: Your WQP query returned no results (no data available). Try a different query. Removing some of your query filters OR broadening your search area may help."
+        )
         TADAprofile.clean <- results.DR
       } else {
         sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
 
         projects.DR <- suppressMessages(
-          dataRetrieval::readWQPdata(WQPquery,
+          dataRetrieval::readWQPdata(
+            WQPquery,
             ignore_attributes = TRUE,
             service = "Project"
           )
@@ -939,13 +1068,16 @@ TADA_DataRetrieval <- function(startDate = "null",
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>% dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        ) %>%
+          dplyr::mutate(
+            dplyr::across(tidyselect::everything(), as.character)
+          )
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
-          print("Data successfully downloaded. Running TADA_AutoClean function.")
+          print(
+            "Data successfully downloaded. Running TADA_AutoClean function."
+          )
 
           TADAprofile.clean <- TADA_AutoClean(TADAprofile)
         } else {
@@ -999,18 +1131,20 @@ TADA_DataRetrieval <- function(startDate = "null",
 TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Make a reference table for tribal area type + url matching
   map_service_urls <- tibble::tribble(
-    ~tribal_area,                            ~url,
-    "Alaska Native Allotments",              "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
-    "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-    "American Indian Reservations",          "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-    "Off-reservation Trust Lands",           "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-    "Oklahoma Tribal Statistical Areas",     "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
-    "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+    ~tribal_area                           , ~url                                                                  ,
+    "Alaska Native Allotments"             , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
+    "Alaska Native Villages"               , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1" ,
+    "American Indian Reservations"         , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+    "Off-reservation Trust Lands"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+    "Oklahoma Tribal Statistical Areas"    , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" ,
+    "Virginia Federally Recognized Tribes" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
   )
 
   # Confirm usable string provided
   if (!(tribal_area_type %in% map_service_urls$tribal_area)) {
-    stop("tribal_area_type must match one of the six tribal spatial layer names.")
+    stop(
+      "tribal_area_type must match one of the six tribal spatial layer names."
+    )
   }
 
   # Query Map Service
@@ -1161,7 +1295,12 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #' @param maxsites Maximum number of sites to query at once.
 #'
 #' @return TADA-compatible dataframe
-TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsites = 300) {
+TADA_BigDataHelper <- function(
+  record_summary,
+  WQPquery,
+  maxrecs = 250000,
+  maxsites = 300
+) {
   # Get total number of results per site and separate out sites with >maxrecs results
   tot_sites <- record_summary %>%
     dplyr::group_by(MonitoringLocationIdentifier) %>%
@@ -1182,11 +1321,13 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
   # Number of sites per download group limited to 300.
   if (dim(smallsites)[1] > 0) {
     smallsitesgrp <- smallsites %>%
-      dplyr::mutate(group = MESS::cumsumbinning(
-        x = tot_n,
-        threshold = maxrecs,
-        maxgroupsize = 300
-      ))
+      dplyr::mutate(
+        group = MESS::cumsumbinning(
+          x = tot_n,
+          threshold = maxrecs,
+          maxgroupsize = 300
+        )
+      )
 
     # Status update to user
     print(
@@ -1197,7 +1338,11 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    small_prog_bar <- utils::txtProgressBar(min = 0, max = sum(smallsites$tot_n), style = 3)
+    small_prog_bar <- utils::txtProgressBar(
+      min = 0,
+      max = sum(smallsites$tot_n),
+      style = 3
+    )
 
     # Download the data for each group
     for (i in 1:max(smallsitesgrp$group)) {
@@ -1241,7 +1386,11 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
       )
     )
 
-    big_prog_bar <- utils::txtProgressBar(min = 0, max = sum(bigsites$tot_n), style = 3)
+    big_prog_bar <- utils::txtProgressBar(
+      min = 0,
+      max = sum(bigsites$tot_n),
+      style = 3
+    )
 
     # Unique site IDs
     bsitesvec <- unique(bigsites$MonitoringLocationIdentifier)
@@ -1271,7 +1420,6 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
     rm(bigsites)
     gc()
   }
-
 
   df_out <- dplyr::bind_rows(df_small, df_big)
 
@@ -1333,9 +1481,11 @@ TADA_BigDataHelper <- function(record_summary, WQPquery, maxrecs = 250000, maxsi
 #' )
 #' }
 #'
-TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
-                                 Sites = "null",
-                                 Projects = "null") {
+TADA_JoinWQPProfiles <- function(
+  FullPhysChem = "null",
+  Sites = "null",
+  Projects = "null"
+) {
   FullPhysChem.df <- FullPhysChem
 
   Sites.df <- Sites
@@ -1347,13 +1497,17 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     if (nrow(Sites.df) > 0) {
       join1 <- FullPhysChem.df %>%
         # join stations to results
-        dplyr::left_join(Sites.df,
+        dplyr::left_join(
+          Sites.df,
           by = "MonitoringLocationIdentifier",
           multiple = "all",
           relationship = "many-to-many"
         ) %>%
         # remove ".x" suffix from column names
-        dplyr::rename_at(dplyr::vars(dplyr::ends_with(".x")), ~ stringr::str_replace(., "\\..$", "")) %>%
+        dplyr::rename_at(
+          dplyr::vars(dplyr::ends_with(".x")),
+          ~ stringr::str_replace(., "\\..$", "")
+        ) %>%
         # remove columns with ".y" suffix
         dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     } else {
@@ -1363,21 +1517,29 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
     join1 <- FullPhysChem.df
   }
 
-
   # Add QAPP columns from project
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
       join2 <- join1 %>%
         dplyr::left_join(
           dplyr::select(
-            Projects.df, OrganizationIdentifier, OrganizationFormalName,
-            ProjectIdentifier, ProjectName, ProjectDescriptionText,
-            SamplingDesignTypeCode, QAPPApprovedIndicator, QAPPApprovalAgencyName,
-            ProjectFileUrl, ProjectMonitoringLocationWeightingUrl
+            Projects.df,
+            OrganizationIdentifier,
+            OrganizationFormalName,
+            ProjectIdentifier,
+            ProjectName,
+            ProjectDescriptionText,
+            SamplingDesignTypeCode,
+            QAPPApprovedIndicator,
+            QAPPApprovalAgencyName,
+            ProjectFileUrl,
+            ProjectMonitoringLocationWeightingUrl
           ),
           by = c(
-            "OrganizationIdentifier", "OrganizationFormalName",
-            "ProjectIdentifier", "ProjectName"
+            "OrganizationIdentifier",
+            "OrganizationFormalName",
+            "ProjectIdentifier",
+            "ProjectName"
           ),
           multiple = "all",
           # need to specify that this is expected to be a 1-to-many relationship
@@ -1392,11 +1554,20 @@ TADA_JoinWQPProfiles <- function(FullPhysChem = "null",
   # check to make sure project cols have been added (a few of these are
   # required TADA cols for the shiny app to run & for package checks to pass)
   # even if blank
-  if (all(Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in% names(join2)) == FALSE) {
+  if (
+    all(
+      Filter(function(x) !any(grepl("TADA.", x)), require.cols) %in%
+        names(join2)
+    ) ==
+      FALSE
+  ) {
     join2[c(
       "ProjectDescriptionText",
-      "SamplingDesignTypeCode", "QAPPApprovedIndicator", "QAPPApprovalAgencyName",
-      "ProjectFileUrl", "ProjectMonitoringLocationWeightingUrl"
+      "SamplingDesignTypeCode",
+      "QAPPApprovedIndicator",
+      "QAPPApprovalAgencyName",
+      "ProjectFileUrl",
+      "ProjectMonitoringLocationWeightingUrl"
     )] <- NA
   }
   return(join2)
@@ -1436,7 +1607,8 @@ ask_user <- function(n_records) {
 
 # function for chunking by records
 make_groups <- function(x, maxrecs) {
-  if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) { # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
+  if (sum(x$tot_n) <= maxrecs | dim(x)[1] == 1) {
+    # WARNING: if there's only one row and it's more than maxrecs, it will try to run the query anyway
     groupings <- x
     groupings$group <- 1
   } else {
@@ -1539,8 +1711,22 @@ TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz) {
   offsetLibrary <- data.frame(
     offset = c(5, 4, 6, 5, 7, 6, 8, 7, 9, 8, 10, 10, 0, 0, 0, 0),
     code = c(
-      "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT",
-      "AKST", "AKDT", "HAST", "HST", "UTC", "", NA, "GMT"
+      "EST",
+      "EDT",
+      "CST",
+      "CDT",
+      "MST",
+      "MDT",
+      "PST",
+      "PDT",
+      "AKST",
+      "AKDT",
+      "HAST",
+      "HST",
+      "UTC",
+      "",
+      NA,
+      "GMT"
     )
   )
 
@@ -1560,11 +1746,15 @@ TADA_CreateDateTime <- function(.data, date_col, time_col, tz_col, tz) {
   .data$dateTime <- lubridate::fast_strptime(
     .data$dateTime,
     "%Y-%m-%d %H:%M:%S"
-  ) + 60 * 60 * .data$offset
+  ) +
+    60 * 60 * .data$offset
 
   attr(.data$dateTime, "tzone") <- tz
 
-  .data[[date_col]] <- suppressWarnings(as.Date(lubridate::parse_date_time(.data[[date_col]], c("Ymd", "mdY"))))
+  .data[[date_col]] <- suppressWarnings(as.Date(lubridate::parse_date_time(
+    .data[[date_col]],
+    c("Ymd", "mdY")
+  )))
 
   .data <- .data[, c(original_order, "offset", "dateTime")]
 
