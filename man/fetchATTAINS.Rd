@@ -4,7 +4,7 @@
 \alias{fetchATTAINS}
 \title{fetchATTAINS}
 \usage{
-fetchATTAINS(.data, catchments_only = FALSE)
+fetchATTAINS(.data, catchments_only = FALSE, org_id = "all")
 }
 \arguments{
 \item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}

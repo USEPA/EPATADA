@@ -267,7 +267,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   if(org_id == "all") {
     org_filter <- "1=1"  # This effectively means no filtering on organizationidentifier
   } else {
-    org_filter <- paste0("organizationidentifier IN ('", paste(org_id, collapse = "','"), "')")
+    org_filter <- paste0("organizationid IN ('", paste(org_id, collapse = "','"), "')")
   }
 
   fetch_au <- function(baseurls, assessment_unit_ids) {
@@ -2581,6 +2581,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         }
 
         return(list)
+      }
 
 
       # create list of assessment units with geometry
@@ -2631,7 +2632,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         )
       }
       }
-    }
     }
 
     # set base pop up for monitoring locations
