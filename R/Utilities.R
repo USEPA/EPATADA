@@ -34,132 +34,436 @@ quiet <- function(x) {
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
-  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
-  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag",
-  "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
-  "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
-  "MethodSpecationName", "MonitoringLocationIdentifier",
-  "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
-  "ProjectFileUrl", "ProjectIdentifier",
-  "ProjectMonitoringLocationWeightingUrl", "ProjectName",
-  "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
-  "ResultDetectionConditionText", "ResultMeasureValue",
-  "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
-  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
-  "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
-  "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
-  "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
-  "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
-  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs", "dup_id",
-  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
-  "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
-  "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count",
-  "Status2", "ActivityTypeCode", "SampleCollectionEquipmentName",
-  "ResultTimeBasisText", "StatisticalBaseCode", "ResultValueTypeName",
-  "masked", "TADA.env", "Legend", "Fields", "desc", "WQXActivityType_Cached",
-  "TADA.ActivityType.Flag", "Code", "ResultCount",
-  "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure",
-  "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier",
-  "roundRV", "TADA.DuplicateID", "maxRV", "within10",
-  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
-  "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
-  "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
-  "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
-  "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
-  "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
-  "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
-  "value", "Flag_Column", "ActivityStartDateTime",
-  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
-  "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
-  "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
-  "Last.Change.Date", "Value", "Minimum",
-  "Comb", "CombList",
-  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
-  "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
-  "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
-  "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
-  "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
-  "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "TADA.ResultValueAboveUpperThreshold.Flag",
+  "ActivityIdentifier",
+  "ActivityMediaName",
+  "ActivityStartDate",
+  "TADA.ResultValueBelowUpperThreshold.Flag",
+  "TADA.ResultValueBelowLowerThreshold.Flag",
+  "CharacteristicName",
+  "Conversion.Factor",
+  "Count",
+  "Description",
+  "FieldName",
+  "FieldValue",
+  "MethodSpecationName",
+  "MonitoringLocationIdentifier",
+  "OrganizationFormalName",
+  "OrganizationIdentifier",
+  "ProjectDescriptionText",
+  "ProjectFileUrl",
+  "ProjectIdentifier",
+  "ProjectMonitoringLocationWeightingUrl",
+  "ProjectName",
+  "QAPPApprovalAgencyName",
+  "QAPPApprovedIndicator",
+  "ResultDetectionConditionText",
+  "ResultMeasureValue",
+  "SamplingDesignTypeCode",
+  "Source",
+  "Status",
+  "TADA.ContinuousData.Flag",
+  "TADA.SuspectCoordinates.Flag",
+  "TADA.PotentialDupRowIDs.Flag",
+  "TADA.QAPPDocAvailable",
+  "Target.Unit",
+  "Type",
+  "Value.Unit",
+  "TADA.AnalyticalMethod.Flag",
+  "TADA.MethodSpeciation.Flag",
+  "TADA.ResultUnit.Flag",
+  "TADA.SampleFraction.Flag",
+  "YearSummarized",
+  "where",
+  "TADA.CharacteristicName",
+  "ResultIdentifier",
+  "TADA.ResultMeasureValue",
+  "n_sites",
+  "n_records",
+  "statecodes_df",
+  "STUSAB",
+  "ActivityStartTime.Time",
+  "numorgs",
+  "dup_id",
+  "LatitudeMeasure",
+  "TADA.ResultMeasureValueDataTypes.Flag",
+  "Name",
+  "TADA.Detection_Type",
+  "DetectionQuantitationLimitTypeName",
+  "TADA.Limit_Type",
+  "multiplier",
+  "summ",
+  "cf",
+  "LongitudeMeasure",
+  "TADA.CensoredData.Flag",
+  "Censored_Count",
+  "Status2",
+  "ActivityTypeCode",
+  "SampleCollectionEquipmentName",
+  "ResultTimeBasisText",
+  "StatisticalBaseCode",
+  "ResultValueTypeName",
+  "masked",
+  "TADA.env",
+  "Legend",
+  "Fields",
+  "desc",
+  "WQXActivityType_Cached",
+  "TADA.ActivityType.Flag",
+  "Code",
+  "ResultCount",
+  "tot_n",
+  "MonitoringLocationName",
+  "TADA.LatitudeMeasure",
+  "TADA.LongitudeMeasure",
+  "median",
+  "sd",
+  "TADA.ComparableDataIdentifier",
+  "roundRV",
+  "TADA.DuplicateID",
+  "maxRV",
+  "within10",
+  "AllGroups",
+  "Domain.Value.Status",
+  "Char_Flag",
+  "Comparable.Name",
+  "TADA.ResultMeasureValue1",
+  "TADA.ResultSampleFractionText",
+  "TADA.MethodSpeciationName",
+  "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ActivityMediaName",
+  "TADA.NutrientSummationGroup",
+  "SummationName",
+  "SummationRank",
+  "SummationFractionNotes",
+  "SummationSpeciationNotes",
+  "SummationSpeciationConversionFactor",
+  "SummationNote",
+  "NutrientGroup",
+  "Target.Speciation",
+  "TADA.NearbySiteGroups",
+  "numres",
+  "TADA.SingleOrgDupGroupID",
+  "TADA.MeasureQualifierCode.Flag",
+  "TADA.MeasureQualifierCode.Def",
+  "MeasureQualifierCode",
+  "value",
+  "Flag_Column",
+  "ActivityStartDateTime",
+  "TADA.MultipleOrgDupGroupID",
+  "TADA.WQXVal.Flag",
+  "Concat",
+  ".",
+  "MeasureQualifierCode.Split",
+  "TADA.Media.Flag",
+  "ML.Media.Flag",
+  "TADA.UseForAnalysis.Flag",
+  "Unique.Identifier",
+  "Domain",
+  "Note.Recommendation",
+  "Conversion.Coefficient",
+  "Last.Change.Date",
+  "Value",
+  "Minimum",
+  "Comb",
+  "CombList",
+  "TADA.Target.ResultMeasure.MeasureUnitCode",
+  "TADA.WQXUnitConversionFactor",
+  "TADA.WQXUnitConversionCoefficient",
+  "TADA.Target.MethodSpeciationName",
+  "flag",
+  "NConvert",
+  "MultUnits",
+  "CharList",
+  "CharUnit",
+  "SingleNearbyGroup",
+  "TADA.MultipleOrgDuplicate",
+  "TADA.ResultSelectedMultipleOrgs",
+  "Maximum",
+  "OBJECTID",
+  "GLOBALID",
+  "assessmentunitidentifier",
+  "index",
+  "epsg",
+  "ResultMeasure.MeasureUnitCode",
+  "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "NCode",
-  "ATTAINS.AssessmentUnitIdentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
-  "ATTAINS_AUs", "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
-  "DepthsPerGroup", "MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
+  "ATTAINS.AssessmentUnitIdentifier",
+  "ATTAINS_AU",
+  "TOTALAREA_MI",
+  "TOTALAREA_KM",
+  "ATTAINS_AUs",
+  "ARD_Category",
+  "ActivityRelativeDepthName",
+  "DepthsByGroup",
+  "DepthsPerGroup",
+  "MeanResults",
+  "MonitoringLocationTypeName",
+  "N",
+  "SecchiConversion",
   "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
-  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode", "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ActivityDepthHeightMeasure.MeasureValue",
   "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth",
-  "TADA.ConsolidatedDepth.Bottom TADA.ConsolidatedDepth.Unit", "TADA.DepthCategory.Flag",
-  "TADA.DepthProfileAggregation.Flag", "TADA.NResults",
-  "TADA.ResultDepthHeightMeasure.MeasureUnitCode", "TADA.ResultDepthHeightMeasure.MeasureValue",
-  "YAxis.DepthUnit", "TADA.CharacteristicsForDepthProfile", "TADA.ConsolidatedDepth",
-  "TADA.ConsolidatedDepth.Bottom", "TADA.ConsolidatedDepth.Unit", "col2rgb",
-  "palette.colors", "rect", "rgb", "text", "CodeNoSpeciation", "ResultMeasure.MeasureUnitCode.Upper",
-  "TADA.MonitoringLocationIdentifier", "StringA", "StringB", "MeasureUnitCode.match",
-  "TADA.ActivityTopDepthHeightMeasure.MeasureValue", "group_id", "time_diff_lead", "time_diff_lag",
-  "NResults", "missing.group", "TADA.PairingGroup", "TADA.PairingGroup.Rank", "timediff",
-  "TADA.MonitoringLocationName", "TADA.MonitoringLocationTypeName",
-  "ATTAINS.SubmissionId", "HorizontalCoordinateReferenceSystemDatumName",
-  "NCount", "NHD.catchmentareasqkm", "NHD.comid", "NHD.nhdplusid", "NHD.resolution",
-  "areasqkm", "assessmentUnitIdentifier", "catchmentareasqkm", "comid",
-  "featureid", "geometry", "nhdplusid", "waterTypeCode", "TADA.NearbySiteGroup",
-  "TADA.MonitoringLocationIdentifier.New", "TADA.NearbySites.Flag", "CountSites", "Group",
-  "Matrix", "n_id", "OrgRank", "rank.default", "Site", "TADA.LatitudeMeasure.New",
-  "TADA.LongitudeMeasure.New", "TADA.MonitoringLocationName.New",
-  "TADA.MonitoringLocationTypeName.New", "df_number", "ASSESSMENT_UNIT_ID",
-  "ATTAINS.FlagParameterName", "ATTAINS.FlagUseName", "ATTAINS.ParameterName",
-  "CRITERIATYPEAQUAHUMHLTH", "CRITERIATYPEFRESHSALTWATER", "CRITERIATYPE_ACUTECHRONIC",
-  "CRITERIATYPE_WATERORG", "CRITERION_VALUE", "ENTITY_ABBR", "EPA304A.PollutantName",
-  "IncludeOrExclude", " MONITORING_DATA_LINK_TEXT", "MONITORING_DATA_LINK_TEXT.New",
-  "MS_LOCATION_ID", "MS_ORG_ID", "MonitoringDataLinkText", "OrgIDForURL", "POLLUTANT_NAME",
-  "ProviderName", "TADA.SingleOrgDup.Flag", "UNIT_NAME", "URLencode", "USE_CLASS_NAME_LOCATION_ETC",
-  "assessment_unit_identifier", "monitoring_data_link_text", "monitoring_location_identifier",
-  "monitoring_organization_identifier", "monitoring_stations", "organization_identifier",
-  "organization_identifier.y", "parameter", "use_name", "use_name.y",
-  "ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName.y",
-  "ATTAINS.UseName", "ATTAINS.UseName.x", "ATTAINS.UseName.y",
-  "Flag.ParameterInput", "Flag.UseInput", "TADA.ComparableDataIdentifier.x",
-  "TADA.ComparableDataIdentifier.y", "organizationId", "organizationName",
-  "organizationType", "parameterName",
-  "PARCEL_NO", "TRIBE_NAME", "everything",
-  "resultCount", "tribal_area", "txtProgressBar", "Date", "NWIS.parameter",
-  "NWIS.status", "NWIS.value", "TADA.DistanceAway.Meters", "agency_cd begin_date",
-  "parm_cd site_no", "site_tp_cd", "site_type", "st_drop_geometry", "station_nm",
-  "ApplyUniqueSpatialCriteria", "assessmentUnitId", "ATTAINS.AssessmentUnitName",
-  "ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "useName", "waterType",
-  "TADA.AssessmentUnitStatus", "Flag.AssessmentNote",
-  "cluster", "count", "count_nu", "data_type", "data_type_cd", "dec_lat_va",
-  "dec_long_va", "end_date", "parameter_code", "parameter_name_description",
-  "Statistic Type Code", "Statistic Type Description", "agency_cd", "begin_date",
-  "parm_cd", "site_no", "stat_cd", "stat_type", "grouped.sites", "n",
-  "nearby", "rainbow", "monitoringLocationId", "monitoringLocationOrgId",
-  "monitoringLocationDataLink", "ATTAINS.OrganizationName", "ATTAINS.WaterType",
-  "ATTAINS.MonitoringDataLinkText", "ATTAINS.MonitoringDataLinkText.New",
-  "ATTAINS.MonitoringLocationIdentifier", "AssessmentUnitIdentifier",
-  "DetectionQuantitationLimitMeasure.MeasureUnitCode", "MS_DATA_LINK",
-  "OLD_ATTAINS.MonitoringLocationIdentifier", "Shape_Area", "Shape_Length",
-  "TADA.AURefSource", "TADA.NutrientSummation.Flag", "assessmentunitname",
-  "assmnt_joinkey", "catchmentistribal", "catchmentresolution",
-  "catchmentstatecode", "has4bplan", "hasalternativeplan", "hasprotectionplan",
-  "hastmdl", "huc12", "ircategory", "isassessed", "isimpaired", "isthreatened",
-  "objectId", "on303dlist", "organizationid", "organizationname", "orgtype",
-  "overallstatus", "permid_joinkey", "region", "reportingCycle",
-  "reportingcycle", "response.code", "return_sf", "state", "submissionid",
-  "tas303d", "visionpriority303d", "waterbodyreportlink", "xwalk_huc12_version",
-  "xwalk_method", "WqxV2.FieldName", "auid.col", "ml.col", "type.col",
-  "AggregatedActivityEndDateTime", "AggregatedActivityStartDateTime",
-  "ATTAINS.AssessmentUnitIdentifier.y", "ATTAINS.WaterType.y DepthCategory",
-  "DurationPeriod.x", "DurationValue", "geomean_TADA.ResultMeasureValue",
-  "MagnitudeUnit", "MagnitudeValueLower", "MagnitudeValueUpper",
-  "n_Aggregatedsamples", "n_exceedance", "SaltFresh", "TADA.ParameterInSite.Flag",
-  "UniqueSpatialCriteria", "ATTAINS.WaterType.y", "DepthCategory", "User.WaterType",
-  "ATTAINS.OrganizationId", "MatchMessage", "Mismatch", "Ref.WaterType",
-  "Alias.Type.Name", "CAS_NO CAS.Number", "Char_Flag.x", "Char_Flag.y",
-  "Characteristic.Name", "STD_POLLUTANT_NAME", "name", "name_words",
-  "percent_match_ATTAINS", "percent_match_WQX", "Characteristic", "WQXcharValRef",
-  "CAS.Number", "CAS_NO CharacteristicName.x", "CharacteristicName.y",
-  "Comparable.Name.x", "Comparable.Name.y", "POLLUTANT_NAME.x", "POLLUTANT_NAME.y",
-  "STD_POLLUTANT_NAME.x", "STD_POLLUTANT_NAME.y", "percent_match_ATTAINS_CST",
-  "percent_match_ATTAINS_WQX", "percent_match_CST", "CAS_NO", "CharacteristicName.x"
+  "TADA.ConsolidatedDepth.Bottom TADA.ConsolidatedDepth.Unit",
+  "TADA.DepthCategory.Flag",
+  "TADA.DepthProfileAggregation.Flag",
+  "TADA.NResults",
+  "TADA.ResultDepthHeightMeasure.MeasureUnitCode",
+  "TADA.ResultDepthHeightMeasure.MeasureValue",
+  "YAxis.DepthUnit",
+  "TADA.CharacteristicsForDepthProfile",
+  "TADA.ConsolidatedDepth",
+  "TADA.ConsolidatedDepth.Bottom",
+  "TADA.ConsolidatedDepth.Unit",
+  "col2rgb",
+  "palette.colors",
+  "rect",
+  "rgb",
+  "text",
+  "CodeNoSpeciation",
+  "ResultMeasure.MeasureUnitCode.Upper",
+  "TADA.MonitoringLocationIdentifier",
+  "StringA",
+  "StringB",
+  "MeasureUnitCode.match",
+  "TADA.ActivityTopDepthHeightMeasure.MeasureValue",
+  "group_id",
+  "time_diff_lead",
+  "time_diff_lag",
+  "NResults",
+  "missing.group",
+  "TADA.PairingGroup",
+  "TADA.PairingGroup.Rank",
+  "timediff",
+  "TADA.MonitoringLocationName",
+  "TADA.MonitoringLocationTypeName",
+  "ATTAINS.SubmissionId",
+  "HorizontalCoordinateReferenceSystemDatumName",
+  "NCount",
+  "NHD.catchmentareasqkm",
+  "NHD.comid",
+  "NHD.nhdplusid",
+  "NHD.resolution",
+  "areasqkm",
+  "assessmentUnitIdentifier",
+  "catchmentareasqkm",
+  "comid",
+  "featureid",
+  "geometry",
+  "nhdplusid",
+  "waterTypeCode",
+  "TADA.NearbySiteGroup",
+  "TADA.MonitoringLocationIdentifier.New",
+  "TADA.NearbySites.Flag",
+  "CountSites",
+  "Group",
+  "Matrix",
+  "n_id",
+  "OrgRank",
+  "rank.default",
+  "Site",
+  "TADA.LatitudeMeasure.New",
+  "TADA.LongitudeMeasure.New",
+  "TADA.MonitoringLocationName.New",
+  "TADA.MonitoringLocationTypeName.New",
+  "df_number",
+  "ASSESSMENT_UNIT_ID",
+  "ATTAINS.FlagParameterName",
+  "ATTAINS.FlagUseName",
+  "ATTAINS.ParameterName",
+  "CRITERIATYPEAQUAHUMHLTH",
+  "CRITERIATYPEFRESHSALTWATER",
+  "CRITERIATYPE_ACUTECHRONIC",
+  "CRITERIATYPE_WATERORG",
+  "CRITERION_VALUE",
+  "ENTITY_ABBR",
+  "EPA304A.PollutantName",
+  "IncludeOrExclude",
+  " MONITORING_DATA_LINK_TEXT",
+  "MONITORING_DATA_LINK_TEXT.New",
+  "MS_LOCATION_ID",
+  "MS_ORG_ID",
+  "MonitoringDataLinkText",
+  "OrgIDForURL",
+  "POLLUTANT_NAME",
+  "ProviderName",
+  "TADA.SingleOrgDup.Flag",
+  "UNIT_NAME",
+  "URLencode",
+  "USE_CLASS_NAME_LOCATION_ETC",
+  "assessment_unit_identifier",
+  "monitoring_data_link_text",
+  "monitoring_location_identifier",
+  "monitoring_organization_identifier",
+  "monitoring_stations",
+  "organization_identifier",
+  "organization_identifier.y",
+  "parameter",
+  "use_name",
+  "use_name.y",
+  "ATTAINS.OrganizationIdentifier",
+  "ATTAINS.ParameterName.y",
+  "ATTAINS.UseName",
+  "ATTAINS.UseName.x",
+  "ATTAINS.UseName.y",
+  "Flag.ParameterInput",
+  "Flag.UseInput",
+  "TADA.ComparableDataIdentifier.x",
+  "TADA.ComparableDataIdentifier.y",
+  "organizationId",
+  "organizationName",
+  "organizationType",
+  "parameterName",
+  "PARCEL_NO",
+  "TRIBE_NAME",
+  "everything",
+  "resultCount",
+  "tribal_area",
+  "txtProgressBar",
+  "Date",
+  "NWIS.parameter",
+  "NWIS.status",
+  "NWIS.value",
+  "TADA.DistanceAway.Meters",
+  "agency_cd begin_date",
+  "parm_cd site_no",
+  "site_tp_cd",
+  "site_type",
+  "st_drop_geometry",
+  "station_nm",
+  "ApplyUniqueSpatialCriteria",
+  "assessmentUnitId",
+  "ATTAINS.AssessmentUnitName",
+  "ATTAINS.OrganizationIdentifier",
+  "ATTAINS.WaterType",
+  "useName",
+  "waterType",
+  "TADA.AssessmentUnitStatus",
+  "Flag.AssessmentNote",
+  "cluster",
+  "count",
+  "count_nu",
+  "data_type",
+  "data_type_cd",
+  "dec_lat_va",
+  "dec_long_va",
+  "end_date",
+  "parameter_code",
+  "parameter_name_description",
+  "Statistic Type Code",
+  "Statistic Type Description",
+  "agency_cd",
+  "begin_date",
+  "parm_cd",
+  "site_no",
+  "stat_cd",
+  "stat_type",
+  "grouped.sites",
+  "n",
+  "nearby",
+  "rainbow",
+  "monitoringLocationId",
+  "monitoringLocationOrgId",
+  "monitoringLocationDataLink",
+  "ATTAINS.OrganizationName",
+  "ATTAINS.WaterType",
+  "ATTAINS.MonitoringDataLinkText",
+  "ATTAINS.MonitoringDataLinkText.New",
+  "ATTAINS.MonitoringLocationIdentifier",
+  "AssessmentUnitIdentifier",
+  "DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "MS_DATA_LINK",
+  "OLD_ATTAINS.MonitoringLocationIdentifier",
+  "Shape_Area",
+  "Shape_Length",
+  "TADA.AURefSource",
+  "TADA.NutrientSummation.Flag",
+  "assessmentunitname",
+  "assmnt_joinkey",
+  "catchmentistribal",
+  "catchmentresolution",
+  "catchmentstatecode",
+  "has4bplan",
+  "hasalternativeplan",
+  "hasprotectionplan",
+  "hastmdl",
+  "huc12",
+  "ircategory",
+  "isassessed",
+  "isimpaired",
+  "isthreatened",
+  "objectId",
+  "on303dlist",
+  "organizationid",
+  "organizationname",
+  "orgtype",
+  "overallstatus",
+  "permid_joinkey",
+  "region",
+  "reportingCycle",
+  "reportingcycle",
+  "response.code",
+  "return_sf",
+  "state",
+  "submissionid",
+  "tas303d",
+  "visionpriority303d",
+  "waterbodyreportlink",
+  "xwalk_huc12_version",
+  "xwalk_method",
+  "WqxV2.FieldName",
+  "auid.col",
+  "ml.col",
+  "type.col",
+  "AggregatedActivityEndDateTime",
+  "AggregatedActivityStartDateTime",
+  "ATTAINS.AssessmentUnitIdentifier.y",
+  "ATTAINS.WaterType.y DepthCategory",
+  "DurationPeriod.x",
+  "DurationValue",
+  "geomean_TADA.ResultMeasureValue",
+  "MagnitudeUnit",
+  "MagnitudeValueLower",
+  "MagnitudeValueUpper",
+  "n_Aggregatedsamples",
+  "n_exceedance",
+  "SaltFresh",
+  "TADA.ParameterInSite.Flag",
+  "UniqueSpatialCriteria",
+  "ATTAINS.WaterType.y",
+  "DepthCategory",
+  "User.WaterType",
+  "ATTAINS.OrganizationId",
+  "MatchMessage",
+  "Mismatch",
+  "Ref.WaterType",
+  "Alias.Type.Name",
+  "CAS_NO CAS.Number",
+  "Char_Flag.x",
+  "Char_Flag.y",
+  "Characteristic.Name",
+  "STD_POLLUTANT_NAME",
+  "name",
+  "name_words",
+  "percent_match_ATTAINS",
+  "percent_match_WQX",
+  "Characteristic",
+  "WQXcharValRef",
+  "CAS.Number",
+  "CAS_NO CharacteristicName.x",
+  "CharacteristicName.y",
+  "Comparable.Name.x",
+  "Comparable.Name.y",
+  "POLLUTANT_NAME.x",
+  "POLLUTANT_NAME.y",
+  "STD_POLLUTANT_NAME.x",
+  "STD_POLLUTANT_NAME.y",
+  "percent_match_ATTAINS_CST",
+  "percent_match_ATTAINS_WQX",
+  "percent_match_CST",
+  "CAS_NO",
+  "CharacteristicName.x"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -293,8 +597,13 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   )
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
-                                     clean = FALSE, flaggedonly = FALSE) {
+TADA_ConvertSpecialChars <- function(
+  .data,
+  col,
+  percent.ave = TRUE,
+  clean = FALSE,
+  flaggedonly = FALSE
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -310,7 +619,9 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
-    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
+    stop(
+      "Function not executed because clean and flaggedonly cannot both be TRUE"
+    )
   }
 
   if (!any(grepl("TADA.", col))) {
@@ -330,26 +641,35 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     if (col == "ResultMeasureValue") {
       do.units <- c("%", "% SATURATN")
 
-      chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-        paste(chars.data$masked, "%"), chars.data$masked
+      chars.data$masked <- ifelse(
+        chars.data$CharacteristicName == "Dissolved oxygen (DO)" &
+          chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+        paste(chars.data$masked, "%"),
+        chars.data$masked
       )
 
       # updates percentage units where NA
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-        grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
+        grepl("%", chars.data$masked),
+        "%",
+        chars.data$ResultMeasure.MeasureUnitCode
       )
 
       # TADA.ResultMeasure.MeasureUnitCode to uppercase
-      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
+      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
+        chars.data$TADA.ResultMeasure.MeasureUnitCode
+      )
     }
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
       clean.data <- chars.data %>%
-        dplyr::mutate(flag = dplyr::case_when(
-          is.na(masked) ~ as.character("NA - Not Available"),
-          TRUE ~ as.character("Numeric")
-        ))
+        dplyr::mutate(
+          flag = dplyr::case_when(
+            is.na(masked) ~ as.character("NA - Not Available"),
+            TRUE ~ as.character("Numeric")
+          )
+        )
     } else {
       chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
       # Detect special characters in column and populate new flag column with descriptor
@@ -358,26 +678,39 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
         dplyr::mutate(
           flag = dplyr::case_when(
             is.na(masked) ~ as.character("NA - Not Available"),
-            (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
+            (!is.na(
+              suppressWarnings(as.numeric(masked)) == TRUE
+            )) ~ as.character("Numeric"),
             (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
             (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
             (grepl("\\+", masked) == TRUE) ~ as.character("Greater Than"),
             (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
             (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
             (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
-            (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
-            (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
-            (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
+            (grepl(",", masked) == TRUE) ~ as.character(
+              "Comma-Separated Numeric"
+            ),
+            (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character(
+              "Numeric Range - Averaged"
+            ),
+            (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) ==
+              TRUE) ~ as.character("Percentage Range - Averaged"),
             # because * is a special character you have to escape\\ it:
             (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
-            (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
+            (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character(
+              "Non-ASCII Character(s)"
+            ),
             TRUE ~ "Coerced to NA"
           ),
-          flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged", flag
+          flag = ifelse(
+            flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
+            "Percentage Range - Averaged",
+            flag
           ),
-          flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged", flag
+          flag = ifelse(
+            flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
+            "Percentage Range - Averaged",
+            flag
           )
         )
     }
@@ -387,7 +720,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     }
 
     if (percent.ave == TRUE) {
-      num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
+      num.range.filter <- c(
+        "Numeric Range - Averaged",
+        "Percentage Range - Averaged"
+      )
     }
 
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
@@ -401,11 +737,25 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
           masked = stringr::str_remove(masked, ">"),
           masked = stringr::str_remove(masked, "<")
         ) %>%
-        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
+        tidyr::separate(
+          masked,
+          into = c("num1", "num2"),
+          sep = "-",
+          remove = TRUE
+        ) %>%
         dplyr::mutate_at(c("num1", "num2"), as.numeric)
-      numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
+      numrange$masked <- as.character(rowMeans(
+        numrange[, c("num1", "num2")],
+        na.rm = TRUE
+      ))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
-        dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
+        dplyr::mutate(
+          masked = ifelse(
+            flag == "Percentage Range - Average",
+            paste(masked, "%", sep = ""),
+            masked
+          )
+        )
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
@@ -413,7 +763,8 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked, c(
+      clean.data$masked,
+      c(
         "<" = "",
         ">" = "",
         "~" = "",
@@ -433,7 +784,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
     # remove columns to be replaced
     clean.data <- clean.data %>%
-      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
+      dplyr::select(
+        !(tidyselect::any_of(numcol)),
+        !(tidyselect::any_of(flagcol))
+      )
 
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
@@ -456,7 +810,10 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
     # remove columns to be replaced
     clean.data <- clean.data %>%
-      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
+      dplyr::select(
+        !(tidyselect::any_of(numcol)),
+        !(tidyselect::any_of(flagcol))
+      )
 
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
@@ -469,13 +826,16 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c(
-          "NA - Not Available",
-          "Text",
-          "Non-ASCII Character(s)",
-          "Result Value/Unit Cannot Be Estimated From Detection Limit",
-          "Coerced to NA"
-        ))
+        dplyr::filter(
+          !(!!rlang::sym(flagcol)) %in%
+            c(
+              "NA - Not Available",
+              "Text",
+              "Non-ASCII Character(s)",
+              "Result Value/Unit Cannot Be Estimated From Detection Limit",
+              "Coerced to NA"
+            )
+        )
 
       return(clean.data)
     }
@@ -487,13 +847,16 @@ TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(!!rlang::sym(flagcol) %in% c(
-        "NA - Not Available",
-        "Text",
-        "Non-ASCII Character(s)",
-        "Result Value/Unit Cannot Be Estimated From Detection Limit",
-        "Coerced to NA"
-      ))
+      dplyr::filter(
+        !!rlang::sym(flagcol) %in%
+          c(
+            "NA - Not Available",
+            "Text",
+            "Non-ASCII Character(s)",
+            "Result Value/Unit Cannot Be Estimated From Detection Limit",
+            "Coerced to NA"
+          )
+      )
   }
 }
 
@@ -567,16 +930,30 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
+  nwis.table <- utils::read.csv(system.file(
+    "extdata",
+    "WQXCharacteristicRef.csv",
+    package = "EPATADA"
+  )) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
     ) %>%
-    dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
+    dplyr::mutate(
+      CharacteristicName = trimws(stringr::str_split(
+        CharacteristicName,
+        "\\*",
+        simplify = T
+      )[, 1])
+    )
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
+  ref.table <- utils::read.csv(system.file(
+    "extdata",
+    "WQXCharacteristicRef.csv",
+    package = "EPATADA"
+  )) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -585,7 +962,11 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
   # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
-  .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""), .data$Comparable.Name, .data$TADA.CharacteristicName)
+  .data$TADA.CharacteristicName <- ifelse(
+    !is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""),
+    .data$Comparable.Name,
+    .data$TADA.CharacteristicName
+  )
 
   howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
 
