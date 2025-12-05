@@ -34,176 +34,59 @@ quiet <- function(x) {
 
 # write global variables. Gets rid of global variable NOTE in check:
 utils::globalVariables(c(
-  "TADA.ResultValueAboveUpperThreshold.Flag",
-  "ActivityIdentifier",
-  "ActivityMediaName",
-  "ActivityStartDate",
-  "TADA.ResultValueBelowUpperThreshold.Flag",
-  "TADA.ResultValueBelowLowerThreshold.Flag",
-  "CharacteristicName",
-  "Conversion.Factor",
-  "Count",
-  "Description",
-  "FieldName",
-  "FieldValue",
-  "MethodSpecationName",
-  "MonitoringLocationIdentifier",
-  "OrganizationFormalName",
-  "OrganizationIdentifier",
-  "ProjectDescriptionText",
-  "ProjectFileUrl",
-  "ProjectIdentifier",
-  "ProjectMonitoringLocationWeightingUrl",
-  "ProjectName",
-  "QAPPApprovalAgencyName",
-  "QAPPApprovedIndicator",
-  "ResultDetectionConditionText",
-  "ResultMeasureValue",
-  "SamplingDesignTypeCode",
-  "Source",
-  "Status",
-  "TADA.ContinuousData.Flag",
-  "TADA.SuspectCoordinates.Flag",
-  "TADA.PotentialDupRowIDs.Flag",
-  "TADA.QAPPDocAvailable",
-  "Target.Unit",
-  "Type",
-  "Value.Unit",
-  "TADA.AnalyticalMethod.Flag",
-  "TADA.MethodSpeciation.Flag",
-  "TADA.ResultUnit.Flag",
-  "TADA.SampleFraction.Flag",
-  "YearSummarized",
-  "where",
-  "TADA.CharacteristicName",
-  "ResultIdentifier",
-  "TADA.ResultMeasureValue",
-  "n_sites",
-  "n_records",
-  "statecodes_df",
-  "STUSAB",
-  "ActivityStartTime.Time",
-  "numorgs",
-  "dup_id",
-  "LatitudeMeasure",
-  "TADA.ResultMeasureValueDataTypes.Flag",
-  "Name",
-  "TADA.Detection_Type",
-  "DetectionQuantitationLimitTypeName",
-  "TADA.Limit_Type",
-  "multiplier",
-  "summ",
-  "cf",
-  "LongitudeMeasure",
-  "TADA.CensoredData.Flag",
-  "Censored_Count",
-  "Status2",
-  "ActivityTypeCode",
-  "SampleCollectionEquipmentName",
-  "ResultTimeBasisText",
-  "StatisticalBaseCode",
-  "ResultValueTypeName",
-  "masked",
-  "TADA.env",
-  "Legend",
-  "Fields",
-  "desc",
-  "WQXActivityType_Cached",
-  "TADA.ActivityType.Flag",
-  "Code",
-  "ResultCount",
-  "tot_n",
-  "MonitoringLocationName",
-  "TADA.LatitudeMeasure",
-  "TADA.LongitudeMeasure",
-  "median",
-  "sd",
-  "TADA.ComparableDataIdentifier",
-  "roundRV",
-  "TADA.DuplicateID",
-  "maxRV",
-  "within10",
-  "AllGroups",
-  "Domain.Value.Status",
-  "Char_Flag",
-  "Comparable.Name",
-  "TADA.ResultMeasureValue1",
-  "TADA.ResultSampleFractionText",
-  "TADA.MethodSpeciationName",
-  "TADA.ResultMeasure.MeasureUnitCode",
-  "TADA.ActivityMediaName",
-  "TADA.NutrientSummationGroup",
-  "SummationName",
-  "SummationRank",
-  "SummationFractionNotes",
-  "SummationSpeciationNotes",
-  "SummationSpeciationConversionFactor",
-  "SummationNote",
-  "NutrientGroup",
-  "Target.Speciation",
-  "TADA.NearbySiteGroups",
-  "numres",
-  "TADA.SingleOrgDupGroupID",
-  "TADA.MeasureQualifierCode.Flag",
-  "TADA.MeasureQualifierCode.Def",
-  "MeasureQualifierCode",
-  "value",
-  "Flag_Column",
-  "ActivityStartDateTime",
-  "TADA.MultipleOrgDupGroupID",
-  "TADA.WQXVal.Flag",
-  "Concat",
-  ".",
-  "MeasureQualifierCode.Split",
-  "TADA.Media.Flag",
-  "ML.Media.Flag",
-  "TADA.UseForAnalysis.Flag",
-  "Unique.Identifier",
-  "Domain",
-  "Note.Recommendation",
-  "Conversion.Coefficient",
-  "Last.Change.Date",
-  "Value",
-  "Minimum",
-  "Comb",
-  "CombList",
-  "TADA.Target.ResultMeasure.MeasureUnitCode",
-  "TADA.WQXUnitConversionFactor",
-  "TADA.WQXUnitConversionCoefficient",
-  "TADA.Target.MethodSpeciationName",
-  "flag",
-  "NConvert",
-  "MultUnits",
-  "CharList",
-  "CharUnit",
-  "SingleNearbyGroup",
-  "TADA.MultipleOrgDuplicate",
-  "TADA.ResultSelectedMultipleOrgs",
-  "Maximum",
-  "OBJECTID",
-  "GLOBALID",
-  "assessmentunitidentifier",
-  "index",
-  "epsg",
-  "ResultMeasure.MeasureUnitCode",
-  "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
+  "TADA.ResultValueAboveUpperThreshold.Flag", "ActivityIdentifier", "ActivityMediaName",
+  "ActivityStartDate", "TADA.ResultValueBelowUpperThreshold.Flag",
+  "TADA.ResultValueBelowLowerThreshold.Flag", "CharacteristicName",
+  "Conversion.Factor", "Count", "Description", "FieldName", "FieldValue",
+  "MethodSpecationName", "MonitoringLocationIdentifier",
+  "OrganizationFormalName", "OrganizationIdentifier", "ProjectDescriptionText",
+  "ProjectFileUrl", "ProjectIdentifier",
+  "ProjectMonitoringLocationWeightingUrl", "ProjectName",
+  "QAPPApprovalAgencyName", "QAPPApprovedIndicator",
+  "ResultDetectionConditionText", "ResultMeasureValue",
+  "SamplingDesignTypeCode", "Source", "Status", "TADA.ContinuousData.Flag",
+  "TADA.SuspectCoordinates.Flag", "TADA.PotentialDupRowIDs.Flag", "TADA.QAPPDocAvailable",
+  "Target.Unit", "Type", "Value.Unit", "TADA.AnalyticalMethod.Flag",
+  "TADA.MethodSpeciation.Flag", "TADA.ResultUnit.Flag",
+  "TADA.SampleFraction.Flag", "YearSummarized", "where", "TADA.CharacteristicName",
+  "ResultIdentifier", "TADA.ResultMeasureValue", "n_sites",
+  "n_records", "statecodes_df", "STUSAB", "ActivityStartTime.Time", "numorgs", "dup_id",
+  "LatitudeMeasure", "TADA.ResultMeasureValueDataTypes.Flag", "Name", "TADA.Detection_Type",
+  "DetectionQuantitationLimitTypeName", "TADA.Limit_Type", "multiplier", "summ", "cf",
+  "LongitudeMeasure", "TADA.CensoredData.Flag", "Censored_Count",
+  "Status2", "ActivityTypeCode", "SampleCollectionEquipmentName",
+  "ResultTimeBasisText", "StatisticalBaseCode", "ResultValueTypeName",
+  "masked", "TADA.env", "Legend", "Fields", "desc", "WQXActivityType_Cached",
+  "TADA.ActivityType.Flag", "Code", "ResultCount",
+  "tot_n", "MonitoringLocationName", "TADA.LatitudeMeasure",
+  "TADA.LongitudeMeasure", "median", "sd", "TADA.ComparableDataIdentifier",
+  "roundRV", "TADA.DuplicateID", "maxRV", "within10",
+  "AllGroups", "Domain.Value.Status", "Char_Flag", "Comparable.Name",
+  "TADA.ResultMeasureValue1", "TADA.ResultSampleFractionText",
+  "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ActivityMediaName", "TADA.NutrientSummationGroup",
+  "SummationName", "SummationRank", "SummationFractionNotes", "SummationSpeciationNotes",
+  "SummationSpeciationConversionFactor", "SummationNote", "NutrientGroup",
+  "Target.Speciation", "TADA.NearbySiteGroups", "numres", "TADA.SingleOrgDupGroupID",
+  "TADA.MeasureQualifierCode.Flag", "TADA.MeasureQualifierCode.Def", "MeasureQualifierCode",
+  "value", "Flag_Column", "ActivityStartDateTime",
+  "TADA.MultipleOrgDupGroupID", "TADA.WQXVal.Flag", "Concat", ".", "MeasureQualifierCode.Split",
+  "TADA.Media.Flag", "ML.Media.Flag", "TADA.UseForAnalysis.Flag",
+  "Unique.Identifier", "Domain", "Note.Recommendation", "Conversion.Coefficient",
+  "Last.Change.Date", "Value", "Minimum",
+  "Comb", "CombList",
+  "TADA.Target.ResultMeasure.MeasureUnitCode", "TADA.WQXUnitConversionFactor",
+  "TADA.WQXUnitConversionCoefficient", "TADA.Target.MethodSpeciationName",
+  "flag", "NConvert", "MultUnits", "CharList", "CharUnit", "SingleNearbyGroup",
+  "TADA.MultipleOrgDuplicate", "TADA.ResultSelectedMultipleOrgs", "Maximum",
+  "OBJECTID", "GLOBALID", "assessmentunitidentifier", "index", "epsg",
+  "ResultMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode",
   "NCode",
-  "ATTAINS.AssessmentUnitIdentifier",
-  "ATTAINS_AU",
-  "TOTALAREA_MI",
-  "TOTALAREA_KM",
-  "ATTAINS_AUs",
-  "ARD_Category",
-  "ActivityRelativeDepthName",
-  "DepthsByGroup",
-  "DepthsPerGroup",
-  "MeanResults",
-  "MonitoringLocationTypeName",
-  "N",
-  "SecchiConversion",
+  "ATTAINS.AssessmentUnitIdentifier", "ATTAINS_AU", "TOTALAREA_MI", "TOTALAREA_KM",
+  "ATTAINS_AUs", "ARD_Category", "ActivityRelativeDepthName", "DepthsByGroup",
+  "DepthsPerGroup", "MeanResults", "MonitoringLocationTypeName", "N", "SecchiConversion",
   "TADA.ActivityBottomDepthHeightMeasure.MeasureValue",
-  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode",
-  "TADA.ActivityDepthHeightMeasure.MeasureValue",
+  "TADA.ActivityDepthHeightMeasure.MeasureUnitCode", "TADA.ActivityDepthHeightMeasure.MeasureValue",
   "TADA.CharacteristicsForDepthProfile TADA.ConsolidatedDepth",
   "TADA.ConsolidatedDepth.Bottom TADA.ConsolidatedDepth.Unit", "TADA.DepthCategory.Flag",
   "TADA.DepthProfileAggregation.Flag", "TADA.NResults",
@@ -276,7 +159,7 @@ utils::globalVariables(c(
   "CAS.Number", "CAS_NO CharacteristicName.x", "CharacteristicName.y",
   "Comparable.Name.x", "Comparable.Name.y", "POLLUTANT_NAME.x", "POLLUTANT_NAME.y",
   "STD_POLLUTANT_NAME.x", "STD_POLLUTANT_NAME.y", "percent_match_ATTAINS_CST",
-  "percent_match_ATTAINS_WQX", "percent_match_CST"
+  "percent_match_ATTAINS_WQX", "percent_match_CST", "CAS_NO", "CharacteristicName.x"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -410,13 +293,8 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #'   )
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
-TADA_ConvertSpecialChars <- function(
-  .data,
-  col,
-  percent.ave = TRUE,
-  clean = FALSE,
-  flaggedonly = FALSE
-) {
+TADA_ConvertSpecialChars <- function(.data, col, percent.ave = TRUE,
+                                     clean = FALSE, flaggedonly = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -432,9 +310,7 @@ TADA_ConvertSpecialChars <- function(
 
   # check that clean and flaggedonly are not both TRUE
   if (clean == TRUE & flaggedonly == TRUE) {
-    stop(
-      "Function not executed because clean and flaggedonly cannot both be TRUE"
-    )
+    stop("Function not executed because clean and flaggedonly cannot both be TRUE")
   }
 
   if (!any(grepl("TADA.", col))) {
@@ -454,35 +330,26 @@ TADA_ConvertSpecialChars <- function(
     if (col == "ResultMeasureValue") {
       do.units <- c("%", "% SATURATN")
 
-      chars.data$masked <- ifelse(
-        chars.data$CharacteristicName == "Dissolved oxygen (DO)" &
-          chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
-        paste(chars.data$masked, "%"),
-        chars.data$masked
+      chars.data$masked <- ifelse(chars.data$CharacteristicName == "Dissolved oxygen (DO)" & chars.data$ResultMeasure.MeasureUnitCode %in% do.units,
+        paste(chars.data$masked, "%"), chars.data$masked
       )
 
       # updates percentage units where NA
       chars.data$TADA.ResultMeasure.MeasureUnitCode <- ifelse(
-        grepl("%", chars.data$masked),
-        "%",
-        chars.data$ResultMeasure.MeasureUnitCode
+        grepl("%", chars.data$masked), "%", chars.data$ResultMeasure.MeasureUnitCode
       )
 
       # TADA.ResultMeasure.MeasureUnitCode to uppercase
-      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
-        chars.data$TADA.ResultMeasure.MeasureUnitCode
-      )
+      chars.data$TADA.ResultMeasure.MeasureUnitCode <- toupper(chars.data$TADA.ResultMeasure.MeasureUnitCode)
     }
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
       clean.data <- chars.data %>%
-        dplyr::mutate(
-          flag = dplyr::case_when(
-            is.na(masked) ~ as.character("NA - Not Available"),
-            TRUE ~ as.character("Numeric")
-          )
-        )
+        dplyr::mutate(flag = dplyr::case_when(
+          is.na(masked) ~ as.character("NA - Not Available"),
+          TRUE ~ as.character("Numeric")
+        ))
     } else {
       chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
       # Detect special characters in column and populate new flag column with descriptor
@@ -491,39 +358,26 @@ TADA_ConvertSpecialChars <- function(
         dplyr::mutate(
           flag = dplyr::case_when(
             is.na(masked) ~ as.character("NA - Not Available"),
-            (!is.na(
-              suppressWarnings(as.numeric(masked)) == TRUE
-            )) ~ as.character("Numeric"),
+            (!is.na(suppressWarnings(as.numeric(masked)) == TRUE)) ~ as.character("Numeric"),
             (grepl("<", masked) == TRUE) ~ as.character("Less Than"),
             (grepl(">", masked) == TRUE) ~ as.character("Greater Than"),
             (grepl("\\+", masked) == TRUE) ~ as.character("Greater Than"),
             (grepl("~", masked) == TRUE) ~ as.character("Approximate Value"),
             (grepl("[A-Za-z]", masked) == TRUE) ~ as.character("Text"),
             (grepl("%", masked) == TRUE) ~ as.character("Percentage"),
-            (grepl(",", masked) == TRUE) ~ as.character(
-              "Comma-Separated Numeric"
-            ),
-            (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character(
-              "Numeric Range - Averaged"
-            ),
-            (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) ==
-              TRUE) ~ as.character("Percentage Range - Averaged"),
+            (grepl(",", masked) == TRUE) ~ as.character("Comma-Separated Numeric"),
+            (grepl("\\d\\-\\d", masked) == TRUE) ~ as.character("Numeric Range - Averaged"),
+            (grepl("([1-9]|[1-9][0-9]|100)-([1-9]|[1-9][0-9]|100)%", masked) == TRUE) ~ as.character("Percentage Range - Averaged"),
             # because * is a special character you have to escape\\ it:
             (grepl("\\*", masked) == TRUE) ~ as.character("Approximate Value"),
-            (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character(
-              "Non-ASCII Character(s)"
-            ),
+            (!stringi::stri_enc_mark(masked) %in% c("ASCII")) ~ as.character("Non-ASCII Character(s)"),
             TRUE ~ "Coerced to NA"
           ),
-          flag = ifelse(
-            flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged",
-            flag
+          flag = ifelse(flag == "Greater Than" & grepl("%", masked) & grepl("-", masked),
+            "Percentage Range - Averaged", flag
           ),
-          flag = ifelse(
-            flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
-            "Percentage Range - Averaged",
-            flag
+          flag = ifelse(flag == "Less Than" & grepl("%", masked) & grepl("-", masked),
+            "Percentage Range - Averaged", flag
           )
         )
     }
@@ -533,10 +387,7 @@ TADA_ConvertSpecialChars <- function(
     }
 
     if (percent.ave == TRUE) {
-      num.range.filter <- c(
-        "Numeric Range - Averaged",
-        "Percentage Range - Averaged"
-      )
+      num.range.filter <- c("Numeric Range - Averaged", "Percentage Range - Averaged")
     }
 
     # Result Values that are numeric ranges with the format #-# are converted to an average of the two numbers expressed in the range.
@@ -550,25 +401,11 @@ TADA_ConvertSpecialChars <- function(
           masked = stringr::str_remove(masked, ">"),
           masked = stringr::str_remove(masked, "<")
         ) %>%
-        tidyr::separate(
-          masked,
-          into = c("num1", "num2"),
-          sep = "-",
-          remove = TRUE
-        ) %>%
+        tidyr::separate(masked, into = c("num1", "num2"), sep = "-", remove = TRUE) %>%
         dplyr::mutate_at(c("num1", "num2"), as.numeric)
-      numrange$masked <- as.character(rowMeans(
-        numrange[, c("num1", "num2")],
-        na.rm = TRUE
-      ))
+      numrange$masked <- as.character(rowMeans(numrange[, c("num1", "num2")], na.rm = TRUE))
       numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
-        dplyr::mutate(
-          masked = ifelse(
-            flag == "Percentage Range - Average",
-            paste(masked, "%", sep = ""),
-            masked
-          )
-        )
+        dplyr::mutate(masked = ifelse(flag == "Percentage Range - Average", paste(masked, "%", sep = ""), masked))
 
       clean.data <- plyr::rbind.fill(notnumrange, numrange)
     }
@@ -576,8 +413,7 @@ TADA_ConvertSpecialChars <- function(
     # In the new TADA column, convert to numeric and remove some specific special
     # characters.
     clean.data$masked <- suppressWarnings(as.numeric(stringr::str_replace_all(
-      clean.data$masked,
-      c(
+      clean.data$masked, c(
         "<" = "",
         ">" = "",
         "~" = "",
@@ -597,10 +433,7 @@ TADA_ConvertSpecialChars <- function(
 
     # remove columns to be replaced
     clean.data <- clean.data %>%
-      dplyr::select(
-        !(tidyselect::any_of(numcol)),
-        !(tidyselect::any_of(flagcol))
-      )
+      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
@@ -623,10 +456,7 @@ TADA_ConvertSpecialChars <- function(
 
     # remove columns to be replaced
     clean.data <- clean.data %>%
-      dplyr::select(
-        !(tidyselect::any_of(numcol)),
-        !(tidyselect::any_of(flagcol))
-      )
+      dplyr::select(!(tidyselect::any_of(numcol)), !(tidyselect::any_of(flagcol)))
 
     # Rename to original column name, TADA column name, and flag column name
     names(clean.data)[names(clean.data) == "orig"] <- col
@@ -639,16 +469,13 @@ TADA_ConvertSpecialChars <- function(
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
       clean.data <- clean.data %>%
-        dplyr::filter(
-          !(!!rlang::sym(flagcol)) %in%
-            c(
-              "NA - Not Available",
-              "Text",
-              "Non-ASCII Character(s)",
-              "Result Value/Unit Cannot Be Estimated From Detection Limit",
-              "Coerced to NA"
-            )
-        )
+        dplyr::filter(!(!!rlang::sym(flagcol)) %in% c(
+          "NA - Not Available",
+          "Text",
+          "Non-ASCII Character(s)",
+          "Result Value/Unit Cannot Be Estimated From Detection Limit",
+          "Coerced to NA"
+        ))
 
       return(clean.data)
     }
@@ -660,16 +487,13 @@ TADA_ConvertSpecialChars <- function(
 
   if (flaggedonly == TRUE) {
     clean.data <- clean.data %>%
-      dplyr::filter(
-        !!rlang::sym(flagcol) %in%
-          c(
-            "NA - Not Available",
-            "Text",
-            "Non-ASCII Character(s)",
-            "Result Value/Unit Cannot Be Estimated From Detection Limit",
-            "Coerced to NA"
-          )
-      )
+      dplyr::filter(!!rlang::sym(flagcol) %in% c(
+        "NA - Not Available",
+        "Text",
+        "Non-ASCII Character(s)",
+        "Result Value/Unit Cannot Be Estimated From Detection Limit",
+        "Coerced to NA"
+      ))
   }
 }
 
@@ -743,30 +567,16 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 
   # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
   # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) %>%
+  nwis.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
     ) %>%
-    dplyr::mutate(
-      CharacteristicName = trimws(stringr::str_split(
-        CharacteristicName,
-        "\\*",
-        simplify = T
-      )[, 1])
-    )
+    dplyr::mutate(CharacteristicName = trimws(stringr::str_split(CharacteristicName, "\\*", simplify = T)[, 1]))
 
   # read in characteristic reference table with deprecation information and filter to deprecated terms.
   # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) %>%
+  ref.table <- utils::read.csv(system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA")) %>%
     dplyr::filter(Char_Flag == "Deprecated") %>%
     rbind(nwis.table)
 
@@ -775,23 +585,14 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
   # merge to dataset
   .data <- merge(.data, ref.table, all.x = TRUE)
   # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
-  .data$TADA.CharacteristicName <- ifelse(
-    !is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""),
-    .data$Comparable.Name,
-    .data$TADA.CharacteristicName
-  )
+  .data$TADA.CharacteristicName <- ifelse(!is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""), .data$Comparable.Name, .data$TADA.CharacteristicName)
 
   howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
 
   if (howmany > 0) {
     chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
     chars <- paste0(chars, collapse = "; ")
-    print(paste0(
-      howmany,
-      " results in your dataset have one of the following deprecated characteristic names: ",
-      chars,
-      ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
-    ))
+    print(paste0(howmany, " results in your dataset have one of the following deprecated characteristic names: ", chars, ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."))
   } else {
     print("No deprecated characteristic names found in dataset.")
   }
@@ -828,8 +629,7 @@ TADA_CreateComparableID <- function(.data) {
   }
 
   .data$TADA.ComparableDataIdentifier <-
-    paste(
-      .data$TADA.CharacteristicName,
+    paste(.data$TADA.CharacteristicName,
       .data$TADA.ResultSampleFractionText,
       .data$TADA.MethodSpeciationName,
       .data$TADA.ResultMeasure.MeasureUnitCode,
@@ -921,12 +721,10 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'   autoclean = FALSE
 #' )
 #' }
-TADA_RandomTestingData <- function(
-  number_of_days = 1,
-  choose_random_state = FALSE,
-  autoclean = TRUE,
-  max_attempts = 3
-) {
+TADA_RandomTestingData <- function(number_of_days = 1,
+                                   choose_random_state = FALSE,
+                                   autoclean = TRUE,
+                                   max_attempts = 3) {
   # Retrieve random data
   get_random_data <- function(ndays, state_choice, ac) {
     # Calculate a random start date within the last 20 years
@@ -989,11 +787,7 @@ TADA_RandomTestingData <- function(
     }
 
     # If all attempts fail, return an empty data frame
-    message(
-      "Failed to retrieve data after ",
-      max_attempts,
-      " attempts due to persistent errors."
-    )
+    message("Failed to retrieve data after ", max_attempts, " attempts due to persistent errors.")
     return(data.frame())
   }
 
@@ -1036,17 +830,7 @@ TADA_RandomTestingData <- function(
 #' getBboxJson(bbox)
 #' }
 getBboxJson <- function(bbox) {
-  json <- paste0(
-    '{"xmin":',
-    bbox[1],
-    ',"ymin":',
-    bbox[2],
-    ',"xmax":',
-    bbox[3],
-    ',"ymax":',
-    bbox[4],
-    "}"
-  )
+  json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
   return(json)
 }
 
@@ -1068,19 +852,21 @@ getBboxJson <- function(bbox) {
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
 #' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
-pchIcons <- function(
-  pch = 1,
-  width = 30,
-  height = 30,
-  bg = "transparent",
-  col = "black",
-  lwd = NULL
-) {
+pchIcons <- function(pch = 1,
+                     width = 30,
+                     height = 30,
+                     bg = "transparent",
+                     col = "black",
+                     lwd = NULL) {
   n <- length(pch)
   files <- character(n)
   for (i in seq_len(n)) {
     f <- tempfile(fileext = ".png")
-    grDevices::png(f, width = width, height = height, bg = bg)
+    grDevices::png(f,
+      width = width,
+      height = height,
+      bg = bg
+    )
     graphics::par(mar = c(0, 0, 0, 0))
     graphics::plot.new()
     graphics::points(
@@ -1128,12 +914,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
   } else {
     inputGeom <- getBboxJson(bbox)
   }
-  url <- paste0(
-    url,
-    "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",
-    inputGeom,
-    "&f=geojson"
-  )
+  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=", inputGeom, "&f=geojson")
   layer <- sf::read_sf(url)
   return(layer)
 }
@@ -1158,11 +939,10 @@ writeLayer <- function(url, layerfilepath) {
   # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer %>%
-      dplyr::rename(
-        TAREA_MI = TOTALAREA_MI,
-        TAREA_KM = TOTALAREA_KM
-      )
+    layer <- layer %>% dplyr::rename(
+      TAREA_MI = TOTALAREA_MI,
+      TAREA_KM = TOTALAREA_KM
+    )
   }
   sf::st_write(layer, layerfilepath, delete_layer = TRUE)
 }
@@ -1232,14 +1012,7 @@ getPopup <- function(layer, layername) {
 
   for (i in seq(1, length(cols))) {
     if (names(cols[i]) %in% colnames(layer)) {
-      text <- paste0(
-        text,
-        "<strong>",
-        cols[i],
-        "</strong>: ",
-        layer[[names(cols[i])]],
-        "<br>"
-      )
+      text <- paste0(text, "<strong>", cols[i], "</strong>: ", layer[[names(cols[i])]], "<br>")
     }
   }
   return(text)
@@ -1267,13 +1040,7 @@ getPopup <- function(layer, layername) {
 #' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
-TADA_addPolys <- function(
-  map,
-  layerfilepath,
-  layergroup,
-  layername,
-  bbox = NULL
-) {
+TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1296,10 +1063,7 @@ TADA_addPolys <- function(
       smoothFactor = 0.5,
       opacity = 1.0,
       fillOpacity = 0.2,
-      fillColor = ~ leaflet::colorNumeric(
-        "Oranges",
-        layer[[areaColumn]]
-      )(layer[[areaColumn]]),
+      fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
       highlightOptions = leaflet::highlightOptions(
         color = "white",
         weight = 2,
@@ -1336,13 +1100,7 @@ TADA_addPolys <- function(
 #' )
 #' lmap
 #' }
-TADA_addPoints <- function(
-  map,
-  layerfilepath,
-  layergroup,
-  layername,
-  bbox = NULL
-) {
+TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1352,13 +1110,7 @@ TADA_addPoints <- function(
     return(map)
   }
   shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
-  iconFiles <- pchIcons(
-    shapes,
-    width = 20,
-    height = 20,
-    col = c("#CC7722"),
-    lwd = 2
-  )
+  iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
   map <- leaflet::addMarkers(
     map,
     data = layer,
@@ -1402,42 +1154,32 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   }
 
   required_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName",
-    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
 
   # Check to see if TADA_Autoclean has been run
   if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print(
-      "The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns."
-    )
+    print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
     .data <- TADA_AutoClean(.data)
   }
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data %>%
     dplyr::select(
-      TADA.CharacteristicName,
-      TADA.ResultMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
+      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
+      ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data %>%
     dplyr::select(
-      TADA.CharacteristicName,
-      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      TADA.MethodSpeciationName
+      TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
     ) %>%
-    dplyr::filter(
-      !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    ) %>%
+    dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) %>%
     dplyr::distinct() %>%
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1446,15 +1188,10 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 
   # Create combined df with all unique codes (both result and det units) and characteristic names
   data.units <- data.units.result %>%
-    dplyr::full_join(
-      data.units.det,
-      by = c(
-        "TADA.CharacteristicName",
-        "TADA.ResultMeasure.MeasureUnitCode",
-        "ResultMeasure.MeasureUnitCode",
-        "TADA.MethodSpeciationName"
-      )
-    ) %>%
+    dplyr::full_join(data.units.det, by = c(
+      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
+      "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName"
+    )) %>%
     dplyr::distinct() %>%
     dplyr::group_by(TADA.CharacteristicName)
 
@@ -1486,21 +1223,9 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' TestColorPalettePairings
 TADA_ColorPalette <- function(col_pair = FALSE) {
   pal <- c(
-    "#000000",
-    "#835A00",
-    "#DC851E",
-    "#059FA4",
-    "#56B4E9",
-    "#005258",
-    "#A1A522",
-    "#F0E442",
-    "#66A281",
-    "#1E6F98",
-    "#4F5900",
-    "#813B00",
-    "#CD758F",
-    "#B686A1",
-    "#999999"
+    "#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
+    "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
+    "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
   )
 
   # Defines two color columns to be used as the color pairings in a dataframe
@@ -1551,27 +1276,13 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 
   # create color swatch graphic
   graphics::par(mar = c(1, 0, 1, 0))
-  swatch <- graphics::plot(
-    1,
-    type = "n",
-    xlab = "",
-    ylab = "",
-    xlim = c(0.5, n + 0.5),
-    ylim = c(0, 1),
-    main = "TADA Palette",
-    axes = FALSE
+  swatch <- graphics::plot(1,
+    type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
+    main = "TADA Palette", axes = FALSE
   )
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
-  text(
-    x = 1:n,
-    y = 0.5 - 0.2,
-    labels = pal,
-    pos = 1,
-    col = label_colors,
-    cex = 0.7,
-    srt = 90
-  )
+  text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
 
   col_combo <- TADA_ColorPalette(col_pair = TRUE)
 
@@ -1583,33 +1294,13 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
     label_colors <- rep("black", 2)
 
     for (i in 1:nrow(col_combo)) {
-      one_swatch <- graphics::plot(
-        1,
-        type = "n",
-        xlab = "",
-        ylab = "",
-        xlim = c(0.5, 2.5),
-        ylim = c(0, 1),
-        main = paste0("TADA Palette Pair ", i),
-        axes = FALSE
+      one_swatch <- graphics::plot(1,
+        type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
+        main = paste0("TADA Palette Pair ", i), axes = FALSE
       )
-      rect(
-        1:2 - 0.5,
-        0,
-        2 + 0.5,
-        1,
-        col = as.character(col_combo[i, ]),
-        border = NA
-      )
+      rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i, ]), border = NA)
       # text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
-      text(
-        x = 1:2 + 0.25,
-        y = 0.5,
-        labels = col_combo[i, ],
-        pos = 2,
-        col = label_colors,
-        cex = 0.7
-      )
+      text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i, ], pos = 2, col = label_colors, cex = 0.7)
 
       swatch[[i]] <- one_swatch
     }
@@ -1649,9 +1340,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 TADA_CharStringRemoveNA <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
-    stop(paste0(
-      "TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."
-    ))
+    stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
   }
 
   # Converts character string to a vector.
@@ -1691,8 +1380,7 @@ TADA_TableExport <- function(.data = NULL) {
     stop("Input object must be of class 'data.frame'")
   }
 
-  data <- DT::datatable(
-    .data,
+  data <- DT::datatable(.data,
     extensions = c("Buttons", "FixedColumns"),
     options = list(
       paging = TRUE,
@@ -1703,8 +1391,7 @@ TADA_TableExport <- function(.data = NULL) {
       scrollCollapse = TRUE,
       buttons = c("copy", "csv", "excel", "pdf")
       # fixedColumns = list(leftColumns = 1
-    ),
-    class = "display"
+    ), class = "display"
   ) %>%
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
 
@@ -1739,11 +1426,7 @@ TADA_CreateCSV <- function(.data) {
 
   df_name <- deparse(substitute(.data))
 
-  downloads_path <- file.path(
-    Sys.getenv("USERPROFILE"),
-    "Downloads",
-    paste0(df_name, ".csv")
-  )
+  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
 
   utils::write.csv(.data, file = downloads_path, row.names = FALSE)
 
@@ -1783,55 +1466,39 @@ TADA_CreateCSV <- function(.data) {
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
-  wqxnames <- readr::read_csv(
-    "https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
+  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
     show_col_types = FALSE
   )
 
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |>
-    dplyr::mutate(
-      WqxV2.FieldName = dplyr::case_when(
-        # 3.0 element ~ change to in 2.0 element
-        FieldName3.0 ==
-          "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
-        FieldName3.0 ==
-          "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
-        FieldName3.0 ==
-          "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
-        FieldName3.0 ==
-          "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
-        FieldName3.0 ==
-          "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
-        FieldName3.0 ==
-          "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
-        FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
-        FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
-        FieldName3.0 ==
-          "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
-        FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
-        FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
-        FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
-        FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
-        FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
-        FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
-        FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
-        FieldName3.0 == "ResultAttachment_FileName" ~ NA,
-        FieldName3.0 == "ResultAttachment_FileType" ~ NA,
-        TRUE ~ WqxV2.FieldName
-      )
-    ) |>
+    dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
+      FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+      FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+      FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+      FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+      FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+      FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
+      FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+      FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+      FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+      FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+      FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+      FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+      FieldName3.0 == "ResultAttachment_FileType" ~ NA,
+      TRUE ~ WqxV2.FieldName
+    )) |>
     # Remove rows without a legacy name in the crosswalk table
     dplyr::filter(!is.na(WqxV2.FieldName)) |>
     # Some elements in the crosswalk table have different special characters compared to
     # elements returned with dataRetrieval
     # Using stringr to identify special characters replacing "_" with "." and "/" with "."
-    dplyr::mutate(
-      WqxV2.FieldName = stringr::str_replace_all(
-        WqxV2.FieldName,
-        c("_" = ".", "/" = ".")
-      )
-    )
+    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c("_" = ".", "/" = ".")))
 
   # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames
   # will overwrite original dataframe
@@ -1848,11 +1515,9 @@ TADA_RenametoLegacy <- function(.data) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
 
-  df <- data.table::setnames(
-    df,
+  df <- data.table::setnames(df,
     old = beta_names,
-    new = legacy_names,
-    skip_absent = TRUE
+    new = legacy_names, skip_absent = TRUE
   )
 
   df <- TADA_OrderCols(df)
@@ -1886,8 +1551,7 @@ checkColName <- function(.data, partial.string = NULL) {
   if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
     stop(paste0(
       "TADA_CreateAUMLCrosswalk: The ",
-      partial.string,
-      " column is missing from the user-supplied reference (au_ref)."
+      partial.string, " column is missing from the user-supplied reference (au_ref)."
     ))
   }
 
@@ -1899,8 +1563,7 @@ checkColName <- function(.data, partial.string = NULL) {
     if (length(select.col) > 1) {
       stop(paste0(
         "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
-        partial.string,
-        " column in the user-supplied reference (au_ref)."
+        partial.string, " column in the user-supplied reference (au_ref)."
       ))
     }
 
@@ -1935,172 +1598,64 @@ checkColName <- function(.data, partial.string = NULL) {
 renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   # list of TADA formatted column names
   attains.tada <- c(
-    "ATTAINS.OrganizationIdentifier",
-    "ATTAINS.SubmissionId",
-    "ATTAINS.HasProtectionPlan",
-    "ATTAINS.AssessmentUnitName",
-    "ATTAINS.NhdPlusId",
-    "ATTAINS.Tas303d",
-    "ATTAINS.IsThreatened",
-    "ATTAINS.State",
-    "ATTAINS.On303dList",
-    "ATTAINS.OrganizationName",
-    "ATTAINS.Region",
-    "ATTAINS.ShapeLength",
-    "ATTAINS.ReportingCycle",
-    "ATTAINS.AssmntJoinKey",
-    "ATTAINS.HasTmdl",
-    "ATTAINS.OrgType",
-    "ATTAINS.PermIdJoinKey",
-    "ATTAINS.CatchmentIsTribal",
-    "ATTAINS.IrCategory",
-    "ATTAINS.WaterbodyReportLink",
-    "ATTAINS.AssessmentUnitIdentifier",
-    "ATTAINS.OverallStatus",
-    "ATTAINS.IsAssessed",
-    "ATTAINS.IsImpaired",
-    "ATTAINS.Has4bPlan",
-    "ATTAINS.Huc12",
-    "ATTAINS.HasAlternativePlan",
-    "ATTAINS.VisionPriority303d",
-    "ATTAINS.AreaSqkm",
-    "ATTAINS.CatchmentAreaSqkm",
-    "ATTAINS.CatchmentStateCode",
-    "ATTAINS.CatchmentResolution",
-    "ATTAINS.WaterType",
-    "ATTAINS.ShapeArea",
-    "ATTAINS.CulturalUse",
-    "ATTAINS.DrinkingWaterUse",
-    "ATTAINS.EcologicalUse",
-    "ATTAINS.FishConsumptionUse",
-    "ATTAINS.RecreationUse",
-    "ATTAINS.OtherUse",
-    "ATTAINS.AlgalGrowth",
-    "ATTAINS.Ammonia",
-    "ATTAINS.CauseUnknown",
-    "ATTAINS.CauseUnknownFishKills",
-    "ATTAINS.CauseUnknownImpairedBiota",
-    "ATTAINS.Dioxins",
-    "ATTAINS.FishConsumptionAdvisory",
-    "ATTAINS.FlowAlterations",
-    "ATTAINS.HabitatAlterations",
-    "ATTAINS.HydrologicAlteration",
-    "ATTAINS.Mercury",
-    "ATTAINS.MetalsOtherThanMercury",
-    "ATTAINS.NoxiousAquaticPlants",
-    "ATTAINS.NuisanceExoticSpecies",
-    "ATTAINS.NuisanceNativeSpecies",
-    "ATTAINS.Nutrients",
-    "ATTAINS.OilAndGrease",
-    "ATTAINS.OxygenDepletion",
-    "ATTAINS.OtherCause",
-    "ATTAINS.Pathogens",
-    "ATTAINS.Pesticides",
-    "ATTAINS.Pfas",
-    "ATTAINS.PhAcidityCausticConditions",
-    "ATTAINS.PolychlorinatedBiphenylsPcbs",
-    "ATTAINS.Radiation",
-    "ATTAINS.SolidsChloridesSulfates",
-    "ATTAINS.Sediment",
-    "ATTAINS.TasteColorAndOdor",
-    "ATTAINS.Temperature",
-    "ATTAINS.TotalToxics",
-    "ATTAINS.ToxicInorganics",
-    "ATTAINS.ToxicOrganics",
-    "ATTAINS.Trash",
-    "ATTAINS.Turbidity",
-    "ATTAINS.CycleStatus",
-    "ATTAINS.OrigFid",
-    "ATTAINS.WaterType",
-    "ATTAINS.XwalkMethod",
-    "ATTAINS.XwalkHuc12Version",
-    "ATTAINS.Chlorine",
-    "ATTAINS.Biotoxins"
+    "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+    "ATTAINS.ShapeArea", "ATTAINS.CulturalUse", "ATTAINS.DrinkingWaterUse",
+    "ATTAINS.EcologicalUse", "ATTAINS.FishConsumptionUse", "ATTAINS.RecreationUse",
+    "ATTAINS.OtherUse", "ATTAINS.AlgalGrowth", "ATTAINS.Ammonia",
+    "ATTAINS.CauseUnknown", "ATTAINS.CauseUnknownFishKills",
+    "ATTAINS.CauseUnknownImpairedBiota", "ATTAINS.Dioxins",
+    "ATTAINS.FishConsumptionAdvisory", "ATTAINS.FlowAlterations",
+    "ATTAINS.HabitatAlterations", "ATTAINS.HydrologicAlteration",
+    "ATTAINS.Mercury", "ATTAINS.MetalsOtherThanMercury", "ATTAINS.NoxiousAquaticPlants",
+    "ATTAINS.NuisanceExoticSpecies", "ATTAINS.NuisanceNativeSpecies", "ATTAINS.Nutrients",
+    "ATTAINS.OilAndGrease", "ATTAINS.OxygenDepletion", "ATTAINS.OtherCause",
+    "ATTAINS.Pathogens", "ATTAINS.Pesticides", "ATTAINS.Pfas",
+    "ATTAINS.PhAcidityCausticConditions", "ATTAINS.PolychlorinatedBiphenylsPcbs",
+    "ATTAINS.Radiation", "ATTAINS.SolidsChloridesSulfates",
+    "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
+    "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
+    "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
+    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
+    "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
   )
 
   # list of original ATTAINS column names
   attains.orig <- c(
-    "organizationid",
-    "submissionid",
-    "hasprotectionplan",
-    "assessmentunitname",
-    "nhdplusid",
-    "tas303d",
-    "isthreatened",
-    "state",
-    "on303dlist",
-    "organizationname",
-    "region",
-    "Shape_Length",
-    "reportingcycle",
-    "assmnt_joinkey",
-    "hastmdl",
-    "orgtype",
-    "permid_joinkey",
-    "catchmentistribal",
-    "ircategory",
-    "waterbodyreportlink",
-    "assessmentunitidentifier",
-    "overallstatus",
-    "isassessed",
-    "isimpaired",
-    "has4bplan",
-    "huc12",
-    "hasalternativeplan",
-    "visionpriority303d",
-    "areasqkm",
-    "catchmentareasqkm",
-    "catchmentstatecode",
-    "catchmentresolution",
-    "waterTypeCode",
-    "Shape_Area",
-    "cultural_use",
-    "drinkingwater_use",
-    "ecological_use",
-    "fishconsumption_use",
-    "recreation_use",
-    "other_use",
-    "algal_growth",
-    "ammonia",
-    "cause_unknown",
-    "cause_unknown_fish_kills",
-    "cause_unknown_impaired_biota",
-    "dioxins",
-    "fish_consumption_advisory",
-    "flow_alterations",
-    "habitat_alterations",
-    "hydrologic_alteration",
-    "mercury",
-    "metals_other_than_mercury",
-    "noxious_aquatic_plants",
-    "nuisance_exotic_species",
-    "nuisance_native_species",
-    "nutrients",
-    "oil_and_grease",
-    "oxygen_depletion",
-    "other_cause",
-    "pathogens",
-    "pesticides",
-    "pfas",
-    "ph_acidity_caustic_conditions",
-    "polychlorinated_biphenyls_pcbs",
-    "radiation",
-    "solids_chlorides_sulfates",
-    "sediment",
-    "taste_color_and_odor",
-    "temperature",
-    "total_toxics",
-    "toxic_inorganics",
-    "toxic_organics",
-    "trash",
-    "turbidity",
-    "cyclestatus",
-    "orig_fid",
-    "waterType",
-    "xwalk_method",
-    "xwalk_huc12_version",
-    "chlorine",
-    "biotoxins"
+    "organizationid", "submissionid", "hasprotectionplan",
+    "assessmentunitname", "nhdplusid", "tas303d",
+    "isthreatened", "state", "on303dlist",
+    "organizationname", "region", "Shape_Length",
+    "reportingcycle", "assmnt_joinkey", "hastmdl",
+    "orgtype", "permid_joinkey", "catchmentistribal",
+    "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
+    "overallstatus", "isassessed", "isimpaired",
+    "has4bplan", "huc12", "hasalternativeplan",
+    "visionpriority303d", "areasqkm", "catchmentareasqkm",
+    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
+    "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
+    "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
+    "ammonia", "cause_unknown", "cause_unknown_fish_kills",
+    "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
+    "flow_alterations", "habitat_alterations", "hydrologic_alteration",
+    "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
+    "nuisance_exotic_species", "nuisance_native_species", "nutrients",
+    "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
+    "pesticides", "pfas", "ph_acidity_caustic_conditions",
+    "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
+    "sediment", "taste_color_and_odor", "temperature", "total_toxics",
+    "toxic_inorganics", "toxic_organics", "trash", "turbidity",
+    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
+    "chlorine", "biotoxins"
   )
 
   # if return list equals TRUE, return the list of tada formatted column names
@@ -2126,6 +1681,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
       format == "attains" ~ attains.orig
     )
 
+
     .data
 
     view <-
@@ -2138,6 +1694,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
     # remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
+
 
     # return data frame with changed column names
     return(.data)

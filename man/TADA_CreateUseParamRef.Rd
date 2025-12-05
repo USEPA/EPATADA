@@ -51,6 +51,12 @@ will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
+\item{AUMLRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
+to ensure this crosswalk contains the appropriate column names in order to run
+the function. See module 2 vignette and sample output of \code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}}.}
+
 \item{auto_assign}{NOTE: this has not been developed, will this be helpful?
 A boolean value. If TRUE, this will assign all unique
 use names to an ATTAINS.ParameterName that has not been defined by your

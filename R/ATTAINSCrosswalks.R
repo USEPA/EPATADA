@@ -1834,17 +1834,6 @@ TADA_CreateParamRef <- function(.data,
 #' the function attempts to identify which organization identifier(s) to include
 #' based on the unique ATTAINS organization identifiers found in the dataframe.
 #'
-#' @param excel A Boolean value that returns an excel spreadsheet if
-#' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-#' If you have any trouble locating the file, please type the following into
-#' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
-#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
-#' the cells in which users should input information.
-#'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
-#'
 #' @param paramRef A dataframe which contains a completed crosswalk between
 #' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
 #' ensure this crosswalk contains the appropriate column names in order to
@@ -1864,12 +1853,29 @@ TADA_CreateParamRef <- function(.data,
 #' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units. 
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
+#' 
+#' @param AUMLRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of monitoring location sites associated
+#' with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
+#' to ensure this crosswalk contains the appropriate column names in order to run
+#' the function. See module 2 vignette and sample output of [TADA_CreateAUMLCrosswalk()].
 #'
 #' @param auto_assign NOTE: this has not been developed, will this be helpful?
 #' A boolean value. If TRUE, this will assign all unique
 #' use names to an ATTAINS.ParameterName that has not been defined by your
 #' organization from ATTAINS. If FALSE, the values will be left blank and
 #' will need you to manually assign use names as needed.
+#' 
+#' @param excel A Boolean value that returns an excel spreadsheet if
+#' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
+#' If you have any trouble locating the file, please type the following into
+#' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
+#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' the cells in which users should input information.
+#'
+#' @param overwrite A Boolean value that ensures the function will not overwrite
+#' the user supplied crosswalk entered into this function via the paramRef
+#' function input. This helps prevent users from overwriting their progress.
 #'
 #' @return A dataframe which contains the columns: TADA.ComparableDataIdentifier,
 #' ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
