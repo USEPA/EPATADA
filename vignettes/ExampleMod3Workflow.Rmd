@@ -163,7 +163,7 @@ reference tables were created, see the ExampleMod2Workflow vignette.
 # extract ATTAINS_crosswalk data frame from the list
 utils::data(Data_MT_AUMLRef)
 Final.MT.AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
-
+utils::data(Data_MT_AU_UsesRef)
 MT.AU_UsesRef <- Data_MT_AU_UsesRef
 ```
 
