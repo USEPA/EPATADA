@@ -6,8 +6,8 @@
 #' interested in analyzing. This table can be filled out manually, auto-populated
 #' with uses and parameters from ATTAINS and the input WQP dataframe, or
 #' developed with TADA helper functions (recommended).It is recommended to run
-#' these three TADA helper functions, [TADA_CreateParamRef()],
-#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef], in that order to
+#' these three TADA helper functions, [TADA_ParametersForAnalysis()],
+#' [TADA_UsesForAnalysis], and [TADA_MLSummary], in that order to
 #' generate the Criteria and Methodology table specific for your organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and
@@ -54,15 +54,15 @@
 #' this crosswalk contains the appropriate column names in order to run this function.
 #' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
 #'
-#' @param useAURef An optional data frame input. If provided, this data frame
+#' @param AU_UsesRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with each assessment unit.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #'
 #' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.
 #' The default value is FALSE. If TRUE, a draft criteria and methods table is
-#' generated using default function inputs for [TADA_CreateParamRef()],
-#' [TADA_CreateUseParamRef], and [TADA_CreateMLSummaryRef]. .data and org_id are
+#' generated using default function inputs for [TADA_ParametersForAnalysis()],
+#' [TADA_UsesForAnalysis], and [TADA_MLSummary]. .data and org_id are
 #' required inputs for this function if auto_assign = TRUE. It is also
 #' recommended to set excel = TRUE when auto_assign = TRUE. The criteria
 #' and methodology template should be reviewed carefully and edits can be
@@ -96,31 +96,31 @@
 #'
 #' @examples
 #' \dontrun{
-#' # First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
-#' paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+#' # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
+#' paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
 #'   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
 #'   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
 #'   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 #' ))
-#' paramRef_UT3 <- TADA_CreateParamRef(
+#' paramRef_UT3 <- TADA_ParametersForAnalysis(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 #' )
 #'
 #' # Next, enter the crosswalk generated above as the paramRef function input
-#' # for TADA_CreateUseParamRef():
-#' UseParamRef_UT <- TADA_CreateUseParamRef(
+#' # for TADA_UsesForAnalysis():
+#' usesRef_UT <- TADA_UsesForAnalysis(
 #'   Data_Nutrients_UT,
 #'   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 #' )
 #'
-#' # Now, run TADA_CreateMLSummaryRef()
-#' MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
+#' # Now, run TADA_MLSummary()
+#' MLSummaryRef_UT <- TADA_MLSummary(
 #'   Data_Nutrients_UT,
 #'   org_id = c("UTAHDWQ"),
-#'   useAURef = NULL, AUMLRef = NULL,
-#'   useParamRef = UseParamRef_UT,
+#'   AU_UsesRef = NULL, AUMLRef = NULL,
+#'   usesRef = usesRef_UT,
 #'   excel = FALSE
 #' )
 #'
@@ -139,7 +139,7 @@ TADA_DefineCriteriaMethodology <- function(
   criteriaMethods = NULL, # user supplied input here
   auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
   AUMLRef = NULL,
-  useAURef = NULL, # Optional if auto_assign = TRUE
+  AU_UsesRef = NULL, # Optional if auto_assign = TRUE
   epa304a = FALSE,
   displayUniqueId = FALSE,
   excel = TRUE,
@@ -176,10 +176,10 @@ TADA_DefineCriteriaMethodology <- function(
   }
   # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
   # # Ensures users have entered a valid input to updateRef
-  # if (!updateRef %in% c("none", "paramRef", "useParamRef", "MLSummaryRef")) {
+  # if (!updateRef %in% c("none", "paramRef", "usesRef", "MLSummaryRef")) {
   #   stop(paste0(
   #     "TADA_DefineCriteriaMethodology: ",
-  #     "argument input ", updateRef, " is not a valid entry for updateRef. Please type one of 'None', 'paramRef', 'useParamRef', 'MLSummaryRef' as a value."
+  #     "argument input ", updateRef, " is not a valid entry for updateRef. Please type one of 'None', 'paramRef', 'usesRef', 'MLSummaryRef' as a value."
   #   ))
   # }
   # # Invalid function input combos - can only use updateRef = none with auto_assign = FALSE
@@ -283,7 +283,7 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     suppressMessages(
-      TADA_ParamRef <- TADA_CreateParamRef(
+      TADA_ParamRef <- TADA_ParametersForAnalysis(
         .data = .data,
         org_id = org_id,
         excel = excel,
@@ -292,7 +292,7 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     suppressWarnings(
-      TADA_UseParamRef <- TADA_CreateUseParamRef(
+      TADA_usesRef <- TADA_UsesForAnalysis(
         .data,
         paramRef = TADA_ParamRef,
         org_id = org_id,
@@ -302,9 +302,9 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     suppressMessages(
-      MLSummaryRef <- TADA_CreateMLSummaryRef(
+      MLSummaryRef <- TADA_MLSummary(
         .data,
-        useParamRef = TADA_UseParamRef,
+        usesRef = TADA_usesRef,
         org_id = org_id,
         excel = excel,
         overwrite = overwrite
@@ -319,10 +319,10 @@ TADA_DefineCriteriaMethodology <- function(
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
     # if (updateRef == "none") {
     print(paste0(
-      "auto_assign = TRUE selected. Running TADA_CreateParamRef with default assignment."
+      "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
     ))
     suppressMessages(
-      TADA_ParamRef <- TADA_CreateParamRef(
+      TADA_ParamRef <- TADA_ParametersForAnalysis(
         .data,
         org_id = org_id,
         auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
@@ -332,10 +332,10 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     print(paste0(
-      "auto_assign = TRUE selected. Running TADA_CreateUseParamRef with default assignment."
+      "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
     ))
     suppressWarnings(
-      TADA_UseParamRef <- TADA_CreateUseParamRef(
+      TADA_usesRef <- TADA_UsesForAnalysis(
         .data,
         org_id = org_id,
         paramRef = TADA_ParamRef,
@@ -346,13 +346,13 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     print(paste0(
-      "auto_assign = TRUE selected. Running TADA_CreateMLSummaryRef with default assignment."
+      "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
     ))
     suppressMessages(
-      MLSummaryRef <- TADA_CreateMLSummaryRef(
+      MLSummaryRef <- TADA_MLSummary(
         .data,
         org_id = org_id,
-        useParamRef = TADA_UseParamRef,
+        usesRef = TADA_usesRef,
         AUMLRef = AUMLRef,
         excel = excel,
         overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
@@ -378,20 +378,20 @@ TADA_DefineCriteriaMethodology <- function(
     # }
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
-    # # user only updates paramRef. This will update paramRef, useParamRef, and MLSummaryRef based on these modifications.
+    # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
     # if (updateRef == "paramRef") {
-    #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
+    #   message(paste0("auto_assign = TRUE and updateRef = paramRef selected. Running TADA_ParametersForAnalysis with use supplied paramRef assignment. Please review this paramRef table output."))
     #   myfile_ParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")
     #
-    #   TADA_ParamRef <- TADA_CreateParamRef(
+    #   TADA_ParamRef <- TADA_ParametersForAnalysis(
     #     .data,
     #     org_id = org_id,
     #     paramRef = myfile_ParamRef,
-    #     auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_CreateParamRef
+    #     auto_assign = "None", # User has now edited the table, turn the auto_assign of in TADA_ParametersForAnalysis
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   TADA_UseParamRef <- TADA_CreateUseParamRef(
+    #   TADA_usesRef <- TADA_UsesForAnalysis(
     #     .data,
     #     org_id = org_id,
     #     paramRef = TADA_ParamRef,
@@ -399,41 +399,41 @@ TADA_DefineCriteriaMethodology <- function(
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   MLSummaryRef <- TADA_CreateMLSummaryRef(
+    #   MLSummaryRef <- TADA_MLSummary(
     #     .data,
     #     org_id = org_id,
-    #     useParamRef = TADA_UseParamRef,
+    #     usesRef = TADA_usesRef,
     #     AUMLRef = AUMLRef,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     # }
     #
-    # # user only updates useParamRef. This will update useParamRef, MLSummaryRef based on this modifications.
-    # if (updateRef == "useParamRef") {
-    #   message(paste0("auto_assign = TRUE and updateRef = useParamRef selected. Running TADA_CreateParamRef with use supplied paramRef assignment. Please review this paramRef table output."))
-    #   myfile_UseParamRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateUseParamRef")
+    # # user only updates usesRef. This will update usesRef, MLSummaryRef based on this modifications.
+    # if (updateRef == "usesRef") {
+    #   message(paste0("auto_assign = TRUE and updateRef = usesRef selected. Running TADA_ParametersForAnalysis with use supplied paramRef assignment. Please review this paramRef table output."))
+    #   myfile_usesRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateusesRef")
     #
-    #   TADA_ParamRef <- TADA_CreateParamRef(
+    #   TADA_ParamRef <- TADA_ParametersForAnalysis(
     #     .data,
     #     org_id = org_id,
-    #     paramRef = myfile_UseParamRef, # will update paramRef based on useParamRef
+    #     paramRef = myfile_usesRef, # will update paramRef based on usesRef
     #     auto_assign = "All",
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   TADA_UseParamRef <- TADA_CreateUseParamRef(
+    #   TADA_usesRef <- TADA_UsesForAnalysis(
     #     .data,
     #     org_id = org_id,
     #     paramRef = TADA_ParamRef,
-    #     useParamRef = myfile_UseParamRef,
+    #     usesRef = myfile_usesRef,
     #     auto_assign = TRUE,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   MLSummaryRef <- TADA_CreateMLSummaryRef(
+    #   MLSummaryRef <- TADA_MLSummary(
     #     .data,
     #     org_id = org_id,
-    #     useParamRef = TADA_UseParamRef,
+    #     usesRef = TADA_usesRef,
     #     AUMLRef = AUMLRef,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
@@ -441,30 +441,30 @@ TADA_DefineCriteriaMethodology <- function(
     #
     # # user only updates MLSummaryRef in excel. This will update MLSummaryRef based on this modifications.
     # if (updateRef == "MLSummaryRef") {
-    #   message(paste0("auto_assign = TRUE and updateRef = MLSummaryRef selected. Running TADA_CreateMLSummaryRef with use supplied paramRef assignment. Please review this paramRef table output."))
+    #   message(paste0("auto_assign = TRUE and updateRef = MLSummaryRef selected. Running TADA_MLSummary with use supplied paramRef assignment. Please review this paramRef table output."))
     #   myfile_MLSummaryRef <- openxlsx::read.xlsx(downloads_path, sheet = "CreateMLSummaryRef")
     #
-    #   TADA_ParamRef <- TADA_CreateParamRef(
+    #   TADA_ParamRef <- TADA_ParametersForAnalysis(
     #     .data,
     #     org_id = org_id,
-    #     paramRef = myfile_MLSummaryRef, # will update paramRef based on useParamRef
+    #     paramRef = myfile_MLSummaryRef, # will update paramRef based on usesRef
     #     auto_assign = "All",
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   TADA_UseParamRef <- TADA_CreateUseParamRef(
+    #   TADA_usesRef <- TADA_UsesForAnalysis(
     #     .data,
     #     org_id = org_id,
     #     paramRef = TADA_ParamRef,
-    #     useParamRef = myfile_MLSummaryRef,
+    #     usesRef = myfile_MLSummaryRef,
     #     auto_assign = TRUE,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
     #   )
     #
-    #   MLSummaryRef <- TADA_CreateMLSummaryRef(
+    #   MLSummaryRef <- TADA_MLSummary(
     #     .data,
     #     org_id = org_id,
-    #     useParamRef = TADA_UseParamRef,
+    #     usesRef = TADA_usesRef,
     #     AUMLRef = AUMLRef,
     #     MLSummaryRef = myfile_MLSummaryRef,
     #     excel = excel, overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
@@ -811,18 +811,18 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
-    if (auto_assign == TRUE & is.null(useAURef)) {
+    if (auto_assign == TRUE & is.null(AU_UsesRef)) {
       warning(paste0(
-        "You selected auto_assign == TRUE. No useAURef was provided. ",
+        "You selected auto_assign == TRUE. No AU_UsesRef was provided. ",
         "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from the prior ATTAINS Assessment Cycle. ",
         "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
     }
-    # If the source of the ATTAINS param and uses is from the user supplied useAURef.
-    if (auto_assign == TRUE & !is.null(useAURef)) {
+    # If the source of the ATTAINS param and uses is from the user supplied AU_UsesRef.
+    if (auto_assign == TRUE & !is.null(AU_UsesRef)) {
       warning(paste0(
-        "You selected auto_assign == TRUE. A useAURef was provided. ",
-        "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your useAURef. ",
+        "You selected auto_assign == TRUE. A AU_UsesRef was provided. ",
+        "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your AU_UsesRef. ",
         "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
     }
@@ -1574,7 +1574,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     if (overwrite == FALSE) {
       warning(
-        "If you would like to replace the file, use overwrite = TRUE argument in TADA_CreateParamRef"
+        "If you would like to replace the file, use overwrite = TRUE argument in TADA_ParametersForAnalysis"
       )
       openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
     }
@@ -1777,7 +1777,7 @@ TADA_CriteriaDataDictionary <- function() {
       paste0(
         "To populate this field, specify displayUniqueId = TRUE. Concatenates the WQP Characteristic, Fraction and speciation into one string.",
         "If provided, this will crosswalk an ATTAINS.ParameterName to this TADA.ComparableDataIdentifier. ",
-        "It is recommended to have performed this crosswalk in TADA_CreateParamRef to avoid any duplicated ",
+        "It is recommended to have performed this crosswalk in TADA_ParametersForAnalysis to avoid any duplicated ",
         "definition of your organization's criteria if they are the same for multiple TADA.ComparableDataIdentifiers.",
         collapse = " "
       ),

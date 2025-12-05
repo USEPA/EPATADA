@@ -178,12 +178,12 @@ criteria table
 
     A.) If a user has supplied a list of new or updated use names to AU
     that may not be retrievable from the prior ATTAINS assessment cycle,
-    they should provide a useAURef crosswalk table in this function.
+    they should provide a AU_UsesRef crosswalk table in this function.
     This should only be provided when auto_assign = TRUE.
 
 4)  (Recommended) Go through the step-by-step review process with the 3
-    TADA crosswalk reference file generation for TADA_CreateParamRef,
-    TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef. This vignette
+    TADA crosswalk reference file generation for TADA_ParametersForAnalysis,
+    TADA_UsesForAnalysis, and TADA_MLSummaryRef. This vignette
     does not go through this recommended workflow. Please see
     ExampleMod3Workflow.Rmd for this guided workflow.
 
@@ -218,7 +218,7 @@ should be aware that this will only return rows for any matching values
 from a WQP characteristic to ATTAINS parameter alias table. It is likely
 that these value(s) will require a thorough review process during each
 step of the process with the recommended workflow of
-TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
+TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
 
 Users can view the output of these 3 functions in the excel spreadsheet
 if desired. They are hidden as default (NOTE TO CONSIDER: Should these
@@ -297,7 +297,7 @@ WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
 auto_assign = TRUE option.
 
 Note: If a user has an updated list of use names that have been applied
-to an assessment unit, they should also provide a useAURef input.
+to an assessment unit, they should also provide a AU_UsesRef input.
 Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
@@ -311,7 +311,7 @@ MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  useAURef = Data_MT_UseAURef,
+  AU_UsesRef = Data_MT_AU_UsesRef,
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE

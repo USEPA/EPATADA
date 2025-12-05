@@ -71,10 +71,8 @@ CreateAUMLCrosswalk
 CreateComparableID
 CreateMLSummaryRef
 CreatePairRef
-CreateParamRef
 CreateUnitRef
 CreateUseAURef
-CreateUseParamRef
 CreateWaterUseParamRef
 CreateWaterUseRef
 CriteriaMethods

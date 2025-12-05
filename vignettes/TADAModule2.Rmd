@@ -73,7 +73,7 @@ C)  **Submitting the Crosswalk**: Employ
     **`TADA_UpdateATTAINSAUMLCrosswalk`** to submit an up-to-date
     assessment unit/WQP monitoring location crosswalk to ATTAINS.
 
-D)  **Assigning Uses**: Use **`TADA_CreateUseAURef`** to assign specific
+D)  **Assigning Uses**: Use **`TADA_AssignUsesToAU`** to assign specific
     uses to the assessment units.
 
 **A Note About ATTAINS:**
@@ -612,7 +612,7 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
 # Step D: Assign Uses to AUs
 
 After mapping the WQP monitoring locations (MLs) to ATTAINS assessment
-units (AUs), we will use the `TADA_CreateUseAURef` function to assign
+units (AUs), we will use the `TADA_AssignUsesToAU` function to assign
 specific uses to these assessment units. Additionally, we will
 demonstrate how to automatically assign uses to the new assessment unit,
 `NEW:EX_MDEQ_WQ_WQX` with the water type "LAKE, FRESHWATER," that was
@@ -635,7 +635,7 @@ prioritized steps:
     units as defined by ATTAINS organizations.
 
 ```{r assign.use.to.AU}
-MT.UseAURef <- TADA_CreateUseAURef(
+MT.UseAURef <- TADA_AssignUsesToAU(
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
 )
@@ -656,8 +656,8 @@ needs, enter **`?TADA_CreateWaterUseRef`** into the R console.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
 MT.UseAURef_with_WaterUseRef <-
-  TADA_CreateUseAURef(
-    waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+  TADA_AssignUsesToAU(
+    waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ"
   )

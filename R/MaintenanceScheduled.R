@@ -396,17 +396,17 @@
       )
 
       # =======================================
-      # Generate Data_MT_UseAURef
+      # Generate Data_MT_AU_UsesRef
       # =======================================
-      Data_MT_UseAURef <- TADA_CreateUseAURef(
+      Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
         AUMLRef = Data_MT_AUMLRef,
         org_id = "MTDEQ"
       )
 
-      message("Data_MT_UseAURef")
-      message(dim(Data_MT_UseAURef))
+      message("Data_MT_AU_UsesRef")
+      message(dim(Data_MT_AU_UsesRef))
       usethis::use_data(
-        Data_MT_UseAURef,
+        Data_MT_AU_UsesRef,
         internal = FALSE,
         overwrite = TRUE,
         compress = "xz",
@@ -421,26 +421,26 @@
       )
 
       # =======================================
-      # Generate Data_MT_UseAURef_Water
+      # Generate Data_MT_AU_UsesRef_Water
       # =======================================
-      Data_MT_UseAURef_Water <- TADA_CreateUseAURef(
-        waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+      Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
         AUMLRef = Data_MT_AUMLRef,
         org_id = "MTDEQ"
       )
 
-      message("Data_MT_UseAURef_Water")
-      message(dim(Data_MT_UseAURef_Water))
+      message("Data_MT_AU_UsesRef_Water")
+      message(dim(Data_MT_AU_UsesRef_Water))
 
       usethis::use_data(
-        Data_MT_UseAURef_Water,
+        Data_MT_AU_UsesRef_Water,
         internal = FALSE,
         overwrite = TRUE,
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
-      rm(Data_MT_UseAURef_Water)
+      rm(Data_MT_AU_UsesRef_Water)
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)

@@ -114,22 +114,22 @@ NULL
 #' @format A data frame with 56 rows and 6 variables.
 NULL
 
-#' Data_MT_UseAURef
+#' Data_MT_AU_UsesRef
 #'
 #' An example assessment unit/use reference data frame for testing TADA Module 2 and 3 workflows.
 #'
 #' @docType data
 #' @keywords data frame
-#' @name Data_MT_UseAURef
+#' @name Data_MT_AU_UsesRef
 #' @format A data frame with 46 rows and 6 variables.
 NULL
 
-#' Data_MT_UseAURef_Water
+#' Data_MT_AU_UsesRef_Water
 #'
-#' Generate Data_MT_UseAURef_Water used in ExampleMod2Workflow.Rmd and
+#' Generate Data_MT_AU_UsesRef_Water used in ExampleMod2Workflow.Rmd and
 #' ExampleMod3Workflow.Rmd
 #'
 #' @docType data
-#' @name Data_MT_UseAURef_Water
+#' @name Data_MT_AU_UsesRef_Water
 #' @format A data frame with 48 rows and 6 variables.
 NULL
