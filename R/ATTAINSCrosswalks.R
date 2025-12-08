@@ -1234,6 +1234,11 @@ TADA_ParametersForAnalysis <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) %>%
       dplyr::arrange(ATTAINS.ParameterName)
 
+    if (org_id == "") {
+      ATTAINS_param <- ATTAINS_param_all %>%
+        dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
+    }
+    
     # Should we stop or warn users in this step?
     if (
       sum(!org_id %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0
@@ -1401,7 +1406,8 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           ATTAINS.ParameterName = dplyr::if_else(
             ATTAINS.FlagParameterName ==
-              "Parameter name is listed as a prior cause in ATTAINS for this organization.",
+              "Parameter name is listed as a prior cause in ATTAINS for this organization." |
+              ATTAINS.OrganizationIdentifier == "",
             ATTAINS.ParameterName,
             NA
           )
@@ -1478,35 +1484,6 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.FlagParameterName,
           Flag.ParameterInput
         )
-
-      # paramRef %>%
-      # dplyr::select(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, ATTAINS.ParameterName) %>%
-      # dplyr::full_join(
-      #   CreateParamRef,
-      #   by = dplyr::join_by(ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier)) %>%
-      # dplyr::mutate(
-      #   Flag.ParameterInput = dplyr::if_else(
-      #     paste(TADA.ComparableDataIdentifier, ATTAINS.ParameterName) %in% paste(paramRef$TADA.ComparableDataIdentifier, paramRef$ATTAINS.ParameterName),
-      #       "This crosswalk was provided through a user supplied table",
-      #       Flag.ParameterInput
-      #     )
-      #   ) %>%
-      # dplyr::mutate(
-      #   ATTAINS.FlagParameterName = dplyr::case_when(
-      #     ATTAINS.ParameterName == "Not Applicable for Analysis." | is.na(ATTAINS.ParameterName) ~
-      #       "No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
-      #     !ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName ~
-      #       "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
-      #     ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName & !paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
-      #       "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
-      #     paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in% paste(ATTAINS_param_all$ATTAINS.OrganizationIdentifier, ATTAINS_param_all$ATTAINS.ParameterName) ~
-      #       "Parameter name is listed as a prior cause in ATTAINS for this organization"
-      #   )
-      # ) %>%
-      # dplyr::select(
-      #   TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
-      #   ATTAINS.FlagParameterName, Flag.ParameterInput
-      # )
     }
 
     # Excel ref files to be stored in the Downloads folder location.
@@ -3745,8 +3722,21 @@ TADA_MLSummary <- function(
     # Identify all unique monitoring location id in the .data data frame to filter by.
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
   
+    # set a limit of 1M rows if we want to display all sites-param-use combinations.
     if (
-      displayNA == TRUE && nrow(usesRef) < 1000 && length(unique_ML) < 1000
+      displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 1000000
+    ) {
+      warning(paste0(
+        "displayNA = TRUE: ",
+        "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
+        "Defaulting to displayNA = FALSE"
+      ))
+      
+      displayNA <- FALSE
+    }
+    
+    if (
+      displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 1000000
     ) {
       print(paste0(
         "displayNA = TRUE: ",
@@ -3858,18 +3848,6 @@ TADA_MLSummary <- function(
           UniqueSpatialCriteria
         ) %>%
         dplyr::arrange(MonitoringLocationIdentifier)
-    }
-  
-    if (
-      displayNA == TRUE && nrow(usesRef) > 2000 || length(unique_ML) > 2000
-    ) {
-      warning(paste0(
-        "displayNA = TRUE: ",
-        "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
-        "Defaulting to displayNA = FALSE"
-      ))
-  
-      displayNA <- FALSE
     }
   
     # If we want to exclude rows of sites with no specified parameters
