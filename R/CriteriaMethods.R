@@ -372,6 +372,16 @@ TADA_DefineCriteriaMethodology <- function(
       ) %>%
       dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
+    # MLSummary seems to be missing a column during some random testing. Check to see if this will handle error and troubleshoot in future dev.
+    add_missing_column <- function(df, col_name) {
+      if (!(col_name %in% names(df))) {
+        df[[col_name]] <- NA
+      }
+      return(df)
+    }
+    # If TADA.ComparableDataIdentifier is missing, add it as a column with NA.
+    MLSummaryRef <- add_missing_column(MLSummaryRef, "TADA.ComparableDataIdentifier")
+    
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%
       dplyr::full_join(MLSummaryRef)
