@@ -47,25 +47,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     # Make a reference table for CRS and EPSG codes
     # List should include all codes in WQX domain (see HorizontalCoordinateReferenceSystemDatum CSV at https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
-      "NAD83"                                       ,  4269 ,
-      "WGS84"                                       ,  4326 ,
-      "NAD27"                                       ,  4267 ,
-      "UNKWN"                                       , crs   , # Unknowns and NAs should go to user supplied crs or default
-      "Unknown"                                     , crs   ,
-      "OTHER"                                       , crs   ,
-      "OLDHI"                                       ,  4135 ,
-      "AMSMA"                                       ,  4169 ,
-      "ASTRO"                                       ,  4727 ,
-      "GUAM"                                        ,  4675 ,
-      "JHNSN"                                       ,  4725 ,
-      "PR"                                          ,  6139 ,
-      "SGEOR"                                       ,  4138 ,
-      "SLAWR"                                       ,  4136 ,
-      "SPAUL"                                       ,  4137 ,
-      "WAKE"                                        ,  6732 ,
-      "WGS72"                                       ,  6322 ,
-      "HARN"                                        ,  4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", crs, # Unknowns and NAs should go to user supplied crs or default
+      "Unknown", crs,
+      "OTHER", crs,
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # Check the CRS column for NA or "UNKWN" and warn user if any are found
@@ -368,11 +368,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
   ) {
     # For user-specified AOIs with a large spatial range, create "clusters" of sites
     # whose bounding boxes are smaller.
-    perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
-    ) {
+    perform_iterative_clustering <- function(points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100) {
       # fxn to calculate each cluster's bounding box area
       bbox_area <- function(df, clust) {
         df %>%
