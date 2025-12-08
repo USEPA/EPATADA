@@ -375,7 +375,6 @@ TADA_DefineCriteriaMethodology <- function(
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
     MLSummaryRef <- TADA_param %>%
       dplyr::full_join(MLSummaryRef)
-    # }
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
     # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.

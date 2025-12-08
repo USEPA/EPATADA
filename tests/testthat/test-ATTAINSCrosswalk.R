@@ -126,7 +126,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   suppressWarnings(
     Criteria_autofill <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = TRUE,
       displayUniqueId = FALSE,
       excel = FALSE
@@ -138,7 +138,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   suppressWarnings(
     Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = TRUE,
       displayUniqueId = TRUE,
       excel = FALSE
