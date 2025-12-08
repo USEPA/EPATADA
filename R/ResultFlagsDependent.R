@@ -449,11 +449,16 @@ TADA_FlagResultUnit <- function(
   TADA_CheckType(flaggedonly, "logical")
 
   # Ensure clean is one of the valid options
-  clean <- match.arg(clean, choices = c("suspect_only", "nonstandardized_only", "both", "none"))
+  clean <- match.arg(
+    clean,
+    choices = c("suspect_only", "nonstandardized_only", "both", "none")
+  )
 
   # Check if flaggedonly is TRUE when clean is not 'none'
   if (flaggedonly && clean != "none") {
-    stop('The "flaggedonly" parameter can only be set to TRUE if "clean" is set to "none".')
+    stop(
+      'The "flaggedonly" parameter can only be set to TRUE if "clean" is set to "none".'
+    )
   }
 
   # Convert necessary columns to uppercase if they don't exist
@@ -490,26 +495,40 @@ TADA_FlagResultUnit <- function(
   # Rename flag column and handle NA values
   check.data <- check.data %>%
     dplyr::rename(TADA.ResultUnit.Flag = TADA.WQXVal.Flag) %>%
-    dplyr::mutate(TADA.ResultUnit.Flag = ifelse(is.na(TADA.ResultUnit.Flag), "Not Reviewed", TADA.ResultUnit.Flag))
+    dplyr::mutate(
+      TADA.ResultUnit.Flag = ifelse(
+        is.na(TADA.ResultUnit.Flag),
+        "Not Reviewed",
+        TADA.ResultUnit.Flag
+      )
+    )
 
   # Additional flagging for specific cases (e.g., pH with certain units)
   check.data <- check.data %>%
-    dplyr::mutate(TADA.ResultUnit.Flag = ifelse(
-      TADA.CharacteristicName == "PH" &
-        is.na(TADA.ActivityMediaName) &
-        TADA.ResultMeasure.MeasureUnitCode %in% c("MOLE/L", "MMOL/L"),
-      "Suspect",
-      TADA.ResultUnit.Flag
-    ))
+    dplyr::mutate(
+      TADA.ResultUnit.Flag = ifelse(
+        TADA.CharacteristicName == "PH" &
+          is.na(TADA.ActivityMediaName) &
+          TADA.ResultMeasure.MeasureUnitCode %in% c("MOLE/L", "MMOL/L"),
+        "Suspect",
+        TADA.ResultUnit.Flag
+      )
+    )
 
   # Apply cleaning logic based on the 'clean' parameter
   if (clean != "none") {
     if (clean == "suspect_only") {
       check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Suspect")
     } else if (clean == "nonstandardized_only") {
-      check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "NonStandardized")
+      check.data <- dplyr::filter(
+        check.data,
+        TADA.ResultUnit.Flag != "NonStandardized"
+      )
     } else if (clean == "both") {
-      check.data <- dplyr::filter(check.data, !TADA.ResultUnit.Flag %in% c("Suspect", "NonStandardized"))
+      check.data <- dplyr::filter(
+        check.data,
+        !TADA.ResultUnit.Flag %in% c("Suspect", "NonStandardized")
+      )
       # Remove the flag column when clean is 'both'
       check.data <- dplyr::select(check.data, -TADA.ResultUnit.Flag)
     }
@@ -517,9 +536,14 @@ TADA_FlagResultUnit <- function(
 
   # Apply flaggedonly logic to show only flagged rows
   if (flaggedonly) {
-    check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag %in% c("Suspect", "NonStandardized"))
+    check.data <- dplyr::filter(
+      check.data,
+      TADA.ResultUnit.Flag %in% c("Suspect", "NonStandardized")
+    )
     if (nrow(check.data) == 0) {
-      message("No Suspect/NonStandardized characteristic-media-result unit combinations found.")
+      message(
+        "No Suspect/NonStandardized characteristic-media-result unit combinations found."
+      )
     }
   }
 

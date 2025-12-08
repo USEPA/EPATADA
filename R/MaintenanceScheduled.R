@@ -379,7 +379,6 @@
       # Generate Data_MT_UseAURef
       # =======================================
       Data_MT_AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
-      
       Data_MT_UseAURef <- TADA_CreateUseAURef(
         AUMLRef = Data_MT_AUMLRef,
         org_id = "MTDEQ"
@@ -416,9 +415,16 @@
         version = 3,
         ascii = FALSE
       )
-      
-      rm(attains.existing.MT, clean.existing.attains.MT, Data_MT_AUMLRef, 
-         Data_MT_UseAURef, Data_MT_UseAURef_Water, MT_AUMLRef, user_supplied_cw)
+
+      rm(
+        attains.existing.MT,
+        clean.existing.attains.MT,
+        Data_MT_AUMLRef,
+        Data_MT_UseAURef,
+        Data_MT_UseAURef_Water,
+        MT_AUMLRef,
+        user_supplied_cw
+      )
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)
