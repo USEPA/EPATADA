@@ -158,7 +158,10 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
   }
 
   # if batch_upload is TRUE, create an ATTAINS formatted batch upload df
-  if (batch_upload == TRUE & length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0) {
+  if (
+    batch_upload == TRUE &
+      length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0
+  ) {
     au.crosswalk <- au.crosswalk %>%
       dplyr::select(-ATTAINS.WaterType) %>%
       dplyr::select(-ATTAINS.OrganizationIdentifier) %>%
@@ -175,7 +178,8 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
     print(paste0(
       "TADA_GetATTAINSAUMLCrosswalk: ",
       "No monitoring location identifiers were recorded in ATTAINS for ",
-      org_id, " assessment units."
+      org_id,
+      " assessment units."
     ))
 
     rm(org.ref)
@@ -326,13 +330,15 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
 #' )
 #' }
 #'
-TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
-                                            crosswalk = NULL,
-                                            attains_replace = FALSE,
-                                            wqp_data_links = "add",
-                                            update_mlid = TRUE,
-                                            batch_upload = FALSE,
-                                            check_links = FALSE) {
+TADA_UpdateATTAINSAUMLCrosswalk <- function(
+  org_id = "all",
+  crosswalk = NULL,
+  attains_replace = FALSE,
+  wqp_data_links = "add",
+  update_mlid = TRUE,
+  batch_upload = FALSE,
+  check_links = FALSE
+) {
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
@@ -342,8 +348,10 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
     ))
   }
 
-  if ((org_id == "all" & batch_upload == TRUE) |
-    (length(org_id) > 1 & batch_upload == TRUE)) {
+  if (
+    (org_id == "all" & batch_upload == TRUE) |
+      (length(org_id) > 1 & batch_upload == TRUE)
+  ) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
       "in order to create a batch upload file, the user must specify a single org_id."
@@ -377,9 +385,10 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
       "MS_DATA_LINK"
     )
 
-
-    if (!all(crosswalk_cols %in% names(crosswalk)) &
-      !all(batchupload_cols %in% names(crosswalk))) {
+    if (
+      !all(crosswalk_cols %in% names(crosswalk)) &
+        !all(batchupload_cols %in% names(crosswalk))
+    ) {
       stop(paste0(
         "Column names must reflect the TADA workflow requirements. ",
         "Review function documentation for more information."
@@ -408,16 +417,21 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
         dplyr::distinct()
 
       crosswalk <- crosswalk %>%
-        dplyr::left_join(wat.types, by = dplyr::join_by(
-          ATTAINS.AssessmentUnitIdentifier
-        ))
+        dplyr::left_join(
+          wat.types,
+          by = dplyr::join_by(
+            ATTAINS.AssessmentUnitIdentifier
+          )
+        )
     }
   }
 
   if (attains_replace == FALSE) {
     # create assessment unit crosswalk from ATTAINS
 
-    attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
+    attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(
+      org_id = org_id
+    ))
 
     if (is.null(crosswalk)) {
       update.crosswalk <- attains.crosswalk
@@ -430,14 +444,17 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
       # combine user supplied and attains crosswalks to create one crosswalk
       # no rows are omitted
       update.crosswalk <- attains.crosswalk %>%
-        dplyr::full_join(crosswalk, by = dplyr::join_by(
-          ATTAINS.MonitoringLocationIdentifier,
-          OrganizationIdentifier,
-          ATTAINS.OrganizationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier,
-          ATTAINS.MonitoringDataLinkText,
-          ATTAINS.WaterType
-        )) %>%
+        dplyr::full_join(
+          crosswalk,
+          by = dplyr::join_by(
+            ATTAINS.MonitoringLocationIdentifier,
+            OrganizationIdentifier,
+            ATTAINS.OrganizationIdentifier,
+            ATTAINS.AssessmentUnitIdentifier,
+            ATTAINS.MonitoringDataLinkText,
+            ATTAINS.WaterType
+          )
+        ) %>%
         dplyr::distinct()
 
       rm(attains.crosswalk, crosswalk)
@@ -454,8 +471,9 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(org_id = "all",
 
   # add provider ref if required
 
-  if (wqp_data_links == "add" | wqp_data_links == "replace" |
-    update_mlid == TRUE) {
+  if (
+    wqp_data_links == "add" | wqp_data_links == "replace" | update_mlid == TRUE
+  ) {
     provider.ref <- TADA_GetWQPOrgProviderRef() %>%
       dplyr::select(OrganizationIdentifier, ProviderName) %>%
       dplyr::distinct() %>%
