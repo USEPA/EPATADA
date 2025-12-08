@@ -3736,7 +3736,7 @@ TADA_MLSummary <- function(
     }
     
     if (
-      displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 1000000
+      displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 1000000
     ) {
       print(paste0(
         "displayNA = TRUE: ",
@@ -4173,7 +4173,6 @@ TADA_MLSummary <- function(
         sheet = "CreateMLSummaryRef"
       )
     }
-  
     return(CreateMLSummaryRef)
   }
 }
