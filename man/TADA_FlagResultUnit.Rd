@@ -50,13 +50,15 @@ SuspectUnit_flags <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo)
 
 # Show only 'Suspect' or 'NonStandardized' characteristic and unit combinations:
 SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo,
-  clean = 'none', flaggedonly = TRUE
+  clean = "none", flaggedonly = TRUE
 )
-SuspectUnit_flaggedonly_selectcols <- dplyr::select(SuspectUnit_flaggedonly, 
-TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.ResultUnit.Flag)
+SuspectUnit_flaggedonly_selectcols <- dplyr::select(
+  SuspectUnit_flaggedonly,
+  TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.ResultUnit.Flag
+)
 
-# Remove both 'Suspect' and 'NonStandardized' characteristic and result 
+# Remove both 'Suspect' and 'NonStandardized' characteristic and result
 # combinations, and exclude the flag column:
-ResultUnit_clean <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo, clean = 'both')
+ResultUnit_clean <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo, clean = "both")
 
 }
