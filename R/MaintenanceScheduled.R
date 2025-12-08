@@ -380,6 +380,8 @@
       # =======================================
       # Generate Data_MT_UseAURef
       # =======================================
+      Data_MT_AUMLRef <- Data_MT_AUMLRef$ATTAINS_crosswalk
+      
       Data_MT_UseAURef <- TADA_CreateUseAURef(
         AUMLRef = Data_MT_AUMLRef,
         org_id = "MTDEQ"
@@ -399,7 +401,7 @@
         attains.existing.MT,
         clean.existing.attains.MT,
         user_supplied_cw,
-        MT_AUMLRef
+        Data_MT_AUMLRef
       )
 
       # =======================================

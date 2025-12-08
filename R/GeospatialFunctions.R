@@ -2379,10 +2379,16 @@ TADA_GetATTAINSByAUID <- function(
     df <- .data %>%
       dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
 
-    # bind with existing attains.geo data
-    attains.geo <- plyr::rbind.fill(attains.geo, df) %>%
-      dplyr::filter(!is.na(GLOBALID))
-
+    # Bind with existing attains.geo data
+    attains.geo <- plyr::rbind.fill(attains.geo, df)
+    
+    # Check if GLOBALID exists in the combined data frame
+    if ("GLOBALID" %in% names(attains.geo)) {
+      # Filter out rows with NA in GLOBALID
+      attains.geo <- attains.geo %>%
+        dplyr::filter(!is.na(GLOBALID))
+    } 
+    
     # remove intermediate object
     rm(df)
 
