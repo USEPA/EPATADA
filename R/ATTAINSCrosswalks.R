@@ -69,7 +69,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
       # remove intermediate objects
       rm(org.ref)
 
-      # stop function if organization ids are not in ATTAINS
+      # stop function if organization ids are not found in ATTAINS
       stop(paste0(
         "TADA_GetATTAINSAUMLCrosswalk: ",
         "organization identifier(s) entered by user not found in ATTAINS."
