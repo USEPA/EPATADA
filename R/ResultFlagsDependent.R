@@ -373,254 +373,161 @@ TADA_FlagSpeciation <- function(
 }
 
 
+
 #' Check Result Unit Validity
 #'
-#' Function checks the validity of each characteristic-media-result unit
-#' combination in the dataframe. When clean = "suspect_only", rows with Suspect
-#' characteristic-media-result unit combinations are removed. Default is
-#' clean = "suspect_only". When flaggedonly = TRUE, dataframe is filtered to show only
-#' rows with "Suspect" or "NonStandardized" characteristic-media-result unit combinations.
-#' Default is flaggedonly = FALSE.
+#' This function checks the validity of each characteristic and result unit
+#' combination in the input data frame. By default, rows are flagged but not removed.
+#' The full input data frame is returned along with an additional flag column,
+#' 'TADA.ResultUnit.Flag', unless `clean` is set to 'both', in which case the flag
+#' column is excluded.
 #'
-#' The “Not Reviewed” value within "TADA.ResultUnit.Flag" means
-#' that the EPA WQX team has not yet reviewed the combinations
-#' (see https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
-#' The WQX team plans to review and update these new combinations quarterly.
+#' Users can choose to filter and review only the flagged rows by setting
+#' `flaggedonly` to `TRUE`. After review, users can choose to remove any rows flagged
+#' as 'Suspect' or 'NonStandardized' in the 'TADA.ResultUnit.Flag' column by setting
+#' `clean` to 'suspect_only', 'nonstandardized_only', 'both', or 'none'.
+#' Note: The 'Not Reviewed' value in the 'TADA.ResultUnit.Flag' means that the
+#' EPA WQX team has not yet reviewed the combination for validity.
 #'
-#' @param .data TADA dataframe
-#' @param clean Character argument with options "suspect_only", "nonstandardized_only",
-#' "both", or "none." The default is clean = "suspect_only" which removes rows of
-#' data flagged as having "Suspect" characteristic-media-result unit combinations. When
-#' clean = "nonstandardized_only", the function removes rows of data flagged as
-#' having "NonStandardized" characteristic-media-result unit combinations. When
-#' clean = "both", the function removes rows of data flagged as either "Suspect" or
-#' "NonStandardized". And when clean = "none", the function does not remove any "Suspect"
-#' or "NonStandardized" rows of data.
-#' @param flaggedonly Boolean argument; filters dataframe to show only "Suspect"
-#' characteristic-media-result unit combinations when flaggedonly = TRUE. Default
-#' is flaggedonly = FALSE.
+#' @param .data A data frame containing the TADA dataset.
+#' @param clean A character argument with options 'suspect_only', 'nonstandardized_only',
+#' 'both', or 'none'. The default is 'none', which retains all rows but flags them.
+#' @param flaggedonly A boolean argument; filters the data frame to show only 'Suspect'
+#' and 'NonStandardized' characteristic-media-result unit combinations when `TRUE`.
+#' Default is `FALSE`. This can only be `TRUE` if `clean` is set to 'none'.
 #'
-#' @return This function adds the TADA.ResultUnit.Flag to a TADA dataframe. This column
-#' flags each CharacteristicName, ActivityMediaName, and ResultMeasure/MeasureUnitCode
-#' combination in your dataframe as either "NonStandardized", "Suspect", "Pass", or
-#' "Not Reviewed".
-#' When clean = "none" and flaggedonly = TRUE, the dataframe is filtered to show only
-#' the "Suspect" and "NonStandardized" data; the column TADA.ResultUnit.Flag is
-#' still appended. When clean = "suspect_only" and flaggedonly = FALSE, "Suspect"
-#' rows are removed from the dataframe, but "NonStandardized" rows are retained. When
-#' clean = "nonstandardized_only" and flaggedonly = FALSE, "NonStandardized" rows
-#' are removed, but "Suspect" rows are retained. The default is clean = "suspect_only"
-#' and flaggedonly = FALSE.
+#' @return The function returns the input data frame with an added 'TADA.ResultUnit.Flag'
+#' column unless `clean` is 'both', in which case the column is excluded. This column
+#' flags each 'TADA.CharacteristicName' and TADA.ResultMeasure.MeasureUnitCode'
+#' combination as 'NonStandardized', 'Suspect', 'Pass', or 'Not Reviewed'.
+#' When `clean = 'none'` and `flaggedonly = TRUE`, the data frame is filtered to show only
+#' the 'Suspect' and 'NonStandardized' data.
 #'
 #' @export
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_Nutrients_UT)
+#' utils::data(Data_R5_TADAPackageDemo)
 #'
-#' # Remove data with Suspect characteristic-media-result unit combinations
-#' # from dataframe, but retain "NonStandardized" combinations flagged in new
-#' # column 'TADA.ResultUnit.Flag':
-#' SuspectUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT)
-#'
-#' # Remove data with "NonStandardized" characteristic-media-result unit
-#' # combinations from dataframe but retain Suspect combinations flagged in
-#' # new column 'TADA.ResultUnit.Flag:
-#' NonstandardUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT,
-#'   clean = "nonstandardized_only"
+#' # Flag, but do not remove, data with 'Suspect' or 'NonStandardized'
+#' # characteristic and unit combinations in a new column titled
+#' # 'TADA.ResultUnit.Flag':
+#' SuspectUnit_flags <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo)
+#' 
+#' # Show only 'Suspect' or 'NonStandardized' characteristic and unit combinations:
+#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo,
+#'   clean = 'none', flaggedonly = TRUE
 #' )
+#' SuspectUnit_flaggedonly_selectcols <- dplyr::select(SuspectUnit_flaggedonly, 
+#' TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, TADA.ResultUnit.Flag)
 #'
-#' # Remove both Suspect and "NonStandardized" characteristic-media-result
-#' # unit combinations from dataframe:
-#' ResultUnit_clean <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "both")
-#'
-#' # Flag, but do not remove, data with Suspect or "NonStandardized"
-#' # characteristic-media-result unit combinations in new column titled
-#' # "TADA.ResultUnit.Flag":
-#' SuspectUnit_flags <- TADA_FlagResultUnit(Data_Nutrients_UT, clean = "none")
-#'
-#' # Show only Suspect characteristic-media-result unit combinations:
-#' SuspectUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT,
-#'   clean = "nonstandardized_only", flaggedonly = TRUE
-#' )
-#'
-#' # Show only "NonStandardized" characteristic-media-result unit combinations:
-#' NonstandardUnit_flaggedonly <- TADA_FlagResultUnit(Data_Nutrients_UT,
-#'   clean = "suspect_only", flaggedonly = TRUE
-#' )
+#' # Remove both 'Suspect' and 'NonStandardized' characteristic and result 
+#' # combinations, and exclude the flag column:
+#' ResultUnit_clean <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo, clean = 'both')
 #'
 TADA_FlagResultUnit <- function(
-  .data,
-  clean = c("suspect_only", "nonstandardized_only", "both", "none"),
-  flaggedonly = FALSE
+    .data,
+    clean = 'none',
+    flaggedonly = FALSE
 ) {
-  # check .data is data.frame and has required columns
+  
+  # Check if the input dataframe is blank (empty)
+  if (nrow(.data) == 0) {
+    stop('The input dataframe is blank. Please provide a dataframe with data.')
+  }
+  
+  # Ensure .data is a data.frame and contains required columns
   expected_cols <- c(
-    "TADA.CharacteristicName",
-    "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.ActivityMediaName"
+    'TADA.CharacteristicName',
+    'TADA.ResultMeasure.MeasureUnitCode',
+    'TADA.ActivityMediaName'
   )
-  TADA_CheckColumns(.data, expected_cols)
-  # check clean is character
-  TADA_CheckType(clean, "character")
-  # check flaggedonly is boolean
-  TADA_CheckType(flaggedonly, "logical")
-  # check .data has required columns
-
-  if ("TADA.CharacteristicName" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original CharacteristicName
-    .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
+  TADA_CheckColumns(.data, expected_cols) # Check for required columns
+  
+  # Validate types of clean and flaggedonly
+  TADA_CheckType(clean, 'character')
+  TADA_CheckType(flaggedonly, 'logical')
+  
+  # Ensure clean is one of the valid options
+  clean <- match.arg(clean, choices = c('suspect_only', 'nonstandardized_only', 'both', 'none'))
+  
+  # Check if flaggedonly is TRUE when clean is not 'none'
+  if (flaggedonly && clean != 'none') {
+    stop('The "flaggedonly" parameter can only be set to TRUE if "clean" is set to "none".')
   }
-
-  if ("TADA.ResultMeasure.MeasureUnitCode" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original ResultMeasure.MeasureUnitCode
-    .data$TADA.ResultMeasure.MeasureUnitCode <- toupper(
-      .data$ResultMeasure.MeasureUnitCode
-    )
+  
+  # Convert necessary columns to uppercase if they don't exist
+  for (col in expected_cols) {
+    if (!(col %in% colnames(.data))) {
+      original_col <- sub('TADA.', '', col)
+      .data[[col]] <- toupper(.data[[original_col]])
+    }
   }
-
-  if ("TADA.ActivityMediaName" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original ActivityMediaName
-    .data$TADA.ActivityMediaName <- toupper(.data$ActivityMediaName)
-  }
-
-  # check that clean is either "suspect_only", "nonstandardized_only", "both", or "none"
-  clean <- match.arg(clean)
-
-  # execute function after checks are passed - removes flag column in case reference table has changed.
-  if (("TADA.ResultUnit.Flag" %in% colnames(.data)) == TRUE) {
+  
+  # Remove existing TADA.ResultUnit.Flag column if present
+  if ('TADA.ResultUnit.Flag' %in% colnames(.data)) {
     .data <- dplyr::select(.data, -TADA.ResultUnit.Flag)
   }
-
-  # read in unit reference table from extdata and filter
-  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+  
+  # Load unit reference table for validation
+  file_path <- system.file('extdata', 'WQXcharValRef.rda', package = 'EPATADA')
   load(file_path)
-  rm(file_path)
-  unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
-  rm(WQXcharValRef)
-
-  # join "TADA.WQXVal.Flag" column to .data by CharacteristicName, Source (Media), and Value (unit)
+  unit.ref <- dplyr::filter(WQXcharValRef, Type == 'CharacteristicUnit')
+  
+  # Merge data with reference table to flag results
   check.data <- merge(
     .data,
-    unit.ref[, c("Characteristic", "Source", "TADA.WQXVal.Flag", "Value")],
+    unit.ref[, c('Characteristic', 'Source', 'TADA.WQXVal.Flag', 'Value')],
     by.x = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultMeasure.MeasureUnitCode",
-      "TADA.ActivityMediaName"
+      'TADA.CharacteristicName',
+      'TADA.ResultMeasure.MeasureUnitCode',
+      'TADA.ActivityMediaName'
     ),
-    by.y = c("Characteristic", "Value", "Source"),
+    by.y = c('Characteristic', 'Value', 'Source'),
     all.x = TRUE
   )
-
-  # rename TADA.WQXVal.Flag column
+  
+  # Rename flag column and handle NA values
   check.data <- check.data %>%
     dplyr::rename(TADA.ResultUnit.Flag = TADA.WQXVal.Flag) %>%
-    dplyr::distinct()
-  # rename NA values to Not Reviewed in TADA.ResultUnit.Flag column
-  # check.data below should not be needed anymore with flagging consistency update, but will keep in if logic changes or is actually needed. 10/7/2024 KW
-  check.data["TADA.ResultUnit.Flag"][is.na(check.data[
-    "TADA.ResultUnit.Flag"
-  ])] <- "Not Reviewed"
-
-  # Flag additional combinations that are invalid regardless of media type (and media type was left blank - NWIS only issue)
-  if (any(check.data$TADA.CharacteristicName == "PH")) {
-    check.data <- check.data %>%
-      dplyr::mutate(
-        TADA.ResultUnit.Flag = ifelse(
-          TADA.CharacteristicName == "PH" &
-            is.na(TADA.ActivityMediaName) &
-            TADA.ResultMeasure.MeasureUnitCode == "MOLE/L" |
-            TADA.ResultMeasure.MeasureUnitCode == "MMOL/L",
-          "Suspect",
-          TADA.ResultUnit.Flag
-        )
-      )
-  }
-
-  # if all rows are "Pass", return input with flag column
-  if (
-    any(
-      c("NonStandardized", "Suspect", "Not Reviewed") %in%
-        unique(check.data$TADA.ResultUnit.Flag)
-    ) ==
-      FALSE
-  ) {
-    print(
-      "TADA_FlagResultUnit: All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking."
-    )
-    check.data <- TADA_OrderCols(check.data)
-    return(check.data)
-  }
-
-  # flagged output, all data
-  if (clean == "none" & flaggedonly == FALSE) {
-    print(
-      "TADA_FlagResultUnit: Rows with Suspect result value units have been flagged but retained. Review the TADA.ResultUnit.Flag column and remove rows as desired before proceeding and/or set clean = 'suspect_only' or 'both'."
-    )
-  }
-
-  # when clean = "suspect_only"
-  if (clean == "suspect_only") {
-    # filter out only "Suspect" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != "Suspect")
-  }
-
-  # when clean = "nonstandardized_only"
-  if (clean == "nonstandardized_only") {
-    # filter out only "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(
-      check.data,
-      TADA.ResultUnit.Flag != "NonStandardized"
-    )
-  }
-
-  # when clean = "both"
-  if (clean == "both") {
-    # filter out both "Suspect" and "NonStandardized" characteristic-method speciation combinations
-    clean.data <- dplyr::filter(
-      check.data,
-      TADA.ResultUnit.Flag != "NonStandardized" &
-        TADA.ResultUnit.Flag != "Suspect"
-    )
-  }
-
-  # when clean = "none"
-  if (clean == "none") {
-    # retain all data
-    clean.data <- check.data
-  }
-
-  # when flaggedonly = FALSE
-  if (flaggedonly == FALSE) {
-    clean.data <- TADA_OrderCols(clean.data)
-    return(clean.data)
-  }
-
-  # when flaggedonly = TRUE
-  if (flaggedonly == TRUE) {
-    # filter to show only Suspect and/or nonStandardized characteristic-method speciation combinations
-    error.data <- dplyr::filter(
-      clean.data,
-      TADA.ResultUnit.Flag == "Suspect" |
-        TADA.ResultUnit.Flag == "NonStandardized"
-    )
-    # if there are no errors
-    if (nrow(error.data) == 0) {
-      print(
-        "This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-media-result unit combinations or they were all filtered out"
-      )
-      # error.data <- dplyr::select(error.data, -TADA.ResultUnit.Flag)
+    dplyr::mutate(TADA.ResultUnit.Flag = ifelse(is.na(TADA.ResultUnit.Flag), 'Not Reviewed', TADA.ResultUnit.Flag))
+  
+  # Additional flagging for specific cases (e.g., pH with certain units)
+  check.data <- check.data %>%
+    dplyr::mutate(TADA.ResultUnit.Flag = ifelse(
+      TADA.CharacteristicName == 'PH' &
+        is.na(TADA.ActivityMediaName) &
+        TADA.ResultMeasure.MeasureUnitCode %in% c('MOLE/L', 'MMOL/L'),
+      'Suspect',
+      TADA.ResultUnit.Flag
+    ))
+  
+  # Apply cleaning logic based on the 'clean' parameter
+  if (clean != 'none') {
+    if (clean == 'suspect_only') {
+      check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != 'Suspect')
+    } else if (clean == 'nonstandardized_only') {
+      check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag != 'NonStandardized')
+    } else if (clean == 'both') {
+      check.data <- dplyr::filter(check.data, !TADA.ResultUnit.Flag %in% c('Suspect', 'NonStandardized'))
+      # Remove the flag column when clean is 'both'
+      check.data <- dplyr::select(check.data, -TADA.ResultUnit.Flag)
     }
-    error.data <- TADA_OrderCols(error.data)
-    return(error.data)
   }
+  
+  # Apply flaggedonly logic to show only flagged rows
+  if (flaggedonly) {
+    check.data <- dplyr::filter(check.data, TADA.ResultUnit.Flag %in% c('Suspect', 'NonStandardized'))
+    if (nrow(check.data) == 0) {
+      message('No Suspect/NonStandardized characteristic-media-result unit combinations found.')
+    }
+  }
+  
+  # Order columns as per the required format
+  check.data <- TADA_OrderCols(check.data)
+  return(check.data)
 }
+
 
 
 #' Check for Quality Control Samples
