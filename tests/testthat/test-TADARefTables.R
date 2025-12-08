@@ -14,10 +14,21 @@
 # })
 
 test_that("No combos were missed in NP key from harmonization table", {
-  np <- unique(TADA_GetNutrientSummationRef()[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
+  np <- unique(TADA_GetNutrientSummationRef()[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )])
   np$np <- 1
-  harm <- unique(TADA_GetSynonymRef()[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
-  harm <- subset(harm, harm$TADA.CharacteristicName %in% np$TADA.CharacteristicName)
+  harm <- unique(TADA_GetSynonymRef()[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )])
+  harm <- subset(
+    harm,
+    harm$TADA.CharacteristicName %in% np$TADA.CharacteristicName
+  )
 
   combine <- merge(harm, np, all = TRUE)
   orphs <- subset(combine, is.na(combine$np))

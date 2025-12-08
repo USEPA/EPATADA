@@ -39,24 +39,36 @@
 #'   temp = FALSE, chloride = FALSE, salinity = FALSE, other_char = "null"
 #' )
 #'
-TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
-                               chloride = TRUE, salinity = TRUE, other_char = "null") {
+TADA_CreatePairRef <- function(
+  .data,
+  ph = TRUE,
+  hardness = TRUE,
+  temp = TRUE,
+  chloride = TRUE,
+  salinity = TRUE,
+  other_char = "null"
+) {
   # create data frame to store pair refs
   pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
 
   # name columns in pair.ref df
   colnames(pair.ref) <- c(
-    "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-    "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
-    "TADA.PairingGroup", "TADA.PairingGroupRank"
+    "TADA.CharacteristicName",
+    "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultSampleFractionText",
+    "TADA.PairingGroup",
+    "TADA.PairingGroupRank"
   )
 
   prep.ref <- function(.data) {
     .data <- .data %>%
       # group by characteristic and related fields
       dplyr::group_by(
-        TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-        TADA.MethodSpeciationName, TADA.ResultSampleFractionText
+        TADA.CharacteristicName,
+        TADA.ResultMeasure.MeasureUnitCode,
+        TADA.MethodSpeciationName,
+        TADA.ResultSampleFractionText
       ) %>%
       # count number of results in TADA df for each group
       dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
@@ -64,8 +76,10 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
       dplyr::ungroup() %>%
       # retain required columns
       dplyr::select(
-        TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-        TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
+        TADA.CharacteristicName,
+        TADA.ResultMeasure.MeasureUnitCode,
+        TADA.MethodSpeciationName,
+        TADA.ResultSampleFractionText,
         NCount
       ) %>%
       # retain only distinct rows
@@ -78,7 +92,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
       dplyr::select(-NCount)
   }
 
-
   if (hardness == TRUE) {
     # create character reference from WQX characteristics containing "HARDNESS" in name
     char.ref <- TADA_GetCharacteristicRef() %>%
@@ -87,7 +100,9 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
 
     # filter TADA df for hardness results
     hard.ref <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName) %>%
+      dplyr::filter(
+        TADA.CharacteristicName %in% char.ref$CharacteristicName
+      ) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Hardness")
 
@@ -115,7 +130,9 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   if (temp == TRUE) {
     # filter TADA df for temperature results
     temp.ref <- .data %>%
-      dplyr::filter(TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER")) %>%
+      dplyr::filter(
+        TADA.CharacteristicName %in% c("TEMPERATURE", "TEMPERATURE, WATER")
+      ) %>%
       prep.ref() %>%
       dplyr::mutate(TADA.PairingGroup = "Temperature")
 
@@ -140,7 +157,6 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
     rm(salinity.ref)
   }
 
-
   if (chloride == TRUE) {
     # filter TADA df for chloride results
     chloride.ref <- .data %>%
@@ -156,9 +172,11 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   }
 
   if (!is.data.frame(other_char) & other_char != "null") {
-    stop("TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
+    stop(
+      "TADA_CreatePairRef: 'other_char' must be a data frame with three columns. The first column
            contains TADA.CharacteristicName, the second column contains TADA.PairingGroup, and the
-           third column contains TADA.PairingGroup.Rank")
+           third column contains TADA.PairingGroup.Rank"
+    )
   }
 
   # add code for adding other characteristic
@@ -173,7 +191,9 @@ TADA_CreatePairRef <- function(.data, ph = TRUE, hardness = TRUE, temp = TRUE,
   # check to see if there are any rows in pair.ref
 
   if (nrow(pair.ref) == 0) {
-    stop("None of the specified pairing characteristics were found in the TADA data frame.")
+    stop(
+      "None of the specified pairing characteristics were found in the TADA data frame."
+    )
   }
 
   return(pair.ref)
@@ -221,24 +241,31 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
   # check to see if user-supplied ref is a df
   if (!is.character(ref)) {
     if (!is.data.frame(ref)) {
-      stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+      stop(
+        "TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
          TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+         TADA.PairingGroup.Rank, and TADA.PairingGroup."
+      )
     }
 
     if (is.data.frame(ref)) {
       col.names <- c(
-        "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-        "TADA.MethodSpeciationName", "TADA.ResultSampleFractionText",
-        "TADA.PairingGroup.Rank", "TADA.PairingGroup"
+        "TADA.CharacteristicName",
+        "TADA.ResultMeasure.MeasureUnitCode",
+        "TADA.MethodSpeciationName",
+        "TADA.ResultSampleFractionText",
+        "TADA.PairingGroup.Rank",
+        "TADA.PairingGroup"
       )
 
       ref.names <- names(ref)
 
       if (length(setdiff(col.names, ref.names)) > 0) {
-        stop("TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
+        stop(
+          "TADA_PairForCriteriaCalc: 'ref' must be a data frame with six columns: TADA.CharacteristicName,
          TADA.ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName, TADA.ResultSampleFractionText,
-         TADA.PairingGroup.Rank, and TADA.PairingGroup.")
+         TADA.PairingGroup.Rank, and TADA.PairingGroup."
+        )
       }
     }
   }
@@ -249,7 +276,6 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       ref <- TADA_CreatePairRef(.data)
     }
   }
-
 
   # create list of pairing groups
   list.groups <- ref %>%
@@ -281,24 +307,49 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
         !is.na(ActivityStartDateTime)
       ) %>%
       dplyr::select(
-        TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode,
-        ActivityIdentifier, TADA.MonitoringLocationIdentifier, ActivityStartDateTime,
-        TADA.ResultSampleFractionText, TADA.MethodSpeciationName
+        TADA.CharacteristicName,
+        TADA.ResultMeasureValue,
+        TADA.ResultMeasure.MeasureUnitCode,
+        ActivityIdentifier,
+        TADA.MonitoringLocationIdentifier,
+        ActivityStartDateTime,
+        TADA.ResultSampleFractionText,
+        TADA.MethodSpeciationName
       ) %>%
-      dplyr::left_join(ref.subset,
+      dplyr::left_join(
+        ref.subset,
         relationship = "many-to-many",
         dplyr::join_by(
-          TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-          TADA.ResultSampleFractionText, TADA.MethodSpeciationName
+          TADA.CharacteristicName,
+          TADA.ResultMeasure.MeasureUnitCode,
+          TADA.ResultSampleFractionText,
+          TADA.MethodSpeciationName
         )
       ) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "Name"), TADA.CharacteristicName) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, ".ResultMeasureValue"), TADA.ResultMeasureValue) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, ".MeasureUnitCode"), TADA.ResultMeasure.MeasureUnitCode) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "ActivityStartDateTime"), ActivityStartDateTime) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "ResultSampleFractionText"), TADA.ResultSampleFractionText) %>%
-      dplyr::rename_with(~ paste0("TADA.", group.id, "MethodSpeciationName"), TADA.MethodSpeciationName)
-
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, "Name"),
+        TADA.CharacteristicName
+      ) %>%
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, ".ResultMeasureValue"),
+        TADA.ResultMeasureValue
+      ) %>%
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, ".MeasureUnitCode"),
+        TADA.ResultMeasure.MeasureUnitCode
+      ) %>%
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, "ActivityStartDateTime"),
+        ActivityStartDateTime
+      ) %>%
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, "ResultSampleFractionText"),
+        TADA.ResultSampleFractionText
+      ) %>%
+      dplyr::rename_with(
+        ~ paste0("TADA.", group.id, "MethodSpeciationName"),
+        TADA.MethodSpeciationName
+      )
 
     # identify dynamically named columns
     pair_char_name <- paste0("TADA.", group.id, "Name")
@@ -311,7 +362,8 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     # pair by activity id
     pair.activityid <- .data %>%
       dplyr::filter(ActivityIdentifier %in% pair.subset$ActivityIdentifier) %>%
-      dplyr::left_join(pair.subset,
+      dplyr::left_join(
+        pair.subset,
         by = dplyr::join_by(ActivityIdentifier),
         relationship = "many-to-many"
       ) %>%
@@ -339,18 +391,30 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::filter(
         !ResultIdentifier %in% pair.activityid$ResultIdentifier,
         !is.na(ActivityStartDateTime),
-        TADA.MonitoringLocationIdentifier %in% pair.subset$TADA.MonitoringLocationIdentifier
+        TADA.MonitoringLocationIdentifier %in%
+          pair.subset$TADA.MonitoringLocationIdentifier
       ) %>%
-      dplyr::left_join(pair.subset2,
+      dplyr::left_join(
+        pair.subset2,
         relationship = "many-to-many",
         by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
       ) %>%
       dplyr::group_by(ResultIdentifier) %>%
       # Figure out fastest time comparison method - needs to be absolute time comparison
-      dplyr::mutate(timediff = abs(difftime(as.POSIXct(!!rlang::sym(pair_datetime)), as.POSIXct(ActivityStartDateTime), units = c("hours")))) %>%
+      dplyr::mutate(
+        timediff = abs(difftime(
+          as.POSIXct(!!rlang::sym(pair_datetime)),
+          as.POSIXct(ActivityStartDateTime),
+          units = c("hours")
+        ))
+      ) %>%
       dplyr::filter(timediff <= hours_range) %>%
       dplyr::group_by(ResultIdentifier) %>%
-      dplyr::arrange(ResultIdentifier, TADA.PairingGroup.Rank, dplyr::desc(timediff)) %>%
+      dplyr::arrange(
+        ResultIdentifier,
+        TADA.PairingGroup.Rank,
+        dplyr::desc(timediff)
+      ) %>%
       dplyr::slice_min(TADA.PairingGroup.Rank) %>%
       dplyr::slice_min(timediff) %>%
       dplyr::ungroup() %>%
@@ -382,12 +446,10 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
     dplyr::left_join(left, right, by = "ResultIdentifier")
   })
 
-
   # join with .data
   .data <- dplyr::left_join(.data, all.groups, by = "ResultIdentifier")
 
   rm(all.groups)
-
 
   return(.data)
 }

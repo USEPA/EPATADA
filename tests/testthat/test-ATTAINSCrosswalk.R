@@ -21,9 +21,15 @@ testthat::test_that("TADA_CreateParamRef ", {
   )
   # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
-    ATTAINS.OrganizationIdentifier = rep("MTDEQ", length(unique(test_dat$TADA.ComparableDataIdentifier))), # we have assigned to example uses to each parameter
+    ATTAINS.OrganizationIdentifier = rep(
+      "MTDEQ",
+      length(unique(test_dat$TADA.ComparableDataIdentifier))
+    ), # we have assigned to example uses to each parameter
     ATTAINS.ParameterName = unique(test_dat$TADA.ComparableDataIdentifier),
-    ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(test_dat$TADA.ComparableDataIdentifier)))
+    ATTAINS.UseName = rep(
+      c("example use_name1", "example use_name2"),
+      length(unique(test_dat$TADA.ComparableDataIdentifier))
+    )
   )
 
   suppressWarnings(
@@ -40,8 +46,10 @@ testthat::test_that("TADA_CreateParamRef ", {
   # A user supplied table when paramRef has no crosswalk should return 0 rows (empty data frame).
   # Check to make sure there are 7 columns, 0 rows
   testthat::expect_true(
-    dim(use_param_ref_none)[1] == 0 && dim(use_param_ref_none)[2] == 7 &&
-      dim(use_param_ref_none2)[1] == 0 && dim(use_param_ref_none2)[2] == 7
+    dim(use_param_ref_none)[1] == 0 &&
+      dim(use_param_ref_none)[2] == 7 &&
+      dim(use_param_ref_none2)[1] == 0 &&
+      dim(use_param_ref_none2)[2] == 7
   )
   #################
   param_ref_all <- TADA_CreateParamRef(
@@ -63,9 +71,15 @@ testthat::test_that("TADA_CreateParamRef ", {
 
   # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
-    ATTAINS.OrganizationIdentifier = rep("MTDEQ", length(unique(param_ref_all$ATTAINS.ParameterName))), # we have assigned to example uses to each parameter
+    ATTAINS.OrganizationIdentifier = rep(
+      "MTDEQ",
+      length(unique(param_ref_all$ATTAINS.ParameterName))
+    ), # we have assigned to example uses to each parameter
     ATTAINS.ParameterName = unique(param_ref_all$ATTAINS.ParameterName),
-    ATTAINS.UseName = rep(c("example use_name1", "example use_name2"), length(unique(param_ref_all$ATTAINS.ParameterName)))
+    ATTAINS.UseName = rep(
+      c("example use_name1", "example use_name2"),
+      length(unique(param_ref_all$ATTAINS.ParameterName))
+    )
   )
 
   suppressWarnings(
@@ -83,7 +97,10 @@ testthat::test_that("TADA_CreateParamRef ", {
   # should all reflect the user supplied crosswalk. Check all unique uses to make sure.
   # Check to make sure there are 7 columns, 0 rows
   testthat::expect_true(
-    all(unique(use_param_ref_all2$ATTAINS.UseName) %in% unique(user.supplied.uses.param$ATTAINS.UseName)) &&
+    all(
+      unique(use_param_ref_all2$ATTAINS.UseName) %in%
+        unique(user.supplied.uses.param$ATTAINS.UseName)
+    ) &&
       dim(use_param_ref_all)[2] == 7 &&
       dim(use_param_ref_all2)[2] == 7
   )
@@ -97,8 +114,10 @@ testthat::test_that("TADA_CreateParamRef ", {
 
   # check to make sure all rows contain all unique ComparableDataIdentifiers in the TADA data frame
   testthat::expect_true(
-    length(unique(test_dat$TADA.ComparableDataIdentifier)) == length(unique(param_ref_none$TADA.ComparableDataIdentifier)) &&
-      length(unique(param_ref_all$TADA.ComparableDataIdentifier)) == length(unique(param_ref_none$TADA.ComparableDataIdentifier))
+    length(unique(test_dat$TADA.ComparableDataIdentifier)) ==
+      length(unique(param_ref_none$TADA.ComparableDataIdentifier)) &&
+      length(unique(param_ref_all$TADA.ComparableDataIdentifier)) ==
+        length(unique(param_ref_none$TADA.ComparableDataIdentifier))
   )
 })
 
@@ -129,7 +148,11 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   )
   # check to make sure all criteria table has same number of TADA.Characteristics/TADA.ComparableDataIdentifiers
   testthat::expect_true(
-    length(unique(test_dat$TADA.ComparableDataIdentifier)) == length(unique(Criteria_autofill_w_uniqueID$TADA.ComparableDataIdentifier)) &&
-      length(unique(test_dat$TADA.CharacteristicName)) == length(unique(Criteria_autofill$TADA.CharacteristicName))
+    length(unique(test_dat$TADA.ComparableDataIdentifier)) ==
+      length(unique(
+        Criteria_autofill_w_uniqueID$TADA.ComparableDataIdentifier
+      )) &&
+      length(unique(test_dat$TADA.CharacteristicName)) ==
+        length(unique(Criteria_autofill$TADA.CharacteristicName))
   )
 })
