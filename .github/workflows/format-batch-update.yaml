@@ -1,0 +1,28 @@
+# Workflow derived from https://github.com/posit-dev/setup-air/tree/main/examples
+name: format-update
+
+on:
+  # This workflow is run manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  format-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install
+        uses: posit-dev/setup-air@v1
+
+      - name: Format
+        run: air format .
+
+      - name: commit updates
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: "air formatting"

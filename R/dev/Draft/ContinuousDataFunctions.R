@@ -55,16 +55,32 @@
 #' sites_state <- TADA_listNWIS(statecode = c("CT", "RI"))
 #' }
 #'
-TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") {
+TADA_listNWIS <- function(
+  aoi_sf = "null",
+  statecode = "null",
+  siteid = "null"
+) {
   # Confirm only a single argument has been provided
-  if (!sum(purrr::map_lgl(list(aoi_sf, statecode[1], siteid[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
+  if (
+    !sum(purrr::map_lgl(
+      list(aoi_sf, statecode[1], siteid[1]),
+      ~ is.null(.x) || (is.character(.x) && .x == "null")
+    )) %in%
+      c(2, 3)
+  ) {
     stop(
       paste0(
         "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(purrr::map_lgl(list(aoi_sf, statecode[1], siteid[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
+  } else if (
+    sum(purrr::map_lgl(
+      list(aoi_sf, statecode[1], siteid[1]),
+      ~ is.null(.x) || (is.character(.x) && .x == "null")
+    )) ==
+      3
+  ) {
     stop(
       paste0(
         "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
@@ -72,7 +88,6 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       )
     )
   }
-
 
   # Create empty sf object template with correct structure for "no return" data
   empty_sf <- function() {
@@ -99,13 +114,17 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
   # Parameter code info grabber:
 
   pcodes <- function() {
-    tables <- rvest::read_html("https://help.waterdata.usgs.gov/parameter_cd?group_cd=%") %>%
+    tables <- rvest::read_html(
+      "https://help.waterdata.usgs.gov/parameter_cd?group_cd=%"
+    ) %>%
       rvest::html_nodes("table") %>%
       rvest::html_table()
 
     pcodes <- tables[[1]] %>%
       janitor::clean_names() %>%
-      dplyr::mutate(parm_cd = stringr::str_pad(as.character(parameter_code), 5, pad = "0"))
+      dplyr::mutate(
+        parm_cd = stringr::str_pad(as.character(parameter_code), 5, pad = "0")
+      )
 
     return(pcodes)
   }
@@ -119,7 +138,13 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       rvest::html_nodes("table") %>%
       rvest::html_table()
 
-    nwis_table <- rbind(table[[1]], table[[2]], table[[3]], table[[4]], table[[5]]) %>%
+    nwis_table <- rbind(
+      table[[1]],
+      table[[2]],
+      table[[3]],
+      table[[4]],
+      table[[5]]
+    ) %>%
       dplyr::select(
         site_type_cd = 1,
         site_type = 2
@@ -178,7 +203,9 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 
       # Check if any area exceeds maximum and stop if too large
       if (any(aoi_with_area$bbox_area_sq_miles > max_area_sq_miles)) {
-        stop("At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`.")
+        stop(
+          "At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`."
+        )
       }
 
       return(aoi_with_area)
@@ -198,7 +225,10 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
           gage_sites[[i]] <- tryCatch(
             {
               dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv") %>%
-                dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+                dplyr::mutate(dplyr::across(
+                  -c(dec_long_va, dec_lat_va),
+                  as.character
+                ))
             },
             error = function(e) {
               # Get error message as character string
@@ -207,7 +237,11 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
               # Check for HTTP 404 in the error message
               if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
-                stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+                stop(paste0(
+                  "Something went wrong:",
+                  err_msg,
+                  " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
+                ))
               }
             }
           )
@@ -228,10 +262,15 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     aoi_inventory <- gage_sites %>%
       .[aoi_sf, ] %>%
       dplyr::left_join(pcodes(), by = "parm_cd") %>%
-      dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
+      dplyr::left_join(
+        .,
+        nwis_table(),
+        by = c("site_tp_cd" = "site_type_cd")
+      ) %>%
       dplyr::left_join(., stats_table(), by = "stat_cd") %>%
       dplyr::mutate(data_type = "Daily") %>%
-      dplyr::select(site_no,
+      dplyr::select(
+        site_no,
         site_name = station_nm,
         site_type,
         site_type_cd = site_tp_cd,
@@ -250,7 +289,11 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 
     # Make sure returned USGS object is in the same CRS as what the user-supplied AOI is in:
     if (as.numeric(og_epsg) != 4269) {
-      message(paste0("The `aoi_sf` is in CRS = ", og_epsg, ". Returning NWIS sites in the same CRS."))
+      message(paste0(
+        "The `aoi_sf` is in CRS = ",
+        og_epsg,
+        ". Returning NWIS sites in the same CRS."
+      ))
       aoi_inventory <- sf::st_transform(aoi_inventory, sf::st_crs(og_epsg))
     }
 
@@ -261,7 +304,9 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     # Check and split 'siteid' into chunks if necessary
     # {dataRetrieval} is limited by site list length:
     site_chunks <- if (length(siteid) > 1000) {
-      message("Your query will return many results and will take some time to process.")
+      message(
+        "Your query will return many results and will take some time to process."
+      )
       split(siteid, ceiling(seq_along(siteid) / 1000))
     } else {
       list(siteid)
@@ -273,16 +318,67 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     statecode <- toupper(statecode)
 
     valid_statecode <- c(
-      "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-      "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-      "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-      "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-      "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-      "PR", "VI", "MP", "GU", "AS"
+      "AL",
+      "AK",
+      "AZ",
+      "AR",
+      "CA",
+      "CO",
+      "CT",
+      "DE",
+      "FL",
+      "GA",
+      "HI",
+      "ID",
+      "IL",
+      "IN",
+      "IA",
+      "KS",
+      "KY",
+      "LA",
+      "ME",
+      "MD",
+      "MA",
+      "MI",
+      "MN",
+      "MS",
+      "MO",
+      "MT",
+      "NE",
+      "NV",
+      "NH",
+      "NJ",
+      "NM",
+      "NY",
+      "NC",
+      "ND",
+      "OH",
+      "OK",
+      "OR",
+      "PA",
+      "RI",
+      "SC",
+      "SD",
+      "TN",
+      "TX",
+      "UT",
+      "VT",
+      "VA",
+      "WA",
+      "WV",
+      "WI",
+      "WY",
+      "PR",
+      "VI",
+      "MP",
+      "GU",
+      "AS"
     )
 
     if (!any(statecode %in% valid_statecode)) {
-      stop("Valid state abbreviation not provided. Please use state abbreviations.")
+      stop(
+        "Valid state abbreviation not provided. Please use state abbreviations."
+      )
     }
 
     siteid <- vector("list", length = length(statecode))
@@ -292,8 +388,13 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
         for (i in 1:length(statecode)) {
           tryCatch(
             {
-              siteid[[i]] <- dataRetrieval::whatNWISsites(stateCd = statecode[i]) %>%
-                dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+              siteid[[i]] <- dataRetrieval::whatNWISsites(
+                stateCd = statecode[i]
+              ) %>%
+                dplyr::mutate(dplyr::across(
+                  -c(dec_long_va, dec_lat_va),
+                  as.character
+                ))
             },
             error = function(e) {
               # Get error message as character string
@@ -302,7 +403,11 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
               # Check for HTTP 404 in the error message
               if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
-                stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+                stop(paste0(
+                  "Something went wrong:",
+                  err_msg,
+                  " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
+                ))
               }
             }
           )
@@ -317,7 +422,9 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 
     # Check and split 'siteid' into chunks if necessary
     site_chunks <- if (length(siteid) > 1000) {
-      message("Your query will return many results and will take some time to process.")
+      message(
+        "Your query will return many results and will take some time to process."
+      )
       split(siteid, ceiling(seq_along(siteid) / 1000))
     } else {
       list(siteid)
@@ -333,8 +440,14 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
       suppressMessages({
         inventory[[i]] <- tryCatch(
           {
-            data <- dataRetrieval::whatNWISdata(siteNumber = site_chunks[[i]], service = "dv") %>%
-              dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+            data <- dataRetrieval::whatNWISdata(
+              siteNumber = site_chunks[[i]],
+              service = "dv"
+            ) %>%
+              dplyr::mutate(dplyr::across(
+                -c(dec_long_va, dec_lat_va),
+                as.character
+              ))
           },
           error = function(e) {
             # Get error message as character string
@@ -345,7 +458,11 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
               empty_sf()
             } else {
               # For any other error, stop with server error message
-              stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+              stop(paste0(
+                "Something went wrong:",
+                err_msg,
+                " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
+              ))
             }
           }
         )
@@ -366,7 +483,8 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
     dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
     dplyr::left_join(., stats_table(), by = "stat_cd") %>%
     dplyr::mutate(data_type = "Daily") %>%
-    dplyr::select(site_no,
+    dplyr::select(
+      site_no,
       site_name = station_nm,
       site_type,
       site_type_cd = site_tp_cd,
@@ -450,16 +568,36 @@ TADA_listNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null") 
 #' )
 #' }
 #'
-TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", parameter_codes, stat_codes = "00003", start_date, end_date) {
+TADA_getNWIS <- function(
+  aoi_sf = "null",
+  statecode = "null",
+  siteid = "null",
+  parameter_codes,
+  stat_codes = "00003",
+  start_date,
+  end_date
+) {
   # Confirm only a single argument has been provided
-  if (!sum(purrr::map_lgl(list(aoi_sf, statecode[1], siteid[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) %in% c(2, 3)) {
+  if (
+    !sum(purrr::map_lgl(
+      list(aoi_sf, statecode[1], siteid[1]),
+      ~ is.null(.x) || (is.character(.x) && .x == "null")
+    )) %in%
+      c(2, 3)
+  ) {
     stop(
       paste0(
         "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
         "Please use only one of these query options."
       )
     )
-  } else if (sum(purrr::map_lgl(list(aoi_sf, statecode[1], siteid[1]), ~ is.null(.x) || (is.character(.x) && .x == "null"))) == 3) {
+  } else if (
+    sum(purrr::map_lgl(
+      list(aoi_sf, statecode[1], siteid[1]),
+      ~ is.null(.x) || (is.character(.x) && .x == "null")
+    )) ==
+      3
+  ) {
     stop(
       paste0(
         "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
@@ -501,7 +639,9 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
       # Check if any area exceeds maximum and stop if too large
       if (any(aoi_with_area$bbox_area_sq_miles > max_area_sq_miles)) {
-        stop("At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`.")
+        stop(
+          "At least one of your user-supplied features in 'aoi_sf' is too large - all features must be less than 118,078 square miles (roughly the area of Nevada). For state queries, please use the argument `state` instead of `aoi_sf`."
+        )
       }
 
       return(aoi_with_area)
@@ -520,8 +660,18 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
           siteid[[i]] <- tryCatch(
             {
-              dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes, statCd = stat_codes) %>%
-                dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+              dataRetrieval::whatNWISdata(
+                bBox = c(bbox),
+                service = "dv",
+                startDate = start_date,
+                endDate = end_date,
+                parameterCd = parameter_codes,
+                statCd = stat_codes
+              ) %>%
+                dplyr::mutate(dplyr::across(
+                  -c(dec_long_va, dec_lat_va),
+                  as.character
+                ))
             },
             error = function(e) {
               # Get error message as character string
@@ -530,7 +680,11 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
               # Check for HTTP 404 in the error message
               if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
-                stop(paste0("Something went wrong: ", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+                stop(paste0(
+                  "Something went wrong: ",
+                  err_msg,
+                  " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
+                ))
               }
             }
           )
@@ -546,16 +700,67 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
     statecode <- toupper(statecode)
 
     valid_statecode <- c(
-      "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
-      "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
-      "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
-      "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-      "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
-      "PR", "VI", "MP", "GU", "AS"
+      "AL",
+      "AK",
+      "AZ",
+      "AR",
+      "CA",
+      "CO",
+      "CT",
+      "DE",
+      "FL",
+      "GA",
+      "HI",
+      "ID",
+      "IL",
+      "IN",
+      "IA",
+      "KS",
+      "KY",
+      "LA",
+      "ME",
+      "MD",
+      "MA",
+      "MI",
+      "MN",
+      "MS",
+      "MO",
+      "MT",
+      "NE",
+      "NV",
+      "NH",
+      "NJ",
+      "NM",
+      "NY",
+      "NC",
+      "ND",
+      "OH",
+      "OK",
+      "OR",
+      "PA",
+      "RI",
+      "SC",
+      "SD",
+      "TN",
+      "TX",
+      "UT",
+      "VT",
+      "VA",
+      "WA",
+      "WV",
+      "WI",
+      "WY",
+      "PR",
+      "VI",
+      "MP",
+      "GU",
+      "AS"
     )
 
     if (!any(statecode %in% valid_statecode)) {
-      stop("Valid state abbreviation not provided. Please use state abbreviations.")
+      stop(
+        "Valid state abbreviation not provided. Please use state abbreviations."
+      )
     }
 
     siteid <- vector("list", length = length(statecode))
@@ -565,8 +770,18 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
         for (i in 1:length(statecode)) {
           tryCatch(
             {
-              siteid[[i]] <- dataRetrieval::whatNWISdata(stateCd = statecode[i], service = "dv", startDate = start_date, endDate = end_date, parameterCd = parameter_codes, statCd = stat_codes) %>%
-                dplyr::mutate(dplyr::across(-c(dec_long_va, dec_lat_va), as.character))
+              siteid[[i]] <- dataRetrieval::whatNWISdata(
+                stateCd = statecode[i],
+                service = "dv",
+                startDate = start_date,
+                endDate = end_date,
+                parameterCd = parameter_codes,
+                statCd = stat_codes
+              ) %>%
+                dplyr::mutate(dplyr::across(
+                  -c(dec_long_va, dec_lat_va),
+                  as.character
+                ))
             },
             error = function(e) {
               # Get error message as character string
@@ -575,7 +790,11 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
               # Check for HTTP 404 in the error message
               if (grepl("404", err_msg)) {} else {
                 # For any other error, stop with server error message
-                stop(paste0("Something went wrong:", err_msg, " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."))
+                stop(paste0(
+                  "Something went wrong:",
+                  err_msg,
+                  " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
+                ))
               }
             }
           )
@@ -598,13 +817,18 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       " and/or statistic(s) ",
       paste(stat_codes, collapse = ", "),
       " at these sites during the time frame ",
-      start_date, " to ", end_date, "."
+      start_date,
+      " to ",
+      end_date,
+      "."
     ))
   }
 
   # Check if we need to split the sites into chunks
   site_chunks <- if (length(list$site_no) > 1000) {
-    message("Your query contains many sites and will take some time to process.")
+    message(
+      "Your query contains many sites and will take some time to process."
+    )
     split(list$site_no, ceiling(seq_along(list$site_no) / 1000))
   } else {
     list(list$site_no)
@@ -630,7 +854,10 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
                 data <- data %>%
                   dataRetrieval::renameNWISColumns() %>%
                   data.table::data.table() %>%
-                  dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+                  dplyr::mutate(dplyr::across(
+                    dplyr::everything(),
+                    as.character
+                  ))
               }
 
               return(data)
@@ -648,7 +875,8 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
           } else {
             # For any other error, stop with server error message
             stop(paste0(
-              "Something went wrong: ", err_msg,
+              "Something went wrong: ",
+              err_msg,
               " See https://waterservices.usgs.gov/docs/site-service/site-service-details/#error-codes."
             ))
           }
@@ -661,7 +889,9 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
   # If no data found across all chunks, inform user
   if (nrow(full_data) == 0) {
-    message("No daily USGS-NWIS data found for the specified parameters and date range.")
+    message(
+      "No daily USGS-NWIS data found for the specified parameters and date range."
+    )
   }
 
   # Check if full_data is empty
@@ -672,7 +902,10 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       " and/or statistic(s) ",
       paste(stat_codes, collapse = ", "),
       " at these sites during the time frame ",
-      start_date, " to ", end_date, "."
+      start_date,
+      " to ",
+      end_date,
+      "."
     ))
   }
 
@@ -682,8 +915,19 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
       names_to = "NWIS.parameter",
       values_to = "NWIS.value"
     ) %>%
-    dplyr::mutate(NWIS.parameter = ifelse(!grepl("_", NWIS.parameter), paste0(NWIS.parameter, "_mean"), NWIS.parameter)) %>%
-    dplyr::select(NWIS.site_no = site_no, NWIS.date = Date, NWIS.parameter, NWIS.value)
+    dplyr::mutate(
+      NWIS.parameter = ifelse(
+        !grepl("_", NWIS.parameter),
+        paste0(NWIS.parameter, "_mean"),
+        NWIS.parameter
+      )
+    ) %>%
+    dplyr::select(
+      NWIS.site_no = site_no,
+      NWIS.date = Date,
+      NWIS.parameter,
+      NWIS.value
+    )
 
   status <- full_data %>%
     tidyr::pivot_longer(
@@ -698,7 +942,9 @@ TADA_getNWIS <- function(aoi_sf = "null", statecode = "null", siteid = "null", p
 
   # Check if final data is empty after removing NA values
   if (nrow(tidied) == 0) {
-    stop("All retrieved data contained NA values. No valid data available for the specified parameters and/or stats and time frame.")
+    stop(
+      "All retrieved data contained NA values. No valid data available for the specified parameters and/or stats and time frame."
+    )
   }
 
   return(tidied)
