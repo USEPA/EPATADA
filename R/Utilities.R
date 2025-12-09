@@ -1977,107 +1977,267 @@ checkColName <- function(.data, partial.string = NULL) {
 #' formatted ATTAINS column names.
 #'
 renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
-  # list of TADA formatted column names
+  # List of TADA formatted column names
   attains.tada <- c(
-    "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
-    "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
-    "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
-    "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
-    "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
-    "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
-    "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
-    "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
-    "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
-    "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
-    "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
-    "ATTAINS.ShapeArea", "ATTAINS.CulturalUse", "ATTAINS.DrinkingWaterUse",
-    "ATTAINS.EcologicalUse", "ATTAINS.FishConsumptionUse", "ATTAINS.RecreationUse",
-    "ATTAINS.OtherUse", "ATTAINS.AlgalGrowth", "ATTAINS.Ammonia",
-    "ATTAINS.CauseUnknown", "ATTAINS.CauseUnknownFishKills",
-    "ATTAINS.CauseUnknownImpairedBiota", "ATTAINS.Dioxins",
-    "ATTAINS.FishConsumptionAdvisory", "ATTAINS.FlowAlterations",
-    "ATTAINS.HabitatAlterations", "ATTAINS.HydrologicAlteration",
-    "ATTAINS.Mercury", "ATTAINS.MetalsOtherThanMercury", "ATTAINS.NoxiousAquaticPlants",
-    "ATTAINS.NuisanceExoticSpecies", "ATTAINS.NuisanceNativeSpecies", "ATTAINS.Nutrients",
-    "ATTAINS.OilAndGrease", "ATTAINS.OxygenDepletion", "ATTAINS.OtherCause",
-    "ATTAINS.Pathogens", "ATTAINS.Pesticides", "ATTAINS.Pfas",
-    "ATTAINS.PhAcidityCausticConditions", "ATTAINS.PolychlorinatedBiphenylsPcbs",
-    "ATTAINS.Radiation", "ATTAINS.SolidsChloridesSulfates",
-    "ATTAINS.Sediment", "ATTAINS.TasteColorAndOdor", "ATTAINS.Temperature",
-    "ATTAINS.TotalToxics", "ATTAINS.ToxicInorganics", "ATTAINS.ToxicOrganics",
-    "ATTAINS.Trash", "ATTAINS.Turbidity", "ATTAINS.CycleStatus", "ATTAINS.OrigFid",
-    "ATTAINS.WaterType", "ATTAINS.XwalkMethod", "ATTAINS.XwalkHuc12Version",
-    "ATTAINS.Chlorine", "ATTAINS.Biotoxins"
+    "ATTAINS.OrganizationIdentifier",
+    "ATTAINS.SubmissionId",
+    "ATTAINS.HasProtectionPlan",
+    "ATTAINS.AssessmentUnitName",
+    "ATTAINS.NhdPlusId",
+    "ATTAINS.Tas303d",
+    "ATTAINS.IsThreatened",
+    "ATTAINS.State",
+    "ATTAINS.On303dList",
+    "ATTAINS.OrganizationName",
+    "ATTAINS.Region",
+    "ATTAINS.ShapeLength",
+    "ATTAINS.ReportingCycle",
+    "ATTAINS.AssmntJoinKey",
+    "ATTAINS.HasTmdl",
+    "ATTAINS.OrgType",
+    "ATTAINS.PermIdJoinKey",
+    "ATTAINS.CatchmentIsTribal",
+    "ATTAINS.IrCategory",
+    "ATTAINS.WaterbodyReportLink",
+    "ATTAINS.AssessmentUnitIdentifier",
+    "ATTAINS.OverallStatus",
+    "ATTAINS.IsAssessed",
+    "ATTAINS.IsImpaired",
+    "ATTAINS.Has4bPlan",
+    "ATTAINS.Huc12",
+    "ATTAINS.HasAlternativePlan",
+    "ATTAINS.VisionPriority303d",
+    "ATTAINS.AreaSqkm",
+    "ATTAINS.CatchmentAreaSqkm",
+    "ATTAINS.CatchmentStateCode",
+    "ATTAINS.CatchmentResolution",
+    "ATTAINS.ShapeArea",
+    "ATTAINS.CulturalUse",
+    "ATTAINS.DrinkingWaterUse",
+    "ATTAINS.EcologicalUse",
+    "ATTAINS.FishConsumptionUse",
+    "ATTAINS.RecreationUse",
+    "ATTAINS.OtherUse",
+    "ATTAINS.AlgalGrowth",
+    "ATTAINS.Ammonia",
+    "ATTAINS.CauseUnknown",
+    "ATTAINS.CauseUnknownFishKills",
+    "ATTAINS.CauseUnknownImpairedBiota",
+    "ATTAINS.Dioxins",
+    "ATTAINS.FishConsumptionAdvisory",
+    "ATTAINS.FlowAlterations",
+    "ATTAINS.HabitatAlterations",
+    "ATTAINS.HydrologicAlteration",
+    "ATTAINS.Mercury",
+    "ATTAINS.MetalsOtherThanMercury",
+    "ATTAINS.NoxiousAquaticPlants",
+    "ATTAINS.NuisanceExoticSpecies",
+    "ATTAINS.NuisanceNativeSpecies",
+    "ATTAINS.Nutrients",
+    "ATTAINS.OilAndGrease",
+    "ATTAINS.OxygenDepletion",
+    "ATTAINS.OtherCause",
+    "ATTAINS.Pathogens",
+    "ATTAINS.Pesticides",
+    "ATTAINS.Pfas",
+    "ATTAINS.PhAcidityCausticConditions",
+    "ATTAINS.PolychlorinatedBiphenylsPcbs",
+    "ATTAINS.Radiation",
+    "ATTAINS.SolidsChloridesSulfates",
+    "ATTAINS.Sediment",
+    "ATTAINS.TasteColorAndOdor",
+    "ATTAINS.Temperature",
+    "ATTAINS.TotalToxics",
+    "ATTAINS.ToxicInorganics",
+    "ATTAINS.ToxicOrganics",
+    "ATTAINS.Trash",
+    "ATTAINS.Turbidity",
+    "ATTAINS.CycleStatus",
+    "ATTAINS.OrigFid",
+    "ATTAINS.WaterType",
+    "ATTAINS.XwalkMethod",
+    "ATTAINS.XwalkHuc12Version",
+    "ATTAINS.Chlorine",
+    "ATTAINS.Biotoxins"
   )
 
-  # list of original ATTAINS column names
+  # List of original ATTAINS column names
   attains.orig <- c(
-    "organizationid", "submissionid", "hasprotectionplan",
-    "assessmentunitname", "nhdplusid", "tas303d",
-    "isthreatened", "state", "on303dlist",
-    "organizationname", "region", "Shape_Length",
-    "reportingcycle", "assmnt_joinkey", "hastmdl",
-    "orgtype", "permid_joinkey", "catchmentistribal",
-    "ircategory", "waterbodyreportlink", "assessmentunitidentifier",
-    "overallstatus", "isassessed", "isimpaired",
-    "has4bplan", "huc12", "hasalternativeplan",
-    "visionpriority303d", "areasqkm", "catchmentareasqkm",
-    "catchmentstatecode", "catchmentresolution", "waterTypeCode",
-    "Shape_Area", "cultural_use", "drinkingwater_use", "ecological_use",
-    "fishconsumption_use", "recreation_use", "other_use", "algal_growth",
-    "ammonia", "cause_unknown", "cause_unknown_fish_kills",
-    "cause_unknown_impaired_biota", "dioxins", "fish_consumption_advisory",
-    "flow_alterations", "habitat_alterations", "hydrologic_alteration",
-    "mercury", "metals_other_than_mercury", "noxious_aquatic_plants",
-    "nuisance_exotic_species", "nuisance_native_species", "nutrients",
-    "oil_and_grease", "oxygen_depletion", "other_cause", "pathogens",
-    "pesticides", "pfas", "ph_acidity_caustic_conditions",
-    "polychlorinated_biphenyls_pcbs", "radiation", "solids_chlorides_sulfates",
-    "sediment", "taste_color_and_odor", "temperature", "total_toxics",
-    "toxic_inorganics", "toxic_organics", "trash", "turbidity",
-    "cyclestatus", "orig_fid", "waterType", "xwalk_method", "xwalk_huc12_version",
-    "chlorine", "biotoxins"
+    "organizationid",
+    "submissionid",
+    "hasprotectionplan",
+    "assessmentunitname",
+    "nhdplusid",
+    "tas303d",
+    "isthreatened",
+    "state",
+    "on303dlist",
+    "organizationname",
+    "region",
+    "Shape_Length",
+    "reportingcycle",
+    "assmnt_joinkey",
+    "hastmdl",
+    "orgtype",
+    "permid_joinkey",
+    "catchmentistribal",
+    "ircategory",
+    "waterbodyreportlink",
+    "assessmentunitidentifier",
+    "overallstatus",
+    "isassessed",
+    "isimpaired",
+    "has4bplan",
+    "huc12",
+    "hasalternativeplan",
+    "visionpriority303d",
+    "areasqkm",
+    "catchmentareasqkm",
+    "catchmentstatecode",
+    "catchmentresolution",
+    "Shape_Area",
+    "cultural_use",
+    "drinkingwater_use",
+    "ecological_use",
+    "fishconsumption_use",
+    "recreation_use",
+    "other_use",
+    "algal_growth",
+    "ammonia",
+    "cause_unknown",
+    "cause_unknown_fish_kills",
+    "cause_unknown_impaired_biota",
+    "dioxins",
+    "fish_consumption_advisory",
+    "flow_alterations",
+    "habitat_alterations",
+    "hydrologic_alteration",
+    "mercury",
+    "metals_other_than_mercury",
+    "noxious_aquatic_plants",
+    "nuisance_exotic_species",
+    "nuisance_native_species",
+    "nutrients",
+    "oil_and_grease",
+    "oxygen_depletion",
+    "other_cause",
+    "pathogens",
+    "pesticides",
+    "pfas",
+    "ph_acidity_caustic_conditions",
+    "polychlorinated_biphenyls_pcbs",
+    "radiation",
+    "solids_chlorides_sulfates",
+    "sediment",
+    "taste_color_and_odor",
+    "temperature",
+    "total_toxics",
+    "toxic_inorganics",
+    "toxic_organics",
+    "trash",
+    "turbidity",
+    "cyclestatus",
+    "orig_fid",
+    "waterType",
+    "xwalk_method",
+    "xwalk_huc12_version",
+    "chlorine",
+    "biotoxins"
   )
 
-  # if return list equals TRUE, return the list of tada formatted column names
+  # If return_list equals TRUE, return the list of TADA formatted column names
   if (return_list == TRUE & format == "tada") {
+
+    attains.tada <- unique(attains.tada)
+
     return(attains.tada)
   }
 
-  # if return list equals TRUE, return the list of attains formatted column names
+  # If return_list equals TRUE, return the list of ATTAINS formatted column names
   if (return_list == TRUE & format == "attains") {
+
+    attains.orig <- unique(attains.orig
+                           )
     return(attains.orig)
   }
 
-  # if return equals FALSE, proceed with renaming columns
+  # If return_list equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-    # assign old and new name vectors based on format selected by user
-    old.names <- dplyr::case_when(
-      format == "tada" ~ attains.orig,
-      format == "attains" ~ attains.tada
+    # Determine which water type column exists and adjust the lists accordingly
+    if ("waterType" %in% names(.data)) {
+      attains.orig <- gsub("waterTypeCode", "waterType", attains.orig)
+    }
+
+    # Assign old and new name vectors based on format selected by user
+    old.names <- if (format == "tada") attains.orig else attains.tada
+    new.names <- if (format == "tada") attains.tada else attains.orig
+
+    # Rename columns
+    data.table::setnames(
+      .data,
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
     )
 
-    new.names <- dplyr::case_when(
-      format == "tada" ~ attains.tada,
-      format == "attains" ~ attains.orig
-    )
+    # new.names <- dplyr::case_when(
+    #   format == "tada" ~ attains.tada,
+    #   format == "attains" ~ attains.orig
+    # )
+    # 
+    # 
+    # .data
+    # 
+    # view <-
+    #   data.table::setnames(
+    #     .data,
+    #     old = old.names,
+    #     new = new.names,
+    #     skip_absent = TRUE
+    #   )
+    # 
 
-
-    .data
-
-    view <-
-      data.table::setnames(
-        .data,
-        old = old.names,
-        new = new.names,
-        skip_absent = TRUE
-      )
-
-    # remove intermediate objects
+    # Remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
 
-
-    # return data frame with changed column names
+    # Return data frame with changed column names
     return(.data)
   }
+}
+
+#' correctColType (UNDER ACTIVE DEVELOPMENT)
+#'
+#' This function corrects the column data types for TADA, ATTAINS and User Ref data to
+#' ensure all TADA functions can function correctly.
+#'
+#' @param .data A data frame containing columns required for TADA functions.
+#'
+#' @return A data frame with correct column data types to use TADA functions.
+#'
+# coerce column types based TADA ref file
+correctColType <- function(.data) {
+
+  # read in ref csv
+  coltype.ref <- utils::read.csv(system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA"))
+
+  # Iterate over each row in the type specification
+  for (i in 1:nrow(coltype.ref)) {
+    col.name <- coltype.ref$column_name[i]
+    col.type <- coltype.ref$column_type[i]
+
+    # check to see if each col.name is in .data
+    if (col.name %in% names(.data)) {
+      # coerce to correct type
+      .data[[col.name]] <- switch(
+        col.type,
+        "character" = as.character(.data[[col.name]]),
+        "numeric" = as.numeric(.data[[col.name]]),
+        "integer" = as.integer(.data[[col.name]]),
+        "logical" = as.logical(.data[[col.name]]),
+        "factor" = as.factor(.data[[col.name]])
+      )
+    }
+  }
+
+  return(.data)
 }

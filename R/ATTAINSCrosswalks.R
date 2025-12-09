@@ -16,8 +16,8 @@
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
 #' contains the organization identifiers that should be used for this param. When
-#' org_id = NULL, all assessment unit/monitoring locations matches recorded in
-#' ATTAINS from all organizations will be returned.
+#' org_id = "all", all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned. The default is org_id = "all".
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
@@ -54,22 +54,22 @@
 #'   org_id = "PUEBLOOFTESUQUE"
 #' )
 #'
-#' # Arizona example, returns blank dataframe as of 1/21/25
+#' # Arizona example, returns an empty df as of 10/17/25
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
+TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
-  # check to see if org_id is not NULL
-  if (!is.null(org_id)) {
+  # check to see if org_id is not "all"
+  if (org_id != "all") {
     # check to make sure organization ids supplied by user match those in ATTAINS
     if (all(!org_id %in% org.ref$code)) {
       # remove intermediate objects
       rm(org.ref)
 
-      # stop function if organization ids are not in ATTAINS
+      # stop function if organization ids are not found in ATTAINS
       stop(paste0(
         "TADA_GetATTAINSAUMLCrosswalk: ",
         "organization identifier(s) entered by user not found in ATTAINS."
@@ -78,7 +78,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
   }
 
   # if org_id is NULL return the AU/ML national extract, otherwise query by org_id
-  if (is.null(org_id)) {
+  if (org_id == "all") {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_NationalExtract("au_mls"))
   } else {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
@@ -127,12 +127,25 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
   rm(au.info)
 
   # if org_id is NULL, set to "all organizations" for printed message
-  if (is.null(org_id)) {
+  if (org_id == "all") {
     org_id <- "all organizations"
   }
 
+  # check for how many org_ids were provided by user if org_id is not NULL
+  if (!is.null(org_id)) {
+    # determine how many org_ids were provided
+    if (length(org_id) > 1) {
+      # create string for print message
+      org_id <- stringi::stri_replace_last(
+        paste(org_id, collapse = ", "),
+        fixed = ", ",
+        replacement = " and "
+      )
+    }
+  }
+
   # check to see if the crosswalk contains any results
-  if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier > 0)) {
+  if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0) {
     # print a message describing the number of results
     print(paste0(
       "TADA_GetATTAINSAUMLCrosswalk: ",
@@ -142,34 +155,37 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
       org_id,
       " in ATTAINS."
     ))
-
-    # if batch_upload is TRUE, create an ATTAINS formatted batch upload df
-    if (batch_upload == TRUE) {
-      au.crosswalk <- au.crosswalk %>%
-        dplyr::select(-ATTAINS.WaterType) %>%
-        dplyr::select(-ATTAINS.OrganizationIdentifier) %>%
-        dplyr::rename(
-          ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-          MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
-          MS_LOCATION_ID = OrganizationIdentifier,
-          MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
-        )
-    }
-
-    # print a message if no crosswalk is found
-    if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) == 0) {
-      print(paste0(
-        "TADA_GetATTAINSAUMLCrosswalk: ",
-        "No monitoring location identifiers were recorded in ATTAINS for ",
-        org_id,
-        " assessment units."
-      ))
-
-      rm(org.ref)
-    }
-
-    return(au.crosswalk)
   }
+
+  # if batch_upload is TRUE, create an ATTAINS formatted batch upload df
+  if (
+    batch_upload == TRUE &
+      length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) > 0
+  ) {
+    au.crosswalk <- au.crosswalk %>%
+      dplyr::select(-ATTAINS.WaterType) %>%
+      dplyr::select(-ATTAINS.OrganizationIdentifier) %>%
+      dplyr::rename(
+        ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+        MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
+        MS_LOCATION_ID = OrganizationIdentifier,
+        MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
+      )
+  }
+
+  # print a message if no crosswalk is found
+  if (length(au.crosswalk$ATTAINS.MonitoringLocationIdentifier) == 0) {
+    print(paste0(
+      "TADA_GetATTAINSAUMLCrosswalk: ",
+      "No monitoring location identifiers were recorded in ATTAINS for ",
+      org_id,
+      " assessment units."
+    ))
+
+    rm(org.ref)
+  }
+
+  return(au.crosswalk)
 }
 
 
@@ -186,12 +202,17 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
 #' https://www.epa.gov/waterdata/upload-data-resources-registered-attains-users#batch-upload-templates
 #' See Assessment Unit Batch Upload Template.
 #'
-#' @param org_id Character argument. The ATTAINS organization identifier must
-#' be supplied by the user. A list of organization identifiers can be found by
-#' downloading the ATTAINS Domains Excel file:
+#' @param org_id Character string. The ATTAINS organization identifier may be
+#' supplied by the user. More than one org_id may be provided when batch_upload
+#' = FALSE. If batch_upload = TRUE, only one org_id may be provided as batch
+#' uploads to ATTAINS can only be done for one organization at a time. A list of
+#' organization identifiers can be found by downloading the ATTAINS Domains
+#' Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param.
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", all assessment unit/monitoring locations matches recorded in
+#' ATTAINS from all organizations will be returned. The default is org_id = "all".
 #'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
@@ -217,22 +238,16 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
 #' and organization identifier if needed when update_mlid = TRUE. Default is
 #' update_mlid = TRUE.
 #'
-#' @param crosswalk A user-supplied dataframe with the columns
-#' ATTAINS.MonitoringLocationIdentifier, OrganizationIdentifier, ATTAINS.WaterType,
-#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.MonitoringDataLinkText
-#' is required. The ATTAINS.AssessmentUnitIdentifier and
-#' ATTAINS.MonitoringLocationIdentifier must be filled out in order to use this
-#' function. The additional columns, ATTAINS.MonitoringDataLinkText,
-#' containing a single URL or "; " separated URLs linking to information about
-#' the monitoring location, and OrganizationIdentifier, containing the WQP
-#' organization identifier for the monitoring location can
-#' be left blank and the function will still run. Data link URLS to WQP site
-#' pages cannot be automatically generated by this function unless the
-#' OrganizationIdentifier column is populated with the WQP OrganizationIdentifier.
-#' When crosswalk = NULL, the crosswalk will be downloaded from ATTAINS. This allows
-#' users to add URLs for the Water Quality Portal data site pages to the ATTAINS
-#' assessment unit profile where possible without updating other information
-#' in ATTAINS.
+#' @param crosswalk A user-supplied dataframe. The column names and contents can match either
+#' those in the ATTAINS_batchupload (ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
+#' and MS_DATA_LINK) or the ATTAINS_crosswalk (OrganizationIdentifier,
+#' ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, ATTAINS.MonitoringDataLinkText, and
+#' ATTAINS.WaterType) output from TADA_CreateAUMCrosswalk or
+#' TADA_CreateATTAINSAUMLCrosswalk. When crosswalk = NULL, the crosswalk will be
+#' downloaded from ATTAINS. This allows users to add URLs for the Water Quality
+#' Portal data site pages to the ATTAINS assessment unit profile where possible
+#' without updating other information in ATTAINS.
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the column
 #' names in the returned df will match the column names required for ATTAINS
@@ -316,7 +331,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = NULL, batch_upload = FALSE) {
 #' }
 #'
 TADA_UpdateATTAINSAUMLCrosswalk <- function(
-  org_id = NULL,
+  org_id = "all",
   crosswalk = NULL,
   attains_replace = FALSE,
   wqp_data_links = "add",
@@ -324,544 +339,447 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   batch_upload = FALSE,
   check_links = FALSE
 ) {
-  # get list of organization identifiers from ATTAINS
-  org.ref <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSOrgIDsRef.csv",
-    package = "EPATADA"
-  ))
-
-  # stop function if organization identifiers is not found in ATTAINS
-  if (!org_id %in% org.ref$code) {
-    stop(paste0(
-      "TADA_UpdateATTAINSAUMLCrosswalk: ",
-      "The organization identifier entered by user is not found in ATTAINS."
-    ))
-  }
-
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
       "in order to replace MonitoringLocations stored in ATTAINS ",
-      "(with attains_replace = TRUE), user must provide a ",
+      "user must provide a ",
       "MonitoringLocation/AssessmentUnitcrosswalk."
     ))
   }
 
-  if (org_id %in% org.ref$code) {
-    # remove intermediate object
-    rm(org.ref)
+  if (
+    (org_id == "all" & batch_upload == TRUE) |
+      (length(org_id) > 1 & batch_upload == TRUE)
+  ) {
+    stop(paste0(
+      "TADA_UpdateATTAINSAUMLCrosswalk: ",
+      "in order to create a batch upload file, the user must specify a single org_id."
+    ))
+  }
 
-    # if the crosswalk is not a dataframe, stop the function
-    if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
-      stop(paste0(
-        "TADA_UpdateATTAINSAUMLCrosswalk: ",
-        "A crosswalk dataframe with columns 'ATTAINS.assessmentunit.identifier' and ",
-        "'MonitoringLocationIdentifier' or setting crosswalk = NULL is required to run ",
-        "this function."
-      ))
-    }
+  # if the crosswalk is not a dataframe, stop the function
+  if (!is.data.frame(crosswalk) & !is.null(crosswalk)) {
+    stop(paste0(
+      "TADA_UpdateATTAINSAUMLCrosswalk: ",
+      "A crosswalk dataframe with columns 'ATTAINS.assessmentunit.identifier' and ",
+      "'MonitoringLocationIdentifier' or setting crosswalk = NULL is required to run ",
+      "this function."
+    ))
+  }
 
-    # check that crosswalk is a dataframe before proceeding
-    if (is.data.frame(crosswalk)) {
-      # check crosswalk has all of the required columns
-      user_cols <- c(
-        "ATTAINS.AssessmentUnitIdentifier",
-        "ATTAINS.MonitoringLocationIdentifier",
-        "OrganizationIdentifier",
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.MonitoringDataLinkText",
-        "ATTAINS.WaterType"
-      )
+  # check that crosswalk is a dataframe before proceeding
+  if (is.data.frame(crosswalk)) {
+    # check crosswalk has all of the required columns
+    crosswalk_cols <- c(
+      "ATTAINS.AssessmentUnitIdentifier",
+      "ATTAINS.MonitoringLocationIdentifier",
+      "OrganizationIdentifier",
+      "ATTAINS.OrganizationIdentifier"
+    )
 
-      batch_cols <- c(
-        "ASSESSMENT_UNIT_ID",
-        "MS_LOCATION_ID",
-        "MS_ORG_ID",
-        "MS_DATA_LINK"
-      )
-
-      if (
-        !all(user_cols %in% names(crosswalk)) &
-          !all(batch_cols %in% names(crosswalk))
-      ) {
-        stop(paste0(
-          "Column names must reflect either the TADA workflow or the ATTAINS ",
-          "batch upload requirements. Review function documentation for more information"
-        ))
-      }
-
-      if (all(batch_cols %in% names(crosswalk))) {
-        crosswalk <- crosswalk %>%
-          dplyr::rename(
-            ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
-            ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
-            OrganizationIdentifier = MS_ORG_ID,
-            ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
-          ) %>%
-          dplyr::rowwise() %>%
-          dplyr::mutate(
-            ATTAINS.OrganizationIdentifier = org_id,
-            ATTAINS.WaterType = ifelse(
-              "ATTAINS.WaterType" %in% names(.),
-              ATTAINS.WaterType,
-              NA_character_
-            )
-          )
-      }
-    }
-
-    if (attains_replace == FALSE) {
-      # create assessment unit crosswalk from ATTAINS
-      attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(
-        org_id = org_id
-      ))
-
-      if (is.null(crosswalk)) {
-        update.crosswalk <- attains.crosswalk
-
-        rm(attains.crosswalk)
-      }
-
-      if (!is.null(crosswalk)) {
-        # combine user supplied and attains crosswalks to create one crosswalk
-        # no rows are omitted
-        update.crosswalk <- attains.crosswalk %>%
-          dplyr::full_join(
-            crosswalk,
-            by = dplyr::join_by(
-              ATTAINS.MonitoringLocationIdentifier,
-              OrganizationIdentifier,
-              ATTAINS.OrganizationIdentifier,
-              ATTAINS.AssessmentUnitIdentifier,
-              ATTAINS.MonitoringDataLinkText,
-              ATTAINS.WaterType
-            )
-          ) %>%
-          dplyr::distinct()
-
-        rm(attains.crosswalk, crosswalk)
-      }
-    }
-
-    # when replace is true, only rows in user-supplied crosswalk are used
-
-    if (attains_replace == TRUE) {
-      update.crosswalk <- crosswalk
-
-      rm(crosswalk)
-    }
-
-    # add provider ref if required
+    batchupload_cols <- c(
+      "ASSESSMENT_UNIT_ID",
+      "MS_ORG_ID",
+      "MS_LOCATION_ID",
+      "MS_DATA_LINK"
+    )
 
     if (
-      wqp_data_links == "add" |
-        wqp_data_links == "replace" |
-        update_mlid == TRUE
+      !all(crosswalk_cols %in% names(crosswalk)) &
+        !all(batchupload_cols %in% names(crosswalk))
     ) {
-      provider.ref <- TADA_GetWQPOrgProviderRef() %>%
-        dplyr::select(OrganizationIdentifier, ProviderName) %>%
-        dplyr::distinct() %>%
-        dplyr::mutate(OrgIDForURL = OrganizationIdentifier)
+      stop(paste0(
+        "Column names must reflect the TADA workflow requirements. ",
+        "Review function documentation for more information."
+      ))
     }
 
-    # internal function to update monitoring location identifiers
-    updateMonLocIds <- function(.data) {
-      # add additional rows to account for the addition of "_WQX" to many org
-      # names for WQP data
-      add.orgs <- provider.ref %>%
-        dplyr::filter(
-          ProviderName == "STORET",
-          grepl("_WQX", OrganizationIdentifier)
+    if (all(batchupload_cols %in% names(crosswalk))) {
+      crosswalk <- crosswalk %>%
+        dplyr::rename(
+          ATTAINS.AssessmentUnitIdentifier = ASSESSMENT_UNIT_ID,
+          OrganizationIdentifier = MS_ORG_ID,
+          ATTAINS.MonitoringLocationIdentifier = MS_LOCATION_ID,
+          ATTAINS.MonitoringDataLinkText = MS_DATA_LINK
         ) %>%
-        dplyr::mutate(
-          OrganizationIdentifier = stringr::str_remove_all(
-            OrgIDForURL,
-            "_WQX"
+        dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id)
+
+      wat.types <- au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
+        org_id = org_id,
+        api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+      )) %>%
+        dplyr::select(assessmentUnitId, waterType) %>%
+        dplyr::rename(
+          ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
+          ATTAINS.WaterType = waterType
+        ) %>%
+        dplyr::distinct()
+
+      crosswalk <- crosswalk %>%
+        dplyr::left_join(
+          wat.types,
+          by = dplyr::join_by(
+            ATTAINS.AssessmentUnitIdentifier
           )
         )
+    }
+  }
 
-      # combine provider refs
-      provider.ref <- provider.ref %>%
-        dplyr::bind_rows(add.orgs)
+  if (attains_replace == FALSE) {
+    # create assessment unit crosswalk from ATTAINS
 
-      # remove intermediate object
-      rm(add.orgs)
+    attains.crosswalk <- suppressMessages(TADA_GetATTAINSAUMLCrosswalk(
+      org_id = org_id
+    ))
 
-      # join provider ref df to crosswalk
-      update.crosswalk <- .data %>%
-        dplyr::left_join(
-          provider.ref,
-          by = dplyr::join_by(OrganizationIdentifier)
-        )
+    if (is.null(crosswalk)) {
+      update.crosswalk <- attains.crosswalk
 
-      # build the updated mls for storet results
-      update.crosswalk.storet <- update.crosswalk %>%
-        dplyr::filter(ProviderName == "STORET") %>%
-        dplyr::mutate(
-          ATTAINS.MonitoringLocationIdentifier = stringr::str_remove(
+
+      rm(attains.crosswalk)
+    }
+
+    if (!is.null(crosswalk)) {
+      # combine user supplied and attains crosswalks to create one crosswalk
+      # no rows are omitted
+      update.crosswalk <- attains.crosswalk %>%
+        dplyr::full_join(
+          crosswalk,
+          by = dplyr::join_by(
+            ATTAINS.MonitoringLocationIdentifier,
+            OrganizationIdentifier,
+            ATTAINS.OrganizationIdentifier,
+            ATTAINS.AssessmentUnitIdentifier,
+            ATTAINS.MonitoringDataLinkText,
+            ATTAINS.WaterType
+          )
+        ) %>%
+        dplyr::distinct()
+
+      rm(attains.crosswalk, crosswalk)
+    }
+  }
+
+  # when replace is true, only rows in user-supplied crosswalk are used
+
+  if (attains_replace == TRUE) {
+    update.crosswalk <- crosswalk
+
+    rm(crosswalk)
+  }
+
+  # add provider ref if required
+
+  if (
+    wqp_data_links == "add" | wqp_data_links == "replace" | update_mlid == TRUE
+  ) {
+    provider.ref <- TADA_GetWQPOrgProviderRef() %>%
+      dplyr::select(OrganizationIdentifier, ProviderName) %>%
+      dplyr::distinct() %>%
+      dplyr::mutate(OrgIDForURL = OrganizationIdentifier)
+  }
+
+  # internal function to update monitoring location identifiers
+  updateMonLocIds <- function(.data) {
+    # add additional rows to account for the addition of "_WQX" to many org
+    # names for WQP data
+    add.orgs <- provider.ref %>%
+      dplyr::filter(
+        ProviderName == "STORET",
+        grepl("_WQX", OrganizationIdentifier)
+      ) %>%
+      dplyr::mutate(OrganizationIdentifier = stringr::str_remove_all(
+        OrgIDForURL,
+        "_WQX"
+      ))
+
+    # combine provider refs
+    provider.ref <- provider.ref %>%
+      dplyr::bind_rows(add.orgs)
+
+    # remove intermediate object
+    rm(add.orgs)
+
+    # join provider ref df to crosswalk
+    update.crosswalk <- .data %>%
+      dplyr::left_join(provider.ref, by = dplyr::join_by(OrganizationIdentifier))
+
+    # build the updated mls for storet results
+    update.crosswalk.storet <- update.crosswalk %>%
+      dplyr::filter(ProviderName == "STORET") %>%
+      dplyr::mutate(
+        ATTAINS.MonitoringLocationIdentifier =
+          stringr::str_remove(
             ATTAINS.MonitoringLocationIdentifier,
             paste0(OrganizationIdentifier, "-")
           ),
-          ATTAINS.MonitoringLocationIdentifier = stringr::str_remove(
+        ATTAINS.MonitoringLocationIdentifier =
+          stringr::str_remove(
             ATTAINS.MonitoringLocationIdentifier,
             OrganizationIdentifier
           ),
-          ATTAINS.MonitoringLocationIdentifier = stringr::str_remove(
-            ATTAINS.MonitoringLocationIdentifier,
-            "_WQX"
-          ),
-          ATTAINS.MonitoringLocationIdentifier = paste0(
-            OrganizationIdentifier,
-            "-",
-            ATTAINS.MonitoringLocationIdentifier
-          )
+        ATTAINS.MonitoringLocationIdentifier = stringr::str_remove(ATTAINS.MonitoringLocationIdentifier, "_WQX"),
+        ATTAINS.MonitoringLocationIdentifier = paste0(
+          OrganizationIdentifier, "-",
+          ATTAINS.MonitoringLocationIdentifier
         )
-
-      # join nwis and storet crosswalks
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::filter(!ProviderName %in% c("STORET")) %>%
-        dplyr::bind_rows(update.crosswalk.storet)
-
-      rm(update.crosswalk.storet, provider.ref)
-
-      return(update.crosswalk)
-    }
-
-    # internal function to create new urls for monitoring locations
-    createNewMLUrls <- function(.data) {
-      if (!"ProviderName" %in% names(.data)) {
-        .data <- .data %>%
-          dplyr::left_join(
-            provider.ref,
-            by = dplyr::join_by(OrganizationIdentifier)
-          )
-      }
-
-      new.urls <- .data %>%
-        # dplyr::filter(ProviderName == "STORET") %>%
-        dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText.New = as.character(ifelse(
-            is.na(OrgIDForURL),
-            NA,
-            URLencode(paste0(
-              "https://www.waterqualitydata.us/provider/",
-              ProviderName,
-              "/",
-              OrgIDForURL,
-              "/",
-              ATTAINS.MonitoringLocationIdentifier,
-              "/"
-            ))
-          ))
-        ) %>%
-        dplyr::select(-OrgIDForURL)
-
-      return(new.urls)
-    }
-
-    if (check_links == TRUE) {
-      # internal function to check urls
-      checkUrlResp <- function(.data, url.col) {
-        # create df of urls to check
-        urls.to.check <- .data %>%
-          dplyr::filter(!is.na(!!rlang::sym(url.col)))
-
-        # check to see if any urls to check
-        if (dim(urls.to.check)[1] == 0) {
-          .data <- .data %>%
-            dplyr::mutate(response.code = "none")
-
-          rm(urls.to.check)
-
-          return(.data)
-        }
-
-        if (dim(urls.to.check)[1] > 0) {
-          # retrieve http response headers from url list
-          headers <- urls.to.check %>%
-            dplyr::select(!!rlang::sym(url.col)) %>%
-            dplyr::pull() %>%
-            purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
-
-          # extract response code from first line of header response
-          response.code <- sapply(headers, "[[", 1)
-
-          # create dataframe of urls and response codes
-          response.df <- data.frame(urls.to.check, response.code) %>%
-            dplyr::distinct()
-
-          # join response codes to add.urls df
-          .data <- .data %>%
-            dplyr::left_join(response.df, by = names(update.crosswalk))
-
-          rm(urls.to.check, headers, response.code, response.df)
-
-          return(.data)
-        }
-      }
-    }
-
-    if (update_mlid == TRUE & wqp_data_links == "none") {
-      update.crosswalk <- updateMonLocIds(update.crosswalk)
-
-      if (check_links == TRUE) {
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          )
-      }
-    }
-
-    if (update_mlid == TRUE & wqp_data_links == "replace") {
-      update.crosswalk <- updateMonLocIds(update.crosswalk)
-
-      update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
-        dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
-        dplyr::rename(
-          ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New
-        )
-
-      if (check_links == TRUE) {
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          )
-      }
-    }
-
-    if (update_mlid == TRUE & wqp_data_links == "add") {
-      update.crosswalk <- updateMonLocIds(update.crosswalk)
-
-      update.crosswalk <- createNewMLUrls(update.crosswalk)
-
-      if (check_links == TRUE) {
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          ) %>%
-          dplyr::select(-response.code)
-
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText.New"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText.New = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          ) %>%
-          dplyr::select(-response.code)
-      }
-
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(
-          ATTAINS.MonitoringDataLinkText = dplyr::case_when(
-            !is.na(ATTAINS.MonitoringDataLinkText) &
-              !is.na(ATTAINS.MonitoringDataLinkText.New) ~
-              paste0(
-                ATTAINS.MonitoringDataLinkText,
-                "; ",
-                ATTAINS.MonitoringDataLinkText.New
-              ),
-            is.na(ATTAINS.MonitoringDataLinkText) &
-              !is.na(
-                ATTAINS.MonitoringDataLinkText.New
-              ) ~ ATTAINS.MonitoringDataLinkText.New,
-            !is.na(ATTAINS.MonitoringDataLinkText) &
-              is.na(
-                ATTAINS.MonitoringDataLinkText.New
-              ) ~ ATTAINS.MonitoringDataLinkText,
-            is.na(ATTAINS.MonitoringDataLinkText) &
-              is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
-          )
-        ) %>%
-        dplyr::select(-ATTAINS.MonitoringDataLinkText.New)
-    }
-
-    if (update_mlid == FALSE & wqp_data_links == "none") {
-      update.crosswalk <- update.crosswalk
-    }
-
-    if (update_mlid == FALSE & wqp_data_links == "replace") {
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(
-          OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
-        ) %>%
-        updateMonLocIds()
-
-      update.crosswalk <- createNewMLUrls(update.crosswalk) %>%
-        dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
-        dplyr::rename(
-          ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New
-        ) %>%
-        dplyr::select(-ATTAINS.MonitoringLocationIdentifier, -OrgIDForURL) %>%
-        dplyr::rename(
-          ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier
-        )
-    }
-
-    if (update_mlid == FALSE & wqp_data_links == "add") {
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::mutate(
-          OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier
-        ) %>%
-        updateMonLocIds()
-
-      update.crosswalk <- createNewMLUrls(update.crosswalk)
-
-      if (check_links == TRUE) {
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          ) %>%
-          dplyr::select(-response.code)
-
-        update.crosswalk <- checkUrlResp(
-          update.crosswalk,
-          url.col = "ATTAINS.MonitoringDataLinkText.New"
-        )
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText.New = ifelse(
-              stringr::str_detect(response.code, "200"),
-              ATTAINS.MonitoringDataLinkText.New,
-              NA
-            )
-          ) %>%
-          dplyr::select(-response.code)
-
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = dplyr::case_when(
-              !is.na(ATTAINS.MonitoringDataLinkText) &
-                !is.na(ATTAINS.MonitoringDataLinkText.New) ~
-                paste0(
-                  ATTAINS.MonitoringDataLinkText,
-                  "; ",
-                  ATTAINS.MonitoringDataLinkText.New
-                ),
-              is.na(ATTAINS.MonitoringDataLinkText) &
-                !is.na(
-                  ATTAINS.MonitoringDataLinkText.New
-                ) ~ ATTAINS.MonitoringDataLinkText.New,
-              !is.na(ATTAINS.MonitoringDataLinkText) &
-                is.na(
-                  ATTAINS.MonitoringDataLinkText.New
-                ) ~ ATTAINS.MonitoringDataLinkText,
-              is.na(ATTAINS.MonitoringDataLinkText) &
-                is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
-            )
-          ) %>%
-          dplyr::select(
-            -ATTAINS.MonitoringDataLinkText.New,
-            -ATTAINS.MonitoringLocationIdentifier
-          ) %>%
-          dplyr::rename(
-            ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier
-          )
-      }
-
-      if (check_links == FALSE) {
-        update.crosswalk <- update.crosswalk %>%
-          dplyr::mutate(
-            ATTAINS.MonitoringDataLinkText = dplyr::case_when(
-              !is.na(ATTAINS.MonitoringDataLinkText) &
-                !is.na(ATTAINS.MonitoringDataLinkText.New) ~
-                paste0(
-                  ATTAINS.MonitoringDataLinkText,
-                  "; ",
-                  ATTAINS.MonitoringDataLinkText.New
-                ),
-              is.na(ATTAINS.MonitoringDataLinkText) &
-                !is.na(
-                  ATTAINS.MonitoringDataLinkText.New
-                ) ~ ATTAINS.MonitoringDataLinkText.New,
-              !is.na(ATTAINS.MonitoringDataLinkText) &
-                is.na(
-                  ATTAINS.MonitoringDataLinkText.New
-                ) ~ ATTAINS.MonitoringDataLinkText,
-              is.na(ATTAINS.MonitoringDataLinkText) &
-                is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
-            )
-          ) %>%
-          dplyr::select(
-            -ATTAINS.MonitoringDataLinkText.New,
-            -ATTAINS.MonitoringLocationIdentifier
-          ) %>%
-          dplyr::rename(
-            ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier
-          )
-      }
-    }
-
-    # select relevant column names and ordering for output in TADA workflow format.
-    update.crosswalk <- update.crosswalk %>%
-      dplyr::select(
-        OrganizationIdentifier,
-        ATTAINS.OrganizationIdentifier,
-        ATTAINS.MonitoringLocationIdentifier,
-        ATTAINS.AssessmentUnitIdentifier,
-        ATTAINS.MonitoringDataLinkText,
-        ATTAINS.WaterType
       )
 
-    # If batch upload is desired, format the output in the required format.
-    if (batch_upload == TRUE) {
-      update.crosswalk <- update.crosswalk %>%
-        dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) %>%
-        dplyr::rename(
-          ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-          MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
-          MS_LOCATION_ID = OrganizationIdentifier,
-          MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
-        )
-    }
+    # join nwis and storet crosswalks
+    update.crosswalk <- update.crosswalk %>%
+      dplyr::filter(!ProviderName %in% c("STORET")) %>%
+      dplyr::bind_rows(update.crosswalk.storet)
+
+    rm(update.crosswalk.storet, provider.ref)
 
     return(update.crosswalk)
   }
+
+  # internal function to create new urls for monitoring locations
+  createNewMLUrls <- function(.data, ref) {
+    if (!"ProviderName" %in% names(.data)) {
+      .data <- .data %>%
+        dplyr::left_join(ref,
+          by = dplyr::join_by(OrganizationIdentifier)
+        )
+    }
+
+    new.urls <- .data %>%
+      # dplyr::filter(ProviderName == "STORET") %>%
+      dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = as.character(ifelse(
+        is.na(OrgIDForURL), NA,
+        URLencode(paste0(
+          "https://www.waterqualitydata.us/provider/", ProviderName,
+          "/", OrgIDForURL, "/", ATTAINS.MonitoringLocationIdentifier, "/"
+        ))
+      ))) %>%
+      dplyr::select(-OrgIDForURL)
+
+    return(new.urls)
+  }
+
+  if (check_links == TRUE) {
+    # internal function to check urls
+    checkUrlResp <- function(.data, url.col) {
+      # create df of urls to check
+      urls.to.check <- .data %>%
+        dplyr::filter(!is.na(!!rlang::sym(url.col)))
+
+      # check to see if any urls to check
+      if (dim(urls.to.check)[1] == 0) {
+        .data <- .data %>%
+          dplyr::mutate(response.code = "none")
+
+        rm(urls.to.check)
+
+        return(.data)
+      }
+
+      if (dim(urls.to.check)[1] > 0) {
+        # retrieve http response headers from url list
+        headers <- urls.to.check %>%
+          dplyr::select(!!rlang::sym(url.col)) %>%
+          dplyr::pull() %>%
+          purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
+
+        # extract response code from first line of header response
+        response.code <- sapply(headers, "[[", 1)
+
+        # create dataframe of urls and response codes
+        response.df <- data.frame(urls.to.check, response.code) %>%
+          dplyr::distinct()
+
+        # join response codes to add.urls df
+        .data <- .data %>%
+          dplyr::left_join(response.df, by = names(update.crosswalk))
+
+        rm(urls.to.check, headers, response.code, response.df)
+
+        return(.data)
+      }
+    }
+  }
+
+  if (update_mlid == TRUE & wqp_data_links == "none") {
+    update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+    if (check_links == TRUE) {
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New, NA
+        ))
+    }
+  }
+
+  if (update_mlid == TRUE & wqp_data_links == "replace") {
+    update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref) %>%
+      dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
+      dplyr::rename(ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New)
+
+    if (check_links == TRUE) {
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New,
+          NA
+        ))
+    }
+  }
+
+  if (update_mlid == TRUE & wqp_data_links == "add") {
+    update.crosswalk <- updateMonLocIds(update.crosswalk)
+
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref)
+
+    if (check_links == TRUE) {
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New,
+          NA
+        )) %>%
+        dplyr::select(-response.code)
+
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText.New"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New,
+          NA
+        )) %>%
+        dplyr::select(-response.code)
+    }
+
+    update.crosswalk <- update.crosswalk %>%
+      dplyr::mutate(ATTAINS.MonitoringDataLinkText = dplyr::case_when(
+        !is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~
+          paste0(
+            ATTAINS.MonitoringDataLinkText, "; ",
+            ATTAINS.MonitoringDataLinkText.New
+          ),
+        is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText.New,
+        !is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText,
+        is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
+      )) %>%
+      dplyr::select(-ATTAINS.MonitoringDataLinkText.New)
+  }
+
+  if (update_mlid == FALSE & wqp_data_links == "none") {
+    update.crosswalk <- update.crosswalk
+  }
+
+  if (update_mlid == FALSE & wqp_data_links == "replace") {
+    update.crosswalk <- update.crosswalk %>%
+      dplyr::mutate(OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier) %>%
+      updateMonLocIds()
+
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref) %>%
+      dplyr::select(-ATTAINS.MonitoringDataLinkText) %>%
+      dplyr::rename(ATTAINS.MonitoringDataLinkText = ATTAINS.MonitoringDataLinkText.New) %>%
+      dplyr::select(-ATTAINS.MonitoringLocationIdentifier, -OrgIDForURL) %>%
+      dplyr::rename(ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier)
+  }
+
+  if (update_mlid == FALSE & wqp_data_links == "add") {
+    update.crosswalk <- update.crosswalk %>%
+      dplyr::mutate(OLD_ATTAINS.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier) %>%
+      updateMonLocIds()
+
+    update.crosswalk <- createNewMLUrls(update.crosswalk, ref = provider.ref)
+
+    if (check_links == TRUE) {
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New,
+          NA
+        )) %>%
+        dplyr::select(-response.code)
+
+      update.crosswalk <- checkUrlResp(update.crosswalk,
+        url.col = "ATTAINS.MonitoringDataLinkText.New"
+      )
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText.New = ifelse(stringr::str_detect(response.code, "200"),
+          ATTAINS.MonitoringDataLinkText.New,
+          NA
+        )) %>%
+        dplyr::select(-response.code)
+
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = dplyr::case_when(
+          !is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~
+            paste0(
+              ATTAINS.MonitoringDataLinkText, "; ",
+              ATTAINS.MonitoringDataLinkText.New
+            ),
+          is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText.New,
+          !is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText,
+          is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
+        )) %>%
+        dplyr::select(-ATTAINS.MonitoringDataLinkText.New, -ATTAINS.MonitoringLocationIdentifier) %>%
+        dplyr::rename(ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier)
+    }
+
+    if (check_links == FALSE) {
+      update.crosswalk <- update.crosswalk %>%
+        dplyr::mutate(ATTAINS.MonitoringDataLinkText = dplyr::case_when(
+          !is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~
+            paste0(
+              ATTAINS.MonitoringDataLinkText, "; ",
+              ATTAINS.MonitoringDataLinkText.New
+            ),
+          is.na(ATTAINS.MonitoringDataLinkText) & !is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText.New,
+          !is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ ATTAINS.MonitoringDataLinkText,
+          is.na(ATTAINS.MonitoringDataLinkText) & is.na(ATTAINS.MonitoringDataLinkText.New) ~ NA
+        )) %>%
+        dplyr::select(-ATTAINS.MonitoringDataLinkText.New, -ATTAINS.MonitoringLocationIdentifier) %>%
+        dplyr::rename(ATTAINS.MonitoringLocationIdentifier = OLD_ATTAINS.MonitoringLocationIdentifier)
+    }
+  }
+
+  # select relevant column names and ordering for output in TADA workflow format.
+  update.crosswalk <- update.crosswalk %>%
+    dplyr::select(
+      OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
+      ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+      ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType
+    )
+
+  # If batch upload is desired, format the output in the required format.
+  if (batch_upload == TRUE) {
+    update.crosswalk <- update.crosswalk %>%
+      dplyr::select(-c(ATTAINS.WaterType, ATTAINS.OrganizationIdentifier)) %>%
+      dplyr::rename(
+        ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+        MS_ORG_ID = ATTAINS.MonitoringLocationIdentifier,
+        MS_LOCATION_ID = OrganizationIdentifier,
+        MS_DATA_LINK = ATTAINS.MonitoringDataLinkText
+      )
+  }
+
+  return(update.crosswalk)
 }
+
 
 #' Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool (CST)
 #' Parameter Name Crosswalk

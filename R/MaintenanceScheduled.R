@@ -435,8 +435,23 @@
       rm(
         attains.existing.MT,
         clean.existing.attains.MT,
-        Data_MT_AU_UsesRef_Water, 
-        Data_MT_AUMLRef,
+        user_supplied_cw,
+        MT_AUMLRef
+      )
+
+      # =======================================
+      # Generate Data_MT.UseAURef_Water
+      # =======================================
+      Data_MT_AU_UsesRef_Water <- TADA_CreateUseAURef(
+        waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+        org_id = "MTDEQ"
+      )
+
+      message("Data_MT_UseAURef_Water")
+      message(dim(Data_MT_UseAURef_Water))
+
+      usethis::use_data(
         Data_MT_UseAURef_Water,
         MT_AUMLRef,
         user_supplied_cw
