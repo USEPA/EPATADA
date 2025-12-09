@@ -215,3 +215,9 @@ ATTAINS.ShapeLength,numeric
 TADA.DistanceAway.Meters,numeric
 ATTAINS.CulturalUse,character
 ATTAINS.DrinkingWaterUse,character
+TADA.SuspectCoordinates.Flag,character
+TADA.ResultValueAboveUpperThreshold.Flag,character
+TADA.ResultValueBelowLowerThreshold.Flag,character
+TADA.ContinuousData.Flag,character
+TADA.QAPPDocAvailable,character
+TADA.Remove,character

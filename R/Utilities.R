@@ -2038,11 +2038,11 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.Turbidity",
     "ATTAINS.CycleStatus",
     "ATTAINS.OrigFid",
-    "ATTAINS.WaterType",
     "ATTAINS.XwalkMethod",
     "ATTAINS.XwalkHuc12Version",
     "ATTAINS.Chlorine",
-    "ATTAINS.Biotoxins"
+    "ATTAINS.Biotoxins",
+    "ATTAINS.WaterType"
   )
 
   # List of original ATTAINS column names
@@ -2122,11 +2122,11 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "turbidity",
     "cyclestatus",
     "orig_fid",
-    "waterType",
     "xwalk_method",
     "xwalk_huc12_version",
     "chlorine",
-    "biotoxins"
+    "biotoxins",
+    "waterType"
   )
 
   # If return_list equals TRUE, return the list of TADA formatted column names
@@ -2148,8 +2148,8 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   # If return_list equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
     # Determine which water type column exists and adjust the lists accordingly
-    if ("waterType" %in% names(.data)) {
-      attains.orig <- gsub("waterTypeCode", "waterType", attains.orig)
+    if ("waterTypeCode" %in% names(.data)) {
+      attains.orig <- gsub("waterType", "waterTypeCode", attains.orig)
     }
 
     # Assign old and new name vectors based on format selected by user
@@ -2163,23 +2163,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
       new = new.names,
       skip_absent = TRUE
     )
-
-    # new.names <- dplyr::case_when(
-    #   format == "tada" ~ attains.tada,
-    #   format == "attains" ~ attains.orig
-    # )
-    # 
-    # 
-    # .data
-    # 
-    # view <-
-    #   data.table::setnames(
-    #     .data,
-    #     old = old.names,
-    #     new = new.names,
-    #     skip_absent = TRUE
-    #   )
-    # 
 
     # Remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
