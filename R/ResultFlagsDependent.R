@@ -1025,56 +1025,30 @@ TADA_FlagMeasureQualifierCode <- function(
 
     rm(mqc.ref, mqc.TADA)
   }
-
-  # populate flag column in data
+  
+  # Populate flag column in data
   flag.lists <- split(
     qc.ref$MeasureQualifierCode,
     qc.ref$TADA.MeasureQualifierCode.Flag
-  ) |>
-    stats::setNames(stringr::str_remove_all(
-      stringr::str_remove_all(tolower(names(.)), "-"),
-      " "
-    ))
+  )
+  
+  # Set names with transformations
+  names(flag.lists) <- tolower(names(flag.lists))
+  names(flag.lists) <- stringr::str_remove_all(names(flag.lists), "-")
+  names(flag.lists) <- stringr::str_remove_all(names(flag.lists), " ")
 
   flag.data <- .data |>
     dplyr::mutate(
-      MeasureQualifierCode.Split = strsplit(MeasureQualifierCode, ";")
-    ) |>
-    dplyr::mutate(
-      TADA.MeasureQualifierCode.Flag = ifelse(
-        purrr::map_lgl(
-          MeasureQualifierCode.Split,
-          ~ any(.x %in% flag.lists$suspect)
-        ),
-        "Suspect",
-        ifelse(
-          purrr::map_lgl(
-            MeasureQualifierCode.Split,
-            ~ any(.x %in% flag.lists$nondetect)
-          ),
-          "Non-Detect",
-          ifelse(
-            purrr::map_lgl(
-              MeasureQualifierCode.Split,
-              ~ any(.x %in% flag.lists$overdetect)
-            ),
-            "Over-Detect",
-            ifelse(
-              purrr::map_lgl(
-                MeasureQualifierCode.Split,
-                ~ any(.x %in% flag.lists$pass)
-              ),
-              "Pass",
-              ifelse(
-                purrr::map_lgl(
-                  MeasureQualifierCode.Split,
-                  ~ any(.x %in% flag.lists$notreviewed)
-                ),
-                "Not Reviewed",
-                NA
-              )
-            )
-          )
+      MeasureQualifierCode.Split = strsplit(MeasureQualifierCode, ";"),
+      TADA.MeasureQualifierCode.Flag = purrr::map_chr(
+        MeasureQualifierCode.Split,
+        ~ dplyr::case_when(
+          any(.x %in% flag.lists$suspect) ~ "Suspect",
+          any(.x %in% flag.lists$nondetect) ~ "Non-Detect",
+          any(.x %in% flag.lists$overdetect) ~ "Over-Detect",
+          any(.x %in% flag.lists$pass) ~ "Pass",
+          any(.x %in% flag.lists$notreviewed) ~ "Not Reviewed",
+          TRUE ~ NA_character_
         )
       )
     ) |>
