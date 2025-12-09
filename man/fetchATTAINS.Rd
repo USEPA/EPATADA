@@ -10,8 +10,9 @@ fetchATTAINS(.data, catchments_only = FALSE, org_id = "all")
 \item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
 
 \item{catchments_only}{Whether to return just the summarized ATTAINS catchment features, or both
-the catchments and raw ATTAINS features. TRUE or FALSE.
-#' @param org_id ATTAINS organization identifier(s) as a character string.
+the catchments and raw ATTAINS features. TRUE or FALSE.}
+
+\item{org_id}{ATTAINS organization identifier(s) as a character string.
 If populated, Assessment Units  will only be fetched from the specified
 organization(s). A list of organization identifiers can be found
 by downloading the ATTAINS Domains Excel file:
