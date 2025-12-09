@@ -65,7 +65,7 @@ observations.
 This function calculates and reports the distance, 'TADA.DistanceAway.Meters',
 between each WQP observation and intersecting ATTAINS features within its
 catchment. A TADA.DistanceAway.Meters value of 0 indicates that the WQP
-observation is directly on the associated  ATTAINS point or line feature,
+observation is directly on the associated ATTAINS point or line feature,
 or located inside the associated ATTAINS polygon.
 }
 \description{
@@ -104,7 +104,7 @@ complex hydrology where imprecise WQP monitoring location coordinates can
 be problematic. Note that many WQP locations will not fall within the bounds
 of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks
 are strongly encouraged. WQP monitoring location metadata may also be helpful
-for matching waterbody  names with ATTAINS waterbody names instead of relying
+for matching waterbody names with ATTAINS waterbody names instead of relying
 solely on the geospatial location (lat/long).
 }
 \examples{
@@ -123,7 +123,7 @@ tada_data <- TADA_DataRetrieval(
 tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
   fill_USGS_catch = FALSE,
   return_sf = FALSE,
-  return_nearest = FALSE,
+  return_nearest = FALSE
 )
 
 tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,

@@ -3552,8 +3552,8 @@ TADA_MLSummary <- function(
       downloads_path <- default_downloads_path
     }
 
-    # This allows a user to provide the mod 2 function TADA_GetATTAINS() as the .data data frame.
-    # In this case, the ML to AU crosswalk is generated from TADA_GetATTAINS().
+    # This allows a user to provide the mod 2 function TADA_CreateATTAINSAUMLCrosswalk() as the .data data frame.
+    # In this case, the ML to AU crosswalk is generated from TADA_CreateATTAINSAUMLCrosswalk().
     if (!is.data.frame(.data)) {
       if (
         !any(
@@ -3568,7 +3568,7 @@ TADA_MLSummary <- function(
         )
       ) {
         stop(
-          "Your input dataframe was not produced from `TADA_GetATTAINS()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`"
+          "Your input dataframe was not produced from `TADA_CreateATTAINSAUMLCrosswalk()` or it was modified. Please create your list of ATTAINS features using `TADA_GetATTAINS(return_sf = TRUE)`"
         )
       }
       # .data <- .data[["TADA_with_ATTAINS"]]
@@ -3818,7 +3818,7 @@ TADA_MLSummary <- function(
     # If a user DOES provide a AUMLRef, this will create the Spatial Table on an AU level
     if (!is.null(AUMLRef)) {
       # NOTE: Check for required columns in AUMLRef
-      # If a user provides output from TADA_GetATTAINS, select only relevant columns
+      # If a user provides output from TADA_CreateATTAINSAUMLCrosswalk, select only relevant columns
       AUMLRef <- dplyr::select(
         AUMLRef,
         ATTAINS.OrganizationIdentifier,
