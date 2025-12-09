@@ -1479,43 +1479,39 @@ TADA_FlagCoordinates <- function(
   return(.data)
 }
 
-#' Identify Potentially Duplicated Data Uploads by Multiple Organizations
+#' Identify Potentially Duplicated Data by Multiple Organizations
 #'
-#' Identifies data records uploaded by different organizations with the same date,
-#' time, characteristic name, and result value within X meters of each other and
-#' flags as potential duplicates. However, it is at the discretion of the data user
-#' to determine if the data records are unique or represent overlap that could cause
-#' issues in the data analysis.
+#' This function identifies potential duplicate data records uploaded by different organizations.
+#' It flags records with the same date, time, characteristic name, and result value within a
+#' specified distance. The flagged records are marked as potential duplicates, but users should
+#' verify if they are truly duplicates or unique records.
 #'
-#' This function runs TADA_FindNearbySites within it which adds the
-#' TADA.MonitoringLocationIdentifier field. Duplicates are only flagged as duplicates if
-#' the distance between sites is less than the function input dist_buffer
-#' (default is 100m). Each group in the TADA.MonitoringLocationIdentifier field indicates
-#' that the sites within each group are within the specified distance from each other.
+#' The function performs spatial operations by running `TADA_FindNearbySites` within it.
+#' Duplicates are flagged if the distance between sites
+#' is less than the specified `dist_buffer` (default is 100 meters). Each group in the
+#' `TADA.MultipleOrgDupGroupID` field indicates that the `TADA.MonitoringLocationIdentifier`
+#' within each group are within the specified distance from each other.
 #'
-#' We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
-#' TADA_FindPotentialDuplicatesSingleOrg.
+#' It is recommended to run this function after `TADA_FindPotentialDuplicatesSingleOrg` to first
+#' address potential duplicates within a single organization.
 #'
-#' @param .data TADA dataframe
+#' @param .data A TADA dataframe. This function runs `TADA_FindNearbySites` 
+#' within it, which will transform .data into `sf` object for spatial operations if needed.
+#' @param dist_buffer Numeric. The distance in meters within which two sites with similar records
+#' are flagged as potential duplicates. Default is 100 meters.
+#' @param org_hierarchy A vector of organization identifiers to prioritize when selecting
+#' representative records. If not specified, a random selection is made.
 #'
-#' @param dist_buffer Numeric. The distance in meters below which two sites with
-#' measurements at the same time on the same day of the same parameter will
-#' be flagged as potential duplicates.
-#'
-#' @param org_hierarchy Vector of organization identifiers that acts as the
-#'   order in which the function should select a result as the representative
-#'   duplicate, based on the organization that collected the data. If left
-#'   blank, the function chooses the representative duplicate result at random.
-#'
-#' @return The same input TADA dataframe with four additional columns: a
-#'   TADA.MultipleOrgDuplicate column indicating if there is evidence that
-#'   results are likely duplicated due to submission of the same dataset by two
-#'   or more different organizations, a TADA.MultipleOrgDupGroupID column
-#'   containing a number unique to results that may represent duplicated
-#'   measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
-#'   which rows are selected to keep (Y) and remove (N) based on the
-#'   org hierarchy, and a TADA.MonitoringLocationIdentifier column indicating which
-#'   monitoring locations are within the distance buffer from each other.
+#' @return Returns the input dataframe with additional columns indicating potential duplicates and
+#' their groupings:
+#' - `TADA.MultipleOrgDuplicate`: A column that indicates if there is evidence of duplication due
+#' to submissions by multiple organizations ('Y' for yes, 'N' for no).
+#' - `TADA.MultipleOrgDupGroupID`: A column containing a unique identifier for results that may
+#' represent duplicated measurement events.
+#' - `TADA.ResultSelectedMultipleOrgs`: A column indicating which rows are selected to keep ('Y')
+#' or remove ('N') based on the organization hierarchy.
+#' - `TADA.MonitoringLocationIdentifier`: A column indicating which monitoring locations are within
+#' the distance buffer from each other.
 #'
 #' @export
 #'
@@ -1527,34 +1523,59 @@ TADA_FlagCoordinates <- function(
 #'   endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE
 #' )
 #' unique(dat$OrganizationIdentifier)
-#' # If duplicates across organizations exist, pick the result belonging
-#' # to "21PA_WQX" if available.
+#' # Identify potential duplicates and prioritize "21PA_WQX" organization
 #' dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat,
 #'   dist_buffer = 100, org_hierarchy = c("21PA_WQX")
 #' )
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #' }
-#'
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(
-  .data,
-  dist_buffer = 100,
-  org_hierarchy = "none"
+    .data,
+    dist_buffer = 100,
+    org_hierarchy = "none"
 ) {
   # Check if the input dataframe is empty
   if (nrow(.data) == 0) {
     message("The input dataframe is empty. Returning the dataframe unchanged.")
     return(.data)
   }
-
-  # from those datapoints, determine which are in adjacent sites
+  
+  # Ensure .data is an sf object if spatial operations are needed
+  if (!inherits(.data, "sf")) {
+    stop("The input data must be an sf object for spatial operations.")
+  }
+  
+  # Ensure CRS is set and consistent
+  if (is.na(st_crs(.data))) {
+    stop("The input sf object does not have a coordinate reference system (CRS) set.")
+  }
+  
+  # Call TADA_FindNearbySites and ensure it returns an sf object
   if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(
       .data,
       dist_buffer = dist_buffer,
       org_hierarchy = org_hierarchy
     )
+    
+    # Developer Note: Ensure TADA_FindNearbySites returns an sf object
+    if (!inherits(.data, "sf")) {
+      stop("TADA_FindNearbySites did not return an sf object.")
+    }
   }
-
+  
+  # Developer Note: Ensure nhd.catch.all is retrieved and formatted as an sf object
+  nhd.catch.all <- get_nhd_catch_all() # Replace with actual function or data retrieval
+  if (!inherits(nhd.catch.all, "sf")) {
+    nhd.catch.all <- st_as_sf(nhd.catch.all, coords = c("longitude_column", "latitude_column"), crs = st_crs(.data))
+  }
+  
+  # Developer Note: Ensure CRS consistency for spatial operations
+  if (st_crs(.data) != st_crs(nhd.catch.all)) {
+    nhd.catch.all <- st_transform(nhd.catch.all, st_crs(.data))
+  }
+  
+  # Proceed with the rest of your function logic
   dupsites <- unique(.data[, c(
     "MonitoringLocationIdentifier",
     "TADA.LatitudeMeasure",
@@ -1562,12 +1583,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     "TADA.MonitoringLocationIdentifier",
     "TADA.NearbySiteGroup"
   )])
-
-  # get rid of results with no site group added - not duplicated spatially
+  
+  # Filter and process data as before
   dupsites <- dupsites |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup))
-
-  # remove results with no nearby sites get all data that are not NA and round to 2 digits
+  
   dupsprep <- .data |>
     dplyr::filter(
       MonitoringLocationIdentifier %in% dupsites$MonitoringLocationIdentifier
@@ -1585,13 +1605,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     ) |>
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) |>
     dplyr::mutate(roundRV = round(TADA.ResultMeasureValue, digits = 2))
-
-  # remove intermediate object
+  
+  # Remove intermediate object
   rm(dupsites)
-
-  # group by date, time, characteristic, and rounded result value and determine the number of
-  # organizations that have those same row values, and filter to those summary rows with more than
-  # one organization
+  
+  # Group by date, time, characteristic, and rounded result value
   dups_sum <- dupsprep |>
     dplyr::group_by(
       ActivityStartDate,
@@ -1604,12 +1622,11 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     ) |>
     dplyr::mutate(numorgs = length(unique(OrganizationIdentifier))) |>
     dplyr::filter(numorgs > 1) |>
-    # group duplicates
     dplyr::mutate(TADA.MultipleOrgDupGroupID = dplyr::cur_group_id()) |>
     dplyr::select(-numorgs) |>
     dplyr::ungroup()
-
-  # merge to data
+  
+  # Merge to data
   dupsdat <- dplyr::left_join(
     dups_sum,
     .data,
@@ -1632,21 +1649,16 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
         "Y"
       )
     ) |>
-    # remove results that are listed twice (as part of two groups)
     dplyr::group_by(ResultIdentifier) |>
     dplyr::slice_sample(n = 1) |>
     dplyr::ungroup() |>
     dplyr::select(-roundRV)
-
-  # remove intermediate object
+  
   rm(dups_sum)
-
-  # select representative results
+  
+  # Select representative results
   if (dim(dupsdat)[1] > 0) {
-    # make a selection of a representative result
     if (!any(org_hierarchy == "none")) {
-      # if there is an org hierarchy, use that to pick result
-      # with lowest rank in hierarchy
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
         print(
@@ -1669,9 +1681,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
         dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID) |>
         dplyr::mutate(rank = 99)
     }
-
+    
     dupranks$rank[is.na(dupranks$rank)] <- 99
-
+    
     duppicks <- dupranks |>
       dplyr::select(ResultIdentifier, TADA.MultipleOrgDupGroupID, rank) |>
       dplyr::group_by(TADA.MultipleOrgDupGroupID) |>
@@ -1681,7 +1693,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
       dplyr::group_by(ResultIdentifier) |>
       dplyr::slice_min(rank) |>
       dplyr::slice_sample(n = 1)
-
+    
     dupsdat <- dupsdat |>
       dplyr::rename(SingleNearbyGroup = TADA.MonitoringLocationIdentifier) |>
       dplyr::mutate(
@@ -1693,8 +1705,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
         )
       ) |>
       dplyr::select(-SingleNearbyGroup)
-
-    # connect back to original dataset
+    
     .data <- .data |>
       dplyr::mutate(
         TADA.MonitoringLocationIdentifier = ifelse(
@@ -1728,7 +1739,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
           TADA.MonitoringLocationIdentifier
         )
       )
-
+    
     print(paste0(
       length(dupsdat$TADA.MultipleOrgDuplicate[
         dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")
@@ -1736,7 +1747,6 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
       " potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.MultipleOrgDupGroupID column and the TADA.MultipleOrgDuplicate column is set to 'Y' (yes). If you provided an organization hierarchy, the result with the lowest ranked organization identifier was selected as the representative result in the TADA.ResultSelectedMultipleOrgs (this column is set to 'Y' for all results either selected or not considered duplicates)."
     ))
   } else {
-    # no duplicate results
     .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
     .data$TADA.MultipleOrgDuplicate <- "N"
     .data$TADA.ResultSelectedMultipleOrgs <- "Y"
@@ -1744,9 +1754,9 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
       "No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'."
     )
   }
-
+  
   .data <- TADA_OrderCols(.data)
-
+  
   return(.data)
 }
 

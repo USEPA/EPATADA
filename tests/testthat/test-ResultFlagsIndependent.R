@@ -147,7 +147,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
   expect_true(dim(testdat)[1] == dim(testdat2)[1])
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
