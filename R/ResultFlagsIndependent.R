@@ -1487,16 +1487,16 @@ TADA_FlagCoordinates <- function(
 #' verify if they are truly duplicates or unique records.
 #'
 #' The function performs spatial operations by running `TADA_FindNearbySites` within it.
-#' Duplicates are flagged if the distance between sites
-#' is less than the specified `dist_buffer` (default is 100 meters). Each group in the
-#' `TADA.MultipleOrgDupGroupID` field indicates that the `TADA.MonitoringLocationIdentifier`
-#' within each group are within the specified distance from each other.
+#' Duplicates are flagged if the distance between sites is less than the specified `dist_buffer`
+#' (default is 100 meters). Each group in the `TADA.MultipleOrgDupGroupID` field indicates that
+#' the `TADA.MonitoringLocationIdentifier` within each group are within the specified distance
+#' from each other.
 #'
 #' It is recommended to run this function after `TADA_FindPotentialDuplicatesSingleOrg` to first
 #' address potential duplicates within a single organization.
 #'
 #' @param .data A TADA dataframe. This function runs `TADA_FindNearbySites` 
-#' within it, which will transform .data into `sf` object for spatial operations if needed.
+#' within it, which will transform .data into an `sf` object for spatial operations if needed.
 #' @param dist_buffer Numeric. The distance in meters within which two sites with similar records
 #' are flagged as potential duplicates. Default is 100 meters.
 #' @param org_hierarchy A vector of organization identifiers to prioritize when selecting
@@ -1540,39 +1540,13 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     return(.data)
   }
   
-  # Ensure .data is an sf object if spatial operations are needed
-  if (!inherits(.data, "sf")) {
-    stop("The input data must be an sf object for spatial operations.")
-  }
-  
-  # Ensure CRS is set and consistent
-  if (is.na(st_crs(.data))) {
-    stop("The input sf object does not have a coordinate reference system (CRS) set.")
-  }
-  
-  # Call TADA_FindNearbySites and ensure it returns an sf object
+  # Run TADA_FindNearbySites to handle spatial operations and transform .data into sf if needed
   if (!"TADA.NearbySites.Flag" %in% names(.data)) {
     .data <- TADA_FindNearbySites(
       .data,
       dist_buffer = dist_buffer,
       org_hierarchy = org_hierarchy
     )
-    
-    # Developer Note: Ensure TADA_FindNearbySites returns an sf object
-    if (!inherits(.data, "sf")) {
-      stop("TADA_FindNearbySites did not return an sf object.")
-    }
-  }
-  
-  # Developer Note: Ensure nhd.catch.all is retrieved and formatted as an sf object
-  nhd.catch.all <- get_nhd_catch_all() # Replace with actual function or data retrieval
-  if (!inherits(nhd.catch.all, "sf")) {
-    nhd.catch.all <- st_as_sf(nhd.catch.all, coords = c("longitude_column", "latitude_column"), crs = st_crs(.data))
-  }
-  
-  # Developer Note: Ensure CRS consistency for spatial operations
-  if (st_crs(.data) != st_crs(nhd.catch.all)) {
-    nhd.catch.all <- st_transform(nhd.catch.all, st_crs(.data))
   }
   
   # Proceed with the rest of your function logic
