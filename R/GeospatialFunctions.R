@@ -530,7 +530,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     try(
       points <- points |>
         dplyr::left_join(
-          .,
           water_types,
           by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
         ),
@@ -540,7 +539,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     try(
       lines <- lines |>
         dplyr::left_join(
-          .,
           water_types,
           by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
         ),
@@ -550,7 +548,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     try(
       polygons <- polygons |>
         dplyr::left_join(
-          .,
           water_types,
           by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
         ),
@@ -641,7 +638,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         try(
           points <- points |>
             dplyr::left_join(
-              .,
               water_types,
               by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
             ),
@@ -651,7 +647,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         try(
           lines <- lines |>
             dplyr::left_join(
-              .,
               water_types,
               by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
             ),
@@ -661,7 +656,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         try(
           polygons <- polygons |>
             dplyr::left_join(
-              .,
               water_types,
               by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
             ),
@@ -2120,7 +2114,6 @@ TADA_GetATTAINSByAUID <- function(
   try(
     points <- points |>
       dplyr::left_join(
-        .,
         water_types,
         by = c("assessmentunitidentifier" = "assessmentUnitId")
       ),
@@ -2130,7 +2123,6 @@ TADA_GetATTAINSByAUID <- function(
   try(
     lines <- lines |>
       dplyr::left_join(
-        .,
         water_types,
         by = c("assessmentunitidentifier" = "assessmentUnitId")
       ),
@@ -2140,7 +2132,6 @@ TADA_GetATTAINSByAUID <- function(
   try(
     polygons <- polygons |>
       dplyr::left_join(
-        .,
         water_types,
         by = c("assessmentunitidentifier" = "assessmentUnitId")
       ),
@@ -2215,7 +2206,6 @@ TADA_GetATTAINSByAUID <- function(
     try(
       catchments <- catchments.filt |>
         dplyr::left_join(
-          .,
           water_types,
           by = c("assessmentunitidentifier" = "assessmentUnitId")
         ),
@@ -2633,13 +2623,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
       points_mapper <- ATTAINS_points |>
-        dplyr::left_join(., colors, by = "overallstatus") |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Point Feature") |>
         tibble::rowid_to_column(var = "index") |>
         # some point features are actually multipoint features. Must extract all coordinates for mapping
         # later:
         dplyr::right_join(
-          .,
           tibble::as_tibble(sf::st_coordinates(ATTAINS_points)),
           by = c("index" = "L1")
         ),
@@ -2649,7 +2638,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
       lines_mapper <- ATTAINS_lines |>
-        dplyr::left_join(., colors, by = "overallstatus") |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Line Feature"),
       silent = TRUE
     )
@@ -2657,7 +2646,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
       polygons_mapper <- ATTAINS_polygons |>
-        dplyr::left_join(., colors, by = "overallstatus") |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Polygon Feature"),
       silent = TRUE
     )
@@ -2665,7 +2654,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
       missing_raw_mapper <- missing_raw_features |>
-        dplyr::left_join(., colors, by = "overallstatus") |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Raw Feature Unavailable"),
       silent = TRUE
     )
