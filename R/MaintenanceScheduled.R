@@ -382,8 +382,6 @@
 
       Data_MT_AUMLRef <- MT_AUMLRef
 
-      rm(MT_AUMLRef)
-
       message("Data_MT_AUMLRef")
       message(dim(Data_MT_AUMLRef))
       usethis::use_data(
@@ -413,12 +411,6 @@
         version = 3,
         ascii = FALSE
       )
-      rm(
-        attains.existing.MT,
-        clean.existing.attains.MT,
-        user_supplied_cw,
-        MT_AUMLRef
-      )
 
       # =======================================
       # Generate Data_MT_AU_UsesRef_Water
@@ -440,7 +432,15 @@
         version = 3,
         ascii = FALSE
       )
-      rm(Data_MT_AU_UsesRef_Water)
+      rm(
+        attains.existing.MT,
+        clean.existing.attains.MT,
+        Data_MT_AU_UsesRef_Water, 
+        Data_MT_AUMLRef,
+        Data_MT_UseAURef_Water,
+        MT_AUMLRef,
+        user_supplied_cw
+      )
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)
