@@ -451,7 +451,8 @@ utils::globalVariables(c(
   "Characteristic",
   "WQXcharValRef",
   "CAS.Number",
-  "CAS_NO CharacteristicName.x",
+  "CAS_NO",
+  "CharacteristicName.x",
   "CharacteristicName.y",
   "Comparable.Name.x",
   "Comparable.Name.y",
@@ -461,7 +462,8 @@ utils::globalVariables(c(
   "STD_POLLUTANT_NAME.y",
   "percent_match_ATTAINS_CST",
   "percent_match_ATTAINS_WQX",
-  "percent_match_CST"
+  "percent_match_CST",
+  "UserRef.AssessmentUnitIdentifier"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
