@@ -136,7 +136,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #' @param .data A dataframe developed using `TADA_DataRetrieval()` or `TADA_MakeSpatial()`.
 #' @param catchments_only Whether to return just the summarized ATTAINS catchment features, or both
 #' the catchments and raw ATTAINS features. TRUE or FALSE.
-#' #' @param org_id ATTAINS organization identifier(s) as a character string.
+#' @param org_id ATTAINS organization identifier(s) as a character string.
 #' If populated, Assessment Units  will only be fetched from the specified
 #' organization(s). A list of organization identifiers can be found
 #' by downloading the ATTAINS Domains Excel file:
