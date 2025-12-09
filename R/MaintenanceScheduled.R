@@ -397,7 +397,7 @@
       # Generate Data_MT_AU_UsesRef
       # =======================================
       Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
-        AUMLRef = Data_MT_AUMLRef,
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
@@ -417,7 +417,7 @@
       # =======================================
       Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
         waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
-        AUMLRef = Data_MT_AUMLRef,
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
@@ -442,19 +442,22 @@
       # =======================================
       # Generate Data_MT.UseAURef_Water
       # =======================================
-      Data_MT_AU_UsesRef_Water <- TADA_CreateUseAURef(
-        waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+      Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
       message("Data_MT_UseAURef_Water")
       message(dim(Data_MT_UseAURef_Water))
-
+      
       usethis::use_data(
         Data_MT_UseAURef_Water,
-        MT_AUMLRef,
-        user_supplied_cw
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
       )
     },
     error = function(e) {
