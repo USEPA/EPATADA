@@ -96,8 +96,8 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     ))
   }
 
-  .data <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
+  .data <- .data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
   boxplots <- list()
@@ -171,7 +171,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     )
 
     # boxplot layout and labels
-    base_boxplot <- base_boxplot %>%
+    base_boxplot <- base_boxplot |>
       plotly::layout(
         xaxis = list(showticklabels = FALSE),
         yaxis = list(
@@ -188,7 +188,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
         title = paste0("Boxplot of \n", groupid),
         plot_bgcolor = "#e5ecf6",
         margin = mrg
-      ) %>%
+      ) |>
       plotly::config(displayModeBar = FALSE)
 
     # create boxplot for all groupid's
@@ -296,8 +296,8 @@ TADA_Histogram <- function(
     ))
   }
 
-  .data <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
+  .data <- .data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
   histograms <- list()
@@ -341,7 +341,7 @@ TADA_Histogram <- function(
         plot.data$TADA.ResultMeasureValue <= box_upper
     )
 
-    histogram <- plotly::plot_ly() %>%
+    histogram <- plotly::plot_ly() |>
       plotly::add_histogram(
         x = plot.data$TADA.ResultMeasureValue,
         xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
@@ -351,7 +351,7 @@ TADA_Histogram <- function(
         name = "<b>All Data<b>"
       )
     if (dim(no_outliers)[1] > 0) {
-      histogram <- histogram %>%
+      histogram <- histogram |>
         plotly::add_histogram(
           x = no_outliers$TADA.ResultMeasureValue,
           xbins = list(start = min(plot.data$TADA.ResultMeasureValue)),
@@ -378,7 +378,7 @@ TADA_Histogram <- function(
     )
 
     # histogram layout and labels
-    histogram <- histogram %>%
+    histogram <- histogram |>
       plotly::layout(
         xaxis = list(
           title = unit,
@@ -410,7 +410,7 @@ TADA_Histogram <- function(
           )
         ),
         margin = mrg
-      ) %>%
+      ) |>
       plotly::config(displayModeBar = TRUE)
 
     histograms[[i]] <- histogram
@@ -484,13 +484,13 @@ TADA_OverviewMap <- function(.data) {
         ))
       }
 
-      sumdat <- .data %>%
+      sumdat <- .data |>
         dplyr::group_by(
           MonitoringLocationIdentifier,
           MonitoringLocationName,
           TADA.LatitudeMeasure,
           TADA.LongitudeMeasure
-        ) %>%
+        ) |>
         dplyr::summarise(
           "Sample_Count" = length(unique(ResultIdentifier)),
           "Visit_Count" = length(unique(ActivityStartDate)),
@@ -607,10 +607,10 @@ TADA_OverviewMap <- function(.data) {
         ),
         crs = sf::st_crs(sumdat)
       )
-      vbbox <- bbox %>%
+      vbbox <- bbox |>
         as.vector()
 
-      map <- leaflet::leaflet() %>%
+      map <- leaflet::leaflet() |>
         leaflet::addProviderTiles(
           "Esri.WorldTopoMap",
           group = "World topo",
@@ -618,16 +618,16 @@ TADA_OverviewMap <- function(.data) {
             updateWhenZooming = FALSE,
             updateWhenIdle = TRUE
           )
-        ) %>%
-        leaflet::clearShapes() %>% # get rid of whatever was there before if loading a second dataset
+        ) |>
+        leaflet::clearShapes() |> # get rid of whatever was there before if loading a second dataset
         leaflet::fitBounds(
           lng1 = vbbox[1],
           lat1 = vbbox[2],
           lng2 = vbbox[3],
           lat2 = vbbox[4]
-        ) %>% # fit to bounds of data in tadat$raw
-        leaflet.extras::addResetMapButton() %>% # button to reset to initial zoom and lat/long
-        leaflet::addMapPane("featurelayers", zIndex = 300) %>%
+        ) |> # fit to bounds of data in tadat$raw
+        leaflet.extras::addResetMapButton() |> # button to reset to initial zoom and lat/long
+        leaflet::addMapPane("featurelayers", zIndex = 300) |>
         leaflet::addCircleMarkers(
           data = sumdat,
           lng = ~TADA.LongitudeMeasure,
@@ -651,7 +651,7 @@ TADA_OverviewMap <- function(.data) {
             "<br> Characteristic Count: ",
             sumdat$Parameter_Count
           )
-        ) %>%
+        ) |>
         addLegendCustom(
           colors = "black",
           labels = site_legend$Sample_n,
@@ -661,7 +661,7 @@ TADA_OverviewMap <- function(.data) {
       # create conditional map legend
       # create legend for single parameter count value data sets
       if (length(param_diff) == 0) {
-        map <- map %>%
+        map <- map |>
           leaflet::addLegend(
             "bottomright",
             color = tada.pal[5],
@@ -672,7 +672,7 @@ TADA_OverviewMap <- function(.data) {
       }
       # create legend for data sets with multiple factors/bins for parameter count
       if (length(param_diff) > 0) {
-        map <- map %>%
+        map <- map |>
           leaflet::addLegend(
             "bottomright",
             pal = pal,
@@ -785,7 +785,7 @@ TADA_FlaggedSitesMap <- function(.data) {
     markerColor = "darkblue"
   )
 
-  map <- leaflet::leaflet() %>%
+  map <- leaflet::leaflet() |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
       group = "World topo",
@@ -793,10 +793,10 @@ TADA_FlaggedSitesMap <- function(.data) {
         updateWhenZooming = FALSE,
         updateWhenIdle = TRUE
       )
-    ) %>%
+    ) |>
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(outsideusa) > 0) {
-    map <- map %>%
+    map <- map |>
       leaflet::addAwesomeMarkers(
         ~TADA.LongitudeMeasure,
         ~TADA.LatitudeMeasure,
@@ -816,7 +816,7 @@ TADA_FlaggedSitesMap <- function(.data) {
       )
   }
   if (nrow(lowres) > 0) {
-    map <- map %>%
+    map <- map |>
       leaflet::addAwesomeMarkers(
         ~TADA.LongitudeMeasure,
         ~TADA.LatitudeMeasure,
@@ -866,12 +866,12 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
     .data <- TADA_FindNearbySites(.data)
   }
 
-  .data <- .data %>%
-    dplyr::filter(!is.na(TADA.NearbySiteGroup)) %>%
+  .data <- .data |>
+    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
     dplyr::mutate(
       LatitudeMeasure = as.numeric(LatitudeMeasure),
       LongitudeMeasure = as.numeric(LongitudeMeasure)
-    ) %>%
+    ) |>
     dplyr::select(
       LongitudeMeasure,
       LatitudeMeasure,
@@ -882,7 +882,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
       TADA.LongitudeMeasure,
       OrganizationIdentifier,
       TADA.NearbySiteGroup
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   icon.colors <- grDevices::rainbow(as.numeric(length(unique(
@@ -894,7 +894,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
     domain = .data$TADA.NearbySiteGroup
   )
 
-  map <- leaflet::leaflet(.data) %>%
+  map <- leaflet::leaflet(.data) |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
       group = "World topo",
@@ -902,10 +902,10 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
         updateWhenZooming = FALSE,
         updateWhenIdle = TRUE
       )
-    ) %>%
+    ) |>
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
   if (nrow(.data) > 0) {
-    map <- map %>%
+    map <- map |>
       leaflet::addCircleMarkers(
         ~LongitudeMeasure,
         ~LatitudeMeasure,
@@ -932,7 +932,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
         ),
         data = .data,
         clusterOptions = leaflet::markerClusterOptions(),
-      ) %>%
+      ) |>
       leaflet::addCircles(
         ~LongitudeMeasure,
         ~LatitudeMeasure,
@@ -1001,8 +1001,8 @@ TADA_FieldValuesPie <- function(
 
   dat$Legend <- paste0(dat$Value, " - ", dat$Count, " results")
   dat2$Legend <- paste0(dat2$Value, " - ", dat2$Count, " results")
-  dat <- dat %>%
-    dplyr::rowwise() %>%
+  dat <- dat |>
+    dplyr::rowwise() |>
     dplyr::mutate(Legend = stringr::str_wrap(Legend, width = 50))
 
   # Only apply the all others category if there are greater than 12 categories to display.
@@ -1135,8 +1135,8 @@ TADA_Scatterplot <- function(
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  .data <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) %>%
+  .data <- .data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
   all_scatterplots <- list()
@@ -1236,7 +1236,7 @@ TADA_Scatterplot <- function(
     )
 
     # scatterplot layout and labels
-    one_scatterplot <- one_scatterplot %>%
+    one_scatterplot <- one_scatterplot |>
       plotly::layout(
         yaxis = list(
           title = unit,
@@ -1262,7 +1262,7 @@ TADA_Scatterplot <- function(
         title = paste0("Scatterplot of \n", groupid),
         plot_bgcolor = "#e5ecf6",
         margin = mrg
-      ) %>%
+      ) |>
       # config options https://plotly.com/r/configuration-options/
       plotly::config(displaylogo = FALSE) # , displayModeBar = TRUE) # TRUE makes bar always visible
 
@@ -1410,7 +1410,7 @@ TADA_TwoCharacteristicScatterplot <- function(
   # create TADA color palette
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
-  scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") %>%
+  scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") |>
     plotly::layout(
       xaxis = list(
         # title = "Activity Start Date", # not necessary?
@@ -1480,9 +1480,9 @@ TADA_TwoCharacteristicScatterplot <- function(
         x = 0.5,
         y = -0.2
       )
-    ) %>%
+    ) |>
     # config options https://plotly.com/r/configuration-options/
-    plotly::config(displaylogo = FALSE) %>% # , displayModeBar = TRUE) # TRUE makes bar always visible
+    plotly::config(displaylogo = FALSE) |> # , displayModeBar = TRUE) # TRUE makes bar always visible
     plotly::add_trace(
       data = param1,
       x = ~ as.Date(ActivityStartDate),
@@ -1564,7 +1564,7 @@ TADA_TwoCharacteristicScatterplot <- function(
         ),
         "<br>"
       )
-    ) %>%
+    ) |>
     plotly::add_trace(
       data = param2,
       x = ~ as.Date(ActivityStartDate),
@@ -1737,8 +1737,8 @@ TADA_GroupedScatterplot <- function(
     "ActivityStartDateTime",
     "MonitoringLocationName"
   )
-  required_cols <- required_cols %>%
-    append(group_col) %>%
+  required_cols <- required_cols |>
+    append(group_col) |>
     unique()
   TADA_CheckColumns(.data, required_cols)
 
@@ -1760,19 +1760,19 @@ TADA_GroupedScatterplot <- function(
 
   # if groups are not specified, select the top four groups by number of results.
   if (is.null(groups)) {
-    assign.groups <- .data %>%
-      dplyr::group_by_at(group_col) %>%
-      dplyr::summarize(NResults = length(TADA.ResultMeasureValue)) %>%
-      dplyr::arrange(dplyr::desc(NResults)) %>%
+    assign.groups <- .data |>
+      dplyr::group_by_at(group_col) |>
+      dplyr::summarize(NResults = length(TADA.ResultMeasureValue)) |>
+      dplyr::arrange(dplyr::desc(NResults)) |>
       dplyr::filter(!is.na(get(group_col)))
 
     # calculate how many total groups are available in TADA dataframe
     n.groups.total <- nrow(assign.groups)
 
     # select top four groups by number of results
-    groups <- assign.groups %>%
-      dplyr::slice_head(n = 4) %>%
-      dplyr::select(as.character(group_col)) %>%
+    groups <- assign.groups |>
+      dplyr::slice_head(n = 4) |>
+      dplyr::select(as.character(group_col)) |>
       dplyr::pull()
 
     # create string of group names for printed message
@@ -1924,7 +1924,7 @@ TADA_GroupedScatterplot <- function(
     plot.data.y$name <- gsub("_", " ", plot.data.y$name)
 
     scatterplot <-
-      plotly::plot_ly(type = "scatter", mode = "markers") %>%
+      plotly::plot_ly(type = "scatter", mode = "markers") |>
       plotly::layout(
         xaxis = list(
           # title = "Activity Start Date", # not necessary?
@@ -1965,7 +1965,7 @@ TADA_GroupedScatterplot <- function(
           xanchor = "center",
           x = 0.5
         )
-      ) %>%
+      ) |>
       # config options https://plotly.com/r/configuration-options/
       plotly::config(displaylogo = FALSE) # , displayModeBar = TRUE) # TRUE makes bar always visible
 
@@ -1978,7 +1978,7 @@ TADA_GroupedScatterplot <- function(
             unique(plot.data$TADA.ComparableDataIdentifier)[i]
         )
 
-        scatterplot <- scatterplot %>%
+        scatterplot <- scatterplot |>
           plotly::add_trace(
             data = param[[j]],
             x = ~ as.Date(ActivityStartDate),

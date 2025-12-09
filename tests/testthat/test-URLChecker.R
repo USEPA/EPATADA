@@ -5,12 +5,12 @@ suppressWarnings(
   test_that("URLs are not broken", {
     # extract urls function
     extract_urls <- function(text) {
-      stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
+      stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+")  |> unlist()
     }
 
     # clean urls function
     clean_url <- function(url) {
-      stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") %>%
+      stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*")  |>
         stringr::str_remove_all("[<>]")
     }
 
@@ -40,16 +40,16 @@ suppressWarnings(
     )
 
     # combine file lists
-    files <- append(other_files, vignettes) %>%
-      append(articles) %>%
+    files <- append(other_files, vignettes)  |>
+      append(articles)  |>
       append(r_files)
 
     # create list of urls
-    urls <- purrr::map(files, ~ readLines(.x)) %>%
-      unlist() %>%
-      extract_urls() %>%
-      clean_url() %>%
-      unique() %>%
+    urls <- purrr::map(files, ~ readLines(.x))  |>
+      unlist()  |>
+      extract_urls()  |>
+      clean_url()  |>
+      unique()  |>
       # problematic URL I can't get a response from using multiple methods (itec)
       # and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
       setdiff(c(
@@ -63,7 +63,7 @@ suppressWarnings(
       ))
 
     # retrieve http response headers from url list
-    headers <- urls %>%
+    headers <- urls  |>
       purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
     # extract response code from first line of header response
@@ -73,7 +73,7 @@ suppressWarnings(
     df <- data.frame(urls, response_code)
 
     # filter for any response codes that are not successful or redirect responses
-    df_false <- df %>%
+    df_false <- df  |>
       dplyr::filter(
         !grepl("200", response_code) &
           !grepl("301", response_code) &

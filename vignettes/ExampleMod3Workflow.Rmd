@@ -193,9 +193,9 @@ tada.MT <- TADA_DataRetrieval(
 )
 
 # clean up data set (minimal)
-tada.MT.clean <- tada.MT %>%
-  TADA_RunKeyFlagFunctions() %>%
-  TADA_SimpleCensoredMethods() %>%
+tada.MT.clean <- tada.MT|>
+  TADA_RunKeyFlagFunctions()|>
+  TADA_SimpleCensoredMethods()|>
   TADA_HarmonizeSynonyms()
 
 # remove intermediate objects
@@ -387,11 +387,11 @@ name.
 #   excel = TRUE, overwrite = TRUE
 #   )
 
-ParamRef <- MT.ParamRef.None %>%
+ParamRef <- MT.ParamRef.None|>
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) ~ "PH",
     grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)"
-  )) %>%
+  ))|>
   dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ"))
 
 MT.ParamRef.Manual <- TADA_ParametersForAnalysis(
@@ -534,10 +534,10 @@ add.data <- data.frame(
 )
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
-usesRef <- MT.usesRef.Manual %>%
-  dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) %>%
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
-  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+usesRef <- MT.usesRef.Manual|>
+  dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE)|>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))|>
+  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y))|>
   dplyr::mutate(IncludeOrExclude = "Include")
 
 # PH will now reflect the changes
@@ -773,7 +773,7 @@ certain combination of characteristics that have site-specific criteria.
 Let's go through an example of how a user may modify this table.
 
 ```{r apply-site-specific-criteria, eval = FALSE}
-MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU %>%
+MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU|>
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
       MonitoringLocationIdentifier == "MTVOLWQM_WQX-CLEARWATERR_1" ~ "Example Site Specific"
@@ -880,11 +880,11 @@ in the remaining blank PH magnitude values with a range between 6.5 and
 
 ```{r finalize-criteria-table}
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2 %>%
+MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2|>
   dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
     TRUE ~ MagnitudeValueLower
-  )) %>%
+  ))|>
   dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 8.5,
     TRUE ~ MagnitudeValueUpper

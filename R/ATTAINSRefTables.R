@@ -526,7 +526,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
     )))
   }
 
-  ATTAINSOrgIDsRef <- raw.data %>%
+  ATTAINSOrgIDsRef <- raw.data |>
     dplyr::distinct()
 
   # Save updated table in cache
@@ -586,14 +586,14 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # considers only the latest cycle form each org, you could skip this step
   # and use params from all assessment cycles - What is preferred?
 
-  latest.assessments <- nat.assessments %>%
-    dplyr::group_by(organizationId) %>%
-    # dplyr::slice_max(reportingCycle) %>%
-    dplyr::select(-objectId) %>%
-    dplyr::distinct() %>%
+  latest.assessments <- nat.assessments |>
+    dplyr::group_by(organizationId) |>
+    # dplyr::slice_max(reportingCycle) |>
+    dplyr::select(-objectId) |>
+    dplyr::distinct() |>
     dplyr::ungroup()
 
-  latest.params <- latest.assessments %>%
+  latest.params <- latest.assessments |>
     dplyr::select(
       organizationId,
       organizationName,
@@ -601,7 +601,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       parameterName,
       useName,
       waterType
-    ) %>%
+    ) |>
     dplyr::rename(
       ATTAINS.OrganizationIdentifier = organizationId,
       ATTAINS.OrganizationName = organizationName,
@@ -609,7 +609,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       ATTAINS.ParameterName = parameterName,
       ATTAINS.UseName = useName,
       ATTAINS.WaterType = waterType
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # remove intermediate variables

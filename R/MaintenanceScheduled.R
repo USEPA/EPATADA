@@ -185,19 +185,19 @@
       harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
       rm(Data_6Tribes_5y)
 
-      harmonized_data <- harmonized_data %>%
-        TADA_FlagMethod(clean = TRUE) %>%
-        TADA_FlagAboveThreshold(clean = TRUE) %>%
-        TADA_FlagBelowThreshold(clean = TRUE) %>%
-        TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100) %>%
-        TADA_FindPotentialDuplicatesSingleOrg() %>%
-        dplyr::filter(!(MeasureQualifierCode %in% c("D", "H", "ICA", "*"))) %>%
+      harmonized_data <- harmonized_data |>
+        TADA_FlagMethod(clean = TRUE) |>
+        TADA_FlagAboveThreshold(clean = TRUE) |>
+        TADA_FlagBelowThreshold(clean = TRUE) |>
+        TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100) |>
+        TADA_FindPotentialDuplicatesSingleOrg() |>
+        dplyr::filter(!(MeasureQualifierCode %in% c("D", "H", "ICA", "*"))) |>
         TADA_SimpleCensoredMethods(
           nd_method = "multiplier",
           nd_multiplier = 0.5,
           od_method = "as-is",
           od_multiplier = "null"
-        ) %>%
+        ) |>
         dplyr::filter(
           TADA.ResultMeasureValueDataTypes.Flag != "Text" &
             TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
@@ -316,9 +316,9 @@
         characteristicName = c("Escherichia", "Escherichia coli", "pH"),
         countycode = "Missoula County",
         ask = FALSE
-      ) %>%
-        TADA_RunKeyFlagFunctions() %>%
-        TADA_SimpleCensoredMethods() %>%
+      ) |>
+        TADA_RunKeyFlagFunctions() |>
+        TADA_SimpleCensoredMethods() |>
         TADA_HarmonizeSynonyms()
 
       message("Data_MT_MissoulaCounty")
@@ -342,12 +342,12 @@
       )
 
       # Create a user-supplied crosswalk for demonstration purposes
-      user_supplied_cw <- clean.existing.attains.MT %>%
+      user_supplied_cw <- clean.existing.attains.MT |>
         dplyr::select(
           ATTAINS.AssessmentUnitIdentifier,
           ATTAINS.MonitoringLocationIdentifier,
           ATTAINS.WaterType
-        ) %>%
+        ) |>
         dplyr::filter(
           ATTAINS.MonitoringLocationIdentifier %in%
             c(
@@ -357,12 +357,12 @@
               "MDEQ_WQ_WQX-C04KNDYC04",
               "MDEQ_WQ_WQX-C04KNDYC54"
             )
-        ) %>%
+        ) |>
         dplyr::rename(
           AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
           MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
           WaterType = ATTAINS.WaterType
-        ) %>%
+        ) |>
         # Add a new assessment unit for demonstration
         dplyr::bind_rows(c(
           AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",

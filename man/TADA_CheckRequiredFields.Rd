@@ -71,7 +71,7 @@ TADAProfile1 <- TADA_CreateDateTime(
   tz = "UTC"
 )
 
-review_TADAProfile1 <- TADAProfile1 \%>\% dplyr::select(c(
+review_TADAProfile1 <- TADAProfile1 |> dplyr::select(c(
   "ActivityStartDate",
   "ActivityStartTime.Time",
   "ActivityStartTime.TimeZoneCode",

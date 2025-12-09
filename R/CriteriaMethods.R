@@ -358,22 +358,22 @@ TADA_DefineCriteriaMethodology <- function(
         overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
       )
     )
-    
+
     unique_param <- unique(.data$TADA.CharacteristicName)
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
-    ) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) %>%
+    ) |>
+      dplyr::distinct() |>
+      dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
       tidyr::complete(
         TADA.ComparableDataIdentifier,
         ATTAINS.OrganizationIdentifier = org_id
-      ) %>%
+      ) |>
       dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
-    
+
     # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
-    MLSummaryRef <- TADA_param %>%
+    MLSummaryRef <- TADA_param |>
       dplyr::full_join(MLSummaryRef)
 
     # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
@@ -547,20 +547,20 @@ TADA_DefineCriteriaMethodology <- function(
       MLSummaryRef$ATTAINS.OrganizationIdentifier
     )
     # Extracts the characteristic, speciation and fraction columns to join
-    MLSummaryRef <- MLSummaryRef %>%
+    MLSummaryRef <- MLSummaryRef |>
       dplyr::right_join(
         .data[, c(
           "TADA.ComparableDataIdentifier",
           "TADA.CharacteristicName"
           # "TADA.ResultSampleFractionText",
           # "TADA.MethodSpeciationName"
-        )] %>%
+        )] |>
           dplyr::distinct(),
         by = "TADA.ComparableDataIdentifier"
       )
 
     # Creates the DefineCriteriaMethodology table from the MLSummaryRef.
-    DefineCriteriaMethodology <- MLSummaryRef %>%
+    DefineCriteriaMethodology <- MLSummaryRef |>
       dplyr::select(
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.ParameterName",
@@ -571,7 +571,7 @@ TADA_DefineCriteriaMethodology <- function(
         "DepthCategory",
         "UniqueSpatialCriteria",
         "ATTAINS.WaterType"
-      ) %>%
+      ) |>
       # Spatial Columns - only pre-populates if a unique spatial criteria is applied.
       dplyr::mutate(
         ATTAINS.WaterType = dplyr::if_else(
@@ -580,7 +580,7 @@ TADA_DefineCriteriaMethodology <- function(
           as.character(NA),
           as.character(ATTAINS.WaterType)
         )
-      ) %>%
+      ) |>
       dplyr::mutate(
         SaltFresh = dplyr::if_else(
           # Only pre-populates if a unique spatial criteria is applied
@@ -588,7 +588,7 @@ TADA_DefineCriteriaMethodology <- function(
           as.character(NA),
           as.character(SaltFresh)
         )
-      ) %>%
+      ) |>
       dplyr::mutate(
         DepthCategory = dplyr::if_else(
           # Only pre-populates if a unique spatial criteria is applied
@@ -596,8 +596,8 @@ TADA_DefineCriteriaMethodology <- function(
           as.character(NA),
           as.character(DepthCategory)
         )
-      ) %>%
-      # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) %>%
+      ) |>
+      # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) |>
       dplyr::bind_cols(
         data.frame(
           TADA.ResultSampleFractionText = as.character(NA),
@@ -625,8 +625,8 @@ TADA_DefineCriteriaMethodology <- function(
           DistrMinSample = as.numeric(NA),
           Notes = as.character(NA)
         )
-      ) %>%
-      # tidyr::drop_na(ATTAINS.ParameterName) %>%
+      ) |>
+      # tidyr::drop_na(ATTAINS.ParameterName) |>
       dplyr::select(
         "ATTAINS.OrganizationIdentifier",
         "ATTAINS.ParameterName",
@@ -662,8 +662,8 @@ TADA_DefineCriteriaMethodology <- function(
         "DistrPeriod",
         "DistrMinSample",
         "Notes"
-      ) %>%
-      dplyr::arrange(ATTAINS.UseName) %>%
+      ) |>
+      dplyr::arrange(ATTAINS.UseName) |>
       dplyr::distinct()
 
     col_names_MLSummary <- c(
@@ -751,8 +751,8 @@ TADA_DefineCriteriaMethodology <- function(
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-    ) %>%
-      tidyr::uncount(weights = length(org_id)) %>%
+    ) |>
+      tidyr::uncount(weights = length(org_id)) |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(
           org_id,
@@ -760,12 +760,12 @@ TADA_DefineCriteriaMethodology <- function(
         ))
       )
 
-    criteriaMethods <- criteriaMethods %>%
-      dplyr::select(-TADA.ComparableDataIdentifier) %>% # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
+    criteriaMethods <- criteriaMethods |>
+      dplyr::select(-TADA.ComparableDataIdentifier) |> # we will join by TADA.CharacteristicName from our TADA dataframe to ensure accurate crosswalk
       dplyr::full_join(
         TADA_param,
         by = c("ATTAINS.OrganizationIdentifier", "TADA.CharacteristicName")
-      ) %>%
+      ) |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
 
     # 2. Identify missing columns
@@ -774,15 +774,15 @@ TADA_DefineCriteriaMethodology <- function(
     # 3. Add missing columns with NA values using mutate()
     if (length(missing_cols) > 0) {
       for (col in missing_cols) {
-        criteriaMethods <- criteriaMethods %>%
+        criteriaMethods <- criteriaMethods |>
           dplyr::mutate(!!col := NA)
       }
     }
 
     # What WQP Characteristic names did the user supplied table miss?
-    non_definedCriteria <- criteriaMethods %>%
-      dplyr::filter(is.na(ATTAINS.ParameterName)) %>%
-      dplyr::select(dplyr::all_of(desired_cols)) %>%
+    non_definedCriteria <- criteriaMethods |>
+      dplyr::filter(is.na(ATTAINS.ParameterName)) |>
+      dplyr::select(dplyr::all_of(desired_cols)) |>
       as.data.frame()
 
     if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
@@ -827,12 +827,12 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
-    definedCriteria <- criteriaMethods %>%
-      dplyr::filter(!is.na(ATTAINS.ParameterName)) %>%
+    definedCriteria <- criteriaMethods |>
+      dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
       dplyr::filter(
         TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName
-      ) %>%
-      dplyr::select(dplyr::all_of(desired_cols)) %>%
+      ) |>
+      dplyr::select(dplyr::all_of(desired_cols)) |>
       as.data.frame()
 
     # Must now match the data types
@@ -855,23 +855,23 @@ TADA_DefineCriteriaMethodology <- function(
 
     # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
     if (nrow(DefineCriteriaMethodology) == 0 && auto_assign == FALSE) {
-      DefineCriteriaMethodology <- criteriaMethods %>%
+      DefineCriteriaMethodology <- criteriaMethods |>
         dplyr::filter(
           TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName
-        ) %>%
+        ) |>
         dplyr::distinct()
     }
 
-    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
       dplyr::select(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.ParameterName,
         ATTAINS.UseName,
         TADA.ComparableDataIdentifier,
         TADA.CharacteristicName
-      ) %>%
-      dplyr::full_join(definedCriteria) %>%
-      dplyr::arrange(ATTAINS.UseName) %>%
+      ) |>
+      dplyr::full_join(definedCriteria) |>
+      dplyr::arrange(ATTAINS.UseName) |>
       dplyr::distinct()
 
     # should not be a problem if we control what column names are allowed,
@@ -893,8 +893,8 @@ TADA_DefineCriteriaMethodology <- function(
     # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-    ) %>%
-      tidyr::uncount(weights = length(org_id)) %>%
+    ) |>
+      tidyr::uncount(weights = length(org_id)) |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(
           org_id,
@@ -919,13 +919,13 @@ TADA_DefineCriteriaMethodology <- function(
     ))
 
     # Pulls in column names that will be used as a reference table
-    EPACSTRef <- CST %>%
-      dplyr::filter(ENTITY_ABBR == "304A") %>%
+    EPACSTRef <- CST |>
+      dplyr::filter(ENTITY_ABBR == "304A") |>
       dplyr::left_join(
         tada.char.ref,
         by = c("POLLUTANT_NAME" = "CST.PollutantName"),
         relationship = "many-to-many"
-      ) %>%
+      ) |>
       dplyr::select(
         TADA.CharacteristicName,
         POLLUTANT_NAME,
@@ -942,8 +942,8 @@ TADA_DefineCriteriaMethodology <- function(
     rm(tada.char.ref)
     # Handling of auto populating EPA304a Criteria in the future if desired.
     suppressWarnings(
-      CST_param <- EPACSTRef %>%
-        dplyr::full_join(TADA_param, by = c("TADA.CharacteristicName")) %>%
+      CST_param <- EPACSTRef |>
+        dplyr::full_join(TADA_param, by = c("TADA.CharacteristicName")) |>
         dplyr::select(
           TADA.CharacteristicName,
           TADA.ComparableDataIdentifier,
@@ -953,45 +953,45 @@ TADA_DefineCriteriaMethodology <- function(
           SaltFresh = CRITERIATYPEFRESHSALTWATER,
           CRITERION_VALUE,
           MagnitudeUnit = UNIT_NAME
-        ) %>%
-        dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") %>%
+        ) |>
+        dplyr::mutate(ATTAINS.OrganizationIdentifier = "EPA304a") |>
         dplyr::mutate(
           MagnitudeValueLower = dplyr::if_else(
             stringr::str_detect(CRITERION_VALUE, "-"),
             stringr::str_extract(CRITERION_VALUE, "[^-]+"),
             ""
           )
-        ) %>%
+        ) |>
         dplyr::mutate(
           MagnitudeValueUpper = dplyr::if_else(
             stringr::str_detect(CRITERION_VALUE, "-"),
             stringr::str_split(CRITERION_VALUE, "-", simplify = TRUE)[, 2],
             CRITERION_VALUE
           )
-        ) %>%
-        dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) %>%
-        dplyr::mutate(dplyr::across(MagnitudeUnit, as.character)) %>%
+        ) |>
+        dplyr::mutate(MagnitudeUnit = toupper(MagnitudeUnit)) |>
+        dplyr::mutate(dplyr::across(MagnitudeUnit, as.character)) |>
         dplyr::mutate(dplyr::across(
           c(MagnitudeValueLower, MagnitudeValueUpper),
           as.numeric
-        )) %>%
-        dplyr::select(-CRITERION_VALUE) %>%
+        )) |>
+        dplyr::select(-CRITERION_VALUE) |>
         dplyr::filter(
           TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName
-        ) %>%
+        ) |>
         dplyr::filter(
           TADA.CharacteristicName %in%
             DefineCriteriaMethodology$TADA.CharacteristicName
         )
     )
 
-    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
-      dplyr::full_join(CST_param, relationship = "many-to-many") %>%
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      dplyr::full_join(CST_param, relationship = "many-to-many") |>
       dplyr::arrange(
         ATTAINS.OrganizationIdentifier != "EPA304a",
         ATTAINS.OrganizationIdentifier,
         ATTAINS.UseName
-      ) %>%
+      ) |>
       dplyr::distinct()
   }
 
@@ -1005,14 +1005,14 @@ TADA_DefineCriteriaMethodology <- function(
       "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
     ))
 
-    DefineCriteriaMethodology <- DefineCriteriaMethodology %>%
-      dplyr::mutate(TADA.ComparableDataIdentifier = NA) %>%
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      dplyr::mutate(TADA.ComparableDataIdentifier = NA) |>
       dplyr::arrange(
         ATTAINS.OrganizationIdentifier != "EPA304a",
         ATTAINS.OrganizationIdentifier,
         ATTAINS.UseName
-      ) %>%
-      # tidyr::drop_na(ATTAINS.ParameterName) %>%
+      ) |>
+      # tidyr::drop_na(ATTAINS.ParameterName) |>
       dplyr::distinct()
   }
 

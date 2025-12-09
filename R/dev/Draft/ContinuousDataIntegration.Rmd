@@ -122,29 +122,29 @@ visualize that information:
 # Example: Query by state
 ri_sites <- TADA_listNWIS(statecode = "RI")
 
-ri_summary <- ri_sites %>%
-  dplyr::group_by(site_no) %>%
+ri_summary <- ri_sites |>
+  dplyr::group_by(site_no) |>
   dplyr::summarize(
     parameters = paste(unique(parameter), collapse = ";  "),
     parameter_codes = paste(unique(parameter_code), collapse = ";  ")
   )
 
-leaflet::leaflet() %>%
+leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
     options = leaflet::providerTileOptions(
       updateWhenZooming = FALSE,
       updateWhenIdle = TRUE
     )
-  ) %>%
-  leaflet::clearShapes() %>%
-  leaflet.extras::addResetMapButton() %>%
+  ) |>
+  leaflet::clearShapes() |>
+  leaflet.extras::addResetMapButton() |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
     labels = "NWIS Monitoring Location(s)",
     opacity = 1
-  ) %>%
+  ) |>
   leaflet::addCircleMarkers(
     data = ri_summary,
     color = "grey", fillColor = "black",
@@ -170,7 +170,7 @@ sites_info <- TADA_listNWIS(siteid = site_nums)
 Lastly, we can query NWIS sites by a user-supplied sf object:
 
 ```{r}
-cherokee_sf <- sf::st_read("inst/extdata/OKTribe.shp") %>%
+cherokee_sf <- sf::st_read("inst/extdata/OKTribe.shp") |>
   dplyr::filter(NAME == "Cherokee")
 
 cherokee_nwis <- TADA_listNWIS(aoi_sf = cherokee_sf)
@@ -211,11 +211,11 @@ temperature_data <- TADA_getNWIS(
 )
 
 # Let's visualize the discharge data
-temperature_data %>%
+temperature_data |>
   dplyr::mutate(
     NWIS.date = as.Date(NWIS.date),
     NWIS.value = as.numeric(NWIS.value)
-  ) %>%
+  ) |>
   ggplot2::ggplot(ggplot2::aes(x = NWIS.date, y = NWIS.value, color = NWIS.site_no)) +
   ggplot2::geom_line() +
   ggplot2::labs(

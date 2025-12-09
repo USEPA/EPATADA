@@ -288,11 +288,11 @@ COLI).
 
 ```{r}
 # add column with comparison to criteria mag (excursions)
-ecoli <- ecoli %>%
+ecoli <- ecoli |>
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
 # review subset
-ecoli_subset_review <- ecoli %>%
+ecoli_subset_review <- ecoli |>
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
     meets_criteria_mag
@@ -311,7 +311,7 @@ TADA_TableExport(TADA_Stats(ecoli))
 Generate a scatterplot. One result value is above the threshold.
 
 ```{r}
-TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%
+TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 320,
     x = c(min(ecoli$ActivityStartDate), max(ecoli$ActivityStartDate)),

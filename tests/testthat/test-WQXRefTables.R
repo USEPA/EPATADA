@@ -67,13 +67,13 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
 
   unit.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicUnit")
 
-  find.dups <- unit.ref %>%
-    dplyr::filter(Type == "CharacteristicUnit") %>%
-    dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+  find.dups <- unit.ref |>
+    dplyr::filter(Type == "CharacteristicUnit") |>
+    dplyr::group_by(Characteristic, Source, Value.Unit) |>
     dplyr::mutate(
       Min_n = length(unique(Minimum)),
       Max_n = length(unique(Maximum))
-    ) %>%
+    ) |>
     dplyr::filter(
       Min_n > 1 |
         Max_n > 1
@@ -93,13 +93,13 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
     Status == "Accepted"
   )
 
-  find.dups <- unit.ref %>%
-    dplyr::filter(Type == "CharacteristicUnit") %>%
-    dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+  find.dups <- unit.ref |>
+    dplyr::filter(Type == "CharacteristicUnit") |>
+    dplyr::group_by(Characteristic, Source, Value.Unit) |>
     dplyr::mutate(
       Min_n = length(unique(Minimum)),
       Max_n = length(unique(Maximum))
-    ) %>%
+    ) |>
     dplyr::filter(
       Min_n > 1 |
         Max_n > 1

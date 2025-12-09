@@ -253,10 +253,10 @@ test_that("pH harmonization works as expected throughout workflow", {
 
   # Process data
   # - Applies several functions to clean and harmonize the data.
-  ph_data <- ph_data %>%
-    TADA_SimpleCensoredMethods() %>%
-    TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) %>%
-    TADA_RunKeyFlagFunctions(clean = TRUE) %>%
+  ph_data <- ph_data |>
+    TADA_SimpleCensoredMethods() |>
+    TADA_ConvertSpecialChars(col = "TADA.ResultMeasureValue", clean = TRUE) |>
+    TADA_RunKeyFlagFunctions(clean = TRUE) |>
     TADA_HarmonizeSynonyms()
 
   # Assert that the data frame is not empty

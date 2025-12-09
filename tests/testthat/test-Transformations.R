@@ -56,7 +56,7 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
 
   testdat <- TADA_CalculateTotalNP(testdat, daily_agg = "max")
 
-  # na_rows <- testdat %>% filter(is.na(TADA.ResultMeasureValue))
+  # na_rows <- testdat |> filter(is.na(TADA.ResultMeasureValue))
 
   # Test to ensure the column is entirely numeric
   expect_true(is.numeric(testdat$TADA.ResultMeasureValue))

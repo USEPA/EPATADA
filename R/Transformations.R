@@ -86,7 +86,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # Changes NONE in fraction and speciation to NA for better harmonization
   # Should this be specified in the template instead? 7/25/25 cm
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::mutate(
       TADA.ResultSampleFractionText = replace(
         TADA.ResultSampleFractionText,
@@ -125,7 +125,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
     # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data) %>%
+    harm.ref <- TADA_GetSynonymRef(.data) |>
       dplyr::distinct()
   }
 
@@ -141,7 +141,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
   # join harm.ref to .data
-  flag.data <- .data %>%
+  flag.data <- .data |>
     dplyr::left_join(
       harm.ref,
       by = c(
@@ -153,7 +153,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # TADA.CharacteristicName
   # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
-  clean.data <- flag.data %>%
+  clean.data <- flag.data |>
     # use TADA suggested name where there is a suggested name, use original name if no suggested name
     dplyr::mutate(
       TADA.CharacteristicName = dplyr::case_when(
@@ -165,7 +165,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
   # TADA.ResultSampleFractionText
   # replace ResultSampleFractionText with Target.TADA.ResultSampleFractionText
-  clean.data <- clean.data %>%
+  clean.data <- clean.data |>
     # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
     dplyr::mutate(
       TADA.ResultSampleFractionText = dplyr::case_when(
@@ -195,7 +195,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
 
   if (np_speciation == TRUE) {
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
@@ -205,9 +205,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
           # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
           .default = TADA.MethodSpeciationName
         )
-      ) %>%
+      ) |>
       # if conversion factor exists, multiply by ResultMeasureValue
-      dplyr::rowwise() %>%
+      dplyr::rowwise() |>
       dplyr::mutate(
         TADA.ResultMeasureValue = dplyr::case_when(
           !is.na(Target.TADA.SpeciationConversionFactor) ~
@@ -217,7 +217,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
         )
       )
   } else {
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
@@ -232,7 +232,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   }
 
   # remove conversion columns
-  clean.data <- clean.data %>%
+  clean.data <- clean.data |>
     dplyr::select(
       -c(
         "Target.TADA.CharacteristicName",
@@ -513,10 +513,10 @@ TADA_CalculateTotalNP <- function(
   ]
 
   # add flags noting these are not used in TN/TP summation
-  exclude_df <- exclude_df %>%
+  exclude_df <- exclude_df |>
     dplyr::mutate(
       TADA.NutrientSummation.Flag = "Not used to calculate Total N or P."
-    ) %>%
+    ) |>
     dplyr::mutate(
       TADA.ResultValueAggregation.Flag = "Not considered in max aggregation function"
     )
@@ -581,7 +581,7 @@ TADA_CalculateTotalNP <- function(
     clean = FALSE
   ))
   # # for function review only
-  # dat_subset <- dat %>%
+  # dat_subset <- dat |>
   #   select(all_of(c(
   #     "ActivityStartDate",
   #     "TADA.MonitoringLocationIdentifier",
@@ -634,14 +634,14 @@ TADA_CalculateTotalNP <- function(
 
   # # REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
   # # for review only: what is not matching?
-  # sum_dat_review <- sum_dat %>%
+  # sum_dat_review <- sum_dat |>
   #   dplyr::select(all_of(c(
   #     "ActivityStartDate",
   #     "TADA.MonitoringLocationIdentifier",
   #     "TADA.ActivityMediaName",
   #     "TADA.ComparableDataIdentifier",
   #     "TADA.ResultValueAggregation.Flag",
-  #     "NutrientGroup"))) %>%
+  #     "NutrientGroup"))) |>
   #   dplyr::filter(is.na(NutrientGroup))
 
   # If the join results in matching rows
@@ -658,8 +658,8 @@ TADA_CalculateTotalNP <- function(
     ]
 
     # create nutrient group ID's.
-    sum_dat <- sum_dat %>%
-      dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) %>%
+    sum_dat <- sum_dat |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) |>
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
 
     # bring in equations
@@ -688,11 +688,11 @@ TADA_CalculateTotalNP <- function(
         # and for each pick the variant with the lowest rank.
         # combine group with other groups and remove group ID from consideration
         # for the next equation
-        out <- sum_dat %>%
-          dplyr::filter(!TADA.NutrientSummationGroup %in% grps) %>%
-          dplyr::group_by(TADA.NutrientSummationGroup) %>%
-          dplyr::filter(all(eqn %in% SummationName)) %>% # this line ensures that ALL subspecies are present within an equation group, not just one or more
-          dplyr::filter(SummationName %in% eqn) %>%
+        out <- sum_dat |>
+          dplyr::filter(!TADA.NutrientSummationGroup %in% grps) |>
+          dplyr::group_by(TADA.NutrientSummationGroup) |>
+          dplyr::filter(all(eqn %in% SummationName)) |> # this line ensures that ALL subspecies are present within an equation group, not just one or more
+          dplyr::filter(SummationName %in% eqn) |>
           dplyr::mutate(
             TADA.NutrientSummationEquation = paste0(
               unique(SummationName),
@@ -700,8 +700,8 @@ TADA_CalculateTotalNP <- function(
             )
           )
 
-        out <- out %>%
-          dplyr::group_by(TADA.NutrientSummationGroup, SummationName) %>%
+        out <- out |>
+          dplyr::group_by(TADA.NutrientSummationGroup, SummationName) |>
           dplyr::slice_min(SummationRank, with_ties = FALSE)
         out$TADA.NutrientSummation.Flag <- paste0(
           "Used to calculate ",
@@ -740,12 +740,12 @@ TADA_CalculateTotalNP <- function(
       "TADA.NutrientSummationGroup",
       "TADA.NutrientSummationEquation"
     )
-    TotalN <- summeddata %>%
-      dplyr::filter(nutrient == "Total Nitrogen as N") %>%
-      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
+    TotalN <- summeddata |>
+      dplyr::filter(nutrient == "Total Nitrogen as N") |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) |>
       dplyr::summarise(
         TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)
-      ) %>%
+      ) |>
       dplyr::mutate(
         TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS",
         TADA.ResultSampleFractionText = "UNFILTERED",
@@ -756,12 +756,12 @@ TADA_CalculateTotalNP <- function(
         TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.",
         TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed."
       )
-    TotalP <- summeddata %>%
-      dplyr::filter(nutrient == "Total Phosphorus as P") %>%
-      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) %>%
+    TotalP <- summeddata |>
+      dplyr::filter(nutrient == "Total Phosphorus as P") |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) |>
       dplyr::summarise(
         TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)
-      ) %>%
+      ) |>
       dplyr::mutate(
         TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS",
         TADA.ResultSampleFractionText = "UNFILTERED",
@@ -775,7 +775,7 @@ TADA_CalculateTotalNP <- function(
 
     # If summation is zero....include anyway
     # Generate unique ResultIdentifier
-    Totals <- plyr::rbind.fill(TotalN, TotalP) %>%
+    Totals <- plyr::rbind.fill(TotalN, TotalP) |>
       dplyr::mutate(
         ResultIdentifier = paste0(
           "TADA-",
@@ -787,9 +787,9 @@ TADA_CalculateTotalNP <- function(
       )
 
     # Combine all data back into dat_TNTP and get rid of unneeded columns
-    dat_TNTP_combined <- dat_TNTP %>%
-      base::merge(summeddata, all.x = TRUE) %>%
-      plyr::rbind.fill(Totals) %>%
+    dat_TNTP_combined <- dat_TNTP |>
+      base::merge(summeddata, all.x = TRUE) |>
+      plyr::rbind.fill(Totals) |>
       dplyr::select(
         -SummationFractionNotes,
         -SummationSpeciationNotes,
@@ -799,7 +799,7 @@ TADA_CalculateTotalNP <- function(
         -SummationNote,
         -nutrient,
         -NutrientGroup
-      ) %>%
+      ) |>
       dplyr::mutate(
         TADA.NutrientSummation.Flag = dplyr::if_else(
           is.na(TADA.NutrientSummation.Flag),
@@ -824,12 +824,12 @@ TADA_CalculateTotalNP <- function(
     )
 
     # Filter rows based on specific conditions
-    duplicates <- final_TNTP %>%
-      dplyr::group_by(TADA.NutrientSummationGroup) %>%
+    duplicates <- final_TNTP |>
+      dplyr::group_by(TADA.NutrientSummationGroup) |>
       dplyr::filter(
         dplyr::n() == 2 &
           TADA.ResultMeasureValue[1] == TADA.ResultMeasureValue[2]
-      ) %>%
+      ) |>
       dplyr::filter(
         TADA.NutrientSummation.Flag ==
           "New row added: Nutrient summation from one or more subspecies."
@@ -838,7 +838,7 @@ TADA_CalculateTotalNP <- function(
     remove_list <- unique(duplicates$ResultIdentifier)
 
     # Filter the data frame
-    complete_df <- final_TNTP %>%
+    complete_df <- final_TNTP |>
       dplyr::filter(!ResultIdentifier %in% remove_list)
   } else {
     # Check if each data frame is not empty
@@ -951,8 +951,8 @@ TADA_AggregateMeasurements <- function(
   agg_fun <- match.arg(agg_fun)
 
   # Find multiple values in groups
-  ncount <- .data %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+  ncount <- .data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
     dplyr::summarise(ncount = length(ResultIdentifier))
 
   if (max(ncount$ncount) < 2) {
@@ -974,13 +974,13 @@ TADA_AggregateMeasurements <- function(
         " aggregation function but not selected"
       )
     )
-    multiples <- dat %>% dplyr::filter(ncount > 1)
+    multiples <- dat |> dplyr::filter(ncount > 1)
 
-    dat <- dat %>% dplyr::select(-ncount)
+    dat <- dat |> dplyr::select(-ncount)
 
     if (agg_fun == "max") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_max(
           order_by = TADA.ResultMeasureValue,
           n = 1,
@@ -993,8 +993,8 @@ TADA_AggregateMeasurements <- function(
       )
     }
     if (agg_fun == "min") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_min(
           order_by = TADA.ResultMeasureValue,
           n = 1,
@@ -1007,12 +1007,12 @@ TADA_AggregateMeasurements <- function(
       )
     }
     if (agg_fun == "mean") {
-      out <- multiples %>%
-        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) %>%
+      out <- multiples |>
+        dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::mutate(
           TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)
-        ) %>%
-        dplyr::slice_sample(n = 1) %>%
+        ) |>
+        dplyr::slice_sample(n = 1) |>
         dplyr::mutate(
           TADA.ResultValueAggregation.Flag = paste0(
             "Selected as ",
@@ -1020,9 +1020,9 @@ TADA_AggregateMeasurements <- function(
             " aggregate value, with randomly selected metadata from a row in the aggregate group"
           )
         )
-      out <- out %>%
-        dplyr::select(-TADA.ResultMeasureValue) %>%
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) %>%
+      out <- out |>
+        dplyr::select(-TADA.ResultMeasureValue) |>
+        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) |>
         dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
       dat <- plyr::rbind.fill(dat, out)
     }
