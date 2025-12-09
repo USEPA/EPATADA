@@ -2152,7 +2152,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.CatchmentAreaSqkm",
     "ATTAINS.CatchmentStateCode",
     "ATTAINS.CatchmentResolution",
-    "ATTAINS.WaterType",
     "ATTAINS.ShapeArea",
     "ATTAINS.CulturalUse",
     "ATTAINS.DrinkingWaterUse",
@@ -2237,7 +2236,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "catchmentareasqkm",
     "catchmentstatecode",
     "catchmentresolution",
-    "waterTypeCode",
     "Shape_Area",
     "cultural_use",
     "drinkingwater_use",
@@ -2290,11 +2288,17 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
   # If return_list equals TRUE, return the list of TADA formatted column names
   if (return_list == TRUE & format == "tada") {
+
+    attains.tada <- unique(attains.tada)
+
     return(attains.tada)
   }
 
   # If return_list equals TRUE, return the list of ATTAINS formatted column names
   if (return_list == TRUE & format == "attains") {
+
+    attains.orig <- unique(attains.orig
+                           )
     return(attains.orig)
   }
 

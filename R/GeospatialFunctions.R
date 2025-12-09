@@ -2097,6 +2097,7 @@ TADA_GetATTAINSByAUID <- function(
     no_WQP_data <- .data %>%
       dplyr::mutate(ResultIdentifier = NA) %>%
       dplyr::bind_cols(col_val_list) %>%
+      correctColType() %>%
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # In this case we'll need to return empty ATTAINS objects
@@ -2346,7 +2347,8 @@ TADA_GetATTAINSByAUID <- function(
 
   # remove unnecessary column from attains.geo
   attains.geo <- attains.geo %>%
-    dplyr::select(-assessmentunitidentifier, -waterTypeCode)
+    dplyr::select(-assessmentunitidentifier) %>%
+    correctColType()
 
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
@@ -2448,6 +2450,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo %>%
+    correctColType() %>%
     dplyr::filter(!is.na(ResultIdentifier)) %>%
     dplyr::full_join(.data, by = names(.data)) %>%
     renameATTAINSCols() %>%
@@ -2842,10 +2845,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
     sumdat <- ATTAINS_table %>%
       dplyr::group_by(
-        MonitoringLocationIdentifier,
-        MonitoringLocationName,
-        LatitudeMeasure,
-        LongitudeMeasure
+        TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationName,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure
       ) %>%
       dplyr::summarize(
         Sample_Count = length(unique(ResultIdentifier)),
