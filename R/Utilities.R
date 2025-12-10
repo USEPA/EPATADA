@@ -957,7 +957,12 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
   if (howmany > 0) {
     chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
     chars <- paste0(chars, collapse = "; ")
-    print(paste0(howmany, " results in your dataset have one of the following deprecated characteristic names: ", chars, ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."))
+    print(paste0(
+      howmany,
+      " results in your dataset have one of the following deprecated characteristic names: ",
+      chars,
+      ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
+    ))
   } else {
     print("No deprecated characteristic names found in dataset.")
   }
@@ -994,7 +999,8 @@ TADA_CreateComparableID <- function(.data) {
   }
 
   .data$TADA.ComparableDataIdentifier <-
-    paste(.data$TADA.CharacteristicName,
+    paste(
+      .data$TADA.CharacteristicName,
       .data$TADA.ResultSampleFractionText,
       .data$TADA.MethodSpeciationName,
       .data$TADA.ResultMeasure.MeasureUnitCode,
@@ -1086,10 +1092,12 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #'   autoclean = FALSE
 #' )
 #' }
-TADA_RandomTestingData <- function(number_of_days = 1,
-                                   choose_random_state = FALSE,
-                                   autoclean = TRUE,
-                                   max_attempts = 3) {
+TADA_RandomTestingData <- function(
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE,
+  max_attempts = 3
+) {
   # Retrieve random data
   get_random_data <- function(ndays, state_choice, ac) {
     # Calculate a random start date within the last 20 years
@@ -1152,7 +1160,11 @@ TADA_RandomTestingData <- function(number_of_days = 1,
     }
 
     # If all attempts fail, return an empty data frame
-    message("Failed to retrieve data after ", max_attempts, " attempts due to persistent errors.")
+    message(
+      "Failed to retrieve data after ",
+      max_attempts,
+      " attempts due to persistent errors."
+    )
     return(data.frame())
   }
 
@@ -1195,7 +1207,17 @@ TADA_RandomTestingData <- function(number_of_days = 1,
 #' getBboxJson(bbox)
 #' }
 getBboxJson <- function(bbox) {
-  json <- paste0('{"xmin":', bbox[1], ',"ymin":', bbox[2], ',"xmax":', bbox[3], ',"ymax":', bbox[4], "}")
+  json <- paste0(
+    '{"xmin":',
+    bbox[1],
+    ',"ymin":',
+    bbox[2],
+    ',"xmax":',
+    bbox[3],
+    ',"ymax":',
+    bbox[4],
+    "}"
+  )
   return(json)
 }
 
@@ -1217,21 +1239,19 @@ getBboxJson <- function(bbox) {
 #' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
 #' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
-pchIcons <- function(pch = 1,
-                     width = 30,
-                     height = 30,
-                     bg = "transparent",
-                     col = "black",
-                     lwd = NULL) {
+pchIcons <- function(
+  pch = 1,
+  width = 30,
+  height = 30,
+  bg = "transparent",
+  col = "black",
+  lwd = NULL
+) {
   n <- length(pch)
   files <- character(n)
   for (i in seq_len(n)) {
     f <- tempfile(fileext = ".png")
-    grDevices::png(f,
-      width = width,
-      height = height,
-      bg = bg
-    )
+    grDevices::png(f, width = width, height = height, bg = bg)
     graphics::par(mar = c(0, 0, 0, 0))
     graphics::plot.new()
     graphics::points(
@@ -1279,7 +1299,12 @@ getFeatureLayer <- function(url, bbox = NULL) {
   } else {
     inputGeom <- getBboxJson(bbox)
   }
-  url <- paste0(url, "?where=1%3D1&outfields=*&returnGeometry=true&geometry=", inputGeom, "&f=geojson")
+  url <- paste0(
+    url,
+    "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",
+    inputGeom,
+    "&f=geojson"
+  )
   layer <- sf::read_sf(url)
   return(layer)
 }
@@ -1304,10 +1329,11 @@ writeLayer <- function(url, layerfilepath) {
   # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer |> dplyr::rename(
-      TAREA_MI = TOTALAREA_MI,
-      TAREA_KM = TOTALAREA_KM
-    )
+    layer <- layer |>
+      dplyr::rename(
+        TAREA_MI = TOTALAREA_MI,
+        TAREA_KM = TOTALAREA_KM
+      )
   }
   sf::st_write(layer, layerfilepath, delete_layer = TRUE)
 }
@@ -1377,7 +1403,14 @@ getPopup <- function(layer, layername) {
 
   for (i in seq(1, length(cols))) {
     if (names(cols[i]) %in% colnames(layer)) {
-      text <- paste0(text, "<strong>", cols[i], "</strong>: ", layer[[names(cols[i])]], "<br>")
+      text <- paste0(
+        text,
+        "<strong>",
+        cols[i],
+        "</strong>: ",
+        layer[[names(cols[i])]],
+        "<br>"
+      )
     }
   }
   return(text)
@@ -1405,7 +1438,13 @@ getPopup <- function(layer, layername) {
 #' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
 #' lmap
 #' }
-TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
+TADA_addPolys <- function(
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1428,7 +1467,10 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
       smoothFactor = 0.5,
       opacity = 1.0,
       fillOpacity = 0.2,
-      fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[areaColumn]]),
+      fillColor = ~ leaflet::colorNumeric(
+        "Oranges",
+        layer[[areaColumn]]
+      )(layer[[areaColumn]]),
       highlightOptions = leaflet::highlightOptions(
         color = "white",
         weight = 2,
@@ -1465,7 +1507,13 @@ TADA_addPolys <- function(map, layerfilepath, layergroup, layername, bbox = NULL
 #' )
 #' lmap
 #' }
-TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NULL) {
+TADA_addPoints <- function(
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1475,7 +1523,13 @@ TADA_addPoints <- function(map, layerfilepath, layergroup, layername, bbox = NUL
     return(map)
   }
   shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
-  iconFiles <- pchIcons(shapes, width = 20, height = 20, col = c("#CC7722"), lwd = 2)
+  iconFiles <- pchIcons(
+    shapes,
+    width = 20,
+    height = 20,
+    col = c("#CC7722"),
+    lwd = 2
+  )
   map <- leaflet::addMarkers(
     map,
     data = layer,
@@ -1519,32 +1573,42 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   }
 
   required_cols <- c(
-    "TADA.CharacteristicName", "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode",
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode",
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode"
   )
 
   # Check to see if TADA_Autoclean has been run
   if (any(required_cols %in% colnames(.data)) == FALSE) {
-    print("The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns.")
+    print(
+      "The dataframe does not contain the required fields. Running TADA_AutoClean to create required columns."
+    )
     .data <- TADA_AutoClean(.data)
   }
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
   data.units.result <- .data |>
     dplyr::select(
-      TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode,
-      ResultMeasure.MeasureUnitCode, TADA.MethodSpeciationName
+      TADA.CharacteristicName,
+      TADA.ResultMeasure.MeasureUnitCode,
+      ResultMeasure.MeasureUnitCode,
+      TADA.MethodSpeciationName
     ) |>
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
   data.units.det <- .data |>
     dplyr::select(
-      TADA.CharacteristicName, TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
-      DetectionQuantitationLimitMeasure.MeasureUnitCode, TADA.MethodSpeciationName
+      TADA.CharacteristicName,
+      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      DetectionQuantitationLimitMeasure.MeasureUnitCode,
+      TADA.MethodSpeciationName
     ) |>
-    dplyr::filter(!is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)) |>
+    dplyr::filter(
+      !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    ) |>
     dplyr::distinct() |>
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
@@ -1553,10 +1617,15 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 
   # Create combined df with all unique codes (both result and det units) and characteristic names
   data.units <- data.units.result |>
-    dplyr::full_join(data.units.det, by = c(
-      "TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode",
-      "ResultMeasure.MeasureUnitCode", "TADA.MethodSpeciationName"
-    )) |>
+    dplyr::full_join(
+      data.units.det,
+      by = c(
+        "TADA.CharacteristicName",
+        "TADA.ResultMeasure.MeasureUnitCode",
+        "ResultMeasure.MeasureUnitCode",
+        "TADA.MethodSpeciationName"
+      )
+    ) |>
     dplyr::distinct() |>
     dplyr::group_by(TADA.CharacteristicName)
 
@@ -1588,9 +1657,21 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
 #' TestColorPalettePairings
 TADA_ColorPalette <- function(col_pair = FALSE) {
   pal <- c(
-    "#000000", "#835A00", "#DC851E", "#059FA4", "#56B4E9",
-    "#005258", "#A1A522", "#F0E442", "#66A281", "#1E6F98",
-    "#4F5900", "#813B00", "#CD758F", "#B686A1", "#999999"
+    "#000000",
+    "#835A00",
+    "#DC851E",
+    "#059FA4",
+    "#56B4E9",
+    "#005258",
+    "#A1A522",
+    "#F0E442",
+    "#66A281",
+    "#1E6F98",
+    "#4F5900",
+    "#813B00",
+    "#CD758F",
+    "#B686A1",
+    "#999999"
   )
 
   # Defines two color columns to be used as the color pairings in a dataframe
@@ -1641,13 +1722,27 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 
   # create color swatch graphic
   graphics::par(mar = c(1, 0, 1, 0))
-  swatch <- graphics::plot(1,
-    type = "n", xlab = "", ylab = "", xlim = c(0.5, n + 0.5), ylim = c(0, 1),
-    main = "TADA Palette", axes = FALSE
+  swatch <- graphics::plot(
+    1,
+    type = "n",
+    xlab = "",
+    ylab = "",
+    xlim = c(0.5, n + 0.5),
+    ylim = c(0, 1),
+    main = "TADA Palette",
+    axes = FALSE
   )
   rect(1:n - 0.5, 0, n + 0.5, 1, col = pal, border = NA)
   text(x = 1:n, y = 0.5, labels = 1:n, pos = 3, col = label_colors)
-  text(x = 1:n, y = 0.5 - 0.2, labels = pal, pos = 1, col = label_colors, cex = 0.7, srt = 90)
+  text(
+    x = 1:n,
+    y = 0.5 - 0.2,
+    labels = pal,
+    pos = 1,
+    col = label_colors,
+    cex = 0.7,
+    srt = 90
+  )
 
   col_combo <- TADA_ColorPalette(col_pair = TRUE)
 
@@ -1659,13 +1754,33 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
     label_colors <- rep("black", 2)
 
     for (i in 1:nrow(col_combo)) {
-      one_swatch <- graphics::plot(1,
-        type = "n", xlab = "", ylab = "", xlim = c(0.5, 2.5), ylim = c(0, 1),
-        main = paste0("TADA Palette Pair ", i), axes = FALSE
+      one_swatch <- graphics::plot(
+        1,
+        type = "n",
+        xlab = "",
+        ylab = "",
+        xlim = c(0.5, 2.5),
+        ylim = c(0, 1),
+        main = paste0("TADA Palette Pair ", i),
+        axes = FALSE
       )
-      rect(1:2 - 0.5, 0, 2 + 0.5, 1, col = as.character(col_combo[i, ]), border = NA)
+      rect(
+        1:2 - 0.5,
+        0,
+        2 + 0.5,
+        1,
+        col = as.character(col_combo[i, ]),
+        border = NA
+      )
       # text(x = 1:2, y = 0.5 - 0.2, labels = 1:2, pos = 3, col = label_colors, cex = 0.75)
-      text(x = 1:2 + 0.25, y = 0.5, labels = col_combo[i, ], pos = 2, col = label_colors, cex = 0.7)
+      text(
+        x = 1:2 + 0.25,
+        y = 0.5,
+        labels = col_combo[i, ],
+        pos = 2,
+        col = label_colors,
+        cex = 0.7
+      )
 
       swatch[[i]] <- one_swatch
     }
@@ -1705,7 +1820,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 TADA_CharStringRemoveNA <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
-    stop(paste0("TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."))
+    stop(paste0(
+      "TADA_CharStrignRemoveNA: 'char_string' argument is not a character string."
+    ))
   }
 
   # Converts character string to a vector.
@@ -1745,7 +1862,8 @@ TADA_TableExport <- function(.data = NULL) {
     stop("Input object must be of class 'data.frame'")
   }
 
-  data <- DT::datatable(.data,
+  data <- DT::datatable(
+    .data,
     extensions = c("Buttons", "FixedColumns"),
     options = list(
       paging = TRUE,
@@ -1756,7 +1874,8 @@ TADA_TableExport <- function(.data = NULL) {
       scrollCollapse = TRUE,
       buttons = c("copy", "csv", "excel", "pdf")
       # fixedColumns = list(leftColumns = 1
-    ), class = "display"
+    ),
+    class = "display"
   ) |>
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
 
@@ -1791,7 +1910,11 @@ TADA_CreateCSV <- function(.data) {
 
   df_name <- deparse(substitute(.data))
 
-  downloads_path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", paste0(df_name, ".csv"))
+  downloads_path <- file.path(
+    Sys.getenv("USERPROFILE"),
+    "Downloads",
+    paste0(df_name, ".csv")
+  )
 
   utils::write.csv(.data, file = downloads_path, row.names = FALSE)
 
@@ -1831,39 +1954,55 @@ TADA_CreateCSV <- function(.data) {
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
   # https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide
-  wqxnames <- readr::read_csv("https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
+  wqxnames <- readr::read_csv(
+    "https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv",
     show_col_types = FALSE
   )
 
   # Process schema crosswalk table to better suit TADA elements and reduce duplicate legacy elements
   wqxnames_mod <- wqxnames |>
-    dplyr::mutate(WqxV2.FieldName = dplyr::case_when( # 3.0 element ~ change to in 2.0 element
-      FieldName3.0 == "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
-      FieldName3.0 == "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
-      FieldName3.0 == "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
-      FieldName3.0 == "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
-      FieldName3.0 == "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
-      FieldName3.0 == "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
-      FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
-      FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
-      FieldName3.0 == "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
-      FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
-      FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
-      FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
-      FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
-      FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
-      FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
-      FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
-      FieldName3.0 == "ResultAttachment_FileName" ~ NA,
-      FieldName3.0 == "ResultAttachment_FileType" ~ NA,
-      TRUE ~ WqxV2.FieldName
-    )) |>
+    dplyr::mutate(
+      WqxV2.FieldName = dplyr::case_when(
+        # 3.0 element ~ change to in 2.0 element
+        FieldName3.0 ==
+          "SampleCollectionMethod_Description" ~ "SampleCollectionMethod/MethodDescriptionText",
+        FieldName3.0 ==
+          "DataQuality_PrecisionValue" ~ "DataQuality/PrecisionValue",
+        FieldName3.0 ==
+          "DataQuality_ConfidenceIntervalValue" ~ "DataQuality/ConfidenceIntervalValue",
+        FieldName3.0 ==
+          "DataQuality_UpperConfidenceLimitValue" ~ "DataQuality/UpperConfidenceLimitValue",
+        FieldName3.0 ==
+          "DataQuality_LowerConfidenceLimitValue" ~ "DataQuality/LowerConfidenceLimitValue",
+        FieldName3.0 ==
+          "ResultAnalyticalMethod_Description" ~ "ResultAnalyticalMethod/MethodDescriptionText",
+        FieldName3.0 == "Location_Latitude" ~ "LatitudeMeasure", # Changing to what is returned in legacy Site profile
+        FieldName3.0 == "Location_Longitude" ~ "LongitudeMeasure", # Changing to what is returned in legacy Site profile
+        FieldName3.0 ==
+          "Location_HorzCoordReferenceSystemDatum" ~ "HorizontalCoordinateReferenceSystemDatumName", # Changing to what is returned in legacy Site profile
+        FieldName3.0 == "SamplePrepMethod_Description" ~ NA, # Biological profile
+        FieldName3.0 == "LabSamplePrepMethod_Description" ~ NA, # Biological profile
+        FieldName3.0 == "LabSamplePrepMethod_EndTime" ~ NA, # Biological profile
+        FieldName3.0 == "ProjectAttachment_FileName" ~ NA, # named BinaryObjectFileName
+        FieldName3.0 == "ProjectAttachment_FileType" ~ NA, # named BinaryObjectFileTypeCode
+        FieldName3.0 == "ActivityAttachment_FileName" ~ NA,
+        FieldName3.0 == "ActivityAttachment_FileType" ~ NA,
+        FieldName3.0 == "ResultAttachment_FileName" ~ NA,
+        FieldName3.0 == "ResultAttachment_FileType" ~ NA,
+        TRUE ~ WqxV2.FieldName
+      )
+    ) |>
     # Remove rows without a legacy name in the crosswalk table
     dplyr::filter(!is.na(WqxV2.FieldName)) |>
     # Some elements in the crosswalk table have different special characters compared to
     # elements returned with dataRetrieval
     # Using stringr to identify special characters replacing "_" with "." and "/" with "."
-    dplyr::mutate(WqxV2.FieldName = stringr::str_replace_all(WqxV2.FieldName, c("_" = ".", "/" = ".")))
+    dplyr::mutate(
+      WqxV2.FieldName = stringr::str_replace_all(
+        WqxV2.FieldName,
+        c("_" = ".", "/" = ".")
+      )
+    )
 
   # Make copy of original names from dataRetrieval 3.0 query bc data.table::setnames
   # will overwrite original dataframe
@@ -1880,9 +2019,11 @@ TADA_RenametoLegacy <- function(.data) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
 
-  df <- data.table::setnames(df,
+  df <- data.table::setnames(
+    df,
     old = beta_names,
-    new = legacy_names, skip_absent = TRUE
+    new = legacy_names,
+    skip_absent = TRUE
   )
 
   df <- TADA_OrderCols(df)
@@ -1916,7 +2057,8 @@ checkColName <- function(.data, partial.string = NULL) {
   if (any(stringr::str_detect(names(.data), partial.string)) != TRUE) {
     stop(paste0(
       "TADA_CreateAUMLCrosswalk: The ",
-      partial.string, " column is missing from the user-supplied reference (au_ref)."
+      partial.string,
+      " column is missing from the user-supplied reference (au_ref)."
     ))
   }
 
@@ -1928,7 +2070,8 @@ checkColName <- function(.data, partial.string = NULL) {
     if (length(select.col) > 1) {
       stop(paste0(
         "TADA_CreateAUMLCrosswalk: There cannot be more than one ",
-        partial.string, " column in the user-supplied reference (au_ref)."
+        partial.string,
+        " column in the user-supplied reference (au_ref)."
       ))
     }
 
@@ -2131,7 +2274,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
   # If return_list equals TRUE, return the list of TADA formatted column names
   if (return_list == TRUE & format == "tada") {
-
     attains.tada <- unique(attains.tada)
 
     return(attains.tada)
@@ -2139,9 +2281,7 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 
   # If return_list equals TRUE, return the list of ATTAINS formatted column names
   if (return_list == TRUE & format == "attains") {
-
-    attains.orig <- unique(attains.orig
-                           )
+    attains.orig <- unique(attains.orig)
     return(attains.orig)
   }
 
@@ -2183,9 +2323,12 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 #'
 # coerce column types based TADA ref file
 correctColType <- function(.data) {
-
   # read in ref csv
-  coltype.ref <- utils::read.csv(system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA"))
+  coltype.ref <- utils::read.csv(system.file(
+    "extdata",
+    "TADAColTypeRef.csv",
+    package = "EPATADA"
+  ))
 
   # Iterate over each row in the type specification
   for (i in 1:nrow(coltype.ref)) {

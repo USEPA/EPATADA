@@ -1025,13 +1025,13 @@ TADA_FlagMeasureQualifierCode <- function(
 
     rm(mqc.ref, mqc.TADA)
   }
-  
+
   # Populate flag column in data
   flag.lists <- split(
     qc.ref$MeasureQualifierCode,
     qc.ref$TADA.MeasureQualifierCode.Flag
   )
-  
+
   # Set names with transformations
   names(flag.lists) <- tolower(names(flag.lists))
   names(flag.lists) <- stringr::str_remove_all(names(flag.lists), "-")
