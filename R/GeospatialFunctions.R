@@ -2621,18 +2621,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
-    try(
+    try({
+      # extract coordinates and convert to a tibble (to handle point or multipoint)
+      coords <- sf::st_coordinates(ATTAINS_points) |>
+        tibble::as_tibble() |>
+        tibble::rowid_to_column(var = "index")
+
+
+      # points mapper setup
       points_mapper <- ATTAINS_points |>
         dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Point Feature") |>
         tibble::rowid_to_column(var = "index") |>
-        # some point features are actually multipoint features. Must extract all coordinates for mapping
-        # later:
-        dplyr::right_join(
-          tibble::as_tibble(sf::st_coordinates(ATTAINS_points)) |>
-            tibble::rowid_to_column(var = "index"),
-          by = "index"
-        ),
+        dplyr::right_join(coords,by = "index"
+        )
+
+      # remove intermediate object
+      rm(coords)},
       silent = TRUE
     )
 
