@@ -243,7 +243,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
 #' and MS_DATA_LINK) or the ATTAINS_crosswalk (OrganizationIdentifier,
 #' ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, ATTAINS.MonitoringDataLinkText, and
-#' ATTAINS.WaterType) output from TADA_CreateAUMCrosswalk or
+#' ATTAINS.WaterType) output from TADA_CreateAUMLCrosswalk or
 #' TADA_CreateATTAINSAUMLCrosswalk. When crosswalk = NULL, the crosswalk will be
 #' downloaded from ATTAINS. This allows users to add URLs for the Water Quality
 #' Portal data site pages to the ATTAINS assessment unit profile where possible

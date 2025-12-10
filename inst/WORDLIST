@@ -30,6 +30,8 @@ AquiferName
 ArcGIS
 AssemblageSampledName
 AssessmentUnitIdentifier
+AssignUsesToAU
+AssignUsesToWaterType
 AutoClean
 BiasValue
 BigDataRetrieval
@@ -67,15 +69,14 @@ ConvertResultUnits
 ConvertSpecialChars
 CountyCode
 CreateATTAINSAUMLCrosswalk
+CreateAUMCrosswalk
 CreateAUMLCrosswalk
 CreateComparableID
-CreateMLSummaryRef
 CreatePairRef
 CreateUnitRef
-CreateUseAURef
-CreateWaterUseParamRef
-CreateWaterUseRef
+CreateWaterusesRef
 CriteriaMethods
+CriteriaSearchToolRef
 Cybertown
 DataFrame
 DataQuality
@@ -127,7 +128,9 @@ Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
 GetCharacteristicRef
+GetLegendCSTRef
 GetNutrientSummationRef
+GetSourcesCSTRef
 GetSynonymRef
 Github
 HMW
@@ -159,6 +162,7 @@ LatitudeMeasure
 LocalAqfrName
 LongitudeMeasure
 MDE
+MLSummary
 MLSummaryRef
 MLs
 MTDEQ
@@ -191,8 +195,6 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
-MultipleOrgDupGroupID
-MultipleOrgDuplicate
 NA's
 NCTC
 ND's
@@ -233,6 +235,7 @@ PairingGroupRank
 ParamRef
 ParameterName
 ParameterNames
+ParametersForAnalysis
 PartB
 PhysChem
 Pojoaque
@@ -303,6 +306,7 @@ SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
 SiteGroup
+SourcesCSTRef
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion
@@ -342,12 +346,12 @@ UniqueHarmonizationRef
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
-UseAURef
 UseForAnalysis
 UseName
 UseName's
 UseNames
-UseParamRef
+UsesForAnalysis
+UsesRef
 VCS
 ViewATTAINS
 WQC
@@ -401,6 +405,7 @@ checkColNames
 cleanNA
 coli
 comid
+correctColType
 countrycode
 countycode
 cristinamullin
@@ -524,10 +529,9 @@ uncategorized
 uncomment
 uncommenting
 uniqueDataId
-useAURef
-useParamRef
 useR
 usepa
+usesRef
 waterbodies
 waterbody
 waterdata
