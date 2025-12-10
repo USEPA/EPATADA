@@ -604,6 +604,13 @@ TADA_FlagResultUnit <- function(
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 #'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
+  # Check if the input .data is NULL
+  if (is.null(.data)) {
+    warning(
+      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+    )
+    return(NULL)
+  }
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
   # check that clean is boolean
@@ -952,6 +959,13 @@ TADA_FlagMeasureQualifierCode <- function(
   flaggedonly = FALSE,
   define = TRUE
 ) {
+  # Check if the input .data is NULL
+  if (is.null(.data)) {
+    warning(
+      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+    )
+    return(NULL)
+  }
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, "MeasureQualifierCode")
   # check that clean is boolean
@@ -1025,13 +1039,13 @@ TADA_FlagMeasureQualifierCode <- function(
 
     rm(mqc.ref, mqc.TADA)
   }
-  
+
   # Populate flag column in data
   flag.lists <- split(
     qc.ref$MeasureQualifierCode,
     qc.ref$TADA.MeasureQualifierCode.Flag
   )
-  
+
   # Set names with transformations
   names(flag.lists) <- tolower(names(flag.lists))
   names(flag.lists) <- stringr::str_remove_all(names(flag.lists), "-")

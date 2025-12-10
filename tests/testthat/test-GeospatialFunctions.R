@@ -1,7 +1,7 @@
 # Testing the Geospatial Functions ----
 # Tests for the functions in GeoSpatialFunctions.R using sample data
 
-TADA_dataframe <- Data_HUC8_02070004_Mod1Output  |> 
+TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
   dplyr::filter(TADA.CharacteristicName == "PH")
 
 TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)

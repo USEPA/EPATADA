@@ -410,9 +410,9 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
-  # Check if the input data frame is empty
-  if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
+  # Check if the input .data is NULL
+  if (is.null(.data)) {
+    warning("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
 

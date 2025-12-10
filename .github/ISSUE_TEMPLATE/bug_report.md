@@ -51,8 +51,6 @@ Add any other context about the problem here.
 
 **Reminders for TADA contributors addressing this issue**
 
-Bug fixes should include all the following work:
-
 -   [ ] Create or edit the function/code.
 
 -   [ ] Document all code using line/inline and/or multi-line/block comments
@@ -65,15 +63,24 @@ Bug fixes should include all the following work:
     examples.
 
 -   [ ] Update or add the new functionality to the appropriate vignette
-    (or create new one).
+    (or create new one). Make sure the vignette is included in the articles 
+    section of the _pkgdown.yml
 
 -   [ ] If function/code edits made as part of this issue impact other
     functions in the package or functionality in the shiny app, ensure
     those are updated as well.
     
--   [ ] Run TADA_UpdateAllRefs(), TADA_UpdateExampleData(), styler::style_pkg(),
-    devtools::document(), and devtools::check() and address any new notes or 
+-   [ ] Run .TADA_UpdateRefFiles() and .TADA_UpdateExampleData() in MaintenanceScheduled.R
+    All example data files need to be documented in ExampleData.R and also included
+    in the MaintenanceScheduled.R so they get re-generated correctly during the scheduled 
+    routine maintenance (see maintenance-scheduled.yaml).
+
+-   [ ] Run devtools::document() and devtools::check() and address any new notes or 
     issues before creating a pull request.    
+    
+-   [ ] Run spelling and styler in requiredMaintenance.R
+
+-   [ ] If you created any new columns or made changes, update RequiredCols.R
 
 -   [ ] Run more robust check for releases: devtools::check(manual = TRUE, 
     remote = TRUE, incoming = TRUE)

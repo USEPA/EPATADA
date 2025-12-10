@@ -438,27 +438,6 @@
         user_supplied_cw,
         MT_AUMLRef
       )
-
-      # =======================================
-      # Generate Data_MT.UseAURef_Water
-      # =======================================
-      Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
-        waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
-        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
-        org_id = "MTDEQ"
-      )
-
-      message("Data_MT_UseAURef_Water")
-      message(dim(Data_MT_UseAURef_Water))
-      
-      usethis::use_data(
-        Data_MT_UseAURef_Water,
-        internal = FALSE,
-        overwrite = TRUE,
-        compress = "xz",
-        version = 3,
-        ascii = FALSE
-      )
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)
