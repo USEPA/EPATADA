@@ -606,7 +606,9 @@ TADA_FlagResultUnit <- function(
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   # Check if the input .data is NULL
   if (is.null(.data)) {
-    warning("TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe.")
+    warning(
+      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+    )
     return(NULL)
   }
   # check .data is data.frame and has required columns
@@ -959,7 +961,9 @@ TADA_FlagMeasureQualifierCode <- function(
 ) {
   # Check if the input .data is NULL
   if (is.null(.data)) {
-    warning("TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe.")
+    warning(
+      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+    )
     return(NULL)
   }
   # check .data is data.frame and has required columns
