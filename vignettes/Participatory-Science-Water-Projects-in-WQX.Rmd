@@ -305,7 +305,7 @@ Generate stats table. Review percentiles. Less than 5% of results fall
 above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m
 
 ```{r stats}
-EPATADA::TADA_TableExport(TADA_Stats(ecoli))
+EPATADA::TADA_TableExport(EPATADA::TADA_Stats(ecoli))
 ```
 
 Generate a scatterplot. One result value is above the threshold.
