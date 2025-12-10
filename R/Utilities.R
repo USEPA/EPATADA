@@ -447,8 +447,7 @@ utils::globalVariables(c(
   "percent_match_ATTAINS_CST",
   "percent_match_ATTAINS_WQX",
   "percent_match_CST",
-  "UserRef.AssessmentUnitIdentifier",
-  "Data_MT_UseAURef_Water"
+  "UserRef.AssessmentUnitIdentifier"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
