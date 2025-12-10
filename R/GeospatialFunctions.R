@@ -730,7 +730,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       # ... Otherwise transform into a spatial object then do the same thing:
       geospatial_data <- .data |>
         # convert dataframe to a spatial object
-        TADA_MakeSpatial(.data = ., crs = 4326) |>
+        TADA_MakeSpatial(crs = 4326) |>
         dplyr::mutate(geometry_join = geometry)
     }
   }))
