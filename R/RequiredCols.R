@@ -281,6 +281,10 @@ attains.cols <- c(
   "ATTAINS.WaterType",
   "ATTAINS.ShapeArea"
 )
+
+attains.flag <- c(
+  "TADA.AURefSource"
+)
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "TADA.Remove",
