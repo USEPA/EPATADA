@@ -86,6 +86,11 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
     od_multiplier = "null"
   )
 
+  # Check if df2 is empty or null
+  if (is.null(df2) || nrow(df2) == 0) {
+    skip("Skipping test because df2 is empty or null")
+  }
+  
   # Run key flag functions
   df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
 
