@@ -643,12 +643,12 @@ MT.UseAURef <- TADA_AssignUsesToAU(
 #### **Advanced: Assigning Uses to New AUs**
 
 For any new assessment unit (AU), users must determine how to assign the
-appropriate uses. The **`TADA_AssignUsesToWaterType`** function is designed
-to assist with this process. It imports combinations of water types and
-use names associated with the specified organization from ATTAINS. By
-doing so, it automatically assigns uses to new assessment units based on
-their water type, thereby streamlining the integration of new AUs into
-existing frameworks.
+appropriate uses. The **`TADA_AssignUsesToWaterType`** function is
+designed to assist with this process. It imports combinations of water
+types and use names associated with the specified organization from
+ATTAINS. By doing so, it automatically assigns uses to new assessment
+units based on their water type, thereby streamlining the integration of
+new AUs into existing frameworks.
 
 For more information on how to customize this function to suit your
 needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
