@@ -12,7 +12,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs(
 }
 \arguments{
 \item{.data}{A TADA dataframe. This function runs \code{TADA_FindNearbySites}
-within it, which will transform .data into \code{sf} object for spatial operations if needed.}
+within it, which will transform .data into an \code{sf} object for spatial operations if needed.}
 
 \item{dist_buffer}{Numeric. The distance in meters within which two sites with similar records
 are flagged as potential duplicates. Default is 100 meters.}
@@ -42,10 +42,10 @@ verify if they are truly duplicates or unique records.
 }
 \details{
 The function performs spatial operations by running \code{TADA_FindNearbySites} within it.
-Duplicates are flagged if the distance between sites
-is less than the specified \code{dist_buffer} (default is 100 meters). Each group in the
-\code{TADA.MultipleOrgDupGroupID} field indicates that the \code{TADA.MonitoringLocationIdentifier}
-within each group are within the specified distance from each other.
+Duplicates are flagged if the distance between sites is less than the specified \code{dist_buffer}
+(default is 100 meters). Each group in the \code{TADA.MultipleOrgDupGroupID} field indicates that
+the \code{TADA.MonitoringLocationIdentifier} within each group are within the specified distance
+from each other.
 
 It is recommended to run this function after \code{TADA_FindPotentialDuplicatesSingleOrg} to first
 address potential duplicates within a single organization.
