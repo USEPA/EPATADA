@@ -36,6 +36,7 @@ require.cols <- c(
   "TADA.NearbySites.Flag", # generated,
   "TADA.NearbySiteGroup", # generated
   "TADA.DistanceAway.Meters", # generated
+  "TADA.AURefSource", # generated
 
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
@@ -282,9 +283,6 @@ attains.cols <- c(
   "ATTAINS.ShapeArea"
 )
 
-attains.flag <- c(
-  "TADA.AURefSource"
-)
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "TADA.Remove",
