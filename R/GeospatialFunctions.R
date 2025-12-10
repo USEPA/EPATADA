@@ -188,12 +188,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (
-    !"LongitudeMeasure" %in% colnames(.data) ||
-    !"LatitudeMeasure" %in% colnames(.data) ||
+    !"TADA.LongitudeMeasure" %in% colnames(.data) ||
+    !"TADA.LatitudeMeasure" %in% colnames(.data) ||
     !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
   ) {
     stop(
-      "The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`)."
+      "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
 
@@ -201,7 +201,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     # Convert the data to a data.table and ensure distinct latitude and longitude
     distinct_data <- .data |>
       data.table::data.table() |>
-      dplyr::distinct(LongitudeMeasure, LatitudeMeasure, .keep_all = TRUE)
+      dplyr::distinct(TADA.LongitudeMeasure, TADA.LatitudeMeasure, .keep_all = TRUE)
 
     # Transform the distinct data into an `sf` object
     .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
@@ -2629,8 +2629,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         # some point features are actually multipoint features. Must extract all coordinates for mapping
         # later:
         dplyr::right_join(
-          tibble::as_tibble(sf::st_coordinates(ATTAINS_points)),
-          by = c("index" = "L1")
+          tibble::as_tibble(sf::st_coordinates(ATTAINS_points)) |>
+            tibble::rowid_to_column(var = "index"),
+          by = "index"
         ),
       silent = TRUE
     )
@@ -2839,12 +2840,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           data = points_mapper,
           lng = ~X,
           lat = ~Y,
-          color = ~ points_mapper$col,
-          fillColor = ~ points_mapper$col,
-          fillOpacity = 1,
-          stroke = TRUE,
-          weight = 1.5,
-          radius = 5,
+          icon = pointIcons,
           popup = paste0(
             "Assessment Unit Name: ",
             points_mapper$assessmentunitname,
@@ -4277,8 +4273,13 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   # remove intermediate objects
-  # HRM note - attains.cw.mls not found in some examples, need to address this later (12/2/25)
-  rm(attains.cw.mls, get.attains.mls)
+  if(exists("attains.cw.mls")) {
+    rm(attains.cw.mls)
+  }
+
+  if(exists("get.attains.mls")) {
+    rm(get.attains.mls)
+  }
 
   # join all the resulting tables within each list to return as one large list
   # TADA_with_ATTAINS
