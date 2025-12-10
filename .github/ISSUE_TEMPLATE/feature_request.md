@@ -35,8 +35,6 @@ Add any other context or screenshots about the feature request here.
 
 **Reminders for TADA contributors addressing this issue:**
 
-New features and/or edits should include all the following work:
-
 -   [ ] Create or edit the function/code.
 
 -   [ ] Document all code using line/inline and/or multi-line/block comments

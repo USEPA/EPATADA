@@ -51,8 +51,6 @@ Add any other context about the problem here.
 
 **Reminders for TADA contributors addressing this issue**
 
-Bug fixes should include all the following work:
-
 -   [ ] Create or edit the function/code.
 
 -   [ ] Document all code using line/inline and/or multi-line/block comments
