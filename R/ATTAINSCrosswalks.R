@@ -3752,11 +3752,13 @@ TADA_MLSummary <- function(
 
       # Applies all unique combos of param and uses to each monitoring location.
       CreateMLSummaryRef <- usesRef |>
-        tidyr::uncount(weights = length(unique_ML)) |>
+        tidyr::uncount(weights = length(unique_ML)) 
+      
+      CreateMLSummaryRef <- CreateMLSummaryRef |>
         dplyr::mutate(
           MonitoringLocationIdentifier = as.character(rep(
             unique_ML,
-            nrow(.) / length(unique_ML)
+            nrow(CreateMLSummaryRef) / length(unique_ML)
           ))
         ) |>
         dplyr::full_join(
@@ -3792,7 +3794,6 @@ TADA_MLSummary <- function(
       # data frame to only display sites that contains the parameter
       CreateMLSummaryRef2 <- usesRef |>
         tidyr::uncount(weights = length(unique_ML)) |>
-        # dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) |>
         dplyr::full_join(
           .data,
           by = c("TADA.ComparableDataIdentifier"),
@@ -3865,8 +3866,6 @@ TADA_MLSummary <- function(
       ))
 
       CreateMLSummaryRef2 <- usesRef |>
-        # tidyr::uncount(weights = length(unique_ML)) |>
-        # dplyr::mutate(MonitoringLocationIdentifier = as.character(rep(unique_ML, nrow(.) / length(unique_ML)))) |>
         dplyr::full_join(
           .data,
           by = c("TADA.ComparableDataIdentifier"),
