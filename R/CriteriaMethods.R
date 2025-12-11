@@ -753,7 +753,6 @@ TADA_DefineCriteriaMethodology <- function(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) |>
       tidyr::uncount(weights = length(org_id))
-    
     TADA_param <- TADA_param |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(
@@ -897,7 +896,6 @@ TADA_DefineCriteriaMethodology <- function(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) |>
       tidyr::uncount(weights = length(org_id))
-    
     TADA_param <- TADA_param |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(

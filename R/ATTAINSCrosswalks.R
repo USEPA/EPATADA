@@ -3752,8 +3752,8 @@ TADA_MLSummary <- function(
 
       # Applies all unique combos of param and uses to each monitoring location.
       CreateMLSummaryRef <- usesRef |>
-        tidyr::uncount(weights = length(unique_ML)) 
-      
+        tidyr::uncount(weights = length(unique_ML))
+
       CreateMLSummaryRef <- CreateMLSummaryRef |>
         dplyr::mutate(
           MonitoringLocationIdentifier = as.character(rep(
