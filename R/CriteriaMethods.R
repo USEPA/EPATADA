@@ -752,11 +752,13 @@ TADA_DefineCriteriaMethodology <- function(
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) |>
-      tidyr::uncount(weights = length(org_id)) |>
+      tidyr::uncount(weights = length(org_id))
+    
+    TADA_param <- TADA_param |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(
           org_id,
-          nrow(.) / length(org_id)
+          nrow(TADA_param) / length(org_id)
         ))
       )
 
@@ -894,11 +896,13 @@ TADA_DefineCriteriaMethodology <- function(
     TADA_param <- dplyr::distinct(
       .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
     ) |>
-      tidyr::uncount(weights = length(org_id)) |>
+      tidyr::uncount(weights = length(org_id))
+    
+    TADA_param <- TADA_param |>
       dplyr::mutate(
         ATTAINS.OrganizationIdentifier = as.character(rep(
           org_id,
-          nrow(.) / length(org_id)
+          nrow(TADA_param) / length(org_id)
         ))
       )
 
