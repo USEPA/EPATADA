@@ -31,19 +31,6 @@ jobs:
           extra-packages: any::covr, any::xml2
           needs: coverage
 
-        - name: Print environment variables
-          run: env
-
-       - name: List directory contents
-          run: |
-            echo "Listing root directory:"
-            ls -la
-            echo "Listing package directory:"
-            ls -la ./path-to-your-package
-
-      - name: Install package
-        run: Rscript -e 'devtools::install()'
-
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
