@@ -3576,7 +3576,7 @@ TADA_MLSummary <- function(
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL, # If provided, keep all rows in this user supplied list if the param and use is found in the usesRef.
-  displayNA = TRUE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
+  displayNA = FALSE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
   excel = FALSE,
   overwrite = FALSE
 ) {
@@ -3733,8 +3733,8 @@ TADA_MLSummary <- function(
     # Identify all unique monitoring location id in the .data data frame to filter by.
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
-    # set a limit of 1M rows if we want to display all sites-param-use combinations.
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 1000000) {
+    # set a limit of 100k rows if we want to display all sites-param-use combinations.
+    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 100000) {
       warning(paste0(
         "displayNA = TRUE: ",
         "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
@@ -3744,7 +3744,7 @@ TADA_MLSummary <- function(
       displayNA <- FALSE
     }
 
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 1000000) {
+    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 100000) {
       print(paste0(
         "displayNA = TRUE: ",
         "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."

@@ -351,6 +351,7 @@ TADA_DefineCriteriaMethodology <- function(
     suppressMessages(
       MLSummaryRef <- TADA_MLSummary(
         .data,
+        displayNA = FALSE,
         org_id = org_id,
         usesRef = TADA_usesRef,
         AUMLRef = AUMLRef,
@@ -791,8 +792,8 @@ TADA_DefineCriteriaMethodology <- function(
         "Your user supplied criteriaMethods file is missing ",
         length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
         " unique TADA.ComparableDataIdentifier(s) ",
-        ": ",
-        unique(non_definedCriteria$TADA.ComparableDataIdentifier),
+        ": \n",
+        paste0(unique(non_definedCriteria$TADA.ComparableDataIdentifier), collapse = ", "),
         " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
@@ -803,8 +804,8 @@ TADA_DefineCriteriaMethodology <- function(
         "Your user supplied criteriaMethods file is missing ",
         length(unique(non_definedCriteria$TADA.CharacteristicName)),
         " unique TADA.CharacteristicName(s) ",
-        ": ",
-        unique(non_definedCriteria$TADA.CharacteristicName),
+        ": \n",
+        paste0(unique(non_definedCriteria$TADA.CharacteristicName), collapse = ", "),
         " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
@@ -1016,6 +1017,12 @@ TADA_DefineCriteriaMethodology <- function(
       ) |>
       # tidyr::drop_na(ATTAINS.ParameterName) |>
       dplyr::distinct()
+  }
+
+  # Final formatting considerations to output in the DefineCriteriaMethodology table
+  if (!all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))) {
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
   }
 
   # Generates the excel function (HIGHLY Recommended for users to export)
