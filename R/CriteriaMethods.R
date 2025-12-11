@@ -793,7 +793,10 @@ TADA_DefineCriteriaMethodology <- function(
         length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
         " unique TADA.ComparableDataIdentifier(s) ",
         ": \n",
-        paste0(unique(non_definedCriteria$TADA.ComparableDataIdentifier), collapse = ", "),
+        paste0(
+          unique(non_definedCriteria$TADA.ComparableDataIdentifier),
+          collapse = ", "
+        ),
         " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
@@ -805,7 +808,10 @@ TADA_DefineCriteriaMethodology <- function(
         length(unique(non_definedCriteria$TADA.CharacteristicName)),
         " unique TADA.CharacteristicName(s) ",
         ": \n",
-        paste0(unique(non_definedCriteria$TADA.CharacteristicName), collapse = ", "),
+        paste0(
+          unique(non_definedCriteria$TADA.CharacteristicName),
+          collapse = ", "
+        ),
         " without an ATTAINS.ParameterName crosswalk ",
         "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
       ))
