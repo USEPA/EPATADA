@@ -517,8 +517,9 @@ TADA_GetATTAINSOrgIDsRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest ATTAINS Organization Reference Table failed!")
-    message("Falling back to (possibly outdated) internal file.")
+    message(
+      "TADA_UpdateATTAINSOrgIDsRef: Downloading latest ATTAINS Organization ID domain options failed! Falling back to (possibly outdated) internal file."
+    )
     return(utils::read.csv(system.file(
       "extdata",
       "ATTAINSOrgIDsRef.csv",

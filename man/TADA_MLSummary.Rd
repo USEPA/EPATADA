@@ -11,7 +11,7 @@ TADA_MLSummary(
   AUMLRef = NULL,
   AU_UsesRef = NULL,
   MLSummaryRef = NULL,
-  displayNA = TRUE,
+  displayNA = FALSE,
   excel = FALSE,
   overwrite = FALSE
 )
