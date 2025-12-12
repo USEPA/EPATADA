@@ -90,7 +90,7 @@ suppressWarnings(
       append(r_files)
 
     # create list of urls
-    urls <- purrr::map(files, ~ readLines(.x)) |>
+    urls <- purrr::map(files, ~ readLines(.x, warn = FALSE, skipNul = TRUE)) |>
       unlist() |>
       extract_urls() |>
       clean_url() |>
