@@ -67,7 +67,7 @@ suppressWarnings(
     )
 
     vignettes <- list.files(
-      system.file("vignettes", package = "EPATADA"),
+      system.file("vignettes/", package = "EPATADA"),
       pattern = ".Rmd",
       full.names = TRUE
     )
@@ -79,7 +79,7 @@ suppressWarnings(
     )
 
     r_files <- list.files(
-      system.file("R", package = "EPATADA"),
+      system.file("R/", package = "EPATADA"),
       pattern = ".R",
       full.names = TRUE
     )
