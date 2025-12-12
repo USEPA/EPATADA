@@ -88,7 +88,7 @@ downloaded automatically from CRAN with the TADA install. If desired,
 the development version of dataRetrieval can be downloaded directly from
 GitHub (un-comment).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -106,7 +106,7 @@ remotes::install_github("USEPA/EPATADA",
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r load EPATADA, results = 'hide'}
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 

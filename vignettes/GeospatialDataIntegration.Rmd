@@ -114,7 +114,7 @@ install.
 If desired, the development versions of dataRetrieval and StreamCatTools
 can be downloaded directly from GitHub (un-comment).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -127,7 +127,7 @@ remotes::install_github("USEPA/EPATADA",
 #                         dependencies = TRUE)
 ```
 
-```{r dev_install, results = 'hide', include = F}
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
