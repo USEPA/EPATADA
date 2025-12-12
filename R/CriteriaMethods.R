@@ -255,11 +255,14 @@ TADA_DefineCriteriaMethodology <- function(
     # If user supplies criteria methods table, then auto_assign = T for any non-matched values
     if (!is.null(criteriaMethods)) {
       print(
-        "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
+        "A criteriaMethods table was provided. auto_assign will be set to 'FALSE' where users will need to decide the proper ATTAINS crosswalk."
       )
-      auto_assign <- TRUE
+      auto_assign <- FALSE
     }
 
+    # If auto_assign = FALSE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
+    
+    
     # Invalid function input combos - supply one or the other.
     if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
       stop(
@@ -274,34 +277,60 @@ TADA_DefineCriteriaMethodology <- function(
       )
     }
 
+    # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
+    if (!is.character(org_id) & is.null(org_id)) {
+      org_id <- ""
+    }
+    # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
+    if (tolower(org_id) == "all") {
+      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
+      if (is.null(AUMLRef)) {
+        print(paste0(
+          "org_id == 'All' was selected, ",
+          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
+        ))
+        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
+      }
+      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
+      if (!is.null(AUMLRef)) {
+        print(paste0(
+          "org_id == 'All' was selected, ",
+          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
+        ))
+        org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+      }
+    }
+    
     # Generates a criteria table with only unique TADA.CharacteristicName(s) populated.
-    if (auto_assign == FALSE && is.null(MLSummaryRef)) {
-      desired_cols <- c(
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.ParameterName",
-        "ATTAINS.UseName",
-        "TADA.ComparableDataIdentifier",
-        "TADA.CharacteristicName",
-        "TADA.ResultSampleFractionText",
-        "TADA.MethodSpeciationName",
-        # Spatial Columns
-        "ATTAINS.WaterType",
-        "SaltFresh",
-        "DepthCategory",
-        "UniqueSpatialCriteria",
-        # Criteria Columns
-        "AcuteChronic",
-        "EquationBased",
-        # Data Sufficiency Columns
-        "AssessPeriod",
-        "Season",
-        "DistrPeriod"
-      )
-
-      DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(
-        DefineCriteriaMethodology[cols_to_convert],
-        as.character
-      )
+    if (auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)) {
+      # desired_cols <- c(
+      #   "ATTAINS.OrganizationIdentifier",
+      #   "ATTAINS.ParameterName",
+      #   "ATTAINS.UseName",
+      #   "TADA.ComparableDataIdentifier",
+      #   "TADA.CharacteristicName",
+      #   "TADA.ResultSampleFractionText",
+      #   "TADA.MethodSpeciationName",
+      #   # Spatial Columns
+      #   "ATTAINS.WaterType",
+      #   "SaltFresh",
+      #   "DepthCategory",
+      #   "UniqueSpatialCriteria",
+      #   # Criteria Columns
+      #   "AcuteChronic",
+      #   "EquationBased",
+      #   # Data Sufficiency Columns
+      #   "AssessPeriod",
+      #   "Season",
+      #   "DistrPeriod"
+      # )
+      # 
+      # DefineCriteriaMethodology <- data.frame()
+      # 
+      # DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(
+      #   DefineCriteriaMethodology[cols_to_convert],
+      #   as.character
+      # )
 
       suppressMessages(
         TADA_ParamRef <- TADA_ParametersForAnalysis(
@@ -526,29 +555,6 @@ TADA_DefineCriteriaMethodology <- function(
       }
     }
 
-    # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
-    if (!is.character(org_id) & is.null(org_id)) {
-      org_id <- ""
-    }
-    # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
-      # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
-      if (is.null(AUMLRef)) {
-        print(paste0(
-          "org_id == 'All' was selected, ",
-          "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
-        ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
-      }
-      # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
-      if (!is.null(AUMLRef)) {
-        print(paste0(
-          "org_id == 'All' was selected, ",
-          "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
-        ))
-        org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
-      }
-    }
     # User has went through the recommended workflow. Criteria table is generated
     # from the MLSummaryRef file. This file also contains unique spatial criteria
     # as an option and will include these values if they have been populated.
@@ -859,6 +865,9 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::select(dplyr::all_of(desired_cols)) |>
         as.data.frame()
 
+      # Create empty criteria methods data frame.
+      DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
+      
       # Must now match the data types
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
