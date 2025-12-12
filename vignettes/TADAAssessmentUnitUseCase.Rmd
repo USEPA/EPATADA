@@ -77,18 +77,25 @@ library(remotes)
 
 Next, install and load EPATADA using the remotes package.
 
-```{r install_TADA, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
 ```
 
-```{r install_TADA_developer, include = FALSE}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -103,7 +110,7 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r library, results = 'hide'}
+```{r load all libraries, results = 'hide'}
 list.of.packages <- c(
   "dplyr", "yaml", "lwgeom", "sf", "lubridate",
   "knitr", "DT"

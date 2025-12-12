@@ -77,7 +77,7 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, results = 'hide', include = F}
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
