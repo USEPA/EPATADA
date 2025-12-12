@@ -57,28 +57,33 @@ suppressWarnings(
         stringr::str_remove_all("[<>]")
     }
 
-    # create lists of files to check
+    file_path <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "data", "yourfile.txt")
+
+    # get workspace directory
+    workspace_dir <- Sys.getenv("GITHUB_WORKSPACE")
+
+    # create lists of files to check for URLs
     other_files <- c(
-      system.file("README.md", package = "EPATADA"),
-      system.file("DESCRIPTION", package = "EPATADA"),
-      system.file("NAMESPACE", package = "EPATADA")
+      file.path(workspace_dir, "README.md"),
+      file.path(workspace_dir, "DESCRIPTION"),
+      file.path(workspace_dir, "NAMESPACE")
     )
 
     vignettes <- list.files(
-      system.file("vignettes", package = "EPATADA"),
-      pattern = ".Rmd",
+      file.path(workspace_dir, "vignettes"),
+      pattern = "\\.Rmd$",  # Escape the dot for regex
       full.names = TRUE
     )
 
     articles <- list.files(
-      system.file("vignettes/articles", package = "EPATADA"),
-      pattern = ".Rmd",
+      file.path(workspace_dir, "vignettes", "articles"),
+      pattern = "\\.Rmd$",  # Escape the dot for regex
       full.names = TRUE
     )
 
     r_files <- list.files(
-      system.file("R", package = "EPATADA"),
-      pattern = ".R",
+      file.path(workspace_dir, "R"),
+      pattern = "\\.R$",  # Escape the dot for regex
       full.names = TRUE
     )
 
