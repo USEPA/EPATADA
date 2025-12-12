@@ -110,7 +110,7 @@ for TADA package installation instructions.)
 We'll also record the start time for our analysis, beginning after
 loading packages.
 
-```{r library, results = 'hide'}
+```{r load all libraries, results = 'hide'}
 list.of.packages <- c(
   "dplyr", "yaml", "lwgeom", "sf", "lubridate",
   "knitr", "DT"
