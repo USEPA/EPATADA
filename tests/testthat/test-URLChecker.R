@@ -139,11 +139,11 @@ suppressWarnings(
     other.cols <- df_false |>
       dplyr::filter(!urls %in% func.urls)
 
+    n.other.cols <- nrow(other.cols)
+
     if(is.null(n.other.cols)){
       n.func.cols <- 0
     }
-
-    n.other.cols <- nrow(other.cols)
 
     # set up test to produce warning, not failure
     # based on https://www.youtube.com/watch?v=wIfduhx6sJs, "Throw Warnings Instead of Errors in your R Unit Tests with testthat"
