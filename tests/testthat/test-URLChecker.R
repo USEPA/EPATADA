@@ -65,7 +65,7 @@ suppressWarnings(
     )
 
     vignettes <- list.files(
-      system.file("vignettes/", package = "EPATADA"),
+      system.file("vignettes", package = "EPATADA"),
       pattern = ".Rmd",
       full.names = TRUE
     )
@@ -77,7 +77,7 @@ suppressWarnings(
     )
 
     r_files <- list.files(
-      system.file("R/", package = "EPATADA"),
+      system.file("R", package = "EPATADA"),
       pattern = ".R",
       full.names = TRUE
     )
@@ -86,6 +86,8 @@ suppressWarnings(
     files <- append(other_files, vignettes) |>
       append(articles) |>
       append(r_files)
+
+    files <- purrr::map(files, normalizePath)
 
     # create list of urls
     urls <- purrr::map(files, ~ readr::read_file(.x)) |>
