@@ -71,7 +71,7 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA, eval = F, results = 'hide'}
+```{r install_TADA, eval = T, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
@@ -81,10 +81,14 @@ remotes::install_github("USEPA/EPATADA",
 ```
 
 ```{r dev_install, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "update-mod-3-alt-option-vignette",
-  dependencies = TRUE
-)
+# remotes::install_github("USEPA/EPATADA",
+#   ref = "develop",
+#   dependencies = TRUE,
+#   force = TRUE
+# )
+
+library(devtools)
+load_all()
 ```
 
 Finally, use the **library()** function to load the EPATADA R Package
@@ -199,12 +203,6 @@ the excel file.
 
 ```{r blank template output}
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, # remove this as an arg input
-  org_id = "MTDEQ", # can remove this too
-  auto_assign = FALSE, displayUniqueId = TRUE,
-  excel = FALSE
-  # uncomment to run the excel file
-  # excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.Criteria.blank)
