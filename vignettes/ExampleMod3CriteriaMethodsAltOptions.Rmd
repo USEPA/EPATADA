@@ -71,28 +71,22 @@ may be prompted in the console to update dependencies that have more
 recent versions available. If you see this prompt, it is recommended to
 update all of them (enter 1 into the console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, results = 'hide', include = F}
-# remotes::install_github("USEPA/EPATADA",
-#   ref = "develop",
-#   dependencies = TRUE,
-#   force = TRUE
-# )
-
-library(devtools)
-load_all()
+```{r dev_install, eval = F, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
-Finally, use the **library()** function to load the EPATADA R Package
-into your R session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
@@ -186,10 +180,11 @@ criteria table
     This should only be provided when auto_assign = TRUE.
 
 4)  (Recommended) Go through the step-by-step review process with the 3
-    TADA crosswalk reference file generation for TADA_ParametersForAnalysis,
-    TADA_UsesForAnalysis, and TADA_MLSummaryRef. This vignette
-    does not go through this recommended workflow. Please see
-    ExampleMod3Workflow.Rmd for this guided workflow.
+    TADA crosswalk reference file generation for
+    TADA_ParametersForAnalysis, TADA_UsesForAnalysis, and
+    TADA_MLSummaryRef. This vignette does not go through this
+    recommended workflow. Please see ExampleMod3Workflow.Rmd for this
+    guided workflow.
 
 Each option will allow the option to append additional rows to summarize
 EPA304a recommended standards, if one has been defined. Please contact
