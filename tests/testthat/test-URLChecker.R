@@ -57,7 +57,11 @@ suppressWarnings(
         stringr::str_remove_all("[<>]")
     }
 
-    file_path <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "data", "yourfile.txt")
+    file_path <- file.path(
+      Sys.getenv("GITHUB_WORKSPACE"),
+      "data",
+      "yourfile.txt"
+    )
 
     # get workspace directory
     workspace_dir <- Sys.getenv("GITHUB_WORKSPACE")
@@ -71,19 +75,19 @@ suppressWarnings(
 
     vignettes <- list.files(
       file.path(workspace_dir, "vignettes"),
-      pattern = "\\.Rmd$",  # Escape the dot for regex
+      pattern = "\\.Rmd$", # Escape the dot for regex
       full.names = TRUE
     )
 
     articles <- list.files(
       file.path(workspace_dir, "vignettes", "articles"),
-      pattern = "\\.Rmd$",  # Escape the dot for regex
+      pattern = "\\.Rmd$", # Escape the dot for regex
       full.names = TRUE
     )
 
     r_files <- list.files(
       file.path(workspace_dir, "R"),
-      pattern = "\\.R$",  # Escape the dot for regex
+      pattern = "\\.R$", # Escape the dot for regex
       full.names = TRUE
     )
 
