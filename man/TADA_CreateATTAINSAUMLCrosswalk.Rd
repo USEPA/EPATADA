@@ -6,6 +6,7 @@
 \usage{
 TADA_CreateATTAINSAUMLCrosswalk(
   .data,
+  org_id = "all",
   return_nearest = TRUE,
   fill_USGS_catch = FALSE,
   resolution = "Hi",
@@ -15,6 +16,18 @@ TADA_CreateATTAINSAUMLCrosswalk(
 \arguments{
 \item{.data}{A dataframe created by \code{TADA_DataRetrieval()} or the sf
 equivalent made by \code{TADA_MakeSpatial()}.}
+
+\item{org_id}{ATTAINS organization identifier(s) as a character string.
+If populated, Monitoring Locations will only be matched to Assessment Units from the
+specified organization(s). A list of organization
+identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param. When
+org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+from all organizations will be considered. When org_id = "none" or NULL, no
+crosswalk data from ATTAINS will be considered. The default is "all".}
 
 \item{return_nearest}{If a WQP observation falls within more than one AU,
 return ONLY the nearest AU (return_nearest = TRUE), or all AUs
@@ -52,7 +65,7 @@ observations.
 This function calculates and reports the distance, 'TADA.DistanceAway.Meters',
 between each WQP observation and intersecting ATTAINS features within its
 catchment. A TADA.DistanceAway.Meters value of 0 indicates that the WQP
-observation is directly on the associated  ATTAINS point or line feature,
+observation is directly on the associated ATTAINS point or line feature,
 or located inside the associated ATTAINS polygon.
 }
 \description{
@@ -91,7 +104,7 @@ complex hydrology where imprecise WQP monitoring location coordinates can
 be problematic. Note that many WQP locations will not fall within the bounds
 of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks
 are strongly encouraged. WQP monitoring location metadata may also be helpful
-for matching waterbody  names with ATTAINS waterbody names instead of relying
+for matching waterbody names with ATTAINS waterbody names instead of relying
 solely on the geospatial location (lat/long).
 }
 \examples{
@@ -110,7 +123,7 @@ tada_data <- TADA_DataRetrieval(
 tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
   fill_USGS_catch = FALSE,
   return_sf = FALSE,
-  return_nearest = FALSE,
+  return_nearest = FALSE
 )
 
 tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,

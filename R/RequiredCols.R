@@ -36,6 +36,7 @@ require.cols <- c(
   "TADA.NearbySites.Flag", # generated,
   "TADA.NearbySiteGroup", # generated
   "TADA.DistanceAway.Meters", # generated
+  "TADA.AURefSource", # generated
 
   # Comparable Data Groups (e.g. Observable Properties)
   "ResultSampleFractionText", # required in Module 1 but is replaced by TADA version in future modules
@@ -246,19 +247,42 @@ extra.cols <- c(
 )
 
 attains.cols <- c(
-  "ATTAINS.OrganizationIdentifier", "ATTAINS.SubmissionId", "ATTAINS.HasProtectionPlan",
-  "ATTAINS.AssessmentUnitName", "ATTAINS.NhdPlusId", "ATTAINS.Tas303d",
-  "ATTAINS.IsThreatened", "ATTAINS.State", "ATTAINS.On303dList",
-  "ATTAINS.OrganizationName", "ATTAINS.Region", "ATTAINS.ShapeLength",
-  "ATTAINS.ReportingCycle", "ATTAINS.AssmntJoinKey", "ATTAINS.HasTmdl",
-  "ATTAINS.OrgType", "ATTAINS.PermIdJoinKey", "ATTAINS.CatchmentIsTribal",
-  "ATTAINS.IrCategory", "ATTAINS.WaterbodyReportLink", "ATTAINS.AssessmentUnitIdentifier",
-  "ATTAINS.OverallStatus", "ATTAINS.IsAssessed", "ATTAINS.IsImpaired",
-  "ATTAINS.Has4bPlan", "ATTAINS.Huc12", "ATTAINS.HasAlternativePlan",
-  "ATTAINS.VisionPriority303d", "ATTAINS.AreaSqkm", "ATTAINS.CatchmentAreaSqkm",
-  "ATTAINS.CatchmentStateCode", "ATTAINS.CatchmentResolution", "ATTAINS.WaterType",
+  "ATTAINS.OrganizationIdentifier",
+  "ATTAINS.SubmissionId",
+  "ATTAINS.HasProtectionPlan",
+  "ATTAINS.AssessmentUnitName",
+  "ATTAINS.NhdPlusId",
+  "ATTAINS.Tas303d",
+  "ATTAINS.IsThreatened",
+  "ATTAINS.State",
+  "ATTAINS.On303dList",
+  "ATTAINS.OrganizationName",
+  "ATTAINS.Region",
+  "ATTAINS.ShapeLength",
+  "ATTAINS.ReportingCycle",
+  "ATTAINS.AssmntJoinKey",
+  "ATTAINS.HasTmdl",
+  "ATTAINS.OrgType",
+  "ATTAINS.PermIdJoinKey",
+  "ATTAINS.CatchmentIsTribal",
+  "ATTAINS.IrCategory",
+  "ATTAINS.WaterbodyReportLink",
+  "ATTAINS.AssessmentUnitIdentifier",
+  "ATTAINS.OverallStatus",
+  "ATTAINS.IsAssessed",
+  "ATTAINS.IsImpaired",
+  "ATTAINS.Has4bPlan",
+  "ATTAINS.Huc12",
+  "ATTAINS.HasAlternativePlan",
+  "ATTAINS.VisionPriority303d",
+  "ATTAINS.AreaSqkm",
+  "ATTAINS.CatchmentAreaSqkm",
+  "ATTAINS.CatchmentStateCode",
+  "ATTAINS.CatchmentResolution",
+  "ATTAINS.WaterType",
   "ATTAINS.ShapeArea"
 )
+
 # Only used in TADA Shiny or should be at the end
 last.cols <- c(
   "TADA.Remove",
@@ -329,11 +353,20 @@ TADA_OrderCols <- function(.data) {
 
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
 
-  rearranged <- .data %>%
-    dplyr::relocate(tidyselect::any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(extra_cols), .after = tidyselect::any_of(required_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(last_cols), .after = tidyselect::any_of(extra_cols)) %>%
-    dplyr::relocate(tidyselect::any_of(attains_cols), .after = tidyselect::any_of(last_cols))
+  rearranged <- .data |>
+    dplyr::relocate(tidyselect::any_of(required_cols)) |>
+    dplyr::relocate(
+      tidyselect::any_of(extra_cols),
+      .after = tidyselect::any_of(required_cols)
+    ) |>
+    dplyr::relocate(
+      tidyselect::any_of(last_cols),
+      .after = tidyselect::any_of(extra_cols)
+    ) |>
+    dplyr::relocate(
+      tidyselect::any_of(attains_cols),
+      .after = tidyselect::any_of(last_cols)
+    )
 
   rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
 
@@ -430,7 +463,7 @@ TADA_GetTemplate <- function() {
 #'   tz = "UTC"
 #' )
 #'
-#' review_TADAProfile1 <- TADAProfile1 %>% dplyr::select(c(
+#' review_TADAProfile1 <- TADAProfile1 |> dplyr::select(c(
 #'   "ActivityStartDate",
 #'   "ActivityStartTime.Time",
 #'   "ActivityStartTime.TimeZoneCode",
@@ -456,9 +489,7 @@ TADA_CheckRequiredFields <- function(.data) {
     missingcols <- base::setdiff(require.originals, colnames(.data))
     stop(
       "TADA_CheckRequiredFields: the dataframe does not contain the required fields: ",
-      paste(as.character(missingcols),
-        collapse = ", "
-      )
+      paste(as.character(missingcols), collapse = ", ")
     )
   }
 }
@@ -494,11 +525,13 @@ TADA_RetainRequired <- function(.data) {
 
   ############################
   # first, remove columns that are not required for TADA workflow and contain only NA
-  print("TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs.")
+  print(
+    "TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs."
+  )
 
   # create list of columns containing all NA values.
-  na.cols <- .data %>%
-    purrr::keep(~ all(is.na(.x))) %>%
+  na.cols <- .data |>
+    purrr::keep(~ all(is.na(.x))) |>
     names()
 
   # create list of columns to be removed by comparing columns containing all NA
@@ -508,29 +541,41 @@ TADA_RetainRequired <- function(.data) {
   remove.cols <- setdiff(na.cols, require.cols)
 
   # remove not required columns containing all NA values from dataframe.
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::select(-dplyr::contains(remove.cols))
 
   # check to make sure required columns contain some data that is not NA
   req.check <- intersect(require.cols, na.cols)
 
   # create character string for list of required columns containing only NAs
-  req.paste <- stringi::stri_replace_last_fixed(paste(as.character(req.check), collapse = ", ", sep = ""), ", ", " and ")
+  req.paste <- stringi::stri_replace_last_fixed(
+    paste(as.character(req.check), collapse = ", ", sep = ""),
+    ", ",
+    " and "
+  )
 
   # remove column name lists
   rm(na.cols)
 
   # create character string for list of removed columns
-  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+  remove.paste <- stringi::stri_replace_last_fixed(
+    paste(as.character(remove.cols), collapse = ", ", sep = ""),
+    ", ",
+    " and "
+  )
 
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
     print(paste0(
       "The following column(s) were removed as they contained only NAs ",
-      "and are not required for the TADA workflow: ", remove.paste, "."
+      "and are not required for the TADA workflow: ",
+      remove.paste,
+      "."
     ))
   } else {
-    print("All columns contained some non-NA values and were retained in the dataframe.")
+    print(
+      "All columns contained some non-NA values and were retained in the dataframe."
+    )
   }
 
   # remove columns that are not required for TADA workflow
@@ -539,11 +584,14 @@ TADA_RetainRequired <- function(.data) {
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
     print(paste0(
-      "TADA_RetainRequired: TADA Required column(s) ", req.paste,
+      "TADA_RetainRequired: TADA Required column(s) ",
+      req.paste,
       " contain only NA values. This may impact other TADA functions."
     ))
   } else {
-    print("TADA_RetainRequired: All TADA Required columns contain some non-NA values.")
+    print(
+      "TADA_RetainRequired: All TADA Required columns contain some non-NA values."
+    )
   }
 
   # remove intermediate objects
@@ -552,26 +600,37 @@ TADA_RetainRequired <- function(.data) {
   ######################
 
   # Now removing any columns not required for the TADA workflow where all values are equal to NA
-  print("TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates.")
+  print(
+    "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."
+  )
 
   # Create list of all columns to be retained
   keep.cols <- c(require.cols, attains.cols, last.cols)
 
   # create list of all columns in original data set
-  original.cols <- .data %>% names()
+  original.cols <- .data |> names()
 
   # create a list of columns that were removed by comparing original column and keep column lists
   remove.cols <- setdiff(original.cols, keep.cols)
 
   # create a character string listing all removed columns
-  remove.paste <- stringi::stri_replace_last_fixed(paste(as.character(remove.cols), collapse = ", ", sep = ""), ", ", " and ")
+  remove.paste <- stringi::stri_replace_last_fixed(
+    paste(as.character(remove.cols), collapse = ", ", sep = ""),
+    ", ",
+    " and "
+  )
 
   # retain only columns identified as required or for filtering in the dataframe
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::select(dplyr::contains(keep.cols))
 
   # print a message to list names for all removed columns
-  print(paste("TADA_RetainRequired: The following non-required columns were removed: ", remove.paste, ".", sep = ""))
+  print(paste(
+    "TADA_RetainRequired: The following non-required columns were removed: ",
+    remove.paste,
+    ".",
+    sep = ""
+  ))
 
   return(.data)
 
@@ -603,8 +662,8 @@ TADA_RetainRequired <- function(.data) {
 #'   print("TADA_AutoFilter: removing columns not required for TADA workflow if they contain only NAs.")
 #'
 #'   # create list of columns containing all NA values.
-#'   na.cols <- .data %>%
-#'     purrr::keep(~ all(is.na(.x))) %>%
+#'   na.cols <- .data |>
+#'     purrr::keep(~ all(is.na(.x))) |>
 #'     names()
 #'
 #'   # create list of columns to be removed by comparing columns containing all NA
@@ -614,7 +673,7 @@ TADA_RetainRequired <- function(.data) {
 #'   remove.cols <- setdiff(na.cols, require.cols)
 #'
 #'   # remove not required columns containing all NA values from dataframe.
-#'   .data <- .data %>%
+#'   .data <- .data |>
 #'     dplyr::select(-dplyr::contains(remove.cols))
 #'
 #'   # check to make sure required columns contain some data that is not NA

@@ -8,23 +8,24 @@ test_that("No NA's in dependent flag columns", {
     sampleMedia = "Water",
     ask = FALSE
   )
-  testdat <- TADA_ConvertResultUnits(testdat,
-    transform = TRUE
-  )
+  testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
-  testdat <- suppressWarnings(TADA_FlagFraction(testdat,
+  testdat <- suppressWarnings(TADA_FlagFraction(
+    testdat,
     clean = FALSE,
     flaggedonly = FALSE
   ))
   expect_false(any(is.na(testdat$TADA.SampleFraction.Flag)))
 
-  testdat <- suppressWarnings(TADA_FlagSpeciation(testdat,
+  testdat <- suppressWarnings(TADA_FlagSpeciation(
+    testdat,
     clean = "none",
     flaggedonly = FALSE
   ))
   expect_false(any(is.na(testdat$TADA.MethodSpeciation.Flag)))
 
-  testdat <- suppressWarnings(TADA_FlagResultUnit(testdat,
+  testdat <- suppressWarnings(TADA_FlagResultUnit(
+    testdat,
     clean = "none",
     flaggedonly = FALSE
   ))

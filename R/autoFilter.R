@@ -22,7 +22,11 @@
 #' fieldCountUTAmmonia <- TADA_FieldCounts(Data_Nutrients_UT,
 #'   display = "most", characteristicName = "AMMONIA"
 #' )
-TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), characteristicName = "null") {
+TADA_FieldCounts <- function(
+  .data,
+  display = c("key", "most", "all"),
+  characteristicName = "null"
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -44,15 +48,20 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
-    .data <- subset(.data, .data$TADA.CharacteristicName %in% c(characteristicName))
+    .data <- subset(
+      .data,
+      .data$TADA.CharacteristicName %in% c(characteristicName)
+    )
 
     if (dim(.data)[1] < 1) {
-      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization of synonyms from different WQP data providers (USGS's NWIS and EPA's WQX).")
+      stop(
+        "Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization of synonyms from different WQP data providers (USGS's NWIS and EPA's WQX)."
+      )
     }
   }
 
   # remove fields with only NAs from df
-  df <- .data %>% dplyr::select(where(~ !all(is.na(.x))))
+  df <- .data |> dplyr::select(where(~ !all(is.na(.x))))
 
   if (display == "key") {
     cols <- c(
@@ -148,7 +157,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
     cols <- names(df)
   }
 
-  df <- df %>%
+  df <- df |>
     dplyr::select(dplyr::contains(cols))
 
   # CREATE LIST OF FIELDS
@@ -162,7 +171,7 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
   col.names <- col.names[, c(2, 1)]
 
   # Reorder Count column in col.names from largest to smallest number
-  col.names <- col.names %>%
+  col.names <- col.names |>
     dplyr::arrange(desc(Count))
 
   return(col.names)
@@ -188,7 +197,11 @@ TADA_FieldCounts <- function(.data, display = c("key", "most", "all"), character
 #' # each parameter:
 #' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
-TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "null") {
+TADA_FieldValuesTable <- function(
+  .data,
+  field = "null",
+  characteristicName = "null"
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -199,7 +212,9 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
   }
 
   if (!field %in% names(.data)) {
-    stop("Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information.")
+    stop(
+      "Field input does not exist in dataset. Please populate the 'field' argument with a valid field name. Enter ?TADA_FieldValuesTable in console for more information."
+    )
   }
 
   # change NAs to "NA" (character string)
@@ -207,16 +222,18 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 
   # filter to characteristic if provided
   if (!characteristicName %in% c("null")) {
-    .data <- .data %>%
+    .data <- .data |>
       dplyr::filter(TADA.CharacteristicName %in% characteristicName)
     if (dim(.data)[1] < 1) {
-      stop("Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization.")
+      stop(
+        "Characteristic name(s) provided are not contained within the input dataset. Note that TADA converts characteristic names to ALL CAPS for easier harmonization."
+      )
     }
   }
 
   dat <- as.data.frame(table(.data[, field]))
   names(dat) <- c("Value", "Count")
-  dat <- dat %>% dplyr::arrange(desc(Count))
+  dat <- dat |> dplyr::arrange(desc(Count))
   return(dat)
 }
 
@@ -292,12 +309,14 @@ TADA_FieldValuesTable <- function(.data, field = "null", characteristicName = "n
 #' unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
 #' }
 #'
-TADA_AnalysisDataFilter <- function(.data,
-                                    clean = FALSE,
-                                    surface_water = TRUE,
-                                    ground_water = FALSE,
-                                    sediment = FALSE,
-                                    other = TRUE) {
+TADA_AnalysisDataFilter <- function(
+  .data,
+  clean = FALSE,
+  surface_water = TRUE,
+  ground_water = FALSE,
+  sediment = FALSE,
+  other = TRUE
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -310,122 +329,166 @@ TADA_AnalysisDataFilter <- function(.data,
   # *Need to add fish tissue to this function once using WQX 3.0 profiles
 
   # import MonitoringLocationTypeNames and TADA.Media.Flags
-  sw.sitetypes <- utils::read.csv(system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")) %>%
-    dplyr::select(Name, TADA.Media.Flag) %>%
-    dplyr::rename(ML.Media.Flag = TADA.Media.Flag) %>%
-    dplyr::mutate(MonitoringLocationTypeName = toupper(Name)) %>%
+  sw.sitetypes <- utils::read.csv(system.file(
+    "extdata",
+    "WQXMonitoringLocationTypeNameRef.csv",
+    package = "EPATADA"
+  )) |>
+    dplyr::select(Name, TADA.Media.Flag) |>
+    dplyr::rename(ML.Media.Flag = TADA.Media.Flag) |>
+    dplyr::mutate(MonitoringLocationTypeName = toupper(Name)) |>
     dplyr::select(-Name)
 
   # add TADA.Media.Flag column
-  .data <- .data %>%
+  .data <- .data |>
     # identify TADA.Media.Flag using ActivityMediaSubdivisionName and columns related to groundwater
-    dplyr::mutate(TADA.Media.Flag = dplyr::case_when(
-      ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
-      !is.na(AquiferName) |
-        !is.na(AquiferTypeName) |
-        !is.na(LocalAqfrName) |
-        !is.na(ConstructionDateText) |
-        !is.na(WellDepthMeasure.MeasureValue) |
-        !is.na(WellDepthMeasure.MeasureUnitCode) |
-        !is.na(WellHoleDepthMeasure.MeasureValue) |
-        !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
-      ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
-      !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
-    )) %>%
-    # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
-    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") %>%
     dplyr::mutate(
-      TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
-        ML.Media.Flag, TADA.Media.Flag
+      TADA.Media.Flag = dplyr::case_when(
+        ActivityMediaSubdivisionName == "Groundwater" ~ "Groundwater",
+        !is.na(AquiferName) |
+          !is.na(AquiferTypeName) |
+          !is.na(LocalAqfrName) |
+          !is.na(ConstructionDateText) |
+          !is.na(WellDepthMeasure.MeasureValue) |
+          !is.na(WellDepthMeasure.MeasureUnitCode) |
+          !is.na(WellHoleDepthMeasure.MeasureValue) |
+          !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "Groundwater",
+        ActivityMediaSubdivisionName == "Surface Water" ~ "Surface Water",
+        !ActivityMediaName %in% c("WATER", "Water", "water") ~ ActivityMediaName
+      )
+    ) |>
+    # add TADA.Media.Flag for additional rows based on TADA.MonitoringLocationTypeName
+    dplyr::left_join(sw.sitetypes, by = "MonitoringLocationTypeName") |>
+    dplyr::mutate(
+      TADA.Media.Flag = ifelse(
+        is.na(TADA.Media.Flag),
+        ML.Media.Flag,
+        TADA.Media.Flag
       ),
       TADA.Media.Flag = toupper(TADA.Media.Flag)
-    ) %>%
-    dplyr::select(-ML.Media.Flag) %>%
-    # set remaining NA TADA.Media.Flag to OTHER %>%
-    dplyr::mutate(TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag),
-      "OTHER", TADA.Media.Flag
-    ))
+    ) |>
+    dplyr::select(-ML.Media.Flag) |>
+    # set remaining NA TADA.Media.Flag to OTHER |>
+    dplyr::mutate(
+      TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag), "OTHER", TADA.Media.Flag)
+    )
 
   print("TADA_AnalysisDataFilter: Identifying groundwater results.")
 
   if (surface_water == TRUE) {
     sur.water.flag <- "Yes"
 
-    print("TADA_AnalysisDataFilter: Flagging surface water results to include in assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging surface water results to include in assessments."
+    )
   }
 
   if (surface_water == FALSE) {
     sur.water.flag <- "No"
 
-    print("TADA_AnalysisDataFilter: Flagging surface water results to exclude from assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging surface water results to exclude from assessments."
+    )
   }
-
 
   if (ground_water == TRUE) {
     gr.water.flag <- "Yes"
 
-    print("TADA_AnalysisDataFilter: Flagging groundwater results to include in assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging groundwater results to include in assessments."
+    )
   }
 
   if (ground_water == FALSE) {
     gr.water.flag <- "No"
 
-    print("TADA_AnalysisDataFilter: Flagging groundwater results to exclude from assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging groundwater results to exclude from assessments."
+    )
   }
 
   if (sediment == TRUE) {
     sed.flag <- "Yes"
 
-    print("TADA_AnalysisDataFilter: Flagging sediment results to include in assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging sediment results to include in assessments."
+    )
   }
 
   if (sediment == FALSE) {
     sed.flag <- "No"
 
-    print("TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments."
+    )
   }
 
   if (other == TRUE) {
     other.flag <- "Yes"
 
-    print("TADA_AnalysisDataFilter: Flagging other results to include in assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging other results to include in assessments."
+    )
   }
 
   if (other == FALSE) {
     other.flag <- "No"
 
-    print("TADA_AnalysisDataFilter: Flagging other results to exclude from assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Flagging other results to exclude from assessments."
+    )
   }
 
   # add media flag
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::mutate(
       TADA.UseForAnalysis.Flag = dplyr::case_when(
-        TADA.Media.Flag == "SEDIMENT" ~ paste0(sed.flag, " - ", TADA.Media.Flag),
-        TADA.Media.Flag == "SURFACE WATER" ~ paste0(sur.water.flag, " - ", TADA.Media.Flag),
-        TADA.Media.Flag == "GROUNDWATER" ~ paste0(gr.water.flag, " - ", TADA.Media.Flag),
+        TADA.Media.Flag == "SEDIMENT" ~ paste0(
+          sed.flag,
+          " - ",
+          TADA.Media.Flag
+        ),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste0(
+          sur.water.flag,
+          " - ",
+          TADA.Media.Flag
+        ),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste0(
+          gr.water.flag,
+          " - ",
+          TADA.Media.Flag
+        ),
         TADA.Media.Flag == "OTHER" ~ paste0(other.flag, " - ", TADA.Media.Flag),
-        !TADA.Media.Flag %in% c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste("No - ", TADA.Media.Flag, sep = "")
+        !TADA.Media.Flag %in%
+          c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste(
+          "No - ",
+          TADA.Media.Flag,
+          sep = ""
+        )
       )
     )
 
   if (clean == TRUE) {
-    .data <- .data %>%
-      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) %>%
-      dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) %>%
+    .data <- .data |>
+      dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Yes")) |>
+      dplyr::select(c(-TADA.UseForAnalysis.Flag, -TADA.Media.Flag)) |>
       TADA_OrderCols()
 
-    print("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments."
+    )
 
     return(.data)
   }
 
   if (clean == FALSE) {
-    .data <- .data %>%
-      dplyr::select(-TADA.Media.Flag) %>%
+    .data <- .data |>
+      dplyr::select(-TADA.Media.Flag) |>
       TADA_OrderCols()
 
-    print("TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments.")
+    print(
+      "TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments."
+    )
 
     return(.data)
   }

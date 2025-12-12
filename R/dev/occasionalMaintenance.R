@@ -9,9 +9,25 @@ FindSynonyms <- function() {
   test1 <- TADA_RunKeyFlagFunctions(test, clean = TRUE)
   ref <- TADA_GetSynonymRef()
   ref_chars <- unique(ref$TADA.CharacteristicName)
-  test_chars <- unique(subset(test1, test1$TADA.CharacteristicName %in% ref_chars)[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode")])
+  test_chars <- unique(subset(
+    test1,
+    test1$TADA.CharacteristicName %in% ref_chars
+  )[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )])
   test_chars_ref <- merge(test_chars, ref, all.x = TRUE)
-  new_combos <- subset(test_chars_ref, is.na(test_chars_ref$HarmonizationGroup))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName", "TADA.ResultMeasure.MeasureUnitCode")]
+  new_combos <- subset(
+    test_chars_ref,
+    is.na(test_chars_ref$HarmonizationGroup)
+  )[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasure.MeasureUnitCode"
+  )]
   if (dim(new_combos)[1] > 0) {
     print("New combinations found in random dataset test.")
   }
@@ -24,12 +40,12 @@ FindSynonyms <- function() {
 # Run the code below:
 # extract urls function
 extract_urls <- function(text) {
-  stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
+  stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") |> unlist()
 }
 
 # clean urls function
 clean_url <- function(url) {
-  stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") %>%
+  stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") |>
     stringr::str_remove_all("[<>]")
 }
 
@@ -40,23 +56,35 @@ other_files <- c(
   system.file("NAMESPACE", package = "EPATADA")
 )
 
-vignettes <- list.files(system.file("vignettes", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+vignettes <- list.files(
+  system.file("vignettes", package = "EPATADA"),
+  pattern = ".Rmd",
+  full.names = TRUE
+)
 
-articles <- list.files(system.file("vignettes/articles", package = "EPATADA"), pattern = ".Rmd", full.names = TRUE)
+articles <- list.files(
+  system.file("vignettes/articles", package = "EPATADA"),
+  pattern = ".Rmd",
+  full.names = TRUE
+)
 
-r_files <- list.files(system.file("R", package = "EPATADA"), pattern = ".R", full.names = TRUE)
+r_files <- list.files(
+  system.file("R", package = "EPATADA"),
+  pattern = ".R",
+  full.names = TRUE
+)
 
 # combine file lists
-files <- append(other_files, vignettes) %>%
-  append(articles) %>%
+files <- append(other_files, vignettes) |>
+  append(articles) |>
   append(r_files)
 
 # create list of urls
-urls <- purrr::map(files, ~ readLines(.x)) %>%
-  unlist() %>%
-  extract_urls() %>%
-  clean_url() %>%
-  unique() %>%
+urls <- purrr::map(files, ~ readLines(.x)) |>
+  unlist() |>
+  extract_urls() |>
+  clean_url() |>
+  unique() |>
   # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
   setdiff(c(
     # url works (HRM 11/7/24), but does not provide a recognizable response code
@@ -69,7 +97,7 @@ urls <- purrr::map(files, ~ readLines(.x)) %>%
   ))
 
 # retrieve http response headers from url list
-headers <- urls %>%
+headers <- urls |>
   purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
 # extract response code from first line of header response
@@ -79,17 +107,18 @@ response_code <- sapply(headers, "[[", 1)
 df <- data.frame(urls, response_code)
 
 # filter for any response codes that are not successful or redirect responses
-df_false <- df %>%
-  dplyr::filter(!grepl("200", response_code) &
-    !grepl("301", response_code) &
-    !grepl("302", response_code))
+df_false <- df |>
+  dplyr::filter(
+    !grepl("200", response_code) &
+      !grepl("301", response_code) &
+      !grepl("302", response_code)
+  )
 
 # Review the output of df_false.
 # More information about http response codes can be found here:
 # [Mozilla Developer HTTP response status codes] (https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 # Replace the broken links with functional ones or remove if no acceptable substitute is available.
 # Rerun code above to verify that df_false contains zero rows.
-
 
 ###########################################################
 
@@ -106,18 +135,24 @@ unit.ref <- dplyr::filter(
 )
 
 # find Characteristic/Source/Value.Unit combinations with more than one row
-find.dups <- unit.ref %>%
-  dplyr::filter(Type == "CharacteristicUnit") %>%
-  dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+find.dups <- unit.ref |>
+  dplyr::filter(Type == "CharacteristicUnit") |>
+  dplyr::group_by(Characteristic, Source, Value.Unit) |>
   dplyr::mutate(
     Min_n = length(unique(Minimum)),
     Max_n = length(unique(Maximum))
-  ) %>%
-  dplyr::filter(Min_n > 1 |
-    Max_n > 1)
+  ) |>
+  dplyr::filter(
+    Min_n > 1 |
+      Max_n > 1
+  )
 
 # create download path
-download.path <- file.path(Sys.getenv("USERPROFILE"), "Downloads", "WQXcharValRef_multiples.csv")
+download.path <- file.path(
+  Sys.getenv("USERPROFILE"),
+  "Downloads",
+  "WQXcharValRef_multiples.csv"
+)
 
 # create csv to send to WQX team and save in test results folder
 readr::write_csv(find.dups, download.path)
@@ -161,7 +196,10 @@ TADA_OvernightTesting <- function() {
   #             file.info(rstudioapi::getSourceEditorContext()$path)$size))
 
   num_iterations <- 2
-  master_missing_codes_df <- data.frame(MeasureQualifierCode = NA, TADA.MeasureQualifierCode.Flag = NA)
+  master_missing_codes_df <- data.frame(
+    MeasureQualifierCode = NA,
+    TADA.MeasureQualifierCode.Flag = NA
+  )
 
   for (i in 1:num_iterations) {
     testing <- TADA_RandomTestingData()
@@ -174,23 +212,31 @@ TADA_OvernightTesting <- function() {
     # print(unique(testing2$MeasureQualifierCode))
 
     # load in ResultMeasureQualifier Flag Table
-    qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
-      dplyr::rename(MeasureQualifierCode = Code) %>%
+    qc.ref <- TADA_GetMeasureQualifierCodeRef() |>
+      dplyr::rename(MeasureQualifierCode = Code) |>
       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
 
     codes <- unique(testing2$MeasureQualifierCode)
     missing_codes <- codes[!codes %in% qc.ref$MeasureQualifierCode]
 
-    missing_codes_df <- data.frame(MeasureQualifierCode = missing_codes, TADA.MeasureQualifierCode.Flag = "Not Reviewed")
+    missing_codes_df <- data.frame(
+      MeasureQualifierCode = missing_codes,
+      TADA.MeasureQualifierCode.Flag = "Not Reviewed"
+    )
 
     View(missing_codes_df)
 
-    master_missing_codes_df <- dplyr::full_join(missing_codes_df, master_missing_codes_df, by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"), copy = TRUE)
+    master_missing_codes_df <- dplyr::full_join(
+      missing_codes_df,
+      master_missing_codes_df,
+      by = c("MeasureQualifierCode", "TADA.MeasureQualifierCode.Flag"),
+      copy = TRUE
+    )
 
     View(master_missing_codes_df)
   }
 
-  master_missing_codes_distinct <- master_missing_codes_df %>% dplyr::distinct()
+  master_missing_codes_distinct <- master_missing_codes_df |> dplyr::distinct()
 
   View(master_missing_codes_distinct)
 

@@ -30,83 +30,105 @@
 #' }
 #'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
-  if (!"TADA.LongitudeMeasure" %in% names(.data) |
-    !"TADA.LatitudeMeasure" %in% names(.data) |
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)) {
-    stop("The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`.")
-  } else if (!is.null(.data) & inherits(.data, "sf")) {
+  # Check if necessary columns are present in the dataframe
+  if (
+    !"TADA.LongitudeMeasure" %in% names(.data) ||
+      !"TADA.LatitudeMeasure" %in% names(.data) ||
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)
+  ) {
+    stop(
+      "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
+    )
+  } else if (!is.null(.data) && inherits(.data, "sf")) {
+    # Check if the data is already an `sf` object
     stop("Your data is already a spatial object.")
   }
+
   message("Transforming your data into a spatial object.")
 
   suppressMessages(suppressWarnings({
-    # Make a reference table for CRS and EPSG codes
-    # List should include all codes in WQX domain (see HorizontalCoordinateReferenceSystemDatum CSV at https://www.epa.gov/waterdata/storage-and-retrieval-and-water-quality-exchange-domain-services-and-downloads)
+    # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
-      "NAD83", 4269,
-      "WGS84", 4326,
-      "NAD27", 4267,
-      "UNKWN", crs, # Unknowns and NAs should go to user supplied crs or default
-      "Unknown", crs,
-      "OTHER", crs,
-      "OLDHI", 4135,
-      "AMSMA", 4169,
-      "ASTRO", 4727,
-      "GUAM", 4675,
-      "JHNSN", 4725,
-      "PR", 6139,
-      "SGEOR", 4138,
-      "SLAWR", 4136,
-      "SPAUL", 4137,
-      "WAKE", 6732,
-      "WGS72", 6322,
-      "HARN", 4152
+      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
+      "NAD83"                                       ,  4269 ,
+      "WGS84"                                       ,  4326 ,
+      "NAD27"                                       ,  4267 ,
+      "UNKWN"                                       , crs   ,
+      "Unknown"                                     , crs   ,
+      "OTHER"                                       , crs   ,
+      "OLDHI"                                       ,  4135 ,
+      "AMSMA"                                       ,  4169 ,
+      "ASTRO"                                       ,  4727 ,
+      "GUAM"                                        ,  4675 ,
+      "JHNSN"                                       ,  4725 ,
+      "PR"                                          ,  6139 ,
+      "SGEOR"                                       ,  4138 ,
+      "SLAWR"                                       ,  4136 ,
+      "SPAUL"                                       ,  4137 ,
+      "WAKE"                                        ,  6732 ,
+      "WGS72"                                       ,  6322 ,
+      "HARN"                                        ,  4152
     )
 
-    # Check the CRS column for NA or "UNKWN" and warn user if any are found
-    if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-      any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
-      message(paste0("Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ", crs, "."))
+    # Handle missing or unknown CRS values
+    if (
+      any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
+        any(
+          .data$HorizontalCoordinateReferenceSystemDatumName %in%
+            c("UNKWN", "Unknown", "OTHER")
+        )
+    ) {
+      message(paste0(
+        "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ",
+        crs,
+        "."
+      ))
+      .data$HorizontalCoordinateReferenceSystemDatumName[is.na(
+        .data$HorizontalCoordinateReferenceSystemDatumName
+      )] <- "Unknown"
     }
-    # join our CRS reference table to our original WQP dataframe:
-    sf <- .data %>%
-      tibble::rowid_to_column(var = "index") %>%
+
+    # Prepare the data for spatial transformation
+    sf <- dplyr::left_join(
+      .data,
+      epsg_codes,
+      by = "HorizontalCoordinateReferenceSystemDatumName"
+    ) |>
       dplyr::mutate(
         lat = as.numeric(TADA.LatitudeMeasure),
-        lon = as.numeric(TADA.LongitudeMeasure),
-        # If `HorizontalCoordinateReferenceSystemDatumName` is NA...
-        HorizontalCoordinateReferenceSystemDatumName = ifelse(is.na(HorizontalCoordinateReferenceSystemDatumName),
-          # ... assign it the same crs as the user-supplied crs:
-          paste0(epsg_codes %>% dplyr::filter(epsg == as.numeric(crs)) %>% .[1, 1]),
-          # otherwise, preserve the original crs
-          HorizontalCoordinateReferenceSystemDatumName
+        lon = as.numeric(TADA.LongitudeMeasure)
+      )
+
+    print("Data after CRS assignment:")
+    print(sf)
+
+    # Transform each subset of data into an `sf` object
+    sf <- purrr::map_df(
+      split(sf, sf$HorizontalCoordinateReferenceSystemDatumName),
+      function(subset_data) {
+        print(paste(
+          "Processing CRS:",
+          unique(subset_data$HorizontalCoordinateReferenceSystemDatumName)
+        ))
+        if (nrow(subset_data) == 0) {
+          message(
+            "Empty subset detected for CRS:",
+            unique(subset_data$HorizontalCoordinateReferenceSystemDatumName)
+          )
+          return(NULL)
+        }
+        # Convert to `sf` object and transform to the specified CRS
+        sf_object <- sf::st_as_sf(
+          subset_data,
+          coords = c("lon", "lat"), # Specify coordinate columns
+          crs = unique(subset_data$epsg) # Use EPSG code for CRS
         )
-      ) %>%
-      # Add EPSG codes
-      dplyr::left_join(
-        x = .,
-        y = epsg_codes,
-        by = "HorizontalCoordinateReferenceSystemDatumName"
-      ) %>%
-      # Group by CRS:
-      split(f = .$HorizontalCoordinateReferenceSystemDatumName) %>%
-      # Transform and re-stack:
-      purrr::map_df(
-        .x = .,
-        .f = ~ .x %>%
-          sf::st_as_sf(
-            coords = c("lon", "lat"),
-            crs = unique(.x$epsg)
-          ) %>%
-          # transform to the selected CRS:
-          sf::st_transform(sf::st_crs(as.numeric(crs)))
-      ) %>%
-      dplyr::arrange(index) %>%
-      dplyr::select(-c(index, epsg))
+        sf::st_transform(sf_object, sf::st_crs(as.numeric(crs))) # Transform to target CRS
+      }
+    )
   }))
 
-  return(sf)
+  return(sf) # Return the transformed `sf` object
 }
 
 
@@ -120,6 +142,15 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #' @param .data A dataframe developed using `TADA_DataRetrieval()` or `TADA_MakeSpatial()`.
 #' @param catchments_only Whether to return just the summarized ATTAINS catchment features, or both
 #' the catchments and raw ATTAINS features. TRUE or FALSE.
+#' @param org_id ATTAINS organization identifier(s) as a character string.
+#' If populated, Assessment Units  will only be fetched from the specified
+#' organization(s). A list of organization identifiers can be found
+#' by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", Assessment Units from all organizations will be considered.
+#' The default is "all".
 #' @return Spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and
 #' ATTAINS_polygons) that are within the spatial bounding box of water quality observations.
 #'
@@ -141,130 +172,139 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
-fetchATTAINS <- function(.data, catchments_only = FALSE) {
-  # function settings that we ensure go back to their original settings
-  # after the function stops running:
-  original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
+fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
+  original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
   original_timeout <- getOption("timeout")
   options(timeout = 30000)
   on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
+  on.exit(
+    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
+    add = TRUE
+  )
 
-  message("Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while.")
+  message(
+    "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
+  )
 
-  # EPSG we want our ATTAINS data to be in (always 4326 for this function)
   our_epsg <- 4326
 
-  # If data is already spatial, just make sure it is in the right CRS
-  # and add an index as the WQP observations' unique identifier...
-  if (!is.null(.data) & inherits(.data, "sf")) {
-    if (sf::st_crs(.data)$epsg != our_epsg) {
-      .data <- .data %>%
-        sf::st_transform(our_epsg) %>%
-        dplyr::distinct(geometry, .keep_all = TRUE)
-    } else {
-      .data <- .data %>%
-        dplyr::distinct(geometry, .keep_all = TRUE)
-    }
-  } else if (!"LongitudeMeasure" %in% colnames(.data) |
-    !"LatitudeMeasure" %in% colnames(.data) |
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)) {
-    stop("The dataframe does not contain WQP-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `LatitudeMeasure`, and `LongitudeMeasure`.")
-  } else {
-    # ... Otherwise transform into a spatial object then do the same thing:
-    .data <- .data %>%
-      data.table::data.table(.) %>%
-      dplyr::distinct(LongitudeMeasure, LatitudeMeasure, .keep_all = TRUE) %>%
-      # convert dataframe to a spatial object
-      TADA_MakeSpatial(.data = ., crs = our_epsg)
+  if (!is.null(.data) && inherits(.data, "sf")) {
+    .data <- .data |>
+      sf::st_transform(crs = our_epsg) |>
+      dplyr::distinct(geometry, .keep_all = TRUE)
   }
 
-  if (is.null(.data) | nrow(.data) == 0) {
-    stop("There is no data in your `data` object to use as a bounding box for selecting ATTAINS features.")
+  if (
+    !"TADA.LongitudeMeasure" %in% colnames(.data) ||
+      !"TADA.LatitudeMeasure" %in% colnames(.data) ||
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
+  ) {
+    stop(
+      "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
+    )
   }
 
-  # REST for ATTAINS geospatial data:
-  baseurls <- c( # ATTAINS catchments:
+  if (!is.null(.data) && !inherits(.data, "sf")) {
+    # Convert the data to a data.table and ensure distinct latitude and longitude
+    distinct_data <- .data |>
+      data.table::data.table() |>
+      dplyr::distinct(
+        TADA.LongitudeMeasure,
+        TADA.LatitudeMeasure,
+        .keep_all = TRUE
+      )
+
+    # Transform the distinct data into an `sf` object
+    .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
+  }
+
+  if (is.null(.data) || nrow(.data) == 0) {
+    stop(
+      "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
+    )
+  }
+
+  baseurls <- c(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
-    # ATTAINS points:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
-    # ATTAINS lines:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
-    # ATTAINS polygons:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
   )
 
-  # function to download ATTAINS features based on a
-  # specified bbox:
   fetch_bbox <- function(baseurls, sf_bbox) {
-    # starting at feature 1 (i.e., no offset):
     offset <- 0
-    # empty list to store all features in
     all_features <- list()
 
-    # The ATTAINS API has a limit of 1000 features that can be pulled in at once.
-    # Therefore, we must split the call into manageable "chunks" using a moving
-    # window of what features to pull in, then munging all the separate API calls
-    # together.
-
     repeat {
-      query <- urltools::param_set(baseurls, key = "geometry", value = sf_bbox) %>%
-        urltools::param_set(key = "inSR", value = our_epsg) %>%
-        # Total of 100 features at a time...
-        urltools::param_set(key = "resultRecordCount", value = 100) %>%
-        # ... starting at the "offset":
-        urltools::param_set(key = "resultOffset", value = offset) %>%
-        urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") %>%
-        urltools::param_set(key = "f", value = "geojson") %>%
-        urltools::param_set(key = "outFields", value = "*") %>%
-        urltools::param_set(key = "geometryType", value = "esriGeometryEnvelope") %>%
-        urltools::param_set(key = "returnGeometry", value = "true") %>%
-        urltools::param_set(key = "returnTrueCurves", value = "false") %>%
-        urltools::param_set(key = "returnIdsOnly", value = "false") %>%
-        urltools::param_set(key = "returnCountOnly", value = "false") %>%
-        urltools::param_set(key = "returnZ", value = "false") %>%
-        urltools::param_set(key = "returnM", value = "false") %>%
-        urltools::param_set(key = "returnDistinctValues", value = "false") %>%
-        urltools::param_set(key = "returnExtentOnly", value = "false") %>%
+      query <- baseurls |>
+        urltools::param_set(key = "geometry", value = sf_bbox) |>
+        urltools::param_set(key = "inSR", value = our_epsg) |>
+        urltools::param_set(key = "resultRecordCount", value = 100) |>
+        urltools::param_set(key = "resultOffset", value = offset) |>
+        urltools::param_set(
+          key = "spatialRel",
+          value = "esriSpatialRelIntersects"
+        ) |>
+        urltools::param_set(key = "f", value = "geojson") |>
+        urltools::param_set(key = "outFields", value = "*") |>
+        urltools::param_set(
+          key = "geometryType",
+          value = "esriGeometryEnvelope"
+        ) |>
+        urltools::param_set(key = "returnGeometry", value = "true") |>
+        urltools::param_set(key = "returnTrueCurves", value = "false") |>
+        urltools::param_set(key = "returnIdsOnly", value = "false") |>
+        urltools::param_set(key = "returnCountOnly", value = "false") |>
+        urltools::param_set(key = "returnZ", value = "false") |>
+        urltools::param_set(key = "returnM", value = "false") |>
+        urltools::param_set(key = "returnDistinctValues", value = "false") |>
+        urltools::param_set(key = "returnExtentOnly", value = "false") |>
         urltools::param_set(key = "featureEncoding", value = "esriDefault")
 
-      # Fetch features within the offset window and append to list:
       features <- suppressMessages(suppressWarnings({
         tryCatch(
-          {
-            geojsonsf::geojson_sf(url(query))
-          },
-          error = function(e) {
-            NULL
-          }
+          geojsonsf::geojson_sf(url(query)),
+          error = function(e) NULL
         )
       }))
 
-      # Exit loop if no more features or error occurred
       if (is.null(features) || nrow(features) == 0) {
         break
       }
 
       all_features <- c(all_features, list(features))
-      # once done, change offset by 100 features:
       offset <- offset + 100
     }
 
-    all_features <- dplyr::bind_rows(all_features) %>%
-      # remove duplicate features (precautionary)
+    dplyr::bind_rows(all_features) |>
       dplyr::distinct(.keep_all = TRUE)
   }
 
-  # function to download ATTAINS features API based on their name
-  fetch_au <- function(baseurls, assessment_unit_ids) {
-    # Split the assessment_unit_ids into chunks of 1000
-    # API cannot handle more than 1000 features
-    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / 100))
+  if (org_id == "all") {
+    org_filter <- "1=1"
+  } else {
+    org_filter <- paste0(
+      "organizationid IN ('",
+      paste(org_id, collapse = "','"),
+      "')"
+    )
+  }
 
-    # Query API for a chunk of assessment unit IDs
+  fetch_au <- function(baseurls, assessment_unit_ids) {
+    id_chunks <- split(
+      assessment_unit_ids,
+      ceiling(seq_along(assessment_unit_ids) / 100)
+    )
+
     fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0("assessmentunitidentifier IN ('", paste(id_chunk, collapse = "','"), "')")
+      where_clause <- paste0(
+        "assessmentunitidentifier IN ('",
+        paste(id_chunk, collapse = "','"),
+        "') AND ",
+        org_filter
+      )
+
       query_params <- list(
         where = where_clause,
         outFields = "*",
@@ -278,107 +318,94 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       }
 
       geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
-      sf_object <- sf::st_read(geojson_data, quiet = TRUE)
-
-      return(sf_object)
+      sf::st_read(geojson_data, quiet = TRUE)
     }
 
-    # fetch all chunks and combine results
     purrr::map_dfr(id_chunks, fetch_chunk)
   }
 
-  # function used to grab assessment unit "WaterType".
-  # (sweet spot chunk size wise is 50):
   grab_waterbody_type <- function(au_list, chunk_size = 50) {
-    # Number of chunks needed
     num_chunks <- ceiling(length(au_list) / chunk_size)
-
-    # split the au_list into chunks
     chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
-
     water_types <- vector("list", length = length(chunks))
 
-    for (i in 1:length(chunks)) {
-      dat <- httr::GET(utils::URLencode(paste0("https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=", paste(chunks[[i]], collapse = ",")))) %>%
-        httr::content(., as = "text", encoding = "UTF-8") %>%
-        jsonlite::fromJSON(.)
+    for (i in seq_along(chunks)) {
+      dat <- httr::GET(utils::URLencode(paste0(
+        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
+        paste(chunks[[i]], collapse = ",")
+      ))) |>
+        httr::content(as = "text", encoding = "UTF-8") |>
+        jsonlite::fromJSON()
 
-      water_types[[i]] <- dat[["items"]] %>%
-        tidyr::unnest("assessmentUnits") %>%
-        tidyr::unnest("waterTypes") %>%
+      water_types[[i]] <- dat[["items"]] |>
+        tidyr::unnest("assessmentUnits") |>
+        tidyr::unnest("waterTypes") |>
         dplyr::select(
           assessmentUnitIdentifier,
           waterTypeCode
         )
     }
-    return(dplyr::bind_rows(water_types))
+    dplyr::bind_rows(water_types)
   }
 
-  # FOR AOIs THAT ARE GREATER THAN 6,000 sqkm, split into "clusters":
-  if (as.numeric(sf::st_area(sf::st_as_sfc(.data %>% sf::st_bbox(.)))) >= 6e+9) {
-    # For user-specified AOIs with a large spatial range, create "clusters" of sites
-    # whose bounding boxes are smaller.
-    perform_iterative_clustering <- function(points_sf, min_area = 6e+9, max_iterations = 100) {
-      # fxn to calculate each cluster's bounding box area
+  if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
+    perform_iterative_clustering <- function(
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
+    ) {
       bbox_area <- function(df, clust) {
-        df %>%
-          dplyr::filter(cluster == clust) %>%
-          sf::st_bbox() %>%
-          sf::st_as_sfc() %>%
-          sf::st_area() %>%
-          tidyr::as_tibble() %>%
+        df |>
+          dplyr::filter(cluster == clust) |>
+          sf::st_bbox() |>
+          sf::st_as_sfc() |>
+          sf::st_area() |>
+          tidyr::as_tibble() |>
           dplyr::mutate(cluster = clust)
       }
 
-      # cluster maker fxn:
       cluster_iteration <- function(points, eps, min_pts, iteration) {
         coords <- sf::st_coordinates(points)
         fr <- dbscan::frNN(coords, eps = eps)
         clusters <- dbscan::dbscan(fr, minPts = min_pts)$cluster
 
-        # create unique cluster IDs that include iteration number
-        cluster_ids <- ifelse(clusters == -1,
+        cluster_ids <- ifelse(
+          clusters == -1,
           paste0("noise_", iteration),
           paste0("cluster_", iteration, "_", clusters)
         )
 
-        points %>%
+        points |>
           dplyr::mutate(
             cluster = cluster_ids,
             iteration = iteration
           )
       }
 
-      # function to check if any clusters still exceed our bbox area threshold
       has_large_clusters <- function(points) {
         if (nrow(points) == 0) {
           return(FALSE)
         }
 
-        areas <- unique(points$cluster) %>%
+        areas <- unique(points$cluster) |>
           purrr::map_dfr(~ bbox_area(df = points, clust = .))
-        # Returns TRUE/FALSE
         any(as.numeric(areas$value) > min_area)
       }
 
-      # function to split clusters by their area
       split_clusters_by_area <- function(points, min_area) {
-        # calculate areas for all clusters
-        cluster_areas <- unique(points$cluster) %>%
+        cluster_areas <- unique(points$cluster) |>
           purrr::map_dfr(~ bbox_area(df = points, clust = .))
 
-        # split into "large" and "small" clusters
-        large_clusters <- cluster_areas %>%
+        large_clusters <- cluster_areas |>
           dplyr::filter(as.numeric(value) > min_area)
 
-        small_clusters <- cluster_areas %>%
+        small_clusters <- cluster_areas |>
           dplyr::filter(as.numeric(value) <= min_area)
 
-        # create data frames for both sets
-        large_points <- points %>%
+        large_points <- points |>
           dplyr::filter(cluster %in% large_clusters$cluster)
 
-        small_points <- points %>%
+        small_points <- points |>
           dplyr::filter(cluster %in% small_clusters$cluster)
 
         list(
@@ -389,121 +416,119 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         )
       }
 
-      # store the results of the analysis run
       all_small_clusters <- list()
-      current_points <- points_sf %>% dplyr::distinct(geometry)
+      current_points <- points_sf |> dplyr::distinct(geometry)
       iteration <- 1
 
-      # sequence of eps values to try
       eps_sequence <- c(0.25, 0.05, 1, .1)
       eps_index <- 1
 
       while (nrow(current_points) > 0 && iteration <= max_iterations) {
-        # grab current eps value (cycle through sequence)
         current_eps <- eps_sequence[eps_index]
         eps_index <- (eps_index %% length(eps_sequence)) + 1
 
-        # ... perform cluster
         clustered_points <- cluster_iteration(
           current_points,
           eps = current_eps,
-          # Minimum number of points within a single cluster
-          # (meaning, a point can be isolated if super far from others)
           min_pts = 1,
           iteration = iteration
         )
 
-        # Split results
         split_results <- split_clusters_by_area(clustered_points, min_area)
 
-        # Store small clusters
         if (nrow(split_results$small) > 0) {
-          all_small_clusters[[paste0("iteration_", iteration)]] <- split_results$small
+          all_small_clusters[[paste0(
+            "iteration_",
+            iteration
+          )]] <- split_results$small
         }
 
-        # check if we have any large bbox clusters to keep processing
         if (nrow(split_results$large) == 0) {
           break
         }
 
-        # update points for next iteration
         current_points <- split_results$large
         iteration <- iteration + 1
       }
 
-      # combine all results
-      final_clusters <- dplyr::bind_rows(all_small_clusters) %>%
+      final_clusters <- dplyr::bind_rows(all_small_clusters) |>
         dplyr::arrange(iteration)
 
-      # warning if max iterations reached. This should never happen...
       if (iteration == max_iterations) {
-        warning("Maximum iterations reached. Some clusters may still exceed the area threshold.")
+        warning(
+          "Maximum iterations reached. Some clusters may still exceed the area threshold."
+        )
       }
 
-      return(
-        list(
-          clusters = final_clusters,
-          clusters_by_iteration = all_small_clusters,
-          total_iterations = iteration,
-          final_eps = current_eps
+      list(
+        clusters = final_clusters,
+        clusters_by_iteration = all_small_clusters,
+        total_iterations = iteration,
+        final_eps = current_eps
+      )
+    }
+
+    points_sf <- dplyr::distinct(.data, geometry)
+
+    init <- perform_iterative_clustering(points_sf = points_sf)
+    init_clusters <- init[["clusters_by_iteration"]] |>
+      dplyr::bind_rows()
+
+    final_cluster_list <- points_sf |>
+      dplyr::filter(!geometry %in% init$geometry) |>
+      tibble::rowid_to_column(var = "cluster") |>
+      dplyr::mutate(cluster = as.character(cluster)) |>
+      dplyr::bind_rows(init)
+
+    catchment_features <- vector(
+      "list",
+      length = length(unique(final_cluster_list$cluster))
+    )
+
+    for (i in seq_along(unique(final_cluster_list$cluster))) {
+      suppressMessages(suppressWarnings({
+        bbox <- final_cluster_list |>
+          dplyr::filter(cluster == unique(final_cluster_list$cluster)[i]) |>
+          sf::st_bbox() |>
+          toString() |>
+          urltools::url_encode()
+      }))
+
+      catchment_features[[i]] <- fetch_bbox(
+        baseurls = baseurls[1],
+        sf_bbox = bbox
+      )
+    }
+
+    catchment_features <- catchment_features |>
+      purrr::keep(~ !is.null(.)) |>
+      purrr::keep(~ nrow(.) > 0) |>
+      dplyr::bind_rows()
+
+    try(
+      {
+        catchment_features <- catchment_features |>
+          (\(x) x[points_sf, ])()
+      },
+      silent = TRUE
+    )
+
+    if (length(catchment_features) == 0 || is.null(catchment_features)) {
+      message(
+        "There are no ATTAINS features associated with your WQP observations."
+      )
+    } else {
+      all_units <- unique(catchment_features$assessmentunitidentifier)
+      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+      try(
+        catchment_features <- dplyr::left_join(
+          catchment_features,
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
         )
       )
     }
 
-    # grab all unique points
-    points_sf <- dplyr::distinct(.data, geometry)
-
-    # grab initial clusters
-    init <- perform_iterative_clustering(points_sf = points_sf) %>%
-      .[["clusters_by_iteration"]] %>%
-      dplyr::bind_rows()
-
-    # if any didn't get "clustered"....
-    final_cluster_list <- points_sf %>%
-      dplyr::filter(!geometry %in% init$geometry) %>%
-      # tack them on to our df and give them a unique "cluster name"
-      tibble::rowid_to_column(var = "cluster") %>%
-      dplyr::mutate(cluster = as.character(cluster)) %>%
-      dplyr::bind_rows(init)
-
-    catchment_features <- vector("list", length = length(unique(final_cluster_list$cluster)))
-
-    for (i in 1:length(unique(final_cluster_list$cluster))) {
-      # bounding box of user's WQP data
-      suppressMessages(suppressWarnings({
-        bbox <- final_cluster_list %>%
-          dplyr::filter(cluster == unique(final_cluster_list$cluster)[i]) %>%
-          sf::st_bbox(.) %>%
-          toString(.) %>%
-          urltools::url_encode(.)
-      }))
-
-      catchment_features[[i]] <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
-    }
-
-    catchment_features <- catchment_features %>%
-      purrr::keep(~ !is.null(.)) %>%
-      purrr::keep(~ nrow(.) > 0) %>%
-      dplyr::bind_rows()
-
-    try(
-      catchment_features <- catchment_features %>%
-        .[points_sf, ],
-      silent = TRUE
-    )
-
-    ## GRABBING WATER TYPE:
-    if (length(catchment_features) == 0 || is.null(catchment_features)) {
-      message("There are no ATTAINS features associated with your WQP observations.")
-    } else {
-      # Use ATTAINS API to grab, for each assessment unit, its WaterType.
-      # Query the API in "chunks" so it doesn't break. sweet spot is ~50:
-      all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
-      try(catchment_features <- dplyr::left_join(catchment_features, water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")))
-    }
-
-    # If only interested in grabbing catchment data, return just the catchments
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
@@ -522,17 +547,29 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
     )
 
     try(
-      points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+      points <- points |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        ),
       silent = TRUE
     )
 
     try(
-      lines <- lines %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+      lines <- lines |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        ),
       silent = TRUE
     )
 
     try(
-      polygons <- polygons %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+      polygons <- polygons |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        ),
       silent = TRUE
     )
 
@@ -543,60 +580,58 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
       "ATTAINS_polygons" = polygons
     )
 
-
     return(final_features)
-
-    # If area is small (< 6e+9 square meters), just use the bbox in one pull:
   } else {
-    # FOR AOIs THAT ARE LESS THAN 6,000 sqkm, grab data in one go:
     points_sf <- .data
 
-    bbox <- points_sf %>%
-      sf::st_bbox(.) %>%
-      # convert bounding box to characters
-      toString(.) %>%
-      # encode for use within the API URL
-      urltools::url_encode(.)
+    bbox <- points_sf |>
+      sf::st_bbox() |>
+      toString() |>
+      urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 
     try(
-      catchment_features <- catchment_features %>%
-        .[points_sf, ],
+      {
+        catchment_features <- catchment_features |>
+          (\(x) x[points_sf, ])()
+      },
       silent = TRUE
     )
 
     if (length(catchment_features) == 0 || is.null(catchment_features)) {
-      message("There are no ATTAINS features associated with your WQP observations.")
+      message(
+        "There are no ATTAINS features associated with your WQP observations."
+      )
     } else {
-      ## GRABBING WATER TYPE:
-
-      # Use ATTAINS API to grab, for each assessment unit, its WaterType.
-      # Query the API in "chunks" so it doesn't break:
       all_units <- unique(catchment_features$assessmentunitidentifier)
       water_types <- grab_waterbody_type(all_units, chunk_size = 50)
-      try(catchment_features <- dplyr::left_join(catchment_features, water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")), silent = TRUE)
+      try(
+        catchment_features <- dplyr::left_join(
+          catchment_features,
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        ),
+        silent = TRUE
+      )
     }
 
-    # If only interested in grabbing catchment data, return just the catchments
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
 
     suppressMessages({
       suppressWarnings({
-        # Otherwise, start grabbing the raw ATTAINS features that intersect those
-        # catchments
-
         points <- NULL
         lines <- NULL
         polygons <- NULL
 
-        # Download associated point, line, and polygon features using catchment bbox
         try(
           points <- fetch_au(
             baseurls = baseurls[2],
-            assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+            assessment_unit_ids = unique(
+              catchment_features$assessmentunitidentifier
+            )
           ),
           silent = TRUE
         )
@@ -604,7 +639,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         try(
           lines <- fetch_au(
             baseurls = baseurls[3],
-            assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+            assessment_unit_ids = unique(
+              catchment_features$assessmentunitidentifier
+            )
           ),
           silent = TRUE
         )
@@ -612,20 +649,37 @@ fetchATTAINS <- function(.data, catchments_only = FALSE) {
         try(
           polygons <- fetch_au(
             baseurls = baseurls[4],
-            assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+            assessment_unit_ids = unique(
+              catchment_features$assessmentunitidentifier
+            )
           ),
           silent = TRUE
         )
 
-        try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+        try(
+          points <- points |>
+            dplyr::left_join(
+              water_types,
+              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            ),
           silent = TRUE
         )
 
-        try(lines <- lines %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+        try(
+          lines <- lines |>
+            dplyr::left_join(
+              water_types,
+              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            ),
           silent = TRUE
         )
 
-        try(polygons <- polygons %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")),
+        try(
+          polygons <- polygons |>
+            dplyr::left_join(
+              water_types,
+              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+            ),
           silent = TRUE
         )
 
@@ -679,22 +733,25 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
   original_timeout <- getOption("timeout")
   options(timeout = 30000)
   on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
+  on.exit(
+    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
+    add = TRUE
+  )
 
   suppressMessages(suppressWarnings({
     # If data is already spatial, just make sure it is in the right CRS
     if (!is.null(.data) & inherits(.data, "sf")) {
       if (sf::st_crs(.data)$epsg != 4326) {
-        geospatial_data <- .data %>%
+        geospatial_data <- .data |>
           sf::st_transform(4326)
       } else {
         geospatial_data <- .data
       }
     } else {
       # ... Otherwise transform into a spatial object then do the same thing:
-      geospatial_data <- .data %>%
+      geospatial_data <- .data |>
         # convert dataframe to a spatial object
-        TADA_MakeSpatial(.data = ., crs = 4326) %>%
+        TADA_MakeSpatial(crs = 4326) |>
         dplyr::mutate(geometry_join = geometry)
     }
   }))
@@ -710,10 +767,10 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
       # bounding box of user's WQP data
 
-      wqp_bboxes <- unique_sites %>%
-        sf::st_buffer(1e-07) %>%
-        dplyr::rowwise() %>%
-        dplyr::mutate(bbox = purrr::map(geometry, sf::st_bbox)) %>%
+      wqp_bboxes <- unique_sites |>
+        sf::st_buffer(1e-07) |>
+        dplyr::rowwise() |>
+        dplyr::mutate(bbox = purrr::map(geometry, sf::st_bbox)) |>
         sf::st_as_sfc()
 
       # open the nhd_hr - which contains a bunch of layers
@@ -729,30 +786,37 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
       for (i in 1:length(wqp_bboxes)) {
         try(
-          fill_USGS_catchments_stored[[i]] <- arcgislayers::arc_select(nhd_hr_catchments,
+          fill_USGS_catchments_stored[[i]] <- arcgislayers::arc_select(
+            nhd_hr_catchments,
             filter_geom = wqp_bboxes[i],
             crs = sf::st_crs(wqp_bboxes[i])
-          ) %>%
+          ) |>
             sf::st_make_valid(),
           silent = TRUE
         )
       }
 
-      fill_USGS_catchments_stored <- fill_USGS_catchments_stored %>%
-        purrr::keep(~ !is.null(.)) %>%
-        dplyr::bind_rows() %>%
+      fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+        purrr::keep(~ !is.null(.)) |>
+        dplyr::bind_rows() |>
         dplyr::distinct()
 
-      try(fill_USGS_catchments_stored <- fill_USGS_catchments_stored %>%
-        dplyr::select(nhdplusid,
-          catchmentareasqkm = areasqkm
-        ) %>%
-        dplyr::mutate(
-          NHD.nhdplusid = as.character(nhdplusid),
-          NHD.resolution = "HR",
-          NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
-        ) %>%
-        dplyr::select(NHD.nhdplusid, NHD.resolution, NHD.catchmentareasqkm, geometry), silent = TRUE)
+      try(
+        fill_USGS_catchments_stored <- fill_USGS_catchments_stored |>
+          dplyr::select(nhdplusid, catchmentareasqkm = areasqkm) |>
+          dplyr::mutate(
+            NHD.nhdplusid = as.character(nhdplusid),
+            NHD.resolution = "HR",
+            NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
+          ) |>
+          dplyr::select(
+            NHD.nhdplusid,
+            NHD.resolution,
+            NHD.catchmentareasqkm,
+            geometry
+          ),
+        silent = TRUE
+      )
     }))
 
     # Empty version of the df will be returned if no associated catchments
@@ -778,7 +842,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     if ("flowlines" %in% features && nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
         # use catchments to grab other NHD features
-        geospatial_aoi <- fill_USGS_catchments_stored %>%
+        geospatial_aoi <- fill_USGS_catchments_stored |>
           sf::st_as_sfc()
 
         # select the layer by id from the items list (3 is HR flowlines)
@@ -789,10 +853,11 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
         for (i in 1:length(geospatial_aoi)) {
           try(
-            nhd_flowlines_stored[[i]] <- arcgislayers::arc_select(nhd_hr_flowlines,
+            nhd_flowlines_stored[[i]] <- arcgislayers::arc_select(
+              nhd_hr_flowlines,
               filter_geom = geospatial_aoi[i],
               crs = sf::st_crs(geospatial_aoi[i])
-            ) %>%
+            ) |>
               sf::st_make_valid(),
             silent = TRUE
           )
@@ -805,51 +870,64 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           )
 
           try(
-            nhd_flowlines_stored[[i]] <- nhd_flowlines_stored[[i]] %>%
-              dplyr::mutate(dplyr::across(dplyr::where(~ !identical(., geometry_col)), ~ as.character(.))),
+            nhd_flowlines_stored[[i]] <- nhd_flowlines_stored[[i]] |>
+              dplyr::mutate(dplyr::across(
+                dplyr::where(~ !identical(., geometry_col)),
+                ~ as.character(.)
+              )),
             silent = TRUE
           )
         }
 
-        nhd_flowlines_stored <- nhd_flowlines_stored %>%
-          purrr::keep(~ !is.null(.)) %>%
-          purrr::keep(~ !is.character(.)) %>%
-          dplyr::bind_rows() %>%
+        nhd_flowlines_stored <- nhd_flowlines_stored |>
+          purrr::keep(~ !is.null(.)) |>
+          purrr::keep(~ !is.character(.)) |>
+          dplyr::bind_rows() |>
           dplyr::distinct()
       }))
 
       if (length(features) == 1 && features == "flowlines") {
-        if (length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)) {
-          message("There are no NHD flowlines associated with your WQP observations.")
+        if (
+          length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)
+        ) {
+          message(
+            "There are no NHD flowlines associated with your WQP observations."
+          )
         }
 
         return(nhd_flowlines_stored)
       }
 
       if (length(nhd_flowlines_stored) == 0 || is.null(nhd_flowlines_stored)) {
-        message("There are no NHD flowlines associated with your WQP observations.")
+        message(
+          "There are no NHD flowlines associated with your WQP observations."
+        )
       }
     }
 
     # Grab waterbodies -
     if ("waterbodies" %in% features & nrow(fill_USGS_catchments_stored) > 0) {
       suppressMessages(suppressWarnings({
-        geospatial_aoi <- fill_USGS_catchments_stored %>%
+        geospatial_aoi <- fill_USGS_catchments_stored |>
           sf::st_as_sfc()
 
         # select the layer by id from the items list called above (9 is HR waterbodies)
         nhd_hr_waterbodies <- arcgislayers::get_layer(nhd_hr, 9)
 
         # use catchments to return associated waterbodies
-        nhd_waterbodies_stored <- vector("list", length = length(geospatial_aoi))
+        nhd_waterbodies_stored <- vector(
+          "list",
+          length = length(geospatial_aoi)
+        )
 
         for (i in 1:length(geospatial_aoi)) {
           try(
-            nhd_waterbodies_stored[[i]] <- arcgislayers::arc_select(nhd_hr_waterbodies,
+            nhd_waterbodies_stored[[i]] <- arcgislayers::arc_select(
+              nhd_hr_waterbodies,
               # where = query,
               filter_geom = geospatial_aoi[i],
               crs = sf::st_crs(geospatial_aoi[i])
-            ) %>%
+            ) |>
               sf::st_make_valid(),
             silent = TRUE
           )
@@ -862,63 +940,93 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
           )
 
           try(
-            nhd_waterbodies_stored[[i]] <- nhd_waterbodies_stored[[i]] %>%
-              dplyr::mutate(dplyr::across(dplyr::where(~ !identical(., geometry_col)), ~ as.character(.))),
+            nhd_waterbodies_stored[[i]] <- nhd_waterbodies_stored[[i]] |>
+              dplyr::mutate(dplyr::across(
+                dplyr::where(~ !identical(., geometry_col)),
+                ~ as.character(.)
+              )),
             silent = TRUE
           )
         }
 
-        nhd_waterbodies_stored <- nhd_waterbodies_stored %>%
-          purrr::keep(~ !is.null(.)) %>%
-          purrr::keep(~ !is.character(.)) %>%
-          dplyr::bind_rows() %>%
+        nhd_waterbodies_stored <- nhd_waterbodies_stored |>
+          purrr::keep(~ !is.null(.)) |>
+          purrr::keep(~ !is.character(.)) |>
+          dplyr::bind_rows() |>
           dplyr::distinct()
       }))
 
       if (length(features) == 1 && features == "waterbodies") {
-        if (length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)) {
-          message("There are no NHD waterbodies associated with your WQP observations.")
+        if (
+          length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
+        ) {
+          message(
+            "There are no NHD waterbodies associated with your WQP observations."
+          )
         }
 
         return(nhd_waterbodies_stored)
       }
 
-      if (length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)) {
-        message("There are no NHD waterbodies associated with your WQP observations.")
+      if (
+        length(nhd_waterbodies_stored) == 0 || is.null(nhd_waterbodies_stored)
+      ) {
+        message(
+          "There are no NHD waterbodies associated with your WQP observations."
+        )
       }
     }
 
     # Combinations of features selected, and what they return:
 
-    if (length(features) == 2 && "catchments" %in% features && "flowlines" %in% features) {
+    if (
+      length(features) == 2 &&
+        "catchments" %in% features &&
+        "flowlines" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored
       )
 
       return(nhd_list)
-    } else if (length(features) == 2 && "catchments" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 2 &&
+        "catchments" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
 
       return(nhd_list)
-    } else if (length(features) == 2 && "flowlines" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 2 &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
 
       return(nhd_list)
-    } else if (length(features) == 3 && "catchments" %in% features && "flowlines" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 3 &&
+        "catchments" %in% features &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments_stored,
         "NHD_flowlines" = nhd_flowlines_stored,
         "NHD_waterbodies" = nhd_waterbodies_stored
       )
     } else {
-      stop("Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument.")
+      stop(
+        "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+      )
     }
 
     # If user wants NHDPlus V2...
@@ -929,33 +1037,47 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       for (i in 1:nrow(unique_sites)) {
         # Use {nhdplusTools} to grab associated catchments...
         try(
-          fill_USGS_catchments[[i]] <- nhdplusTools::get_nhdplus(AOI = unique_sites[i, ], realization = "catchment") %>%
-            sf::st_make_valid() %>%
+          fill_USGS_catchments[[i]] <- nhdplusTools::get_nhdplus(
+            AOI = unique_sites[i, ],
+            realization = "catchment"
+          ) |>
+            sf::st_make_valid() |>
             dplyr::select(
               comid = featureid,
               catchmentareasqkm = areasqkm
-            ) %>%
+            ) |>
             dplyr::mutate(
               NHD.comid = as.character(comid),
               NHD.resolution = "nhdplusV2",
               NHD.catchmentareasqkm = as.numeric(catchmentareasqkm)
-            ) %>%
-            dplyr::select(NHD.comid, NHD.resolution, NHD.catchmentareasqkm, geometry),
+            ) |>
+            dplyr::select(
+              NHD.comid,
+              NHD.resolution,
+              NHD.catchmentareasqkm,
+              geometry
+            ),
           silent = TRUE
         )
       }
 
-      fill_USGS_catchments <- fill_USGS_catchments %>%
+      fill_USGS_catchments <- fill_USGS_catchments |>
         purrr::keep(~ !is.null(.))
 
-      try(fill_USGS_catchments <- dplyr::bind_rows(fill_USGS_catchments) %>%
-        dplyr::distinct(), silent = TRUE)
+      try(
+        fill_USGS_catchments <- dplyr::bind_rows(fill_USGS_catchments) |>
+          dplyr::distinct(),
+        silent = TRUE
+      )
 
       # if NHD catchments are not in the correct CRS, transform them
-      try(if (sf::st_crs(fill_USGS_catchments) != sf::st_crs(geospatial_data)) {
-        fill_USGS_catchments <- fill_USGS_catchments %>%
-          sf::st_transform(sf::st_crs(geospatial_data)$epsg)
-      }, silent = TRUE)
+      try(
+        if (sf::st_crs(fill_USGS_catchments) != sf::st_crs(geospatial_data)) {
+          fill_USGS_catchments <- fill_USGS_catchments |>
+            sf::st_transform(sf::st_crs(geospatial_data)$epsg)
+        },
+        silent = TRUE
+      )
     }))
 
     if (nrow(fill_USGS_catchments) == 0 && "catchments" %in% features) {
@@ -975,7 +1097,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
       return(fill_USGS_catchments)
     }
 
-
     # Grab flowlines -
     if ("flowlines" %in% features && nrow(fill_USGS_catchments) > 0) {
       suppressMessages(suppressWarnings({
@@ -987,37 +1108,49 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
           try(
-            nhd_flowlines[[i]] <- nhdplusTools::get_nhdplus(AOI = unique_sites[i, ], realization = "flowline") %>%
+            nhd_flowlines[[i]] <- nhdplusTools::get_nhdplus(
+              AOI = unique_sites[i, ],
+              realization = "flowline"
+            ) |>
               sf::st_make_valid(),
             silent = TRUE
           )
 
-          try(geometry_col <- sf::st_geometry(nhd_flowlines[[i]]),
+          try(
+            geometry_col <- sf::st_geometry(nhd_flowlines[[i]]),
             silent = TRUE
           )
 
           try(
-            nhd_flowlines[[i]] <- nhd_flowlines[[i]] %>%
-              dplyr::mutate(dplyr::across(dplyr::where(~ !identical(., geometry_col)), ~ as.character(.))),
+            nhd_flowlines[[i]] <- nhd_flowlines[[i]] |>
+              dplyr::mutate(dplyr::across(
+                dplyr::where(~ !identical(., geometry_col)),
+                ~ as.character(.)
+              )),
             silent = TRUE
           )
         }
 
-        nhd_flowlines <- nhd_flowlines %>%
+        nhd_flowlines <- nhd_flowlines |>
           purrr::keep(~ !is.null(.))
 
-        try(nhd_flowlines <- dplyr::bind_rows(nhd_flowlines)) %>%
+        try(nhd_flowlines <- dplyr::bind_rows(nhd_flowlines)) |>
           dplyr::distinct()
 
         # if NHD flowlines are not in the correct CRS, transform them
-        try(if (sf::st_crs(nhd_flowlines) != sf::st_crs(geospatial_data)) {
-          nhd_flowlines <- nhd_flowlines %>%
-            sf::st_transform(sf::st_crs(geospatial_data)$epsg)
-        }, silent = TRUE)
+        try(
+          if (sf::st_crs(nhd_flowlines) != sf::st_crs(geospatial_data)) {
+            nhd_flowlines <- nhd_flowlines |>
+              sf::st_transform(sf::st_crs(geospatial_data)$epsg)
+          },
+          silent = TRUE
+        )
       }))
 
       if (nrow(nhd_flowlines) == 0 && "flowlines" %in% features) {
-        message("No NHDPlus V2 flowlines associated with your WQP observations.")
+        message(
+          "No NHDPlus V2 flowlines associated with your WQP observations."
+        )
       }
 
       if (length(features) == 1 && features == "flowlines") {
@@ -1036,40 +1169,51 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
         for (i in 1:nrow(unique_sites)) {
           # Use {nhdplusTools} to grab associated flowlines...
           try(
-            nhd_waterbodies[[i]] <- nhdplusTools::get_waterbodies(AOI = unique_sites[i, ]) %>%
+            nhd_waterbodies[[i]] <- nhdplusTools::get_waterbodies(
+              AOI = unique_sites[i, ]
+            ) |>
               sf::st_make_valid(),
             silent = TRUE
           )
 
-          try(geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]),
+          try(
+            geometry_col <- sf::st_geometry(nhd_waterbodies[[i]]),
             silent = TRUE
           )
 
           try(
-            nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] %>%
-              dplyr::mutate(dplyr::across(dplyr::where(~ !identical(., geometry_col)), ~ as.character(.))),
+            nhd_waterbodies[[i]] <- nhd_waterbodies[[i]] |>
+              dplyr::mutate(dplyr::across(
+                dplyr::where(~ !identical(., geometry_col)),
+                ~ as.character(.)
+              )),
             silent = TRUE
           )
         }
 
-        nhd_waterbodies <- nhd_waterbodies %>%
+        nhd_waterbodies <- nhd_waterbodies |>
           purrr::keep(~ !is.null(.))
 
         try(
-          nhd_waterbodies <- dplyr::bind_rows(nhd_waterbodies) %>%
+          nhd_waterbodies <- dplyr::bind_rows(nhd_waterbodies) |>
             dplyr::distinct(),
           silent = TRUE
         )
 
         # if NHD waterbodies are not in the correct CRS, transform them
-        try(if (sf::st_crs(nhd_waterbodies) != sf::st_crs(geospatial_data)) {
-          nhd_waterbodies <- nhd_waterbodies %>%
-            sf::st_transform(sf::st_crs(geospatial_data)$epsg)
-        }, silent = TRUE)
+        try(
+          if (sf::st_crs(nhd_waterbodies) != sf::st_crs(geospatial_data)) {
+            nhd_waterbodies <- nhd_waterbodies |>
+              sf::st_transform(sf::st_crs(geospatial_data)$epsg)
+          },
+          silent = TRUE
+        )
       }))
 
       if (nrow(nhd_waterbodies) == 0 && "waterbodies" %in% features) {
-        message("No NHDPlus V2 waterbodies associated with your WQP observations.")
+        message(
+          "No NHDPlus V2 waterbodies associated with your WQP observations."
+        )
       }
 
       if (length(features) == 1 && features == "waterbodies") {
@@ -1079,38 +1223,59 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 
     # Combinations of features selected, and what they return:
 
-    if (length(features) == 2 && "catchments" %in% features && "flowlines" %in% features) {
+    if (
+      length(features) == 2 &&
+        "catchments" %in% features &&
+        "flowlines" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines
       )
 
       return(nhd_list)
-    } else if (length(features) == 2 && "catchments" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 2 &&
+        "catchments" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_waterbodies" = nhd_waterbodies
       )
 
       return(nhd_list)
-    } else if (length(features) == 2 && "flowlines" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 2 &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "NHD_flowlines" = nhd_flowlines,
         "NHD_waterbodies" = nhd_waterbodies
       )
 
       return(nhd_list)
-    } else if (length(features) == 3 && "catchments" %in% features && "flowlines" %in% features && "waterbodies" %in% features) {
+    } else if (
+      length(features) == 3 &&
+        "catchments" %in% features &&
+        "flowlines" %in% features &&
+        "waterbodies" %in% features
+    ) {
       nhd_list <- list(
         "fill_USGS_catchments" = fill_USGS_catchments,
         "NHD_flowlines" = nhd_flowlines,
         "NHD_waterbodies" = nhd_waterbodies
       )
     } else {
-      stop("Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument.")
+      stop(
+        "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+      )
     }
   } else {
-    stop('User-supplied resolution unavailable. Please select between "Med" or "Hi".')
+    stop(
+      'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
+    )
   }
 }
 
@@ -1150,11 +1315,22 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' be problematic. Note that many WQP locations will not fall within the bounds
 #' of NHDPlus (estuaries, oceans). Manual adjustments and quality control checks
 #' are strongly encouraged. WQP monitoring location metadata may also be helpful
-#' for matching waterbody  names with ATTAINS waterbody names instead of relying
+#' for matching waterbody names with ATTAINS waterbody names instead of relying
 #' solely on the geospatial location (lat/long).
 #'
 #' @param .data A dataframe created by `TADA_DataRetrieval()` or the sf
 #' equivalent made by `TADA_MakeSpatial()`.
+#' @param org_id ATTAINS organization identifier(s) as a character string.
+#' If populated, Monitoring Locations will only be matched to Assessment Units from the
+#' specified organization(s). A list of organization
+#' identifiers can be found
+#' by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+#' from all organizations will be considered. When org_id = "none" or NULL, no
+#' crosswalk data from ATTAINS will be considered. The default is "all".
 #' @param return_nearest If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE).
@@ -1187,7 +1363,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' This function calculates and reports the distance, 'TADA.DistanceAway.Meters',
 #' between each WQP observation and intersecting ATTAINS features within its
 #' catchment. A TADA.DistanceAway.Meters value of 0 indicates that the WQP
-#' observation is directly on the associated  ATTAINS point or line feature,
+#' observation is directly on the associated ATTAINS point or line feature,
 #' or located inside the associated ATTAINS polygon.
 #'
 #' @seealso [TADA_DataRetrieval()]
@@ -1212,7 +1388,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_USGS_catch = FALSE,
 #'   return_sf = FALSE,
-#'   return_nearest = FALSE,
+#'   return_nearest = FALSE
 #' )
 #'
 #' tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
@@ -1235,125 +1411,125 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   return_nearest = TRUE
 #' )
 #' }
-TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
-                                            return_nearest = TRUE,
-                                            fill_USGS_catch = FALSE,
-                                            resolution = "Hi",
-                                            return_sf = TRUE) {
-  # function settings that we ensure go back to their original settings
-  # after the function stops running:
-  original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
+TADA_CreateATTAINSAUMLCrosswalk <- function(
+  .data,
+  org_id = "all",
+  return_nearest = TRUE,
+  fill_USGS_catch = FALSE,
+  resolution = "Hi",
+  return_sf = TRUE
+) {
+  # Valid resolutions
+  valid_resolutions <- c("Hi", "Med")
+
+  # Check if resolution is valid
+  if (!resolution %in% valid_resolutions) {
+    stop("User-supplied resolution unavailable")
+  }
+
+  # Store original settings for s2 geometry and timeout for restoration after execution
+  original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
   original_timeout <- getOption("timeout")
   options(timeout = 30000)
   on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
+  on.exit(
+    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
+    add = TRUE
+  )
 
+  # Retrieve ATTAINS column names for validation
   attains_names <- renameATTAINSCols(return_list = TRUE)
 
+  # Check if ATTAINS data is already present in `.data`
   if (any(attains_names %in% colnames(.data))) {
     stop("Your data has already been joined with ATTAINS data.")
   }
 
+  # Handle empty input data scenario
   if (nrow(.data) == 0) {
-    # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-    message("Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty ATTAINS features.")
-
-    # Add ATTAINS columns with NA values
+    message(
+      "Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+    )
     col_val_list <- stats::setNames(
-      object = rep(
-        x = list(NA),
-        times = length(attains_names)
-      ),
+      object = rep(x = list(NA), times = length(attains_names)),
       nm = attains_names
     )
-
-    no_WQP_data <- .data %>%
-      dplyr::mutate(ResultIdentifier = NA) %>%
-      dplyr::bind_cols(col_val_list) %>%
+    no_WQP_data <- .data |>
+      dplyr::mutate(ResultIdentifier = NA) |>
+      dplyr::bind_cols(col_val_list) |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
-    # In this case we'll need to return empty ATTAINS objects
     if (return_sf == TRUE) {
-      ATTAINS_catchments <- NULL
-      ATTAINS_lines <- NULL
-      ATTAINS_points <- NULL
-      ATTAINS_polygons <- NULL
-
       return(list(
         "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = ATTAINS_catchments,
-        "ATTAINS_points" = ATTAINS_points,
-        "ATTAINS_lines" = ATTAINS_lines,
-        "ATTAINS_polygons" = ATTAINS_polygons
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
       ))
-
-      # If return_sf == FALSE, then just return the dataframe:
     } else {
       return(no_WQP_data)
     }
   }
 
-  # Use the "ResultIdentifier" column as our index for tracking WQP obs w/
-  # multiple AUs
-  .data <- .data %>%
+  # Ensure ResultIdentifier is the first column for tracking
+  .data <- .data |>
     dplyr::select(ResultIdentifier, dplyr::everything())
 
-  # If data doesn't already contain ATTAINS data and isn't an empty dataframe:
+  # Convert data to spatial format if not already
   suppressMessages(suppressWarnings({
-    # If data is already spatial, just make sure it is in the right CRS
-    if (!is.null(.data) & inherits(.data, "sf")) {
+    if (!is.null(.data) && inherits(.data, "sf")) {
+      # Check CRS and transform if necessary
       if (sf::st_crs(.data)$epsg != 4326) {
-        TADA_DataRetrieval_data <- .data %>%
+        TADA_DataRetrieval_data <- .data |>
           sf::st_transform(4326)
       } else {
         TADA_DataRetrieval_data <- .data
       }
     } else {
-      # ... Otherwise transform into a spatial object then do the same thing:
-      TADA_DataRetrieval_data <- .data %>%
-        # convert dataframe to a spatial object
-        TADA_MakeSpatial(.data = ., crs = 4326)
+      # Convert to spatial object using TADA_MakeSpatial
+      TADA_DataRetrieval_data <- TADA_MakeSpatial(.data = .data, crs = 4326) |>
+        sf::st_make_valid()
     }
   }))
 
-  # grab all ATTAINS features in catchments that intersect our WQP objects:
-  attains_features <- try(fetchATTAINS(.data = TADA_DataRetrieval_data), silent = TRUE)
+  # Fetch ATTAINS features intersecting with WQP data
+  attains_features <- try(
+    fetchATTAINS(.data = TADA_DataRetrieval_data, org_id = org_id),
+    silent = TRUE
+  )
 
-  # Tidy up the intersecting catchment objects:
+  # Process intersecting catchment objects
   suppressMessages(suppressWarnings({
     nearby_catchments <- NULL
-    # (Wrapped with "try" because it is possible that no ATTAINS data exists in the bbox.)
     try(
-      nearby_catchments <- attains_features[["ATTAINS_catchments"]] %>%
-        # remove unnecessary columns:
-        dplyr::select(-c(OBJECTID, GLOBALID)) %>%
-        # select only catchments that have WQP observations in them:
-        .[TADA_DataRetrieval_data, ] %>%
-        # get rid of dupes (as a precaution)
-        dplyr::distinct(.keep_all = TRUE),
+      {
+        nearby_catchments <- attains_features[["ATTAINS_catchments"]] |>
+          dplyr::select(-c(OBJECTID, GLOBALID)) |>
+          (\(x) x[TADA_DataRetrieval_data, ])() |>
+          dplyr::distinct(.keep_all = TRUE)
+      },
       silent = TRUE
     )
+
     if (is.null(nearby_catchments) || nrow(nearby_catchments) == 0) {
       nearby_catchments <- NULL
     }
   }))
 
-  # If no ATTAINS data associated with WQP obs...
+  # Handle scenario where no ATTAINS data is associated with WQP observations
   if (is.null(nearby_catchments)) {
     col_val_list <- stats::setNames(
-      object = rep(
-        x = list(NA),
-        times = length(attains_names)
-      ),
+      object = rep(x = list(NA), times = length(attains_names)),
       nm = attains_names
     )
-
-    # ...return a modified `.data` with empty ATTAINS-related columns:
-    no_ATTAINS_data <- .data %>%
+    no_ATTAINS_data <- .data |>
       dplyr::bind_cols(col_val_list)
 
-    message("There are no ATTAINS catchments associated with these WQP observations.")
+    message(
+      "There are no ATTAINS catchments associated with these WQP observations."
+    )
 
     if (fill_USGS_catch == FALSE) {
       if (return_sf == TRUE) {
@@ -1368,141 +1544,180 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         return(no_ATTAINS_data)
       }
     } else {
-      fill_USGS_catchments <- fetchNHD(.data = TADA_DataRetrieval_data, resolution = resolution)
-      TADA_without_ATTAINS <- TADA_DataRetrieval_data %>% sf::st_join(fill_USGS_catchments, left = TRUE)
+      fill_USGS_catchments <- fetchNHD(
+        .data = TADA_DataRetrieval_data,
+        resolution = resolution
+      )
+      TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
+        sf::st_join(fill_USGS_catchments, left = TRUE)
 
       if (return_sf == TRUE) {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS,
+          "TADA_with_NHD" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = NULL,
           "ATTAINS_points" = NULL,
           "ATTAINS_lines" = NULL,
           "ATTAINS_polygons" = NULL,
-          "without_ATTAINS_catchments" = fill_USGS_catchments
+          "with_NHD_catchments" = fill_USGS_catchments
         ))
       } else {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS
+          "TADA_with_NHD" = TADA_without_ATTAINS
         ))
       }
     }
   }
 
-  # If there IS at least some ATTAINS data...
-
+  # If ATTAINS data is present, link WQP features to ATTAINS catchments
   if (!is.null(nearby_catchments)) {
     suppressMessages({
       suppressWarnings({
-        # ... link WQP features to the ATTAINS catchment feature(s) they land in:
-        TADA_with_ATTAINS <- TADA_DataRetrieval_data %>%
-          # left = TRUE to preserve all observations (with or without ATTAINS features):
-          sf::st_join(., nearby_catchments, left = TRUE)
+        TADA_with_ATTAINS <- sf::st_join(
+          TADA_DataRetrieval_data,
+          nearby_catchments,
+          left = TRUE
+        )
       })
     })
 
-    if (suppressMessages({
-      suppressWarnings({
-        TADA_with_ATTAINS %>%
-          data.table::data.table() %>%
-          dplyr::group_by(ResultIdentifier) %>%
-          dplyr::summarize(count = dplyr::n()) %>%
-          dplyr::filter(count > 1) %>%
-          nrow() > 0
-      })
-    }) & return_nearest == FALSE) {
-      message("WARNING! Some of your WQP observations fall within a catchment that has more than one ATTAINS feature in it.")
-      message("For these, duplicate rows have been created, one for each ATTAINS feature. Use `ResultIdentifier` to track these instances.")
-      message("If you would like to instead only return the nearest ATTAINS feature, use `return_nearest = TRUE.")
+    # Check for multiple ATTAINS features within the same catchment
+    if (
+      suppressMessages({
+        suppressWarnings({
+          TADA_with_ATTAINS |>
+            data.table::data.table() |>
+            dplyr::group_by(ResultIdentifier) |>
+            dplyr::summarize(count = dplyr::n()) |>
+            dplyr::filter(count > 1) |>
+            nrow() >
+            0
+        })
+      }) &
+        return_nearest == FALSE
+    ) {
+      message(
+        "WARNING! Some of your WQP observations fall within a catchment that has more than one ATTAINS feature in it."
+      )
+      message(
+        "For these, duplicate rows have been created, one for each ATTAINS feature. Use `ResultIdentifier` to track these instances."
+      )
+      message(
+        "If you would like to instead only return the nearest ATTAINS feature, use `return_nearest = TRUE."
+      )
     }
 
-    # Grab each ATTAINS features' distance away from their associated WQP observations.
-    # A value of 0 indicates that the WQP observation is either exactly atop an ATTAINS
-    # point of line feature, or within an ATTAINS polygon feature.
-
+    # Function to calculate distances between WQP observations and ATTAINS features
     find_distances <- function(location) {
-      sub_tada <- TADA_with_ATTAINS %>%
+      sub_tada <- TADA_with_ATTAINS |>
         dplyr::filter(as.character(geometry) == location)
 
       distance <- sub_tada[1, ]
 
-      subset <- attains_features[-1] %>%
-        purrr::map(~ tryCatch(
-          dplyr::filter(., assessmentunitidentifier %in% sub_tada$assessmentunitidentifier),
-          error = function(e) data.frame(),
-          warning = function(w) data.frame()
-        )) %>%
-        purrr::keep(~ !is.null(.)) %>%
+      subset <- attains_features[-1] |>
+        purrr::map(
+          ~ tryCatch(
+            dplyr::filter(
+              .,
+              assessmentunitidentifier %in% sub_tada$assessmentunitidentifier
+            ),
+            error = function(e) data.frame(),
+            warning = function(w) data.frame()
+          )
+        ) |>
+        purrr::keep(~ !is.null(.)) |>
         purrr::keep(~ nrow(.) > 0)
 
       result <- NULL
 
-      # Calculate distances
-      try(distances <- subset %>%
-        # for each WQP, grab the distance between the WQP point and all the ATTAINS features within its same catchment. A value of 0 means
-        # the WQP observation is exactly atop a point or line ATTAINS feature, or within an ATTAINS polygon.
-        purrr::map(~ dplyr::mutate(., TADA.DistanceAway.Meters = as.character(sf::st_distance(., distance)))) %>%
-        dplyr::bind_rows() %>%
-        sf::st_drop_geometry() %>%
-        dplyr::select(
-          assessmentunitidentifier,
-          TADA.DistanceAway.Meters
-        ) %>%
-        dplyr::distinct(), silent = TRUE)
+      try(
+        distances <- subset |>
+          purrr::map(
+            ~ dplyr::mutate(
+              .,
+              TADA.DistanceAway.Meters = as.character(sf::st_distance(
+                .,
+                distance
+              ))
+            )
+          ) |>
+          dplyr::bind_rows() |>
+          sf::st_drop_geometry() |>
+          dplyr::select(
+            assessmentunitidentifier,
+            TADA.DistanceAway.Meters
+          ) |>
+          dplyr::distinct(),
+        silent = TRUE
+      )
 
-      try(result <- sub_tada %>%
-        data.table::data.table() %>%
-        dplyr::select(ResultIdentifier, assessmentunitidentifier) %>%
-        dplyr::left_join(distances,
-          by = "assessmentunitidentifier",
-          relationship = "many-to-many"
-        ) %>%
-        sf::st_drop_geometry() %>%
-        # for AUs with multiple features, only assess the one closest:
-        dplyr::group_by(ResultIdentifier, assessmentunitidentifier) %>%
-        dplyr::filter(TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)) %>%
-        # dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) %>%
-        dplyr::ungroup(), silent = TRUE)
+      try(
+        result <- sub_tada |>
+          data.table::data.table() |>
+          dplyr::select(ResultIdentifier, assessmentunitidentifier) |>
+          dplyr::left_join(
+            distances,
+            by = "assessmentunitidentifier",
+            relationship = "many-to-many"
+          ) |>
+          sf::st_drop_geometry() |>
+          dplyr::group_by(ResultIdentifier, assessmentunitidentifier) |>
+          dplyr::filter(
+            TADA.DistanceAway.Meters == min(TADA.DistanceAway.Meters)
+          ) |>
+          dplyr::ungroup(),
+        silent = TRUE
+      )
 
       return(result)
     }
 
-    # create a df of all distances
-    distances_table <- purrr::map_dfr(as.character(unique(TADA_with_ATTAINS$geometry)), find_distances)
+    # Create a dataframe of all distances
+    distances_table <- purrr::map_dfr(
+      as.character(unique(TADA_with_ATTAINS$geometry)),
+      find_distances
+    )
 
-    # add distance data to TADA df
-    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-      data.table::data.table() %>%
-      dplyr::left_join(., distances_table, by = c("ResultIdentifier", "assessmentunitidentifier")) %>%
-      dplyr::distinct() %>%
+    # Add distance data to TADA dataframe
+    TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+      data.table::data.table() |>
+      dplyr::left_join(
+        distances_table,
+        by = c("ResultIdentifier", "assessmentunitidentifier")
+      ) |>
+      dplyr::distinct() |>
       sf::st_as_sf()
 
-    # If return_nearest is TRUE, only keep the nearest ATTAINS feature to the WQP observation.
-    # Otherwise, return all ATTAINS features associated with the same catchment as the WQP observation.
+    # If return_nearest is TRUE, keep only the nearest ATTAINS feature
     if (return_nearest == TRUE) {
       message("Selecting nearest ATTAINS feature for each WQP observation.")
-      message("Use `return_nearest = FALSE` to return all features within WQP catchments.")
-      TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-        dplyr::group_by(ResultIdentifier) %>%
-        dplyr::slice_min(TADA.DistanceAway.Meters) %>%
+      message(
+        "Use `return_nearest = FALSE` to return all features within WQP catchments."
+      )
+      TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+        dplyr::group_by(ResultIdentifier) |>
+        dplyr::slice_min(TADA.DistanceAway.Meters) |>
         dplyr::ungroup()
     }
 
     if (return_sf == TRUE) {
-      # CATCHMENT FEATURES
-      # use original catchment pull
-      ATTAINS_catchments <- nearby_catchments %>%
-        dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
+      # Process catchment features
+      ATTAINS_catchments <- nearby_catchments |>
+        dplyr::filter(
+          assessmentunitidentifier %in%
+            TADA_with_ATTAINS$assessmentunitidentifier
+        ) |>
         dplyr::distinct(.keep_all = TRUE)
 
-      # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
+      # Process point features
       ATTAINS_points <- NULL
       try(
-        ATTAINS_points <- attains_features[["ATTAINS_points"]] %>%
-          # subset to only ATTAINS point features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
-          # make sure no duplicate features exist
+        ATTAINS_points <- attains_features[["ATTAINS_points"]] |>
+          dplyr::filter(
+            assessmentunitidentifier %in%
+              TADA_with_ATTAINS$assessmentunitidentifier
+          ) |>
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
       )
@@ -1510,13 +1725,14 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         ATTAINS_points <- NULL
       }
 
-      # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
+      # Process line features
       ATTAINS_lines <- NULL
       try(
-        ATTAINS_lines <- attains_features[["ATTAINS_lines"]] %>%
-          # subset to only ATTAINS line features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
-          # make sure no duplicate line features exist
+        ATTAINS_lines <- attains_features[["ATTAINS_lines"]] |>
+          dplyr::filter(
+            assessmentunitidentifier %in%
+              TADA_with_ATTAINS$assessmentunitidentifier
+          ) |>
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
       )
@@ -1524,13 +1740,14 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
         ATTAINS_lines <- NULL
       }
 
-      # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
+      # Process polygon features
       ATTAINS_polygons <- NULL
       try(
-        ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] %>%
-          # subset to only ATTAINS polygon features associated with WQP features
-          dplyr::filter(assessmentunitidentifier %in% TADA_with_ATTAINS$assessmentunitidentifier) %>%
-          # make sure no duplicate polygon features exist
+        ATTAINS_polygons <- attains_features[["ATTAINS_polygons"]] |>
+          dplyr::filter(
+            assessmentunitidentifier %in%
+              TADA_with_ATTAINS$assessmentunitidentifier
+          ) |>
           dplyr::distinct(assessmentunitidentifier, .keep_all = TRUE),
         silent = TRUE
       )
@@ -1539,9 +1756,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
       }
 
       if (fill_USGS_catch == FALSE) {
-        # If there are ATTAINS catchments, return_sf = TRUE, fill_USGS_catch = FALSE:
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS |>
             renameATTAINSCols(),
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
@@ -1553,53 +1769,75 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
       }
 
       if (fill_USGS_catch == TRUE) {
-        TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
+        TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
+          dplyr::filter(
+            ResultIdentifier %in%
+              c(
+                dplyr::filter(
+                  TADA_with_ATTAINS,
+                  is.na(assessmentunitidentifier)
+                ) |>
+                  dplyr::pull(ResultIdentifier)
+              )
+          )
 
-        fill_USGS_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
+        fill_USGS_catchments <- fetchNHD(
+          .data = TADA_without_ATTAINS,
+          features = "catchments",
+          resolution = resolution
+        )
 
-        TADA_without_ATTAINS <- TADA_without_ATTAINS %>%
-          sf::st_join(fill_USGS_catchments, left = TRUE) %>%
+        TADA_without_ATTAINS <- TADA_without_ATTAINS |>
+          sf::st_join(fill_USGS_catchments, left = TRUE) |>
           st_drop_geometry()
 
-        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
-            dplyr::filter(!is.na(assessmentunitidentifier)) %>%
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS |>
+            dplyr::filter(!is.na(assessmentunitidentifier)) |>
             renameATTAINSCols(),
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS,
+          "TADA_with_NHD" = TADA_without_ATTAINS,
           "ATTAINS_catchments" = ATTAINS_catchments,
           "ATTAINS_points" = ATTAINS_points,
           "ATTAINS_lines" = ATTAINS_lines,
           "ATTAINS_polygons" = ATTAINS_polygons,
-          "without_ATTAINS_catchments" = fill_USGS_catchments
+          "with_NHD_catchments" = fill_USGS_catchments
         )
 
         return(final_list)
       }
-    } else { # return_sf is FALSE
-
+    } else {
       if (fill_USGS_catch == TRUE) {
-        TADA_without_ATTAINS <- TADA_DataRetrieval_data %>%
-          dplyr::filter(ResultIdentifier %in% c(dplyr::filter(TADA_with_ATTAINS, is.na(assessmentunitidentifier)) %>% dplyr::pull(ResultIdentifier)))
+        TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
+          dplyr::filter(
+            ResultIdentifier %in%
+              c(
+                dplyr::filter(
+                  TADA_with_ATTAINS,
+                  is.na(assessmentunitidentifier)
+                ) |>
+                  dplyr::pull(ResultIdentifier)
+              )
+          )
 
-        fill_USGS_catchments <- fetchNHD(.data = TADA_without_ATTAINS, features = "catchments", resolution = resolution)
+        fill_USGS_catchments <- fetchNHD(
+          .data = TADA_without_ATTAINS,
+          features = "catchments",
+          resolution = resolution
+        )
 
-        TADA_without_ATTAINS <- TADA_without_ATTAINS %>%
-          sf::st_join(fill_USGS_catchments, left = TRUE) %>%
+        TADA_without_ATTAINS <- TADA_without_ATTAINS |>
+          sf::st_join(fill_USGS_catchments, left = TRUE) |>
           st_drop_geometry()
 
-        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = TRUE
         final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS %>%
-            dplyr::filter(!is.na(assessmentunitidentifier)) %>%
+          "TADA_with_ATTAINS" = TADA_with_ATTAINS |>
+            dplyr::filter(!is.na(assessmentunitidentifier)) |>
             renameATTAINSCols(),
-          "TADA_without_ATTAINS" = TADA_without_ATTAINS
+          "TADA_with_NHD" = TADA_without_ATTAINS
         )
 
         return(final_list)
       } else {
-        # has ATTAINS catchments, return_sf = FALSE, fill_USGS_catch = FALSE
         return(TADA_with_ATTAINS)
       }
     }
@@ -1634,6 +1872,11 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
+#'
+#' @param return_sf Whether to return the ATTAINS associated catchments, lines,
+#' points, and polygon shapefile objects along with the data frame(s).
+#' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
+#' are in WGS84 (crs = 4326).
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data, and, if
@@ -1678,7 +1921,12 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(.data,
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE) {
+TADA_GetATTAINSByAUID <- function(
+  .data,
+  au_ref = NULL,
+  fill_ATTAINS_catch = FALSE,
+  return_sf = TRUE
+) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1686,7 +1934,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   original_timeout <- getOption("timeout")
   options(timeout = 30000)
   on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))), add = TRUE)
+  on.exit(
+    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
+    add = TRUE
+  )
 
   attains_names <- renameATTAINSCols(return_list = TRUE)
 
@@ -1699,12 +1950,11 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     stop("Your data has already been joined with ATTAINS data.")
   }
 
-  # remove intermediate object
-  rm(attains_names)
-
   if (nrow(.data) == 0) {
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-    message("Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features.")
+    message(
+      "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+    )
 
     # Add ATTAINS columns with NA values
     col_val_list <- stats::setNames(
@@ -1715,9 +1965,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
       nm = attains_names
     )
 
-    no_WQP_data <- .data %>%
-      dplyr::mutate(ResultIdentifier = NA) %>%
-      dplyr::bind_cols(col_val_list) %>%
+    no_WQP_data <- .data |>
+      dplyr::mutate(ResultIdentifier = NA) |>
+      dplyr::bind_cols(col_val_list) |>
+      correctColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # In this case we'll need to return empty ATTAINS objects
@@ -1757,14 +2008,13 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 
   assign(col.ids$col.id[3], col.ids$select.col[3])
 
-
   # rename au_ref cols for next function
-  au_ref <- au_ref %>%
+  au_ref <- au_ref |>
     dplyr::rename(
       TADA.MonitoringLocationIdentifier = paste0(ml.col),
       ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
       Ref.WaterType = paste0(type.col)
-    ) %>%
+    ) |>
     dplyr::select(
       TADA.MonitoringLocationIdentifier,
       ATTAINS.AssessmentUnitIdentifier,
@@ -1772,12 +2022,15 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     )
 
   # filter detain to retain only results with known AUIDs
-  filt.data <- .data %>%
-    dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$TADA.MonitoringLocationIdentifier) %>%
-    dplyr::left_join(au_ref,
+  filt.data <- .data |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier %in%
+        au_ref$TADA.MonitoringLocationIdentifier
+    ) |>
+    dplyr::left_join(
+      au_ref,
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
     )
-
 
   # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
   if (dim(.data)[1] < 1) {
@@ -1788,7 +2041,8 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   }
 
   # REST for ATTAINS geospatial data:
-  baseurls <- c( # ATTAINS catchments:
+  baseurls <- c(
+    # ATTAINS catchments:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
     # ATTAINS points:
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
@@ -1817,10 +2071,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 
     results <- purrr::map_dfr(.x = chunks, .f = wat_type)
 
-    results <- results %>%
-      dplyr::select(assessmentUnitId, waterType) %>%
+    results <- results |>
+      dplyr::select(assessmentUnitId, waterType) |>
       dplyr::distinct()
-
 
     return(results)
   }
@@ -1831,17 +2084,23 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     silent = TRUE
   )
 
-
-  # function to download ATTAINS features API based on their name
+  # function to download ATTAINS features API based on their assessment unit id
 
   fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
     # Split the assessment_unit_ids into chunks of 1000
     # API cannot handle more than 1000 features
-    id_chunks <- split(assessment_unit_ids, ceiling(seq_along(assessment_unit_ids) / chunk_n))
+    id_chunks <- split(
+      assessment_unit_ids,
+      ceiling(seq_along(assessment_unit_ids) / chunk_n)
+    )
 
     # Query API for a chunk of assessment unit IDs
     fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0("assessmentunitidentifier IN ('", paste(id_chunk, collapse = "','"), "')")
+      where_clause <- paste0(
+        "assessmentunitidentifier IN ('",
+        paste(id_chunk, collapse = "','"),
+        "')"
+      )
       query_params <- list(
         where = where_clause,
         outFields = "*",
@@ -1876,7 +2135,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     points <- fetch_au(
       baseurls = baseurls[2],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1885,7 +2146,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     lines <- fetch_au(
       baseurls = baseurls[3],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
@@ -1894,21 +2157,38 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   try(
     polygons <- fetch_au(
       baseurls = baseurls[4],
-      assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+      assessment_unit_ids = paste0(unique(
+        filt.data$ATTAINS.AssessmentUnitIdentifier
+      )),
       chunk_n = 100
     ),
     silent = TRUE
   )
 
-  try(points <- points %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+  try(
+    points <- points |>
+      dplyr::left_join(
+        water_types,
+        by = c("assessmentunitidentifier" = "assessmentUnitId")
+      ),
     silent = TRUE
   )
 
-  try(lines <- lines %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+  try(
+    lines <- lines |>
+      dplyr::left_join(
+        water_types,
+        by = c("assessmentunitidentifier" = "assessmentUnitId")
+      ),
     silent = TRUE
   )
 
-  try(polygons <- polygons %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+  try(
+    polygons <- polygons |>
+      dplyr::left_join(
+        water_types,
+        by = c("assessmentunitidentifier" = "assessmentUnitId")
+      ),
     silent = TRUE
   )
 
@@ -1926,7 +2206,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
 
   # create a combined list of tada and attains prefix cols
-  comb.cols <- append(tada.cols, attains.cols) %>% unique()
+  comb.cols <- append(tada.cols, attains.cols) |> unique()
 
   attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
 
@@ -1934,8 +2214,9 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   colnames(attains.geo) <- comb.cols
 
   # remove unnecessary column from attains.geo
-  attains.geo <- attains.geo %>%
-    dplyr::select(-assessmentunitidentifier, -waterTypeCode)
+  attains.geo <- attains.geo |>
+    dplyr::select(-assessmentunitidentifier) |>
+    correctColType()
 
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
@@ -1944,69 +2225,66 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     try(
       catchments <- fetch_au(
         baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
+        assessment_unit_ids = paste0(unique(
+          filt.data$ATTAINS.AssessmentUnitIdentifier
+        )),
         chunk_n = 10
       ),
       silent = TRUE
     )
 
     # get one catchment per WQP location
-    catchments.cw <- filt.data %>%
+    catchments.cw <- filt.data |>
       dplyr::select(
-        TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure, HorizontalCoordinateReferenceSystemDatumName
-      ) %>%
-      dplyr::distinct() %>%
-      TADA_MakeSpatial() %>%
-      sf::st_join(catchments, join = sf::st_nearest_feature) %>%
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
-      dplyr::mutate(catchCount = dplyr::n()) %>%
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) %>%
-      dplyr::distinct() %>%
+        TADA.MonitoringLocationIdentifier,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure,
+        HorizontalCoordinateReferenceSystemDatumName
+      ) |>
+      dplyr::distinct() |>
+      TADA_MakeSpatial() |>
+      sf::st_join(catchments, join = sf::st_nearest_feature) |>
+      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+      dplyr::mutate(catchCount = dplyr::n()) |>
+      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
+      dplyr::distinct() |>
       sf::st_drop_geometry()
 
-    catchments.filt <- catchments %>%
+    catchments.filt <- catchments |>
       dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
 
-    catchments.no.geo <- catchments %>%
-      sf::st_drop_geometry() %>%
+    catchments.no.geo <- catchments |>
+      sf::st_drop_geometry() |>
       dplyr::distinct()
 
-    try(catchments <- catchments.filt %>% dplyr::left_join(., water_types, by = c("assessmentunitidentifier" = "assessmentUnitId")),
+    try(
+      catchments <- catchments.filt |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitId")
+        ),
       silent = TRUE
     )
-
-    # modify TADA_with_ATTAINS
-    TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-      dplyr::left_join(
-        catchments.cw,
-        dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      ) %>%
-      dplyr::left_join(catchments.no.geo,
-        by = c(
-          "nhdplusid" = "nhdplusid",
-          "ATTAINS.AssessmentUnitIdentifier" =
-            "assessmentunitidentifier"
-        )
-      ) %>%
-      dplyr::select(-OBJECTID)
   }
 
   # internal function to combine attains.geo data
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
-    geo.data <- geo.data %>%
+    geo.data <- geo.data |>
       dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
 
-    # join data from ATTAINS with tada df
-    df <- .data %>%
-      dplyr::left_join(geo.data,
-        by = c("ATTAINS.AssessmentUnitIdentifier")
-      )
+    # join data from ATTAINS with TADA df
+    df <- .data |>
+      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
 
-    # bind with existing attains.geo data
-    attains.geo <- plyr::rbind.fill(attains.geo, df) %>%
-      dplyr::filter(!is.na(GLOBALID))
+    # Bind with existing attains.geo data
+    attains.geo <- plyr::rbind.fill(attains.geo, df)
+    # Check if GLOBALID exists in the combined data frame
+    if ("GLOBALID" %in% names(attains.geo)) {
+      # Filter out rows with NA in GLOBALID
+      attains.geo <- attains.geo |>
+        dplyr::filter(!is.na(GLOBALID))
+    }
 
     # remove intermediate object
     rm(df)
@@ -2014,7 +2292,6 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
     # return tada df with added attains data
     return(attains.geo)
   }
-
 
   # add attains data returned from lines query if any exists
   if (dim(lines)[1] > 0) {
@@ -2044,30 +2321,36 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
   }
 
   # remame cols and set up TADA_with_ATTAINS df
-  TADA_with_ATTAINS <- attains.geo %>%
-    dplyr::filter(!is.na(ResultIdentifier)) %>%
-    dplyr::full_join(.data, by = names(.data)) %>%
-    renameATTAINSCols() %>%
-    dplyr::mutate(ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
-      Ref.WaterType, ATTAINS.WaterType
-    )) %>%
+  TADA_with_ATTAINS <- attains.geo |>
+    correctColType() |>
+    dplyr::filter(!is.na(ResultIdentifier)) |>
+    dplyr::full_join(.data, by = names(.data)) |>
+    renameATTAINSCols() |>
+    dplyr::mutate(
+      ATTAINS.WaterType = ifelse(
+        is.na(ATTAINS.WaterType),
+        Ref.WaterType,
+        ATTAINS.WaterType
+      )
+    ) |>
     dplyr::group_by(ResultIdentifier)
 
   # Check to see if any mismatches
-  mismatch_check <- TADA_with_ATTAINS %>%
+  mismatch_check <- TADA_with_ATTAINS |>
     dplyr::select(
       ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.WaterType, Ref.WaterType
-    ) %>%
+      ATTAINS.WaterType,
+      Ref.WaterType
+    ) |>
     dplyr::mutate(
-      ATTAINS.WaterType = ifelse(is.na(ATTAINS.WaterType),
-        "NA", ATTAINS.WaterType
+      ATTAINS.WaterType = ifelse(
+        is.na(ATTAINS.WaterType),
+        "NA",
+        ATTAINS.WaterType
       ),
-      Ref.WaterType = ifelse(is.na(Ref.WaterType),
-        "NA", Ref.WaterType
-      ),
+      Ref.WaterType = ifelse(is.na(Ref.WaterType), "NA", Ref.WaterType),
       Mismatch = ATTAINS.WaterType != Ref.WaterType
-    ) %>%
+    ) |>
     dplyr::filter(Mismatch == TRUE)
 
   # Remove mismatch test if none exist
@@ -2077,17 +2360,24 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 
   # Print message if mismatches exist
   if (exists("mismatch_check") && nrow(mismatch_check) > 0) {
-    mismatch.text <- mismatch_check %>%
-      dplyr::mutate(MatchMessage = paste0(
-        ATTAINS.AssessmentUnitIdentifier, " (ATTAINS: ",
-        ATTAINS.WaterType, ", User-ref: ",
-        Ref.WaterType, ")"
-      )) %>%
-      dplyr::select(MatchMessage) %>%
+    mismatch.text <- mismatch_check |>
+      dplyr::mutate(
+        MatchMessage = paste0(
+          ATTAINS.AssessmentUnitIdentifier,
+          " (ATTAINS: ",
+          ATTAINS.WaterType,
+          ", User-ref: ",
+          Ref.WaterType,
+          ")"
+        )
+      ) |>
+      dplyr::select(MatchMessage) |>
       dplyr::pull()
 
-    mismatch.text <- stringi::stri_replace_last(paste(mismatch.text, collapse = "; "),
-      fixed = "; ", " and "
+    mismatch.text <- stringi::stri_replace_last(
+      paste(mismatch.text, collapse = "; "),
+      fixed = "; ",
+      " and "
     )
 
     print(paste0(
@@ -2096,20 +2386,21 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
       "The ATTAINS water type has been retained for all mismatched records. ",
       "If you would like to update the water type, that must be done through the ATTAINS ",
       "user interface or batch upload. ",
-      "Mismatch details: ", mismatch.text, "."
+      "Mismatch details: ",
+      mismatch.text,
+      "."
     ))
 
     rm(mismatch.text, mismatch_check)
   }
 
   # remove Ref.WaterType col as it is no longer needed
-  TADA_with_ATTAINS <- TADA_with_ATTAINS %>%
-    dplyr::select(-Ref.WaterType) %>%
+  TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+    dplyr::select(-Ref.WaterType) |>
     dplyr::distinct()
 
   # remove intermediate object
   rm(attains.geo, filt.data)
-
 
   final_features <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS,
@@ -2185,11 +2476,20 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref = NULL, fill_ATTAINS_catch = FAL
 #' }
 #'
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
-  if (!any(c(
-    "ATTAINS_catchments", "ATTAINS_points",
-    "ATTAINS_lines", "ATTAINS_polygons"
-  ) %in% names(.data))) {
-    stop("Your input dataframe was not produced from `TADA_CreateATTAINSAUMLCrosswalk(return_sf = TRUE)`, or it was modified. Please create your list of ATTAINS features using `TADA_CreateATTAINSAUMLCrosswalk()` and confirm that return_sf had been set to TRUE.")
+  if (
+    !any(
+      c(
+        "ATTAINS_catchments",
+        "ATTAINS_points",
+        "ATTAINS_lines",
+        "ATTAINS_polygons"
+      ) %in%
+        names(.data)
+    )
+  ) {
+    stop(
+      "Your input dataframe was not produced from `TADA_CreateATTAINSAUMLCrosswalk(return_sf = TRUE)`, or it was modified. Please create your list of ATTAINS features using `TADA_CreateATTAINSAUMLCrosswalk()` and confirm that return_sf had been set to TRUE."
+    )
   }
 
   ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
@@ -2198,7 +2498,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
-  if (is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)) {
+  if (
+    is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)
+  ) {
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }
 
@@ -2228,15 +2530,74 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # catchment <- magick::image_fill(outline.square, "black", "+500+500")
   #
   # magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
+  #
+  # create images for mapping point AUs
+  # #
+  #   setupPointMarkers <- function(path, color, name) {
+  #
+  #     marker <- magick::image_fill(magick::image_read(path), color, "+500+500")
+  #
+  #     marker <- magick::image_background(marker, color = "none")
+  #
+  #     magick::image_write(marker, path = paste0(
+  #       "inst/extdata/icons/", name, ".png"))
+  #   }
+  #
+  #   ns.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                 color = tada.pal[3],
+  #                                 name = "ns.point.circle")
+  #
+  #   s.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                color = tada.pal[4],
+  #                                name = "s.point.circle")
+  #
+  #   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+  #                                 color = tada.pal[7],
+  #                                 name = "na.point.circle")
 
   # Define the paths to the images
   images <- c(
-    system.file("extdata/icons", "square-ns.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-fs.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-na.png", package = "EPATADA"),
-    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment-gray.png", package = "EPATADA"),
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA")
+    system.file("extdata/icons", "square-ns.png", package = "EPATADA"), #1
+    system.file("extdata/icons", "square-fs.png", package = "EPATADA"), #2
+    system.file("extdata/icons", "square-na.png", package = "EPATADA"), #3
+    system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), #4
+    system.file(
+      "extdata/icons",
+      "circle-user-solid-full.png",
+      package = "EPATADA"
+    ), #5
+    system.file(
+      "extdata/icons",
+      "circle-check-solid-full.png",
+      package = "EPATADA"
+    ), #6
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #7
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #8
+    system.file(
+      "extdata/icons",
+      "square-catchment-gray.png",
+      package = "EPATADA"
+    ), #9
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), #10
+    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), #11
+    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), #12
+    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") #13
+  )
+
+  img.labels <- c(
+    "ATTAINS: Not Supporting", #1
+    "ATTAINS: Supporting", #2
+    "ATTAINS: Not Assessed", #3
+    "ATTAINS: No Geometry Available", #4
+    "WQP: User-supplied Ref", #5
+    "WQP: ATTAINS Crosswalk", #6
+    "WQP: TADA_CreateATTAINSAUMLCrosswalk", #7
+    "WQP: Monitoring Location", #8
+    "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", #9
+    "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", #10
+    "ATTAINS: Not Supporting Point", #11
+    "ATTAINS: Supporting Point", #12
+    "ATTAINS: Not Assessed Point" #13
   )
 
   # Check if all image paths exist
@@ -2250,12 +2611,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # Use catchments for those instances for mapping purposes:
   missing_raw_features <- NULL
 
-  try(missing_raw_features <- ATTAINS_catchments %>%
-    dplyr::filter(!assessmentunitidentifier %in% c(
-      ATTAINS_points$assessmentunitidentifier,
-      ATTAINS_lines$assessmentunitidentifier,
-      ATTAINS_polygons$assessmentunitidentifier
-    )), silent = TRUE)
+  try(
+    missing_raw_features <- ATTAINS_catchments |>
+      dplyr::filter(
+        !assessmentunitidentifier %in%
+          c(
+            ATTAINS_points$assessmentunitidentifier,
+            ATTAINS_lines$assessmentunitidentifier,
+            ATTAINS_polygons$assessmentunitidentifier
+          )
+      ),
+    silent = TRUE
+  )
 
   if (!"without_ATTAINS_catchments" %in% names(.data)) {
     if (nrow(ATTAINS_table) == 0) {
@@ -2272,21 +2639,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }
 
   required_columns <- c(
-    "TADA.LongitudeMeasure", "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
     "HorizontalCoordinateReferenceSystemDatumName",
-    "TADA.CharacteristicName", "TADA.MonitoringLocationIdentifier",
-    "TADA.MonitoringLocationName", "ResultIdentifier",
-    "ActivityStartDate", "TADA.OrganizationIdentifier"
+    "TADA.CharacteristicName",
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationName",
+    "ResultIdentifier",
+    "ActivityStartDate",
+    "TADA.OrganizationIdentifier"
   )
 
   if (!any(required_columns %in% colnames(ATTAINS_table))) {
-    stop("Your dataframe does not contain the necessary WQP-style column names.")
+    stop(
+      "Your dataframe does not contain the necessary WQP-style column names."
+    )
   }
 
   suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
-    try(ATTAINS_table <- ATTAINS_table %>%
-      sf::st_drop_geometry(), silent = TRUE)
+    try(
+      ATTAINS_table <- ATTAINS_table |>
+        sf::st_drop_geometry(),
+      silent = TRUE
+    )
 
     tada.pal <- TADA_ColorPalette()
 
@@ -2299,105 +2675,161 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
-      points_mapper <- ATTAINS_points %>%
-        dplyr::left_join(., colors, by = "overallstatus") %>%
-        dplyr::mutate(type = "Point Feature") %>%
-        tibble::rowid_to_column(var = "index") %>%
-        # some point features are actually multipoint features. Must extract all coordinates for mapping
-        # later:
-        dplyr::right_join(., tibble::as_tibble(sf::st_coordinates(ATTAINS_points)), by = c("index" = "L1")),
+      {
+        # extract coordinates and convert to a tibble (to handle point or multipoint)
+        coords <- sf::st_coordinates(ATTAINS_points) |>
+          tibble::as_tibble() |>
+          tibble::rowid_to_column(var = "index")
+
+        # points mapper setup
+        points_mapper <- ATTAINS_points |>
+          dplyr::left_join(colors, by = "overallstatus") |>
+          dplyr::mutate(type = "Point Feature") |>
+          tibble::rowid_to_column(var = "index") |>
+          dplyr::right_join(coords, by = "index")
+
+        # remove intermediate object
+        rm(coords)
+      },
       silent = TRUE
     )
 
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
-      lines_mapper <- ATTAINS_lines %>%
-        dplyr::left_join(., colors, by = "overallstatus") %>%
+      lines_mapper <- ATTAINS_lines |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Line Feature"),
       silent = TRUE
     )
 
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
-      polygons_mapper <- ATTAINS_polygons %>%
-        dplyr::left_join(., colors, by = "overallstatus") %>%
+      polygons_mapper <- ATTAINS_polygons |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Polygon Feature"),
       silent = TRUE
     )
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
-      missing_raw_mapper <- missing_raw_features %>%
-        dplyr::left_join(., colors, by = "overallstatus") %>%
+      missing_raw_mapper <- missing_raw_features |>
+        dplyr::left_join(colors, by = "overallstatus") |>
         dplyr::mutate(type = "Raw Feature Unavailable"),
       silent = TRUE
     )
 
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
-    sumdat <- ATTAINS_table %>%
-      dplyr::group_by(MonitoringLocationIdentifier, MonitoringLocationName, LatitudeMeasure, LongitudeMeasure) %>%
+    sumdat <- ATTAINS_table |>
+      dplyr::group_by(
+        TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationName,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure
+      ) |>
       dplyr::summarize(
         Sample_Count = length(unique(ResultIdentifier)),
         Visit_Count = length(unique(ActivityStartDate)),
-        Parameter_Count = length(unique(CharacteristicName)),
+        Parameter_Count = length(unique(TADA.CharacteristicName)),
         Organization_Count = length(unique(OrganizationIdentifier)),
-        ATTAINS_AUs = as.character(list(unique(ATTAINS.AssessmentUnitIdentifier))),
-        TADA.AURefSource = ifelse("TADA.AURefSource" %in% names(ATTAINS_table),
+        ATTAINS_AUs = as.character(list(unique(
+          ATTAINS.AssessmentUnitIdentifier
+        ))),
+        TADA.AURefSource = ifelse(
+          "TADA.AURefSource" %in% names(ATTAINS_table),
           as.character(TADA.AURefSource),
           "not provided"
         )
-      ) %>%
+      ) |>
       dplyr::mutate(
         ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
-        LatitudeMeasure = as.numeric(LatitudeMeasure),
-        LongitudeMeasure = as.numeric(LongitudeMeasure)
+        LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
+        LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
       )
 
     # Basemap for AOI:
-    map <- leaflet::leaflet() %>%
-      leaflet::addProviderTiles("Esri.WorldTopoMap",
+    map <- leaflet::leaflet() |>
+      leaflet::addProviderTiles(
+        "Esri.WorldTopoMap",
         group = "World topo",
         options = leaflet::providerTileOptions(
           updateWhenZooming = FALSE,
           updateWhenIdle = TRUE
         )
-      ) %>%
-      leaflet::clearShapes() %>%
+      ) |>
+      leaflet::clearShapes() |>
       leaflet::fitBounds(
-        lng1 = min(sumdat$LongitudeMeasure, na.rm = TRUE),
-        lat1 = min(sumdat$LatitudeMeasure, na.rm = TRUE),
-        lng2 = max(sumdat$LongitudeMeasure, na.rm = TRUE),
-        lat2 = max(sumdat$LatitudeMeasure, na.rm = TRUE)
-      ) %>%
+        lng1 = min(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+        lat1 = min(sumdat$TADA.LatitudeMeasure, na.rm = TRUE),
+        lng2 = max(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+        lat2 = max(sumdat$TADA.LatitudeMeasure, na.rm = TRUE)
+      ) |>
       leaflet.extras::addResetMapButton()
 
     # Add ATTAINS catchment outlines (if they exist):
     try(
-      map <- map %>%
+      map <- map |>
         leaflet::addPolygons(
           data = ATTAINS_catchments,
-          color = "black", fillColor = "grey",
-          weight = 1, fillOpacity = 0.3,
-          popup = paste0("NHDPlus HR Catchment ID: ", ATTAINS_catchments$nhdplusid)
+          color = "black",
+          fillColor = "grey",
+          weight = 1,
+          fillOpacity = 0.3,
+          popup = paste0(
+            "NHDPlus HR Catchment ID: ",
+            ATTAINS_catchments$nhdplusid
+          )
         ),
       silent = TRUE
     )
 
     # Add ATTAINS catchment outlines as AUs:
     try(
-      map <- map %>%
+      map <- map |>
         leaflet::addPolygons(
           data = missing_raw_mapper,
           color = ~ missing_raw_mapper$col,
           fill = ~ missing_raw_mapper$col,
-          weight = 3, fillOpacity = 0.25,
+          weight = 3,
+          fillOpacity = 0.25,
           popup = paste0(
-            "Assessment Unit Name: ", missing_raw_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ", missing_raw_mapper$assessmentunitidentifier,
-            "<br> Status: ", missing_raw_mapper$overallstatus,
-            "<br> Assessment Unit Type: ", missing_raw_mapper$type,
-            "<br> <a href=", missing_raw_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>",
-            "<br> NHDPlus HR Catchment ID: ", missing_raw_mapper$nhdplusid
+            "Assessment Unit Name: ",
+            missing_raw_mapper$assessmentunitname,
+            "<br> Assessment Unit ID: ",
+            missing_raw_mapper$assessmentunitidentifier,
+            "<br> Status: ",
+            missing_raw_mapper$overallstatus,
+            "<br> Assessment Unit Type: ",
+            missing_raw_mapper$type,
+            "<br> <a href=",
+            missing_raw_mapper$waterbodyreportlink,
+            " target='_blank'>ATTAINS Link</a>",
+            "<br> NHDPlus HR Catchment ID: ",
+            missing_raw_mapper$nhdplusid
+          )
+        ),
+      silent = TRUE
+    )
+
+    # add without ATTAINS catchments if available
+    without_ATTAINS_catchments <- NULL
+    try(
+      without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+        dplyr::rename(nhd = 1),
+      silent = TRUE
+    )
+
+    # Add missing catchment outlines (if they exist):
+    try(
+      map <- map |>
+        leaflet::addPolygons(
+          data = without_ATTAINS_catchments,
+          color = "black",
+          weight = 1,
+          fillOpacity = 0,
+          popup = paste0(
+            without_ATTAINS_catchments$NHD.resolution,
+            " catchment ID: ",
+            without_ATTAINS_catchments$nhd
           )
         ),
       silent = TRUE
@@ -2405,18 +2837,25 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # Add ATTAINS polygon features (if they exist):
     try(
-      map <- map %>%
+      map <- map |>
         leaflet::addPolygons(
           data = polygons_mapper,
           color = ~ polygons_mapper$col,
           fill = ~ polygons_mapper$col,
-          weight = 3, fillOpacity = 1,
+          weight = 3,
+          fillOpacity = 1,
           popup = paste0(
-            "Assessment Unit Name: ", polygons_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ", polygons_mapper$assessmentunitidentifier,
-            "<br> Status: ", polygons_mapper$overallstatus,
-            "<br> Assessment Unit Type: ", polygons_mapper$type,
-            "<br> <a href=", polygons_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
+            "Assessment Unit Name: ",
+            polygons_mapper$assessmentunitname,
+            "<br> Assessment Unit ID: ",
+            polygons_mapper$assessmentunitidentifier,
+            "<br> Status: ",
+            polygons_mapper$overallstatus,
+            "<br> Assessment Unit Type: ",
+            polygons_mapper$type,
+            "<br> <a href=",
+            polygons_mapper$waterbodyreportlink,
+            " target='_blank'>ATTAINS Link</a>"
           )
         ),
       silent = TRUE
@@ -2424,150 +2863,264 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # Add ATTAINS lines features (if they exist):
     try(
-      map <- map %>%
+      map <- map |>
         leaflet::addPolylines(
           data = lines_mapper,
           color = ~ lines_mapper$col,
-          weight = 4, fillOpacity = 1,
+          weight = 4,
+          fillOpacity = 1,
           popup = paste0(
-            "Assessment Unit Name: ", lines_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ", lines_mapper$assessmentunitidentifier,
-            "<br> Status: ", lines_mapper$overallstatus,
-            "<br> Assessment Unit Type: ", lines_mapper$type,
-            "<br> <a href=", lines_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
+            "Assessment Unit Name: ",
+            lines_mapper$assessmentunitname,
+            "<br> Assessment Unit ID: ",
+            lines_mapper$assessmentunitidentifier,
+            "<br> Status: ",
+            lines_mapper$overallstatus,
+            "<br> Assessment Unit Type: ",
+            lines_mapper$type,
+            "<br> <a href=",
+            lines_mapper$waterbodyreportlink,
+            " target='_blank'>ATTAINS Link</a>"
           )
         ),
+      silent = TRUE
+    )
+
+    try(
+      pointIcons <- leaflet::icons(
+        iconUrl = dplyr::case_when(
+          points_mapper$overall == "Fully Supporting" ~ images[12],
+          points_mapper$overall == "Not Supporting" ~ images[11],
+          points_mapper$overall == "Not Assessed" ~ images[13]
+        ),
+        iconWidth = 48,
+        iconHeight = 48
+      ),
       silent = TRUE
     )
 
     # Add ATTAINS point features (if they exist):
     try(
-      map <- map %>%
-        leaflet::addCircleMarkers(
+      map <- map |>
+        leaflet::addMarkers(
           data = points_mapper,
-          lng = ~X, lat = ~Y,
-          color = ~ points_mapper$col, fillColor = ~ points_mapper$col,
-          fillOpacity = 1, stroke = TRUE, weight = 1.5, radius = 5,
+          lng = ~X,
+          lat = ~Y,
+          icon = pointIcons,
           popup = paste0(
-            "Assessment Unit Name: ", points_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ", points_mapper$assessmentunitidentifier,
-            "<br> Status: ", points_mapper$overallstatus,
-            "<br> Assessment Unit Type: ", points_mapper$type,
-            "<br> <a href=", points_mapper$waterbodyreportlink, " target='_blank'>ATTAINS Link</a>"
+            "Assessment Unit Name: ",
+            points_mapper$assessmentunitname,
+            "<br> Assessment Unit ID: ",
+            points_mapper$assessmentunitidentifier,
+            "<br> Status: ",
+            points_mapper$overallstatus,
+            "<br> Assessment Unit Type: ",
+            points_mapper$type,
+            "<br> <a href=",
+            points_mapper$waterbodyreportlink,
+            " target='_blank'>ATTAINS Link</a>"
           )
         ),
       silent = TRUE
     )
 
-    if ("TADA.AURefSource" %in% names(ATTAINS_table) & ref_icons == TRUE) {
-      # set shapes for different ref sources
+    # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
+    if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
+      user.refs <- ATTAINS_table |>
+        dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          ATTAINS.WaterType
+        ) |>
+        dplyr::distinct()
 
-      # Make a list of icons. We'll index into it based on name.
-      refIcons <- leaflet::icons(
-        iconUrl = dplyr::case_when(
-          sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ system.file("extdata/icons", "circle-check-solid-full.svg", package = "EPATADA"),
-          sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
-          sumdat$TADA.AURefSource == "User-supplied Ref" ~ system.file("extdata/icons", "circle-user-solid-full.svg", package = "EPATADA")
-        ),
-        iconWidth = 24,
-        iconHeight = 24
-      )
+      # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
 
+      if (dim(user.refs)[1] > 0) {
+        # internal function to create list of auids
+        listAUIDs <- function(.data) {
+          if (dim(.data)[1] == 0) {
+            list <- list()
+          } else {
+            list <- .data |>
+              sf::st_drop_geometry() |>
+              dplyr::select(assessmentunitidentifier) |>
+              dplyr::distinct() |>
+              dplyr::pull()
+          }
+
+          return(list)
+        }
+
+        # create list of assessment units with geometry
+        point.aus <- listAUIDs(ATTAINS_points)
+
+        line.aus <- listAUIDs(ATTAINS_lines)
+
+        polygon.aus <- listAUIDs(ATTAINS_polygons)
+
+        # combine lists
+        all.attains.aus <- append(point.aus, line.aus)
+
+        all.attains.aus <- append(all.attains.aus, polygon.aus)
+
+        # retain unique assessment unit identifiers
+        all.attains.aus <- unique(all.attains.aus)
+
+        # find if any assigned aus are missing geometry
+        missing.geo <- user.refs |>
+          dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
+
+        # remove intermediate objects
+        rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
+
+        # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
+        if (dim(missing.geo)[1] > 0) {
+          # set up icons for missing geometry
+          missingIcon <- leaflet::icons(
+            iconUrl = system.file(
+              "extdata/icons",
+              "circle-dashed.png",
+              package = "EPATADA"
+            ),
+            iconWidth = 48,
+            iconHeight = 48
+          )
+
+          # markers and popup for missing geometry to map
+          try(
+            map <- map |>
+              leaflet::addMarkers(
+                data = missing.geo,
+                lng = ~TADA.LongitudeMeasure,
+                lat = ~TADA.LatitudeMeasure,
+                icon = missingIcon,
+                popup = paste0(
+                  "Assessment Unit Name: ",
+                  "not available in ATTAINS",
+                  "<br> Assessment Unit ID: ",
+                  missing.geo$ATTAINS.AssessmentUnitIdentifier,
+                  "<br> Status: ",
+                  "not available in ATTAINS",
+                  "<br> Assessment Unit Type: ",
+                  "not available in ATTAINS"
+                )
+              ),
+            silent = TRUE
+          )
+        }
+      }
+    }
+
+    # set base pop up for monitoring locations
+    set.popup <- paste0(
+      "Site ID: ",
+      sumdat$TADA.MonitoringLocationIdentifier,
+      "<br> Site Name: ",
+      sumdat$TADA.MonitoringLocationName,
+      "<br> Measurement Count: ",
+      sumdat$Sample_Count,
+      "<br> Visit Count: ",
+      sumdat$Visit_Count,
+      "<br> Characteristic Count: ",
+      sumdat$Parameter_Count,
+      "<br> ATTAINS Assessment Unit(s): ",
+      sumdat$ATTAINS_AUs
+    )
+
+    # add au ref source to pop up  if available
+    if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
       set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs,
-        "<br> Crosswalk Source: ", sumdat$TADA.AURefSource
-      )
-
-      images.ref <- c(
-        images[1:3],
-        system.file("extdata/icons", "circle-user-solid-full.png", package = "EPATADA"),
-        system.file("extdata/icons", "circle-check-solid-full.png", package = "EPATADA"),
-        images[4:5]
-      )
-
-      leg.labels <- c(
-        "ATTAINS: Not Supporting",
-        "ATTAINS: Supporting",
-        "ATTAINS: Not Assessed",
-        "WQP: User-supplied Ref",
-        "WQP: ATTAINS Crosswalk",
-        "WQP: TADA_CreateATTAINSAUMLCrosswalk",
-        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines."
+        set.popup,
+        "<br>",
+        "Crosswalk Source: ",
+        sumdat$TADA.AURefSource
       )
     }
 
+    # set base image and label ref lists for legend
+    attains.imgs <- images[1:3]
+    attains.labels <- img.labels[1:3]
+
+    # add missing geometry image and label if needed
+    if (exists("missing.geo")) {
+      if (dim(missing.geo)[1] > 0) {
+        attains.imgs <- append(attains.imgs, images[4])
+        attains.labels <- append(attains.labels, img.labels[4])
+
+        # remove intermediate object
+        rm(missing.geo)
+      }
+    }
+
+    # set image ref, image label, and icon url lists for WQP monitoring locations
     if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-      refIcons <- leaflet::icons(
-        iconUrl = system.file("extdata/icons", "circle-solid-full.svg", package = "EPATADA"),
-        iconWidth = 24,
-        iconHeight = 24
-      )
+      wqp.imgs <- images[8]
+      wqp.labels <- img.labels[8]
 
-      set.popup <- paste0(
-        "Site ID: ", sumdat$MonitoringLocationIdentifier,
-        "<br> Site Name: ", sumdat$MonitoringLocationName,
-        "<br> Measurement Count: ", sumdat$Sample_Count,
-        "<br> Visit Count: ", sumdat$Visit_Count,
-        "<br> Characteristic Count: ", sumdat$Parameter_Count,
-        "<br> ATTAINS Assessment Unit(s): ", sumdat$ATTAINS_AUs
-      )
+      wqp.urls <- images[8]
+    } else {
+      wqp.imgs <- images[5:7]
+      wqp.labels <- img.labels[5:7]
 
-      images.ref <- c(
-        images[1:5]
-      )
-
-      leg.labels <- c(
-        "ATTAINS: Not Supporting",
-        "ATTAINS: Fully Supporting",
-        "ATTAINS: Not Assessed",
-        "WQP: Monitoring Location",
-        "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as clear polygons with gray outlines."
+      wqp.urls <- dplyr::case_when(
+        sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
+        sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
+          7
+        ],
+        sumdat$TADA.AURefSource == "User-supplied Ref" ~ images[5]
       )
     }
+
+    # set image ref for catchments
+    catch.imgs <- images[9]
+    catch.labels <- img.labels[9]
 
     if ("without_ATTAINS_catchments" %in% names(.data)) {
-      images.ref <- append(images.ref, images[6])
-
-      leg.labels <- append(
-        leg.labels,
-        "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines."
-      )
-
-      without_ATTAINS_catchments <- NULL
-      try(without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] %>%
-        dplyr::rename(nhd = 1), silent = TRUE)
-
-      # Add missing catchment outlines (if they exist):
-      try(
-        map <- map %>%
-          leaflet::addPolygons(
-            data = without_ATTAINS_catchments,
-            color = "black",
-            weight = 1, fillOpacity = 0,
-            popup = paste0(without_ATTAINS_catchments$NHD.resolution, " catchment ID: ", without_ATTAINS_catchments$nhd)
-          ),
-        silent = TRUE
-      )
+      catch.imgs <- append(catch.imgs, images[10])
+      catch.labels <- append(catch.labels, img.labels[10])
     }
+
+    # create overall legend labels and images
+    images.ref <- c(attains.imgs, wqp.imgs, catch.imgs)
+
+    leg.labels <- c(attains.labels, wqp.labels, catch.labels)
+
+    # remove intermediate objects
+    rm(
+      attains.imgs,
+      attains.labels,
+      wqp.imgs,
+      wqp.labels,
+      catch.imgs,
+      catch.labels
+    )
 
     # Add WQP observation features (should always exist):
     try(
-      map <- map %>%
+      map <- map |>
         leaflet::addMarkers(
           data = sumdat,
-          lng = ~LongitudeMeasure, lat = ~LatitudeMeasure,
-          icon = refIcons,
+          lng = ~TADA.LongitudeMeasure,
+          lat = ~TADA.LatitudeMeasure,
+          icon = leaflet::icons(
+            iconUrl = wqp.urls,
+            iconWidth = 24,
+            iconHeight = 24
+          ),
           popup = set.popup
         ),
       silent = TRUE
     )
 
-    map <- map %>%
+    # remove intermediate objects
+    rm(wqp.urls, set.popup)
+
+    # add legend to map
+    map <- map |>
       leaflegend::addLegendImage(
         images = images.ref,
         labels = leg.labels,
@@ -2575,12 +3128,46 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         width = 14,
         height = 14,
         orientation = "vertical",
-        title = htmltools::tags$div("Legend",
+        title = htmltools::tags$div(
+          "Legend",
           style = "font-size: 14px;
                                              text-align: left; font-weight: bold;"
         ),
         position = "bottomright"
       )
+
+    # remove intermediate objects
+    rm(images.ref, leg.labels)
+
+    # add button to toggle map legend on/off
+    map <- htmlwidgets::onRender(
+      map,
+      "
+  function(el, x) {
+    var button = document.createElement('button');
+    button.innerHTML = 'Toggle Legend';
+    button.style.position = 'absolute';
+    button.style.top = '10px';
+    button.style.right = '10px'; // Positioning in the top-right corner
+    button.style.zIndex = 1000;
+    button.style.padding = '5px 10px';
+    button.style.backgroundColor = '#fff';
+    button.style.border = '1px solid #ccc';
+    button.style.borderRadius = '4px';
+    button.onclick = function() {
+      var legend = el.querySelector('.leaflet-control.legend'); // Adjust this selector to target the legend only
+      if (legend) {
+        if (legend.style.display === 'none') {
+          legend.style.display = 'block';
+        } else {
+          legend.style.display = 'none';
+        }
+      }
+    };
+    el.appendChild(button);
+  }
+"
+    )
 
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
@@ -2665,10 +3252,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #'   dist_buffer = 10
 #' )
 #' }
-TADA_FindNearbySites <- function(.data, dist_buffer = 100,
-                                 nhd_res = "Hi",
-                                 org_hierarchy = "none",
-                                 meta_select = "random") {
+TADA_FindNearbySites <- function(
+  .data,
+  dist_buffer = 100,
+  nhd_res = "Hi",
+  org_hierarchy = "none",
+  meta_select = "random"
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -2679,11 +3269,13 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   rm(expected_cols)
 
   # retain only necessary columns unique Monitoring Locations
-  unique.mls <- .data %>%
+  unique.mls <- .data |>
     dplyr::select(
-      TADA.MonitoringLocationIdentifier, TADA.LongitudeMeasure, TADA.LatitudeMeasure,
+      TADA.MonitoringLocationIdentifier,
+      TADA.LongitudeMeasure,
+      TADA.LatitudeMeasure,
       HorizontalCoordinateReferenceSystemDatumName
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # convert to sf object
@@ -2693,7 +3285,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   dist.matrix <- as.matrix(sf::st_distance(unique.mls)) # Great Circle distance since in lat/lon
 
   # remove units from distance matrix
-  dist.matrix <- dist.matrix %>%
+  dist.matrix <- dist.matrix |>
     units::drop_units()
 
   rownames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
@@ -2712,7 +3304,11 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   rm(dist.matrix)
 
   # create adjacency graph
-  adj.graph <- igraph::graph_from_adjacency_matrix(dist.mat1, mode = "undirected", diag = FALSE)
+  adj.graph <- igraph::graph_from_adjacency_matrix(
+    dist.mat1,
+    mode = "undirected",
+    diag = FALSE
+  )
 
   # find connected sites
   comp.results <- igraph::components(adj.graph)
@@ -2722,21 +3318,24 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     TADA.MonitoringLocationIdentifier = names(comp.results$membership),
     Group = comp.results$membership,
     row.names = NULL
-  ) %>%
-    dplyr::group_by(Group) %>%
-    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) %>%
-    dplyr::filter(n > 1) %>%
-    dplyr::select(-n) %>%
+  ) |>
+    dplyr::group_by(Group) |>
+    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
+    dplyr::filter(n > 1) |>
+    dplyr::select(-n) |>
     dplyr::ungroup()
 
   # remove intermediate objects
   rm(dist.mat1, adj.graph, comp.results)
 
-  if (nrow(group.sites) == 0) { # #if no groups, give a TADA.NearbySiteGroup column filled with
+  if (nrow(group.sites) == 0) {
+    # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
-    print("TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes.")
+    print(
+      "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
+    )
 
-    .data <- .data %>%
+    .data <- .data |>
       dplyr::mutate(
         TADA.NearbySites.Flag = "No nearby sites detected.",
         TADA.NearbySiteGroup = NA
@@ -2746,19 +3345,26 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   }
 
   # subset nearby sites
-  near.sites <- unique.mls %>%
-    dplyr::filter(TADA.MonitoringLocationIdentifier %in%
-      group.sites$TADA.MonitoringLocationIdentifier) %>%
-    dplyr::left_join(group.sites, by = dplyr::join_by(TADA.MonitoringLocationIdentifier))
+  near.sites <- unique.mls |>
+    dplyr::filter(
+      TADA.MonitoringLocationIdentifier %in%
+        group.sites$TADA.MonitoringLocationIdentifier
+    ) |>
+    dplyr::left_join(
+      group.sites,
+      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+    )
 
   # break into multiple dfs
-  near.dfs <- near.sites %>%
+  near.dfs <- near.sites |>
     dplyr::group_split(Group, .keep = FALSE)
 
   # fetch nhdplus catchment information
-  nhd.catch <- near.dfs %>%
-    purrr::map(~ .x %>%
-      fetchNHD(resolution = nhd_res))
+  nhd.catch <- near.dfs |>
+    purrr::map(
+      ~ .x |>
+        fetchNHD(resolution = nhd_res)
+    )
 
   # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
   nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
@@ -2767,22 +3373,25 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
 
   # join nhd catchments with monitoring locations, filter to include group/catchment
-  catch.groups <- near.sites %>%
-    sf::st_join(nhd.catch.all, left = TRUE) %>%
-    dplyr::distinct() %>%
-    dplyr::group_by(Group, NHD.nhdplusid) %>%
-    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) %>%
-    dplyr::filter(n > 1) %>%
+  catch.groups <- near.sites |>
+    sf::st_join(nhd.catch.all, left = TRUE) |>
+    dplyr::distinct() |>
+    dplyr::group_by(Group, NHD.nhdplusid) |>
+    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
+    dplyr::filter(n > 1) |>
     dplyr::select(-n)
 
   # remove intermediate objects
   rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
 
-  if (nrow(catch.groups) == 0) { # #if no groups, give a TADA.NearbySiteGroup column filled with
+  if (nrow(catch.groups) == 0) {
+    # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
-    print("TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes.")
+    print(
+      "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
+    )
 
-    .data <- .data %>%
+    .data <- .data |>
       dplyr::mutate(
         TADA.NearbySites.Flag = "No nearby sites detected.",
         TADA.NearbySiteGroup = NA
@@ -2792,36 +3401,48 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
   }
 
   # create df of all groups and create unique id for each group
-  new.ids <- catch.groups %>%
+  new.ids <- catch.groups |>
     # create new TADA.MonitoringLocationIdentifier
     dplyr::mutate(
-      TADA.MonitoringLocationIdentifier.New = paste(TADA.MonitoringLocationIdentifier, collapse = ", "),
+      TADA.MonitoringLocationIdentifier.New = paste(
+        TADA.MonitoringLocationIdentifier,
+        collapse = ", "
+      ),
       TADA.MonitoringLocationIdentifier.New = paste0(
         "[",
         TADA.MonitoringLocationIdentifier.New,
         "]"
       ),
       TADA.NearbySiteGroup = dplyr::cur_group_id()
-    ) %>%
-    dplyr::ungroup() %>%
+    ) |>
+    dplyr::ungroup() |>
     dplyr::select(
-      TADA.MonitoringLocationIdentifier.New, TADA.MonitoringLocationIdentifier,
+      TADA.MonitoringLocationIdentifier.New,
+      TADA.MonitoringLocationIdentifier,
       TADA.NearbySiteGroup
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # remove intermediate objects
   rm(catch.groups, near.dfs, unique.mls)
 
   # create a df of unique grouped sites, do not include any activity start dates
-  grouped.no.dates <- new.ids %>%
-    dplyr::full_join(.data, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
+  grouped.no.dates <- new.ids |>
+    dplyr::full_join(
+      .data,
+      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+    ) |>
     dplyr::select(
-      TADA.MonitoringLocationName, TADA.MonitoringLocationIdentifier.New,
-      TADA.NearbySiteGroup, TADA.MonitoringLocationName, TADA.LatitudeMeasure,
-      TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName, OrganizationIdentifier
-    ) %>%
-    dplyr::distinct() %>%
+      TADA.MonitoringLocationName,
+      TADA.MonitoringLocationIdentifier.New,
+      TADA.NearbySiteGroup,
+      TADA.MonitoringLocationName,
+      TADA.LatitudeMeasure,
+      TADA.LongitudeMeasure,
+      TADA.MonitoringLocationTypeName,
+      OrganizationIdentifier
+    ) |>
+    dplyr::distinct() |>
     sf::st_drop_geometry()
 
   # create list of orgs from TADA df
@@ -2852,13 +3473,14 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     # create string for flagging
     org.string <- "Metadata were selected by "
 
-
     # print message
-    print("TADA_FindNearbySites: No org_hierarchy supplied by user. Organization will not be taken into account during metadata selection.")
+    print(
+      "TADA_FindNearbySites: No org_hierarchy supplied by user. Organization will not be taken into account during metadata selection."
+    )
 
     # create consistent org rank to facilitate meta data selection (all orgs ranked equally)
-    org.ranks <- as.data.frame(all.orgs) %>%
-      dplyr::mutate(OrgRank = 99) %>%
+    org.ranks <- as.data.frame(all.orgs) |>
+      dplyr::mutate(OrgRank = 99) |>
       dplyr::rename(OrganizationIdentifier = all.orgs)
   }
 
@@ -2868,7 +3490,9 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     org.string <- "Metadata were selected by filtering based on the user supplied hierarchy, then by "
 
     if (!is.vector(org_hierarchy)) {
-      stop("TADA_FindNearbySites: Organization hierarchy must be supplied as a vector.")
+      stop(
+        "TADA_FindNearbySites: Organization hierarchy must be supplied as a vector."
+      )
     }
 
     if (length(org_hierarchy) == 0) {
@@ -2877,95 +3501,106 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
     if (length(missing.orgs) > 0) {
       print(paste0(
-        "TADA_FindNearbySites: ", length(missing.orgs),
+        "TADA_FindNearbySites: ",
+        length(missing.orgs),
         " organization identifiers are missing from org_hierarchy (",
-        stringi::stri_replace_last(paste(missing.orgs, collapse = ", "),
-          fixed = ", ", " and "
-        ), ").",
+        stringi::stri_replace_last(
+          paste(missing.orgs, collapse = ", "),
+          fixed = ", ",
+          " and "
+        ),
+        ").",
         " Function will continue to run using partial org_hierarchy."
       ))
 
       # create df for organization ranks from user-supplied hierarchy
-      org.ranks <- as.data.frame(org_hierarchy) %>%
-        dplyr::mutate(OrgRank = dplyr::row_number()) %>%
+      org.ranks <- as.data.frame(org_hierarchy) |>
+        dplyr::mutate(OrgRank = dplyr::row_number()) |>
         dplyr::rename(OrganizationIdentifier = org_hierarchy)
 
       # create df for all organizations missing from user-supplied hierarchy
       # all missing orgs will share the same rank and be ranked below any orgs supplied by user
-      missing.ranks <- as.data.frame(missing.orgs) %>%
-        dplyr::mutate(OrgRank = (length(org_hierarchy) + 1)) %>%
+      missing.ranks <- as.data.frame(missing.orgs) |>
+        dplyr::mutate(OrgRank = (length(org_hierarchy) + 1)) |>
         dplyr::rename(OrganizationIdentifier = missing.orgs)
 
       # add missing orgs to org rank df
-      org.ranks <- org.ranks %>%
+      org.ranks <- org.ranks |>
         dplyr::bind_rows(missing.ranks)
     }
 
     if (length(missing.orgs) == 0) {
       # create df for organization ranks from user-supplied hierarchy
-      org.ranks <- as.data.frame(org_hierarchy) %>%
-        dplyr::mutate(OrgRank = dplyr::row_number()) %>%
+      org.ranks <- as.data.frame(org_hierarchy) |>
+        dplyr::mutate(OrgRank = dplyr::row_number()) |>
         dplyr::rename(OrganizationIdentifier = org_hierarchy)
     }
-
 
     rm(all.orgs, missing.orgs)
   }
 
   # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
-  org.ranks.added <- grouped.no.dates %>%
+  org.ranks.added <- grouped.no.dates |>
     dplyr::left_join(org.ranks, by = dplyr::join_by(OrganizationIdentifier))
 
   rm(org.ranks)
 
   # filter to retain metadata for TADA.MonitoringLocation.New where there is only one set of
   # metadata from the highest ranked org
-  org.meta.filter <- org.ranks.added %>%
-    dplyr::group_by(TADA.NearbySiteGroup, OrgRank) %>%
-    dplyr::mutate(CountSites = length(OrgRank)) %>%
-    dplyr::filter(CountSites == 1) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-OrgRank, -CountSites) %>%
-    dplyr::mutate(TADA.NearbySites.Flag = paste0(
-      "This monitoring location was grouped with other nearby site(s). ",
-      org.string, meta.string, "."
-    ))
+  org.meta.filter <- org.ranks.added |>
+    dplyr::group_by(TADA.NearbySiteGroup, OrgRank) |>
+    dplyr::mutate(CountSites = length(OrgRank)) |>
+    dplyr::filter(CountSites == 1) |>
+    dplyr::ungroup() |>
+    dplyr::select(-OrgRank, -CountSites) |>
+    dplyr::mutate(
+      TADA.NearbySites.Flag = paste0(
+        "This monitoring location was grouped with other nearby site(s). ",
+        org.string,
+        meta.string,
+        "."
+      )
+    )
 
   # select and assign metadata randomly for grouped sites when meta_select equals "random"
 
   if (meta_select == "random") {
     # select random metadata where necessary (no org rank or more than one set of metdata for one
     # TADA.MonitoringLocationIdentifier.New)
-    random.meta <- org.ranks.added %>%
-      dplyr::ungroup() %>%
-      dplyr::filter(!TADA.NearbySiteGroup %in%
-        org.meta.filter$TADA.NearbySiteGroup) %>%
-      dplyr::group_by(TADA.NearbySiteGroup) %>%
-      dplyr::slice_min(OrgRank) %>%
+    random.meta <- org.ranks.added |>
+      dplyr::ungroup() |>
+      dplyr::filter(
+        !TADA.NearbySiteGroup %in%
+          org.meta.filter$TADA.NearbySiteGroup
+      ) |>
+      dplyr::group_by(TADA.NearbySiteGroup) |>
+      dplyr::slice_min(OrgRank) |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier.New,
         TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName,
         TADA.NearbySiteGroup
-      ) %>%
-      dplyr::distinct() %>%
-      dplyr::slice_sample(n = 1) %>%
+      ) |>
+      dplyr::distinct() |>
+      dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
-
 
     # join the metadata filtering results to create a df with all metadat to apply to TADA df by
     # TADA.MonitoringLocationIdentifier.New
-    select.meta <- random.meta %>%
-      dplyr::full_join(org.meta.filter, by = names(random.meta)) %>%
-      dplyr::select(-OrganizationIdentifier) %>%
+    select.meta <- random.meta |>
+      dplyr::full_join(org.meta.filter, by = names(random.meta)) |>
+      dplyr::select(-OrganizationIdentifier) |>
       dplyr::rename(
         TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
         TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
         TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName
-      ) %>%
-      dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly.")
+      ) |>
+      dplyr::mutate(
+        TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
+      )
 
     # remove intermediate objects
     rm(random.meta, org.ranks.added)
@@ -2973,24 +3608,29 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
   if (meta_select == "oldest" | meta_select == "newest") {
     # prep site groups for metadata selection by date
-    date.meta <- grouped.sites %>%
-      dplyr::left_join(org.ranks.added, by = dplyr::join_by(
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName,
-        OrganizationIdentifier
-      )) %>%
-      dplyr::filter(!TADA.MonitoringLocationIdentifier.New %in%
-        org.meta.filter$TADA.MonitoringLocationIdentifier.New) %>%
-      dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) %>%
+    date.meta <- grouped.sites |>
+      dplyr::left_join(
+        org.ranks.added,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.NearbySiteGroup,
+          TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName,
+          OrganizationIdentifier
+        )
+      ) |>
+      dplyr::filter(
+        !TADA.MonitoringLocationIdentifier.New %in%
+          org.meta.filter$TADA.MonitoringLocationIdentifier.New
+      ) |>
+      dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) |>
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New)
 
     if (meta_select == "oldest") {
       # select oldest metadata for group
-      date.meta <- date.meta %>%
+      date.meta <- date.meta |>
         dplyr::slice_min(ActivityStartDate)
 
       # specify oldest for flagging string
@@ -2999,7 +3639,7 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 
     if (meta_select == "newest") {
       # select newest metadata for group
-      date.meta <- date.meta %>%
+      date.meta <- date.meta |>
         dplyr::slice_max(ActivityStartDate)
 
       # specify newest for flagging string
@@ -3007,115 +3647,148 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
     }
 
     # select metadata by date
-    select.meta <- date.meta %>%
-      dplyr::full_join(org.meta.filter, by = dplyr::join_by(
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName,
-        OrganizationIdentifier
-      )) %>%
-      dplyr::select(-OrganizationIdentifier, -OrgRank, -ActivityStartDate) %>%
+    select.meta <- date.meta |>
+      dplyr::full_join(
+        org.meta.filter,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.NearbySiteGroup,
+          TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName,
+          OrganizationIdentifier
+        )
+      ) |>
+      dplyr::select(-OrganizationIdentifier, -OrgRank, -ActivityStartDate) |>
       dplyr::rename(
         TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
         TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
         TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName
-      ) %>%
-      dplyr::group_by(TADA.NearbySiteGroup) %>%
-      dplyr::slice_sample(n = 1) %>%
-      dplyr::mutate(TADA.NearbySites.Flag = paste0(
-        "This monitoring location was grouped with other",
-        " nearby site(s). Metadata were selected from ",
-        "the ", date.choice, " result available."
-      ))
+      ) |>
+      dplyr::group_by(TADA.NearbySiteGroup) |>
+      dplyr::slice_sample(n = 1) |>
+      dplyr::mutate(
+        TADA.NearbySites.Flag = paste0(
+          "This monitoring location was grouped with other",
+          " nearby site(s). Metadata were selected from ",
+          "the ",
+          date.choice,
+          " result available."
+        )
+      )
 
     rm(date.meta)
   }
 
   if (meta_select == "count") {
     # select metadata by finding site with greatest number of results in TADA df
-    select.meta <- org.ranks.added %>%
-      dplyr::left_join(.data, by = dplyr::join_by(
-        TADA.MonitoringLocationName, TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure, TADA.MonitoringLocationTypeName
-      )) %>%
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) %>%
-      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) %>%
-      dplyr::ungroup() %>%
-      dplyr::select(-TADA.MonitoringLocationIdentifier) %>%
-      dplyr::distinct() %>%
-      dplyr::group_by(TADA.NearbySiteGroup) %>%
-      dplyr::slice_max(NCount) %>%
-      dplyr::slice_sample(n = 1) %>%
+    select.meta <- org.ranks.added |>
+      dplyr::left_join(
+        .data,
+        by = dplyr::join_by(
+          TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName
+        )
+      ) |>
+      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) |>
+      dplyr::ungroup() |>
+      dplyr::select(-TADA.MonitoringLocationIdentifier) |>
+      dplyr::distinct() |>
+      dplyr::group_by(TADA.NearbySiteGroup) |>
+      dplyr::slice_max(NCount) |>
+      dplyr::slice_sample(n = 1) |>
       dplyr::select(
-        TADA.MonitoringLocationIdentifier.New, TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName, TADA.LatitudeMeasure, TADA.LongitudeMeasure,
+        TADA.MonitoringLocationIdentifier.New,
+        TADA.NearbySiteGroup,
+        TADA.MonitoringLocationName,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName
-      ) %>%
+      ) |>
       dplyr::rename(
         TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
         TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
         TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName
-      ) %>%
-      dplyr::mutate(TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics.")
+      ) |>
+      dplyr::mutate(
+        TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
+      )
   }
 
   # remove intermediate objects
   rm(grouped.no.dates, org.meta.filter, org.string, meta.string)
 
   # remove site group from crosswalk
-  ml.crosswalk <- new.ids %>%
-    sf::st_drop_geometry() %>%
-    dplyr::select(-TADA.NearbySiteGroup) %>%
+  ml.crosswalk <- new.ids |>
+    sf::st_drop_geometry() |>
+    dplyr::select(-TADA.NearbySiteGroup) |>
     dplyr::distinct()
 
   # join selected metadata to TADA df
-  .data <- .data %>%
-    dplyr::left_join(ml.crosswalk, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) %>%
-    dplyr::left_join(select.meta, by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)) %>%
-    dplyr::ungroup() %>%
+  .data <- .data |>
+    dplyr::left_join(
+      ml.crosswalk,
+      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+    ) |>
+    dplyr::left_join(
+      select.meta,
+      by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
+    ) |>
+    dplyr::ungroup() |>
     dplyr::mutate(
-      TADA.MonitoringLocationName = ifelse(!is.na(TADA.MonitoringLocationName.New),
+      TADA.MonitoringLocationName = ifelse(
+        !is.na(TADA.MonitoringLocationName.New),
         TADA.MonitoringLocationName.New,
         TADA.MonitoringLocationName
       ),
-      TADA.LatitudeMeasure = ifelse(!is.na(TADA.LatitudeMeasure.New),
+      TADA.LatitudeMeasure = ifelse(
+        !is.na(TADA.LatitudeMeasure.New),
         TADA.LatitudeMeasure.New,
         TADA.LatitudeMeasure
       ),
-      TADA.LongitudeMeasure = ifelse(!is.na(TADA.LongitudeMeasure.New),
+      TADA.LongitudeMeasure = ifelse(
+        !is.na(TADA.LongitudeMeasure.New),
         TADA.LongitudeMeasure.New,
         TADA.LongitudeMeasure
       ),
-      TADA.MonitoringLocationTypeName = ifelse(!is.na(TADA.MonitoringLocationTypeName.New),
+      TADA.MonitoringLocationTypeName = ifelse(
+        !is.na(TADA.MonitoringLocationTypeName.New),
         TADA.MonitoringLocationTypeName.New,
         TADA.MonitoringLocationTypeName
       ),
-      TADA.MonitoringLocationIdentifier = ifelse(!is.na(TADA.MonitoringLocationIdentifier.New),
+      TADA.MonitoringLocationIdentifier = ifelse(
+        !is.na(TADA.MonitoringLocationIdentifier.New),
         TADA.MonitoringLocationIdentifier.New,
         TADA.MonitoringLocationIdentifier
       )
-    ) %>%
+    ) |>
     dplyr::select(
-      -TADA.MonitoringLocationIdentifier.New, -TADA.MonitoringLocationName.New,
-      -TADA.LatitudeMeasure.New, -TADA.LongitudeMeasure.New,
+      -TADA.MonitoringLocationIdentifier.New,
+      -TADA.MonitoringLocationName.New,
+      -TADA.LatitudeMeasure.New,
+      -TADA.LongitudeMeasure.New,
       -TADA.MonitoringLocationTypeName.New
-    ) %>%
+    ) |>
     TADA_OrderCols()
 
   # remove intermediate objects
   rm(select.meta, ml.crosswalk, group.sites, new.ids)
 
   # add flag for any ungrouped sites and order columns correctly
-  .data <- TADA_OrderCols(.data) %>%
-    dplyr::mutate(TADA.NearbySites.Flag = ifelse(is.na(TADA.NearbySiteGroup),
-      "No nearby sites detected using input buffer distance.",
-      TADA.NearbySites.Flag
-    ))
+  .data <- TADA_OrderCols(.data) |>
+    dplyr::mutate(
+      TADA.NearbySites.Flag = ifelse(
+        is.na(TADA.NearbySiteGroup),
+        "No nearby sites detected using input buffer distance.",
+        TADA.NearbySites.Flag
+      )
+    )
 
   # return TADA df with added columns for tracking
   return(.data)
@@ -3139,24 +3812,31 @@ TADA_FindNearbySites <- function(.data, dist_buffer = 100,
 TADA_GetUniqueNearbySites <- function(.data) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
-    "MonitoringLocationIdentifier", "TADA.MonitoringLocationIdentifier",
-    "MonitoringLocationName", "TADA.MonitoringLocationName",
-    "LongitudeMeasure", "TADA.LongitudeMeasure",
-    "LatitudeMeasure", "TADA.LatitudeMeasure",
-    "MonitoringLocationTypeName", "TADA.MonitoringLocationTypeName",
-    "MonitoringLocationDescriptionText", "TADA.NearbySites.Flag",
+    "MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationIdentifier",
+    "MonitoringLocationName",
+    "TADA.MonitoringLocationName",
+    "LongitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "LatitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "MonitoringLocationTypeName",
+    "TADA.MonitoringLocationTypeName",
+    "MonitoringLocationDescriptionText",
+    "TADA.NearbySites.Flag",
     "TADA.NearbySiteGroup"
   )
   TADA_CheckColumns(.data, expected_cols)
 
   # filter only for locations with nearby sites
-  .data <- .data %>%
+  .data <- .data |>
     dplyr::filter(
       !is.na(TADA.NearbySites.Flag),
-      TADA.NearbySites.Flag != "No nearby sites detected using input buffer distance."
-    ) %>%
+      TADA.NearbySites.Flag !=
+        "No nearby sites detected using input buffer distance."
+    ) |>
     # retain only required columns
-    dplyr::select(dplyr::all_of(expected_cols)) %>%
+    dplyr::select(dplyr::all_of(expected_cols)) |>
     # retain only unique records
     dplyr::distinct()
 
@@ -3197,10 +3877,17 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
 #' df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
 #' }
-TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FALSE,
-                                   autoclean = TRUE) {
-  get_random_data <- function(ndays = number_of_days, state_choice = choose_random_state,
-                              ac = autoclean, ask = FALSE) {
+TADA_RandomTestingData <- function(
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE
+) {
+  get_random_data <- function(
+    ndays = number_of_days,
+    state_choice = choose_random_state,
+    ac = autoclean,
+    ask = FALSE
+  ) {
     # choose a random day within the last 20 years
     twenty_yrs_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_yrs_ago + sample(20 * 365, 1)
@@ -3273,7 +3960,10 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param.
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+#' from all organizations will be considered. When org_id = "none" or NULL, no
+#' crosswalk data from ATTAINS will be considered. The default is "all".
 #' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
 #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
 #' with entity submitted assessment unit features - points, lines, and polygons)
@@ -3362,13 +4052,15 @@ TADA_RandomTestingData <- function(number_of_days = 1, choose_random_state = FAL
 #' print(result$ATTAINS_batchupload)
 #' }
 #'
-TADA_CreateAUMLCrosswalk <- function(.data,
-                                     au_ref = NULL,
-                                     org_id = NULL,
-                                     fill_ATTAINS_catch = FALSE,
-                                     fill_USGS_catch = FALSE,
-                                     return_nearest = TRUE,
-                                     batch_upload = TRUE) {
+TADA_CreateAUMLCrosswalk <- function(
+  .data,
+  au_ref = NULL,
+  org_id = "all",
+  fill_ATTAINS_catch = FALSE,
+  fill_USGS_catch = FALSE,
+  return_nearest = TRUE,
+  batch_upload = FALSE
+) {
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,
@@ -3405,7 +4097,6 @@ TADA_CreateAUMLCrosswalk <- function(.data,
         "for assessment units in the user-supplied crosswalk."
       ))
 
-
       # list of partial string matches for columns in au_ref
       req.cols <- c(
         "AssessmentUnitIdentifier",
@@ -3427,7 +4118,7 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       assign(col.ids$col.id[3], col.ids$select.col[3])
 
       # rename au_ref cols for next function
-      au_ref <- au_ref %>%
+      au_ref <- au_ref |>
         dplyr::rename(
           ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
           ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
@@ -3437,19 +4128,54 @@ TADA_CreateAUMLCrosswalk <- function(.data,
       rm(col.ids, req.cols, auid.col, ml.col, type.col)
 
       # subset data for au_ref
-      au.ref.mls <- .data %>%
-        dplyr::filter(TADA.MonitoringLocationIdentifier %in% au_ref$ATTAINS.MonitoringLocationIdentifier) %>%
+      au.ref.mls <- .data |>
+        dplyr::filter(
+          TADA.MonitoringLocationIdentifier %in%
+            au_ref$ATTAINS.MonitoringLocationIdentifier
+        ) |>
         dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
       if (dim(au.ref.mls)[1] > 0) {
         # get geospatial data for au_ref monitoring locations
         user.matches <- spsUtil::quiet(
-          TADA_GetATTAINSByAUID(au.ref.mls, au_ref = au_ref, fill_ATTAINS_catch = fill_ATTAINS_catch)
+          TADA_GetATTAINSByAUID(
+            au.ref.mls,
+            au_ref = au_ref,
+            fill_ATTAINS_catch = fill_ATTAINS_catch
+          )
         )
+
+        # add AUIDs if user ref contained AUs not found in ATTAINS
+        # set up user ref for join
+        user.aus <- au_ref |>
+          dplyr::select(
+            ATTAINS.MonitoringLocationIdentifier,
+            ATTAINS.AssessmentUnitIdentifier
+          ) |>
+          dplyr::rename(
+            TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+            UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+          )
+
+        # replace NA AUIDs with AUID from user ref where possible
+        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
+          dplyr::left_join(user.aus) |>
+          dplyr::mutate(
+            ATTAINS.AssessmentUnitIdentifier = ifelse(
+              is.na(ATTAINS.AssessmentUnitIdentifier) &
+                !is.na(UserRef.AssessmentUnitIdentifier),
+              UserRef.AssessmentUnitIdentifier,
+              ATTAINS.AssessmentUnitIdentifier
+            )
+          ) |>
+          dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
+          dplyr::distinct()
+
+        # remove intermediate object
+        rm(user.aus)
       }
     }
   }
-
 
   # ATTAINS supplied ref section
   # get attains crosswalk
@@ -3463,69 +4189,124 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   )
 
   # if no org id is provided, no crosswalk is imported from ATTAINS
-  if (is.null(org_id)) {
-    print("TADA_CreateAUMLCrosswalk: No org_id provided. No crosswalk will be imported from ATTAINS.")
-  }
-
-  # if an org id is provided, ATTAINS is checked for a crosswalk
   if (!is.null(org_id)) {
-    print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
-
-    attains.cw <- spsUtil::quiet(
-      TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)
-    )
-
-    if (is.null(attains.cw)) {
+    if (org_id == "none" | is.null(org_id)) {
       print(paste0(
-        "TADA_CreateAUMLCrosswalk: There are no MonitoringLocation records ",
-        "in ATTAINS for ", org_id, "."
+        "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
+        "should not be checked for monitoring location and assessment unit matches."
       ))
     }
   }
 
-  if (!is.null(attains.cw)) {
+  # if an org id is provided, ATTAINS is checked for a crosswalk
+  if (format(org_id) != "none" & !is.null(org_id)) {
+    print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
+
+    # get crosswalk from ATTAINS
+    attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
+
+    # create string to describe ATTAINS orgs for print message
+    org.text <- ifelse(
+      is.null(org_id),
+      "all organizations",
+      stringi::stri_replace_last(
+        paste(org_id, collapse = ", "),
+        fixed = ", ",
+        replacement = " and "
+      )
+    )
+
+    # count number of records from ATTAINS crosswalk
+    record.count <- dim(attains.cw)[1]
+
+    # create text to describe number of records
+    count.text <- ifelse(record.count == 0, "no", record.count)
+
+    # print message summarizing the results of fetching crosswalk data from ATTAINS
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: There are ",
+      count.text,
+      " MonitoringLocation records ",
+      "in ATTAINS for ",
+      org.text,
+      "."
+    ))
+
+    rm(org.text, record.count, count.text)
+  }
+
+  if (dim(attains.cw)[1] > 0) {
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
     # we could remove or make this step optional, but it is helpful for making sure
     # monitoring location identifiers are WQP compatible
-    attains.cw <- spsUtil::quiet(
-      TADA_UpdateATTAINSAUMLCrosswalk(
-        crosswalk = attains.cw,
-        org_id = org_id,
-        attains_replace = TRUE
-      )
+    TADA_UpdateATTAINSAUMLCrosswalk(
+      org_id = org_id,
+      crosswalk = attains.cw,
+      attains_replace = TRUE
     )
+
+    # create list of monitoring location identifiers from TADA df
+    tada.mls <- .data |>
+      dplyr::select(TADA.MonitoringLocationIdentifier) |>
+      dplyr::distinct() |>
+      dplyr::pull()
+
+    # filter attains.cw to remove any assessment units that don't have a monitoring location
+    # match in the TADA df
+    attains.cw <- attains.cw |>
+      dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
+
+    # remove intermediate object
+    rm(tada.mls)
 
     # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
     if (!is.null(au_ref)) {
-      attains.cw.mls <- .data %>%
+      attains.cw.mls <- .data |>
         dplyr::filter(
-          !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier,
-          TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+          !TADA.MonitoringLocationIdentifier %in%
+            au.ref.mls$TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationIdentifier %in%
+            attains.cw$ATTAINS.MonitoringLocationIdentifier
         )
     }
 
     # if au_ref was not provided  by user, retain all records that match ATTAINS ref
     if (is.null(au_ref)) {
-      attains.cw.mls <- .data %>%
+      attains.cw.mls <- .data |>
         dplyr::filter(
-          TADA.MonitoringLocationIdentifier %in% attains.cw$ATTAINS.MonitoringLocationIdentifier
+          TADA.MonitoringLocationIdentifier %in%
+            attains.cw$ATTAINS.MonitoringLocationIdentifier
         )
     }
 
+    # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
+    if (dim(attains.cw.mls)[1] == 0) {
+      attains.matches <- list(
+        "TADA_with_ATTAINS" = NULL,
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
+      )
+    } else {
+      # add source column for ATTAINS Crosswalk matched records
+      attains.cw.mls <- attains.cw.mls |>
+        dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
-    # add source column for ATTAINS Crosswalk matched records
-    attains.cw.mls <- attains.cw.mls %>%
-      dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
-
-    print(paste0(
-      "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-      "for assessment units from the ATTAINS crosswalk."
-    ))
-    # get geospatial data for attains cw monitoring locations
-    attains.matches <- spsUtil::quiet(
-      TADA_GetATTAINSByAUID(attains.cw.mls, au_ref = attains.cw, fill_ATTAINS_catch = fill_ATTAINS_catch)
-    )
+      print(paste0(
+        "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+        "for assessment units from the ATTAINS crosswalk."
+      ))
+      # get geospatial data for attains cw monitoring locations
+      attains.matches <- spsUtil::quiet(
+        TADA_GetATTAINSByAUID(
+          attains.cw.mls,
+          au_ref = attains.cw,
+          fill_ATTAINS_catch = fill_ATTAINS_catch
+        )
+      )
+    }
 
     # remove intermediate objects
     rm(attains.cw)
@@ -3541,17 +4322,22 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   get.attains.mls <- .data
 
   if (!is.null(attains.matches$TADA_with_ATTAINS)) {
-    get.attains.mls <- get.attains.mls %>%
+    get.attains.mls <- get.attains.mls |>
       dplyr::filter(
-        !TADA.MonitoringLocationIdentifier %in% attains.cw.mls$TADA.MonitoringLocationIdentifier
+        !TADA.MonitoringLocationIdentifier %in%
+          attains.cw.mls$TADA.MonitoringLocationIdentifier
       )
   }
 
   if (!is.null(user.matches$TADA_with_ATTAINS)) {
-    get.attains.mls <- get.attains.mls %>%
+    get.attains.mls <- get.attains.mls |>
       dplyr::filter(
-        !TADA.MonitoringLocationIdentifier %in% au.ref.mls$TADA.MonitoringLocationIdentifier
+        !TADA.MonitoringLocationIdentifier %in%
+          au.ref.mls$TADA.MonitoringLocationIdentifier
       )
+
+    # remove intermediate object
+    rm(au.ref.mls)
   }
 
   # add code here for if there are no remaining mls to match
@@ -3571,45 +4357,120 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   }
 
   if (dim(get.attains.mls)[1] > 0) {
-    print("TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit.")
+    print(
+      "TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit."
+    )
 
     # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
-    get.attains.mls <- get.attains.mls %>%
+    get.attains.mls <- get.attains.mls |>
       dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- spsUtil::quiet(
-      TADA_CreateATTAINSAUMLCrosswalk(get.attains.mls,
+      TADA_CreateATTAINSAUMLCrosswalk(
+        get.attains.mls,
         return_nearest = return_nearest,
         fill_USGS_catch = fill_USGS_catch,
-        return_sf = TRUE
+        return_sf = TRUE,
+        org_id = org_id
       )
     )
   }
 
   # remove intermediate objects
-  rm(attains.cw.mls, au.ref.mls, get.attains.mls)
+  if (exists("attains.cw.mls")) {
+    rm(attains.cw.mls)
+  }
+
+  if (exists("get.attains.mls")) {
+    rm(get.attains.mls)
+  }
 
   # join all the resulting tables within each list to return as one large list
   # TADA_with_ATTAINS
 
-  print("TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS.")
+  print(
+    "TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS."
+  )
 
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
-    user <- user[[df.name]]
-    attains <- attains[[df.name]]
-    get.attains <- get.attains[[df.name]]
+    # correct column types and filter out invalid geometries for each dataframe
+    user <- correctColType(user[[df.name]])
 
-    df <- user %>%
-      plyr::rbind.fill(attains) %>%
-      plyr::rbind.fill(get.attains) %>%
-      dplyr::distinct() %>%
-      sf::st_as_sf()
+    if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
+      user <- sf::st_make_valid(user)
+    }
+
+    if (!is.null(user) & df.name == "TADA_with_ATTAINS") {
+      user_geometry <- sf::st_as_sf(
+        user,
+        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+        crs = 4326
+      )
+
+      geometry <- sf::st_geometry(user_geometry)
+
+      user$geometry <- geometry
+
+      user <- sf::st_as_sf(user)
+
+      rm(geometry)
+    }
+
+    attains <- correctColType(attains[[df.name]])
+
+    if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
+      attains <- sf::st_make_valid(attains)
+    }
+
+    if (!is.null(attains) & df.name == "TADA_with_ATTAINS") {
+      attains_geometry <- sf::st_as_sf(
+        attains,
+        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+        crs = 4326
+      )
+      geometry <- sf::st_geometry(attains_geometry)
+
+      attains$geometry <- geometry
+
+      attains <- sf::st_as_sf(attains)
+
+      rm(geometry)
+    }
+
+    get.attains <- correctColType(get.attains[[df.name]])
+
+    if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
+      get.attains <- sf::st_make_valid(get.attains)
+    }
+
+    if (!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
+      get.attains_geometry <- sf::st_as_sf(
+        get.attains,
+        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+        crs = 4326
+      )
+      geometry <- sf::st_geometry(get.attains_geometry)
+
+      get.attains$geometry <- geometry
+
+      get.attains <- sf::st_as_sf(get.attains)
+
+      rm(geometry)
+    }
+
+    # Check if any of the inputs are not NULL
+    if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
+      # Bind rows and remove duplicates
+      df <- dplyr::bind_rows(user, attains, get.attains) |>
+        dplyr::distinct()
+    } else {
+      df <- NULL
+    }
 
     return(df)
   }
-
   # create TADA_with_ATTAINS for output list
   TADA_with_ATTAINS <- outputPrep(
     df.name = "TADA_with_ATTAINS",
@@ -3651,18 +4512,18 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   )
 
   # create ATTAINS_crosswalk for output list
-  ATTAINS_crosswalk <- TADA_with_ATTAINS %>%
-    sf::st_drop_geometry() %>%
+  ATTAINS_crosswalk <- TADA_with_ATTAINS |>
+    sf::st_drop_geometry() |>
     dplyr::select(
+      OrganizationIdentifier,
       TADA.MonitoringLocationIdentifier,
+      ATTAINS.OrganizationIdentifier,
       ATTAINS.AssessmentUnitIdentifier,
       ATTAINS.WaterType,
       TADA.AURefSource
-    ) %>%
-    dplyr::distinct() %>%
-    dplyr::mutate(ATTAINS.OrganizationIdentifier = org_id) %>%
+    ) |>
+    dplyr::distinct() |>
     dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
-
 
   # create final output list of all dfs
   final_list <- list(
@@ -3677,28 +4538,33 @@ TADA_CreateAUMLCrosswalk <- function(.data,
   # add batch upload df to list for output if user has selected this option
   if (batch_upload == TRUE) {
     # create batch upload for ATTAINS df
-    ATTAINS_batchupload <- TADA_with_ATTAINS %>%
-      sf::st_drop_geometry() %>%
+    ATTAINS_batchupload <- TADA_with_ATTAINS |>
+      sf::st_drop_geometry() |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier,
         ATTAINS.AssessmentUnitIdentifier,
         OrganizationIdentifier
-      ) %>%
-      dplyr::distinct() %>%
+      ) |>
+      dplyr::distinct() |>
       dplyr::rename(
         MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
         ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
         MS_ORG_ID = OrganizationIdentifier
-      ) %>%
-      dplyr::mutate(MS_DATA_LINK = NA) %>%
+      ) |>
+      dplyr::mutate(MS_DATA_LINK = NA) |>
       dplyr::select(
-        ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID,
+        ASSESSMENT_UNIT_ID,
+        MS_ORG_ID,
+        MS_LOCATION_ID,
         MS_DATA_LINK
-      ) %>%
+      ) |>
       dplyr::filter(!is.na(ASSESSMENT_UNIT_ID))
 
     # add batch upload df to list for output
-    final_list <- c(final_list, list("ATTAINS_batchupload" = ATTAINS_batchupload))
+    final_list <- c(
+      final_list,
+      list("ATTAINS_batchupload" = ATTAINS_batchupload)
+    )
 
     # remove intermediate objects
     rm(ATTAINS_batchupload)
@@ -3706,7 +4572,11 @@ TADA_CreateAUMLCrosswalk <- function(.data,
 
   # remove intermediate objects
   rm(
-    TADA_with_ATTAINS, ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, ATTAINS_polygons,
+    TADA_with_ATTAINS,
+    ATTAINS_catchments,
+    ATTAINS_points,
+    ATTAINS_lines,
+    ATTAINS_polygons,
     ATTAINS_crosswalk
   )
 
@@ -3716,12 +4586,10 @@ TADA_CreateAUMLCrosswalk <- function(.data,
     final_list <- c(
       final_list,
       list(
-        "without_ATTAINS_catchments" =
-          get.attains.matches$without_ATTAINS_catchment
+        "with_NHD_catchments" = get.attains.matches$without_ATTAINS_catchment
       ),
       list(
-        "TADA_without_ATTAINS" =
-          get.attains.matches$TADA_without_ATTAINS
+        "TADA_with_NHD" = get.attains.matches$TADA_without_ATTAINS
       )
     )
   }

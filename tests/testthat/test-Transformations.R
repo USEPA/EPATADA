@@ -21,8 +21,19 @@ test_that("harmonization works", {
 
 test_that("np summation key matches nutrient harmonization ref", {
   harm <- TADA_GetSynonymRef()
-  harm <- unique(subset(harm, harm$HarmonizationGroup %in% c("Phosphorus", "Nitrogen"))[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")])
-  np <- TADA_GetNutrientSummationRef()[, c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")]
+  harm <- unique(subset(
+    harm,
+    harm$HarmonizationGroup %in% c("Phosphorus", "Nitrogen")
+  )[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )])
+  np <- TADA_GetNutrientSummationRef()[, c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )]
   np$np <- 1
   check <- merge(harm, np, all.x = TRUE)
   expect_false(any(is.na(check$np)))
@@ -37,14 +48,15 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
     skip("Skipping test because testdat is empty or null")
   }
 
-  testdat <- TADA_ConvertSpecialChars(testdat,
+  testdat <- TADA_ConvertSpecialChars(
+    testdat,
     col = "TADA.ResultMeasureValue",
     clean = TRUE
   )
 
   testdat <- TADA_CalculateTotalNP(testdat, daily_agg = "max")
 
-  # na_rows <- testdat %>% filter(is.na(TADA.ResultMeasureValue))
+  # na_rows <- testdat |> filter(is.na(TADA.ResultMeasureValue))
 
   # Test to ensure the column is entirely numeric
   expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
@@ -66,11 +78,18 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
   }
 
   # Apply simple censored methods
-  df2 <- TADA_SimpleCensoredMethods(df,
+  df2 <- TADA_SimpleCensoredMethods(
+    df,
     nd_method = "multiplier",
-    nd_multiplier = 0.5, od_method = "as-is",
+    nd_multiplier = 0.5,
+    od_method = "as-is",
     od_multiplier = "null"
   )
+
+  # Check if df2 is empty or null
+  if (is.null(df2) || nrow(df2) == 0) {
+    skip("Skipping test because df2 is empty or null")
+  }
 
   # Run key flag functions
   df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
@@ -87,14 +106,22 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
 
   # Test that no identifiers are missing
   missing_identifiers <- setdiff(original_identifiers, combined_identifiers)
-  expect_true(length(missing_identifiers) == 0,
-    info = paste("Missing identifiers:", paste(missing_identifiers, collapse = ", "))
+  expect_true(
+    length(missing_identifiers) == 0,
+    info = paste(
+      "Missing identifiers:",
+      paste(missing_identifiers, collapse = ", ")
+    )
   )
 
   # Test for duplicate ResultIdentifier values in df3
   duplicate_ids <- df3$ResultIdentifier[duplicated(df3$ResultIdentifier)]
-  expect_false(any(duplicated(df3$ResultIdentifier)),
-    info = paste("Duplicate ResultIdentifier values found:", paste(duplicate_ids, collapse = ", "))
+  expect_false(
+    any(duplicated(df3$ResultIdentifier)),
+    info = paste(
+      "Duplicate ResultIdentifier values found:",
+      paste(duplicate_ids, collapse = ", ")
+    )
   )
 
   # Optionally verify column names

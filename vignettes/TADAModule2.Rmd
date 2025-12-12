@@ -73,7 +73,7 @@ C)  **Submitting the Crosswalk**: Employ
     **`TADA_UpdateATTAINSAUMLCrosswalk`** to submit an up-to-date
     assessment unit/WQP monitoring location crosswalk to ATTAINS.
 
-D)  **Assigning Uses**: Use **`TADA_CreateUseAURef`** to assign specific
+D)  **Assigning Uses**: Use **`TADA_AssignUsesToAU`** to assign specific
     uses to the assessment units.
 
 **A Note About ATTAINS:**
@@ -122,29 +122,24 @@ packages that have more recent versions available. If you see this
 prompt, it is recommended to update all of them (enter 1 into the
 console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
-  dependencies = TRUE,
-  force = TRUE
+  dependencies = TRUE
 )
 ```
 
-```{r dev_install, results = 'hide', include = F}
-# remotes::install_github("USEPA/EPATADA",
-#   ref = "develop",
-#   dependencies = TRUE,
-#   force = TRUE
-# )
-
-library(devtools)
-load_all()
+```{r dev_install, eval = F, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
-```{r library, results = 'hide', eval = T}
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -188,9 +183,9 @@ utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 # )
 #
 # # clean up data set (not comprehensive)
-# tada.MT.clean <- tada.MT %>%
-#   TADA_RunKeyFlagFunctions() %>%
-#   TADA_SimpleCensoredMethods() %>%
+# tada.MT.clean <- tada.MT  |>
+#   TADA_RunKeyFlagFunctions()  |>
+#   TADA_SimpleCensoredMethods()  |>
 #   TADA_HarmonizeSynonyms()
 ```
 
@@ -284,21 +279,21 @@ attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
-user.supplied.cw <- clean.existing.attains.MT %>%
+user.supplied.cw <- clean.existing.attains.MT  |>
   dplyr::select(
     ATTAINS.AssessmentUnitIdentifier,
     ATTAINS.MonitoringLocationIdentifier,
     ATTAINS.WaterType
-  ) %>%
+  )  |>
   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
     "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-  )) %>%
+  ))  |>
   dplyr::rename(
     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
     WaterType = ATTAINS.WaterType
-  ) %>%
+  )  |>
   # Add an example new assessment unit for demonstration purposes
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
@@ -319,7 +314,6 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
-  fill_USGS_catch = TRUE,
   return_nearest = TRUE,
   batch_upload = TRUE
 )
@@ -404,22 +398,22 @@ information.
 Now we can review the monitoring locations on a map:
 
 ```{r mapMLs}
-leaflet::leaflet() %>%
+leaflet::leaflet()  |>
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
     options = leaflet::providerTileOptions(
       updateWhenZooming = FALSE,
       updateWhenIdle = TRUE
     )
-  ) %>%
-  leaflet::clearShapes() %>%
-  leaflet.extras::addResetMapButton() %>%
+  )  |>
+  leaflet::clearShapes()  |>
+  leaflet.extras::addResetMapButton()  |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
     labels = "Water Quality Observation(s)",
     opacity = 1
-  ) %>%
+  )  |>
   leaflet::addCircleMarkers(
     data = TADA_spatial,
     color = "grey", fillColor = "black",
@@ -598,7 +592,7 @@ For more detailed instructions, enter `?TADA_UpdateATTAINSAUMLCrosswalk`
 into the console.
 
 ```{r add.links}
-batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
+batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload  |>
   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
     attains_replace = TRUE,
     batch_upload = TRUE,
@@ -612,7 +606,7 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
 # Step D: Assign Uses to AUs
 
 After mapping the WQP monitoring locations (MLs) to ATTAINS assessment
-units (AUs), we will use the `TADA_CreateUseAURef` function to assign
+units (AUs), we will use the `TADA_AssignUsesToAU` function to assign
 specific uses to these assessment units. Additionally, we will
 demonstrate how to automatically assign uses to the new assessment unit,
 `NEW:EX_MDEQ_WQ_WQX` with the water type "LAKE, FRESHWATER," that was
@@ -635,7 +629,7 @@ prioritized steps:
     units as defined by ATTAINS organizations.
 
 ```{r assign.use.to.AU}
-MT.UseAURef <- TADA_CreateUseAURef(
+MT.UseAURef <- TADA_AssignUsesToAU(
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
 )
@@ -644,40 +638,40 @@ MT.UseAURef <- TADA_CreateUseAURef(
 #### **Advanced: Assigning Uses to New AUs**
 
 For any new assessment unit (AU), users must determine how to assign the
-appropriate uses. The **`TADA_CreateWaterUseRef`** function is designed
-to assist with this process. It imports combinations of water types and
-use names associated with the specified organization from ATTAINS. By
-doing so, it automatically assigns uses to new assessment units based on
-their water type, thereby streamlining the integration of new AUs into
-existing frameworks.
+appropriate uses. The **`TADA_AssignUsesToWaterType`** function is
+designed to assist with this process. It imports combinations of water
+types and use names associated with the specified organization from
+ATTAINS. By doing so, it automatically assigns uses to new assessment
+units based on their water type, thereby streamlining the integration of
+new AUs into existing frameworks.
 
 For more information on how to customize this function to suit your
-needs, enter **`?TADA_CreateWaterUseRef`** into the R console.
+needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
 
 ```{r assign.use.to.new.AU.with.waterUseRef}
 MT.UseAURef_with_WaterUseRef <-
-  TADA_CreateUseAURef(
-    waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+  TADA_AssignUsesToAU(
+    waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ"
   )
 ```
 
 Users also have the option to manually assign use names to new AUs if
-they prefer not to use the TADA_CreateWaterUseRef function. This
+they prefer not to use the TADA_AssignUsesToWaterType function. This
 approach allows for greater flexibility and customization when
 integrating new AUs into existing frameworks.
 
 ```{r assign.use.to.new.AU.manual}
-MT.UseAURef_manual <- MT.UseAURef %>%
+MT.UseAURef_manual <- MT.UseAURef  |>
   dplyr::left_join(
     data.frame(
       ATTAINS.UseName = c("Aquatic Life", "Drinking Water"),
       ATTAINS.AssessmentUnitIdentifier = c("NEW:EX_MDEQ_WQ_WQX", "NEW:EX_MDEQ_WQ_WQX")
     ),
     by = ("ATTAINS.AssessmentUnitIdentifier")
-  ) %>%
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+  )  |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))  |>
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
 

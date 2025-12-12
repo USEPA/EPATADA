@@ -18,13 +18,13 @@
 TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
   .data$summ <- .data[, col]
   # Summarize WQP data pull
-  wqp_summary <- .data %>%
-    dplyr::group_by(summ) %>%
+  wqp_summary <- .data |>
+    dplyr::group_by(summ) |>
     dplyr::summarize(
       n_sites = length(unique(TADA.MonitoringLocationIdentifier)),
       n_records = length(TADA.ResultMeasureValue),
       .groups = "drop"
-    ) %>%
+    ) |>
     dplyr::select(summ, n_sites, n_records)
   names(wqp_summary)[names(wqp_summary) == "summ"] <- col
   return(wqp_summary)
@@ -74,8 +74,14 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #'
 TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
-    sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(.data$TADA.ResultMeasureValue)])
-    print(paste0("Dataset contains ", sumNAs, " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."))
+    sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(
+      .data$TADA.ResultMeasureValue
+    )])
+    print(paste0(
+      "Dataset contains ",
+      sumNAs,
+      " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."
+    ))
   }
 
   if (!"TADA.CensoredData.Flag" %in% names(.data)) {
@@ -83,28 +89,46 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
   }
 
   if ("TADA.NutrientSummation.Flag" %in% names(.data)) {
-    print("Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table.")
+    print(
+      "Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table."
+    )
   }
 
   group_cols <- unique(c("TADA.ComparableDataIdentifier", group_cols))
 
-  StatsTable <- .data %>%
-    dplyr::filter(!is.na(TADA.ResultMeasureValue)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) %>%
+  StatsTable <- .data |>
+    dplyr::filter(!is.na(TADA.ResultMeasureValue)) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
     dplyr::summarize(
       Location_Count = length(unique(TADA.MonitoringLocationIdentifier)),
       Measurement_Count = length(unique(ResultIdentifier)),
-      Non_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]),
-      Non_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Non-Detect")]) / length(TADA.CensoredData.Flag) * 100,
-      Non_Detect_Lvls = length(unique(DetectionQuantitationLimitTypeName[TADA.CensoredData.Flag %in% c("Non-Detect")])),
-      Over_Detect_Count = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]),
-      Over_Detect_Pct = length(TADA.CensoredData.Flag[TADA.CensoredData.Flag %in% c("Over-Detect")]) / length(TADA.CensoredData.Flag) * 100,
+      Non_Detect_Count = length(TADA.CensoredData.Flag[
+        TADA.CensoredData.Flag %in% c("Non-Detect")
+      ]),
+      Non_Detect_Pct = length(TADA.CensoredData.Flag[
+        TADA.CensoredData.Flag %in% c("Non-Detect")
+      ]) /
+        length(TADA.CensoredData.Flag) *
+        100,
+      Non_Detect_Lvls = length(unique(DetectionQuantitationLimitTypeName[
+        TADA.CensoredData.Flag %in% c("Non-Detect")
+      ])),
+      Over_Detect_Count = length(TADA.CensoredData.Flag[
+        TADA.CensoredData.Flag %in% c("Over-Detect")
+      ]),
+      Over_Detect_Pct = length(TADA.CensoredData.Flag[
+        TADA.CensoredData.Flag %in% c("Over-Detect")
+      ]) /
+        length(TADA.CensoredData.Flag) *
+        100,
       # To build this fence we take 1.5 times the IQR and then subtract this value
       # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
       # posts that we compare each observation to. Any observations that are more than
       # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
-      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75)) + (1.5 * stats::IQR(TADA.ResultMeasureValue))),
-      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25)) - (1.5 * stats::IQR(TADA.ResultMeasureValue))),
+      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75)) +
+        (1.5 * stats::IQR(TADA.ResultMeasureValue))),
+      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25)) -
+        (1.5 * stats::IQR(TADA.ResultMeasureValue))),
       Min = min(TADA.ResultMeasureValue),
       Mean = mean(TADA.ResultMeasureValue),
       Max = max(TADA.ResultMeasureValue),
@@ -117,15 +141,25 @@ TADA_Stats <- function(.data, group_cols = c("TADA.ComparableDataIdentifier")) {
       Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85),
       Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95),
       Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98)
-    ) %>%
-    dplyr::mutate(ND_Estimation_Method = dplyr::case_when(
-      Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
-      Non_Detect_Pct > 80 ~ as.character("Percent censored too high for estimation methods"), # greater than 80, cannot estimate
-      Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character("Kaplan-Meier"), # less than 50% censored, and multiple censoring levels (no minimum n)
-      Non_Detect_Pct < 50 ~ as.character("Robust Regression Order Statistics"), # less than 50% censored and one censoring level (no minimum n?)
-      Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
-      Measurement_Count < 50 ~ as.character("Robust Regression Order Statistics")
-    )) # 50%-80% censored, less than 50 measures
+    ) |>
+    dplyr::mutate(
+      ND_Estimation_Method = dplyr::case_when(
+        Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
+        Non_Detect_Pct > 80 ~ as.character(
+          "Percent censored too high for estimation methods"
+        ), # greater than 80, cannot estimate
+        Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character(
+          "Kaplan-Meier"
+        ), # less than 50% censored, and multiple censoring levels (no minimum n)
+        Non_Detect_Pct < 50 ~ as.character(
+          "Robust Regression Order Statistics"
+        ), # less than 50% censored and one censoring level (no minimum n?)
+        Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"), # 50%-80% censored, 50 or more measurements
+        Measurement_Count < 50 ~ as.character(
+          "Robust Regression Order Statistics"
+        )
+      )
+    ) # 50%-80% censored, less than 50 measures
 
   # StatsTable = StatsTable[,!names(StatsTable)%in%c("Non_Detect_Pct","Non_Detect_Lvls","Over_Detect_Pct")]
 

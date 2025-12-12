@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsIndependent.R
 \name{TADA_FindPotentialDuplicatesMultipleOrgs}
 \alias{TADA_FindPotentialDuplicatesMultipleOrgs}
-\title{Identify Potentially Duplicated Data Uploads by Multiple Organizations}
+\title{Identify Potentially Duplicated Data by Multiple Organizations}
 \usage{
 TADA_FindPotentialDuplicatesMultipleOrgs(
   .data,
@@ -11,44 +11,44 @@ TADA_FindPotentialDuplicatesMultipleOrgs(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{A TADA dataframe. This function runs \code{TADA_FindNearbySites}
+within it, which will transform .data into an \code{sf} object for spatial operations if needed.}
 
-\item{dist_buffer}{Numeric. The distance in meters below which two sites with
-measurements at the same time on the same day of the same parameter will
-be flagged as potential duplicates.}
+\item{dist_buffer}{Numeric. The distance in meters within which two sites with similar records
+are flagged as potential duplicates. Default is 100 meters.}
 
-\item{org_hierarchy}{Vector of organization identifiers that acts as the
-order in which the function should select a result as the representative
-duplicate, based on the organization that collected the data. If left
-blank, the function chooses the representative duplicate result at random.}
+\item{org_hierarchy}{A vector of organization identifiers to prioritize when selecting
+representative records. If not specified, a random selection is made.}
 }
 \value{
-The same input TADA dataframe with four additional columns: a
-TADA.MultipleOrgDuplicate column indicating if there is evidence that
-results are likely duplicated due to submission of the same dataset by two
-or more different organizations, a TADA.MultipleOrgDupGroupID column
-containing a number unique to results that may represent duplicated
-measurement events, a TADA.ResultSelectedMultipleOrgs column indicating
-which rows are selected to keep (Y) and remove (N) based on the
-org hierarchy, and a TADA.MonitoringLocationIdentifier column indicating which
-monitoring locations are within the distance buffer from each other.
+Returns the input dataframe with additional columns indicating potential duplicates and
+their groupings:
+\itemize{
+\item \code{TADA.MultipleOrgDuplicate}: A column that indicates if there is evidence of duplication due
+to submissions by multiple organizations ('Y' for yes, 'N' for no).
+\item \code{TADA.MultipleOrgDupGroupID}: A column containing a unique identifier for results that may
+represent duplicated measurement events.
+\item \code{TADA.ResultSelectedMultipleOrgs}: A column indicating which rows are selected to keep ('Y')
+or remove ('N') based on the organization hierarchy.
+\item \code{TADA.MonitoringLocationIdentifier}: A column indicating which monitoring locations are within
+the distance buffer from each other.
+}
 }
 \description{
-Identifies data records uploaded by different organizations with the same date,
-time, characteristic name, and result value within X meters of each other and
-flags as potential duplicates. However, it is at the discretion of the data user
-to determine if the data records are unique or represent overlap that could cause
-issues in the data analysis.
+This function identifies potential duplicate data records uploaded by different organizations.
+It flags records with the same date, time, characteristic name, and result value within a
+specified distance. The flagged records are marked as potential duplicates, but users should
+verify if they are truly duplicates or unique records.
 }
 \details{
-This function runs TADA_FindNearbySites within it which adds the
-TADA.MonitoringLocationIdentifier field. Duplicates are only flagged as duplicates if
-the distance between sites is less than the function input dist_buffer
-(default is 100m). Each group in the TADA.MonitoringLocationIdentifier field indicates
-that the sites within each group are within the specified distance from each other.
+The function performs spatial operations by running \code{TADA_FindNearbySites} within it.
+Duplicates are flagged if the distance between sites is less than the specified \code{dist_buffer}
+(default is 100 meters). Each group in the \code{TADA.MultipleOrgDupGroupID} field indicates that
+the \code{TADA.MonitoringLocationIdentifier} within each group are within the specified distance
+from each other.
 
-We recommend running TADA_FindPotentialDuplicatesMultipleOrgs after running
-TADA_FindPotentialDuplicatesSingleOrg.
+It is recommended to run this function after \code{TADA_FindPotentialDuplicatesSingleOrg} to first
+address potential duplicates within a single organization.
 }
 \examples{
 \dontrun{
@@ -58,12 +58,10 @@ dat <- TADA_DataRetrieval(
   endDate = "2023-05-01", statecode = "PA", sampleMedia = "Water", ask = FALSE
 )
 unique(dat$OrganizationIdentifier)
-# If duplicates across organizations exist, pick the result belonging
-# to "21PA_WQX" if available.
+# Identify potential duplicates and prioritize "21PA_WQX" organization
 dat1 <- TADA_FindPotentialDuplicatesMultipleOrgs(dat,
   dist_buffer = 100, org_hierarchy = c("21PA_WQX")
 )
 table(dat1$TADA.ResultSelectedMultipleOrgs)
 }
-
 }
