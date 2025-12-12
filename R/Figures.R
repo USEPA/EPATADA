@@ -827,6 +827,8 @@ TADA_FlaggedSitesMap <- function(.data) {
           lowres$MonitoringLocationIdentifier,
           "<br> Site Name: ",
           lowres$MonitoringLocationName,
+          "<br> Organization Name: ",
+          lowres$OrganizationFormalName,
           "<br> Latitude: ",
           lowres$TADA.LatitudeMeasure,
           "<br> Longitude: ",
