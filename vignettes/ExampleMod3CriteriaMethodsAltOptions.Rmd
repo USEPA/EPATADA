@@ -182,10 +182,11 @@ criteria table
     This should only be provided when auto_assign = TRUE.
 
 4)  (Recommended) Go through the step-by-step review process with the 3
-    TADA crosswalk reference file generation for TADA_ParametersForAnalysis,
-    TADA_UsesForAnalysis, and TADA_MLSummaryRef. This vignette
-    does not go through this recommended workflow. Please see
-    ExampleMod3Workflow.Rmd for this guided workflow.
+    TADA crosswalk reference file generation for
+    TADA_ParametersForAnalysis, TADA_UsesForAnalysis, and
+    TADA_MLSummaryRef. This vignette does not go through this
+    recommended workflow. Please see ExampleMod3Workflow.Rmd for this
+    guided workflow.
 
 Each option will allow the option to append additional rows to summarize
 EPA304a recommended standards, if one has been defined. Please contact

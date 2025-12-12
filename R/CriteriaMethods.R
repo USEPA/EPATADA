@@ -151,6 +151,8 @@ TADA_DefineCriteriaMethodology <- function(
       missing(org_id) &&
       missing(AUMLRef) &&
       missing(AU_UsesRef) &&
+      missing(criteriaMethods) &&
+      missing(MLSummaryRef) &&
       missing(excel) &&
       missing(overwrite)
   ) {
@@ -765,6 +767,19 @@ TADA_DefineCriteriaMethodology <- function(
         "Notes"
       )
 
+      # If user specifies org_id = NULL (handled upstream in this function).
+      # Users who may want to do the ATTAINS crosswalk later on in the process, can choose to
+      # specify org_id = NULL and to decide how to populate on their own after analysis.
+      if ("" %in% org_id) {
+        criteriaMethods$ATTAINS.OrganizationIdentifier <- ""
+      }
+      
+      # If user provides an org_id but their user supplied criteriaMethods does not contain an ATTAINS.OrganizationIdentifier (left as NA)
+      # display error message.
+      # if(!is.null(org_id) && !org_id %in% criteriaMethods$ATTAINS.OrganizationIdentifier) {
+      #   warning("You provided an org_id value that was not found in your criteriaMethods user supplied table. No matches were found, please validate.")
+      # }
+      
       criteriaMethods$ATTAINS.ParameterName <- toupper(
         criteriaMethods$ATTAINS.ParameterName
       )
@@ -806,6 +821,7 @@ TADA_DefineCriteriaMethodology <- function(
       # What WQP Characteristic names did the user supplied table miss?
       non_definedCriteria <- criteriaMethods |>
         dplyr::filter(is.na(ATTAINS.ParameterName)) |>
+        dplyr::filter(TADA.CharacteristicName %in% unique_param) |>
         dplyr::select(dplyr::all_of(desired_cols)) |>
         as.data.frame()
 
@@ -840,6 +856,8 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       # If the source of the ATTAINS param and uses is the prior ATTAINS assessment cycle.
+      # NOTE: If criteriaMethods is provided, we are now setting auto_assign = FALSE as default. These code chunks
+      # for auto_assign == TRUE may no longer be needed. Leaving it in though for in case we decide otherwise. KW 12/12/25
       if (auto_assign == TRUE & is.null(AU_UsesRef)) {
         warning(paste0(
           "You selected auto_assign == TRUE. No AU_UsesRef was provided. ",
@@ -850,7 +868,7 @@ TADA_DefineCriteriaMethodology <- function(
       # If the source of the ATTAINS param and uses is from the user supplied AU_UsesRef.
       if (auto_assign == TRUE & !is.null(AU_UsesRef)) {
         warning(paste0(
-          "You selected auto_assign == TRUE. A AU_UsesRef was provided. ",
+          "You selected auto_assign == TRUE. An AU_UsesRef was provided. ",
           "Filling in these blanks with ATTAINS.ParameterName and ATTAINS.UseName pulled in from your AU_UsesRef. ",
           "Please review or edit these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
@@ -858,7 +876,7 @@ TADA_DefineCriteriaMethodology <- function(
 
       # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
       definedCriteria <- criteriaMethods |>
-        dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::filter(
           TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName
         ) |>
@@ -866,8 +884,10 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       # Create empty criteria methods data frame.
-      DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
-      
+      suppressMessages(
+        DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
+        )
+ 
       # Must now match the data types
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
@@ -886,7 +906,7 @@ TADA_DefineCriteriaMethodology <- function(
         }
       )
 
-      # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
+      # # If MLSummaryRef does not get generated, and only a user supplied criteriaMethods table is provided
       if (nrow(DefineCriteriaMethodology) == 0 && auto_assign == FALSE) {
         DefineCriteriaMethodology <- criteriaMethods |>
           dplyr::filter(
@@ -906,7 +926,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::full_join(definedCriteria) |>
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
-
+      
       # should not be a problem if we control what column names are allowed,
       # but including this for the case if edits are made to the function to ensure
       # excel allowable values are still in the correct order.
