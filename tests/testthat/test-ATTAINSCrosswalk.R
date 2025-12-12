@@ -2,8 +2,8 @@
 test_dat <- TADA_RandomTestingData()
 
 # Test: Check for potential duplicates during criteria methods table generation
-testthat::test_that("TADA_CreateParamRef ", {
-  param_ref_none <- TADA_CreateParamRef(
+testthat::test_that("TADA_ParametersForAnalysis ", {
+  param_ref_none <- TADA_ParametersForAnalysis(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "None",
@@ -11,7 +11,7 @@ testthat::test_that("TADA_CreateParamRef ", {
   )
 
   suppressWarnings(
-    use_param_ref_none <- TADA_CreateUseParamRef(
+    use_param_ref_none <- TADA_UsesForAnalysis(
       test_dat,
       paramRef = param_ref_none,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -19,7 +19,7 @@ testthat::test_that("TADA_CreateParamRef ", {
       excel = FALSE
     )
   )
-  # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
+  # a user supplied table for a param_use will not populate TADA_UsesForAnalysis if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
     ATTAINS.OrganizationIdentifier = rep(
       "MTDEQ",
@@ -33,10 +33,10 @@ testthat::test_that("TADA_CreateParamRef ", {
   )
 
   suppressWarnings(
-    use_param_ref_none2 <- TADA_CreateUseParamRef(
+    use_param_ref_none2 <- TADA_UsesForAnalysis(
       test_dat,
       paramRef = param_ref_none,
-      useParamRef = user.supplied.uses.param,
+      usesRef = user.supplied.uses.param,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = FALSE,
       excel = FALSE
@@ -52,7 +52,7 @@ testthat::test_that("TADA_CreateParamRef ", {
       dim(use_param_ref_none2)[2] == 7
   )
   #################
-  param_ref_all <- TADA_CreateParamRef(
+  param_ref_all <- TADA_ParametersForAnalysis(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "All",
@@ -60,7 +60,7 @@ testthat::test_that("TADA_CreateParamRef ", {
   )
 
   suppressWarnings(
-    use_param_ref_all <- TADA_CreateUseParamRef(
+    use_param_ref_all <- TADA_UsesForAnalysis(
       test_dat,
       paramRef = param_ref_all,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
@@ -69,7 +69,7 @@ testthat::test_that("TADA_CreateParamRef ", {
     )
   )
 
-  # a user supplied table for a param_use will not populate TADA_CreateUseParamRef if paramRef crosswalk is left blank.
+  # a user supplied table for a param_use will not populate TADA_UsesForAnalysis if paramRef crosswalk is left blank.
   user.supplied.uses.param <- data.frame(
     ATTAINS.OrganizationIdentifier = rep(
       "MTDEQ",
@@ -83,10 +83,10 @@ testthat::test_that("TADA_CreateParamRef ", {
   )
 
   suppressWarnings(
-    use_param_ref_all2 <- TADA_CreateUseParamRef(
+    use_param_ref_all2 <- TADA_UsesForAnalysis(
       test_dat,
       paramRef = param_ref_all,
-      useParamRef = user.supplied.uses.param,
+      usesRef = user.supplied.uses.param,
       org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = FALSE,
       excel = FALSE
@@ -105,7 +105,7 @@ testthat::test_that("TADA_CreateParamRef ", {
       dim(use_param_ref_all2)[2] == 7
   )
   #################
-  param_ref_org <- TADA_CreateParamRef(
+  param_ref_org <- TADA_ParametersForAnalysis(
     test_dat,
     org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
     auto_assign = "Org",
@@ -126,7 +126,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   suppressWarnings(
     Criteria_autofill <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = TRUE,
       displayUniqueId = FALSE,
       excel = FALSE
@@ -138,7 +138,7 @@ testthat::test_that("TADA_DefineCriteriaMethodology ", {
   suppressWarnings(
     Criteria_autofill_w_uniqueID <- TADA_DefineCriteriaMethodology(
       test_dat,
-      org_id = "MTDEQ", # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
+      org_id = NULL, # org_id doesn't need to match WQP. should not matter what org_id is used for testing.
       auto_assign = TRUE,
       displayUniqueId = TRUE,
       excel = FALSE

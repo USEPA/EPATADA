@@ -5,7 +5,7 @@
 \title{Get Monitoring Location Identifier and Assessment Unit Identifier
 Crosswalk from ATTAINS}
 \usage{
-TADA_GetATTAINSAUMLCrosswalk(org_id = NULL, batch_upload = FALSE)
+TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier must be
@@ -15,8 +15,8 @@ Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
 contains the organization identifiers that should be used for this param. When
-org_id = NULL, all assessment unit/monitoring locations matches recorded in
-ATTAINS from all organizations will be returned.}
+org_id = "all", all assessment unit/monitoring locations matches recorded in
+ATTAINS from all organizations will be returned. The default is org_id = "all".}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, the final column
 names in the output will match those required for batch upload to ATTAINS. When
@@ -61,7 +61,7 @@ PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "PUEBLOOFTESUQUE"
 )
 
-# Arizona example, returns blank dataframe as of 1/21/25
+# Arizona example, returns an empty df as of 10/17/25
 AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 }
 

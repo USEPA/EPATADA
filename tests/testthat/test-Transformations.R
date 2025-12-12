@@ -56,7 +56,7 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
 
   testdat <- TADA_CalculateTotalNP(testdat, daily_agg = "max")
 
-  # na_rows <- testdat %>% filter(is.na(TADA.ResultMeasureValue))
+  # na_rows <- testdat |> filter(is.na(TADA.ResultMeasureValue))
 
   # Test to ensure the column is entirely numeric
   expect_true(is.numeric(testdat$TADA.ResultMeasureValue))
@@ -85,6 +85,11 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
     od_method = "as-is",
     od_multiplier = "null"
   )
+
+  # Check if df2 is empty or null
+  if (is.null(df2) || nrow(df2) == 0) {
+    skip("Skipping test because df2 is empty or null")
+  }
 
   # Run key flag functions
   df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)

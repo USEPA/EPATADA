@@ -1,7 +1,7 @@
 # Testing the Geospatial Functions ----
 # Tests for the functions in GeoSpatialFunctions.R using sample data
 
-TADA_dataframe <- Data_HUC8_02070004_Mod1Output %>%
+TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
   dplyr::filter(TADA.CharacteristicName == "PH")
 
 TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
@@ -70,10 +70,8 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 
 testthat::test_that("fetchATTAINS handles catchments_only parameter", {
   # Create a small valid dataset
-  valid_data <- sf::st_sf(
-    geometry = sf::st_sfc(sf::st_point(c(-80.0, 35.0))),
-    crs = 4326
-  )
+  valid_data <- Data_6Tribes_5y_Harmonized |>
+    dplyr::filter(OrganizationIdentifier %in% "PUEBLOOFTESUQUE")
 
   # Test with catchments_only = TRUE
   testthat::expect_no_error(
@@ -100,7 +98,7 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
   }
 })
 
-testthat::test_that("TADA_GetATTAINS correctly identifies already joined ATTAINS data", {
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
   mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
@@ -111,7 +109,7 @@ testthat::test_that("TADA_GetATTAINS correctly identifies already joined ATTAINS
   )
 })
 
-testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appropriately", {
   # Create an empty dataframe with required structure
   empty_df <- tibble::tibble(
     ResultIdentifier = character(0),
@@ -127,7 +125,7 @@ testthat::test_that("TADA_GetATTAINS handles empty datasets appropriately", {
 })
 
 
-testthat::test_that("TADA_GetATTAINS rejects invalid resolution values", {
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk rejects invalid resolution values", {
   testthat::expect_error(
     TADA_CreateATTAINSAUMLCrosswalk(
       .data = TADA_dataframe,

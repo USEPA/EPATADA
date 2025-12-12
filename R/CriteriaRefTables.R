@@ -1,168 +1,199 @@
-# Used to store cached CST EPA304a Reference Table
-EPACSTRef_Cached <- NULL
+# Used to store cached CriteriaSearchToolRef Reference Table
+CriteriaSearchToolRef_Cached <- NULL
 
-#' Get EPA Criteria Search Tool (CST) Data
+#' Criteria Search Tool (CST) Reference Table
 #'
-#' Function downloads and returns the newest available Criteria Search Tool and
-#' associated EPA 304a Criteria pollutant names as a reference dataframe.
-#' This dataframe is used in TADA_CreateParamRef() and
-#' TADA_CreateUseParamRef() as the basis for the pulling in EPA304a recommended
-#' pollutant names and use names.
+#' This function downloads State-Specific Water Quality Standards Effective
+#' under the Clean Water Act (CWA) from EPA's Criteria Search Tool. This file is
+#' reformatted as a data frame for use in R. This function caches the table after
+#' it has been called once so subsequent calls will be faster. To get the data
+#' dictionary for the CST see TADA_GetLegendCSTRef. For the WQS document sources
+#' see TADA_GetSourcesCSTRef.
 #'
-#' Currently only characteristics identified by the TADA Working Group as
-#' priorities are included in the TADA crosswalk of WQP/TADA characteristics
-#' and CST pollutant names. Run the following code in the console to
-#' review the crosswalk:
-#' 'utils::read.csv(system.file("extdata", "TADAPriorityCharUnitRef.csv", package = "EPATADA"))'
-#'
-#' @return Dataframe of EPA304a recommended criteria from EPA's Criteria Search
-#' Tool (CST) for a pollutant and use name.
+#' @return Updated sysdata.rda with updated CriteriaSearchToolRef object
 #'
 #' @export
 #'
-
-TADA_GetEPACSTRef <- function() {
+#' @examples
+#' CWACriteria <- TADA_GetCriteriaSearchToolRef()
+#'
+TADA_GetCriteriaSearchToolRef <- function() {
   # If there is a cached table available return it
-  if (!is.null(EPACSTRef_Cached)) {
-    return(EPACSTRef_Cached)
+  if (!is.null(CriteriaSearchToolRef_Cached)) {
+    return(CriteriaSearchToolRef_Cached)
   }
-
   # Try to download up-to-date raw data
-
   raw.data <- tryCatch(
     {
       # read raw xlsx from url
       openxlsx::read.xlsx(
-        "https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx"
+        "https://www.epa.gov/system/files/documents/2025-07/criteria-search-tool-data.xlsx",
+        sheet = 3
       )
     },
     error = function(err) {
       NULL
     }
   )
-
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file(
       "extdata",
-      "EPACST.csv",
+      "CriteriaSearchToolRef.csv",
       package = "EPATADA"
     )))
   }
-
-  # Creates and formats the CST ref table below:
-
-  # Find the CST row that contains the column name of dataframe - removes extraneous details
-  CST.begin <- as.integer(which(rowSums(is.na(raw.data)) == 0)[1])
-  colnames(raw.data) <- as.character(raw.data[CST.begin, ])
-
-  # import TADA unit reference for priority characteristics (characteristic specific)
-  tada.char.ref <- utils::read.csv(system.file(
-    "extdata",
-    "TADAPriorityCharUnitRef.csv",
-    package = "EPATADA"
-  ))
-
-  # Pulls in column names that will be used as a reference table
-  EPACSTRef <- raw.data %>%
-    utils::tail(-CST.begin) %>%
-    dplyr::filter(ENTITY_ABBR == "304A") %>%
-    dplyr::left_join(
-      tada.char.ref,
-      by = c("POLLUTANT_NAME" = "CST.PollutantName"),
-      relationship = "many-to-many"
-    ) %>%
-    dplyr::select(
-      TADA.CharacteristicName,
-      POLLUTANT_NAME,
-      organization_identifier = ENTITY_ABBR,
-      use_name = USE_CLASS_NAME_LOCATION_ETC,
-      CRITERION_VALUE,
-      CRITERIATYPEAQUAHUMHLTH,
-      CRITERIATYPEFRESHSALTWATER,
-      CRITERIATYPE_ACUTECHRONIC,
-      CRITERIATYPE_WATERORG,
-      UNIT_NAME
-    )
-
-  # Remove intermediate variables
-  rm(CST.begin, tada.char.ref, raw.data)
-
-  # Save updated table in cache
-  EPACSTRef_Cached <- EPACSTRef
-
-  EPACSTRef
-}
-
-# Update Criteria Search Tool Reference Table internal file
-# (for internal use only)
-
-TADA_UpdateEPACSTRef <- function() {
-  utils::write.csv(
-    TADA_GetEPACSTRef(),
-    file = "inst/extdata/EPACST.csv",
-    row.names = FALSE
-  )
-}
-
-
-# Used to store cached CriteriaSearchToolRef Reference Table
-CriteriaSearchToolRef_Cached <- NULL
-
-#' Criteria Search Tool Reference Table
-#'
-#' This function downloads the latest criteria search tool from the EPA OST and
-#' returns it. Before use, the downloaded data is cleaned and formatted as the
-#' the initial ~200 rows contain the legend and data dictionary, which need to
-#' be removed.
-#'
-#' This function caches the table after it has been called once
-#' so subsequent calls will be faster.
-#'
-#' @return Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
-#'
-#' @export
-TADA_GetCriteriaSearchToolRef <- function() {
-  CST.raw <- openxlsx::read.xlsx(
-    "https://cfpub.epa.gov/wqsits/wqcsearch/criteria-search-tool-data.xlsx"
-  )
-
-  # Find the first row that has all values populated. This will indicate the column names of the CST data frame.
-  # Note: Why not use a static row number? The CST may get new entries that may change the start of the data frames.
-  first_filled_row_index <- which(rowSums(is.na(CST.raw)) == 0)[1]
-
-  # Extract our CST column names
-  CST.cols <- as.character(CST.raw[first_filled_row_index, ])
-
-  # remove rows with "legend" info (rows 1-201)
-  CST <- CST.raw[-c(1:first_filled_row_index), ]
-
-  # assign column names to the new data frame
-  names(CST) <- CST.cols
-
-  # filter the dataframe to just the CAS and pollutant numbers for our use case.
-  CST <- CST |>
-    dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
+  CriteriaSearchToolRef <- raw.data |>
     dplyr::distinct()
-
-  # save updated table in cache
-  CriteriaSearchToolRef_Cached <- CST
-
-  # remove intermediate objects
-  rm(CST.raw, first_filled_row_index, CST.cols)
-
-  return(CST)
+  # Save updated table in cache
+  CriteriaSearchToolRef_Cached <- CriteriaSearchToolRef
+  CriteriaSearchToolRef
 }
 
 
 # Update CriteriaSearchToolRef Reference Table internal file
 # (for internal use only)
 TADA_UpdateCriteriaSearchToolRef <- function() {
+  CriteriaSearchToolRef <- TADA_GetCriteriaSearchToolRef()
+  save(
+    CriteriaSearchToolRef,
+    file = "inst/extdata/CriteriaSearchToolRef.rda",
+    ascii = FALSE,
+    compress = "xz",
+    version = 3
+  )
+}
+
+
+# Used to store cached LegendCSTRef Reference Table
+LegendCSTRef_Cached <- NULL
+
+#' Legend for the Criteria Search Tool Reference Table
+#'
+#' This function downloads the legend from the EPA's Criteria Search Tool which
+#' contains State-Specific Water Quality Standards Effective under the Clean
+#' Water Act (CWA). This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return Updated sysdata.rda with updated CriteriaSearchToolRef object
+#'
+#' @export
+#'
+#' @examples
+#' CWACriteria <- TADA_GetLegendCSTRef()
+#'
+TADA_GetLegendCSTRef <- function() {
+  # If there is a cached table available return it
+  if (!is.null(LegendCSTRef_Cached)) {
+    return(LegendCSTRef_Cached)
+  }
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch(
+    {
+      # read raw xlsx from url
+      openxlsx::read.xlsx(
+        "https://www.epa.gov/system/files/documents/2025-07/criteria-search-tool-data.xlsx",
+        sheet = 1
+      )
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message(
+      "Downloading latest Legend for the Criteria Search Tool Reference Table failed!"
+    )
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file(
+      "extdata",
+      "CriteriaSearchToolRef.csv",
+      package = "EPATADA"
+    )))
+  }
+  LegendCSTRef <- raw.data |>
+    dplyr::distinct()
+  # Save updated table in cache
+  LegendCSTRef_Cached <- LegendCSTRef
+  LegendCSTRef
+}
+
+
+# Update LegendCSTRef Reference Table internal file
+# (for internal use only)
+TADA_UpdateLegendCSTRef <- function() {
   utils::write.csv(
-    TADA_GetCriteriaSearchToolRef(),
-    file = "inst/extdata/CriteriaSearchToolRef.csv",
+    TADA_GetLegendCSTRef(),
+    file = "inst/extdata/LegendCSTRef.csv",
+    row.names = FALSE
+  )
+}
+
+
+# Used to store cached SourcesCSTRef Reference Table
+SourcesCSTRef_Cached <- NULL
+
+#' Sources for the Criteria Search Tool Reference Table
+#'
+#' This function downloads the sources from the EPA's Criteria Search Tool which
+#' contains State-Specific Water Quality Standards Effective under the Clean
+#' Water Act (CWA). This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return Updated sysdata.rda with updated SourcesCSTRef object
+#'
+#' @export
+#'
+#' @examples
+#' CWACriteria <- TADA_GetSourcesCSTRef()
+#'
+TADA_GetSourcesCSTRef <- function() {
+  # If there is a cached table available return it
+  if (!is.null(SourcesCSTRef_Cached)) {
+    return(SourcesCSTRef_Cached)
+  }
+  # Try to download up-to-date raw data
+  raw.data <- tryCatch(
+    {
+      # read raw xlsx from url
+      openxlsx::read.xlsx(
+        "https://www.epa.gov/system/files/documents/2025-07/criteria-search-tool-data.xlsx",
+        sheet = 2
+      )
+    },
+    error = function(err) {
+      NULL
+    }
+  )
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message(
+      "Downloading latest Sources for the Criteria Search Tool Reference Table failed!"
+    )
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file(
+      "extdata",
+      "CriteriaSearchToolRef.csv",
+      package = "EPATADA"
+    )))
+  }
+  SourcesCSTRef <- raw.data |>
+    dplyr::distinct()
+  # Save updated table in cache
+  SourcesCSTRef_Cached <- SourcesCSTRef
+  SourcesCSTRef
+}
+
+
+# Update SourcesCSTRef Reference Table internal file
+# (for internal use only)
+TADA_UpdateSourcesCSTRef <- function() {
+  utils::write.csv(
+    TADA_GetSourcesCSTRef(),
+    file = "inst/extdata/SourcesCSTRef.csv",
     row.names = FALSE
   )
 }

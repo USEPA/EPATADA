@@ -265,7 +265,7 @@ unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 
-GreenBay_FoxRiver <- GreenBay_FoxRiver %>%
+GreenBay_FoxRiver <- GreenBay_FoxRiver |>
   dplyr::filter(!is.na(TADA.ResultMeasureValue))
 
 sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
@@ -310,7 +310,7 @@ DT::datatable(GreenBay_FoxRiver_Counts, fillContainer = TRUE)
 Filter to focus on frequently monitored characteristics in example data
 
 ```{r subset}
-GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver %>%
+GreenBay_FoxRiver_Subset <- GreenBay_FoxRiver |>
   dplyr::filter(TADA.ComparableDataIdentifier %in%
     c(
       "SPECIFIC CONDUCTANCE_NA_NA_US/CM",

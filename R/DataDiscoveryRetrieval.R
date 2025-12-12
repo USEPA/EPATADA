@@ -157,7 +157,7 @@
 #'
 #' # query by shapefile for Navajo Nation
 #'
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
+#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
 #'   dplyr::filter(NAME == "Navajo Nation")
 #'
 #' tada7 <- TADA_DataRetrieval(
@@ -403,6 +403,15 @@ TADA_DataRetrieval <- function(
         )
       }
 
+      # Function to filter based on tribe name or parcel number
+      filter_by_tribe_or_parcel <- function(data, column_name) {
+        if (all(tribe_name_parcel != "null")) {
+          dplyr::filter(data, !!rlang::sym(column_name) %in% tribe_name_parcel)
+        } else {
+          data
+        }
+      }
+
       # These area types allow filtering by TRIBE_NAME (unique within each type)
       if (
         tribal_area_type %in%
@@ -416,35 +425,22 @@ TADA_DataRetrieval <- function(
         aoi_sf <- dplyr::filter(
           map_service_urls,
           tribal_area == tribal_area_type
-        )$url %>%
+        )$url |>
           # Pull data
-          arcgislayers::arc_open() %>%
+          arcgislayers::arc_open() |>
           # Return sf
-          arcgislayers::arc_select() %>%
-          # If a value provided, then filter
-          {
-            if (all(tribe_name_parcel != "null")) {
-              dplyr::filter(., TRIBE_NAME %in% tribe_name_parcel)
-            } else {
-              .
-            }
-          }
+          arcgislayers::arc_select() |>
+          filter_by_tribe_or_parcel("TRIBE_NAME")
 
         # Otherwise filter by PARCEL_NO (Note that values in this col are not unique)
       } else if (tribal_area_type == "Alaska Native Allotments") {
         aoi_sf <- dplyr::filter(
           map_service_urls,
           tribal_area == tribal_area_type
-        )$url %>%
-          arcgislayers::arc_open() %>%
-          arcgislayers::arc_select() %>%
-          {
-            if (all(tribe_name_parcel != "null")) {
-              dplyr::filter(., PARCEL_NO %in% tribe_name_parcel)
-            } else {
-              .
-            }
-          }
+        )$url |>
+          arcgislayers::arc_open() |>
+          arcgislayers::arc_select() |>
+          filter_by_tribe_or_parcel("PARCEL_NO")
       } else {
         stop(
           "Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options."
@@ -481,14 +477,14 @@ TADA_DataRetrieval <- function(
 
     # Alert & stop if an http error was received
     if (is.null(quiet_bbox_avail$result)) {
-      stop_message <- quiet_bbox_avail$messages %>%
+      stop_message <- quiet_bbox_avail$messages |>
         grep(
           pattern = "failed|HTTP",
           x = .,
           ignore.case = FALSE,
           value = TRUE
-        ) %>%
-        paste("\n", ., collapse = "") %>%
+        ) |>
+        paste("\n", ., collapse = "") |>
         paste(
           "The WQP request returned a NULL with the following message(s): \n",
           .,
@@ -514,14 +510,14 @@ TADA_DataRetrieval <- function(
     )
 
     if (is.null(quiet_bbox_sites$result)) {
-      stop_message <- quiet_bbox_sites$messages %>%
+      stop_message <- quiet_bbox_sites$messages |>
         grep(
           pattern = "failed|HTTP",
           x = .,
           ignore.case = FALSE,
           value = TRUE
-        ) %>%
-        paste("\n", ., collapse = "") %>%
+        ) |>
+        paste("\n", ., collapse = "") |>
         paste(
           "The WQP request returned a NULL with the following message(s): \n",
           .,
@@ -531,12 +527,12 @@ TADA_DataRetrieval <- function(
     }
 
     # Reformat returned info as sf
-    bbox_sites_sf <- quiet_bbox_sites$result %>%
+    bbox_sites_sf <- quiet_bbox_sites$result |>
       dplyr::rename(
         TADA.LatitudeMeasure = LatitudeMeasure,
         TADA.LongitudeMeasure = LongitudeMeasure
-      ) %>%
-      TADA_MakeSpatial(crs = 4326) %>%
+      ) |>
+      TADA_MakeSpatial(crs = 4326) |>
       dplyr::rename(
         LatitudeMeasure = TADA.LatitudeMeasure,
         LongitudeMeasure = TADA.LongitudeMeasure
@@ -554,9 +550,9 @@ TADA_DataRetrieval <- function(
       )
     }
 
-    record_count <- bbox_avail %>%
-      dplyr::filter(MonitoringLocationIdentifier %in% clipped_site_ids) %>%
-      dplyr::pull(resultCount) %>%
+    record_count <- bbox_avail |>
+      dplyr::filter(MonitoringLocationIdentifier %in% clipped_site_ids) |>
+      dplyr::pull(resultCount) |>
       sum()
 
     # Should we proceed with downloads? If ask == TRUE then ask the user.
@@ -587,8 +583,8 @@ TADA_DataRetrieval <- function(
       # Use helper function to download large data volume
       results.DR <- withCallingHandlers(
         TADA_BigDataHelper(
-          record_summary = bbox_avail %>%
-            dplyr::select(MonitoringLocationIdentifier, resultCount) %>%
+          record_summary = bbox_avail |>
+            dplyr::select(MonitoringLocationIdentifier, resultCount) |>
             dplyr::filter(MonitoringLocationIdentifier %in% clipped_site_ids),
           WQPquery = WQPquery,
           maxrecs = maxrecs,
@@ -614,8 +610,8 @@ TADA_DataRetrieval <- function(
         TADAprofile.clean <- results.DR
       } else {
         # Get site metadata
-        sites.DR <- clipped_sites_sf %>%
-          dplyr::as_tibble() %>%
+        sites.DR <- clipped_sites_sf |>
+          dplyr::as_tibble() |>
           dplyr::select(-geometry)
 
         # Get project metadata
@@ -627,14 +623,14 @@ TADA_DataRetrieval <- function(
         )
 
         if (is.null(quiet_projects.DR$result)) {
-          stop_message <- quiet_projects.DR$messages %>%
+          stop_message <- quiet_projects.DR$messages |>
             grep(
               pattern = "failed|HTTP",
               x = .,
               ignore.case = FALSE,
               value = TRUE
-            ) %>%
-            paste("\n", ., collapse = "") %>%
+            ) |>
+            paste("\n", ., collapse = "") |>
             paste(
               "The WQP request returned a NULL with the following message(s): \n",
               .,
@@ -651,7 +647,7 @@ TADA_DataRetrieval <- function(
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>%
+        ) |>
           dplyr::mutate(
             dplyr::across(tidyselect::everything(), as.character)
           )
@@ -699,8 +695,8 @@ TADA_DataRetrieval <- function(
         TADAprofile.clean <- results.DR
       } else {
         # Get site metadata
-        sites.DR <- clipped_sites_sf %>%
-          dplyr::as_tibble() %>%
+        sites.DR <- clipped_sites_sf |>
+          dplyr::as_tibble() |>
           dplyr::select(-geometry)
 
         # Get project metadata
@@ -712,14 +708,14 @@ TADA_DataRetrieval <- function(
         )
 
         if (is.null(quiet_projects.DR$result)) {
-          stop_message <- quiet_projects.DR$messages %>%
+          stop_message <- quiet_projects.DR$messages |>
             grep(
               pattern = "failed|HTTP",
               x = .,
               ignore.case = FALSE,
               value = TRUE
-            ) %>%
-            paste("\n", ., collapse = "") %>%
+            ) |>
+            paste("\n", ., collapse = "") |>
             paste(
               "The WQP request returned a NULL with the following message(s): \n",
               .,
@@ -736,7 +732,7 @@ TADA_DataRetrieval <- function(
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>%
+        ) |>
           dplyr::mutate(
             dplyr::across(tidyselect::everything(), as.character)
           )
@@ -764,7 +760,7 @@ TADA_DataRetrieval <- function(
     if (!"null" %in% statecode) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       statecode <- as.character(statecode)
-      statecodes_sub <- statecodes_df %>% dplyr::filter(STUSAB %in% statecode)
+      statecodes_sub <- statecodes_df |> dplyr::filter(STUSAB %in% statecode)
       statecd <- paste0("US:", statecodes_sub$STATE)
       if (nrow(statecodes_sub) == 0) {
         stop(
@@ -900,14 +896,14 @@ TADA_DataRetrieval <- function(
     quiet_query_avail <- quiet_whatWQPdata(WQPquery)
 
     if (is.null(quiet_query_avail$result)) {
-      stop_message <- quiet_query_avail$messages %>%
+      stop_message <- quiet_query_avail$messages |>
         grep(
           pattern = "failed|HTTP",
           x = .,
           ignore.case = FALSE,
           value = TRUE
-        ) %>%
-        paste("\n", ., collapse = "") %>%
+        ) |>
+        paste("\n", ., collapse = "") |>
         paste(
           "The WQP request returned a NULL with the following message(s): \n",
           .,
@@ -921,8 +917,8 @@ TADA_DataRetrieval <- function(
 
     site_count <- length(query_avail$MonitoringLocationIdentifier)
 
-    record_count <- query_avail %>%
-      dplyr::pull(resultCount) %>%
+    record_count <- query_avail |>
+      dplyr::pull(resultCount) |>
       sum()
 
     # Should we proceed with downloads? If ask == TRUE then ask the user.
@@ -947,7 +943,7 @@ TADA_DataRetrieval <- function(
       # Use helper function to download large data volume
       results.DR <- suppressMessages(
         TADA_BigDataHelper(
-          record_summary = query_avail %>%
+          record_summary = query_avail |>
             dplyr::select(MonitoringLocationIdentifier, resultCount),
           WQPquery = WQPquery,
           maxrecs = maxrecs,
@@ -964,14 +960,14 @@ TADA_DataRetrieval <- function(
       )
 
       if (is.null(quiet_sites.DR$result)) {
-        stop_message <- quiet_sites.DR$messages %>%
+        stop_message <- quiet_sites.DR$messages |>
           grep(
             pattern = "failed|HTTP",
             x = .,
             ignore.case = FALSE,
             value = TRUE
-          ) %>%
-          paste("\n", ., collapse = "") %>%
+          ) |>
+          paste("\n", ., collapse = "") |>
           paste(
             "The WQP request returned a NULL with the following message(s): \n",
             .,
@@ -992,14 +988,14 @@ TADA_DataRetrieval <- function(
       )
 
       if (is.null(quiet_projects.DR$result)) {
-        stop_message <- quiet_projects.DR$messages %>%
+        stop_message <- quiet_projects.DR$messages |>
           grep(
             pattern = "failed|HTTP",
             x = .,
             ignore.case = FALSE,
             value = TRUE
-          ) %>%
-          paste("\n", ., collapse = "") %>%
+          ) |>
+          paste("\n", ., collapse = "") |>
           paste(
             "The WQP request returned a NULL with the following message(s): \n",
             .,
@@ -1016,7 +1012,7 @@ TADA_DataRetrieval <- function(
         FullPhysChem = results.DR,
         Sites = sites.DR,
         Projects = projects.DR
-      ) %>%
+      ) |>
         dplyr::mutate(
           dplyr::across(tidyselect::everything(), as.character)
         )
@@ -1068,7 +1064,7 @@ TADA_DataRetrieval <- function(
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
-        ) %>%
+        ) |>
           dplyr::mutate(
             dplyr::across(tidyselect::everything(), as.character)
           )
@@ -1151,16 +1147,16 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   tribal_area_sf <- dplyr::filter(
     map_service_urls,
     tribal_area == tribal_area_type
-  )$url %>%
-    arcgislayers::arc_open() %>%
+  )$url |>
+    arcgislayers::arc_open() |>
     # Return sf
-    arcgislayers::arc_select() %>%
+    arcgislayers::arc_select() |>
     sf::st_make_valid()
 
   # Convert to df if needed, export
   if (return_sf == FALSE) {
     return(
-      tribal_area_sf %>%
+      tribal_area_sf |>
         sf::st_drop_geometry()
     )
   } else {
@@ -1302,16 +1298,16 @@ TADA_BigDataHelper <- function(
   maxsites = 300
 ) {
   # Get total number of results per site and separate out sites with >maxrecs results
-  tot_sites <- record_summary %>%
-    dplyr::group_by(MonitoringLocationIdentifier) %>%
-    dplyr::summarise(tot_n = sum(resultCount)) %>%
-    dplyr::filter(tot_n > 0) %>%
+  tot_sites <- record_summary |>
+    dplyr::group_by(MonitoringLocationIdentifier) |>
+    dplyr::summarise(tot_n = sum(resultCount)) |>
+    dplyr::filter(tot_n > 0) |>
     dplyr::arrange(tot_n)
 
   # Sites with less than/equal to maxrecs
-  smallsites <- tot_sites %>% dplyr::filter(tot_n <= maxrecs)
+  smallsites <- tot_sites |> dplyr::filter(tot_n <= maxrecs)
   # Sites with more than maxrecs
-  bigsites <- tot_sites %>% dplyr::filter(tot_n > maxrecs)
+  bigsites <- tot_sites |> dplyr::filter(tot_n > maxrecs)
 
   df_small <- data.frame()
   df_big <- data.frame()
@@ -1320,7 +1316,7 @@ TADA_BigDataHelper <- function(
   # Build download groups. Total record count limited to value of maxrecs.
   # Number of sites per download group limited to 300.
   if (dim(smallsites)[1] > 0) {
-    smallsitesgrp <- smallsites %>%
+    smallsitesgrp <- smallsites |>
       dplyr::mutate(
         group = MESS::cumsumbinning(
           x = tot_n,
@@ -1358,7 +1354,7 @@ TADA_BigDataHelper <- function(
           dataProfile = "resultPhysChem",
           ignore_attributes = TRUE
         )
-      ) %>%
+      ) |>
         dplyr::mutate(dplyr::across(everything(), as.character))
 
       # If data is returned, stack with what's already been retrieved
@@ -1405,7 +1401,7 @@ TADA_BigDataHelper <- function(
           dataProfile = "resultPhysChem",
           ignore_attributes = TRUE
         )
-      ) %>%
+      ) |>
         dplyr::mutate(dplyr::across(everything(), as.character))
 
       if (dim(results_big)[1] > 0) {
@@ -1495,19 +1491,19 @@ TADA_JoinWQPProfiles <- function(
   # Join station data to full phys/chem (FullPhysChem.df)
   if (length(Sites.df > 1)) {
     if (nrow(Sites.df) > 0) {
-      join1 <- FullPhysChem.df %>%
+      join1 <- FullPhysChem.df |>
         # join stations to results
         dplyr::left_join(
           Sites.df,
           by = "MonitoringLocationIdentifier",
           multiple = "all",
           relationship = "many-to-many"
-        ) %>%
+        ) |>
         # remove ".x" suffix from column names
         dplyr::rename_at(
           dplyr::vars(dplyr::ends_with(".x")),
           ~ stringr::str_replace(., "\\..$", "")
-        ) %>%
+        ) |>
         # remove columns with ".y" suffix
         dplyr::select_at(dplyr::vars(-dplyr::ends_with(".y")))
     } else {
@@ -1520,7 +1516,7 @@ TADA_JoinWQPProfiles <- function(
   # Add QAPP columns from project
   if (length(Projects.df) > 1) {
     if (nrow(Projects.df) > 0) {
-      join2 <- join1 %>%
+      join2 <- join1 |>
         dplyr::left_join(
           dplyr::select(
             Projects.df,

@@ -43,7 +43,7 @@
 #' @examples
 #' \dontrun{
 #' # Example 1: Query by area of interest
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
+#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
 #'   dplyr::filter(NAME == "Navajo Nation")
 #' sites_aoi_sf <- TADA_listNWIS(aoi_sf = navajo_sf)
 #'
@@ -116,12 +116,12 @@ TADA_listNWIS <- function(
   pcodes <- function() {
     tables <- rvest::read_html(
       "https://help.waterdata.usgs.gov/parameter_cd?group_cd=%"
-    ) %>%
-      rvest::html_nodes("table") %>%
+    ) |>
+      rvest::html_nodes("table") |>
       rvest::html_table()
 
-    pcodes <- tables[[1]] %>%
-      janitor::clean_names() %>%
+    pcodes <- tables[[1]] |>
+      janitor::clean_names() |>
       dplyr::mutate(
         parm_cd = stringr::str_pad(as.character(parameter_code), 5, pad = "0")
       )
@@ -134,8 +134,8 @@ TADA_listNWIS <- function(
   nwis_table <- function() {
     site_url <- "https://maps.waterdata.usgs.gov/mapper/help/sitetype.html"
 
-    table <- rvest::read_html(site_url) %>%
-      rvest::html_nodes("table") %>%
+    table <- rvest::read_html(site_url) |>
+      rvest::html_nodes("table") |>
       rvest::html_table()
 
     nwis_table <- rbind(
@@ -144,7 +144,7 @@ TADA_listNWIS <- function(
       table[[3]],
       table[[4]],
       table[[5]]
-    ) %>%
+    ) |>
       dplyr::select(
         site_type_cd = 1,
         site_type = 2
@@ -158,11 +158,11 @@ TADA_listNWIS <- function(
   stats_table <- function() {
     site_url <- "https://help.waterdata.usgs.gov/stat_code"
 
-    table <- rvest::read_html(site_url) %>%
-      rvest::html_nodes("table") %>%
-      rvest::html_table() %>%
-      .[[1]] %>%
-      dplyr::mutate(stat_cd = sprintf("%05d", `Statistic Type Code`)) %>%
+    table <- rvest::read_html(site_url) |>
+      rvest::html_nodes("table") |>
+      rvest::html_table() |>
+      .[[1]] |>
+      dplyr::mutate(stat_cd = sprintf("%05d", `Statistic Type Code`)) |>
       dplyr::select(stat_cd, stat_type = `Statistic Type Description`)
 
     return(table)
@@ -173,7 +173,7 @@ TADA_listNWIS <- function(
     og_epsg <- sf::st_crs(aoi_sf)$epsg
 
     if (sf::st_crs(aoi_sf)$epsg != 4269) {
-      aoi_sf <- aoi_sf %>%
+      aoi_sf <- aoi_sf |>
         sf::st_transform(4269)
     }
 
@@ -185,7 +185,7 @@ TADA_listNWIS <- function(
       max_area_sq_miles <- 118078
 
       # Process each feature in the sf object
-      aoi_with_area <- aoi_sf %>%
+      aoi_with_area <- aoi_sf |>
         dplyr::mutate(
           bbox_area_sq_miles = purrr::map_dbl(1:dplyr::n(), function(i) {
             # Get bounding box
@@ -218,13 +218,13 @@ TADA_listNWIS <- function(
     suppressMessages({
       suppressWarnings({
         for (i in 1:nrow(aoi_sf)) {
-          bbox <- sf::st_bbox(aoi_sf[i, ]) %>%
-            as.vector() %>%
+          bbox <- sf::st_bbox(aoi_sf[i, ]) |>
+            as.vector() |>
             round(., digits = 7)
 
           gage_sites[[i]] <- tryCatch(
             {
-              dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv") %>%
+              dataRetrieval::whatNWISdata(bBox = c(bbox), service = "dv") |>
                 dplyr::mutate(dplyr::across(
                   -c(dec_long_va, dec_lat_va),
                   as.character
@@ -256,19 +256,19 @@ TADA_listNWIS <- function(
       return(empty_sf())
     }
 
-    gage_sites <- gage_sites %>%
+    gage_sites <- gage_sites |>
       sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269)
 
-    aoi_inventory <- gage_sites %>%
-      .[aoi_sf, ] %>%
-      dplyr::left_join(pcodes(), by = "parm_cd") %>%
+    aoi_inventory <- gage_sites |>
+      .[aoi_sf, ] |>
+      dplyr::left_join(pcodes(), by = "parm_cd") |>
       dplyr::left_join(
         .,
         nwis_table(),
         by = c("site_tp_cd" = "site_type_cd")
-      ) %>%
-      dplyr::left_join(., stats_table(), by = "stat_cd") %>%
-      dplyr::mutate(data_type = "Daily") %>%
+      ) |>
+      dplyr::left_join(., stats_table(), by = "stat_cd") |>
+      dplyr::mutate(data_type = "Daily") |>
       dplyr::select(
         site_no,
         site_name = station_nm,
@@ -283,7 +283,7 @@ TADA_listNWIS <- function(
         n_obs = count_nu,
         begin_date,
         end_date
-      ) %>%
+      ) |>
       # remove any dupes if they exist (precautionary - they shouldn't!)
       dplyr::distinct(., .keep_all = TRUE)
 
@@ -390,7 +390,7 @@ TADA_listNWIS <- function(
             {
               siteid[[i]] <- dataRetrieval::whatNWISsites(
                 stateCd = statecode[i]
-              ) %>%
+              ) |>
                 dplyr::mutate(dplyr::across(
                   -c(dec_long_va, dec_lat_va),
                   as.character
@@ -415,9 +415,9 @@ TADA_listNWIS <- function(
       })
     })
 
-    siteid <- siteid %>%
-      dplyr::bind_rows() %>%
-      dplyr::distinct() %>%
+    siteid <- siteid |>
+      dplyr::bind_rows() |>
+      dplyr::distinct() |>
       .$site_no
 
     # Check and split 'siteid' into chunks if necessary
@@ -443,7 +443,7 @@ TADA_listNWIS <- function(
             data <- dataRetrieval::whatNWISdata(
               siteNumber = site_chunks[[i]],
               service = "dv"
-            ) %>%
+            ) |>
               dplyr::mutate(dplyr::across(
                 -c(dec_long_va, dec_lat_va),
                 as.character
@@ -477,12 +477,12 @@ TADA_listNWIS <- function(
     return(empty_sf())
   }
 
-  inventory <- inventory %>%
-    sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269) %>%
-    dplyr::left_join(pcodes(), by = "parm_cd") %>%
-    dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) %>%
-    dplyr::left_join(., stats_table(), by = "stat_cd") %>%
-    dplyr::mutate(data_type = "Daily") %>%
+  inventory <- inventory |>
+    sf::st_as_sf(coords = c("dec_long_va", "dec_lat_va"), crs = 4269) |>
+    dplyr::left_join(pcodes(), by = "parm_cd") |>
+    dplyr::left_join(., nwis_table(), by = c("site_tp_cd" = "site_type_cd")) |>
+    dplyr::left_join(., stats_table(), by = "stat_cd") |>
+    dplyr::mutate(data_type = "Daily") |>
     dplyr::select(
       site_no,
       site_name = station_nm,
@@ -497,7 +497,7 @@ TADA_listNWIS <- function(
       n_obs = count_nu,
       begin_date,
       end_date
-    ) %>%
+    ) |>
     # Remove any duplicates if they exist (precautionary - they shouldn't!)
     dplyr::distinct(., .keep_all = TRUE)
 
@@ -540,7 +540,7 @@ TADA_listNWIS <- function(
 #' @examples
 #' \dontrun{
 #' # Example 1: Query by area of interest
-#' locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") %>%
+#' locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
 #'   dplyr::filter(NAME %in% c("Spokane", "Navajo Nation"))
 #' sites_aoi_sf <- TADA_getNWIS(
 #'   aoi_sf = locs_sf,
@@ -621,7 +621,7 @@ TADA_getNWIS <- function(
       max_area_sq_miles <- 118078
 
       # Process each feature in the sf object
-      aoi_with_area <- aoi_sf %>%
+      aoi_with_area <- aoi_sf |>
         dplyr::mutate(
           bbox_area_sq_miles = purrr::map_dbl(1:dplyr::n(), function(i) {
             # Get bounding box
@@ -654,8 +654,8 @@ TADA_getNWIS <- function(
     suppressMessages({
       suppressWarnings({
         for (i in 1:nrow(aoi_sf)) {
-          bbox <- sf::st_bbox(aoi_sf[i, ]) %>%
-            as.vector() %>%
+          bbox <- sf::st_bbox(aoi_sf[i, ]) |>
+            as.vector() |>
             round(., digits = 7)
 
           siteid[[i]] <- tryCatch(
@@ -667,7 +667,7 @@ TADA_getNWIS <- function(
                 endDate = end_date,
                 parameterCd = parameter_codes,
                 statCd = stat_codes
-              ) %>%
+              ) |>
                 dplyr::mutate(dplyr::across(
                   -c(dec_long_va, dec_lat_va),
                   as.character
@@ -777,7 +777,7 @@ TADA_getNWIS <- function(
                 endDate = end_date,
                 parameterCd = parameter_codes,
                 statCd = stat_codes
-              ) %>%
+              ) |>
                 dplyr::mutate(dplyr::across(
                   -c(dec_long_va, dec_lat_va),
                   as.character
@@ -802,8 +802,8 @@ TADA_getNWIS <- function(
       })
     })
 
-    list <- siteid %>%
-      dplyr::bind_rows() %>%
+    list <- siteid |>
+      dplyr::bind_rows() |>
       dplyr::distinct()
   } else if ((unlist(siteid)[1] != "null")) {
     list <- tibble::tibble(site_no = siteid)
@@ -851,9 +851,9 @@ TADA_getNWIS <- function(
               )
 
               if (nrow(data) > 0) {
-                data <- data %>%
-                  dataRetrieval::renameNWISColumns() %>%
-                  data.table::data.table() %>%
+                data <- data |>
+                  dataRetrieval::renameNWISColumns() |>
+                  data.table::data.table() |>
                   dplyr::mutate(dplyr::across(
                     dplyr::everything(),
                     as.character
@@ -909,19 +909,19 @@ TADA_getNWIS <- function(
     ))
   }
 
-  data <- full_data %>%
+  data <- full_data |>
     tidyr::pivot_longer(
       cols = -c(site_no, agency_cd, Date, dplyr::ends_with("_cd")), # Keep these columns fixed
       names_to = "NWIS.parameter",
       values_to = "NWIS.value"
-    ) %>%
+    ) |>
     dplyr::mutate(
       NWIS.parameter = ifelse(
         !grepl("_", NWIS.parameter),
         paste0(NWIS.parameter, "_mean"),
         NWIS.parameter
       )
-    ) %>%
+    ) |>
     dplyr::select(
       NWIS.site_no = site_no,
       NWIS.date = Date,
@@ -929,15 +929,15 @@ TADA_getNWIS <- function(
       NWIS.value
     )
 
-  status <- full_data %>%
+  status <- full_data |>
     tidyr::pivot_longer(
       cols = c(dplyr::ends_with("_cd"), -agency_cd), # Keep these columns fixed
       names_to = "NWIS.parameter",
       values_to = "NWIS.status"
-    ) %>%
+    ) |>
     dplyr::select(NWIS.status)
 
-  tidied <- dplyr::bind_cols(data, status) %>%
+  tidied <- dplyr::bind_cols(data, status) |>
     dplyr::filter(!is.na(NWIS.value))
 
   # Check if final data is empty after removing NA values
@@ -949,3 +949,169 @@ TADA_getNWIS <- function(
 
   return(tidied)
 }
+
+# # Tests for TADA_listNWIS
+# testthat::test_that("TADA_listNWIS returns correct structure when querying by siteid", {
+#   # Test with known site numbers
+#   site_nums <- c("11530500", "11532500")
+#   siteid_result <- TADA_listNWIS(siteid = site_nums)
+#
+#   # Check basic structure and content
+#   testthat::expect_s3_class(siteid_result, "sf")
+#   testthat::expect_true("site_no" %in% colnames(siteid_result))
+#   testthat::expect_true("parameter" %in% colnames(siteid_result))
+#   testthat::expect_true(all(siteid_result$site_no %in% site_nums))
+# })
+#
+# testthat::test_that("TADA_listNWIS returns empty sf with correct structure when no data found", {
+#   # Test with non-existent site
+#   nonexistent_site <- "99999999"
+#   result <- TADA_listNWIS(siteid = nonexistent_site)
+#
+#   # Check structure of empty return
+#   testthat::expect_s3_class(result, "sf")
+#   testthat::expect_equal(nrow(result), 0)
+#   expected_cols <- c(
+#     "site_no",
+#     "site_name",
+#     "site_type",
+#     "site_type_cd",
+#     "data_type",
+#     "data_type_cd",
+#     "parameter",
+#     "parameter_code",
+#     "n_obs",
+#     "begin_date",
+#     "end_date",
+#     "geometry"
+#   )
+#   testthat::expect_true(all(expected_cols %in% colnames(result)))
+# })
+#
+# testthat::test_that("TADA_listNWIS validates input parameters correctly", {
+#   # Test with multiple query types
+#   testthat::expect_error(
+#     TADA_listNWIS(siteid = c("11530500"), statecode = "CA"),
+#     "Multiple data-querying arguments"
+#   )
+#
+#   # Test with no query types
+#   testthat::expect_error(
+#     TADA_listNWIS(),
+#     "No data-querying argument"
+#   )
+#
+#   # Test invalid state code
+#   testthat::expect_error(
+#     TADA_listNWIS(statecode = "ZZ"),
+#     "Valid state abbreviation not provided"
+#   )
+# })
+#
+# testthat::test_that("TADA_listNWIS errors when aoi_sf is too large", {
+#   # Test big shapefiles (should error if larger than 118,078 square miles)
+#
+#   # Create an artificially large polygon (covering most of the US)
+#   large_bbox <- c(
+#     xmin = -125, # West coast
+#     ymin = 24, # Southern border
+#     xmax = -66, # East coast
+#     ymax = 49 # Northern border
+#   )
+#
+#   # Convert to bbox object, then to sfc
+#   large_poly <- sf::st_as_sfc(sf::st_bbox(large_bbox, crs = 4269))
+#   large_sf <- sf::st_sf(geometry = large_poly)
+#
+#   # Test with artificial large AOI
+#   testthat::expect_error(
+#     TADA_listNWIS(aoi_sf = large_sf),
+#     "At least one of your user-supplied features in 'aoi_sf' is too large"
+#   )
+#
+#   # Create a multi-feature sf object with one small and one large polygon
+#   small_bbox <- c(
+#     xmin = -77.1,
+#     ymin = 38.8,
+#     xmax = -76.9,
+#     ymax = 38.9
+#   )
+#
+#   small_poly <- sf::st_as_sfc(sf::st_bbox(small_bbox, crs = 4269))
+#
+#   combined_sf <- sf::st_sf(
+#     name = c("small", "large"),
+#     geometry = c(small_poly, large_poly)
+#   )
+#
+#   # Test with combined small+large features
+#   testthat::expect_error(
+#     TADA_listNWIS(aoi_sf = combined_sf),
+#     "At least one of your user-supplied features in 'aoi_sf' is too large"
+#   )
+# })
+#
+# # Tests for TADA_getNWIS
+# testthat::test_that("TADA_getNWIS returns correct structure with site query", {
+#   # Test with known site that has discharge data
+#   site_num <- "11530500"
+#   start_date <- "2020-01-01"
+#   end_date <- "2020-01-05"
+#
+#   result <- TADA_getNWIS(
+#     siteid = site_num,
+#     parameter_codes = "00060",
+#     start_date = start_date,
+#     end_date = end_date
+#   )
+#
+#   # Check structure and content
+#   testthat::expect_s3_class(result, "data.frame")
+#   testthat::expect_true(all(
+#     c(
+#       "NWIS.site_no",
+#       "NWIS.date",
+#       "NWIS.parameter",
+#       "NWIS.value",
+#       "NWIS.status"
+#     ) %in%
+#       colnames(result)
+#   ))
+#   testthat::expect_true(all(result$NWIS.site_no == site_num))
+#   testthat::expect_true(all(as.Date(result$NWIS.date) >= as.Date(start_date)))
+#   testthat::expect_true(all(as.Date(result$NWIS.date) <= as.Date(end_date)))
+# })
+#
+# testthat::test_that("TADA_getNWIS validates input parameters correctly", {
+#   # Test with multiple query types
+#   testthat::expect_error(
+#     TADA_getNWIS(
+#       siteid = "11530500",
+#       statecode = "CA",
+#       parameter_codes = "00060",
+#       start_date = "2020-01-01",
+#       end_date = "2020-01-05"
+#     ),
+#     "Multiple data-querying arguments"
+#   )
+#
+#   # Test with no query types
+#   testthat::expect_error(
+#     TADA_getNWIS(
+#       parameter_codes = "00060",
+#       start_date = "2020-01-01",
+#       end_date = "2020-01-05"
+#     ),
+#     "No data-querying argument"
+#   )
+#
+#   # Test with missing required parameters
+#   testthat::expect_error(
+#     TADA_getNWIS(
+#       siteid = "11530500",
+#       start_date = "2020-01-01",
+#       end_date = "2020-01-05"
+#     )
+#   )
+# })
+#

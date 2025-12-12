@@ -1,19 +1,3 @@
-#' Pipe Operator
-#'
-#' The pipe operator (`%>%`) is a powerful tool for chaining operations in a readable and concise manner.
-#' For detailed information, refer to magrittr:pipe()
-#'
-#' @name %>%
-#' @rdname pipe
-#' @keywords internal
-#' @importFrom magrittr %>%
-#' @export
-#' @param lhs A value or the magrittr placeholder, representing the initial input to the pipeline.
-#' @param rhs A function call or expression that operates on `lhs`, using magrittr semantics.
-#' @return The result of evaluating `rhs(lhs)`, enabling seamless chaining of operations.
-#'
-NULL
-
 #' Silence Print Messages from Code Execution
 #'
 #' This utility function executes the provided code while suppressing any print messages.
@@ -451,7 +435,8 @@ utils::globalVariables(c(
   "Characteristic",
   "WQXcharValRef",
   "CAS.Number",
-  "CAS_NO CharacteristicName.x",
+  "CAS_NO",
+  "CharacteristicName.x",
   "CharacteristicName.y",
   "Comparable.Name.x",
   "Comparable.Name.y",
@@ -461,7 +446,8 @@ utils::globalVariables(c(
   "STD_POLLUTANT_NAME.y",
   "percent_match_ATTAINS_CST",
   "percent_match_ATTAINS_WQX",
-  "percent_match_CST"
+  "percent_match_CST",
+  "UserRef.AssessmentUnitIdentifier"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -630,7 +616,7 @@ TADA_ConvertSpecialChars <- function(
     # Create dummy columns for easy handling in function
     chars.data <- .data
     names(chars.data)[names(chars.data) == col] <- "orig"
-    chars.data <- chars.data %>%
+    chars.data <- chars.data |>
       dplyr::select(-tidyselect::any_of(c(col, numcol, flagcol)))
     chars.data$masked <- chars.data$orig
 
@@ -661,7 +647,7 @@ TADA_ConvertSpecialChars <- function(
 
     # If column is already numeric, just discern between NA and numeric
     if (is.numeric(chars.data$orig)) {
-      clean.data <- chars.data %>%
+      clean.data <- chars.data |>
         dplyr::mutate(
           flag = dplyr::case_when(
             is.na(masked) ~ as.character("NA - Not Available"),
@@ -672,7 +658,7 @@ TADA_ConvertSpecialChars <- function(
       chars.data$masked <- gsub(" ", "", chars.data$masked) # get rid of white space for subsequent sorting
       # Detect special characters in column and populate new flag column with descriptor
       # of the specific type of character/data type
-      clean.data <- chars.data %>%
+      clean.data <- chars.data |>
         dplyr::mutate(
           flag = dplyr::case_when(
             is.na(masked) ~ as.character("NA - Not Available"),
@@ -728,25 +714,25 @@ TADA_ConvertSpecialChars <- function(
     if (any(clean.data$flag %in% num.range.filter)) {
       numrange <- subset(clean.data, clean.data$flag %in% num.range.filter)
       notnumrange <- subset(clean.data, !clean.data$flag %in% num.range.filter)
-      numrange <- numrange %>%
+      numrange <- numrange |>
         dplyr::mutate(
           masked = stringr::str_remove(masked, "[1-9]\\)"),
           masked = stringr::str_remove(masked, "%"),
           masked = stringr::str_remove(masked, ">"),
           masked = stringr::str_remove(masked, "<")
-        ) %>%
+        ) |>
         tidyr::separate(
           masked,
           into = c("num1", "num2"),
           sep = "-",
           remove = TRUE
-        ) %>%
+        ) |>
         dplyr::mutate_at(c("num1", "num2"), as.numeric)
       numrange$masked <- as.character(rowMeans(
         numrange[, c("num1", "num2")],
         na.rm = TRUE
       ))
-      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] %>%
+      numrange <- numrange[, !names(numrange) %in% c("num1", "num2")] |>
         dplyr::mutate(
           masked = ifelse(
             flag == "Percentage Range - Average",
@@ -781,7 +767,7 @@ TADA_ConvertSpecialChars <- function(
     )
 
     # remove columns to be replaced
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::select(
         !(tidyselect::any_of(numcol)),
         !(tidyselect::any_of(flagcol))
@@ -807,7 +793,7 @@ TADA_ConvertSpecialChars <- function(
     )
 
     # remove columns to be replaced
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::select(
         !(tidyselect::any_of(numcol)),
         !(tidyselect::any_of(flagcol))
@@ -823,7 +809,7 @@ TADA_ConvertSpecialChars <- function(
 
   if (flaggedonly == FALSE) {
     if (clean == TRUE) {
-      clean.data <- clean.data %>%
+      clean.data <- clean.data |>
         dplyr::filter(
           !(!!rlang::sym(flagcol)) %in%
             c(
@@ -844,7 +830,7 @@ TADA_ConvertSpecialChars <- function(
   }
 
   if (flaggedonly == TRUE) {
-    clean.data <- clean.data %>%
+    clean.data <- clean.data |>
       dplyr::filter(
         !!rlang::sym(flagcol) %in%
           c(
@@ -932,11 +918,11 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     "extdata",
     "WQXCharacteristicRef.csv",
     package = "EPATADA"
-  )) %>%
+  )) |>
     dplyr::filter(
       Char_Flag == "Deprecated",
       grepl("retired", CharacteristicName)
-    ) %>%
+    ) |>
     dplyr::mutate(
       CharacteristicName = trimws(stringr::str_split(
         CharacteristicName,
@@ -951,8 +937,8 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     "extdata",
     "WQXCharacteristicRef.csv",
     package = "EPATADA"
-  )) %>%
-    dplyr::filter(Char_Flag == "Deprecated") %>%
+  )) |>
+    dplyr::filter(Char_Flag == "Deprecated") |>
     rbind(nwis.table)
 
   rm(nwis.table)
@@ -981,7 +967,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     print("No deprecated characteristic names found in dataset.")
   }
 
-  .data <- .data %>% dplyr::select(-Char_Flag, -Comparable.Name)
+  .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
@@ -1343,7 +1329,7 @@ writeLayer <- function(url, layerfilepath) {
   # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer %>%
+    layer <- layer |>
       dplyr::rename(
         TAREA_MI = TOTALAREA_MI,
         TAREA_KM = TOTALAREA_KM
@@ -1445,8 +1431,8 @@ getPopup <- function(layer, layername) {
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>%
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the American Indian Reservations feature layer to the map
 #' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
@@ -1511,8 +1497,8 @@ TADA_addPolys <- function(
 #' @examples
 #' \dontrun{
 #' # Create a leaflet map
-#' lmap <- leaflet::leaflet() %>%
-#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
 #' # Add the Virginia Federally Recognized Tribes feature layer to the map
 #' lmap <- TADA_addPoints(
@@ -1603,34 +1589,34 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   }
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.ResultMeasure.MeasureUnitCode) in TADA data frame
-  data.units.result <- .data %>%
+  data.units.result <- .data |>
     dplyr::select(
       TADA.CharacteristicName,
       TADA.ResultMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode,
       TADA.MethodSpeciationName
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # Create df of unique codes and characteristic names(from TADA.CharacteristicName and TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) in TADA data frame
-  data.units.det <- .data %>%
+  data.units.det <- .data |>
     dplyr::select(
       TADA.CharacteristicName,
       TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       DetectionQuantitationLimitMeasure.MeasureUnitCode,
       TADA.MethodSpeciationName
-    ) %>%
+    ) |>
     dplyr::filter(
       !is.na(TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
-    ) %>%
-    dplyr::distinct() %>%
+    ) |>
+    dplyr::distinct() |>
     dplyr::rename(
       TADA.ResultMeasure.MeasureUnitCode = TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,
       ResultMeasure.MeasureUnitCode = DetectionQuantitationLimitMeasure.MeasureUnitCode
     )
 
   # Create combined df with all unique codes (both result and det units) and characteristic names
-  data.units <- data.units.result %>%
+  data.units <- data.units.result |>
     dplyr::full_join(
       data.units.det,
       by = c(
@@ -1639,8 +1625,8 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
         "ResultMeasure.MeasureUnitCode",
         "TADA.MethodSpeciationName"
       )
-    ) %>%
-    dplyr::distinct() %>%
+    ) |>
+    dplyr::distinct() |>
     dplyr::group_by(TADA.CharacteristicName)
 
   return(data.units)
@@ -1890,7 +1876,7 @@ TADA_TableExport <- function(.data = NULL) {
       # fixedColumns = list(leftColumns = 1
     ),
     class = "display"
-  ) %>%
+  ) |>
     DT::formatStyle(columns = colnames(.data), "fontSize" = "80%")
 
   return(data)
@@ -2077,8 +2063,8 @@ checkColName <- function(.data, partial.string = NULL) {
   }
 
   if (any(stringr::str_detect(names(.data), partial.string)) != FALSE) {
-    select.col <- .data %>%
-      dplyr::select(dplyr::contains(partial.string)) %>%
+    select.col <- .data |>
+      dplyr::select(dplyr::contains(partial.string)) |>
       names()
 
     if (length(select.col) > 1) {
@@ -2118,7 +2104,7 @@ checkColName <- function(.data, partial.string = NULL) {
 #' formatted ATTAINS column names.
 #'
 renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
-  # list of TADA formatted column names
+  # List of TADA formatted column names
   attains.tada <- c(
     "ATTAINS.OrganizationIdentifier",
     "ATTAINS.SubmissionId",
@@ -2152,7 +2138,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.CatchmentAreaSqkm",
     "ATTAINS.CatchmentStateCode",
     "ATTAINS.CatchmentResolution",
-    "ATTAINS.WaterType",
     "ATTAINS.ShapeArea",
     "ATTAINS.CulturalUse",
     "ATTAINS.DrinkingWaterUse",
@@ -2196,14 +2181,14 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "ATTAINS.Turbidity",
     "ATTAINS.CycleStatus",
     "ATTAINS.OrigFid",
-    "ATTAINS.WaterType",
     "ATTAINS.XwalkMethod",
     "ATTAINS.XwalkHuc12Version",
     "ATTAINS.Chlorine",
-    "ATTAINS.Biotoxins"
+    "ATTAINS.Biotoxins",
+    "ATTAINS.WaterType"
   )
 
-  # list of original ATTAINS column names
+  # List of original ATTAINS column names
   attains.orig <- c(
     "organizationid",
     "submissionid",
@@ -2237,7 +2222,6 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "catchmentareasqkm",
     "catchmentstatecode",
     "catchmentresolution",
-    "waterTypeCode",
     "Shape_Area",
     "cultural_use",
     "drinkingwater_use",
@@ -2281,50 +2265,89 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
     "turbidity",
     "cyclestatus",
     "orig_fid",
-    "waterType",
     "xwalk_method",
     "xwalk_huc12_version",
     "chlorine",
-    "biotoxins"
+    "biotoxins",
+    "waterType"
   )
 
-  # if return list equals TRUE, return the list of tada formatted column names
+  # If return_list equals TRUE, return the list of TADA formatted column names
   if (return_list == TRUE & format == "tada") {
+    attains.tada <- unique(attains.tada)
+
     return(attains.tada)
   }
 
-  # if return list equals TRUE, return the list of attains formatted column names
+  # If return_list equals TRUE, return the list of ATTAINS formatted column names
   if (return_list == TRUE & format == "attains") {
+    attains.orig <- unique(attains.orig)
     return(attains.orig)
   }
 
-  # if return equals FALSE, proceed with renaming columns
+  # If return_list equals FALSE, proceed with renaming columns
   if (return_list == FALSE) {
-    # assign old and new name vectors based on format selected by user
-    old.names <- dplyr::case_when(
-      format == "tada" ~ attains.orig,
-      format == "attains" ~ attains.tada
+    # Determine which water type column exists and adjust the lists accordingly
+    if ("waterTypeCode" %in% names(.data)) {
+      attains.orig <- gsub("waterType", "waterTypeCode", attains.orig)
+    }
+
+    # Assign old and new name vectors based on format selected by user
+    old.names <- if (format == "tada") attains.orig else attains.tada
+    new.names <- if (format == "tada") attains.tada else attains.orig
+
+    # Rename columns
+    data.table::setnames(
+      .data,
+      old = old.names,
+      new = new.names,
+      skip_absent = TRUE
     )
 
-    new.names <- dplyr::case_when(
-      format == "tada" ~ attains.tada,
-      format == "attains" ~ attains.orig
-    )
-
-    .data
-
-    view <-
-      data.table::setnames(
-        .data,
-        old = old.names,
-        new = new.names,
-        skip_absent = TRUE
-      )
-
-    # remove intermediate objects
+    # Remove intermediate objects
     rm(attains.tada, attains.orig, old.names, new.names)
 
-    # return data frame with changed column names
+    # Return data frame with changed column names
     return(.data)
   }
+}
+
+#' correctColType (UNDER ACTIVE DEVELOPMENT)
+#'
+#' This function corrects the column data types for TADA, ATTAINS and User Ref data to
+#' ensure all TADA functions can function correctly.
+#'
+#' @param .data A data frame containing columns required for TADA functions.
+#'
+#' @return A data frame with correct column data types to use TADA functions.
+#'
+# coerce column types based TADA ref file
+correctColType <- function(.data) {
+  # read in ref csv
+  coltype.ref <- utils::read.csv(system.file(
+    "extdata",
+    "TADAColTypeRef.csv",
+    package = "EPATADA"
+  ))
+
+  # Iterate over each row in the type specification
+  for (i in 1:nrow(coltype.ref)) {
+    col.name <- coltype.ref$column_name[i]
+    col.type <- coltype.ref$column_type[i]
+
+    # check to see if each col.name is in .data
+    if (col.name %in% names(.data)) {
+      # coerce to correct type
+      .data[[col.name]] <- switch(
+        col.type,
+        "character" = as.character(.data[[col.name]]),
+        "numeric" = as.numeric(.data[[col.name]]),
+        "integer" = as.integer(.data[[col.name]]),
+        "logical" = as.logical(.data[[col.name]]),
+        "factor" = as.factor(.data[[col.name]])
+      )
+    }
+  }
+
+  return(.data)
 }

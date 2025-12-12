@@ -10,7 +10,7 @@ ATTAINSParamToWQPCharRef_Cached <- NULL
 #' so subsequent calls will be faster.
 #'
 #' @param charAliasType A string value to indicate the WQX data source to use
-#' for finding an ATTAINS parameter name to WQX characteritic name alias.
+#' for finding an ATTAINS parameter name to WQX characteristic name alias.
 #' An alias may have been determined from another data source outside of ATTAINS
 #' which has an exact spelling to an ATTAINS parameter name that could be used
 #' for finding a match.
@@ -264,12 +264,16 @@ TADA_AdditionalCharAliasForReview <- function(
   rm(ATTAINSParamRef, ATTAINS.raw)
 
   # Extracts all words from each CST Pollutant Name
-  CST <- utils::read.csv(system.file(
+  CriteriaSearchToolRef <- system.file(
     "extdata",
-    "CriteriaSearchToolRef.csv",
+    "CriteriaSearchToolRef.rda",
     package = "EPATADA"
-  ))
+  )
+  load(CriteriaSearchToolRef)
+  CST <- CriteriaSearchToolRef
   CST <- CST |>
+    dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
+    dplyr::distinct() |>
     dplyr::mutate(CAS_NO = as.character(CAS_NO))
 
   CST2 <- CST |>
@@ -513,8 +517,9 @@ TADA_GetATTAINSOrgIDsRef <- function() {
 
   # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
-    message("Downloading latest ATTAINS Organization Reference Table failed!")
-    message("Falling back to (possibly outdated) internal file.")
+    message(
+      "TADA_UpdateATTAINSOrgIDsRef: Downloading latest ATTAINS Organization ID domain options failed! Falling back to (possibly outdated) internal file."
+    )
     return(utils::read.csv(system.file(
       "extdata",
       "ATTAINSOrgIDsRef.csv",
@@ -522,7 +527,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
     )))
   }
 
-  ATTAINSOrgIDsRef <- raw.data %>%
+  ATTAINSOrgIDsRef <- raw.data |>
     dplyr::distinct()
 
   # Save updated table in cache
@@ -549,8 +554,8 @@ ATTAINSParamUseOrgRef_Cached <- NULL
 #' Function downloads and returns the newest available ATTAINS domain values
 #' reference dataframe which includes all parameters and uses
 #' listed as a cause by ATTAINS organizations in previous assessments.
-#' This dataframe is used in TADA_CreateParamRef() and
-#' TADA_CreateUseParamRef() as the basis for pulling in prior ATTAINS
+#' This dataframe is used in TADA_ParametersForAnalysis() and
+#' TADA_UsesForAnalysis() as the basis for pulling in prior ATTAINS
 #' parameter names and use names by organization name. This helps to filter
 #' selections in the Excel drop down menu.
 #'
@@ -582,14 +587,14 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
   # considers only the latest cycle form each org, you could skip this step
   # and use params from all assessment cycles - What is preferred?
 
-  latest.assessments <- nat.assessments %>%
-    dplyr::group_by(organizationId) %>%
-    # dplyr::slice_max(reportingCycle) %>%
-    dplyr::select(-objectId) %>%
-    dplyr::distinct() %>%
+  latest.assessments <- nat.assessments |>
+    dplyr::group_by(organizationId) |>
+    # dplyr::slice_max(reportingCycle) |>
+    dplyr::select(-objectId) |>
+    dplyr::distinct() |>
     dplyr::ungroup()
 
-  latest.params <- latest.assessments %>%
+  latest.params <- latest.assessments |>
     dplyr::select(
       organizationId,
       organizationName,
@@ -597,7 +602,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       parameterName,
       useName,
       waterType
-    ) %>%
+    ) |>
     dplyr::rename(
       ATTAINS.OrganizationIdentifier = organizationId,
       ATTAINS.OrganizationName = organizationName,
@@ -605,7 +610,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       ATTAINS.ParameterName = parameterName,
       ATTAINS.UseName = useName,
       ATTAINS.WaterType = waterType
-    ) %>%
+    ) |>
     dplyr::distinct()
 
   # remove intermediate variables

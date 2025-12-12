@@ -2,7 +2,7 @@ test_that("SuspectCoordinates works", {
   # flagonly
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
   unique(SuspectCoord_flags$TADA.SuspectCoordinates)
-  reviewselectcolumns <- SuspectCoord_flags %>%
+  reviewselectcolumns <- SuspectCoord_flags |>
     dplyr::select(
       TADA.SuspectCoordinates.Flag,
       TADA.LatitudeMeasure,
@@ -51,7 +51,7 @@ test_that("SuspectCoordinates works", {
 test_that("Imprecise_lessthan3decimaldigits works", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>%
+  FLAGSONLY <- FLAGSONLY |>
     dplyr::select(
       TADA.SuspectCoordinates.Flag,
       TADA.LatitudeMeasure,
@@ -64,7 +64,7 @@ test_that("Imprecise_lessthan3decimaldigits works", {
   FLAGSONLY <- dplyr::filter(
     FLAGSONLY,
     sapply(FLAGSONLY$TADA.LongitudeMeasure, TADA_DecimalPlaces) < 3
-  ) %>%
+  ) |>
     dplyr::distinct()
 
   expect_true(all(
@@ -75,7 +75,7 @@ test_that("Imprecise_lessthan3decimaldigits works", {
 test_that("Imprecise_lessthan3decimaldigits works again", {
   # flagonly
   FLAGSONLY <- TADA_FlagCoordinates(Data_Nutrients_UT)
-  FLAGSONLY <- FLAGSONLY %>%
+  FLAGSONLY <- FLAGSONLY |>
     dplyr::select(
       TADA.SuspectCoordinates.Flag,
       TADA.LatitudeMeasure,
@@ -88,7 +88,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   FLAGSONLY <- dplyr::filter(
     FLAGSONLY,
     sapply(FLAGSONLY$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3
-  ) %>%
+  ) |>
     dplyr::distinct()
 
   expect_true(all(
@@ -147,23 +147,23 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
   expect_true(dim(testdat)[1] == dim(testdat2)[1])
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
-  testdat1 <- testdat %>%
-    dplyr::select(TADA.NearbySiteGroup) %>%
-    dplyr::distinct() %>%
-    dplyr::pull() %>%
-    as.numeric() %>%
+  testdat1 <- testdat |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::distinct() |>
+    dplyr::pull() |>
+    as.numeric() |>
     sort()
 
-  testdat2 <- testdat %>%
-    dplyr::select(TADA.MultipleOrgDupGroupID) %>%
-    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") %>%
-    unique() %>%
-    dplyr::pull() %>%
-    as.numeric() %>%
+  testdat2 <- testdat |>
+    dplyr::select(TADA.MultipleOrgDupGroupID) |>
+    dplyr::filter(TADA.MultipleOrgDupGroupID != "Not a duplicate") |>
+    unique() |>
+    dplyr::pull() |>
+    as.numeric() |>
     sort()
 
   expect_true(length(unique(diff(testdat1))) < 2 | length(testdat1 == 0))
@@ -192,13 +192,13 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
     Status == "Accepted"
   )
 
-  find.dups <- unit.ref %>%
-    dplyr::filter(Type == "CharacteristicUnit") %>%
-    dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+  find.dups <- unit.ref |>
+    dplyr::filter(Type == "CharacteristicUnit") |>
+    dplyr::group_by(Characteristic, Source, Value.Unit) |>
     dplyr::mutate(
       Min_n = length(unique(Minimum)),
       Max_n = length(unique(Maximum))
-    ) %>%
+    ) |>
     dplyr::filter(
       Min_n > 1 |
         Max_n > 1
@@ -230,13 +230,13 @@ test_that("range flag functions work", {
 
 
 test_that("QC results are not flagged as Continuous", {
-  cont_QC <- TADA_RandomTestingData(choose_random_state = TRUE) %>%
+  cont_QC <- TADA_RandomTestingData(choose_random_state = TRUE) |>
     TADA_FlagContinuousData()
 
-  cont_QC_filt <- cont_QC %>%
+  cont_QC_filt <- cont_QC |>
     dplyr::filter(TADA.ContinuousData.Flag == "Continuous")
 
-  cont_QC_disc <- cont_QC %>%
+  cont_QC_disc <- cont_QC |>
     dplyr::filter(TADA.ContinuousData.Flag == "Discrete")
 
   if (nrow(cont_QC_filt) > 0) {

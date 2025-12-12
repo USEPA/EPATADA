@@ -71,10 +71,28 @@
   # CriteriaRefTables.R
   tryCatch(
     {
-      TADA_UpdateEPACSTRef()
+      TADA_UpdateCriteriaSearchToolRef()
     },
     error = function(e) {
       message("Error updating EPA CST reference: ", e$message)
+    }
+  )
+  # Legend for CriteriaRefTables.R
+  tryCatch(
+    {
+      TADA_UpdateLegendCSTRef()
+    },
+    error = function(e) {
+      message("Error updating Legend for EPA CST reference: ", e$message)
+    }
+  )
+  # Sources for CriteriaRefTables.R
+  tryCatch(
+    {
+      TADA_UpdateSourcesCSTRef()
+    },
+    error = function(e) {
+      message("Error updating Sources for EPA CST reference: ", e$message)
     }
   )
 
@@ -167,19 +185,19 @@
       harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
       rm(Data_6Tribes_5y)
 
-      harmonized_data <- harmonized_data %>%
-        TADA_FlagMethod(clean = TRUE) %>%
-        TADA_FlagAboveThreshold(clean = TRUE) %>%
-        TADA_FlagBelowThreshold(clean = TRUE) %>%
-        TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100) %>%
-        TADA_FindPotentialDuplicatesSingleOrg() %>%
-        dplyr::filter(!(MeasureQualifierCode %in% c("D", "H", "ICA", "*"))) %>%
+      harmonized_data <- harmonized_data |>
+        TADA_FlagMethod(clean = TRUE) |>
+        TADA_FlagAboveThreshold(clean = TRUE) |>
+        TADA_FlagBelowThreshold(clean = TRUE) |>
+        TADA_FindPotentialDuplicatesMultipleOrgs(dist_buffer = 100) |>
+        TADA_FindPotentialDuplicatesSingleOrg() |>
+        dplyr::filter(!(MeasureQualifierCode %in% c("D", "H", "ICA", "*"))) |>
         TADA_SimpleCensoredMethods(
           nd_method = "multiplier",
           nd_multiplier = 0.5,
           od_method = "as-is",
           od_multiplier = "null"
-        ) %>%
+        ) |>
         dplyr::filter(
           TADA.ResultMeasureValueDataTypes.Flag != "Text" &
             TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
@@ -298,9 +316,9 @@
         characteristicName = c("Escherichia", "Escherichia coli", "pH"),
         countycode = "Missoula County",
         ask = FALSE
-      ) %>%
-        TADA_RunKeyFlagFunctions() %>%
-        TADA_SimpleCensoredMethods() %>%
+      ) |>
+        TADA_RunKeyFlagFunctions() |>
+        TADA_SimpleCensoredMethods() |>
         TADA_HarmonizeSynonyms()
 
       message("Data_MT_MissoulaCounty")
@@ -324,12 +342,12 @@
       )
 
       # Create a user-supplied crosswalk for demonstration purposes
-      user_supplied_cw <- clean.existing.attains.MT %>%
+      user_supplied_cw <- clean.existing.attains.MT |>
         dplyr::select(
           ATTAINS.AssessmentUnitIdentifier,
           ATTAINS.MonitoringLocationIdentifier,
           ATTAINS.WaterType
-        ) %>%
+        ) |>
         dplyr::filter(
           ATTAINS.MonitoringLocationIdentifier %in%
             c(
@@ -339,12 +357,12 @@
               "MDEQ_WQ_WQX-C04KNDYC04",
               "MDEQ_WQ_WQX-C04KNDYC54"
             )
-        ) %>%
+        ) |>
         dplyr::rename(
           AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
           MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
           WaterType = ATTAINS.WaterType
-        ) %>%
+        ) |>
         # Add a new assessment unit for demonstration
         dplyr::bind_rows(c(
           AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
@@ -364,8 +382,6 @@
 
       Data_MT_AUMLRef <- MT_AUMLRef
 
-      rm(MT_AUMLRef)
-
       message("Data_MT_AUMLRef")
       message(dim(Data_MT_AUMLRef))
       usethis::use_data(
@@ -378,17 +394,38 @@
       )
 
       # =======================================
-      # Generate Data_MT_UseAURef
+      # Generate Data_MT_AU_UsesRef
       # =======================================
-      Data_MT_UseAURef <- TADA_CreateUseAURef(
-        AUMLRef = Data_MT_AUMLRef,
+      Data_MT_AU_UsesRef <- TADA_AssignUsesToAU(
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
 
-      message("Data_MT_UseAURef")
-      message(dim(Data_MT_UseAURef))
+      message("Data_MT_AU_UsesRef")
+      message(dim(Data_MT_AU_UsesRef))
       usethis::use_data(
-        Data_MT_UseAURef,
+        Data_MT_AU_UsesRef,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
+
+      # =======================================
+      # Generate Data_MT_AU_UsesRef_Water
+      # =======================================
+      Data_MT_AU_UsesRef_Water <- TADA_AssignUsesToAU(
+        waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
+        AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
+        org_id = "MTDEQ"
+      )
+
+      message("Data_MT_AU_UsesRef_Water")
+      message(dim(Data_MT_AU_UsesRef_Water))
+
+      usethis::use_data(
+        Data_MT_AU_UsesRef_Water,
         internal = FALSE,
         overwrite = TRUE,
         compress = "xz",
@@ -401,28 +438,6 @@
         user_supplied_cw,
         MT_AUMLRef
       )
-
-      # =======================================
-      # Generate Data_MT.UseAURef_Water
-      # =======================================
-      Data_MT_UseAURef_Water <- TADA_CreateUseAURef(
-        waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
-        AUMLRef = Data_MT_AUMLRef,
-        org_id = "MTDEQ"
-      )
-
-      message("Data_MT_UseAURef_Water")
-      message(dim(Data_MT_UseAURef_Water))
-
-      usethis::use_data(
-        Data_MT_UseAURef_Water,
-        internal = FALSE,
-        overwrite = TRUE,
-        compress = "xz",
-        version = 3,
-        ascii = FALSE
-      )
-      rm(Data_MT_UseAURef_Water)
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)

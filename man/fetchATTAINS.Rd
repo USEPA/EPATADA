@@ -4,13 +4,23 @@
 \alias{fetchATTAINS}
 \title{fetchATTAINS}
 \usage{
-fetchATTAINS(.data, catchments_only = FALSE)
+fetchATTAINS(.data, catchments_only = FALSE, org_id = "all")
 }
 \arguments{
 \item{.data}{A dataframe developed using \code{TADA_DataRetrieval()} or \code{TADA_MakeSpatial()}.}
 
 \item{catchments_only}{Whether to return just the summarized ATTAINS catchment features, or both
 the catchments and raw ATTAINS features. TRUE or FALSE.}
+
+\item{org_id}{ATTAINS organization identifier(s) as a character string.
+If populated, Assessment Units  will only be fetched from the specified
+organization(s). A list of organization identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param. When
+org_id = "all", Assessment Units from all organizations will be considered.
+The default is "all".}
 }
 \value{
 Spatial features (ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and

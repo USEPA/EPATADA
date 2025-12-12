@@ -40,12 +40,12 @@ FindSynonyms <- function() {
 # Run the code below:
 # extract urls function
 extract_urls <- function(text) {
-  stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") %>% unlist()
+  stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") |> unlist()
 }
 
 # clean urls function
 clean_url <- function(url) {
-  stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") %>%
+  stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") |>
     stringr::str_remove_all("[<>]")
 }
 
@@ -75,16 +75,16 @@ r_files <- list.files(
 )
 
 # combine file lists
-files <- append(other_files, vignettes) %>%
-  append(articles) %>%
+files <- append(other_files, vignettes) |>
+  append(articles) |>
   append(r_files)
 
 # create list of urls
-urls <- purrr::map(files, ~ readLines(.x)) %>%
-  unlist() %>%
-  extract_urls() %>%
-  clean_url() %>%
-  unique() %>%
+urls <- purrr::map(files, ~ readLines(.x)) |>
+  unlist() |>
+  extract_urls() |>
+  clean_url() |>
+  unique() |>
   # problematic URL I can't get a response from using multiple methods (itec) and CRAN because its response is inconsistent, likely due to redirecting to mirrors (HRM 10/28/2024)
   setdiff(c(
     # url works (HRM 11/7/24), but does not provide a recognizable response code
@@ -97,7 +97,7 @@ urls <- purrr::map(files, ~ readLines(.x)) %>%
   ))
 
 # retrieve http response headers from url list
-headers <- urls %>%
+headers <- urls |>
   purrr::map(~ tryCatch(curlGetHeaders(.x), error = function(e) NA))
 
 # extract response code from first line of header response
@@ -107,7 +107,7 @@ response_code <- sapply(headers, "[[", 1)
 df <- data.frame(urls, response_code)
 
 # filter for any response codes that are not successful or redirect responses
-df_false <- df %>%
+df_false <- df |>
   dplyr::filter(
     !grepl("200", response_code) &
       !grepl("301", response_code) &
@@ -135,13 +135,13 @@ unit.ref <- dplyr::filter(
 )
 
 # find Characteristic/Source/Value.Unit combinations with more than one row
-find.dups <- unit.ref %>%
-  dplyr::filter(Type == "CharacteristicUnit") %>%
-  dplyr::group_by(Characteristic, Source, Value.Unit) %>%
+find.dups <- unit.ref |>
+  dplyr::filter(Type == "CharacteristicUnit") |>
+  dplyr::group_by(Characteristic, Source, Value.Unit) |>
   dplyr::mutate(
     Min_n = length(unique(Minimum)),
     Max_n = length(unique(Maximum))
-  ) %>%
+  ) |>
   dplyr::filter(
     Min_n > 1 |
       Max_n > 1
@@ -212,8 +212,8 @@ TADA_OvernightTesting <- function() {
     # print(unique(testing2$MeasureQualifierCode))
 
     # load in ResultMeasureQualifier Flag Table
-    qc.ref <- TADA_GetMeasureQualifierCodeRef() %>%
-      dplyr::rename(MeasureQualifierCode = Code) %>%
+    qc.ref <- TADA_GetMeasureQualifierCodeRef() |>
+      dplyr::rename(MeasureQualifierCode = Code) |>
       dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag)
 
     codes <- unique(testing2$MeasureQualifierCode)
@@ -236,7 +236,7 @@ TADA_OvernightTesting <- function() {
     View(master_missing_codes_df)
   }
 
-  master_missing_codes_distinct <- master_missing_codes_df %>% dplyr::distinct()
+  master_missing_codes_distinct <- master_missing_codes_df |> dplyr::distinct()
 
   View(master_missing_codes_distinct)
 

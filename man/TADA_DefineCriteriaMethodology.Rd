@@ -6,15 +6,15 @@
 \usage{
 TADA_DefineCriteriaMethodology(
   .data,
-  MLSummaryRef = NULL,
   org_id = NULL,
+  MLSummaryRef = NULL,
   criteriaMethods = NULL,
   auto_assign = FALSE,
   AUMLRef = NULL,
-  useAURef = NULL,
+  AU_UsesRef = NULL,
   epa304a = FALSE,
   displayUniqueId = FALSE,
-  excel = TRUE,
+  excel = FALSE,
   overwrite = FALSE
 )
 }
@@ -22,11 +22,6 @@ TADA_DefineCriteriaMethodology(
 \item{.data}{A TADA dataframe. The user should run all desired data cleaning,
 processing, harmonization, filtering, and handling of censored data functions
 prior to running this function.}
-
-\item{MLSummaryRef}{An optional data frame which contains the completed spatial
-crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit. For any unique groupings of sites, this
-input is recommended.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
@@ -38,6 +33,11 @@ should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.}
 
+\item{MLSummaryRef}{An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit. For any unique groupings of sites, this
+input is recommended.}
+
 \item{criteriaMethods}{An optional data frame which contains the completed
 criteria and methodology table. This will be a user supplied table and any
 inputs in this table will be prioritized. Additional rows for any parameter(s)
@@ -47,8 +47,8 @@ filled out accordingly.}
 
 \item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
-generated using default function inputs for \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
-\link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef}. .data and org_id are
+generated using default function inputs for \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
+\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}. .data and org_id are
 required inputs for this function if auto_assign = TRUE. It is also
 recommended to set excel = TRUE when auto_assign = TRUE. The criteria
 and methodology template should be reviewed carefully and edits can be
@@ -63,7 +63,7 @@ associated with each ATTAINS Assessment Unit. Users will need to ensure
 this crosswalk contains the appropriate column names in order to run this function.
 See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
 
-\item{useAURef}{An optional data frame input. If provided, this data frame
+\item{AU_UsesRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with each assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
@@ -97,8 +97,8 @@ criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended).It is recommended to run
-these three TADA helper functions, \code{\link[=TADA_CreateParamRef]{TADA_CreateParamRef()}},
-\link{TADA_CreateUseParamRef}, and \link{TADA_CreateMLSummaryRef}, in that order to
+these three TADA helper functions, \code{\link[=TADA_ParametersForAnalysis]{TADA_ParametersForAnalysis()}},
+\link{TADA_UsesForAnalysis}, and \link{TADA_MLSummary}, in that order to
 generate the Criteria and Methodology table specific for your organization.
 }
 \details{
@@ -116,31 +116,31 @@ assessment period dates, and seasonality components.
 }
 \examples{
 \dontrun{
-# First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):
-paramRef_UT <- TADA_CreateParamRef(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
+paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
   grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
 ))
-paramRef_UT3 <- TADA_CreateParamRef(
+paramRef_UT3 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
 
 # Next, enter the crosswalk generated above as the paramRef function input
-# for TADA_CreateUseParamRef():
-UseParamRef_UT <- TADA_CreateUseParamRef(
+# for TADA_UsesForAnalysis():
+usesRef_UT <- TADA_UsesForAnalysis(
   Data_Nutrients_UT,
   paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
 )
 
-# Now, run TADA_CreateMLSummaryRef()
-MLSummaryRef_UT <- TADA_CreateMLSummaryRef(
+# Now, run TADA_MLSummary()
+MLSummaryRef_UT <- TADA_MLSummary(
   Data_Nutrients_UT,
   org_id = c("UTAHDWQ"),
-  useAURef = NULL, AUMLRef = NULL,
-  useParamRef = UseParamRef_UT,
+  AU_UsesRef = NULL, AUMLRef = NULL,
+  usesRef = usesRef_UT,
   excel = FALSE
 )
 
