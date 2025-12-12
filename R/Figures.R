@@ -807,6 +807,8 @@ TADA_FlaggedSitesMap <- function(.data) {
           outsideusa$MonitoringLocationIdentifier,
           "<br> Site Name: ",
           outsideusa$MonitoringLocationName,
+          "<br> Organization Name: ",
+          outsideusa$OrganizationFormalName,
           "<br> Latitude: ",
           outsideusa$TADA.LatitudeMeasure,
           "<br> Longitude: ",
@@ -883,6 +885,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
       TADA.LatitudeMeasure,
       TADA.LongitudeMeasure,
       OrganizationIdentifier,
+      OrganizationFormalName,
       TADA.NearbySiteGroup
     ) |>
     dplyr::distinct()
@@ -927,6 +930,8 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
           .data$MonitoringLocationIdentifier,
           "<br> Site Name: ",
           .data$MonitoringLocationName,
+          "<br> Organization Name: ",
+          .data$OrganizationFormalName,
           "<br> Latitude: ",
           .data$LatitudeMeasure,
           "<br> Longitude: ",
@@ -1188,6 +1193,9 @@ TADA_Scatterplot <- function(
         "Monitoring Location Name:",
         plot.data$MonitoringLocationName,
         "<br>",
+        "Organization Name: ",
+        plot.data$OrganizationFormalName,
+        "<br>",
         "Media:",
         plot.data$TADA.ActivityMediaName,
         "<br>",
@@ -1375,6 +1383,7 @@ TADA_TwoCharacteristicScatterplot <- function(
     depthcols,
     "ActivityStartDateTime",
     "MonitoringLocationName",
+    "OrganizationFormalName",
     "TADA.ActivityMediaName",
     "ActivityMediaSubdivisionName",
     "ActivityRelativeDepthName",
@@ -1528,6 +1537,9 @@ TADA_TwoCharacteristicScatterplot <- function(
         "Monitoring Location Name:",
         param1$MonitoringLocationName,
         "<br>",
+        "Organization Name: ",
+        param1$OrganizationFormalName,
+        "<br>",
         "Media:",
         param1$TADA.ActivityMediaName,
         "<br>",
@@ -1610,6 +1622,9 @@ TADA_TwoCharacteristicScatterplot <- function(
         "<br>",
         "Monitoring Location Name:",
         param2$MonitoringLocationName,
+        "<br>",
+        "Organization Name: ",
+        param2$OrganizationFormalName,
         "<br>",
         "Media:",
         param2$TADA.ActivityMediaName,
@@ -1737,7 +1752,8 @@ TADA_GroupedScatterplot <- function(
     "TADA.ResultMeasure.MeasureUnitCode",
     "ActivityStartDate",
     "ActivityStartDateTime",
-    "MonitoringLocationName"
+    "MonitoringLocationName",
+    "OrganizationFormalIdentifier"
   )
   required_cols <- required_cols |>
     append(group_col) |>
@@ -1870,7 +1886,8 @@ TADA_GroupedScatterplot <- function(
     "ActivityRelativeDepthName",
     "TADA.CharacteristicName",
     "TADA.MethodSpeciationName",
-    "TADA.ResultSampleFractionText"
+    "TADA.ResultSampleFractionText",
+    "OrganizationFormalName"
   ))]
 
   plot.data <- dplyr::arrange(plot.data, ActivityStartDate)
@@ -2008,6 +2025,9 @@ TADA_GroupedScatterplot <- function(
               "<br>",
               "Monitoring Location Name:",
               param[[j]]$MonitoringLocationName,
+              "<br>",
+              "Organization Name: ",
+              param[[j]]$OrganizationFormalName,
               "<br>",
               "Media:",
               param[[j]]$TADA.ActivityMediaName,
