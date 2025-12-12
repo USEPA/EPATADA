@@ -2,12 +2,10 @@
 # file("") only supports open = "w+" and open = "w+b": using the former
 suppressWarnings(
   test_that("URLs are not broken", {
-
     # urls required for EPATADA functions
     func.urls <- c(
       # WQP
       "https://www.waterqualitydata.us/",
-
 
       # ATTAINS GIS
       "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
@@ -132,7 +130,7 @@ suppressWarnings(
 
     n.func.cols <- nrow(func.cols)
 
-    if(is.null(n.func.cols)){
+    if (is.null(n.func.cols)) {
       n.func.cols <- 0
     }
 
@@ -141,7 +139,7 @@ suppressWarnings(
 
     n.other.cols <- nrow(other.cols)
 
-    if(is.null(n.other.cols)){
+    if (is.null(n.other.cols)) {
       n.func.cols <- 0
     }
 
@@ -159,8 +157,9 @@ suppressWarnings(
 
     # print url and response code for failures
     if (n.func.cols > 0) {
-
-      print("The following URLs are required for EPATADA functions and have failing response codes.")
+      print(
+        "The following URLs are required for EPATADA functions and have failing response codes."
+      )
 
       print(func.cols)
     }
@@ -170,8 +169,9 @@ suppressWarnings(
 
     # print url and response code for failures
     if (n.other.cols > 0) {
-
-      print("The following URLs are required for EPATADA functions and have failing response codes.")
+      print(
+        "The following URLs are required for EPATADA functions and have failing response codes."
+      )
 
       print(other.cols)
     }
