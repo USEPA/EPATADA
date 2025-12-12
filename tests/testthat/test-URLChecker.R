@@ -132,8 +132,16 @@ suppressWarnings(
 
     n.func.cols <- nrow(func.cols)
 
+    if(is.null(n.func.cols)){
+      n.func.cols <- 0
+    }
+
     other.cols <- df_false |>
       dplyr::filter(!urls %in% func.urls)
+
+    if(is.null(n.other.cols)){
+      n.func.cols <- 0
+    }
 
     n.other.cols <- nrow(other.cols)
 
