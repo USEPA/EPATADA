@@ -134,18 +134,18 @@
 #'
 TADA_DefineCriteriaMethodology <- function(
   .data,
-  MLSummaryRef = NULL,
   org_id = NULL,
+  MLSummaryRef = NULL,
   criteriaMethods = NULL, # user supplied input here
   auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
   AUMLRef = NULL,
   AU_UsesRef = NULL, # Optional if auto_assign = TRUE
   epa304a = FALSE,
   displayUniqueId = FALSE,
-  excel = TRUE,
+  excel = FALSE,
   overwrite = FALSE
 ) {
-  # Return an empty dataframe with column names only if a user does not define any arg inputs.
+  # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
       missing(org_id) &&
@@ -274,7 +274,7 @@ TADA_DefineCriteriaMethodology <- function(
       )
     }
 
-    # Generates a blank Criteria and Methods file.
+    # Generates a criteria table with only unique TADA.CharacteristicName(s) populated.
     if (auto_assign == FALSE && is.null(MLSummaryRef)) {
       desired_cols <- c(
         "ATTAINS.OrganizationIdentifier",
@@ -337,7 +337,7 @@ TADA_DefineCriteriaMethodology <- function(
     # Users can edit one or more of the ref files which will update all accordingly.
     if (auto_assign == TRUE) {
       # default, runs all reference tables with no user edits
-      # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
+      # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # if (updateRef == "none") {
       print(paste0(
         "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
@@ -762,12 +762,6 @@ TADA_DefineCriteriaMethodology <- function(
       criteriaMethods$ATTAINS.ParameterName <- toupper(
         criteriaMethods$ATTAINS.ParameterName
       )
-
-      # # checks to see if a user supplied criteria table contains ATTAINS.ParameterName found in ATTAINS domain value
-      # ATTAINS_param <- rExpertQuery::EQ_DomainValues(domain = "param_name")
-      # if (any(!criteriaMethods$ATTAINS.ParameterName %in% ATTAINS_param$name)) {
-      #   warning(paste0("Your user supplied criteria table contains a parameter under ATTAINS.ParameterName which is not found as an ATTAINS domain value."))
-      # }
 
       # identifies all unique TADA.CharacteristicNames in TADA data frame
       unique_param <- unique(.data$TADA.CharacteristicName)
