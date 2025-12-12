@@ -83,7 +83,7 @@ selected_orgs <-
     "CT_NERR"
   )
 
-volunteer_data <- TADA_DataRetrieval(
+volunteer_data <- EPATADA::TADA_DataRetrieval(
   # startDate = "2022-01-01",
   organization = selected_orgs,
   ask = FALSE,
@@ -96,7 +96,7 @@ volunteer_data <- TADA_DataRetrieval(
     ## The number of sites and/or records matched by the query terms is large, so the download may take some time.
 
     ## [1] "Downloading data from sites with fewer than 350000 results by grouping them together."
-    ##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   2%  |                                                                              |======                                                                |   9%  |                                                                              |==============                                                        |  20%  |                                                                              |===========================                                           |  38%  |                                                                              |======================================================================| 100%
+    ##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   2%  |                                                                              |======                                                                |   9%  |                                                                              |==============                                                        |  19%  |                                                                              |===========================                                           |  38%  |                                                                              |======================================================================| 100%
     ## [1] "Data successfully downloaded. Running TADA_AutoClean function."
     ## [1] "TADA_Autoclean: creating TADA-specific columns."
     ## [1] "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."
@@ -121,31 +121,32 @@ unique(volunteer_data$ProjectName)
     ##  [2] "Volunteer Stream Temperature Monitoring Network"                                                                                                                                                                                  
     ##  [3] "CRC and Affiliate Monitoring"                                                                                                                                                                                                     
     ##  [4] "Connecticut Lake Watch"                                                                                                                                                                                                           
-    ##  [5] "CRC 2019 Bacteria Monitoring"                                                                                                                                                                                                     
-    ##  [6] "Chicopee Four Rivers Watershed Council 2019"                                                                                                                                                                                      
-    ##  [7] "Deerfield River Watershed Association 2019"                                                                                                                                                                                       
-    ##  [8] "Connecticut River Conservancy/Connecticut River Watershed Council 2012-2018"                                                                                                                                                      
-    ##  [9] "2019 Anguilla Brook Watershed Bacteria Source Trackdown"                                                                                                                                                                          
-    ## [10] "2012 Flat Brook Trackdown Survey"                                                                                                                                                                                                 
-    ## [11] "Connecticut River Conservancy 2020"                                                                                                                                                                                               
-    ## [12] "Fort River Watershed Asssociation 2020"                                                                                                                                                                                           
-    ## [13] "Deerfield River Watershed Association 2020"                                                                                                                                                                                       
-    ## [14] "Chicopee 4River Watershed Council 2020"                                                                                                                                                                                           
-    ## [15] "Pomperaug River Watershed Based Plan Implementation Groundwork: Additional Water Quality Monitoring, Agricultural Outreach, BMP Implementation Design and Landowner Agreements to Address Bacteria Impairments. EPA RFA No. 21059"
-    ## [16] "Still River Watershed Pollution Trackdown Survey. CTDEEP Contract No. 17-06"                                                                                                                                                      
-    ## [17] "Connecticut River Conservancy 2021"                                                                                                                                                                                               
-    ## [18] "Chicopee 4 Rivers Watershed Council 2021"                                                                                                                                                                                         
-    ## [19] "Deerfield River Watershed Association 2021"                                                                                                                                                                                       
-    ## [20] "Connecticut River Conservancy 2022"                                                                                                                                                                                               
-    ## [21] "Deerfield River Watershed Association 2022"                                                                                                                                                                                       
-    ## [22] "Chicopee 4 Rivers Watershed Council 2022"                                                                                                                                                                                         
-    ## [23] "Clean Up Sound & Harbors (CUSH) volunteer water monitoring program"                                                                                                                                                               
-    ## [24] "CT Harbor Watch water monitoring program"
+    ##  [5] "CRC Cyanobacteria 2025"                                                                                                                                                                                                           
+    ##  [6] "CRC 2019 Bacteria Monitoring"                                                                                                                                                                                                     
+    ##  [7] "Chicopee Four Rivers Watershed Council 2019"                                                                                                                                                                                      
+    ##  [8] "Deerfield River Watershed Association 2019"                                                                                                                                                                                       
+    ##  [9] "Connecticut River Conservancy/Connecticut River Watershed Council 2012-2018"                                                                                                                                                      
+    ## [10] "2019 Anguilla Brook Watershed Bacteria Source Trackdown"                                                                                                                                                                          
+    ## [11] "2012 Flat Brook Trackdown Survey"                                                                                                                                                                                                 
+    ## [12] "Connecticut River Conservancy 2020"                                                                                                                                                                                               
+    ## [13] "Fort River Watershed Asssociation 2020"                                                                                                                                                                                           
+    ## [14] "Deerfield River Watershed Association 2020"                                                                                                                                                                                       
+    ## [15] "Chicopee 4River Watershed Council 2020"                                                                                                                                                                                           
+    ## [16] "Pomperaug River Watershed Based Plan Implementation Groundwork: Additional Water Quality Monitoring, Agricultural Outreach, BMP Implementation Design and Landowner Agreements to Address Bacteria Impairments. EPA RFA No. 21059"
+    ## [17] "Still River Watershed Pollution Trackdown Survey. CTDEEP Contract No. 17-06"                                                                                                                                                      
+    ## [18] "Connecticut River Conservancy 2021"                                                                                                                                                                                               
+    ## [19] "Chicopee 4 Rivers Watershed Council 2021"                                                                                                                                                                                         
+    ## [20] "Deerfield River Watershed Association 2021"                                                                                                                                                                                       
+    ## [21] "Connecticut River Conservancy 2022"                                                                                                                                                                                               
+    ## [22] "Deerfield River Watershed Association 2022"                                                                                                                                                                                       
+    ## [23] "Chicopee 4 Rivers Watershed Council 2022"                                                                                                                                                                                         
+    ## [24] "Clean Up Sound & Harbors (CUSH) volunteer water monitoring program"                                                                                                                                                               
+    ## [25] "CT Harbor Watch water monitoring program"
 
 Generate pie chart:
 
 ``` r
-TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
+EPATADA::TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
 ```
 
 ![](Participatory-Science-Water-Projects-in-WQX_files/figure-html/unnamed-chunk-5-1.png)
@@ -153,7 +154,7 @@ TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
 Review and remove sites if coordinates are imprecise or outside US:
 
 ``` r
-volunteer_data <- TADA_FlagCoordinates(volunteer_data,
+volunteer_data <- EPATADA::TADA_FlagCoordinates(volunteer_data,
   clean_outsideUSA = "remove",
   clean_imprecise = TRUE,
   flaggedonly = FALSE
@@ -163,13 +164,13 @@ volunteer_data <- TADA_FlagCoordinates(volunteer_data,
 Use `TADA_OverviewMap` to generate a map:
 
 ``` r
-TADA_OverviewMap(volunteer_data)
+EPATADA::TADA_OverviewMap(volunteer_data)
 ```
 
 Review and remove duplicate results if present:
 
 ``` r
-volunteer_data <- TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
+volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
 ```
 
     ## [1] "TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."
@@ -181,7 +182,7 @@ volunteer_data <- dplyr::filter(volunteer_data, TADA.SingleOrgDup.Flag == "Uniqu
 Prepare censored (nondetects and overdetects) results for analysis:
 
 ``` r
-volunteer_data <- TADA_SimpleCensoredMethods(
+volunteer_data <- EPATADA::TADA_SimpleCensoredMethods(
   volunteer_data,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -196,7 +197,7 @@ Run key TADA quality control flagging functions and remove suspect
 results:
 
 ``` r
-volunteer_data <- TADA_RunKeyFlagFunctions(
+volunteer_data <- EPATADA::TADA_RunKeyFlagFunctions(
   volunteer_data,
   clean = TRUE
 )
@@ -208,43 +209,43 @@ Flag results above and below thresholds. Review carefully and consider
 removing.
 
 ``` r
-volunteer_data <- TADA_FlagAboveThreshold(volunteer_data,
+volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
   clean = FALSE,
   flaggedonly = FALSE
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 2870, Pass: 34532, Suspect: 688
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3546, Pass: 34676, Suspect: 688
 
 ``` r
-volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
+volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
   clean = FALSE,
   flaggedonly = FALSE
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 2870, Pass: 35220
+    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3546, Pass: 35364
 
 Harmonize synonyms if found:
 
 ``` r
-volunteer_data <- TADA_HarmonizeSynonyms(volunteer_data)
+volunteer_data <- EPATADA::TADA_HarmonizeSynonyms(volunteer_data)
 ```
 
 Generate table:
 
 ``` r
-TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
+EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1 Sample-Routine 34537
-    ## 2  Field Msr/Obs  3553
+    ## 1 Sample-Routine 35213
+    ## 2  Field Msr/Obs  3697
 
 Generate pie chart:
 
 ``` r
-TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
+EPATADA::TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
 ```
 
 ![](Participatory-Science-Water-Projects-in-WQX_files/figure-html/unnamed-chunk-14-1.png)
@@ -252,7 +253,7 @@ TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
 Generate pie chart:
 
 ``` r
-TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
+EPATADA::TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
 ```
 
 ![](Participatory-Science-Water-Projects-in-WQX_files/figure-html/unnamed-chunk-15-1.png)
@@ -260,7 +261,7 @@ TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
 Remove non-numeric results:
 
 ``` r
-volunteer_data <- TADA_ConvertSpecialChars(
+volunteer_data <- EPATADA::TADA_ConvertSpecialChars(
   volunteer_data,
   col = "TADA.ResultMeasureValue",
   clean = TRUE
@@ -270,23 +271,23 @@ volunteer_data <- TADA_ConvertSpecialChars(
 Review the number of sites and records for each characteristic:
 
 ``` r
-TADA_SummarizeColumn(volunteer_data)
+EPATADA::TADA_SummarizeColumn(volunteer_data)
 ```
 
-    ## # A tibble: 22 × 3
+    ## # A tibble: 23 × 3
     ##    TADA.CharacteristicName$TADA.CharacteristicName n_sites n_records
     ##    <chr>                                             <int>     <int>
     ##  1 AMMONIA                                              15       244
-    ##  2 CONDUCTANCE                                          15       149
-    ##  3 COUNT                                               808     23121
-    ##  4 DEPTH, SECCHI DISK DEPTH                             41       474
-    ##  5 DISSOLVED OXYGEN (DO)                                15       589
-    ##  6 ENTEROCOCCUS                                         15       117
-    ##  7 ESCHERICHIA COLI                                    410      8613
-    ##  8 FECAL COLIFORM                                       16       129
-    ##  9 INORGANIC NITROGEN (NO2, NO3, & NH3)                 15       269
-    ## 10 NITRATE                                              30       303
-    ## # ℹ 12 more rows
+    ##  2 CHLOROPHYLL A                                         4       144
+    ##  3 CONDUCTANCE                                          15       149
+    ##  4 COUNT                                               808     23121
+    ##  5 DEPTH, SECCHI DISK DEPTH                             41       474
+    ##  6 DISSOLVED OXYGEN (DO)                                15       589
+    ##  7 ENTEROCOCCUS                                         15       117
+    ##  8 ESCHERICHIA COLI                                    410      8613
+    ##  9 FECAL COLIFORM                                       16       129
+    ## 10 INORGANIC NITROGEN (NO2, NO3, & NH3)                 15       269
+    ## # ℹ 13 more rows
 
 Filter data to review a single characteristic:
 
@@ -302,7 +303,7 @@ ecoli <- dplyr::filter(
 Generate scatter plot for E. coli:
 
 ``` r
-TADA_GroupedScatterplot(ecoli)
+EPATADA::TADA_GroupedScatterplot(ecoli)
 ```
 
     ## [1] "TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 235 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp."
@@ -346,30 +347,30 @@ COLI).
 
 ``` r
 # add column with comparison to criteria mag (excursions)
-ecoli <- ecoli %>%
+ecoli <- ecoli |>
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
 # review subset
-ecoli_subset_review <- ecoli %>%
+ecoli_subset_review <- ecoli |>
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
     meets_criteria_mag
   )
 
-TADA_TableExport(ecoli_subset_review)
+EPATADA::TADA_TableExport(ecoli_subset_review)
 ```
 
 Generate stats table. Review percentiles. Less than 5% of results fall
 above ~19 CFU/100mL and over 98% of results fall below ~2185 CFU/100m
 
 ``` r
-TADA_TableExport(TADA_Stats(ecoli))
+EPATADA::TADA_TableExport(EPATADA::TADA_Stats(ecoli))
 ```
 
 Generate a scatterplot. One result value is above the threshold.
 
 ``` r
-TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%
+EPATADA::TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 320,
     x = c(min(ecoli$ActivityStartDate), max(ecoli$ActivityStartDate)),
@@ -383,13 +384,13 @@ TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") %>%
 Generate a histogram.
 
 ``` r
-TADA_Histogram(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+EPATADA::TADA_Histogram(ecoli, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ``` r
-TADA_Boxplot(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+EPATADA::TADA_Boxplot(ecoli, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 Check out other example R workflows designed to work with WQP data under

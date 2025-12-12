@@ -1,0 +1,170 @@
+# Review and Apply Any Site-specific Criteria to Monitoring Location Sites or Assessment Units
+
+This function will pull in all unique MonitoringLocationName,
+MonitoringLocationType, and MonitoringLocationIdentifier from the TADA
+dataframe and join it to TADA_UsesForAnalysis. Users are not required to
+provide a crosswalk between WQP Monitoring locations and Assessment
+units if they are only interested in summarizing assessments on a
+monitoring location level.
+
+## Usage
+
+``` r
+TADA_MLSummary(
+  .data,
+  org_id = NULL,
+  usesRef = NULL,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL,
+  MLSummaryRef = NULL,
+  displayNA = FALSE,
+  excel = FALSE,
+  overwrite = FALSE
+)
+```
+
+## Arguments
+
+- .data:
+
+  A TADA dataframe. The user should run all desired data cleaning,
+  processing, harmonization, filtering, and handling of censored data
+  functions prior to running this function.
+
+- org_id:
+
+  The ATTAINS organization identifier must be supplied by the user. A
+  list of organization identifiers can be found by downloading the
+  ATTAINS Domains Excel file:
+  https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+  organization identifiers are listed in the "OrgName" tab. The "code"
+  column contains the organization identifiers that should be used for
+  this param. If a user does not provide an org_id argument, the
+  function attempts to identify which organization identifier(s) to
+  include based on the unique ATTAINS organization identifiers found in
+  the dataframe.
+
+- usesRef:
+
+  A required data frame which contains a completed crosswalk of
+  organization specific ATTAINS.UseName(s) for each
+  ATTAINS.ParameterName. Users will need to ensure this crosswalk
+  contains the appropriate column names in order to run the function.
+  Users who have previously completed this crosswalk table can re-use it
+  and review this output for accuracy.
+
+- AUMLRef:
+
+  An optional data frame input. If provided, this data frame should
+  contain a completed crosswalk of monitoring location sites associated
+  with an assessment unit. Users will need to ensure this crosswalk
+  contains the appropriate column names in order to run the function.
+  See module 2 vignette and sample output of
+  [`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md).
+
+- AU_UsesRef:
+
+  An optional data frame input. If provided, this data frame should
+  contain a completed crosswalk of use names associated with an
+  assessment unit. Users will need to ensure this crosswalk contains the
+  appropriate column names in order to run the function. See output of
+  [`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
+  for column names.
+
+- MLSummaryRef:
+
+  An optional data frame which contains the completed spatial crosswalk
+  to assign any unique spatial criteria to a parameter, use, waterbody
+  or monitoring site/assessment unit.
+
+- displayNA:
+
+  A boolean value. If TRUE, this allows user to view MLSummaryRef for
+  all uses and parameter assigned to a ML or AU regardless if that site
+  contains WQP data for that parameter. This is useful if a user is
+  interested in an explicit list of everything that will be analyzed.
+  Default is FALSE.
+
+  An optional data frame input. If provided, this data frame should
+  contain a completed crosswalk of use names associated with a water
+  type. Users will need to ensure this crosswalk contains the
+  appropriate column names in order to run the function.
+
+- excel:
+
+  A Boolean value that returns an excel spreadsheet if excel = TRUE.
+  This spreadsheet is created in the user's downloads folder path. If
+  you have any trouble locating the file, please type the following into
+  your R console to locate it: file.path(Sys.getenv("USERPROFILE"),
+  "Downloads"). The file will be named "myfileRef.xlsx". The excel
+  spreadsheet will highlight the cells in which users should input
+  information.
+
+- overwrite:
+
+  A Boolean value that ensures the function will not overwrite the user
+  supplied crosswalk entered into this function via the paramRef
+  function input. This helps prevent users from overwriting their
+  progress.
+
+## Value
+
+A data frame with any unique spatial descriptions defined for
+
+## Details
+
+If users are interested in summarizing water quality data results by
+Assessment Units, users will need to provide an AUMLRef and AU_UsesRef
+file which (see TADA Module 2 tools) to assist in their monitoring
+location to assessment unit crosswalk (see TADA_GetATTAINSAUMLCrosswalk,
+TADA_CreateAUMLCrosswalk, and TADA_GetATTAINSByAUID) and uses to
+assessment unit crosswalk (see TADA_CreateWaterusesRef and
+TADA_AssignUsesToAU) prior to this step.
+
+Users can apply any unique site-specific criteria (for example, warm
+waters, cold waters, water classifications, species-based waters,
+ecoregions etc.) to any monitoring location sites or assessment units as
+needed. Users are recommended to utilize the excel file for easy
+filtering across columns to apply any site specific criteria as needed.
+
+## See also
+
+[`TADA_UsesForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
+
+[`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
+
+[`TADA_AssignUsesToWaterType()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
+paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
+paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
+  grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
+  grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
+  grepl("NITROGEN", TADA.ComparableDataIdentifier) ~ "NITRATE/NITRITE (NITRITE + NITRATE AS N)"
+))
+paramRef_UT3 <- TADA_ParametersForAnalysis(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
+)
+
+# Next, enter the crosswalk generated above as the paramRef function input
+# for TADA_UsesForAnalysis():
+usesRef_UT <- TADA_UsesForAnalysis(
+  Data_Nutrients_UT,
+  paramRef = paramRef_UT3, org_id = c("UTAHDWQ"), excel = FALSE
+)
+
+# Now, run TADA_MLSummary()
+MLSummaryRef_UT <- TADA_MLSummary(
+  Data_Nutrients_UT,
+  org_id = c("UTAHDWQ"),
+  AU_UsesRef = NULL, AUMLRef = NULL,
+  usesRef = usesRef_UT,
+  excel = FALSE
+)
+} # }
+```

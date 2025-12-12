@@ -84,7 +84,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-05</h4>
+            <h4 data-toc-skip class="date">2025-12-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3a.Rmd" class="external-link"><code>vignettes/TADAModule3a.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3a.Rmd</code></div>
@@ -125,8 +125,8 @@ recommended to update all of them (enter 1 into the console).</p>
 <span>  ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Finally, use the <strong>library()</strong> function to load the
-EPATADA R Package into your R session.</p>
+<p>Finally, use the <strong>library()</strong> function to load the TADA
+R Package into your R session.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 <p>All EPATADA R package functions have their own individual help pages
@@ -184,8 +184,8 @@ process.</p>
 <p>This example includes results from multiple states. In the following
 sections, for demonstration purposes, we will focus only on Maryland.
 The remainder of this vignette will walk through how to fill out two
-crosswalk tables (TADA_CreateParamRef and TADA_CreateUseParamRef) that
-are needed before we can start assigning applicable criteria and
+crosswalk tables (TADA_ParametersForAnalysis and TADA_UsesForAnalysis)
+that are needed before we can start assigning applicable criteria and
 methodologies information for this specific ATTAINS organization
 (Maryland).</p>
 </div>
@@ -195,7 +195,7 @@ methodologies information for this specific ATTAINS organization
 <p>A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two datasets.
 Before creating the TADA and ATTAINS parameter crosswalk table
-(TADA_CreateParamRef), let’s review unique
+(TADA_ParametersForAnalysis), let’s review unique
 TADA.ComparableDataIdentifier’s (characteristic, fraction and speciation
 combinations) in the example data. How many results are available for
 each within the example data set (Data_NCTC)?</p>
@@ -222,44 +222,44 @@ the complete list:</p>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"param_name"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>In the next section, we will review which parameters have been listed
 in ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_CreateParamRef() function, we must
-first review the ATTAINS organization domain list to get the ATTAINS
-organization id’s to use for the function input.</p>
+specific organization in the TADA_ParametersForAnalysis() function, we
+must first review the ATTAINS organization domain list to get the
+ATTAINS organization id’s to use for the function input.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># return ATTAINS organization domain values</span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="fu">rExpertQuery</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/rExpertQuery/man/EQ_DomainValues.html" class="external-link">EQ_DomainValues</a></span><span class="op">(</span><span class="st">"org_id"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="tada_createparamref-basics">TADA_CreateParamRef() Basics<a class="anchor" aria-label="anchor" href="#tada_createparamref-basics"></a>
+<h2 id="tada_parametersforanalysis-basics">TADA_ParametersForAnalysis() Basics<a class="anchor" aria-label="anchor" href="#tada_parametersforanalysis-basics"></a>
 </h2>
 <p>ATTAINS Parameter Names are more general than the TADA Comparable
 Data Identifiers. Therefore, we recommend users manually provide a
-crosswalk. TADA_CreateParamRef() can help generate this crosswalk, but
-if desired, users can provide a pre-filled crosswalk with the required
-column names (“TADA.ComparableDataIdentifier” and
-“ATTAINS.ParameterName”). TADA_CreateParamRef() includes an argument
-input ‘auto_assign’ to assist users in doing an exact match between TADA
-Characteristic Names to ATTAINS Parameter Name. There are roughly
-598/1180 unique ATTAINS Parameter Names that have an exact match. **It
-is important to note that even with these exact matches, there are
-additional complexities related to the fraction, speciation and units
-that may be unique to your organization. For example, some organizations
-may consider any of Nitrate/Nitrite, Ammonia as “Nitrogen” as the
-ATTAINS.ParameterName and may not consider the speciation.</p>
+crosswalk. TADA_ParametersForAnalysis() can help generate this
+crosswalk, but if desired, users can provide a pre-filled crosswalk with
+the required column names (“TADA.ComparableDataIdentifier” and
+“ATTAINS.ParameterName”). TADA_ParametersForAnalysis() includes an
+argument input ‘auto_assign’ to assist users in doing an exact match
+between TADA Characteristic Names to ATTAINS Parameter Name. There are
+roughly 598/1180 unique ATTAINS Parameter Names that have an exact
+match. **It is important to note that even with these exact matches,
+there are additional complexities related to the fraction, speciation
+and units that may be unique to your organization. For example, some
+organizations may consider any of Nitrate/Nitrite, Ammonia as “Nitrogen”
+as the ATTAINS.ParameterName and may not consider the speciation.</p>
 <p>Let’s go through a few examples.</p>
-<p>TADA_CreateParamRef() creates a template which includes all
+<p>TADA_ParametersForAnalysis() creates a template which includes all
 TADA.ComparableDataIdentifiers from the TADA data frame and provides a
 blank column, “ATTAINS.ParameterName” for users to input the
 corresponding ATTAINS parameter name.</p>
-<p>Setting “excel = TRUE” in TADA_CreateParamRef tells the function to
-create an Excel spreadsheet of the reference table for easy user review
-and editing. The excel output includes logic to help a user select
-ATTAINS parameter names that have been used in the past by the selected
-organization. If users do not want to work in Excel, they can use “excel
-= FALSE” to return a data frame. The data frame can be edited directly
-in R if desired, although there are no TADA-specific functions designed
-to facilitate this.</p>
-<p>When using TADA_CreateParamRef(), users should specify the
+<p>Setting “excel = TRUE” in TADA_ParametersForAnalysis tells the
+function to create an Excel spreadsheet of the reference table for easy
+user review and editing. The excel output includes logic to help a user
+select ATTAINS parameter names that have been used in the past by the
+selected organization. If users do not want to work in Excel, they can
+use “excel = FALSE” to return a data frame. The data frame can be edited
+directly in R if desired, although there are no TADA-specific functions
+designed to facilitate this.</p>
+<p>When using TADA_ParametersForAnalysis(), users should specify the
 organization(s) of interested in the “org_names” argument. This ensures
 that the correct number of rows will be created in the reference table.
 When “excel = TRUE”, specifying the organization(s) also creates a
@@ -280,7 +280,7 @@ ATTAINS.ParameterName column, and users will need to manually fill this
 crosswalk out.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create TADA parameter reference table for specified organization</span></span>
-<span><span class="va">NCTC_ParamRef_None</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_None</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="st">"None"</span>,</span>
@@ -299,7 +299,7 @@ Your organization is fine with using an ATTAINS Parameter Name that has
 been submitted to ATTAINS outside of your organization.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create TADA parameter reference table for specified organization</span></span>
-<span><span class="va">NCTC_ParamRef_All</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_All</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="st">"All"</span>,</span>
@@ -315,7 +315,7 @@ matches ONLY if your organization has used this “ATTAINS.ParameterName”
 domain value in the past.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create TADA parameter reference table for specified organization</span></span>
-<span><span class="va">NCTC_ParamRef_Org</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_Org</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="st">"Org"</span>,</span>
@@ -328,21 +328,22 @@ domain value in the past.</p>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_Org</span><span class="op">)</span></span></code></pre></div>
 <p>The code chunk below demonstrates how the parameter reference table
 can be modified in R. Once modifications are complete, we can re-run
-TADA_CreateParamRef using the modified parameter reference table as the
-input for “paramRef”. This will update the ATTAINS.FlagParameterName
-column in the parameter reference table (see NCTC_ParamRef2 in example
-below). This column provides information about whether or not the
-organization specified in the “ATTAINS.OrganizationIdentifier” column
-has listed this parameter as a cause in prior assessment cycles. It also
-flags rows where the TADA.ComparableDataIdentifier as not been assigned
-an ATTAINS parameter name.</p>
+TADA_ParametersForAnalysis using the modified parameter reference table
+as the input for “paramRef”. This will update the
+ATTAINS.FlagParameterName column in the parameter reference table (see
+NCTC_ParamRef2 in example below). This column provides information about
+whether or not the organization specified in the
+“ATTAINS.OrganizationIdentifier” column has listed this parameter as a
+cause in prior assessment cycles. It also flags rows where the
+TADA.ComparableDataIdentifier as not been assigned an ATTAINS parameter
+name.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.</span></span>
 <span></span>
 <span><span class="co"># downloads_path &lt;- file.path(Sys.getenv("USERPROFILE"), "Downloads", "myfileRef.xlsx")</span></span>
 <span><span class="co"># ParamRef &lt;- openxlsx::read.xlsx(downloads_path, sheet = "CreateParamRef")</span></span>
 <span></span>
-<span><span class="co"># NCTC_ParamRef2 &lt;- TADA_CreateParamRef(</span></span>
+<span><span class="co"># NCTC_ParamRef2 &lt;- TADA_ParametersForAnalysis(</span></span>
 <span><span class="co">#   Data_NCTC,</span></span>
 <span><span class="co">#   org_names = c("MDE_EASP"),</span></span>
 <span><span class="co">#   paramRef = ParamRef,</span></span>
@@ -357,7 +358,7 @@ an ATTAINS parameter name.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITROGEN, TOTAL"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">NCTC_ParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">ParamRef_Manual</span>,</span>
@@ -367,11 +368,11 @@ an ATTAINS parameter name.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_Manual</span><span class="op">)</span></span></code></pre></div>
 <p>We can now save and reuse NCTC_ParamRef_Manual as the paramRef
-argument input in TADA_CreateParamRef(). This is useful to go through a
-review process if new WQX characteristic names are added as a domain
-value.</p>
+argument input in TADA_ParametersForAnalysis(). This is useful to go
+through a review process if new WQX characteristic names are added as a
+domain value.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">NCTC_ParamRef_AutoCreate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">NCTC_ParamRef_AutoCreate</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">NCTC_ParamRef_Manual</span>,</span>
@@ -387,9 +388,9 @@ provided matched ‘Nitrate’ to ‘NITROGEN, TOTAL’ rather than ‘NITRATE�
 thus even if you specified ‘auto_assign = ’All’, this crosswalk will
 prioritize ‘NITROGEN, TOTAL’ as the ATTAINS.ParameterName. However, by
 specifying auto_assign = ‘All’ for any values that have not been
-crosswalk, TADA_CreateParamRef() will fill those if there is an exact
-match, in the example below, no crosswalk of pH in your ParamRef2 was
-provided, so NCTC_ParamRef_Manual2 will crosswalk the TADA
+crosswalk, TADA_ParametersForAnalysis() will fill those if there is an
+exact match, in the example below, no crosswalk of pH in your ParamRef2
+was provided, so NCTC_ParamRef_Manual2 will crosswalk the TADA
 Characteristic name to ‘PH’ as the exact match for ATTAINS parameter
 name.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -399,7 +400,7 @@ name.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITROGEN, TOTAL"</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">NCTC_ParamRef_Final</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_Final</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">ParamRef2</span>,</span>
@@ -413,12 +414,12 @@ name.</p>
 can be saved and reused for analysis of future TADA data frames.</p>
 </div>
 <div class="section level2">
-<h2 id="tada_createuseparamref-basics">TADA_CreateUseParamRef() Basics<a class="anchor" aria-label="anchor" href="#tada_createuseparamref-basics"></a>
+<h2 id="tada_usesforanalysis-basics">TADA_UsesForAnalysis() Basics<a class="anchor" aria-label="anchor" href="#tada_usesforanalysis-basics"></a>
 </h2>
 <p>Our first example will pull in all prior ATTAINS uses
 (ATTAINS.UseNames) and parameter names (ATTAINS.ParameterName) specific
 to the specified ATTAINS organization (defined by the org_names function
-argument for TADA_CreateUseParamRef), which in this case is “MDE_EASP”
+argument for TADA_UsesForAnalysis), which in this case is “MDE_EASP”
 (Maryland). Users will review the output and choose which
 ATTAINS.UseName’s are applicable to their analysis. The default
 functionality is to “Include” all ATTAINS use_names (see the
@@ -439,11 +440,11 @@ ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.</p>
 <p>In the example below, we can see only “ZINC” and “NITROGEN, TOTAL”
 were the ATTAINS.ParameterNames assessed in prior assessment cycles for
-MDE_EASP (see ATTAINS.FlagUseName column in NCTC_UseParamRef). “PH” was
-not listed in ATTAINS for MDE_EASP in the prior assessment cycle, but
-was included in MDE_EASP paramRef argument input.</p>
+MDE_EASP (see ATTAINS.FlagUseName column in NCTC_usesRef). “PH” was not
+listed in ATTAINS for MDE_EASP in the prior assessment cycle, but was
+included in MDE_EASP paramRef argument input.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">NCTC_UseParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">NCTC_usesRef_Manual</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">NCTC_ParamRef_Final</span>,</span>
@@ -465,18 +466,18 @@ does not reflect MDE_EASP’s process).</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_CreateUseParamRef() with UseParamRef = add_data as an argument input.</span></span>
-<span><span class="va">UseParamRef</span> <span class="op">&lt;-</span> <span class="va">NCTC_UseParamRef_Manual</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">add_data</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ATTAINS.OrganizationIdentifier"</span>, <span class="st">"ATTAINS.ParameterName"</span><span class="op">)</span>, keep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="co"># The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.</span></span>
+<span><span class="va">usesRef</span> <span class="op">&lt;-</span> <span class="va">NCTC_usesRef_Manual</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="va">add_data</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ATTAINS.OrganizationIdentifier"</span>, <span class="st">"ATTAINS.ParameterName"</span><span class="op">)</span>, keep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>IncludeOrExclude <span class="op">=</span> <span class="st">"Include"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># PH will now reflect the changes</span></span>
-<span><span class="va">NCTC_UseParamRef_Manual_Update</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_usesRef_Manual_Update</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">NCTC_ParamRef_Final</span>,</span>
-<span>  useParamRef <span class="op">=</span> <span class="va">UseParamRef</span>, <span class="co"># Edits were made to UseParamRef, updates flag column</span></span>
+<span>  usesRef <span class="op">=</span> <span class="va">usesRef</span>, <span class="co"># Edits were made to usesRef, updates flag column</span></span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -484,12 +485,12 @@ does not reflect MDE_EASP’s process).</p>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_UseParamRef_Manual_Update</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_usesRef_Manual_Update</span><span class="op">)</span></span></code></pre></div>
 <p>We can choose to assign all unique use names found by your
 organization to those ATTAINS.ParameterName without any associated
 ATTAINS.UseName.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">NCTC_UseParamRef_AutoAssign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">NCTC_usesRef_AutoAssign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">NCTC_ParamRef_Final</span>,</span>
@@ -498,21 +499,21 @@ ATTAINS.UseName.</p>
 <span>  <span class="co"># uncomment excel = TRUE, overwrite = TRUE to run the excel file</span></span>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_UseParamRef_AutoAssign</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_usesRef_AutoAssign</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="multiple-organization-tada_createparamref-and-tada_createuseparamref-workflow">Multiple Organization TADA_CreateParamRef and TADA_CreateUseParamRef
-Workflow<a class="anchor" aria-label="anchor" href="#multiple-organization-tada_createparamref-and-tada_createuseparamref-workflow"></a>
+<h3 id="multiple-organization-tada_parametersforanalysis-and-tada_usesforanalysis-workflow">Multiple Organization TADA_ParametersForAnalysis and
+TADA_UsesForAnalysis Workflow<a class="anchor" aria-label="anchor" href="#multiple-organization-tada_parametersforanalysis-and-tada_usesforanalysis-workflow"></a>
 </h3>
 <p>If a user includes wants to include additional organizations beyond
 “MDE_EASP” , they will need to have defined those organizations in
-TADA_CreateParamRef with the org_id argument input. We will create
-another example paramRef from TADA_CreateParamRef that would allow us to
-pull in this information for more than one organization. We will also
-run TADA_CreateUseParamRef for multiple organizations using autoassign =
-TRUE.</p>
+TADA_ParametersForAnalysis with the org_id argument input. We will
+create another example paramRef from TADA_ParametersForAnalysis that
+would allow us to pull in this information for more than one
+organization. We will also run TADA_UsesForAnalysis for multiple
+organizations using autoassign = TRUE.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create TADA parameter reference table for specified organization</span></span>
-<span><span class="va">NCTC_ParamRef_MultipleOrgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_MultipleOrgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span>, <span class="st">"21VASWCB"</span>, <span class="st">"21PA"</span>, <span class="st">"WVDEP"</span><span class="op">)</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="st">"Org"</span>,</span>
@@ -528,7 +529,7 @@ TRUE.</p>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># We must refresh the flagging columns as ParamRef_MultipleOrgs was modified in RStudio and not directly in Excel.</span></span>
-<span><span class="va">NCTC_ParamRef_MultipleOrgs_Final</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_ParamRef_MultipleOrgs_Final</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">ParamRef_MultipleOrgs</span>,</span>
@@ -537,7 +538,7 @@ TRUE.</p>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">NCTC_UseParamRef_MultipleOrgs_AutoAssign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span>
+<span><span class="va">NCTC_usesRef_MultipleOrgs_AutoAssign</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span></span>
 <span>  <span class="va">Data_NCTC</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"MDE_EASP"</span>, <span class="st">"21VASWCB"</span>, <span class="st">"21PA"</span>, <span class="st">"WVDEP"</span><span class="op">)</span>,</span>
 <span>  paramRef <span class="op">=</span> <span class="va">NCTC_ParamRef_MultipleOrgs_Final</span>,</span>
@@ -546,7 +547,7 @@ TRUE.</p>
 <span>  <span class="co"># uncomment excel = TRUE, overwrite = TRUE to run the excel file</span></span>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_UseParamRef_MultipleOrgs_AutoAssign</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">NCTC_usesRef_MultipleOrgs_AutoAssign</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">

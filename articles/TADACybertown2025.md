@@ -212,7 +212,7 @@ WQP_flag <- TADA_FindPotentialDuplicatesMultipleOrgs(
 Let’s review the duplicates:
 
 ``` r
-WQP_flag_review <- WQP_flag %>%
+WQP_flag_review <- WQP_flag  |>
   dplyr::select(
     MonitoringLocationName,
     TADA.MonitoringLocationIdentifier,
@@ -228,8 +228,8 @@ WQP_flag_review <- WQP_flag %>%
     TADA.NearbySites.Flag,
     TADA.NearbySiteGroup,
     OrganizationIdentifier
-  ) %>%
-  dplyr::filter(TADA.SingleOrgDupGroupID != "Not a duplicate") %>%
+  )  |>
+  dplyr::filter(TADA.SingleOrgDupGroupID != "Not a duplicate")  |>
   dplyr::distinct()
 ```
 
@@ -243,8 +243,8 @@ were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals “Y”.
 
 ``` r
-WQP_clean <- WQP_flag %>%
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+WQP_clean <- WQP_flag  |>
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique")  |>
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
@@ -390,7 +390,7 @@ Let’s filter the data and focus on a one characteristic of interest.
 
 ``` r
 # Select characteristics of interest
-WQP_clean_subset <- WQP_clean %>%
+WQP_clean_subset <- WQP_clean  |>
   dplyr::filter(TADA.CharacteristicName %in% "ESCHERICHIA COLI")
 ```
 
@@ -450,8 +450,8 @@ rm(ATTAINS_map)
 Create table of monitoring location identifiers and AUs.
 
 ``` r
-ML_AU_crosswalk <- WQP_clean_subset %>%
-  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.AssessmentUnitName, TADA.CharacteristicName) %>%
+ML_AU_crosswalk <- WQP_clean_subset  |>
+  dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.AssessmentUnitName, TADA.CharacteristicName)  |>
   dplyr::distinct()
 ```
 
@@ -506,12 +506,12 @@ COLI).
 
 ``` r
 # add column with comparison to criteria mag (excursions)
-WQP_clean_subset <- WQP_clean_subset %>%
-  sf::st_drop_geometry() %>%
+WQP_clean_subset <- WQP_clean_subset  |>
+  sf::st_drop_geometry()  |>
   dplyr::mutate(meets_criteria_mag = ifelse(TADA.ResultMeasureValue <= 320, "Yes", "No"))
 
 # review
-WQP_clean_subset_review <- WQP_clean_subset %>%
+WQP_clean_subset_review <- WQP_clean_subset  |>
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
     meets_criteria_mag
@@ -524,15 +524,15 @@ Generate stats table. Review percentiles. Less than 5% of results fall
 above 10 CFU/100mL, and over 98% of results fall below 265.2 CFU/100m.
 
 ``` r
-WQP_clean_subset_stats <- WQP_clean_subset %>%
-  sf::st_drop_geometry() %>%
+WQP_clean_subset_stats <- WQP_clean_subset  |>
+  sf::st_drop_geometry()  |>
   TADA_Stats()
 ```
 
 Generate a scatterplot. One result value is above the threshold.
 
 ``` r
-TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier") %>%
+TADA_Scatterplot(WQP_clean_subset, id_cols = "TADA.ComparableDataIdentifier")  |>
   plotly::add_lines(
     y = 320,
     x = c(min(WQP_clean_subset$ActivityStartDate), max(WQP_clean_subset$ActivityStartDate)),

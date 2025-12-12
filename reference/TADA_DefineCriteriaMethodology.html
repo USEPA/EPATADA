@@ -5,16 +5,16 @@ criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended).It is recommended to run
-these three TADA helper functions, TADA_CreateParamRef(),
-TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef, in that order to
+these three TADA helper functions, TADA_ParametersForAnalysis(),
+TADA_UsesForAnalysis, and TADA_MLSummary, in that order to
 generate the Criteria and Methodology table specific for your organization."><meta property="og:description" content="Assessment criteria and methodologies used to evaluate water quality vary
 across the country. TADA users can fill out this template to define the specific
 criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended).It is recommended to run
-these three TADA helper functions, TADA_CreateParamRef(),
-TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef, in that order to
+these three TADA helper functions, TADA_ParametersForAnalysis(),
+TADA_UsesForAnalysis, and TADA_MLSummary, in that order to
 generate the Criteria and Methodology table specific for your organization."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -81,8 +81,8 @@ criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
 developed with TADA helper functions (recommended).It is recommended to run
-these three TADA helper functions, <code><a href="TADA_CreateParamRef.html">TADA_CreateParamRef()</a></code>,
-<a href="TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a>, and <a href="TADA_CreateMLSummaryRef.html">TADA_CreateMLSummaryRef</a>, in that order to
+these three TADA helper functions, <code><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis()</a></code>,
+<a href="TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a>, and <a href="TADA_MLSummary.html">TADA_MLSummary</a>, in that order to
 generate the Criteria and Methodology table specific for your organization.</p>
     </div>
 
@@ -90,15 +90,15 @@ generate the Criteria and Methodology table specific for your organization.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
-<span>  MLSummaryRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  MLSummaryRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  criteriaMethods <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  auto_assign <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  AUMLRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  useAURef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  AU_UsesRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  epa304a <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  displayUniqueId <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  excel <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  excel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -113,13 +113,6 @@ processing, harmonization, filtering, and handling of censored data functions
 prior to running this function.</p></dd>
 
 
-<dt id="arg-mlsummaryref">MLSummaryRef<a class="anchor" aria-label="anchor" href="#arg-mlsummaryref"></a></dt>
-<dd><p>An optional data frame which contains the completed spatial
-crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit. For any unique groupings of sites, this
-input is recommended.</p></dd>
-
-
 <dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
 <dd><p>The ATTAINS organization identifier must be supplied by the
 user. A list of organization identifiers can be found by downloading
@@ -130,6 +123,13 @@ The "code" column contains the organization identifiers that
 should be used for this param. If a user does not provide an org_id argument,
 the function attempts to identify which organization identifier(s) to include
 based on the unique ATTAINS organization identifiers found in the dataframe.</p></dd>
+
+
+<dt id="arg-mlsummaryref">MLSummaryRef<a class="anchor" aria-label="anchor" href="#arg-mlsummaryref"></a></dt>
+<dd><p>An optional data frame which contains the completed spatial
+crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+or monitoring site/assessment unit. For any unique groupings of sites, this
+input is recommended.</p></dd>
 
 
 <dt id="arg-criteriamethods">criteriaMethods<a class="anchor" aria-label="anchor" href="#arg-criteriamethods"></a></dt>
@@ -144,8 +144,8 @@ filled out accordingly.</p></dd>
 <dt id="arg-auto-assign">auto_assign<a class="anchor" aria-label="anchor" href="#arg-auto-assign"></a></dt>
 <dd><p>Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
-generated using default function inputs for <code><a href="TADA_CreateParamRef.html">TADA_CreateParamRef()</a></code>,
-<a href="TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a>, and <a href="TADA_CreateMLSummaryRef.html">TADA_CreateMLSummaryRef</a>. .data and org_id are
+generated using default function inputs for <code><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis()</a></code>,
+<a href="TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a>, and <a href="TADA_MLSummary.html">TADA_MLSummary</a>. .data and org_id are
 required inputs for this function if auto_assign = TRUE. It is also
 recommended to set excel = TRUE when auto_assign = TRUE. The criteria
 and methodology template should be reviewed carefully and edits can be
@@ -163,7 +163,7 @@ this crosswalk contains the appropriate column names in order to run this functi
 See module 2 vignette and sample output of <code><a href="TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code>.</p></dd>
 
 
-<dt id="arg-useauref">useAURef<a class="anchor" aria-label="anchor" href="#arg-useauref"></a></dt>
+<dt id="arg-au-usesref">AU_UsesRef<a class="anchor" aria-label="anchor" href="#arg-au-usesref"></a></dt>
 <dd><p>An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of use names associated with each assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
@@ -219,31 +219,31 @@ assessment period dates, and seasonality components.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># First, generate and fill out a parameter crosswalk (see TADA_CreateParamRef()):</span></span></span>
-<span class="r-in"><span><span class="va">paramRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):</span></span></span>
+<span class="r-in"><span><span class="va">paramRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">paramRef_UT</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"AMMONIA"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"AMMONIA, TOTAL"</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITRATE"</span>,</span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITROGEN"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITRATE/NITRITE (NITRITE + NITRATE AS N)"</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">paramRef_UT3</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_CreateParamRef.html">TADA_CreateParamRef</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="va">paramRef_UT3</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  paramRef <span class="op">=</span> <span class="va">paramRef_UT2</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Next, enter the crosswalk generated above as the paramRef function input</span></span></span>
-<span class="r-in"><span><span class="co"># for TADA_CreateUseParamRef():</span></span></span>
-<span class="r-in"><span><span class="va">UseParamRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_CreateUseParamRef.html">TADA_CreateUseParamRef</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="co"># for TADA_UsesForAnalysis():</span></span></span>
+<span class="r-in"><span><span class="va">usesRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  paramRef <span class="op">=</span> <span class="va">paramRef_UT3</span>, org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UTAHDWQ"</span><span class="op">)</span>, excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Now, run TADA_CreateMLSummaryRef()</span></span></span>
-<span class="r-in"><span><span class="va">MLSummaryRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_CreateMLSummaryRef.html">TADA_CreateMLSummaryRef</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="co"># Now, run TADA_MLSummary()</span></span></span>
+<span class="r-in"><span><span class="va">MLSummaryRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_MLSummary.html">TADA_MLSummary</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
 <span class="r-in"><span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"UTAHDWQ"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  useAURef <span class="op">=</span> <span class="cn">NULL</span>, AUMLRef <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
-<span class="r-in"><span>  useParamRef <span class="op">=</span> <span class="va">UseParamRef_UT</span>,</span></span>
+<span class="r-in"><span>  AU_UsesRef <span class="op">=</span> <span class="cn">NULL</span>, AUMLRef <span class="op">=</span> <span class="cn">NULL</span>,</span></span>
+<span class="r-in"><span>  usesRef <span class="op">=</span> <span class="va">usesRef_UT</span>,</span></span>
 <span class="r-in"><span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

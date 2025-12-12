@@ -44,12 +44,10 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-Finally, use the **library()** function to load the EPATADA R Package
-into your R session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
 ``` r
 library(EPATADA)
@@ -97,13 +95,53 @@ tada.MT <- TADA_DataRetrieval(
   countycode = "Missoula County",
   ask = FALSE
 )
+```
 
+    ## [1] "Downloading WQP query results. This may take some time depending upon the query size."
+    ## $statecode
+    ## [1] "US:30"
+    ## 
+    ## $startDate
+    ## [1] "2020-01-01"
+    ## 
+    ## $countycode
+    ## [1] "Missoula County"
+    ## 
+    ## $characteristicName
+    ## [1] "Escherichia"      "Escherichia coli" "pH"              
+    ## 
+    ## $endDate
+    ## [1] "2022-12-31"
+    ## 
+    ## [1] "Data successfully downloaded. Running TADA_AutoClean function."
+    ## [1] "TADA_Autoclean: creating TADA-specific columns."
+    ## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
+    ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
+    ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
+    ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
+    ## [1] "No deprecated characteristic names found in dataset."
+    ## [1] "TADA_Autoclean: harmonizing result and depth units."
+    ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
+    ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
+
+``` r
 # clean up data set (minimal)
-tada.MT.clean <- tada.MT %>%
-  TADA_RunKeyFlagFunctions() %>%
-  TADA_SimpleCensoredMethods() %>%
+tada.MT.clean <- tada.MT|>
+  TADA_RunKeyFlagFunctions()|>
+  TADA_SimpleCensoredMethods()|>
   TADA_HarmonizeSynonyms()
+```
 
+    ## [1] "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."
+    ## [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."
+    ## [1] "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode."
+    ## [1] "TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored"
+    ## [1] "Cannot apply simple censored methods to dataframe with no censored data results. Returning input dataframe."
+    ## [1] "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
+    ##                Flag_Column Result Count
+    ## 1 TADA.SampleFraction.Flag          135
+
+``` r
 # remove intermediate objects
 rm(tada.MT)
 
@@ -139,14 +177,15 @@ criteria table
 
     A.) If a user has supplied a list of new or updated use names to AU
     that may not be retrievable from the prior ATTAINS assessment cycle,
-    they should provide a useAURef crosswalk table in this function.
+    they should provide a AU_UsesRef crosswalk table in this function.
     This should only be provided when auto_assign = TRUE.
 
 4.  (Recommended) Go through the step-by-step review process with the 3
-    TADA crosswalk reference file generation for TADA_CreateParamRef,
-    TADA_CreateUseParamRef, and TADA_CreateMLSummaryRef. This vignette
-    does not go through this recommended workflow. Please see
-    ExampleMod3Workflow.Rmd for this guided workflow.
+    TADA crosswalk reference file generation for
+    TADA_ParametersForAnalysis, TADA_UsesForAnalysis, and
+    TADA_MLSummaryRef. This vignette does not go through this
+    recommended workflow. Please see ExampleMod3Workflow.Rmd for this
+    guided workflow.
 
 Each option will allow the option to append additional rows to summarize
 EPA304a recommended standards, if one has been defined. Please contact
@@ -160,13 +199,9 @@ the excel file.
 
 ``` r
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, # remove this as an arg input
-  org_id = "MTDEQ", # can remove this too
-  auto_assign = FALSE, displayUniqueId = TRUE,
-  excel = FALSE
-  # uncomment to run the excel file
-  # excel = TRUE, overwrite = TRUE
 )
+
+TADA_TableExport(MT.Criteria.blank)
 ```
 
 ### Option B: Auto Fill option (Intermediate Tabs are Hidden)
@@ -177,7 +212,7 @@ should be aware that this will only return rows for any matching values
 from a WQP characteristic to ATTAINS parameter alias table. It is likely
 that these value(s) will require a thorough review process during each
 step of the process with the recommended workflow of
-TADA_CreateParamRef, TADA_CreateUseParamRef and TADA_CreateMLSummaryRef.
+TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
 
 Users can view the output of these 3 functions in the excel spreadsheet
 if desired. They are hidden as default (NOTE TO CONSIDER: Should these
@@ -199,6 +234,19 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
 )
 ```
 
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+
+``` r
+TADA_TableExport(MT.Criteria.auto)
+```
+
 Users who would like to ensure all Characteristic, Speciation and
 Fractions are being considered, can use displayUniqueId = TRUE to show
 all unique TADA.ComparableDataIdentifier(s) shown as explicit crosswalk.
@@ -218,6 +266,17 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+``` r
+TADA_TableExport(MT.Criteria.auto2)
+```
+
 We can also choose to append epa304a recommended standards into the
 criteria table for any WQP characteristics in your data frame that are
 found.
@@ -235,6 +294,19 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+
+``` r
+TADA_TableExport(MT.Criteria.auto3)
+```
+
 ### Option C: User Supplied Table
 
 A user has a completed or partially filled criteria file, let’s use
@@ -250,22 +322,44 @@ WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
 auto_assign = TRUE option.
 
 Note: If a user has an updated list of use names that have been applied
-to an assessment unit, they should also provide a useAURef input.
+to an assessment unit, they should also provide a AU_UsesRef input.
 Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ``` r
+# Load the example MTDEQ criteria table
+criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
+load(criteria_table)
+# Load example uses to AU Ref table
+utils::data(Data_MT_AU_UsesRef)
+
 MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
-  useAURef = Data_MT_UseAURef,
+  AU_UsesRef = Data_MT_AU_UsesRef,
   displayUniqueId = FALSE,
   epa304a = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+```
+
+    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+
+    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+
+``` r
+TADA_TableExport(MT.Criteria.user.auto)
 ```
 
 Users will need to determine their level of desired grouping of
@@ -277,8 +371,6 @@ displayUniqueId = TRUE, this will display all combinations in the
 criteria table output.
 
 ``` r
-load(system.file("extdata", "criteria_table.rda", package = "EPATADA"))
-
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
 MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
@@ -292,6 +384,20 @@ MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
+    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+
+``` r
+TADA_TableExport(MT.Criteria.user.auto2)
+```
+
 ### Choose a Final Criteria Template, Save and Re-use
 
 ``` r
@@ -301,13 +407,27 @@ MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria_user_supplied_autofill2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user.auto2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
+```
+
+    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
+    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+
+    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+
+``` r
+TADA_TableExport(MT.Criteria.reuse)
 ```
 
 Users are recommended to go through each of the 3 reference files one at

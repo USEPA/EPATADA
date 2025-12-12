@@ -187,17 +187,17 @@ mywaterway@epa.gov.
 - [`Data_HUC8_02070004_Mod1Output`](usepa.github.io/EPATADA/reference/Data_HUC8_02070004_Mod1Output.md)
   : Data_HUC8_02070004_Mod1Output
 
-- [`Data_MT.UseAURef_Water`](usepa.github.io/EPATADA/reference/Data_MT.UseAURef_Water.md)
-  : Data_MT.UseAURef_Water
-
 - [`Data_MT_AUMLRef`](usepa.github.io/EPATADA/reference/Data_MT_AUMLRef.md)
   : Data_MT_AUMLRef
 
+- [`Data_MT_AU_UsesRef`](usepa.github.io/EPATADA/reference/Data_MT_AU_UsesRef.md)
+  : Data_MT_AU_UsesRef
+
+- [`Data_MT_AU_UsesRef_Water`](usepa.github.io/EPATADA/reference/Data_MT_AU_UsesRef_Water.md)
+  : Data_MT_AU_UsesRef_Water
+
 - [`Data_MT_MissoulaCounty`](usepa.github.io/EPATADA/reference/Data_MT_MissoulaCounty.md)
   : Data_MT_MissoulaCounty
-
-- [`Data_MT_UseAURef`](usepa.github.io/EPATADA/reference/Data_MT_UseAURef.md)
-  : Data_MT_UseAURef
 
 - [`Data_Nutrients_UT`](usepa.github.io/EPATADA/reference/Data_Nutrients_UT.md)
   : Data_Nutrients_UT
@@ -214,6 +214,13 @@ mywaterway@epa.gov.
 
 - [`TADA_AnalysisDataFilter()`](usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.md)
   : TADA_AnalysisDataFilter
+
+- [`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
+  : ATTAINS Assessment Unit and Use Name Crosswalk
+
+- [`TADA_AssignUsesToWaterType()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
+  : Helper Function to Apply Uses to Unassigned Assessment Units by
+  Water Type
 
 - [`TADA_AutoClean()`](usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
   : TADA_AutoClean
@@ -267,30 +274,12 @@ mywaterway@epa.gov.
 - [`TADA_CreateDateTime()`](usepa.github.io/EPATADA/reference/TADA_CreateDateTime.md)
   : Create ActivityStartDateTime column
 
-- [`TADA_CreateMLSummaryRef()`](usepa.github.io/EPATADA/reference/TADA_CreateMLSummaryRef.md)
-  : Review and Apply Any Site-specific Criteria to Monitoring Location
-  Sites or Assessment Units
-
 - [`TADA_CreatePairRef()`](usepa.github.io/EPATADA/reference/TADA_CreatePairRef.md)
   : Create Reference Data Frame to Pair Characteristic Results For Use
   in Numeric Criteria Equations (UNDER ACTIVE DEVELOPMENT)
 
-- [`TADA_CreateParamRef()`](usepa.github.io/EPATADA/reference/TADA_CreateParamRef.md)
-  : Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool
-  (CST) Parameter Name Crosswalk
-
 - [`TADA_CreateUnitRef()`](usepa.github.io/EPATADA/reference/TADA_CreateUnitRef.md)
   : Generate A DataFrame of Units and Target by Characteristic Name
-
-- [`TADA_CreateUseAURef()`](usepa.github.io/EPATADA/reference/TADA_CreateUseAURef.md)
-  : ATTAINS Assessment Unit and Use Name Crosswalk
-
-- [`TADA_CreateUseParamRef()`](usepa.github.io/EPATADA/reference/TADA_CreateUseParamRef.md)
-  : Create or Update ATTAINS Parameter and Use crosswalk
-
-- [`TADA_CreateWaterUseRef()`](usepa.github.io/EPATADA/reference/TADA_CreateWaterUseRef.md)
-  : Helper Function to Apply Uses to Unassigned Assessment Units by
-  Water Type
 
 - [`TADA_CriteriaDataDictionary()`](usepa.github.io/EPATADA/reference/TADA_CriteriaDataDictionary.md)
   : Data Dictionary for Criteria and Methodology
@@ -321,8 +310,7 @@ mywaterway@epa.gov.
   DEVELOPMENT)
 
 - [`TADA_FindPotentialDuplicatesMultipleOrgs()`](usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.md)
-  : Identify Potentially Duplicated Data Uploads by Multiple
-  Organizations
+  : Identify Potentially Duplicated Data by Multiple Organizations
 
 - [`TADA_FindPotentialDuplicatesSingleOrg()`](usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesSingleOrg.md)
   : Identify Potentially Duplicated Data Uploads by a Single
@@ -397,7 +385,7 @@ mywaterway@epa.gov.
   : Update Characteristic Reference Table
 
 - [`TADA_GetCriteriaSearchToolRef()`](usepa.github.io/EPATADA/reference/TADA_GetCriteriaSearchToolRef.md)
-  : Criteria Search Tool Reference Table
+  : Criteria Search Tool (CST) Reference Table
 
 - [`TADA_GetDetCondRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
   : Update Result Detection Condition Reference Table
@@ -405,8 +393,8 @@ mywaterway@epa.gov.
 - [`TADA_GetDetLimitRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.md)
   : Update Detection Quantitation Limit Type Reference Table
 
-- [`TADA_GetEPACSTRef()`](usepa.github.io/EPATADA/reference/TADA_GetEPACSTRef.md)
-  : Get EPA Criteria Search Tool (CST) Data
+- [`TADA_GetLegendCSTRef()`](usepa.github.io/EPATADA/reference/TADA_GetLegendCSTRef.md)
+  : Legend for the Criteria Search Tool Reference Table
 
 - [`TADA_GetMeasureQualifierCodeRef()`](usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.md)
   : Update result Measure Qualifier Code Reference Table
@@ -419,6 +407,9 @@ mywaterway@epa.gov.
 
 - [`TADA_GetNutrientSummationRef()`](usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
   : Nutrient Summation Reference Key
+
+- [`TADA_GetSourcesCSTRef()`](usepa.github.io/EPATADA/reference/TADA_GetSourcesCSTRef.md)
+  : Sources for the Criteria Search Tool Reference Table
 
 - [`TADA_GetSynonymRef()`](usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.md)
   : Generate Unique Synonym Reference Table
@@ -457,6 +448,10 @@ mywaterway@epa.gov.
 - [`TADA_JoinWQPProfiles()`](usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.md)
   : Join WQP Profiles
 
+- [`TADA_MLSummary()`](usepa.github.io/EPATADA/reference/TADA_MLSummary.md)
+  : Review and Apply Any Site-specific Criteria to Monitoring Location
+  Sites or Assessment Units
+
 - [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
   : TADA_MakeSpatial
 
@@ -475,6 +470,10 @@ mywaterway@epa.gov.
 
 - [`TADA_PairReplicates()`](usepa.github.io/EPATADA/reference/TADA_PairReplicates.md)
   : Pair Replicates with Original Samples
+
+- [`TADA_ParametersForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_ParametersForAnalysis.md)
+  : Create or Update ATTAINS, TADA/WQP/WQX, and EPA Criteria Search Tool
+  (CST) Parameter Name Crosswalk
 
 - [`TADA_RandomTestingData()`](usepa.github.io/EPATADA/reference/TADA_RandomTestingData.md)
   : Generate a random WQP dataset
@@ -530,6 +529,9 @@ mywaterway@epa.gov.
   inst/extdata. Existing shapefiles with the same name will be deleted
   first if they exist.
 
+- [`TADA_UsesForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
+  : Create or Update ATTAINS Parameter and Use crosswalk
+
 - [`TADA_ViewATTAINS()`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
   : TADA_ViewATTAINS
 
@@ -547,6 +549,9 @@ mywaterway@epa.gov.
 
 - [`checkColName()`](usepa.github.io/EPATADA/reference/checkColName.md)
   : checkColNames
+
+- [`correctColType()`](usepa.github.io/EPATADA/reference/correctColType.md)
+  : correctColType (UNDER ACTIVE DEVELOPMENT)
 
 - [`.TADA_UpdateExampleData()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
   : Update Example Data for EPATADA Package (Internal)

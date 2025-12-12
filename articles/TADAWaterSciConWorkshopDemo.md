@@ -183,7 +183,7 @@ Now, we can filter the data set to retain only the
 TADA.ComparableDataIdentifiers of interest.
 
 ``` r
-data <- data %>%
+data <- data |>
   dplyr::filter(TADA.ComparableDataIdentifier %in% c(
     "TOTAL DISSOLVED SOLIDS_DISSOLVED_NA_UG/L",
     "SPECIFIC CONDUCTANCE_TOTAL_NA_US/CM @25C"
@@ -209,10 +209,10 @@ want to review each function and its output more carefully before moving
 on.
 
 ``` r
-data <- data %>%
-  TADA_FlagMethod(clean = TRUE) %>%
-  TADA_FlagSpeciation(clean = "both") %>%
-  TADA_FlagResultUnit(clean = "both") %>%
+data <- data |>
+  TADA_FlagMethod(clean = TRUE) |>
+  TADA_FlagSpeciation(clean = "both") |>
+  TADA_FlagResultUnit(clean = "both") |>
   TADA_FlagFraction(clean = TRUE)
 ```
 
@@ -223,8 +223,8 @@ these functions to remove any results that fall outside the national
 thresholds.
 
 ``` r
-data <- data %>%
-  TADA_FlagAboveThreshold(clean = TRUE) %>%
+data <- data |>
+  TADA_FlagAboveThreshold(clean = TRUE) |>
   TADA_FlagBelowThreshold(clean = TRUE)
 ```
 
@@ -251,13 +251,13 @@ In this example, we will use the default setting “none” where a single
 representative is selected randomly from each duplicate group.
 
 ``` r
-data <- data %>%
-  TADA_FindPotentialDuplicatesSingleOrg() %>%
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+data <- data |>
+  TADA_FindPotentialDuplicatesSingleOrg() |>
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
   TADA_FindPotentialDuplicatesMultipleOrgs(
     dist_buffer = 100,
     org_hierarchy = "none"
-  ) %>%
+  ) |>
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
@@ -269,8 +269,8 @@ results for removal as you may wish to make different decisions than the
 TADA defaults regarding which results to retain.
 
 ``` r
-data <- data %>%
-  TADA_FindQCActivities(clean = TRUE) %>%
+data <- data |>
+  TADA_FindQCActivities(clean = TRUE) |>
   TADA_FlagMeasureQualifierCode(clean = TRUE)
 ```
 
@@ -340,9 +340,9 @@ results are available per each monitoring location group.
 
 ``` r
 # Select TADA data with ATTAINS data
-data <- ATTAINS_data$TADA_with_ATTAINS %>%
+data <- ATTAINS_data$TADA_with_ATTAINS |>
   # Remove geometry to reduce size of data set
-  sf::st_drop_geometry() %>%
+  sf::st_drop_geometry() |>
   # Adding "Other" as name for unnamed assessment units
   dplyr::mutate(
     ATTAINS.assessmentunitname =
@@ -372,18 +372,18 @@ results per each parameter and the oldest and most recent sampling date.
 
 ``` r
 # Create table of monitoring location identifiers
-MonitoringLocations <- data %>%
+MonitoringLocations <- data |>
   dplyr::select(
     MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName,
     ATTAINS.AssessmentUnitName, TADA.CharacteristicName, ActivityStartDate
-  ) %>%
-  dplyr::group_by(MonitoringLocationIdentifier) %>%
+  ) |>
+  dplyr::group_by(MonitoringLocationIdentifier) |>
   dplyr::mutate(
     n_TDS = length(TADA.CharacteristicName[TADA.CharacteristicName == "TOTAL DISSOLVED SOLIDS"]),
     n_SpecificConductance = length(TADA.CharacteristicName[TADA.CharacteristicName == "SPECIFIC CONDUCTANCE"]),
     StartDate = min(ActivityStartDate),
     EndDate = max(ActivityStartDate)
-  ) %>%
+  ) |>
   dplyr::select(
     MonitoringLocationIdentifier,
     ATTAINS.AssessmentUnitName,
@@ -391,7 +391,7 @@ MonitoringLocations <- data %>%
     n_SpecificConductance,
     StartDate,
     EndDate
-  ) %>%
+  ) |>
   dplyr::distinct()
 
 DT::datatable(MonitoringLocations, fillContainer = TRUE)
@@ -401,13 +401,13 @@ Now, let’s create subsets of the data by assessment unit name. These
 will be useful to create some basic data visualizations.
 
 ``` r
-data_animas <- data %>%
+data_animas <- data |>
   dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)")
 
-data_sanjuan <- data %>%
+data_sanjuan <- data |>
   dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)")
 
-data_other <- data %>%
+data_other <- data |>
   dplyr::filter(ATTAINS.AssessmentUnitName == "Other")
 ```
 
@@ -430,7 +430,7 @@ prior to 2015 and recreate the scatterplot.
 ``` r
 # choose two and generate scatterplot
 TADA_TwoCharacteristicScatterplot(
-  data %>%
+  data |>
     dplyr::filter
     (ActivityStartDate > "2014-12-31"),
   id_cols = "TADA.ComparableDataIdentifier",
@@ -448,7 +448,7 @@ prior to 2014.
 
 ``` r
 TADA_Histogram(
-  data %>%
+  data |>
     dplyr::filter(
       ActivityStartDate > "2014-12-31",
       TADA.CharacteristicName == "SPECIFIC CONDUCTANCE",
@@ -464,7 +464,7 @@ River.
 
 ``` r
 TADA_Boxplot(
-  data %>%
+  data |>
     dplyr::filter(
       ActivityStartDate > "2014-12-31",
       TADA.CharacteristicName ==
@@ -482,7 +482,7 @@ between the two rivers. We can do this by revisiting
 ``` r
 # create two characteristic scatterplot using TADA_TWoCharacteristicScatterplot
 twochar_scatter <- TADA_TwoCharacteristicScatterplot(
-  data %>%
+  data |>
     dplyr::filter(
       ActivityStartDate > "2014-12-31",
       TADA.ComparableDataIdentifier ==
@@ -490,7 +490,7 @@ twochar_scatter <- TADA_TwoCharacteristicScatterplot(
     ),
   id_cols = "ATTAINS.AssessmentUnitName",
   groups = c("San Juan River (Navajo bnd at Hogback to Animas River)", "Animas River (San Juan River to Estes Arroyo)")
-) %>%
+) |>
   # remove default plot features that are not applicable for a location comparison
   plotly::layout(
     yaxis2 = list(overlaying = "y", side = "right", title = "", visible = FALSE),
@@ -518,14 +518,14 @@ DT::datatable(data_stats, fillContainer = TRUE)
 
 ``` r
 # create table with animas data
-animas_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)"))
+animas_stats <- TADA_Stats(data |> dplyr::filter(ATTAINS.AssessmentUnitName == "Animas River (San Juan River to Estes Arroyo)"))
 
 DT::datatable(animas_stats, fillContainer = TRUE)
 ```
 
 ``` r
 # create table with san juan data
-sanjuan_stats <- TADA_Stats(data %>% dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)"))
+sanjuan_stats <- TADA_Stats(data |> dplyr::filter(ATTAINS.AssessmentUnitName == "San Juan River (Navajo bnd at Hogback to Animas River)"))
 
 DT::datatable(sanjuan_stats, fillContainer = TRUE)
 ```

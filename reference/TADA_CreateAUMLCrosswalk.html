@@ -73,11 +73,11 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_CreateAUMLCrosswalk</span><span class="op">(</span></span>
 <span>  <span class="va">.data</span>,</span>
 <span>  au_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  org_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  org_id <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  batch_upload <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -102,7 +102,10 @@ identifiers can be found
 by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "OrgName" tab. The "code" column
-contains the organization identifiers that should be used for this param.</p></dd>
+contains the organization identifiers that should be used for this param. When
+org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+from all organizations will be considered. When org_id = "none" or NULL, no
+crosswalk data from ATTAINS will be considered. The default is "all".</p></dd>
 
 
 <dt id="arg-fill-attains-catch">fill_ATTAINS_catch<a class="anchor" aria-label="anchor" href="#arg-fill-attains-catch"></a></dt>

@@ -35,7 +35,6 @@ TADA.ActivityType.Flag.
 ``` r
 # Run flagging functions but keep all results
 keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
-#> [1] "TADA_FlagResultUnit: Rows with Suspect result value units have been flagged but retained. Review the TADA.ResultUnit.Flag column and remove rows as desired before proceeding and/or set clean = 'suspect_only' or 'both'."
 #> [1] "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."
 #> [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."
 

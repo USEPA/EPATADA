@@ -17,6 +17,7 @@ default.
 ``` r
 TADA_CreateATTAINSAUMLCrosswalk(
   .data,
+  org_id = "all",
   return_nearest = TRUE,
   fill_USGS_catch = FALSE,
   resolution = "Hi",
@@ -32,6 +33,21 @@ TADA_CreateATTAINSAUMLCrosswalk(
   [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   or the sf equivalent made by
   [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md).
+
+- org_id:
+
+  ATTAINS organization identifier(s) as a character string. If
+  populated, Monitoring Locations will only be matched to Assessment
+  Units from the specified organization(s). A list of organization
+  identifiers can be found by downloading the ATTAINS Domains Excel
+  file:
+  https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+  Organization identifiers are listed in the "OrgName" tab. The "code"
+  column contains the organization identifiers that should be used for
+  this param. When org_id = "all", the
+  MonitoringLocationIdentifier/AssessmentUnitIdentifier matches from all
+  organizations will be considered. When org_id = "none" or NULL, no
+  crosswalk data from ATTAINS will be considered. The default is "all".
 
 - return_nearest:
 
@@ -141,7 +157,7 @@ tada_data <- TADA_DataRetrieval(
 tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
   fill_USGS_catch = FALSE,
   return_sf = FALSE,
-  return_nearest = FALSE,
+  return_nearest = FALSE
 )
 
 tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,

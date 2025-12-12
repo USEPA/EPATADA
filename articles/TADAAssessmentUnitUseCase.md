@@ -52,6 +52,14 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+``` r
+library(EPATADA)
 ```
 
 ## Load Required Packages
@@ -231,20 +239,20 @@ the relative number of results contributed by each organization.
 ``` r
 # Filter data for specified assessment unit
 
-AUID_data <- ATTAINS_data$TADA_with_ATTAINS %>%
+AUID_data <- ATTAINS_data$TADA_with_ATTAINS |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "IL_I-84")
 
-Analysis_data <- ATTAINS_data$TADA_with_ATTAINS %>%
-  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "IL_I-84") %>%
-  dplyr::select(-contains("ATTAINS.")) %>%
-  sf::st_drop_geometry() %>%
+Analysis_data <- ATTAINS_data$TADA_with_ATTAINS |>
+  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "IL_I-84") |>
+  dplyr::select(-contains("ATTAINS.")) |>
+  sf::st_drop_geometry() |>
   TADA_RetainRequired()
 
 
 # Create table of monitoring location identifiers
 
-MonitoringLocations <- Analysis_data %>%
-  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) %>%
+MonitoringLocations <- Analysis_data |>
+  dplyr::select(MonitoringLocationName, MonitoringLocationIdentifier, OrganizationFormalName) |>
   dplyr::distinct()
 
 DT::datatable(MonitoringLocations, fillContainer = TRUE)
@@ -282,10 +290,10 @@ on.
 ``` r
 # Flag and remove results
 
-Analysis_data <- Analysis_data %>%
-  TADA_FlagMethod(clean = TRUE) %>%
-  TADA_FlagSpeciation(clean = "both") %>%
-  TADA_FlagResultUnit(clean = "both") %>%
+Analysis_data <- Analysis_data |>
+  TADA_FlagMethod(clean = TRUE) |>
+  TADA_FlagSpeciation(clean = "both") |>
+  TADA_FlagResultUnit(clean = "both") |>
   TADA_FlagFraction(clean = TRUE)
 ```
 
@@ -298,8 +306,8 @@ thresholds.
 ``` r
 # Flag and remove results
 
-Analysis_data <- Analysis_data %>%
-  TADA_FlagAboveThreshold(clean = TRUE) %>%
+Analysis_data <- Analysis_data |>
+  TADA_FlagAboveThreshold(clean = TRUE) |>
   TADA_FlagBelowThreshold(clean = TRUE)
 ```
 
@@ -328,13 +336,13 @@ representative is selected randomly from each duplicate group.
 ``` r
 # Flag and remove results
 
-Analysis_data <- Analysis_data %>%
-  TADA_FindPotentialDuplicatesSingleOrg() %>%
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") %>%
+Analysis_data <- Analysis_data |>
+  TADA_FindPotentialDuplicatesSingleOrg() |>
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
   TADA_FindPotentialDuplicatesMultipleOrgs(
     dist_buffer = 100,
     org_hierarchy = "none"
-  ) %>%
+  ) |>
   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
@@ -348,8 +356,8 @@ TADA defaults regarding which results to retain.
 ``` r
 # Flag and remove results
 
-Analysis_data <- Analysis_data %>%
-  TADA_FindQCActivities(clean = TRUE) %>%
+Analysis_data <- Analysis_data |>
+  TADA_FindQCActivities(clean = TRUE) |>
   TADA_FlagMeasureQualifierCode(clean = TRUE)
 ```
 
@@ -386,7 +394,7 @@ Analysis_data <- TADA_SimpleCensoredMethods(Analysis_data,
   nd_multiplier = 0.5,
   od_method = "as-is",
   od_multiplier = "null"
-) %>%
+) |>
   dplyr::filter(!is.na(TADA.ResultMeasureValue))
 ```
 
@@ -417,7 +425,7 @@ compare and analyze.
 ``` r
 UniqueHarmonizationRef <- TADA_GetSynonymRef(Analysis_data)
 
-UniqueHarmonizationRef_edit <- UniqueHarmonizationRef %>%
+UniqueHarmonizationRef_edit <- UniqueHarmonizationRef |>
   dplyr::mutate(
     Target.TADA.CharacteristicName = ifelse(TADA.CharacteristicName == "TEMPERATURE, WATER", "TEMPERATURE", TADA.CharacteristicName),
     Target.TADA.ResultSampleFractionText = ifelse(TADA.CharacteristicName == "PH", NA, Target.TADA.ResultSampleFractionText),
@@ -468,7 +476,7 @@ location count, measurement count, min, max, and more.
 unique(Harmonized_data$TADA.ComparableDataIdentifier)
 
 # filter for three comparable data identifiers of interest
-Filtered_data <- Harmonized_data %>%
+Filtered_data <- Harmonized_data |>
   dplyr::filter(TADA.ComparableDataIdentifier %in% c("TEMPERATURE_NA_NA_DEG C", "PH_NA_NA_STD UNITS", "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"))
 
 # generate stats table
@@ -500,13 +508,13 @@ are not a default option in `TADA_Scatterplot` but can be added via the
 
 ``` r
 # comparison to standard for ph
-pH_Standard <- Filtered_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS") %>%
+pH_Standard <- Filtered_data |>
+  dplyr::filter(TADA.ComparableDataIdentifier == "PH_NA_NA_STD UNITS") |>
   dplyr::mutate(MeetsStandard = ifelse(TADA.ResultMeasureValue >= 6.5 & TADA.ResultMeasureValue <= 9, "Yes", "No"))
 
 
 # subset of pH data with fewer rows
-pH_Table <- pH_Standard %>%
+pH_Table <- pH_Standard |>
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue,
     MeetsStandard
@@ -515,7 +523,7 @@ pH_Table <- pH_Standard %>%
 DT::datatable(pH_Table, fillContainer = TRUE)
 
 # pH scatterplot
-pH_Scatter <- TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") %>%
+pH_Scatter <- TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 6.5,
     x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
@@ -523,7 +531,7 @@ pH_Scatter <- TADA_Scatterplot(pH_Standard, id_cols = "TADA.ComparableDataIdenti
     showlegend = FALSE,
     line = list(color = "red"),
     hoverinfo = "none"
-  ) %>%
+  ) |>
   plotly::add_lines(
     y = 9,
     x = c(min(pH_Standard$ActivityStartDate), max(pH_Standard$ActivityStartDate)),
@@ -569,8 +577,8 @@ and seasons they occurred.
 
 ``` r
 # comparison to standard for temperature
-Temp_Standard <- Filtered_data %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "TEMPERATURE_NA_NA_DEG C") %>%
+Temp_Standard <- Filtered_data |>
+  dplyr::filter(TADA.ComparableDataIdentifier == "TEMPERATURE_NA_NA_DEG C") |>
   dplyr::mutate(
     MonthForAnalysis = lubridate::month(ActivityStartDate),
     TempStandard = ifelse(MonthForAnalysis %in% c(1, 2, 3, 12), 17.7, 33.7),
@@ -591,7 +599,7 @@ Temp_Pie <- TADA_FieldValuesPie(Temp_Standard, field = "MeetsStandard")
 Temp_Pie
 
 # create subset table for temperature
-Temp_Table <- Temp_Standard %>%
+Temp_Table <- Temp_Standard |>
   dplyr::select(
     MonitoringLocationIdentifier, OrganizationFormalName, ActivityStartDate, TADA.ResultMeasureValue, TempStandard,
     MeetsStandard
@@ -640,8 +648,8 @@ useful information.
 
 ``` r
 # create table with nitrogen stats
-Nitrogen_stats <- Filtered_data_stats %>%
-  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L") %>%
+Nitrogen_stats <- Filtered_data_stats |>
+  dplyr::filter(TADA.ComparableDataIdentifier == "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L") |>
   dplyr::select(Location_Count, Measurement_Count, Min, Max, Mean)
 
 DT::datatable(Nitrogen_stats, fillContainer = TRUE)

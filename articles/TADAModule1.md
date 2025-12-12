@@ -263,7 +263,7 @@ Census Bureau spatial data:
 
 ``` r
 TADAProfile_spatial <- TADA_DataRetrieval(
-  aoi_sf = tigris::native_areas() %>% dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
+  aoi_sf = tigris::native_areas()  |> dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
   startDate = "2018-01-01",
   endDate = "2019-01-01",
   applyautoclean = FALSE,
@@ -733,7 +733,7 @@ unique(TADAProfileClean1$TADA.SuspectCoordinates.Flag)
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
+Unique_SuspectCoordinateFlags <- TADAProfileClean1  |>
   dplyr::select(
     "MonitoringLocationIdentifier",
     "MonitoringLocationName",
@@ -750,7 +750,7 @@ Unique_SuspectCoordinateFlags <- TADAProfileClean1 %>%
     "ProjectName",
     "ProjectIdentifier",
     "OrganizationFormalName"
-  ) %>%
+  )  |>
   dplyr::distinct()
 
 Unique_SuspectCoordinateFlags
@@ -1090,7 +1090,7 @@ TADA_FieldCounts(TADAProfileClean3)
 
     ##                             Fields Count
     ## 1    TADA.ComparableDataIdentifier   122
-    ## 2          TADA.CharacteristicName    98
+    ## 2          TADA.CharacteristicName    99
     ## 3             SubjectTaxonomicName    13
     ## 4           OrganizationFormalName     6
     ## 5                 ActivityTypeCode     4
@@ -1117,7 +1117,7 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
     ##                                    Value Count
-    ## 1                          Field Msr/Obs 19517
+    ## 1                          Field Msr/Obs 19988
     ## 2                         Sample-Routine  4099
     ## 3 Quality Control Sample-Field Replicate   187
     ## 4 Quality Control Sample-Equipment Blank    31
@@ -1358,7 +1358,7 @@ TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1  Field Msr/Obs 19517
+    ## 1  Field Msr/Obs 19988
     ## 2 Sample-Routine  4099
 
 ``` r
@@ -1528,7 +1528,8 @@ unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
     ## [1] "Numeric"                                                   
     ## [2] "Result Value/Unit Estimated from Detection Limit"          
     ## [3] "Result Value/Unit Cannot Be Estimated From Detection Limit"
-    ## [4] "NA - Not Available"
+    ## [4] "Text"                                                      
+    ## [5] "NA - Not Available"
 
 Count how many NA’s remain in the TADA.ResultMeasureValue.
 
@@ -1536,7 +1537,7 @@ Count how many NA’s remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-    ## [1] 23
+    ## [1] 494
 
 Filter down to only include data that is numeric in the
 “TADA.ResultMeasureValue” column. This removes data where the
@@ -1559,7 +1560,7 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 nrow(TADAProfileClean4) - nrow(TADAProfileClean5)
 ```
 
-    ## [1] 23
+    ## [1] 494
 
 ``` r
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
@@ -2011,8 +2012,8 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ##  [87] "TOXAPHENE_TOTAL_NA_UG/L"                                       
     ##  [88] "ALPHA PARTICLE_NA_NA_PCI/L"                                    
     ##  [89] "RADIUM-228_NA_NA_PCI/L"                                        
-    ##  [90] "RADIUM-226_NA_NA_PCI/L"                                        
-    ##  [91] "TRITIUM_NA_NA_PCI/L"                                           
+    ##  [90] "TRITIUM_NA_NA_PCI/L"                                           
+    ##  [91] "RADIUM-226_NA_NA_PCI/L"                                        
     ##  [92] "BARIUM_DISSOLVED_NA_UG/L"                                      
     ##  [93] "MANGANESE_DISSOLVED_NA_UG/L"                                   
     ##  [94] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
@@ -2180,8 +2181,8 @@ unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
     ##  [87] "TOXAPHENE_TOTAL_NA_UG/L"                                       
     ##  [88] "ALPHA PARTICLE_NA_NA_PCI/L"                                    
     ##  [89] "RADIUM-228_NA_NA_PCI/L"                                        
-    ##  [90] "RADIUM-226_NA_NA_PCI/L"                                        
-    ##  [91] "TRITIUM_NA_NA_PCI/L"                                           
+    ##  [90] "TRITIUM_NA_NA_PCI/L"                                           
+    ##  [91] "RADIUM-226_NA_NA_PCI/L"                                        
     ##  [92] "BARIUM_DISSOLVED_NA_UG/L"                                      
     ##  [93] "MANGANESE_DISSOLVED_NA_UG/L"                                   
     ##  [94] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        

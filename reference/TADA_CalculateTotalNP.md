@@ -152,7 +152,6 @@ df2 <- TADA_SimpleCensoredMethods(df,
 )
 
 df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-#> [1] "TADA_FlagResultUnit: All characteristic/unit combinations are valid in your dataframe. Returning input dataframe with TADA.ResultUnit.Flag column for tracking."
 #> [1] "TADA_FlagSpeciation: All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking."
 #> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
 

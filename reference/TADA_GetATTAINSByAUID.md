@@ -6,7 +6,12 @@ user.
 ## Usage
 
 ``` r
-TADA_GetATTAINSByAUID(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE)
+TADA_GetATTAINSByAUID(
+  .data,
+  au_ref = NULL,
+  fill_ATTAINS_catch = FALSE,
+  return_sf = TRUE
+)
 ```
 
 ## Arguments
@@ -37,6 +42,13 @@ TADA_GetATTAINSByAUID(.data, au_ref = NULL, fill_ATTAINS_catch = FALSE)
   fill_ATTAINS_catch = FALSE, catchment data are not included. Setting
   fill_ATTAINS_catch = TRUE, may increase the run time of the function
   significantly. Default is fill_ATTAINS_catch = FALSE.
+
+- return_sf:
+
+  Whether to return the ATTAINS associated catchments, lines, points,
+  and polygon shapefile objects along with the data frame(s). TRUE (yes,
+  return list) or FALSE (no, do not return). All shapefile features are
+  in WGS84 (crs = 4326).
 
 ## Value
 

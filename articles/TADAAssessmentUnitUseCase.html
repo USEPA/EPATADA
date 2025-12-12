@@ -84,7 +84,7 @@
       <h1>TADA: Assessment Unit Use Case Demo</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-05</h4>
+            <h4 data-toc-skip class="date">2025-12-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAAssessmentUnitUseCase.Rmd" class="external-link"><code>vignettes/TADAAssessmentUnitUseCase.Rmd</code></a></small>
       <div class="d-none name"><code>TADAAssessmentUnitUseCase.Rmd</code></div>
@@ -137,7 +137,12 @@ is needed before installing TADA because it is only available on GitHub
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/EPATADA"</span>,</span>
 <span>  ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
+<p>Finally, use the <strong>library()</strong> function to load the TADA
+R Package into your R session.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="load-required-packages">Load Required Packages<a class="anchor" aria-label="anchor" href="#load-required-packages"></a>
@@ -148,7 +153,7 @@ Module 1 Beginner Training</a> for TADA package installation
 instructions.)</p>
 <p>We’ll also record the start time for our analysis, beginning after
 loading packages.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">list.of.packages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"dplyr"</span>, <span class="st">"yaml"</span>, <span class="st">"lwgeom"</span>, <span class="st">"sf"</span>, <span class="st">"lubridate"</span>,</span>
 <span>  <span class="st">"knitr"</span>, <span class="st">"DT"</span></span>
@@ -159,7 +164,7 @@ loading packages.</p>
 <span></span>
 <span><span class="co"># Load required packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/vubiostat/r-yaml/" class="external-link">yaml</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://yaml.r-lib.org" class="external-link">yaml</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/lwgeom/" class="external-link">lwgeom</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org" class="external-link">lubridate</a></span><span class="op">)</span></span>
@@ -206,7 +211,7 @@ we recommend keeping your initial queries as broad as possible so all
 relevant results are downloaded and useful data from synonymous
 Characteristics are not missed. There are TADA functions that can be
 used to harmonize these synonyms.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import data from WQP</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DataRetrieval.html">TADA_DataRetrieval</a></span><span class="op">(</span></span>
 <span>  statecode <span class="op">=</span> <span class="st">"IL"</span>,</span>
@@ -267,7 +272,7 @@ Monitoring Locations included in the <strong>WQP</strong> data set. See
 <a href="https://usepa.github.io/EPATADA/articles/TADAModule2.html">TADA
 Module 2</a> for a much more detailed look at the logic behind this and
 the other TADA geospatial functions.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Import data from ATTAINS geospatial services</span></span>
 <span><span class="va">ATTAINS_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -281,7 +286,7 @@ This can be helpful when deciding which Monitoring Locations should be
 retained for additional analysis. For this demo, we are focusing on a
 single Assessment Unit, IL-84, with multiple monitoring locations
 (<em>MonitoringLocationIdentifier</em>).</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View catchments and assessment units on map</span></span>
 <span></span>
 <span><span class="va">ATTAINS_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">ATTAINS_data</span><span class="op">)</span></span>
@@ -302,23 +307,23 @@ won’t need them for the remaining steps in this example.</p>
 <p>We can also create a table with some basic information about the
 Monitoring Locations in Assessment Unit IL-84 and a pie chart to display
 the relative number of results contributed by each organization.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Filter data for specified assessment unit</span></span>
 <span></span>
-<span><span class="va">AUID_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">AUID_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">contains</a></span><span class="op">(</span><span class="st">"ATTAINS."</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">ATTAINS_data</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"IL_I-84"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">contains</a></span><span class="op">(</span><span class="st">"ATTAINS."</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_RetainRequired.html">TADA_RetainRequired</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># Create table of monitoring location identifiers</span></span>
 <span></span>
-<span><span class="va">MonitoringLocations</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">MonitoringLocationName</span>, <span class="va">MonitoringLocationIdentifier</span>, <span class="va">OrganizationFormalName</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">MonitoringLocations</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">MonitoringLocationName</span>, <span class="va">MonitoringLocationIdentifier</span>, <span class="va">OrganizationFormalName</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">MonitoringLocations</span>, fillContainer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -350,13 +355,13 @@ characteristic-fraction combinations. In this simple example, we will
 remove all invalid combinations identified by each of these functions.
 When setting up your own workflow, you will want to review each function
 and its output more carefully before moving on.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Flag and remove results</span></span>
 <span></span>
-<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FlagMethod.html">TADA_FlagMethod</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FlagSpeciation.html">TADA_FlagSpeciation</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FlagResultUnit.html">TADA_FlagResultUnit</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FlagMethod.html">TADA_FlagMethod</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FlagSpeciation.html">TADA_FlagSpeciation</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FlagResultUnit.html">TADA_FlagResultUnit</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="st">"both"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_FlagFraction.html">TADA_FlagFraction</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Another set of TADA flagging functions,
 <code>TADA_FlagAboveThreshold</code> and
@@ -364,11 +369,11 @@ and its output more carefully before moving on.</p>
 against national lower and upper thresholds. As in the previous
 examples, we will set these functions to remove any results that fall
 outside the national thresholds.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Flag and remove results</span></span>
 <span></span>
-<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FlagAboveThreshold.html">TADA_FlagAboveThreshold</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FlagAboveThreshold.html">TADA_FlagAboveThreshold</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_FlagBelowThreshold.html">TADA_FlagBelowThreshold</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>We can also review the data set to see if it contains potential
 duplicate results from within a single organization or potential
@@ -388,16 +393,16 @@ another, this can be done using the org_hierarchy argument in
 how to this can be found in the function reference for <a href="https://usepa.github.io/EPATADA/reference/TADA_FindPotentialDuplicatesMultipleOrgs.html">TADA_FindPotentialDuplicatesMultipleOrgs</a>.
 In this example, we will use the default setting “none” where a single
 representative is selected randomly from each duplicate group.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Flag and remove results</span></span>
 <span></span>
-<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesSingleOrg.html">TADA_FindPotentialDuplicatesSingleOrg</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_FindPotentialDuplicatesMultipleOrgs.html">TADA_FindPotentialDuplicatesMultipleOrgs</a></span><span class="op">(</span></span>
 <span>    dist_buffer <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>    org_hierarchy <span class="op">=</span> <span class="st">"none"</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ResultSelectedMultipleOrgs</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p>Next we can remove QC and qualified samples (with qualifiers
 identified as suspect) using <code>TADA_FindQCActivities</code> and
@@ -405,11 +410,11 @@ identified as suspect) using <code>TADA_FindQCActivities</code> and
 Module 1 vignettes for more information on how these functions identify
 and flag results for removal as you may wish to make different decisions
 than the TADA defaults regarding which results to retain.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Flag and remove results</span></span>
 <span></span>
-<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/TADA_FindQCActivities.html">TADA_FindQCActivities</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="va">Analysis_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/TADA_FindQCActivities.html">TADA_FindQCActivities</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_FlagMeasureQualifierCode.html">TADA_FlagMeasureQualifierCode</a></span><span class="op">(</span>clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -438,13 +443,13 @@ logic behind
 <code>TADA_SimpleCensoredMethods</code><strong>.</strong></p>
 <p>After running <code>TADA_SimpleCensoredMethods</code>, we will also
 filter the data to remove any remaining NAs.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Analysis_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_SimpleCensoredMethods.html">TADA_SimpleCensoredMethods</a></span><span class="op">(</span><span class="va">Analysis_data</span>,</span>
 <span>  nd_method <span class="op">=</span> <span class="st">"multiplier"</span>,</span>
 <span>  nd_multiplier <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  od_method <span class="op">=</span> <span class="st">"as-is"</span>,</span>
 <span>  od_multiplier <span class="op">=</span> <span class="st">"null"</span></span>
-<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -471,10 +476,10 @@ TADA.Harmonized.Flag, indicating which results had metadata
 changed/converted in this function. The purpose of this function is to
 make similar data consistent and therefore easier to compare and
 analyze.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetSynonymRef.html">TADA_GetSynonymRef</a></span><span class="op">(</span><span class="va">Analysis_data</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">UniqueHarmonizationRef_edit</span> <span class="op">&lt;-</span> <span class="va">UniqueHarmonizationRef</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">UniqueHarmonizationRef_edit</span> <span class="op">&lt;-</span> <span class="va">UniqueHarmonizationRef</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    Target.TADA.CharacteristicName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"TEMPERATURE, WATER"</span>, <span class="st">"TEMPERATURE"</span>, <span class="va">TADA.CharacteristicName</span><span class="op">)</span>,</span>
 <span>    Target.TADA.ResultSampleFractionText <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"PH"</span>, <span class="cn">NA</span>, <span class="va">Target.TADA.ResultSampleFractionText</span><span class="op">)</span>,</span>
@@ -508,7 +513,7 @@ multiple measurements of the same subspecies-fraction-speciation-unit
 occur on the same day at the same site and depth, the function will pick
 the maximum value to use in summation calculations. In this example, we
 will use the default summation worksheet to obtain total nitrogen.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Harmonized_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CalculateTotalNP.html">TADA_CalculateTotalNP</a></span><span class="op">(</span><span class="va">Harmonized_data</span>, daily_agg <span class="op">=</span> <span class="st">"max"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -517,12 +522,12 @@ will use the default summation worksheet to obtain total nitrogen.</p>
 <p>Now we can filter to our three parameters of interest and use
 <code>TADA_Stats</code> take a look at some basic statistics for each,
 including location count, measurement count, min, max, and more.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># review unique identifiers</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Harmonized_data</span><span class="op">$</span><span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># filter for three comparable data identifiers of interest</span></span>
-<span><span class="va">Filtered_data</span> <span class="op">&lt;-</span> <span class="va">Harmonized_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Filtered_data</span> <span class="op">&lt;-</span> <span class="va">Harmonized_data</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TEMPERATURE_NA_NA_DEG C"</span>, <span class="st">"PH_NA_NA_STD UNITS"</span>, <span class="st">"TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># generate stats table</span></span>
@@ -536,7 +541,7 @@ including location count, measurement count, min, max, and more.</p>
 <p>Next, we will create a two characteristic scatterplot of pH and
 temperature to begin visualizing the data, using
 <code>TADA_TwoCharacteristicScatterplot</code>.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># choose two and generate scatterplot</span></span>
 <span><span class="fu"><a href="../reference/TADA_TwoCharacteristicScatterplot.html">TADA_TwoCharacteristicScatterplot</a></span><span class="op">(</span><span class="va">Harmonized_data</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span>, groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TEMPERATURE_NA_NA_DEG C"</span>, <span class="st">"PH_NA_NA_STD UNITS"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Let’s focus on just one characteristic, pH. We can filter the
@@ -549,15 +554,15 @@ horizontal lines have been added to indicate the upper and lower ends of
 the water quality standard. These are not a default option in
 <code>TADA_Scatterplot</code> but can be added via the
 <code>plotly</code> package.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># comparison to standard for ph</span></span>
-<span><span class="va">pH_Standard</span> <span class="op">&lt;-</span> <span class="va">Filtered_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"PH_NA_NA_STD UNITS"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">pH_Standard</span> <span class="op">&lt;-</span> <span class="va">Filtered_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"PH_NA_NA_STD UNITS"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>MeetsStandard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">TADA.ResultMeasureValue</span> <span class="op">&gt;=</span> <span class="fl">6.5</span> <span class="op">&amp;</span> <span class="va">TADA.ResultMeasureValue</span> <span class="op">&lt;=</span> <span class="fl">9</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span></span>
 <span><span class="co"># subset of pH data with fewer rows</span></span>
-<span><span class="va">pH_Table</span> <span class="op">&lt;-</span> <span class="va">pH_Standard</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">pH_Table</span> <span class="op">&lt;-</span> <span class="va">pH_Standard</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">MonitoringLocationIdentifier</span>, <span class="va">OrganizationFormalName</span>, <span class="va">ActivityStartDate</span>, <span class="va">TADA.ResultMeasureValue</span>,</span>
 <span>    <span class="va">MeetsStandard</span></span>
@@ -566,7 +571,7 @@ the water quality standard. These are not a default option in
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">pH_Table</span>, fillContainer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># pH scatterplot</span></span>
-<span><span class="va">pH_Scatter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_Scatterplot.html">TADA_Scatterplot</a></span><span class="op">(</span><span class="va">pH_Standard</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">pH_Scatter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_Scatterplot.html">TADA_Scatterplot</a></span><span class="op">(</span><span class="va">pH_Standard</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">plotly</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/add_trace.html" class="external-link">add_lines</a></span><span class="op">(</span></span>
 <span>    y <span class="op">=</span> <span class="fl">6.5</span>,</span>
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pH_Standard</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pH_Standard</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -574,7 +579,7 @@ the water quality standard. These are not a default option in
 <span>    showlegend <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    line <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span>,</span>
 <span>    hoverinfo <span class="op">=</span> <span class="st">"none"</span></span>
-<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">plotly</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/add_trace.html" class="external-link">add_lines</a></span><span class="op">(</span></span>
 <span>    y <span class="op">=</span> <span class="fl">9</span>,</span>
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">pH_Standard</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">pH_Standard</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -609,10 +614,10 @@ created to see how many samples met or did not meet the standard.</p>
 <p>Creating a table also allows for easy filtering of results to
 identify the results that did not meet the standard and review during
 which years and seasons they occurred.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># comparison to standard for temperature</span></span>
-<span><span class="va">Temp_Standard</span> <span class="op">&lt;-</span> <span class="va">Filtered_data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"TEMPERATURE_NA_NA_DEG C"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Temp_Standard</span> <span class="op">&lt;-</span> <span class="va">Filtered_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"TEMPERATURE_NA_NA_DEG C"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
 <span>    MonthForAnalysis <span class="op">=</span> <span class="fu">lubridate</span><span class="fu">::</span><span class="fu"><a href="https://lubridate.tidyverse.org/reference/month.html" class="external-link">month</a></span><span class="op">(</span><span class="va">ActivityStartDate</span><span class="op">)</span>,</span>
 <span>    TempStandard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">MonthForAnalysis</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">12</span><span class="op">)</span>, <span class="fl">17.7</span>, <span class="fl">33.7</span><span class="op">)</span>,</span>
@@ -633,7 +638,7 @@ which years and seasons they occurred.</p>
 <span><span class="va">Temp_Pie</span></span>
 <span></span>
 <span><span class="co"># create subset table for temperature</span></span>
-<span><span class="va">Temp_Table</span> <span class="op">&lt;-</span> <span class="va">Temp_Standard</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Temp_Table</span> <span class="op">&lt;-</span> <span class="va">Temp_Standard</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">MonitoringLocationIdentifier</span>, <span class="va">OrganizationFormalName</span>, <span class="va">ActivityStartDate</span>, <span class="va">TADA.ResultMeasureValue</span>, <span class="va">TempStandard</span>,</span>
 <span>    <span class="va">MeetsStandard</span></span>
@@ -652,7 +657,7 @@ LAB_NA_MG/L”.</p>
 functions <code>TADA_Histogram</code> and <code>TADA_Boxplot</code>.</p>
 <p><code>TADA_Histogram</code> can be useful for identifying the overall
 shape of the data.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># filter dataframe to comparable data identifier of interest</span></span>
 <span></span>
 <span><span class="va">Nitrogen_data</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Filtered_data</span>, <span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"</span><span class="op">)</span></span>
@@ -664,7 +669,7 @@ shape of the data.</p>
 <span><span class="va">Nitrogen_Histogram</span></span></code></pre></div>
 <p><code>TADA_Boxplot</code> can be useful for identifying skewness and
 percentiles.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Nitrogen_Boxplot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_Boxplot.html">TADA_Boxplot</a></span><span class="op">(</span><span class="va">Nitrogen_data</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span></span>
 <span></span>
 <span></span>
@@ -673,10 +678,10 @@ percentiles.</p>
 NITROGEN, MIXED FORMS_TOTAL RECOVERABLE_NA_MG/L” and selecting a smaller
 subset of columns or creating a single characteristic scatterplot may
 also provide useful information.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># create table with nitrogen stats</span></span>
-<span><span class="va">Nitrogen_stats</span> <span class="op">&lt;-</span> <span class="va">Filtered_data_stats</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="va">Nitrogen_stats</span> <span class="op">&lt;-</span> <span class="va">Filtered_data_stats</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Location_Count</span>, <span class="va">Measurement_Count</span>, <span class="va">Min</span>, <span class="va">Max</span>, <span class="va">Mean</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="va">Nitrogen_stats</span>, fillContainer <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -712,7 +717,7 @@ trends, or answer other questions using a TADA dataframe.</p>
 <p>The code chunk below displays the elapsed time it took to run the
 code chunks and create this document, providing an example of how
 incorporating TADA in your workflow can increase efficiency.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">end.time</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">end.time</span> <span class="op">-</span> <span class="va">start.time</span></span></code></pre></div>

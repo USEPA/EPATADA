@@ -12,7 +12,7 @@ only a few states.
 ## Usage
 
 ``` r
-TADA_GetATTAINSAUMLCrosswalk(org_id = NULL, batch_upload = FALSE)
+TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
 ```
 
 ## Arguments
@@ -26,9 +26,9 @@ TADA_GetATTAINSAUMLCrosswalk(org_id = NULL, batch_upload = FALSE)
   https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
   Organization identifiers are listed in the "OrgName" tab. The "code"
   column contains the organization identifiers that should be used for
-  this param. When org_id = NULL, all assessment unit/monitoring
+  this param. When org_id = "all", all assessment unit/monitoring
   locations matches recorded in ATTAINS from all organizations will be
-  returned.
+  returned. The default is org_id = "all".
 
 - batch_upload:
 
@@ -69,7 +69,7 @@ PUEBLOOFTESUQUE_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "PUEBLOOFTESUQUE"
 )
 
-# Arizona example, returns blank dataframe as of 1/21/25
+# Arizona example, returns an empty df as of 10/17/25
 AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 } # }
 ```

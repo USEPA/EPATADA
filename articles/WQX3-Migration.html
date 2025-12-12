@@ -82,7 +82,7 @@
       <h1>WQX 3.0 Migration</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-05</h4>
+            <h4 data-toc-skip class="date">2025-12-12</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/WQX3-Migration.Rmd" class="external-link"><code>vignettes/WQX3-Migration.Rmd</code></a></small>
       <div class="d-none name"><code>WQX3-Migration.Rmd</code></div>
@@ -115,19 +115,15 @@ GitHub (un-comment).</p>
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"USEPA/EPATADA"</span>,</span>
 <span>  ref <span class="op">=</span> <span class="st">"develop"</span>,</span>
 <span>  dependencies <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Using github PAT from envvar GITHUB_PAT. Use `gitcreds::gitcreds_set()` and unset GITHUB_PAT in .Renviron (or elsewhere) if you want to use the more secure git credential store instead.</span></span></code></pre>
-<pre><code><span><span class="co">## Skipping install of 'EPATADA' from a github remote, the SHA1 (2b28099a) has not changed since last install.</span></span>
-<span><span class="co">##   Use `force = TRUE` to force installation</span></span></code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co"># remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)</span></span></code></pre></div>
 <p>Finally, use the <strong>library()</strong> function to load the TADA
 R Package into your R session.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://usepa.github.io/EPATADA/">EPATADA</a></span><span class="op">)</span></span></code></pre></div>
 <p>Let’s use USGS’s dataRetrieval R package to query the <a href="https://www.waterqualitydata.us/beta/" class="external-link">WQP beta</a> web services
 and retrieve the new WQX 3.0 full physical chemical profile.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_fullPhysChem</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/readWQPdata.html" class="external-link">readWQPdata</a></span><span class="op">(</span></span>
 <span>  statecode <span class="op">=</span> <span class="st">"Illinois"</span>,</span>
 <span>  countycode <span class="op">=</span> <span class="st">"DeWitt"</span>,</span>
@@ -156,16 +152,16 @@ compatibility. This new EPATADA function,
 <code>TADA_RenametoLegacy</code>, leverages a crosswalk file that is
 available on the <a href="https://www.epa.gov/waterdata/water-quality-portal-quick-reference-guide" class="external-link">Water
 Quality Portal Quick Reference Guide</a>.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3schema</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span><span class="st">"https://www.epa.gov/system/files/other-files/2025-07/schema_outbound_wqx3.0.csv"</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p>After retrieving the WQX 3.0 full physical chemical profile, we can
 use <code>TADA_RenametoLegacy</code> to change the column names back to
 WQX 2.2 where applicable.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_legacynames</span> <span class="op">&lt;-</span> <span class="fu">EPATADA</span><span class="fu">::</span><span class="fu"><a href="../reference/TADA_RenametoLegacy.html">TADA_RenametoLegacy</a></span><span class="op">(</span><span class="va">wqx3_fullPhysChem</span><span class="op">)</span></span></code></pre></div>
 <p>Now, we can test other EPATADA package functions as usual, for
 example, we can run <code>TADA_AutoClean</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wqx3_legacynames</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_AutoClean.html">TADA_AutoClean</a></span><span class="op">(</span><span class="va">wqx3_legacynames</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## [1] "TADA_Autoclean: creating TADA-specific columns."</span></span>
 <span><span class="co">## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."</span></span>

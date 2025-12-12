@@ -44,7 +44,6 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
@@ -209,15 +208,15 @@ dataset? Are there any media types that are not water?**
 ``` r
 n_media <- length(unique(FieldValues_ActMedia$Value))
 
-unique_media <- FieldValues_ActMedia %>%
-  dplyr::select(Value) %>%
-  dplyr::mutate(media = paste(Value, collapse = ", ")) %>%
-  dplyr::select(media) %>%
-  unique() %>%
+unique_media <- FieldValues_ActMedia  |>
+  dplyr::select(Value)  |>
+  dplyr::mutate(media = paste(Value, collapse = ", "))  |>
+  dplyr::select(media)  |>
+  unique()  |>
   stringi::stri_replace_last(fixed = ",", " and")
 
-n_not_water <- FieldValues_ActMedia %>%
-  dplyr::filter(Value != "Water") %>%
+n_not_water <- FieldValues_ActMedia  |>
+  dplyr::filter(Value != "Water")  |>
   dplyr::summarize(n_not_water = length(Value))
 ```
 
@@ -265,14 +264,14 @@ analysis**
 ``` r
 # Select only surface water results for use in analysis
 
-n_sur_water <- FieldValues_AnalysisFlag %>%
-  dplyr::filter(Value == "Yes - SURFACE WATER") %>%
+n_sur_water <- FieldValues_AnalysisFlag  |>
+  dplyr::filter(Value == "Yes - SURFACE WATER")  |>
   dplyr::select(Count)
 ```
 
 ``` r
 # Filter to retain only surface water results for use in analysis
-R5Profile <- R5Profile %>%
+R5Profile <- R5Profile  |>
   dplyr::filter(TADA.UseForAnalysis.Flag == "Yes - SURFACE WATER")
 ```
 
@@ -345,7 +344,7 @@ FieldValues_MLs_table <- TADA_FieldValuesTable(R5Profile, field = "TADA.Monitori
 
 mlt_n <- length(unique(FieldValues_MLs_table$Value))
 
-mlt_most_common <- FieldValues_MLs_table %>%
+mlt_most_common <- FieldValues_MLs_table  |>
   dplyr::slice_max(Count)
 ```
 
@@ -353,7 +352,7 @@ Now, let’s filter by mlt_most_common and focus the rest of this demo on
 the mlt_most_common\[1\] subset of results.
 
 ``` r
-R5Profile <- R5Profile %>%
+R5Profile <- R5Profile  |>
   dplyr::filter(TADA.MonitoringLocationTypeName == dplyr::pull(mlt_most_common[1]))
 ```
 
@@ -399,11 +398,11 @@ results?**
 n_char_name <- length(unique(R5Profile_CharSummary$TADA.CharacteristicName))
 
 # Filter for record with max number of sites per Character
-max_sites <- R5Profile_CharSummary %>%
+max_sites <- R5Profile_CharSummary  |>
   dplyr::slice_max(n_sites)
 
 # Filter for record with max number of results per Character
-max_results <- R5Profile_CharSummary %>%
+max_results <- R5Profile_CharSummary  |>
   dplyr::slice_max(n_records)
 ```
 
@@ -518,7 +517,7 @@ Remove flagged duplicates from a single organization (random selection
 of single result):
 
 ``` r
-R5ProfileClean4 <- R5ProfileClean3 %>%
+R5ProfileClean4 <- R5ProfileClean3  |>
   dplyr::filter(
     TADA.SingleOrgDup.Flag == "Unique"
   )
@@ -638,7 +637,7 @@ samples? Which ActivityTypeCode is the most common?**
 activity_type_code_n <- length(unique(R5ProfileClean5$ActivityTypeCode))
 
 # Most common Activity Type Code
-most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode") %>%
+most_common_activity <- TADA_FieldValuesTable(R5ProfileClean5, "ActivityTypeCode")  |>
   dplyr::slice_max(Count)
 ```
 
@@ -671,8 +670,8 @@ Review_R5ProfileClean5 <- TADA_FlagMeasureQualifierCode(R5ProfileClean5,
   define = TRUE
 )
 # Review number of suspect results
-suspect_n <- Review_R5ProfileClean5 %>%
-  dplyr::filter(TADA.MeasureQualifierCode.Flag == "SUSPECT") %>%
+suspect_n <- Review_R5ProfileClean5  |>
+  dplyr::filter(TADA.MeasureQualifierCode.Flag == "SUSPECT")  |>
   nrow()
 
 # Run function with clean = TRUE
@@ -749,8 +748,8 @@ columns?**
 result_na_n <- sum(is.na(R5ProfileClean5$TADA.ResultMeasureValue))
 
 # Show unique values of MeasureQualifierCode and TADA.MeasureQualifierCode.Def
-mqc <- R5ProfileClean5 %>%
-  dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Def) %>%
+mqc <- R5ProfileClean5  |>
+  dplyr::select(MeasureQualifierCode, TADA.MeasureQualifierCode.Def)  |>
   unique()
 ```
 
@@ -830,7 +829,7 @@ useful:
 UniqueHarmonizationRef <- TADA_GetSynonymRef(R5ProfileClean6)
 
 # Filter out records without target to display in table
-UniqueHarmonizationRef_no_na <- UniqueHarmonizationRef %>%
+UniqueHarmonizationRef_no_na <- UniqueHarmonizationRef  |>
   dplyr::filter(is.na(Target.TADA.CharacteristicName))
 
 # Harominze data set
@@ -879,8 +878,8 @@ R5ProfileClean8_n <- nrow(R5ProfileClean8)
 
 nutrient_n <- R5ProfileClean8_n - R5ProfileClean7_n
 
-total_N_P_subset <- R5ProfileClean8 %>%
-  dplyr::filter(TADA.NutrientSummation.Flag %in% c("Nutrient summation from one or more subspecies.", "Nutrient summation from one subspecies.")) %>%
+total_N_P_subset <- R5ProfileClean8  |>
+  dplyr::filter(TADA.NutrientSummation.Flag %in% c("Nutrient summation from one or more subspecies.", "Nutrient summation from one subspecies."))  |>
   dplyr::select(TADA.CharacteristicName, TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode, TADA.NutrientSummation.Flag, TADA.NutrientSummationEquation, TADA.NutrientSummationGroup)
 ```
 
@@ -993,7 +992,7 @@ Dissolved Oxygen (DO) results.
 
 ``` r
 # # Create subset of DO data
-DO_R5ProfileClean8 <- R5ProfileClean8 %>% dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
+DO_R5ProfileClean8 <- R5ProfileClean8  |> dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 #
 # # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)
 DO_SCM_Pie <- TADA_FieldValuesPie(R5ProfileClean8, field = "SampleCollectionMethod.MethodName", characteristicName = "DISSOLVED OXYGEN (DO)")

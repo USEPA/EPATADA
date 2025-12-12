@@ -39,7 +39,7 @@ This example Module 2 workflow focuses on the following tasks:
     **`TADA_UpdateATTAINSAUMLCrosswalk`** to submit an up-to-date
     assessment unit/WQP monitoring location crosswalk to ATTAINS.
 
-4.  **Assigning Uses**: Use **`TADA_CreateUseAURef`** to assign specific
+4.  **Assigning Uses**: Use **`TADA_AssignUsesToAU`** to assign specific
     uses to the assessment units.
 
 **A Note About ATTAINS:**
@@ -91,8 +91,7 @@ console).
 ``` r
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
-  dependencies = TRUE,
-  force = TRUE
+  dependencies = TRUE
 )
 ```
 
@@ -143,9 +142,9 @@ utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
 # )
 #
 # # clean up data set (not comprehensive)
-# tada.MT.clean <- tada.MT %>%
-#   TADA_RunKeyFlagFunctions() %>%
-#   TADA_SimpleCensoredMethods() %>%
+# tada.MT.clean <- tada.MT  |>
+#   TADA_RunKeyFlagFunctions()  |>
+#   TADA_SimpleCensoredMethods()  |>
 #   TADA_HarmonizeSynonyms()
 ```
 
@@ -239,21 +238,21 @@ attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
-user.supplied.cw <- clean.existing.attains.MT %>%
+user.supplied.cw <- clean.existing.attains.MT  |>
   dplyr::select(
     ATTAINS.AssessmentUnitIdentifier,
     ATTAINS.MonitoringLocationIdentifier,
     ATTAINS.WaterType
-  ) %>%
+  )  |>
   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
     "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-  )) %>%
+  ))  |>
   dplyr::rename(
     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
     WaterType = ATTAINS.WaterType
-  ) %>%
+  )  |>
   # Add an example new assessment unit for demonstration purposes
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
@@ -274,7 +273,6 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
-  fill_USGS_catch = TRUE,
   return_nearest = TRUE,
   batch_upload = TRUE
 )
@@ -356,6 +354,33 @@ to make the water quality data spatial.
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
+    ## [1] "Data after CRS assignment:"
+    ## # A tibble: 426 × 164
+    ## # Rowwise: 
+    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
+    ##    <chr>            <chr>            <chr>                  <chr>            
+    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
+    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
+    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
+    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
+    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
+    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
+    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
+    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
+    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
+    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
+    ## # ℹ 416 more rows
+    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
+    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
+    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
+    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
+    ## #   TADA.MonitoringLocationTypeName <chr>,
+    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
+    ## [1] "Processing CRS: NAD27"
+    ## [1] "Processing CRS: NAD83"
+    ## [1] "Processing CRS: UNKWN"
+    ## [1] "Processing CRS: WGS84"
+
 This new spatial object is identical to the original TADA dataframe, but
 now includes a “geometry” column that allows for mapping and additional
 geospatial capabilities. Enter
@@ -366,22 +391,22 @@ additional information.
 Now we can review the monitoring locations on a map:
 
 ``` r
-leaflet::leaflet() %>%
+leaflet::leaflet()  |>
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
     options = leaflet::providerTileOptions(
       updateWhenZooming = FALSE,
       updateWhenIdle = TRUE
     )
-  ) %>%
-  leaflet::clearShapes() %>%
-  leaflet.extras::addResetMapButton() %>%
+  )  |>
+  leaflet::clearShapes()  |>
+  leaflet.extras::addResetMapButton()  |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
     labels = "Water Quality Observation(s)",
     opacity = 1
-  ) %>%
+  )  |>
   leaflet::addCircleMarkers(
     data = TADA_spatial,
     color = "grey", fillColor = "black",
@@ -405,7 +430,36 @@ TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
   return_sf = FALSE,
   return_nearest = FALSE
 )
+```
 
+    ## [1] "Data after CRS assignment:"
+    ## # A tibble: 426 × 164
+    ## # Rowwise: 
+    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
+    ##    <chr>            <chr>            <chr>                  <chr>            
+    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
+    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
+    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
+    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
+    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
+    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
+    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
+    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
+    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
+    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
+    ## # ℹ 416 more rows
+    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
+    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
+    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
+    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
+    ## #   TADA.MonitoringLocationTypeName <chr>,
+    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
+    ## [1] "Processing CRS: NAD27"
+    ## [1] "Processing CRS: NAD83"
+    ## [1] "Processing CRS: UNKWN"
+    ## [1] "Processing CRS: WGS84"
+
+``` r
 # Can also be performed on the spatial data:
 # TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = FALSE, return_nearest = TRUE)
 ```
@@ -425,7 +479,36 @@ TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(
   return_sf = TRUE,
   return_nearest = TRUE
 )
+```
 
+    ## [1] "Data after CRS assignment:"
+    ## # A tibble: 426 × 164
+    ## # Rowwise: 
+    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
+    ##    <chr>            <chr>            <chr>                  <chr>            
+    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
+    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
+    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
+    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
+    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
+    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
+    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
+    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
+    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
+    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
+    ## # ℹ 416 more rows
+    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
+    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
+    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
+    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
+    ## #   TADA.MonitoringLocationTypeName <chr>,
+    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
+    ## [1] "Processing CRS: NAD27"
+    ## [1] "Processing CRS: NAD83"
+    ## [1] "Processing CRS: UNKWN"
+    ## [1] "Processing CRS: WGS84"
+
+``` r
 # return only the closest ATTAINS AU for observations within a catchment with multiple AUs
 # TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
 ```
@@ -452,6 +535,33 @@ TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(
   return_nearest = TRUE
 )
 ```
+
+    ## [1] "Data after CRS assignment:"
+    ## # A tibble: 426 × 164
+    ## # Rowwise: 
+    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
+    ##    <chr>            <chr>            <chr>                  <chr>            
+    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
+    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
+    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
+    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
+    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
+    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
+    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
+    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
+    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
+    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
+    ## # ℹ 416 more rows
+    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
+    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
+    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
+    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
+    ## #   TADA.MonitoringLocationTypeName <chr>,
+    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
+    ## [1] "Processing CRS: NAD27"
+    ## [1] "Processing CRS: NAD83"
+    ## [1] "Processing CRS: UNKWN"
+    ## [1] "Processing CRS: WGS84"
 
 When `fill_USGS_catch = TRUE`, the returned list splits observations
 into two dataframes: WQP observations with ATTAINS catchment data, and
@@ -568,7 +678,7 @@ For more detailed instructions, enter
 into the console.
 
 ``` r
-batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
+batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload  |>
   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
     attains_replace = TRUE,
     batch_upload = TRUE,
@@ -582,7 +692,7 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload %>%
 ## Step D: Assign Uses to AUs
 
 After mapping the WQP monitoring locations (MLs) to ATTAINS assessment
-units (AUs), we will use the `TADA_CreateUseAURef` function to assign
+units (AUs), we will use the `TADA_AssignUsesToAU` function to assign
 specific uses to these assessment units. Additionally, we will
 demonstrate how to automatically assign uses to the new assessment unit,
 `NEW:EX_MDEQ_WQ_WQX` with the water type “LAKE, FRESHWATER,” that was
@@ -605,56 +715,56 @@ prioritized steps:
     units as defined by ATTAINS organizations.
 
 ``` r
-MT.UseAURef <- TADA_CreateUseAURef(
+MT.UseAURef <- TADA_AssignUsesToAU(
   AUMLRef = Final.MT.AUMLRef,
   org_id = "MTDEQ"
 )
 ```
 
-    ## [1] "TADA_CreateUseAURef: Importing existing uses by AU from Expert Query."
+    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
 
 ##### **Advanced: Assigning Uses to New AUs**
 
 For any new assessment unit (AU), users must determine how to assign the
-appropriate uses. The **`TADA_CreateWaterUseRef`** function is designed
-to assist with this process. It imports combinations of water types and
-use names associated with the specified organization from ATTAINS. By
-doing so, it automatically assigns uses to new assessment units based on
-their water type, thereby streamlining the integration of new AUs into
-existing frameworks.
+appropriate uses. The **`TADA_AssignUsesToWaterType`** function is
+designed to assist with this process. It imports combinations of water
+types and use names associated with the specified organization from
+ATTAINS. By doing so, it automatically assigns uses to new assessment
+units based on their water type, thereby streamlining the integration of
+new AUs into existing frameworks.
 
 For more information on how to customize this function to suit your
 needs, enter
-**[`?TADA_CreateWaterUseRef`](usepa.github.io/EPATADA/reference/TADA_CreateWaterUseRef.md)**
+**[`?TADA_AssignUsesToWaterType`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)**
 into the R console.
 
 ``` r
 MT.UseAURef_with_WaterUseRef <-
-  TADA_CreateUseAURef(
-    waterUseRef = TADA_CreateWaterUseRef(org_id = "MTDEQ"),
+  TADA_AssignUsesToAU(
+    waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ"
   )
 ```
 
-    ## [1] "TADA_CreateUseAURef: Importing existing uses by AU from Expert Query."
-    ## [1] "TADA_CreateWaterUseParamRef: Importing unique water types and uses by organization from Expert Query."
+    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
+    ## [1] "TADA_CreateWaterusesRef: Importing unique water types and uses by organization from Expert Query."
 
 Users also have the option to manually assign use names to new AUs if
-they prefer not to use the TADA_CreateWaterUseRef function. This
+they prefer not to use the TADA_AssignUsesToWaterType function. This
 approach allows for greater flexibility and customization when
 integrating new AUs into existing frameworks.
 
 ``` r
-MT.UseAURef_manual <- MT.UseAURef %>%
+MT.UseAURef_manual <- MT.UseAURef  |>
   dplyr::left_join(
     data.frame(
       ATTAINS.UseName = c("Aquatic Life", "Drinking Water"),
       ATTAINS.AssessmentUnitIdentifier = c("NEW:EX_MDEQ_WQ_WQX", "NEW:EX_MDEQ_WQ_WQX")
     ),
     by = ("ATTAINS.AssessmentUnitIdentifier")
-  ) %>%
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) %>%
+  )  |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))  |>
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
 

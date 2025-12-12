@@ -40,8 +40,8 @@ The original map with polygons from the feature layer added to it.
 ``` r
 if (FALSE) { # \dontrun{
 # Create a leaflet map
-lmap <- leaflet::leaflet() %>%
-  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+lmap <- leaflet::leaflet() |>
+  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the American Indian Reservations feature layer to the map
 lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")

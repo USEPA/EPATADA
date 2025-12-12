@@ -1,9 +1,11 @@
-# Criteria Search Tool Reference Table
+# Criteria Search Tool (CST) Reference Table
 
-This function downloads the latest criteria search tool from the EPA OST
-and returns it. Before use, the downloaded data is cleaned and formatted
-as the the initial ~200 rows contain the legend and data dictionary,
-which need to be removed.
+This function downloads State-Specific Water Quality Standards Effective
+under the Clean Water Act (CWA) from EPA's Criteria Search Tool. This
+file is reformatted as a data frame for use in R. This function caches
+the table after it has been called once so subsequent calls will be
+faster. To get the data dictionary for the CST see TADA_GetLegendCSTRef.
+For the WQS document sources see TADA_GetSourcesCSTRef.
 
 ## Usage
 
@@ -13,9 +15,10 @@ TADA_GetCriteriaSearchToolRef()
 
 ## Value
 
-Updated sysdata.rda with updated ATTAINSParamToWQPCharRef object
+Updated sysdata.rda with updated CriteriaSearchToolRef object
 
-## Details
+## Examples
 
-This function caches the table after it has been called once so
-subsequent calls will be faster.
+``` r
+CWACriteria <- TADA_GetCriteriaSearchToolRef()
+```

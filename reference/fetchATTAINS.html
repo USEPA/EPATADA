@@ -73,7 +73,7 @@ produced from a set of TADA spatial features.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fetchATTAINS</span><span class="op">(</span><span class="va">.data</span>, catchments_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">fetchATTAINS</span><span class="op">(</span><span class="va">.data</span>, catchments_only <span class="op">=</span> <span class="cn">FALSE</span>, org_id <span class="op">=</span> <span class="st">"all"</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -87,6 +87,18 @@ produced from a set of TADA spatial features.</p>
 <dt id="arg-catchments-only">catchments_only<a class="anchor" aria-label="anchor" href="#arg-catchments-only"></a></dt>
 <dd><p>Whether to return just the summarized ATTAINS catchment features, or both
 the catchments and raw ATTAINS features. TRUE or FALSE.</p></dd>
+
+
+<dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
+<dd><p>ATTAINS organization identifier(s) as a character string.
+If populated, Assessment Units  will only be fetched from the specified
+organization(s). A list of organization identifiers can be found
+by downloading the ATTAINS Domains Excel file:
+https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param. When
+org_id = "all", Assessment Units from all organizations will be considered.
+The default is "all".</p></dd>
 
 </dl></div>
     <div class="section level2">

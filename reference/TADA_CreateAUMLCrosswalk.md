@@ -11,11 +11,11 @@ unassigned monitoring locations to assessment units.
 TADA_CreateAUMLCrosswalk(
   .data,
   au_ref = NULL,
-  org_id = NULL,
+  org_id = "all",
   fill_ATTAINS_catch = FALSE,
   fill_USGS_catch = FALSE,
   return_nearest = TRUE,
-  batch_upload = TRUE
+  batch_upload = FALSE
 )
 ```
 
@@ -41,7 +41,10 @@ TADA_CreateAUMLCrosswalk(
   https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
   Organization identifiers are listed in the "OrgName" tab. The "code"
   column contains the organization identifiers that should be used for
-  this param.
+  this param. When org_id = "all", the
+  MonitoringLocationIdentifier/AssessmentUnitIdentifier matches from all
+  organizations will be considered. When org_id = "none" or NULL, no
+  crosswalk data from ATTAINS will be considered. The default is "all".
 
 - fill_ATTAINS_catch:
 

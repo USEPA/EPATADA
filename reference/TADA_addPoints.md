@@ -40,8 +40,8 @@ The original map with polygon from the feature layer added to it.
 ``` r
 if (FALSE) { # \dontrun{
 # Create a leaflet map
-lmap <- leaflet::leaflet() %>%
-  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") %>%
+lmap <- leaflet::leaflet() |>
+  leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
 # Add the Virginia Federally Recognized Tribes feature layer to the map
 lmap <- TADA_addPoints(
