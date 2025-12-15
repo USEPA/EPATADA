@@ -78,21 +78,20 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, results = 'hide', include = F}
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "Updates-to-Mod3-Functions-and-Vignettes",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
 
-Finally, use the **library()** function to load the EPATADA R Package
-into your R session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
-```{r load-EPATADA, results = 'hide'}
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -208,19 +207,19 @@ rm(tada.MT)
 
 This example will focus only on Montana. The remainder of this vignette
 will walk through how to fill out two crosswalk tables
-(TADA_ParametersForAnalysis and TADA_UsesForAnalysis) that are needed before
-we can start assigning applicable criteria and methodologies information
-for this specific ATTAINS organization (MTDEQ).
+(TADA_ParametersForAnalysis and TADA_UsesForAnalysis) that are needed
+before we can start assigning applicable criteria and methodologies
+information for this specific ATTAINS organization (MTDEQ).
 
 # ATTAINS Domains and Allowable Values
 
 A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two data sets.
 Before creating the TADA/WQP CharacteristicName and ATTAINS parameter
-crosswalk table (TADA_ParametersForAnalysis), let's review all the unique
-TADA.ComparableDataIdentifier's (characteristic, fraction and speciation
-combinations) in the example data. How many results are available for
-each within the example data set?
+crosswalk table (TADA_ParametersForAnalysis), let's review all the
+unique TADA.ComparableDataIdentifier's (characteristic, fraction and
+speciation combinations) in the example data. How many results are
+available for each within the example data set?
 
 ```{r comparabledataID-counts}
 # create table with counts of TADA.ComparableDataIdentifiers
@@ -242,9 +241,9 @@ TADA_TableExport(rExpertQuery::EQ_DomainValues("param_name"))
 
 In the next section, we will review which parameters have been listed in
 ATTAINS in the past for a specific organization. In order to select a
-specific organization in the TADA_ParametersForAnalysis() function, we need to
-identify the organization id used in ATTAINS. The organization id for
-Montana is "MTDEQ".
+specific organization in the TADA_ParametersForAnalysis() function, we
+need to identify the organization id used in ATTAINS. The organization
+id for Montana is "MTDEQ".
 
 ```{r ATTAINS-orgs}
 # return ATTAINS organization domain values
@@ -261,20 +260,20 @@ TADA.ComparableDataIdentifiers from the TADA data frame and provides a
 blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name.
 
-TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to assist
-users in doing an exact match between TADA Characteristic Names to
-ATTAINS Parameter Name. There are roughly 598 unique ATTAINS Parameter
-Names that have an exact match. \*\*It is important to note that even
-with these exact matches, there are additional complexities related to
-fraction, speciation and units that may be unique to your organization.
-For example, some organizations may consider Total Nitrogen,
-Nitrate/Nitrite, and Ammonia all to match the ATTAINS parameter
-"Nitrogen", while other organizations may consider only some
+TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to
+assist users in doing an exact match between TADA Characteristic Names
+to ATTAINS Parameter Name. There are roughly 598 unique ATTAINS
+Parameter Names that have an exact match. \*\*It is important to note
+that even with these exact matches, there are additional complexities
+related to fraction, speciation and units that may be unique to your
+organization. For example, some organizations may consider Total
+Nitrogen, Nitrate/Nitrite, and Ammonia all to match the ATTAINS
+parameter "Nitrogen", while other organizations may consider only some
 fraction/speciation combinations analogous to the ATTAINS parameter
 "Nitrogen".
 
-Setting "excel = TRUE" in TADA_ParametersForAnalysis tells the function to
-create an Excel spreadsheet of the reference table for review and
+Setting "excel = TRUE" in TADA_ParametersForAnalysis tells the function
+to create an Excel spreadsheet of the reference table for review and
 editing. The excel output includes logic to help a user select ATTAINS
 parameter names that have been used in the past by the selected
 organization. If users do not want to work in Excel, they can use "excel
@@ -296,11 +295,11 @@ names from the entire ATTAINS domain list.
 Keep in mind that only parameter names previously entered in ATTAINS by
 the selected organization(s) will be returned. Many organization only
 input parameters that are causes in ATTAINS. This means that
-TADA_ParametersForAnalysis() may not return all parameters required by an
-organization's assessment methodology if some parameters have never been
-listed as a cause. If there is not a suitable ATTAINS parameter name to
-match a TADA.ComparableDataIdentifier, users should contact the ATTAINS
-team (attains\@epa.gov) for assistance.
+TADA_ParametersForAnalysis() may not return all parameters required by
+an organization's assessment methodology if some parameters have never
+been listed as a cause. If there is not a suitable ATTAINS parameter
+name to match a TADA.ComparableDataIdentifier, users should contact the
+ATTAINS team (attains\@epa.gov) for assistance.
 
 For our first example, we will specify Montana's organization identifier
 ("MTDEQ") as our ATTAINS organization identifier of interest. By
@@ -365,14 +364,14 @@ TADA_TableExport(MT.ParamRef.Org)
 
 The code chunk below demonstrates how the parameter reference table can
 be modified in R. Once modifications are complete, we can re-run
-TADA_ParametersForAnalysis using the modified parameter reference table as the
-input for "paramRef". This will update the ATTAINS.FlagParameterName
-column in the parameter reference table (see example below). This column
-provides information about whether or not the organization specified in
-the "ATTAINS.OrganizationIdentifier" column has listed this parameter as
-a cause in prior assessment cycles. It also flags rows where the
-TADA.ComparableDataIdentifier as not been assigned an ATTAINS parameter
-name.
+TADA_ParametersForAnalysis using the modified parameter reference table
+as the input for "paramRef". This will update the
+ATTAINS.FlagParameterName column in the parameter reference table (see
+example below). This column provides information about whether or not
+the organization specified in the "ATTAINS.OrganizationIdentifier"
+column has listed this parameter as a cause in prior assessment cycles.
+It also flags rows where the TADA.ComparableDataIdentifier as not been
+assigned an ATTAINS parameter name.
 
 ```{r Manually-Create-ParamRef}
 # only run the code chunks below if you make edits to the excel file. Please note you must open and save the excel file at least once to reflect all Excel formula based values.
@@ -409,10 +408,11 @@ TADA_TableExport(MT.ParamRef.Manual)
 ### Provide a User Supplied paramRef
 
 We can now save and reuse MT.ParamRef_Manual as the user-supplied
-paramRef argument input in TADA_ParametersForAnalysis(). When this reference
-file is used for the next assessment or analysis cycle, this function
-will determine if any new WQX characteristic names are included in the
-TADA data frame and add additional rows to the crosswalk if needed.
+paramRef argument input in TADA_ParametersForAnalysis(). When this
+reference file is used for the next assessment or analysis cycle, this
+function will determine if any new WQX characteristic names are included
+in the TADA data frame and add additional rows to the crosswalk if
+needed.
 
 ```{r User-Supplied-ParamRef}
 MT.ParamRef.user.supplied <- TADA_ParametersForAnalysis(
@@ -499,11 +499,11 @@ associated with it.
 
 In the example below, we can see "PH" and "ESCHERICHIA COLI (E. COLI)"
 as the ATTAINS.ParameterNames that were assessed in prior assessment
-cycles for MTDEQ (see ATTAINS.FlagUseName column in NCTC_usesRef).
-"PH, HIGH" was not listed in ATTAINS for MTDEQ in the prior assessment
-cycle, but was included as a parameter name MTDEQ would like to assess
-for in this current assessment/analysis cycle. Thus, the ATTAINS.UseName
-is left blank for "PH, HIGH".
+cycles for MTDEQ (see ATTAINS.FlagUseName column in NCTC_usesRef). "PH,
+HIGH" was not listed in ATTAINS for MTDEQ in the prior assessment cycle,
+but was included as a parameter name MTDEQ would like to assess for in
+this current assessment/analysis cycle. Thus, the ATTAINS.UseName is
+left blank for "PH, HIGH".
 
 ```{r usesRef-Manual}
 MT.usesRef.Manual <- TADA_UsesForAnalysis(
@@ -605,11 +605,11 @@ MT.usesRef.with.AU_UsesRef <- TADA_UsesForAnalysis(
 
 ### Provide a User Supplied usesRef
 
-Users can also choose to supply their own usesRef as an argument
-input. This may be useful if your organization has made significant
-changes to use names in the current cycle that cannot be retrieved from
-the prior ATTAINS assessment cycle or if there are just additional use
-names that were unable to be retrieved from the prior assessment cycle.
+Users can also choose to supply their own usesRef as an argument input.
+This may be useful if your organization has made significant changes to
+use names in the current cycle that cannot be retrieved from the prior
+ATTAINS assessment cycle or if there are just additional use names that
+were unable to be retrieved from the prior assessment cycle.
 
 (Note: TADA functions leverages the ATTAINS assessment profiles which
 will not reflect any submitted use name changes to ATTAINS until the
@@ -623,9 +623,9 @@ extract the use and parameters from their crosswalk.
 
 We can see that MTDEQ has additional rows for E. Coli that was unable to
 be retrieved from ATTAINS. We also see PH was not found in the user
-supplied usesRef table. We will assume MTDEQ has forgotten to
-include PH in their table and showcase the importance of considering all
-readily available data from your WQP data retrieval that you may need to
+supplied usesRef table. We will assume MTDEQ has forgotten to include PH
+in their table and showcase the importance of considering all readily
+available data from your WQP data retrieval that you may need to
 consider for analysis.
 
 ```{r usesRef-User-Supplied}
@@ -701,8 +701,9 @@ your assessment unit and monitoring location sites overlay.
 The general workflow of running module 3 functions for CWA water quality
 data analysis is shown below.
 
-TADA_ParametersForAnalysis requires a crosswalk between ATTAINS parameter names
-and WQP characteristic names/TADA comparable data identifiers.
+TADA_ParametersForAnalysis requires a crosswalk between ATTAINS
+parameter names and WQP characteristic names/TADA comparable data
+identifiers.
 
 ![Monitoring Location Summary](images/FlowChartMLModule3.jpg)
 
@@ -732,8 +733,8 @@ TADA_TableExport(MT.MLSummaryRef.ML)
 ## Define Spatial Summary by Monitoring Location (AU)
 
 Now let's compare this to the AU level of summary. To provide the ML to
-AU level of summary, this requires an AUML crosswalk and a AU_UsesRef, we
-recommend you to review the ExampleMod2Workflow vignette for more in
+AU level of summary, this requires an AUML crosswalk and a AU_UsesRef,
+we recommend you to review the ExampleMod2Workflow vignette for more in
 depth information on this crosswalk. We will load these example
 reference tables into this vignette.
 
