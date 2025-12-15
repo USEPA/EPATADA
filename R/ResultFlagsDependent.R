@@ -475,8 +475,9 @@ TADA_FlagResultUnit <- function(
   }
 
   # Load unit reference table for validation
-  file_path <- load(system.file("extdata", "WQXcharValRef.rda", package = "EPATADA"))
-  load(file_path)
+  file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+
+  load("C:/Users/hmarler/GitHub/EPATADA/inst/extdata/WQXcharValRef.rda")
 
   unit.ref <- WQXcharValRef |>
     dplyr::filter(Type == "CharacteristicUnit")
