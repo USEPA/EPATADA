@@ -182,7 +182,7 @@
         Data_6Tribes_5y,
         Data_6Tribes_5y$TADA.ActivityMediaName %in% c("WATER")
       )
-      harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = TRUE)
+      harmonized_data <- TADA_RunKeyFlagFunctions(harmonized_data, clean = "both")
       rm(Data_6Tribes_5y)
 
       harmonized_data <- harmonized_data |>
