@@ -1118,7 +1118,7 @@ TADA_ParametersForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -1245,7 +1245,7 @@ TADA_ParametersForAnalysis <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
-    if (org_id == "") {
+    if ("" %in% org_id) {
       ATTAINS_param <- ATTAINS_param_all |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
     }
@@ -2097,7 +2097,7 @@ TADA_UsesForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -2997,7 +2997,7 @@ TADA_AssignUsesToAU <- function(
       org_id <- ""
     }
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -3357,7 +3357,7 @@ TADA_AssignUsesToWaterType <- function(
     org_id <- ""
   }
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-  if (tolower(org_id) == "all") {
+  if (tolower("all") %in% tolower(org_id)) {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
       print(paste0(
@@ -3734,7 +3734,7 @@ TADA_MLSummary <- function(
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
     # set a limit of 100k rows if we want to display all sites-param-use combinations.
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 100000) {
+    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 100000 | length(org_id) > 5) {
       warning(paste0(
         "displayNA = TRUE: ",
         "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
@@ -3911,7 +3911,7 @@ TADA_MLSummary <- function(
         AUMLRef,
         ATTAINS.OrganizationIdentifier,
         ATTAINS.AssessmentUnitIdentifier,
-        MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+        MonitoringLocationIdentifier,
         ATTAINS.WaterType
       )
 

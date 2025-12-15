@@ -72,12 +72,16 @@
 #' table that has already been filled out.
 #'
 #' @param displayUniqueId A Boolean value. If TRUE, this will print all unique
-#' TADA.ComparableDataIdentifier in the criteria and methods table output. This is
+#' TADA.ComparableDataIdentifier in the criteria and methods table output. If your
+#' analysis needs are dependent on differing fractions or speciations, displaying 
+#' the unique TADA.ComparableDataIdentifier will ensure you specify the correct 
+#' crosswalk between ATTAINS.ParameterName that each individual 
+#' TADA.ComparableDataIdentifier groups to in your TADA data frame. This is
 #' useful in the alternative options to generate the criteria and methods table
 #' without the reference tables.
 #'
-#' @param epa304a A Boolean value to return epa304a recommended standards for any
-#' WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
+#' @param epa304a A Boolean value to return a draft epa304a recommended standards 
+#' for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -262,8 +266,12 @@ TADA_DefineCriteriaMethodology <- function(
       auto_assign <- FALSE
     }
 
-    # If auto_assign = FALSE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
-    
+    # If auto_assign = TRUE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
+    if (auto_assign == TRUE & !is.null(criteriaMethods)){
+      stop(
+        "TADA_DefineCriteriaMethodology: criteriaMethodology is provided and auto_assign = TRUE are not valid function argument input combinations."
+      )
+    }
     
     # Invalid function input combos - supply one or the other.
     if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
@@ -284,7 +292,7 @@ TADA_DefineCriteriaMethodology <- function(
       org_id <- ""
     }
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -403,7 +411,7 @@ TADA_DefineCriteriaMethodology <- function(
       suppressMessages(
         MLSummaryRef <- TADA_MLSummary(
           .data,
-          displayNA = FALSE,
+          displayNA = TRUE,
           org_id = org_id,
           usesRef = TADA_usesRef,
           AUMLRef = AUMLRef,
