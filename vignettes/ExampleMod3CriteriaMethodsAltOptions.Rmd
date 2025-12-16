@@ -76,19 +76,17 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, results = 'hide', include = F}
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "update-mod-3-alt-option-vignette",
+  ref = "develop",
   dependencies = TRUE
 )
 ```
 
-Finally, use the **library()** function to load the EPATADA R Package
-into your R session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
@@ -200,12 +198,6 @@ the excel file.
 
 ```{r blank template output}
 MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean, # remove this as an arg input
-  org_id = "MTDEQ", # can remove this too
-  auto_assign = FALSE, displayUniqueId = TRUE,
-  excel = FALSE
-  # uncomment to run the excel file
-  # excel = TRUE, overwrite = TRUE
 )
 
 TADA_TableExport(MT.Criteria.blank)

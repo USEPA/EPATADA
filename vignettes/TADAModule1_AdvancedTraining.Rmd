@@ -98,27 +98,30 @@ Load the remotes library:
 library(remotes)
 ```
 
-The EPATADA R package relies on other packages, therefore you may be
-prompted in the console to update dependency packages that have more
-recent versions available. If you see this prompt, it is recommended to
-update all of them (enter 1 into the console).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
-```{r install_TADA, eval = T, results = 'hide'}
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+```
+
+```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
 ```
 
-```{r install_TADA_dev, results = 'hide', include = FALSE}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
-Use the **library()** function to load the TADA R Package into your R
-session.
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
@@ -246,8 +249,9 @@ the columns critical to TADA, removing the need to combine profiles in
 this first step. This will simplify the steps needed to upload a custom
 or WQP GUI-downloaded dataframe into the R package. However, column
 names are changing in the new WQP 3.0 data profiles. This will impact
-the `TADA_DataRetrieval` function. The WQP and TADA teams are available to assist with cross
-walking the old to new column names when the time comes.
+the `TADA_DataRetrieval` function. The WQP and TADA teams are available
+to assist with cross walking the old to new column names when the time
+comes.
 
 ## Initial data review
 
