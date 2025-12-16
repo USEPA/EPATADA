@@ -23,9 +23,10 @@
 #'   display = "most", characteristicName = "AMMONIA"
 #' )
 TADA_FieldCounts <- function(
-    .data,
-    display = c("key", "most", "all"),
-    characteristicName = "null") {
+  .data,
+  display = c("key", "most", "all"),
+  characteristicName = "null"
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -197,9 +198,10 @@ TADA_FieldCounts <- function(
 #' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
 TADA_FieldValuesTable <- function(
-    .data,
-    field = "null",
-    characteristicName = "null") {
+  .data,
+  field = "null",
+  characteristicName = "null"
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -308,12 +310,13 @@ TADA_FieldValuesTable <- function(
 #' }
 #'
 TADA_AnalysisDataFilter <- function(
-    .data,
-    clean = FALSE,
-    surface_water = TRUE,
-    ground_water = FALSE,
-    sediment = FALSE,
-    other = TRUE) {
+  .data,
+  clean = FALSE,
+  surface_water = TRUE,
+  ground_water = FALSE,
+  sediment = FALSE,
+  other = TRUE
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 

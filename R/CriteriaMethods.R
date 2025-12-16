@@ -137,17 +137,18 @@
 #' }
 #'
 TADA_DefineCriteriaMethodology <- function(
-    .data,
-    org_id = NULL,
-    MLSummaryRef = NULL,
-    criteriaMethods = NULL, # user supplied input here
-    auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-    AUMLRef = NULL,
-    AU_UsesRef = NULL, # Optional if auto_assign = TRUE
-    epa304a = FALSE,
-    displayUniqueId = FALSE,
-    excel = FALSE,
-    overwrite = FALSE) {
+  .data,
+  org_id = NULL,
+  MLSummaryRef = NULL,
+  criteriaMethods = NULL, # user supplied input here
+  auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+  AUMLRef = NULL,
+  AU_UsesRef = NULL, # Optional if auto_assign = TRUE
+  epa304a = FALSE,
+  displayUniqueId = FALSE,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
@@ -297,7 +298,9 @@ TADA_DefineCriteriaMethodology <- function(
     }
 
     # Generates a criteria table with only unique TADA.CharacteristicName(s) populated.
-    if (auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)) {
+    if (
+      auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)
+    ) {
       # desired_cols <- c(
       #   "ATTAINS.OrganizationIdentifier",
       #   "ATTAINS.ParameterName",

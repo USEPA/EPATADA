@@ -331,13 +331,14 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
 #' }
 #'
 TADA_UpdateATTAINSAUMLCrosswalk <- function(
-    org_id = "all",
-    crosswalk = NULL,
-    attains_replace = FALSE,
-    wqp_data_links = "add",
-    update_mlid = TRUE,
-    batch_upload = FALSE,
-    check_links = FALSE) {
+  org_id = "all",
+  crosswalk = NULL,
+  attains_replace = FALSE,
+  wqp_data_links = "add",
+  update_mlid = TRUE,
+  batch_upload = FALSE,
+  check_links = FALSE
+) {
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
@@ -1059,13 +1060,14 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' }
 #'
 TADA_ParametersForAnalysis <- function(
-    .data,
-    org_id = NULL,
-    paramRef = NULL, # If provided, crosswalk is based on user supplied crosswalk.
-    auto_assign = c("None", "All", "Org"), # Only auto_assigns if a TADA.ComparableDataIdentifier is left blank.
-    AUMLRef = NULL, # If org_id = "ALL", filters by this arg input.
-    excel = FALSE,
-    overwrite = FALSE) {
+  .data,
+  org_id = NULL,
+  paramRef = NULL, # If provided, crosswalk is based on user supplied crosswalk.
+  auto_assign = c("None", "All", "Org"), # Only auto_assigns if a TADA.ComparableDataIdentifier is left blank.
+  AUMLRef = NULL, # If org_id = "ALL", filters by this arg input.
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # argument input selection for auto_assign
   auto_assign <- match.arg(auto_assign)
 
@@ -1239,12 +1241,16 @@ TADA_ParametersForAnalysis <- function(
     if (
       sum(
         !org_id[org_id != c("EPA304a", "")] %in%
-          c(utils::read.csv(system.file(
-            "extdata",
-            "ATTAINSOrgIDsRef.csv",
-            package = "EPATADA"
-          ))[, "code"], "")
-      ) > 0
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
+      ) >
+        0
     ) {
       warning(paste0(
         "TADA_ParametersForAnalysis: ",
@@ -1918,15 +1924,16 @@ TADA_ParametersForAnalysis <- function(
 #' )
 #'
 TADA_UsesForAnalysis <- function(
-    .data,
-    org_id = NULL,
-    paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
-    usesRef = NULL, # If provided, any param(s) to use(s) assignments will be based on this user supplied list.
-    AU_UsesRef = NULL, # If provided, any use assignments will be based on this domain list rather than from ATTAINS.
-    AUMLRef = NULL, # If provided and if org_id = "ALL" then this will filter org_id(s) from this df.
-    auto_assign = FALSE, # DEV NOTE: Should only auto assign any ATTAINS.ParameterName that isn't found in either user supplied usesRef or in ATTAINS.
-    excel = FALSE,
-    overwrite = FALSE) {
+  .data,
+  org_id = NULL,
+  paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
+  usesRef = NULL, # If provided, any param(s) to use(s) assignments will be based on this user supplied list.
+  AU_UsesRef = NULL, # If provided, any use assignments will be based on this domain list rather than from ATTAINS.
+  AUMLRef = NULL, # If provided and if org_id = "ALL" then this will filter org_id(s) from this df.
+  auto_assign = FALSE, # DEV NOTE: Should only auto assign any ATTAINS.ParameterName that isn't found in either user supplied usesRef or in ATTAINS.
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
@@ -2121,11 +2128,14 @@ TADA_UsesForAnalysis <- function(
     if (
       sum(
         !org_id[org_id != c("EPA304a", "")] %in%
-          c(utils::read.csv(system.file(
-            "extdata",
-            "ATTAINSOrgIDsRef.csv",
-            package = "EPATADA"
-          ))[, "code"], "")
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
       ) >
         0
     ) {
@@ -2931,13 +2941,14 @@ TADA_UsesForAnalysis <- function(
 #' }
 #'
 TADA_AssignUsesToAU <- function(
-    .data,
-    org_id = NULL,
-    AUMLRef = NULL,
-    AU_UsesRef = NULL,
-    waterUseRef = NULL,
-    excel = FALSE,
-    overwrite = FALSE) {
+  .data,
+  org_id = NULL,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL,
+  waterUseRef = NULL,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(excel) && missing(overwrite)
@@ -3045,11 +3056,14 @@ TADA_AssignUsesToAU <- function(
     if (
       sum(
         !org_id[org_id != c("EPA304a", "")] %in%
-          c(utils::read.csv(system.file(
-            "extdata",
-            "ATTAINSOrgIDsRef.csv",
-            package = "EPATADA"
-          ))[, "code"], "")
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
       ) >
         0
     ) {
@@ -3373,10 +3387,11 @@ TADA_AssignUsesToAU <- function(
 #' TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 #'
 TADA_AssignUsesToWaterType <- function(
-    .data,
-    org_id = NULL,
-    waterUseRef = NULL,
-    AUMLRef = NULL) {
+  .data,
+  org_id = NULL,
+  waterUseRef = NULL,
+  AUMLRef = NULL
+) {
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
@@ -3415,11 +3430,14 @@ TADA_AssignUsesToWaterType <- function(
   if (
     sum(
       !org_id[org_id != c("EPA304a", "")] %in%
-        c(utils::read.csv(system.file(
-          "extdata",
-          "ATTAINSOrgIDsRef.csv",
-          package = "EPATADA"
-        ))[, "code"], "")
+        c(
+          utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"],
+          ""
+        )
     ) >
       0
   ) {
@@ -3599,15 +3617,16 @@ TADA_AssignUsesToWaterType <- function(
 #' }
 #'
 TADA_MLSummary <- function(
-    .data,
-    org_id = NULL,
-    usesRef = NULL,
-    AUMLRef = NULL,
-    AU_UsesRef = NULL,
-    MLSummaryRef = NULL, # If provided, keep all rows in this user supplied list if the param and use is found in the usesRef.
-    displayNA = FALSE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
-    excel = FALSE,
-    overwrite = FALSE) {
+  .data,
+  org_id = NULL,
+  usesRef = NULL,
+  AUMLRef = NULL,
+  AU_UsesRef = NULL,
+  MLSummaryRef = NULL, # If provided, keep all rows in this user supplied list if the param and use is found in the usesRef.
+  displayNA = FALSE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
+  excel = FALSE,
+  overwrite = FALSE
+) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
@@ -3737,7 +3756,11 @@ TADA_MLSummary <- function(
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
     # set a limit of 100k rows if we want to display all sites-param-use combinations.
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 100000 | length(org_id) > 20) {
+    if (
+      displayNA == TRUE &&
+        nrow(usesRef) * length(unique_ML) > 100000 |
+        length(org_id) > 20
+    ) {
       warning(paste0(
         "displayNA = TRUE: ",
         "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",

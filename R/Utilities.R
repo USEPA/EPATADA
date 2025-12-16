@@ -582,11 +582,12 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 #' unique(HandleSpecialChars_DetLimMeasureValue$
 #'   TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag)
 TADA_ConvertSpecialChars <- function(
-    .data,
-    col,
-    percent.ave = TRUE,
-    clean = FALSE,
-    flaggedonly = FALSE) {
+  .data,
+  col,
+  percent.ave = TRUE,
+  clean = FALSE,
+  flaggedonly = FALSE
+) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -1092,10 +1093,11 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
 #' )
 #' }
 TADA_RandomTestingData <- function(
-    number_of_days = 1,
-    choose_random_state = FALSE,
-    autoclean = TRUE,
-    max_attempts = 3) {
+  number_of_days = 1,
+  choose_random_state = FALSE,
+  autoclean = TRUE,
+  max_attempts = 3
+) {
   # Retrieve random data
   get_random_data <- function(ndays, state_choice, ac) {
     # Calculate a random start date within the last 20 years
@@ -1238,12 +1240,13 @@ getBboxJson <- function(bbox) {
 #' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
 #' }
 pchIcons <- function(
-    pch = 1,
-    width = 30,
-    height = 30,
-    bg = "transparent",
-    col = "black",
-    lwd = NULL) {
+  pch = 1,
+  width = 30,
+  height = 30,
+  bg = "transparent",
+  col = "black",
+  lwd = NULL
+) {
   n <- length(pch)
   files <- character(n)
   for (i in seq_len(n)) {
@@ -1436,11 +1439,12 @@ getPopup <- function(layer, layername) {
 #' lmap
 #' }
 TADA_addPolys <- function(
-    map,
-    layerfilepath,
-    layergroup,
-    layername,
-    bbox = NULL) {
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -1504,11 +1508,12 @@ TADA_addPolys <- function(
 #' lmap
 #' }
 TADA_addPoints <- function(
-    map,
-    layerfilepath,
-    layergroup,
-    layername,
-    bbox = NULL) {
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
     return(map)
@@ -2333,7 +2338,8 @@ correctColType <- function(.data) {
     # check to see if each col.name is in .data
     if (col.name %in% names(.data)) {
       # coerce to correct type
-      .data[[col.name]] <- switch(col.type,
+      .data[[col.name]] <- switch(
+        col.type,
         "character" = as.character(.data[[col.name]]),
         "numeric" = as.numeric(.data[[col.name]]),
         "integer" = as.integer(.data[[col.name]]),
