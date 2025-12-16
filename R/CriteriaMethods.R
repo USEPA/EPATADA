@@ -1108,9 +1108,9 @@ TADA_DefineCriteriaMethodology <- function(
       },
       error = function(e) {
         openxlsx::removeWorksheet(wb, "DefineCriteriaMethodology")
-        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
-
         openxlsx::removeWorksheet(wb, "Index-Criteria")
+        openxlsx::removeWorksheet(wb, "DataDictionary") # gets added at the end.
+        openxlsx::addWorksheet(wb, "DefineCriteriaMethodology")
         openxlsx::addWorksheet(wb, "Index-Criteria", visible = FALSE)
       }
     )
@@ -1126,6 +1126,7 @@ TADA_DefineCriteriaMethodology <- function(
     openxlsx::sheetVisibility(wb)[4] <- "hidden"
     openxlsx::sheetVisibility(wb)[5] <- "hidden"
     openxlsx::sheetVisibility(wb)[6] <- TRUE
+    openxlsx::sheetVisibility(wb)[7] <- "hidden"
 
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
