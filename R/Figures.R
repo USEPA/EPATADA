@@ -489,13 +489,13 @@ TADA_OverviewMap <- function(.data) {
           MonitoringLocationIdentifier,
           MonitoringLocationName,
           TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure
+          TADA.LongitudeMeasure,
+          OrganizationFormalName,
         ) |>
         dplyr::summarise(
           "Sample_Count" = length(unique(ResultIdentifier)),
           "Visit_Count" = length(unique(ActivityStartDate)),
-          "Parameter_Count" = length(unique(TADA.CharacteristicName)),
-          "Organization_Count" = length(unique(OrganizationIdentifier))
+          "Parameter_Count" = length(unique(TADA.CharacteristicName))
         )
 
       param_counts <- sort(unique(sumdat$Parameter_Count))
@@ -644,6 +644,8 @@ TADA_OverviewMap <- function(.data) {
             sumdat$MonitoringLocationIdentifier,
             "<br> Site Name: ",
             sumdat$MonitoringLocationName,
+            "<br> Organization Name: ",
+            sumdat$OrganizationFormalName,
             "<br> Measurement Count: ",
             sumdat$Sample_Count,
             "<br> Visit Count: ",
@@ -1753,7 +1755,7 @@ TADA_GroupedScatterplot <- function(
     "ActivityStartDate",
     "ActivityStartDateTime",
     "MonitoringLocationName",
-    "OrganizationFormalIdentifier"
+    "OrganizationFormalName"
   )
   required_cols <- required_cols |>
     append(group_col) |>
