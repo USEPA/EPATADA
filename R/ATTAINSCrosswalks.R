@@ -1127,7 +1127,14 @@ TADA_ParametersForAnalysis <- function(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
         ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
+        org_id <- c(
+          utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"],
+          ""
+        )
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
       if (!is.null(AUMLRef)) {
@@ -1240,7 +1247,7 @@ TADA_ParametersForAnalysis <- function(
     # Checks if org_id(s) are found in ATTAINS
     if (
       sum(
-        !org_id[org_id != c("EPA304a", "")] %in%
+        !org_id[org_id != "EPA304a"] %in%
           c(
             utils::read.csv(system.file(
               "extdata",
@@ -2123,11 +2130,11 @@ TADA_UsesForAnalysis <- function(
       }
     }
 
-    # Checks if org_id are valid names found in ATTAINS - with the exception of c("EPA304a", "") as that is not an ATTAINS org_id.
+    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
-        !org_id[org_id != c("EPA304a", "")] %in%
+        !org_id[org_id != "EPA304a"] %in%
           c(
             utils::read.csv(system.file(
               "extdata",
@@ -3055,7 +3062,7 @@ TADA_AssignUsesToAU <- function(
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
     if (
       sum(
-        !org_id[org_id != c("EPA304a", "")] %in%
+        !org_id[org_id != "EPA304a"] %in%
           c(
             utils::read.csv(system.file(
               "extdata",
@@ -3429,7 +3436,7 @@ TADA_AssignUsesToWaterType <- function(
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
   if (
     sum(
-      !org_id[org_id != c("EPA304a", "")] %in%
+      !org_id[org_id != "EPA304a"] %in%
         c(
           utils::read.csv(system.file(
             "extdata",
