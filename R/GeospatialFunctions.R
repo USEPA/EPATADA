@@ -2723,6 +2723,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       dplyr::group_by(
         TADA.MonitoringLocationIdentifier,
         TADA.MonitoringLocationName,
+        OrganizationFormalName,
         TADA.LatitudeMeasure,
         TADA.LongitudeMeasure
       ) |>
@@ -3021,6 +3022,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       sumdat$TADA.MonitoringLocationIdentifier,
       "<br> Site Name: ",
       sumdat$TADA.MonitoringLocationName,
+      "<br> Organization Name: ",
+      sumdat$OrganizationFormalName,
       "<br> Measurement Count: ",
       sumdat$Sample_Count,
       "<br> Visit Count: ",
