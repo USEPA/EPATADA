@@ -73,14 +73,14 @@
 #'
 #' @param displayUniqueId A Boolean value. If TRUE, this will print all unique
 #' TADA.ComparableDataIdentifier in the criteria and methods table output. If your
-#' analysis needs are dependent on differing fractions or speciations, displaying 
-#' the unique TADA.ComparableDataIdentifier will ensure you specify the correct 
-#' crosswalk between ATTAINS.ParameterName that each individual 
+#' analysis needs are dependent on differing fractions or speciations, displaying
+#' the unique TADA.ComparableDataIdentifier will ensure you specify the correct
+#' crosswalk between ATTAINS.ParameterName that each individual
 #' TADA.ComparableDataIdentifier groups to in your TADA data frame. This is
 #' useful in the alternative options to generate the criteria and methods table
 #' without the reference tables.
 #'
-#' @param epa304a A Boolean value to return a draft epa304a recommended standards 
+#' @param epa304a A Boolean value to return a draft epa304a recommended standards
 #' for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
@@ -137,26 +137,25 @@
 #' }
 #'
 TADA_DefineCriteriaMethodology <- function(
-  .data,
-  org_id = NULL,
-  MLSummaryRef = NULL,
-  criteriaMethods = NULL, # user supplied input here
-  auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-  AUMLRef = NULL,
-  AU_UsesRef = NULL, # Optional if auto_assign = TRUE
-  epa304a = FALSE,
-  displayUniqueId = FALSE,
-  excel = FALSE,
-  overwrite = FALSE
-) {
+    .data,
+    org_id = NULL,
+    MLSummaryRef = NULL,
+    criteriaMethods = NULL, # user supplied input here
+    auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+    AUMLRef = NULL,
+    AU_UsesRef = NULL, # Optional if auto_assign = TRUE
+    epa304a = FALSE,
+    displayUniqueId = FALSE,
+    excel = FALSE,
+    overwrite = FALSE) {
   # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-    missing(org_id) &&
-    missing(MLSummaryRef) &&
-    missing(criteriaMethods) &&
-    missing(AUMLRef) &&
-    missing(AU_UsesRef)
+      missing(org_id) &&
+      missing(MLSummaryRef) &&
+      missing(criteriaMethods) &&
+      missing(AUMLRef) &&
+      missing(AU_UsesRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
@@ -253,12 +252,12 @@ TADA_DefineCriteriaMethodology <- function(
     # }
 
     # If auto_assign = TRUE and no MLSummaryRef OR criteriaMethods arg input is provided, this results in error.
-    if (auto_assign == TRUE && !is.null(criteriaMethods)){
+    if (auto_assign == TRUE && !is.null(criteriaMethods)) {
       stop(
         "TADA_DefineCriteriaMethodology: criteriaMethodology is provided and auto_assign = TRUE are not valid function argument input combinations."
       )
     }
-    
+
     # Invalid function input combos - supply one or the other.
     if (!is.null(MLSummaryRef) && !is.null(criteriaMethods)) {
       stop(
@@ -296,7 +295,7 @@ TADA_DefineCriteriaMethodology <- function(
         org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
       }
     }
-    
+
     # Generates a criteria table with only unique TADA.CharacteristicName(s) populated.
     if (auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)) {
       # desired_cols <- c(
@@ -320,9 +319,9 @@ TADA_DefineCriteriaMethodology <- function(
       #   "Season",
       #   "DistrPeriod"
       # )
-      # 
+      #
       # DefineCriteriaMethodology <- data.frame()
-      # 
+      #
       # DefineCriteriaMethodology[c(cols_to_convert)] <- lapply(
       #   DefineCriteriaMethodology[cols_to_convert],
       #   as.character
@@ -767,13 +766,13 @@ TADA_DefineCriteriaMethodology <- function(
       if ("" %in% org_id) {
         criteriaMethods$ATTAINS.OrganizationIdentifier <- ""
       }
-      
+
       # If user provides an org_id but their user supplied criteriaMethods does not contain an ATTAINS.OrganizationIdentifier (left as NA)
       # display error message.
       # if(!is.null(org_id) && !org_id %in% criteriaMethods$ATTAINS.OrganizationIdentifier) {
       #   warning("You provided an org_id value that was not found in your criteriaMethods user supplied table. No matches were found, please validate.")
       # }
-      
+
       criteriaMethods$ATTAINS.ParameterName <- toupper(
         criteriaMethods$ATTAINS.ParameterName
       )
@@ -785,7 +784,7 @@ TADA_DefineCriteriaMethodology <- function(
         .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
       ) |>
         tidyr::uncount(weights = length(org_id))
- 
+
       TADA_param <- TADA_param |>
         dplyr::mutate(
           ATTAINS.OrganizationIdentifier = as.character(rep(
@@ -871,7 +870,7 @@ TADA_DefineCriteriaMethodology <- function(
 
       # From the user supplied criteriaMethods, fill in any values from the pre-filled MLSummaryRef template generated.
       definedCriteria <- criteriaMethods |>
-        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        # dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::filter(
           TADA.CharacteristicName %in% TADA_param$TADA.CharacteristicName
         ) |>
@@ -881,8 +880,8 @@ TADA_DefineCriteriaMethodology <- function(
       # Create empty criteria methods data frame.
       suppressMessages(
         DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
-        )
- 
+      )
+
       # Must now match the data types
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
@@ -912,7 +911,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::full_join(definedCriteria) |>
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
-      
+
       # should not be a problem if we control what column names are allowed,
       # but including this for the case if edits are made to the function to ensure
       # excel allowable values are still in the correct order.
@@ -1091,12 +1090,12 @@ TADA_DefineCriteriaMethodology <- function(
     if (missing(.data)) {
       suppressMessages(
         TADA_MLSummary(
-          excel = excel, 
+          excel = excel,
           overwrite = overwrite
-          )
         )
+      )
     }
-    
+
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
 
     tryCatch(
@@ -1197,7 +1196,7 @@ TADA_DefineCriteriaMethodology <- function(
       headerStyle = header_st
     )
 
-    if( missing(.data)) {
+    if (missing(.data)) {
       .data <- data.frame(
         TADA.ComparableDataIdentifier = NA_character_,
         TADA.CharacteristicName = NA_character_,
@@ -1206,7 +1205,7 @@ TADA_DefineCriteriaMethodology <- function(
         TADA.ResultMeasure.MeasureUnitCode = NA_character_
       )
     }
-    
+
     # Creates the Index-Criteria List of allowable values under each column
     openxlsx::writeData(
       wb,
@@ -1335,9 +1334,9 @@ TADA_DefineCriteriaMethodology <- function(
           "n-week",
           "n-month",
           "n-quarter"
-          )
         )
       )
+    )
 
     openxlsx::writeData(
       wb,
@@ -1406,7 +1405,7 @@ TADA_DefineCriteriaMethodology <- function(
           "Spring",
           "Winter",
           "NA"
-          )
+        )
       )
     )
 

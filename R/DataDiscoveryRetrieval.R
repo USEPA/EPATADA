@@ -172,28 +172,27 @@
 #' }
 #'
 TADA_DataRetrieval <- function(
-  startDate = "null",
-  endDate = "null",
-  aoi_sf = NULL,
-  countrycode = "null",
-  countycode = "null",
-  huc = "null",
-  siteid = "null",
-  siteType = "null",
-  tribal_area_type = "null",
-  tribe_name_parcel = "null",
-  characteristicName = "null",
-  characteristicType = "null",
-  sampleMedia = "null",
-  statecode = "null",
-  organization = "null",
-  project = "null",
-  providers = "null",
-  bBox = "null",
-  maxrecs = 350000,
-  ask = TRUE,
-  applyautoclean = TRUE
-) {
+    startDate = "null",
+    endDate = "null",
+    aoi_sf = NULL,
+    countrycode = "null",
+    countycode = "null",
+    huc = "null",
+    siteid = "null",
+    siteType = "null",
+    tribal_area_type = "null",
+    tribe_name_parcel = "null",
+    characteristicName = "null",
+    characteristicType = "null",
+    sampleMedia = "null",
+    statecode = "null",
+    organization = "null",
+    project = "null",
+    providers = "null",
+    bBox = "null",
+    maxrecs = 350000,
+    ask = TRUE,
+    applyautoclean = TRUE) {
   # Require one tribal area type:
   if (length(tribal_area_type) > 1) {
     stop("tribal_area_type must be of length 1.")
@@ -383,12 +382,12 @@ TADA_DataRetrieval <- function(
       # Make a reference table for tribal area type + url matching
       # (options that don't return results are commented out)
       map_service_urls <- tibble::tribble(
-        ~tribal_area                        , ~url                                                                  ,
-        "Alaska Native Allotments"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
+        ~tribal_area, ~url,
+        "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
         # "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-        "American Indian Reservations"      , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
-        "Off-reservation Trust Lands"       , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
-        "Oklahoma Tribal Statistical Areas" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
+        "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
+        "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
+        "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
         # "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
       )
 
@@ -1127,13 +1126,13 @@ TADA_DataRetrieval <- function(
 TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Make a reference table for tribal area type + url matching
   map_service_urls <- tibble::tribble(
-    ~tribal_area                           , ~url                                                                  ,
-    "Alaska Native Allotments"             , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
-    "Alaska Native Villages"               , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1" ,
-    "American Indian Reservations"         , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
-    "Off-reservation Trust Lands"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
-    "Oklahoma Tribal Statistical Areas"    , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" ,
-    "Virginia Federally Recognized Tribes" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+    ~tribal_area, ~url,
+    "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+    "Alaska Native Villages", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
+    "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
+    "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
+    "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
+    "Virginia Federally Recognized Tribes", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
   )
 
   # Confirm usable string provided
@@ -1292,11 +1291,10 @@ TADA_ReadWQPWebServices <- function(webservice) {
 #'
 #' @return TADA-compatible dataframe
 TADA_BigDataHelper <- function(
-  record_summary,
-  WQPquery,
-  maxrecs = 250000,
-  maxsites = 300
-) {
+    record_summary,
+    WQPquery,
+    maxrecs = 250000,
+    maxsites = 300) {
   # Get total number of results per site and separate out sites with >maxrecs results
   tot_sites <- record_summary |>
     dplyr::group_by(MonitoringLocationIdentifier) |>
@@ -1478,10 +1476,9 @@ TADA_BigDataHelper <- function(
 #' }
 #'
 TADA_JoinWQPProfiles <- function(
-  FullPhysChem = "null",
-  Sites = "null",
-  Projects = "null"
-) {
+    FullPhysChem = "null",
+    Sites = "null",
+    Projects = "null") {
   FullPhysChem.df <- FullPhysChem
 
   Sites.df <- Sites

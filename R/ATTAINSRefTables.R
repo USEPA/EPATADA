@@ -19,8 +19,7 @@ ATTAINSParamToWQPCharRef_Cached <- NULL
 #'
 #' @export
 TADA_GetATTAINSParamToWQPCharRef <- function(
-  charAliasType = c("All", "ATTAINS")
-) {
+    charAliasType = c("All", "ATTAINS")) {
   charAliasType <- match.arg(charAliasType)
 
   # Pull in WQX Char Alias table.
@@ -178,13 +177,12 @@ TADA_UpdateATTAINSParamToWQPCharRef <- function() {
 #' )
 #'
 TADA_AdditionalCharAliasForReview <- function(
-  includeCST = FALSE,
-  displayPercent = FALSE,
-  ATTAINS.CST.tolerance = 1.00,
-  CST.ATTAINS.tolerance = 1.00,
-  ATTAINS.WQX.tolerance = 1.00,
-  WQX.ATTAINS.tolerance = 1.00
-) {
+    includeCST = FALSE,
+    displayPercent = FALSE,
+    ATTAINS.CST.tolerance = 1.00,
+    CST.ATTAINS.tolerance = 1.00,
+    ATTAINS.WQX.tolerance = 1.00,
+    WQX.ATTAINS.tolerance = 1.00) {
   if (
     ATTAINS.CST.tolerance > 1.00 |
       CST.ATTAINS.tolerance > 1.00 |

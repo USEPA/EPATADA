@@ -331,14 +331,13 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
 #' }
 #'
 TADA_UpdateATTAINSAUMLCrosswalk <- function(
-  org_id = "all",
-  crosswalk = NULL,
-  attains_replace = FALSE,
-  wqp_data_links = "add",
-  update_mlid = TRUE,
-  batch_upload = FALSE,
-  check_links = FALSE
-) {
+    org_id = "all",
+    crosswalk = NULL,
+    attains_replace = FALSE,
+    wqp_data_links = "add",
+    update_mlid = TRUE,
+    batch_upload = FALSE,
+    check_links = FALSE) {
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
@@ -1060,33 +1059,32 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' }
 #'
 TADA_ParametersForAnalysis <- function(
-  .data,
-  org_id = NULL,
-  paramRef = NULL, # If provided, crosswalk is based on user supplied crosswalk.
-  auto_assign = c("None", "All", "Org"), # Only auto_assigns if a TADA.ComparableDataIdentifier is left blank.
-  AUMLRef = NULL, # If org_id = "ALL", filters by this arg input.
-  excel = FALSE,
-  overwrite = FALSE
-) {
+    .data,
+    org_id = NULL,
+    paramRef = NULL, # If provided, crosswalk is based on user supplied crosswalk.
+    auto_assign = c("None", "All", "Org"), # Only auto_assigns if a TADA.ComparableDataIdentifier is left blank.
+    AUMLRef = NULL, # If org_id = "ALL", filters by this arg input.
+    excel = FALSE,
+    overwrite = FALSE) {
   # argument input selection for auto_assign
   auto_assign <- match.arg(auto_assign)
 
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-    missing(org_id) &&
-    missing(paramRef) &&
-    missing(AUMLRef)
+      missing(org_id) &&
+      missing(paramRef) &&
+      missing(AUMLRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
-    
+
     .data <- data.frame(
       TADA.CharacteristicName = NA_character_,
       TADA.ComparableDataIdentifier = NA_character_
     )
-    
+
     CreateParamRef <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
@@ -1144,20 +1142,6 @@ TADA_ParametersForAnalysis <- function(
       print(paste0(
         "TADA.CreateParamRef: More than one org_name was defined in your dataframe. ",
         "Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
-      ))
-    }
-
-    # Checks if your org is found in ATTAINS domain.
-    org.ref <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSOrgIDsRef.csv",
-      package = "EPATADA"
-    ))
-
-    if (!sum(org_id %in% org.ref$code) == length(org_id)) {
-      warning(paste0(
-        "TADA_ParametersForAnalysis: ",
-        "One or more organization identifier(s) entered by user is not found in ATTAINS."
       ))
     }
 
@@ -1242,7 +1226,6 @@ TADA_ParametersForAnalysis <- function(
       )
     )
 
-    # Filters the full domain value by the specified org_id(s)
     ATTAINS_param <- ATTAINS_param_all |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
@@ -1252,9 +1235,16 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
     }
 
-    # Should we stop or warn users in this step?
+    # Checks if org_id(s) are found in ATTAINS
     if (
-      sum(!org_id %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0
+      sum(
+        !org_id[org_id != c("EPA304a", "")] %in%
+          c(utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"], "")
+      ) > 0
     ) {
       warning(paste0(
         "TADA_ParametersForAnalysis: ",
@@ -1509,21 +1499,21 @@ TADA_ParametersForAnalysis <- function(
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Check if the OneDrive Downloads path exists, and prioritize it
     if (file.exists(onedrive_downloads_path)) {
       downloads_path <- onedrive_downloads_path
     } else {
       downloads_path <- default_downloads_path
     }
-    
+
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(CreateParamRef)
     if (n > 100 & excel == TRUE) {
@@ -1588,12 +1578,12 @@ TADA_ParametersForAnalysis <- function(
         package = "EPATADA"
       )
     )
-    
+
     # Filters the full domain value by the specified org_id(s)
     ATTAINS_param <- ATTAINS_param_all |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
-    
+
     # Index of allowable values for drop-down lists
     openxlsx::writeData(
       wb,
@@ -1928,24 +1918,23 @@ TADA_ParametersForAnalysis <- function(
 #' )
 #'
 TADA_UsesForAnalysis <- function(
-  .data,
-  org_id = NULL,
-  paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
-  usesRef = NULL, # If provided, any param(s) to use(s) assignments will be based on this user supplied list.
-  AU_UsesRef = NULL, # If provided, any use assignments will be based on this domain list rather than from ATTAINS.
-  AUMLRef = NULL, # If provided and if org_id = "ALL" then this will filter org_id(s) from this df.
-  auto_assign = FALSE, # DEV NOTE: Should only auto assign any ATTAINS.ParameterName that isn't found in either user supplied usesRef or in ATTAINS.
-  excel = FALSE,
-  overwrite = FALSE
-) {
+    .data,
+    org_id = NULL,
+    paramRef = NULL, # Required, filter the use(s) by only those found for unique param(s) found in this ref.
+    usesRef = NULL, # If provided, any param(s) to use(s) assignments will be based on this user supplied list.
+    AU_UsesRef = NULL, # If provided, any use assignments will be based on this domain list rather than from ATTAINS.
+    AUMLRef = NULL, # If provided and if org_id = "ALL" then this will filter org_id(s) from this df.
+    auto_assign = FALSE, # DEV NOTE: Should only auto assign any ATTAINS.ParameterName that isn't found in either user supplied usesRef or in ATTAINS.
+    excel = FALSE,
+    overwrite = FALSE) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-    missing(org_id) &&
-    missing(paramRef) &&
-    missing(usesRef) &&
-    missing(AU_UsesRef) &&
-    missing(AUMLRef)
+      missing(org_id) &&
+      missing(paramRef) &&
+      missing(usesRef) &&
+      missing(AU_UsesRef) &&
+      missing(AUMLRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
@@ -2127,12 +2116,16 @@ TADA_UsesForAnalysis <- function(
       }
     }
 
-    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
+    # Checks if org_id are valid names found in ATTAINS - with the exception of c("EPA304a", "") as that is not an ATTAINS org_id.
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
-        !org_id[tolower(org_id) != tolower("EPA304a")] %in%
-          ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+        !org_id[org_id != c("EPA304a", "")] %in%
+          c(utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"], "")
       ) >
         0
     ) {
@@ -2490,21 +2483,21 @@ TADA_UsesForAnalysis <- function(
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Check if the OneDrive Downloads path exists, and prioritize it
     if (file.exists(onedrive_downloads_path)) {
       downloads_path <- onedrive_downloads_path
     } else {
       downloads_path <- default_downloads_path
     }
-    
+
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(CreateUsesRef)
     if (n > 100) {
@@ -2591,25 +2584,25 @@ TADA_UsesForAnalysis <- function(
     # Data validation drop down list created below.
     # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
     # Since Use Names are individual to each Organization.
-    if(!missing(.data)) {
+    if (!missing(.data)) {
       suppressWarnings(
         # Data validation for ATTAINS.UseName.
         openxlsx::dataValidation(
-            wb,
-            sheet = "CreateUsesRef",
-            cols = 4,
-            rows = 2:10000,
-            type = "list",
-            value = sprintf("'ATTAINSOrgNamesParamRef'!$E$2:$E$50000"),
-            allowBlank = TRUE,
-            showErrorMsg = TRUE,
-            showInputMsg = TRUE
-          )
+          wb,
+          sheet = "CreateUsesRef",
+          cols = 4,
+          rows = 2:10000,
+          type = "list",
+          value = sprintf("'ATTAINSOrgNamesParamRef'!$E$2:$E$50000"),
+          allowBlank = TRUE,
+          showErrorMsg = TRUE,
+          showInputMsg = TRUE
+        )
       )
     }
 
     # For case in which a blank template is generated, allowable use_name = entire ATTAINS domain value.
-    if(missing(.data)) {
+    if (missing(.data)) {
       suppressWarnings(
         # Data validation for ATTAINS.UseName.
         openxlsx::dataValidation(
@@ -2938,14 +2931,13 @@ TADA_UsesForAnalysis <- function(
 #' }
 #'
 TADA_AssignUsesToAU <- function(
-  .data,
-  org_id = NULL,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL,
-  waterUseRef = NULL,
-  excel = FALSE,
-  overwrite = FALSE
-) {
+    .data,
+    org_id = NULL,
+    AUMLRef = NULL,
+    AU_UsesRef = NULL,
+    waterUseRef = NULL,
+    excel = FALSE,
+    overwrite = FALSE) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(excel) && missing(overwrite)
@@ -3052,8 +3044,12 @@ TADA_AssignUsesToAU <- function(
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
     if (
       sum(
-        !org_id[org_id != "EPA304a"] %in%
-          ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+        !org_id[org_id != c("EPA304a", "")] %in%
+          c(utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"], "")
       ) >
         0
     ) {
@@ -3377,11 +3373,10 @@ TADA_AssignUsesToAU <- function(
 #' TADA_AssignUsesToWaterType(TADA_AK_EXAMPLE, org_id = "AKDECWQ")
 #'
 TADA_AssignUsesToWaterType <- function(
-  .data,
-  org_id = NULL,
-  waterUseRef = NULL,
-  AUMLRef = NULL
-) {
+    .data,
+    org_id = NULL,
+    waterUseRef = NULL,
+    AUMLRef = NULL) {
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
@@ -3419,8 +3414,12 @@ TADA_AssignUsesToWaterType <- function(
   # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
   if (
     sum(
-      !org_id[org_id != "EPA304a"] %in%
-        ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+      !org_id[org_id != c("EPA304a", "")] %in%
+        c(utils::read.csv(system.file(
+          "extdata",
+          "ATTAINSOrgIDsRef.csv",
+          package = "EPATADA"
+        ))[, "code"], "")
     ) >
       0
   ) {
@@ -3600,24 +3599,23 @@ TADA_AssignUsesToWaterType <- function(
 #' }
 #'
 TADA_MLSummary <- function(
-  .data,
-  org_id = NULL,
-  usesRef = NULL,
-  AUMLRef = NULL,
-  AU_UsesRef = NULL,
-  MLSummaryRef = NULL, # If provided, keep all rows in this user supplied list if the param and use is found in the usesRef.
-  displayNA = FALSE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
-  excel = FALSE,
-  overwrite = FALSE
-) {
+    .data,
+    org_id = NULL,
+    usesRef = NULL,
+    AUMLRef = NULL,
+    AU_UsesRef = NULL,
+    MLSummaryRef = NULL, # If provided, keep all rows in this user supplied list if the param and use is found in the usesRef.
+    displayNA = FALSE, # If FALSE, only show rows for param(s) and uses(s) if that param is found for a WQP site.
+    excel = FALSE,
+    overwrite = FALSE) {
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-    missing(org_id) &&
-    missing(usesRef) &&
-    missing(AUMLRef) &&
-    missing(AU_UsesRef) &&
-    missing(MLSummaryRef)
+      missing(org_id) &&
+      missing(usesRef) &&
+      missing(AUMLRef) &&
+      missing(AU_UsesRef) &&
+      missing(MLSummaryRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
@@ -4079,40 +4077,40 @@ TADA_MLSummary <- function(
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Define the default Downloads path
     default_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
       "Downloads",
       "myfileRef.xlsx"
     )
-    
+
     # Check if the OneDrive Downloads path exists, and prioritize it
     if (file.exists(onedrive_downloads_path)) {
       downloads_path <- onedrive_downloads_path
     } else {
       downloads_path <- default_downloads_path
     }
-    
+
     # if a user generates a blank template, the prior blank template must also be generated in excel
     if (missing(.data)) {
       suppressMessages(
         TADA_ParametersForAnalysis(
-          excel = excel, 
+          excel = excel,
           overwrite = overwrite
-          )
         )
-      
+      )
+
       suppressMessages(
         TADA_UsesForAnalysis(
-          excel = excel, 
+          excel = excel,
           overwrite = overwrite
-          )
         )
+      )
     }
-    
+
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
-    
+
     tryCatch(
       {
         openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
@@ -4122,7 +4120,7 @@ TADA_MLSummary <- function(
         openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
       }
     )
-    
+
     # Format column header
     header_st <- openxlsx::createStyle(textDecoration = "Bold")
 

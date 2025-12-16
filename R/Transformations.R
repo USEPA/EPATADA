@@ -360,10 +360,9 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
 #'
 TADA_CalculateTotalNP <- function(
-  .data,
-  sum_ref,
-  daily_agg = c("max", "min", "mean")
-) {
+    .data,
+    sum_ref,
+    daily_agg = c("max", "min", "mean")) {
   # check .data is data.frame and has required columns
   req_cols <- c(
     "TADA.CharacteristicName",
@@ -928,18 +927,17 @@ TADA_CalculateTotalNP <- function(
 #' )
 #'
 TADA_AggregateMeasurements <- function(
-  .data,
-  grouping_cols = c(
-    "ActivityStartDate",
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.ComparableDataIdentifier",
-    "ResultDetectionConditionText",
-    "ActivityTypeCode",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ),
-  agg_fun = c("max", "min", "mean"),
-  clean = FALSE
-) {
+    .data,
+    grouping_cols = c(
+      "ActivityStartDate",
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier",
+      "ResultDetectionConditionText",
+      "ActivityTypeCode",
+      "TADA.ResultMeasure.MeasureUnitCode"
+    ),
+    agg_fun = c("max", "min", "mean"),
+    clean = FALSE) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, grouping_cols)
   # Check if the input data frame is empty
