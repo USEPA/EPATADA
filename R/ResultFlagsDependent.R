@@ -477,7 +477,7 @@ TADA_FlagResultUnit <- function(
   # Load unit reference table for validation
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
 
-  unit.ref <- WQXcharValRef |>
+  unit.ref <- load(file_path) |>
     dplyr::filter(Type == "CharacteristicUnit")
 
   # Merge data with reference table to flag results
