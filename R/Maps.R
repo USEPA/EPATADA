@@ -440,7 +440,6 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
     palette = icon.colors,
     domain = .data$TADA.NearbySiteGroup
   )
-  
   map <- leaflet::leaflet(.data) |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
@@ -493,6 +492,5 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
         weight = 1
       )
   }
-  
   return(map)
 }
