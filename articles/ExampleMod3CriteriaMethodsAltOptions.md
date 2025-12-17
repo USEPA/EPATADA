@@ -126,9 +126,9 @@ tada.MT <- TADA_DataRetrieval(
 
 ``` r
 # clean up data set (minimal)
-tada.MT.clean <- tada.MT|>
-  TADA_RunKeyFlagFunctions()|>
-  TADA_SimpleCensoredMethods()|>
+tada.MT.clean <- tada.MT |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
 ```
 
@@ -239,7 +239,7 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
     ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
 
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
@@ -271,7 +271,7 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
     ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
 
 ``` r
 TADA_TableExport(MT.Criteria.auto2)
@@ -299,7 +299,7 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
     ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
 
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
 
@@ -346,14 +346,6 @@ MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
 
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
@@ -384,14 +376,6 @@ MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
 
 ``` r
@@ -415,14 +399,6 @@ MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   # excel = TRUE, overwrite = TRUE
 )
 ```
-
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
 
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 

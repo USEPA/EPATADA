@@ -171,9 +171,9 @@ tada.MT <- TADA_DataRetrieval(
 
 ``` r
 # clean up data set (minimal)
-tada.MT.clean <- tada.MT|>
-  TADA_RunKeyFlagFunctions()|>
-  TADA_SimpleCensoredMethods()|>
+tada.MT.clean <- tada.MT |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
 ```
 
@@ -392,11 +392,11 @@ assigned an ATTAINS parameter name.
 #   excel = TRUE, overwrite = TRUE
 #   )
 
-ParamRef <- MT.ParamRef.None|>
+ParamRef <- MT.ParamRef.None |>
   dplyr::mutate(ATTAINS.ParameterName = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) ~ "PH",
     grepl("ESCHERICHIA COLI", TADA.ComparableDataIdentifier) ~ "ESCHERICHIA COLI (E. COLI)"
-  ))|>
+  )) |>
   dplyr::bind_rows(data.frame(TADA.ComparableDataIdentifier = "PH_NONE_NONE_NONE", ATTAINS.ParameterName = "PH, HIGH", ATTAINS.OrganizationIdentifier = "MTDEQ"))
 
 MT.ParamRef.Manual <- TADA_ParametersForAnalysis(
@@ -548,10 +548,10 @@ add.data <- data.frame(
 )
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
-usesRef <- MT.usesRef.Manual|>
-  dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE)|>
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))|>
-  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y))|>
+usesRef <- MT.usesRef.Manual |>
+  dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
+  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::mutate(IncludeOrExclude = "Include")
 
 # PH will now reflect the changes
@@ -812,7 +812,7 @@ certain combination of characteristics that have site-specific criteria.
 Let’s go through an example of how a user may modify this table.
 
 ``` r
-MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU|>
+MT.MLSummaryRef.AU2 <- MT.MLSummaryRef.AU |>
   dplyr::mutate(
     UniqueSpatialCriteria = dplyr::case_when(
       MonitoringLocationIdentifier == "MTVOLWQM_WQX-CLEARWATERR_1" ~ "Example Site Specific"
@@ -888,14 +888,6 @@ MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
@@ -918,14 +910,6 @@ MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
 
 ``` r
@@ -947,11 +931,11 @@ in the remaining blank PH magnitude values with a range between 6.5 and
 
 ``` r
 # We will fill in PH magnitude values for this example
-MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2|>
+MT.CriteriaMethods.Final <- MT.CriteriaMethods.user.supplied2 |>
   dplyr::mutate(MagnitudeValueLower = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 6.5,
     TRUE ~ MagnitudeValueLower
-  ))|>
+  )) |>
   dplyr::mutate(MagnitudeValueUpper = dplyr::case_when(
     grepl("PH_NONE_NONE_NONE", TADA.ComparableDataIdentifier) & ATTAINS.OrganizationIdentifier == "MTDEQ" ~ 8.5,
     TRUE ~ MagnitudeValueUpper
@@ -972,16 +956,6 @@ MT.CriteriaMethods.Final2 <- TADA_DefineCriteriaMethodology(
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )
-```
 
-    ## [1] "A criteriaMethods table was provided. auto_assign will be set to 'TRUE' to determine any missing or non-matching inputs."
-    ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
-    ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
-    ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
-    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
-``` r
 TADA_TableExport(MT.CriteriaMethods.Final2)
 ```

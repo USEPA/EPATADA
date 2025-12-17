@@ -440,8 +440,8 @@ ensure that we remove all non-water data first.
 
 ``` r
 # remove data with media type that is not water
-removed <- dataset_0  |>
-  dplyr::filter(!TADA.ActivityMediaName %in% c("WATER"))  |>
+removed <- dataset_0 |>
+  dplyr::filter(!TADA.ActivityMediaName %in% c("WATER")) |>
   dplyr::mutate(TADA.RemovalReason = "Activity media is not water.")
 
 # what other media types exist in dataframe?
@@ -452,7 +452,7 @@ unique(removed$TADA.ActivityMediaName)
 
 ``` r
 # clean dataframe containing only water
-dataset <- dataset_0  |> dplyr::filter(TADA.ActivityMediaName %in% c("WATER"))
+dataset <- dataset_0 |> dplyr::filter(TADA.ActivityMediaName %in% c("WATER"))
 
 dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 ```
@@ -537,8 +537,8 @@ TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 ![](TADAModule1_AdvancedTraining_files/figure-html/id%20cens%20data-1.png)
 
 ``` r
-problem_censored <- dataset  |>
-  dplyr::filter(!TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))  |>
+problem_censored <- dataset |>
+  dplyr::filter(!TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored")) |>
   dplyr::mutate(TADA.RemovalReason = "Detection limit information contains errors or missing information.")
 
 # Let's take a look at the problematic data that we filtered out (if any)
@@ -579,7 +579,7 @@ check
     ## 104 Detection condition is missing and required for censored data ID.
 
 ``` r
-dataset <- dataset  |> dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
+dataset <- dataset |> dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
 
 # Let's take a look at the removed data
 removed <- plyr::rbind.fill(removed, problem_censored)
@@ -606,8 +606,8 @@ na_rv_datatypes <- unique(subset(dataset, is.na(dataset$TADA.ResultMeasureValue)
 
 ``` r
 # these are all of the NOT allowable data types in the dataset.
-incompatible_datatype <- dataset  |>
-  dplyr::filter(!dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))  |>
+incompatible_datatype <- dataset |>
+  dplyr::filter(!dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit")) |>
   dplyr::mutate(TADA.RemovalReason = "Result value type cannot be converted to numeric or no detection limit values provided.")
 
 # take a look at the difficult data types - do they make sense?
@@ -1110,7 +1110,7 @@ dimension check on the data set.
 
 ``` r
 # filter data set to include allowable data types
-dataset <- dataset  |> dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
+dataset <- dataset |> dplyr::filter(dataset$TADA.ResultMeasureValueDataTypes.Flag %in% c("Numeric", "Less Than", "Greater Than", "Approximate Value", "Percentage", "Comma-Separated Numeric", "Numeric Range - Averaged", "Result Value/Unit Copied from Detection Limit"))
 
 # create dataframe to includ all removed results
 removed <- plyr::rbind.fill(removed, incompatible_datatype)
@@ -1229,11 +1229,11 @@ advance!**
 
 ``` r
 # grab all the flagged results from the four functions
-problem_flagged <- dataset_flags  |>
-  dplyr::filter(TADA.SampleFraction.Flag == "Suspect" | TADA.MethodSpeciation.Flag == "Suspect" | TADA.ResultUnit.Flag == "Suspect" | !TADA.ActivityType.Flag %in% ("Non_QC"))  |>
+problem_flagged <- dataset_flags |>
+  dplyr::filter(TADA.SampleFraction.Flag == "Suspect" | TADA.MethodSpeciation.Flag == "Suspect" | TADA.ResultUnit.Flag == "Suspect" | !TADA.ActivityType.Flag %in% ("Non_QC")) |>
   dplyr::mutate(TADA.RemovalReason = "Invalid Unit, Method, Speciation, or Activity Type.")
 
-dataset_flags <- dataset_flags  |> dplyr::filter(!ResultIdentifier %in% problem_flagged$ResultIdentifier)
+dataset_flags <- dataset_flags |> dplyr::filter(!ResultIdentifier %in% problem_flagged$ResultIdentifier)
 
 # create dataframe of removed results
 removed <- plyr::rbind.fill(removed, problem_flagged)
@@ -1392,9 +1392,9 @@ functions and pipes.
 
 ``` r
 # get table of characteristics with number of results, sites, and organizations
-dataset_cens_summary <- dataset_cens  |>
-  dplyr::group_by(TADA.CharacteristicName)  |>
-  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(TADA.MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier)))  |>
+dataset_cens_summary <- dataset_cens |>
+  dplyr::group_by(TADA.CharacteristicName) |>
+  dplyr::summarise(Result_Count = length(ResultIdentifier), Site_Count = length(unique(TADA.MonitoringLocationIdentifier)), Org_Count = length(unique(OrganizationIdentifier))) |>
   dplyr::arrange(desc(Result_Count))
 ```
 

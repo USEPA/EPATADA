@@ -263,7 +263,7 @@ Census Bureau spatial data:
 
 ``` r
 TADAProfile_spatial <- TADA_DataRetrieval(
-  aoi_sf = tigris::native_areas()  |> dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
+  aoi_sf = tigris::native_areas() |> dplyr::filter(NAMELSAD == "Pueblo of Pojoaque"),
   startDate = "2018-01-01",
   endDate = "2019-01-01",
   applyautoclean = FALSE,
@@ -733,7 +733,7 @@ unique(TADAProfileClean1$TADA.SuspectCoordinates.Flag)
 # review unique MonitoringLocationIdentifiers in your flag dataframe
 unique(TADAProfileClean1$MonitoringLocationIdentifier)
 
-Unique_SuspectCoordinateFlags <- TADAProfileClean1  |>
+Unique_SuspectCoordinateFlags <- TADAProfileClean1 |>
   dplyr::select(
     "MonitoringLocationIdentifier",
     "MonitoringLocationName",
@@ -750,7 +750,7 @@ Unique_SuspectCoordinateFlags <- TADAProfileClean1  |>
     "ProjectName",
     "ProjectIdentifier",
     "OrganizationFormalName"
-  )  |>
+  ) |>
   dplyr::distinct()
 
 Unique_SuspectCoordinateFlags

@@ -238,21 +238,21 @@ attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
-user.supplied.cw <- clean.existing.attains.MT  |>
+user.supplied.cw <- clean.existing.attains.MT |>
   dplyr::select(
     ATTAINS.AssessmentUnitIdentifier,
     ATTAINS.MonitoringLocationIdentifier,
     ATTAINS.WaterType
-  )  |>
+  ) |>
   dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% c(
     "MDEQ_WQ_WQX-C04CKFKR05", "MDEQ_WQ_WQX-C04KNDYC01", "MDEQ_WQ_WQX-C04KNDYC02",
     "MDEQ_WQ_WQX-C04KNDYC04", "MDEQ_WQ_WQX-C04KNDYC54"
-  ))  |>
+  )) |>
   dplyr::rename(
     AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier,
     MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
     WaterType = ATTAINS.WaterType
-  )  |>
+  ) |>
   # Add an example new assessment unit for demonstration purposes
   dplyr::bind_rows(c(
     AssessmentUnitIdentifier = "NEW:EX_MDEQ_WQ_WQX",
@@ -391,22 +391,22 @@ additional information.
 Now we can review the monitoring locations on a map:
 
 ``` r
-leaflet::leaflet()  |>
+leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap",
     group = "World topo",
     options = leaflet::providerTileOptions(
       updateWhenZooming = FALSE,
       updateWhenIdle = TRUE
     )
-  )  |>
-  leaflet::clearShapes()  |>
-  leaflet.extras::addResetMapButton()  |>
+  ) |>
+  leaflet::clearShapes() |>
+  leaflet.extras::addResetMapButton() |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
     labels = "Water Quality Observation(s)",
     opacity = 1
-  )  |>
+  ) |>
   leaflet::addCircleMarkers(
     data = TADA_spatial,
     color = "grey", fillColor = "black",
@@ -678,7 +678,7 @@ For more detailed instructions, enter
 into the console.
 
 ``` r
-batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload  |>
+batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload |>
   TADA_UpdateATTAINSAUMLCrosswalk( # selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk
     attains_replace = TRUE,
     batch_upload = TRUE,
@@ -756,15 +756,15 @@ approach allows for greater flexibility and customization when
 integrating new AUs into existing frameworks.
 
 ``` r
-MT.UseAURef_manual <- MT.UseAURef  |>
+MT.UseAURef_manual <- MT.UseAURef |>
   dplyr::left_join(
     data.frame(
       ATTAINS.UseName = c("Aquatic Life", "Drinking Water"),
       ATTAINS.AssessmentUnitIdentifier = c("NEW:EX_MDEQ_WQ_WQX", "NEW:EX_MDEQ_WQ_WQX")
     ),
     by = ("ATTAINS.AssessmentUnitIdentifier")
-  )  |>
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))  |>
+  ) |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
 ```
 

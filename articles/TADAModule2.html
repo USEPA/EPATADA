@@ -89,7 +89,7 @@
       <h1>TADA Module 2: Geospatial Functions</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-12</h4>
+            <h4 data-toc-skip class="date">2025-12-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule2.Rmd" class="external-link"><code>vignettes/TADAModule2.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule2.Rmd</code></div>
@@ -318,21 +318,21 @@ your own crosswalk, this step can be skipped.</p>
 <span><span class="va">clean.existing.attains.MT</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"MTDEQ"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)</span></span>
-<span><span class="va">user.supplied.cw</span> <span class="op">&lt;-</span> <span class="va">clean.existing.attains.MT</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">user.supplied.cw</span> <span class="op">&lt;-</span> <span class="va">clean.existing.attains.MT</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">ATTAINS.AssessmentUnitIdentifier</span>,</span>
 <span>    <span class="va">ATTAINS.MonitoringLocationIdentifier</span>,</span>
 <span>    <span class="va">ATTAINS.WaterType</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.MonitoringLocationIdentifier</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    <span class="st">"MDEQ_WQ_WQX-C04CKFKR05"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC01"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC02"</span>,</span>
 <span>    <span class="st">"MDEQ_WQ_WQX-C04KNDYC04"</span>, <span class="st">"MDEQ_WQ_WQX-C04KNDYC54"</span></span>
-<span>  <span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span></span>
 <span>    AssessmentUnitIdentifier <span class="op">=</span> <span class="va">ATTAINS.AssessmentUnitIdentifier</span>,</span>
 <span>    MonitoringLocationIdentifier <span class="op">=</span> <span class="va">ATTAINS.MonitoringLocationIdentifier</span>,</span>
 <span>    WaterType <span class="op">=</span> <span class="va">ATTAINS.WaterType</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="co"># Add an example new assessment unit for demonstration purposes</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>    AssessmentUnitIdentifier <span class="op">=</span> <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span>,</span>
@@ -455,22 +455,22 @@ into the console to review another example of this function in use and
 additional information.</p>
 <p>Now we can review the monitoring locations on a map:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/leaflet.html" class="external-link">leaflet</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/leaflet.html" class="external-link">leaflet</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addProviderTiles.html" class="external-link">addProviderTiles</a></span><span class="op">(</span><span class="st">"Esri.WorldTopoMap"</span>,</span>
 <span>    group <span class="op">=</span> <span class="st">"World topo"</span>,</span>
 <span>    options <span class="op">=</span> <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addProviderTiles.html" class="external-link">providerTileOptions</a></span><span class="op">(</span></span>
 <span>      updateWhenZooming <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>      updateWhenIdle <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/remove.html" class="external-link">clearShapes</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">leaflet.extras</span><span class="fu">::</span><span class="fu"><a href="https://trafficonese.github.io/leaflet.extras/reference/addResetMapButton.html" class="external-link">addResetMapButton</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/remove.html" class="external-link">clearShapes</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">leaflet.extras</span><span class="fu">::</span><span class="fu"><a href="https://trafficonese.github.io/leaflet.extras/reference/addResetMapButton.html" class="external-link">addResetMapButton</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/addLegend.html" class="external-link">addLegend</a></span><span class="op">(</span></span>
 <span>    position <span class="op">=</span> <span class="st">"bottomright"</span>,</span>
 <span>    colors <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>    labels <span class="op">=</span> <span class="st">"Water Quality Observation(s)"</span>,</span>
 <span>    opacity <span class="op">=</span> <span class="fl">1</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">leaflet</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/leaflet/reference/map-layers.html" class="external-link">addCircleMarkers</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">TADA_spatial</span>,</span>
 <span>    color <span class="op">=</span> <span class="st">"grey"</span>, fillColor <span class="op">=</span> <span class="st">"black"</span>,</span>
@@ -720,7 +720,7 @@ to the current records.</p></li>
 <p>For more detailed instructions, enter
 <code><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">?TADA_UpdateATTAINSAUMLCrosswalk</a></code> into the console.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">batch.upload.MT</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">batch.upload.MT</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">ATTAINS_batchupload</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_UpdateATTAINSAUMLCrosswalk.html">TADA_UpdateATTAINSAUMLCrosswalk</a></span><span class="op">(</span> <span class="co"># selected attains_replace = TRUE because all matches currently in ATTAINS are included in this new crosswalk</span></span>
 <span>    attains_replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    batch_upload <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -788,15 +788,15 @@ they prefer not to use the TADA_AssignUsesToWaterType function. This
 approach allows for greater flexibility and customization when
 integrating new AUs into existing frameworks.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">MT.UseAURef_manual</span> <span class="op">&lt;-</span> <span class="va">MT.UseAURef</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">MT.UseAURef_manual</span> <span class="op">&lt;-</span> <span class="va">MT.UseAURef</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>      ATTAINS.UseName <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Aquatic Life"</span>, <span class="st">"Drinking Water"</span><span class="op">)</span>,</span>
 <span>      ATTAINS.AssessmentUnitIdentifier <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NEW:EX_MDEQ_WQ_WQX"</span>, <span class="st">"NEW:EX_MDEQ_WQ_WQX"</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    by <span class="op">=</span> <span class="op">(</span><span class="st">"ATTAINS.AssessmentUnitIdentifier"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>ATTAINS.UseName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/coalesce.html" class="external-link">coalesce</a></span><span class="op">(</span><span class="va">ATTAINS.UseName.x</span>, <span class="va">ATTAINS.UseName.y</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">ATTAINS.UseName.x</span>, <span class="op">-</span><span class="va">ATTAINS.UseName.y</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>

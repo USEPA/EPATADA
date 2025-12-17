@@ -84,7 +84,7 @@
       <h1>TADA Cybertown Workshop June 2025</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-12</h4>
+            <h4 data-toc-skip class="date">2025-12-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADACybertown2025.Rmd" class="external-link"><code>vignettes/TADACybertown2025.Rmd</code></a></small>
       <div class="d-none name"><code>TADACybertown2025.Rmd</code></div>
@@ -269,7 +269,7 @@ another, this can be done using the org_hierarchy argument in
 <span><span class="op">)</span></span></code></pre></div>
 <p>Let’s review the duplicates:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_flag_review</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">WQP_flag_review</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">MonitoringLocationName</span>,</span>
 <span>    <span class="va">TADA.MonitoringLocationIdentifier</span>,</span>
@@ -285,8 +285,8 @@ another, this can be done using the org_hierarchy argument in
 <span>    <span class="va">TADA.NearbySites.Flag</span>,</span>
 <span>    <span class="va">TADA.NearbySiteGroup</span>,</span>
 <span>    <span class="va">OrganizationIdentifier</span></span>
-<span>  <span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDupGroupID</span> <span class="op">!=</span> <span class="st">"Not a duplicate"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDupGroupID</span> <span class="op">!=</span> <span class="st">"Not a duplicate"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>We will select to keep only unique samples from
 <code>TADA_FindPotentialDuplicatesSingleOrg</code> by filtering for
@@ -296,8 +296,8 @@ TADA.SingleOrgDup.Flag equals “Unique”.</p>
 but if there were, duplicates can by removed by filtering for
 TADA.ResultSelectedMultipleOrgs equals “Y”.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">WQP_clean</span> <span class="op">&lt;-</span> <span class="va">WQP_flag</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.ResultSelectedMultipleOrgs</span> <span class="op">==</span> <span class="st">"Y"</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables in R by using ‘rm()’. In the remainder
 of this workshop, we will work with the clean data set.</p>
@@ -411,7 +411,7 @@ this example, there were no synonyms.</p>
 interest.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select characteristics of interest</span></span>
-<span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="st">"ESCHERICHIA COLI"</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables. We will focus on the subset from now
 on.</p>
@@ -460,8 +460,8 @@ to their use case</li>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/rm.html" class="external-link">rm</a></span><span class="op">(</span><span class="va">ATTAINS_map</span><span class="op">)</span></span></code></pre></div>
 <p>Create table of monitoring location identifiers and AUs.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ML_AU_crosswalk</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">TADA.MonitoringLocationIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitName</span>, <span class="va">TADA.CharacteristicName</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">ML_AU_crosswalk</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">TADA.MonitoringLocationIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitIdentifier</span>, <span class="va">ATTAINS.AssessmentUnitName</span>, <span class="va">TADA.CharacteristicName</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Remove intermediate variables. Let’s keep going with
 WQP_clean_subset.</p>
@@ -492,12 +492,12 @@ magnitude component of the EPA recommendation 2 criteria for ESCHERICHIA
 COLI).</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># add column with comparison to criteria mag (excursions)</span></span>
-<span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">WQP_clean_subset</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>meets_criteria_mag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">TADA.ResultMeasureValue</span> <span class="op">&lt;=</span> <span class="fl">320</span>, <span class="st">"Yes"</span>, <span class="st">"No"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># review</span></span>
-<span><span class="va">WQP_clean_subset_review</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">WQP_clean_subset_review</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span></span>
 <span>    <span class="va">MonitoringLocationIdentifier</span>, <span class="va">OrganizationFormalName</span>, <span class="va">ActivityStartDate</span>, <span class="va">TADA.ResultMeasureValue</span>,</span>
 <span>    <span class="va">meets_criteria_mag</span></span>
@@ -508,12 +508,12 @@ COLI).</p>
 fall above 10 CFU/100mL, and over 98% of results fall below 265.2
 CFU/100m.</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_clean_subset_stats</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">WQP_clean_subset_stats</span> <span class="op">&lt;-</span> <span class="va">WQP_clean_subset</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/TADA_Stats.html">TADA_Stats</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Generate a scatterplot. One result value is above the threshold.</p>
 <div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_Scatterplot.html">TADA_Scatterplot</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_Scatterplot.html">TADA_Scatterplot</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span>, id_cols <span class="op">=</span> <span class="st">"TADA.ComparableDataIdentifier"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">plotly</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/plotly/man/add_trace.html" class="external-link">add_lines</a></span><span class="op">(</span></span>
 <span>    y <span class="op">=</span> <span class="fl">320</span>,</span>
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">WQP_clean_subset</span><span class="op">$</span><span class="va">ActivityStartDate</span><span class="op">)</span><span class="op">)</span>,</span>

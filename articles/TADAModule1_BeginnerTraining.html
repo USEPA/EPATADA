@@ -84,7 +84,7 @@
       <h1>TADA Module 1: Training for Beginner R Users</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-12</h4>
+            <h4 data-toc-skip class="date">2025-12-17</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1_BeginnerTraining.Rmd" class="external-link"><code>vignettes/TADAModule1_BeginnerTraining.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule1_BeginnerTraining.Rmd</code></div>
@@ -267,15 +267,15 @@ water?</strong></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">n_media</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">FieldValues_ActMedia</span><span class="op">$</span><span class="va">Value</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">unique_media</span> <span class="op">&lt;-</span> <span class="va">FieldValues_ActMedia</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Value</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>media <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">Value</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">media</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">unique_media</span> <span class="op">&lt;-</span> <span class="va">FieldValues_ActMedia</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Value</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>media <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="va">Value</span>, collapse <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">media</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">stringi</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/stringi/man/stri_replace.html" class="external-link">stri_replace_last</a></span><span class="op">(</span>fixed <span class="op">=</span> <span class="st">","</span>, <span class="st">" and"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">n_not_water</span> <span class="op">&lt;-</span> <span class="va">FieldValues_ActMedia</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Value</span> <span class="op">!=</span> <span class="st">"Water"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">n_not_water</span> <span class="op">&lt;-</span> <span class="va">FieldValues_ActMedia</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Value</span> <span class="op">!=</span> <span class="st">"Water"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarize</a></span><span class="op">(</span>n_not_water <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">Value</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -316,12 +316,12 @@ further analysis</strong></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Select only surface water results for use in analysis</span></span>
 <span></span>
-<span><span class="va">n_sur_water</span> <span class="op">&lt;-</span> <span class="va">FieldValues_AnalysisFlag</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Value</span> <span class="op">==</span> <span class="st">"Yes - SURFACE WATER"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">n_sur_water</span> <span class="op">&lt;-</span> <span class="va">FieldValues_AnalysisFlag</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">Value</span> <span class="op">==</span> <span class="st">"Yes - SURFACE WATER"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">Count</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Filter to retain only surface water results for use in analysis</span></span>
-<span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="va">R5Profile</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="va">R5Profile</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.UseForAnalysis.Flag</span> <span class="op">==</span> <span class="st">"Yes - SURFACE WATER"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -386,12 +386,12 @@ common?</strong></p>
 <span></span>
 <span><span class="va">mlt_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">FieldValues_MLs_table</span><span class="op">$</span><span class="va">Value</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">mlt_most_common</span> <span class="op">&lt;-</span> <span class="va">FieldValues_MLs_table</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">mlt_most_common</span> <span class="op">&lt;-</span> <span class="va">FieldValues_MLs_table</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">Count</span><span class="op">)</span></span></code></pre></div>
 <p>Now, let’s filter by mlt_most_common and focus the rest of this demo
 on the mlt_most_common[1] subset of results.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="va">R5Profile</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="va">R5Profile</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.MonitoringLocationTypeName</span> <span class="op">==</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">mlt_most_common</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Next we can review station locations and summary information using
 the <strong>TADA_OverviewMap</strong> function.
@@ -430,11 +430,11 @@ has the most results?</strong></p>
 <span><span class="va">n_char_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">R5Profile_CharSummary</span><span class="op">$</span><span class="va">TADA.CharacteristicName</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter for record with max number of sites per Character</span></span>
-<span><span class="va">max_sites</span> <span class="op">&lt;-</span> <span class="va">R5Profile_CharSummary</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">max_sites</span> <span class="op">&lt;-</span> <span class="va">R5Profile_CharSummary</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">n_sites</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter for record with max number of results per Character</span></span>
-<span><span class="va">max_results</span> <span class="op">&lt;-</span> <span class="va">R5Profile_CharSummary</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">max_results</span> <span class="op">&lt;-</span> <span class="va">R5Profile_CharSummary</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">n_records</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -529,7 +529,7 @@ by entering the following into the console:</p>
 <p>Remove flagged duplicates from a single organization (random
 selection of single result):</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">R5ProfileClean4</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean3</span>  <span class="op">|&gt;</span></span>
+<code class="sourceCode R"><span><span class="va">R5ProfileClean4</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean3</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span></span>
 <span>    <span class="va">TADA.SingleOrgDup.Flag</span> <span class="op">==</span> <span class="st">"Unique"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
@@ -618,7 +618,7 @@ common?</strong></p>
 <span><span class="va">activity_type_code_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">R5ProfileClean5</span><span class="op">$</span><span class="va">ActivityTypeCode</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Most common Activity Type Code</span></span>
-<span><span class="va">most_common_activity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span><span class="va">R5ProfileClean5</span>, <span class="st">"ActivityTypeCode"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">most_common_activity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span><span class="va">R5ProfileClean5</span>, <span class="st">"ActivityTypeCode"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/slice.html" class="external-link">slice_max</a></span><span class="op">(</span><span class="va">Count</span><span class="op">)</span></span></code></pre></div>
 <p>We’ve completed our review of the ActivityTypeCode. Now, let’s move
 on to a different field and see if there are any values that we want to
@@ -644,8 +644,8 @@ information.</p>
 <span>  define <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co"># Review number of suspect results</span></span>
-<span><span class="va">suspect_n</span> <span class="op">&lt;-</span> <span class="va">Review_R5ProfileClean5</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.MeasureQualifierCode.Flag</span> <span class="op">==</span> <span class="st">"SUSPECT"</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">suspect_n</span> <span class="op">&lt;-</span> <span class="va">Review_R5ProfileClean5</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.MeasureQualifierCode.Flag</span> <span class="op">==</span> <span class="st">"SUSPECT"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run function with clean = TRUE</span></span>
@@ -717,8 +717,8 @@ TADA.MeasureQualifierCode.Def columns?</strong></p>
 <span><span class="va">result_na_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">R5ProfileClean5</span><span class="op">$</span><span class="va">TADA.ResultMeasureValue</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Show unique values of MeasureQualifierCode and TADA.MeasureQualifierCode.Def</span></span>
-<span><span class="va">mqc</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean5</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">MeasureQualifierCode</span>, <span class="va">TADA.MeasureQualifierCode.Def</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">mqc</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean5</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">MeasureQualifierCode</span>, <span class="va">TADA.MeasureQualifierCode.Def</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we need to filter down to only numeric data. Remove data where
 the <em>TADA.ResultMeasureValueDataTypes.Flag</em> = “Text” or “NA - Not
@@ -790,7 +790,7 @@ function gives a consistent name (and identifier) to synonyms.</p></li>
 <span><span class="va">UniqueHarmonizationRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetSynonymRef.html">TADA_GetSynonymRef</a></span><span class="op">(</span><span class="va">R5ProfileClean6</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Filter out records without target to display in table</span></span>
-<span><span class="va">UniqueHarmonizationRef_no_na</span> <span class="op">&lt;-</span> <span class="va">UniqueHarmonizationRef</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">UniqueHarmonizationRef_no_na</span> <span class="op">&lt;-</span> <span class="va">UniqueHarmonizationRef</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">Target.TADA.CharacteristicName</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Harominze data set</span></span>
@@ -833,8 +833,8 @@ rows were added? Can users customize nutrient summation?</strong></p>
 <span></span>
 <span><span class="va">nutrient_n</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8_n</span> <span class="op">-</span> <span class="va">R5ProfileClean7_n</span></span>
 <span></span>
-<span><span class="va">total_N_P_subset</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span>  <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.NutrientSummation.Flag</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Nutrient summation from one or more subspecies."</span>, <span class="st">"Nutrient summation from one subspecies."</span><span class="op">)</span><span class="op">)</span>  <span class="op">|&gt;</span></span>
+<span><span class="va">total_N_P_subset</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.NutrientSummation.Flag</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Nutrient summation from one or more subspecies."</span>, <span class="st">"Nutrient summation from one subspecies."</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span>, <span class="va">TADA.ResultMeasureValue</span>, <span class="va">TADA.ResultMeasure.MeasureUnitCode</span>, <span class="va">TADA.NutrientSummation.Flag</span>, <span class="va">TADA.NutrientSummationEquation</span>, <span class="va">TADA.NutrientSummationGroup</span><span class="op">)</span></span></code></pre></div>
 <p><em>The table above shows the first 100 rows added by calculating
 Total N and P. Columns included in the table are
@@ -907,7 +907,7 @@ review a column of interest. In this example we review values from the
 (DO) results.</p>
 <div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># # Create subset of DO data</span></span>
-<span><span class="va">DO_R5ProfileClean8</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span>  <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
+<span><span class="va">DO_R5ProfileClean8</span> <span class="op">&lt;-</span> <span class="va">R5ProfileClean8</span> <span class="op">|&gt;</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.CharacteristicName</span> <span class="op">==</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>
 <span><span class="co">#</span></span>
 <span><span class="co"># # Create pie chart for SampleCollectionMethod.MethodName for Dissolved Oxygen (DO results)</span></span>
 <span><span class="va">DO_SCM_Pie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span><span class="va">R5ProfileClean8</span>, field <span class="op">=</span> <span class="st">"SampleCollectionMethod.MethodName"</span>, characteristicName <span class="op">=</span> <span class="st">"DISSOLVED OXYGEN (DO)"</span><span class="op">)</span></span>

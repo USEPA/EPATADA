@@ -424,10 +424,10 @@ add_data <- data.frame(
 )
 
 # The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
-usesRef <- NCTC_usesRef_Manual  |>
-  dplyr::left_join(add_data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE)  |>
-  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y))  |>
-  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y))  |>
+usesRef <- NCTC_usesRef_Manual |>
+  dplyr::left_join(add_data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) |>
+  dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
+  dplyr::select(-c(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::mutate(IncludeOrExclude = "Include")
 
 # PH will now reflect the changes
