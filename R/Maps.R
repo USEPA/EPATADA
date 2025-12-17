@@ -43,7 +43,6 @@ TADA_OverviewMap <- function(.data) {
           labels,
           "</div>"
         )
-        
         return(leaflet::addLegend(
           map,
           colors = colorAdditions,
@@ -52,7 +51,6 @@ TADA_OverviewMap <- function(.data) {
           title = "Measurements"
         ))
       }
-      
       sumdat <- .data |>
         dplyr::group_by(
           MonitoringLocationIdentifier,
@@ -66,11 +64,9 @@ TADA_OverviewMap <- function(.data) {
           "Visit_Count" = length(unique(ActivityStartDate)),
           "Parameter_Count" = length(unique(TADA.CharacteristicName))
         )
-      
       param_counts <- sort(unique(sumdat$Parameter_Count))
       param_length <- length(param_counts)
       param_diff <- diff(param_counts)
-      
       pt_sizes <- round(
         stats::quantile(sumdat$Sample_Count, probs = c(0.1, 0.25, 0.5, 0.75)),
         0
@@ -82,7 +78,6 @@ TADA_OverviewMap <- function(.data) {
         paste0(">", pt_sizes[3]),
         paste0(">", pt_sizes[4])
       )
-      
       sumdat$radius <- 5
       sumdat$radius <- ifelse(
         sumdat$Sample_Count > pt_sizes[1],
@@ -104,41 +99,28 @@ TADA_OverviewMap <- function(.data) {
         30,
         sumdat$radius
       )
-      
       site_size <- data.frame(
         Sample_n = pt_labels,
         Point_size = c(5, 10, 15, 20, 30)
       )
-      
       site_legend <- subset(
         site_size,
         site_size$Point_size %in% unique(sumdat$radius)
       )
-      
       # set breaks to occur only at integers for data sets requiring bins
       pretty.breaks <- unique(round(pretty(sumdat$Parameter_Count)))
-      
       bins_n <- length(pretty.breaks)
-      
       # create TADA color palette
       tada.pal <- TADA_ColorPalette()
-      
       start.rgb.val <- col2rgb(tada.pal[5]) / 255
-      
       new.rgb.start <- start.rgb.val * (1 - 0.7) + 1 * 0.7
-      
       start.color <- rgb(new.rgb.start[1], new.rgb.start[2], new.rgb.start[3])
-      
       end.rgb.val <- col2rgb(tada.pal[10]) / 255
-      
       new.rgb.end <- end.rgb.val * (1 - 0.4)
-      
       end.color <- rgb(new.rgb.end[1], new.rgb.end[2], new.rgb.end[3])
-      
       tada.blues <- grDevices::colorRampPalette(c(start.color, end.color))(
         bins_n
       )
-      
       # set color palette
       # set color palette for small number of characteristics (even intervals, no bins)
       if (length(unique(param_diff)) == 1 & param_length < 10) {
@@ -154,7 +136,6 @@ TADA_OverviewMap <- function(.data) {
           bins = pretty.breaks
         )
       }
-      
       # create custom fill color function so that data sets with one value for parameter count are displayed correctly
       customFillColor <- function(category, pal) {
         if (length(param_diff > 0)) {
@@ -163,7 +144,6 @@ TADA_OverviewMap <- function(.data) {
           return(tada.pal[5])
         }
       }
-      
       # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
       # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
       # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
@@ -178,7 +158,6 @@ TADA_OverviewMap <- function(.data) {
       )
       vbbox <- bbox |>
         as.vector()
-      
       map <- leaflet::leaflet() |>
         leaflet::addProviderTiles(
           "Esri.WorldTopoMap",
@@ -228,7 +207,6 @@ TADA_OverviewMap <- function(.data) {
           labels = site_legend$Sample_n,
           sizes = site_legend$Point_size * 2
         )
-      
       # create conditional map legend
       # create legend for single parameter count value data sets
       if (length(param_diff) == 0) {
@@ -252,7 +230,6 @@ TADA_OverviewMap <- function(.data) {
             opacity = 0.5
           )
       }
-      
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
         map,
@@ -301,7 +278,6 @@ TADA_OverviewMap <- function(.data) {
         overlayGroups = c("Tribes"),
         options = leaflet::layersControlOptions(collapsed = FALSE)
       )
-      
       return(map)
     })
   }))
@@ -342,7 +318,6 @@ TADA_FlaggedSitesMap <- function(.data) {
     invalid$TADA.SuspectCoordinates.Flag %in%
       c("LAT_OutsideUSA", "LONG_OutsideUSA"),
   ]
-  
   lowresIcon <- leaflet::makeAwesomeIcon(
     icon = "circle",
     library = "fa",
@@ -355,7 +330,6 @@ TADA_FlaggedSitesMap <- function(.data) {
     iconColor = "#ffffff",
     markerColor = "darkblue"
   )
-  
   map <- leaflet::leaflet() |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
@@ -440,7 +414,6 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
   if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
     .data <- TADA_FindNearbySites(.data)
   }
-  
   .data <- .data |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
     dplyr::mutate(
@@ -460,11 +433,9 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
       TADA.NearbySiteGroup
     ) |>
     dplyr::distinct()
-  
   icon.colors <- grDevices::rainbow(as.numeric(length(unique(
     .data$TADA.NearbySiteGroup
   ))))
-  
   pal <- leaflet::colorFactor(
     palette = icon.colors,
     domain = .data$TADA.NearbySiteGroup
