@@ -1120,7 +1120,7 @@ TADA_ParametersForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower("all") %in% tolower(org_id)) {
+    if ("all" %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -1142,7 +1142,9 @@ TADA_ParametersForAnalysis <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+        org_id <- unique(
+          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
+        )
       }
     }
 
@@ -1222,6 +1224,7 @@ TADA_ParametersForAnalysis <- function(
       dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier)) |>
       dplyr::left_join(
         .data[, c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")],
+        by = dplyr::join_by(TADA.ComparableDataIdentifier),
         relationship = "many-to-many"
       ) |>
       dplyr::distinct()
@@ -2126,7 +2129,9 @@ TADA_UsesForAnalysis <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+        org_id <- unique(
+          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
+        )
       }
     }
 
@@ -3052,7 +3057,9 @@ TADA_AssignUsesToAU <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+        org_id <- unique(
+          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
+        )
       }
     }
 
@@ -3419,7 +3426,9 @@ TADA_AssignUsesToWaterType <- function(
         "org_id == 'All' was selected, ",
         "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
       ))
-      org_id <- unique(AUMLRef$ATTAINS.OrganizationIdentifier)
+      org_id <- unique(
+        stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
+      )
     }
   }
 
@@ -3940,13 +3949,24 @@ TADA_MLSummary <- function(
     if (!is.null(AUMLRef)) {
       # NOTE: Check for required columns in AUMLRef
       # If a user provides output from TADA_CreateATTAINSAUMLCrosswalk, select only relevant columns
-      AUMLRef <- dplyr::select(
-        AUMLRef,
-        ATTAINS.OrganizationIdentifier,
-        ATTAINS.AssessmentUnitIdentifier,
-        MonitoringLocationIdentifier,
-        ATTAINS.WaterType
-      )
+      if("TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)){
+        AUMLRef <- dplyr::select(
+          AUMLRef,
+          ATTAINS.OrganizationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier,
+          MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+          ATTAINS.WaterType
+        )
+      }
+      if(!"TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)){
+        AUMLRef <- dplyr::select(
+          AUMLRef,
+          ATTAINS.OrganizationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier,
+          MonitoringLocationIdentifier,
+          ATTAINS.WaterType
+        )
+      }
 
       # If user does not provide an AU_UsesRef, run it to pull in prior uses for AU,
       # Otherwise, if a user has already customized this and provided this AU_UsesRef, then use that table.
