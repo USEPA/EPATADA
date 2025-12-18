@@ -207,7 +207,6 @@ TADA_DefineCriteriaMethodology <- function(
     names(DefineCriteriaMethodology) <- desired_cols
 
     DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
-
   } else {
     # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {
@@ -279,7 +278,6 @@ TADA_DefineCriteriaMethodology <- function(
     if (
       auto_assign == FALSE && is.null(MLSummaryRef) && is.null(criteriaMethods)
     ) {
-
       suppressMessages(
         TADA_ParamRef <- TADA_ParametersForAnalysis(
           .data = .data,
@@ -363,7 +361,7 @@ TADA_DefineCriteriaMethodology <- function(
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
       TADA_param <- dplyr::distinct(
         .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
-        ) |>
+      ) |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
         tidyr::complete(
           TADA.ComparableDataIdentifier,
@@ -597,8 +595,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology
-      )
+      DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
     }
 
     # User wants to populate the criteria table using a user supplied table.
@@ -606,7 +603,6 @@ TADA_DefineCriteriaMethodology <- function(
     # all rows for any missing WQP Characteristic (or TADA.ComparableDataIdenftifier)
     # generated from the auto_assign default values. Users may also append epa 304a values.
     if (!is.null(criteriaMethods)) {
-
       # If user specifies org_id = NULL (handled upstream in this function).
       # Users who may want to do the ATTAINS crosswalk later on in the process, can choose to
       # specify org_id = NULL and to decide how to populate on their own after analysis.
@@ -783,22 +779,25 @@ TADA_DefineCriteriaMethodology <- function(
           "extdata",
           "EPA304a_criteria_table.csv",
           package = "EPATADA"
-          )
         )
-      
+      )
+
       # read in ref csv
       coltype.ref <- utils::read.csv(system.file(
         "extdata",
         "TADAColTypeRef.csv",
         package = "EPATADA"
       ))
-      
+
       epa304a <- suppressWarnings(correctColType(epa304a)) |>
         dplyr::select(
           names(epa304a)[names(epa304a) %in% coltype.ref$column_name]
-          ) |>
-        dplyr::filter(TADA.CharacteristicName %in% DefineCriteriaMethodology$TADA.CharacteristicName)
-      
+        ) |>
+        dplyr::filter(
+          TADA.CharacteristicName %in%
+            DefineCriteriaMethodology$TADA.CharacteristicName
+        )
+
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         rbind(epa304a)
     }

@@ -3949,7 +3949,7 @@ TADA_MLSummary <- function(
     if (!is.null(AUMLRef)) {
       # NOTE: Check for required columns in AUMLRef
       # If a user provides output from TADA_CreateATTAINSAUMLCrosswalk, select only relevant columns
-      if("TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)){
+      if ("TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)) {
         AUMLRef <- dplyr::select(
           AUMLRef,
           ATTAINS.OrganizationIdentifier,
@@ -3958,7 +3958,7 @@ TADA_MLSummary <- function(
           ATTAINS.WaterType
         )
       }
-      if(!"TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)){
+      if (!"TADA.MonitoringLocationIdentifier" %in% names(AUMLRef)) {
         AUMLRef <- dplyr::select(
           AUMLRef,
           ATTAINS.OrganizationIdentifier,
