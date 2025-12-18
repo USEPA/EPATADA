@@ -2765,12 +2765,16 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         lat2 = max(sumdat$TADA.LatitudeMeasure, na.rm = TRUE)
       ) |>
       leaflet.extras::addResetMapButton()
-
+    
+    # Initialize vectors to hold the names of groups we actually add 
+    overlay_groups <- character(0)
+    
     # Add ATTAINS catchment outlines (if they exist):
     try(
       map <- map |>
         leaflet::addPolygons(
           data = ATTAINS_catchments,
+          group = "ATTAINS_catchments",
           color = "black",
           fillColor = "grey",
           weight = 1,
@@ -2780,6 +2784,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             ATTAINS_catchments$nhdplusid
           )
         ),
+      overlay_groups <- c(overlay_groups, "ATTAINS_catchments"),
       silent = TRUE
     )
 
@@ -3121,7 +3126,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # remove intermediate objects
     rm(wqp.urls, set.popup)
-
+    
     # add legend to map
     map <- map |>
       leaflegend::addLegendImage(
@@ -3141,7 +3146,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # remove intermediate objects
     rm(images.ref, leg.labels)
-
+    
     # add button to toggle map legend on/off
     map <- htmlwidgets::onRender(
       map,
@@ -3171,7 +3176,15 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }
 "
     )
-
+    # add layer control to map
+    if (length(overlay_groups) > 0) {
+      map <- map  |> 
+        addLayersControl(
+          baseGroups = c("World topo"), # Always include a base group
+          overlayGroups = overlay_groups,
+          options = layersControlOptions(collapsed = TRUE)
+        )
+    }
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
