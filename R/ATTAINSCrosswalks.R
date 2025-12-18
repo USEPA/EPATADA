@@ -1280,7 +1280,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.FlagParameterName = "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment"
         ) |>
         dplyr::mutate(
-          Flag.ParameterInput = "Default. No Crosswalk was provided."
+          Flag.ParameterInput = "Default. No crosswalk was provided."
         ) |>
         dplyr::distinct()
     }
@@ -1350,7 +1350,7 @@ TADA_ParametersForAnalysis <- function(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
             "This crosswalk was provided through an exact match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No Crosswalk was provided and no exact matches were found."
+            "No crosswalk was provided and no exact matches were found."
           )
         ) |>
         dplyr::distinct()
@@ -1432,7 +1432,7 @@ TADA_ParametersForAnalysis <- function(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
             "This crosswalk was provided through an exact match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No Crosswalk was provided and no exact matches were found for this organization."
+            "No crosswalk was provided and no exact matches were found for this organization."
           )
         ) |>
         dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
