@@ -1392,33 +1392,59 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
 getTribalPopup <- function(layer, layername) {
-  text <- paste0("<strong>", layername, "</strong><p>")
-  cols <-
-    c(
-      "TRIBE_N" = "Tribe Name",
-      "STATE" = "State",
-      "REGION" = "Region",
-      "AWATER_MI" = "Water Area (sq miles)",
-      "ALAND_MI" = "Land Area (sq miles)",
-      "TOTALAREA_MI" = "TOTALAREA_MI",
-      "EPA_ID" = "EPA ID"
-    )
+  popups <- vector("character", nrow(layer))
 
-  for (i in seq(1, length(cols))) {
-    if (names(cols[i]) %in% colnames(layer)) {
-      text <- paste0(
-        text,
-        "<strong>",
-        cols[i],
-        "</strong>: ",
-        layer[[names(cols[i])]],
-        "<br>"
-      )
+  # select and rename cols
+  cols <- c(
+    "TRIBE_N" = "Tribe Name",
+    "STATE" = "State",
+    "REGION" = "Region",
+    "AWATER_M" = "Water Area (sq miles)",
+    "ALAND_M" = "Land Area (sq miles)",
+    "TOTALAREA_M" = "Total Area (sq miles)",
+    "EPA_ID" = "EPA ID"
+  )
+
+ # create popup text for each polygon
+  for (j in seq_len(nrow(layer))) {
+    text <- paste0("<strong>", layername, "</strong><p>")
+
+    for (i in seq_along(cols)) {
+      col_name <- names(cols[i])
+
+      if (col_name %in% colnames(layer)) {
+        value <- layer[j, col_name, drop = TRUE]
+
+        # if col is "REGION", process the semicolon-delimited string
+        if (col_name == "REGION") {
+          # split the string by semicolon, get unique values, and join them back
+          value <- unique(unlist(strsplit(value, ";\\s*")))
+        }
+
+        # if the col contains an area, round the value
+        if (col_name %in% c("AWATER_M", "ALAND_M", "TOTALAREA_M")) {
+          # round to two decimal places
+          value <- round(value, digits = 2)
+        }
+
+        value_str <- paste(value, collapse = ", ")
+
+        text <- paste0(
+          text,
+          "<strong>",
+          cols[i],
+          "</strong>: ",
+          value_str,
+          "<br>"
+        )
+      }
     }
-  }
-  return(text)
-}
 
+    popups[j] <- text
+  }
+
+  return(popups)
+}
 
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
