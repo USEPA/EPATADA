@@ -1395,10 +1395,10 @@ getPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
   cols <-
     c(
-      "TRIBE_NAME" = "Tribe Name",
-      "PARCEL_NO" = "Parcel Number",
-      "EPA_ID" = "EPA ID",
-      "TYPE" = "Type"
+      "TRIBE_N" = "Tribe Name",
+      #"PARCEL_NO" = "Parcel Number",
+      "EPA_ID" = "EPA ID"#,
+      #"TYPE" = "Type"
     )
 
   for (i in seq(1, length(cols))) {
@@ -1443,7 +1443,7 @@ TADA_addPolys <- function(
   layerfilepath,
   layergroup,
   layername,
-  bbox = NULL
+  bbox = NULL,
 ) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
