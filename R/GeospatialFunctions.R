@@ -2469,7 +2469,7 @@ TADA_GetATTAINSByAUID <- function(
 #' # Only use ATTAINS catchments to match AUs
 #' attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 #'   fill_USGS_catch = TRUE,
-#'   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
+#'   return_nearest = TRUE, resolution = "Hi", return_sf = TRUE
 #' )
 #'
 #' TADA_ViewATTAINS(attains_catchments)
