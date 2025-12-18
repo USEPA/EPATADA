@@ -2557,47 +2557,47 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   # Define the paths to the images
   images <- c(
-    system.file("extdata/icons", "square-ns.png", package = "EPATADA"), #1
-    system.file("extdata/icons", "square-fs.png", package = "EPATADA"), #2
-    system.file("extdata/icons", "square-na.png", package = "EPATADA"), #3
-    system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), #4
+    system.file("extdata/icons", "square-ns.png", package = "EPATADA"), # 1
+    system.file("extdata/icons", "square-fs.png", package = "EPATADA"), # 2
+    system.file("extdata/icons", "square-na.png", package = "EPATADA"), # 3
+    system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), # 4
     system.file(
       "extdata/icons",
       "circle-user-solid-full.png",
       package = "EPATADA"
-    ), #5
+    ), # 5
     system.file(
       "extdata/icons",
       "circle-check-solid-full.png",
       package = "EPATADA"
-    ), #6
-    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #7
-    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), #8
+    ), # 6
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 7
+    system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 8
     system.file(
       "extdata/icons",
       "square-catchment-gray.png",
       package = "EPATADA"
-    ), #9
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), #10
-    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), #11
-    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), #12
-    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") #13
+    ), # 9
+    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
+    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
+    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
+    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
   )
 
   img.labels <- c(
-    "ATTAINS: Not Supporting", #1
-    "ATTAINS: Supporting", #2
-    "ATTAINS: Not Assessed", #3
-    "ATTAINS: No Geometry Available", #4
-    "WQP: User-supplied Ref", #5
-    "WQP: ATTAINS Crosswalk", #6
-    "WQP: TADA_CreateATTAINSAUMLCrosswalk", #7
-    "WQP: Monitoring Location", #8
-    "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", #9
-    "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", #10
-    "ATTAINS: Not Supporting Point", #11
-    "ATTAINS: Supporting Point", #12
-    "ATTAINS: Not Assessed Point" #13
+    "ATTAINS: Not Supporting", # 1
+    "ATTAINS: Supporting", # 2
+    "ATTAINS: Not Assessed", # 3
+    "ATTAINS: No Geometry Available", # 4
+    "WQP: User-supplied Ref", # 5
+    "WQP: ATTAINS Crosswalk", # 6
+    "WQP: TADA_CreateATTAINSAUMLCrosswalk", # 7
+    "WQP: Monitoring Location", # 8
+    "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", # 9
+    "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
+    "ATTAINS: Not Supporting Point", # 11
+    "ATTAINS: Supporting Point", # 12
+    "ATTAINS: Not Assessed Point" # 13
   )
 
   # Check if all image paths exist
@@ -2723,6 +2723,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       dplyr::group_by(
         TADA.MonitoringLocationIdentifier,
         TADA.MonitoringLocationName,
+        OrganizationFormalName,
         TADA.LatitudeMeasure,
         TADA.LongitudeMeasure
       ) |>
@@ -3021,6 +3022,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       sumdat$TADA.MonitoringLocationIdentifier,
       "<br> Site Name: ",
       sumdat$TADA.MonitoringLocationName,
+      "<br> Organization Name: ",
+      sumdat$OrganizationFormalName,
       "<br> Measurement Count: ",
       sumdat$Sample_Count,
       "<br> Visit Count: ",

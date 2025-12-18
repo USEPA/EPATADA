@@ -1075,23 +1075,25 @@ TADA_ParametersForAnalysis <- function(
   if (
     missing(.data) &&
       missing(org_id) &&
-      missing(auto_assign) &&
-      missing(excel) &&
-      missing(overwrite)
+      missing(paramRef) &&
+      missing(AUMLRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
 
-    empty_df <- data.frame(
+    .data <- data.frame(
+      TADA.CharacteristicName = NA_character_,
+      TADA.ComparableDataIdentifier = NA_character_
+    )
+
+    CreateParamRef <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.ParameterName = character(0),
       ATTAINS.FlagParameterName = character(0),
       Flag.ParameterInput = character(0)
     )
-
-    return(empty_df)
   } else {
     # overwrite argument should only be used when creating an excel file.
     if (excel == FALSE && overwrite == TRUE) {
@@ -1118,14 +1120,21 @@ TADA_ParametersForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
         ))
-        org_id <- rExpertQuery::EQ_DomainValues("org_id")[, "code"]
+        org_id <- c(
+          utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"],
+          ""
+        )
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
       if (!is.null(AUMLRef)) {
@@ -1142,20 +1151,6 @@ TADA_ParametersForAnalysis <- function(
       print(paste0(
         "TADA.CreateParamRef: More than one org_name was defined in your dataframe. ",
         "Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
-      ))
-    }
-
-    # Checks if your org is found in ATTAINS domain.
-    org.ref <- utils::read.csv(system.file(
-      "extdata",
-      "ATTAINSOrgIDsRef.csv",
-      package = "EPATADA"
-    ))
-
-    if (!sum(org_id %in% org.ref$code) == length(org_id)) {
-      warning(paste0(
-        "TADA_ParametersForAnalysis: ",
-        "One or more organization identifier(s) entered by user is not found in ATTAINS."
       ))
     }
 
@@ -1240,19 +1235,29 @@ TADA_ParametersForAnalysis <- function(
       )
     )
 
-    # Filters the full domain value by the specified org_id(s)
     ATTAINS_param <- ATTAINS_param_all |>
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
       dplyr::arrange(ATTAINS.ParameterName)
 
-    if (org_id == "") {
+    if ("" %in% org_id) {
       ATTAINS_param <- ATTAINS_param_all |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = "")
     }
 
-    # Should we stop or warn users in this step?
+    # Checks if org_id(s) are found in ATTAINS
     if (
-      sum(!org_id %in% ATTAINS_param_all$ATTAINS.OrganizationIdentifier) > 0
+      sum(
+        !org_id[org_id != "EPA304a"] %in%
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
+      ) >
+        0
     ) {
       warning(paste0(
         "TADA_ParametersForAnalysis: ",
@@ -1496,7 +1501,9 @@ TADA_ParametersForAnalysis <- function(
           Flag.ParameterInput
         )
     }
-
+    rm(TADA_param)
+  }
+  if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
     # Define the OneDrive Downloads path
     onedrive_downloads_path <- file.path(
@@ -1520,238 +1527,246 @@ TADA_ParametersForAnalysis <- function(
       downloads_path <- default_downloads_path
     }
 
-    if (excel == TRUE) {
-      # Print message if there are many combinations of TADA Characteristic as it may slow run time.
-      n <- nrow(dplyr::distinct(.data[, c(
-        "TADA.CharacteristicName",
-        "TADA.ComparableDataIdentifier"
-      )]))
-      if (n > 100 & excel == TRUE) {
-        message(paste0(
-          "There are ",
-          n,
-          " unique TADA.ComparableDataIdentifier names in your TADA data frame.
-      This may result in slow runtime for TADA_ParametersForAnalysis() when generating the excel spreadsheet.
-      Excel formulas will only be generated for the first 100 rows. Please fill down on Cells D1 and Cells E1 in excel
-      to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
-        ))
-      }
-
-      # Create column names for an empty dataframe
-      columns <- c(
-        "TADA.ComparableDataIdentifier",
-        "ATTAINS.ParameterName",
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.FlagParameterName"
-      )
-
-      par <- data.frame(matrix(nrow = 0, ncol = length(columns))) # empty dataframe with just column names
-      colnames(par) <- columns
-
-      wb <- openxlsx::createWorkbook()
-      openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = FALSE)
-      openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
-      openxlsx::addWorksheet(wb, "Index", visible = FALSE)
-
-      # set zoom size
-      set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-      n_sheets <- length(wb$worksheets)
-      for (i in 1:n_sheets) {
-        sV <- wb$worksheets[[i]]$sheetViews
-        wb$worksheets[[i]]$sheetViews <- set_zoom(90)
-      }
-
-      # Format header and bodystyle
-      header_st <- openxlsx::createStyle(textDecoration = "Bold")
-      bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
-
-      # Format Column widths
-      openxlsx::setColWidths(
-        wb,
-        "CreateParamRef",
-        cols = 1:ncol(CreateParamRef),
-        widths = "auto"
-      )
-
-      # New row to rbind if a user selects "Not Applicable for Analysis."
-      no_match_df <- data.frame(
-        ATTAINS.OrganizationIdentifier = "NA",
-        ATTAINS.ParameterName = "Not Applicable for Analysis.",
-        ATTAINS.UseName = "Not Applicable for Analysis."
-      )
-
-      # Index of allowable values for drop-down lists
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 4,
-        x = rbind(
-          no_match_df,
-          ATTAINS_param_all[, c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.ParameterName",
-            "ATTAINS.UseName"
-          )] |>
-            dplyr::arrange(ATTAINS.ParameterName)
-        )
-      )
-
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 2,
-        x = CreateParamRef[, c("ATTAINS.ParameterName", "Flag.ParameterInput")]
-      )
-
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 1,
-        x = data.frame(
-          ATTAINS.ParameterName = c(unique(ATTAINS_param$ATTAINS.ParameterName))
-        )
-      )
-
-      openxlsx::writeData(
-        wb,
-        "CreateParamRef",
-        startCol = 1,
-        x = CreateParamRef,
-        headerStyle = header_st
-      )
-
-      # Creates a tab that contains the ATTAINS parameter-use filtered by the org_id input.
-      openxlsx::writeData(
-        wb,
-        "ATTAINSOrgNamesParamRef",
-        startCol = 1,
-        x = ATTAINS_param,
-        headerStyle = header_st
-      )
-
-      # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
-
-      # Note: If we make edits to the data validation, please ensure the entire
-      # data frame column is being referenced.
-      # Ex. data validation will capture values in tab [Index] column h, for rows 2:50000 for input, value = sprintf("'Index'!$H$2:$H$50000")
-
-      suppressWarnings(
-        openxlsx::dataValidation(
-          wb,
-          sheet = "CreateParamRef",
-          cols = 3,
-          rows = 2:1000,
-          type = "list",
-          value = sprintf("'Index'!$E$2:$E$30000"), # please ensure this covers all values in the column E in the Index tab for future development.
-          allowBlank = TRUE,
-          showErrorMsg = TRUE,
-          showInputMsg = TRUE
-        )
-      )
-
-      # remove intermediate objects
-      rm(ATTAINS_param, ATTAINS_param_all)
-
-      max_loops <- 0
-
-      for (i in 1:nrow(CreateParamRef)) {
-        max_loops <- max_loops + 1
-        if (max_loops > 100) {
-          break
-        }
-
-        openxlsx::writeFormula(
-          wb,
-          "CreateParamRef",
-          startCol = 4,
-          startRow = i + 1,
-          array = TRUE,
-          x = paste0(
-            "=IF(OR(C",
-            i + 1,
-            '="",C',
-            i + 1,
-            '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
-            IF(ISNA(MATCH(C',
-            i + 1,
-            ',Index!E:E,0)),
-              "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
-            IF(ISNA(MATCH(1,(C',
-            i + 1,
-            "=ATTAINSOrgNamesParamRef!D:D)*(B",
-            i + 1,
-            '=ATTAINSOrgNamesParamRef!A:A),0)),
-              "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
-              "Parameter name is listed as a prior cause in ATTAINS for this organization.")))'
-          )
-        )
-
-        openxlsx::writeFormula(
-          wb,
-          "CreateParamRef",
-          startCol = 5,
-          startRow = i + 1,
-          array = TRUE,
-          x = paste0(
-            "IF(C",
-            i + 1,
-            "=Index!B$",
-            i + 1,
-            ",Index!C$",
-            i + 1,
-            ',"This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier.")'
-          )
-        )
-      }
-
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateParamRef",
-        cols = 3,
-        rows = 1:nrow(CreateParamRef) + 1,
-        type = "blanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-      )
-
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateParamRef",
-        cols = 3,
-        rows = 1:nrow(CreateParamRef) + 1,
-        type = "notBlanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-
-      # remove intermediate objects
-      rm(TADA_param, max_loops)
-
-      # Format column widths in CreateParamRef - for future considerations of formatting
-      openxlsx::setColWidths(
-        wb,
-        "CreateParamRef",
-        cols = 1:ncol(CreateParamRef) + 2,
-        widths = "auto"
-      )
-
-      if (overwrite == TRUE) {
-        message(
-          paste0("Overwriting sheet [CreateParamRef] in ", downloads_path)
-        )
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-      }
-
-      if (overwrite == FALSE) {
-        message(
-          "If you would like to replace sheet [CreateParamRef], use overwrite = TRUE argument in TADA_ParametersForAnalysis."
-        )
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-      }
-
-      cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+    # Print message if there are many combinations of TADA Characteristic as it may slow run time.
+    n <- nrow(CreateParamRef)
+    if (n > 100 & excel == TRUE) {
+      message(paste0(
+        "There are ",
+        n,
+        " unique TADA.ComparableDataIdentifier names in your TADA data frame.
+    This may result in slow runtime for TADA_ParametersForAnalysis() when generating the excel spreadsheet.
+    Excel formulas will only be generated for the first 100 rows. Please fill down on Cells D1 and Cells E1 in excel
+    to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
+      ))
     }
 
-    return(CreateParamRef)
+    # Create column names for an empty dataframe
+    columns <- c(
+      "TADA.ComparableDataIdentifier",
+      "ATTAINS.ParameterName",
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.FlagParameterName"
+    )
+
+    par <- data.frame(matrix(nrow = 0, ncol = length(columns))) # empty dataframe with just column names
+    colnames(par) <- columns
+
+    wb <- openxlsx::createWorkbook()
+    openxlsx::addWorksheet(wb, "ATTAINSOrgNamesParamRef", visible = FALSE)
+    openxlsx::addWorksheet(wb, "CreateParamRef", visible = TRUE)
+    openxlsx::addWorksheet(wb, "Index", visible = FALSE)
+
+    # set zoom size
+    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
+
+    # Format header and bodystyle
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    bodyStyle <- openxlsx::createStyle(wrapText = TRUE)
+
+    # Format Column widths
+    openxlsx::setColWidths(
+      wb,
+      "CreateParamRef",
+      cols = 1:ncol(CreateParamRef),
+      widths = "auto"
+    )
+
+    # New row to rbind if a user selects "Not Applicable for Analysis."
+    no_match_df <- data.frame(
+      ATTAINS.OrganizationIdentifier = "NA",
+      ATTAINS.ParameterName = "Not Applicable for Analysis.",
+      ATTAINS.UseName = "Not Applicable for Analysis."
+    )
+
+    # Pulls in all domain values of parameter and use names in ATTAINS.
+    ATTAINS_param_all <- utils::read.csv(
+      system.file(
+        "extdata",
+        "ATTAINSParamUseEntityRef.csv",
+        package = "EPATADA"
+      )
+    )
+
+    # Filters the full domain value by the specified org_id(s)
+    ATTAINS_param <- ATTAINS_param_all |>
+      dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+      dplyr::arrange(ATTAINS.ParameterName)
+
+    # Index of allowable values for drop-down lists
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 4,
+      x = rbind(
+        no_match_df,
+        ATTAINS_param_all[, c(
+          "ATTAINS.OrganizationIdentifier",
+          "ATTAINS.ParameterName",
+          "ATTAINS.UseName"
+        )] |>
+          dplyr::arrange(ATTAINS.ParameterName)
+      )
+    )
+
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 2,
+      x = CreateParamRef[, c("ATTAINS.ParameterName", "Flag.ParameterInput")]
+    )
+
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 1,
+      x = data.frame(
+        ATTAINS.ParameterName = c(unique(ATTAINS_param$ATTAINS.ParameterName))
+      )
+    )
+
+    openxlsx::writeData(
+      wb,
+      "CreateParamRef",
+      startCol = 1,
+      x = CreateParamRef,
+      headerStyle = header_st
+    )
+
+    # Creates a tab that contains the ATTAINS parameter-use filtered by the org_id input.
+    openxlsx::writeData(
+      wb,
+      "ATTAINSOrgNamesParamRef",
+      startCol = 1,
+      x = ATTAINS_param,
+      headerStyle = header_st
+    )
+
+    # The list of allowable values for each column in excel tab [CreateParamRef] will be defined by the [Index] tab
+
+    # Note: If we make edits to the data validation, please ensure the entire
+    # data frame column is being referenced.
+    # Ex. data validation will capture values in tab [Index] column h, for rows 2:50000 for input, value = sprintf("'Index'!$H$2:$H$50000")
+
+    suppressWarnings(
+      openxlsx::dataValidation(
+        wb,
+        sheet = "CreateParamRef",
+        cols = 3,
+        rows = 2:1000,
+        type = "list",
+        value = sprintf("'Index'!$E$2:$E$30000"), # please ensure this covers all values in the column E in the Index tab for future development.
+        allowBlank = TRUE,
+        showErrorMsg = TRUE,
+        showInputMsg = TRUE
+      )
+    )
+
+    # remove intermediate objects
+    rm(ATTAINS_param, ATTAINS_param_all)
+
+    max_loops <- 0
+
+    for (i in 1:nrow(CreateParamRef)) {
+      max_loops <- max_loops + 1
+      if (max_loops > 100) {
+        break
+      }
+
+      openxlsx::writeFormula(
+        wb,
+        "CreateParamRef",
+        startCol = 4,
+        startRow = i + 1,
+        array = TRUE,
+        x = paste0(
+          "=IF(OR(C",
+          i + 1,
+          '="",C',
+          i + 1,
+          '="Not Applicable for Analysis."),"No ATTAINS.ParameterName crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment",
+          IF(ISNA(MATCH(C',
+          i + 1,
+          ',Index!E:E,0)),
+            "Parameter name is not included in ATTAINS, contact ATTAINS to add ATTAINS.ParameterName name to Domain List.",
+          IF(ISNA(MATCH(1,(C',
+          i + 1,
+          "=ATTAINSOrgNamesParamRef!D:D)*(B",
+          i + 1,
+          '=ATTAINSOrgNamesParamRef!A:A),0)),
+            "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+            "Parameter name is listed as a prior cause in ATTAINS for this organization.")))'
+        )
+      )
+
+      openxlsx::writeFormula(
+        wb,
+        "CreateParamRef",
+        startCol = 5,
+        startRow = i + 1,
+        array = TRUE,
+        x = paste0(
+          "IF(C",
+          i + 1,
+          "=Index!B$",
+          i + 1,
+          ",Index!C$",
+          i + 1,
+          ',"This ATTAINS.ParameterName crosswalk was MODIFIED by your input(s) for this TADA.ComparableDataIdentifier.")'
+        )
+      )
+    }
+
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateParamRef",
+      cols = 3,
+      rows = 1:nrow(CreateParamRef) + 1,
+      type = "blanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateParamRef",
+      cols = 3,
+      rows = 1:nrow(CreateParamRef) + 1,
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+
+    # remove intermediate objects
+    rm(max_loops)
+
+    # Format column widths in CreateParamRef - for future considerations of formatting
+    openxlsx::setColWidths(
+      wb,
+      "CreateParamRef",
+      cols = 1:ncol(CreateParamRef) + 2,
+      widths = "auto"
+    )
+
+    if (overwrite == TRUE) {
+      message(
+        paste0("Overwriting sheet [CreateParamRef] in ", downloads_path)
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    }
+
+    if (overwrite == FALSE) {
+      message(
+        "If you would like to replace sheet [CreateParamRef], use overwrite = TRUE argument in TADA_ParametersForAnalysis."
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+    }
+
+    cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
+  return(CreateParamRef)
 }
 
 
@@ -1930,15 +1945,16 @@ TADA_UsesForAnalysis <- function(
   if (
     missing(.data) &&
       missing(org_id) &&
-      missing(auto_assign) &&
-      missing(excel) &&
-      missing(overwrite)
+      missing(paramRef) &&
+      missing(usesRef) &&
+      missing(AU_UsesRef) &&
+      missing(AUMLRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
 
-    empty_df <- data.frame(
+    CreateUsesRef <- data.frame(
       TADA.ComparableDataIdentifier = character(0),
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.ParameterName = character(0),
@@ -1947,8 +1963,6 @@ TADA_UsesForAnalysis <- function(
       ATTAINS.FlagUseName = character(0),
       Flag.UseInput = character(0)
     )
-
-    return(empty_df)
   } else {
     # overwrite argument should only be used when creating an excel file.
     if (excel == FALSE && overwrite == TRUE) {
@@ -1961,7 +1975,7 @@ TADA_UsesForAnalysis <- function(
     # Checks if paramRef argument contains a dataframe and necessary columns to proceed.
     if (is.null(paramRef)) {
       stop(paste0(
-        "TADA.CreateusesRef: No paramRef argument provided."
+        "TADA.CreateUsesRef: No paramRef argument provided."
       ))
     }
 
@@ -2097,7 +2111,7 @@ TADA_UsesForAnalysis <- function(
     }
 
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -2120,8 +2134,15 @@ TADA_UsesForAnalysis <- function(
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
-        !org_id[tolower(org_id) != tolower("EPA304a")] %in%
-          ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+        !org_id[org_id != "EPA304a"] %in%
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
       ) >
         0
     ) {
@@ -2144,7 +2165,7 @@ TADA_UsesForAnalysis <- function(
       dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id)
 
     # Create the parameter-use reference table for validation
-    CreateusesRef <- paramRef |>
+    CreateUsesRef <- paramRef |>
       dplyr::left_join(
         ATTAINS_param,
         by = c("ATTAINS.ParameterName", "ATTAINS.OrganizationIdentifier"),
@@ -2187,12 +2208,12 @@ TADA_UsesForAnalysis <- function(
         "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
       ))
 
-      use.names <- CreateusesRef |>
+      use.names <- CreateUsesRef |>
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
         dplyr::distinct()
 
-      CreateusesRef_temp <- CreateusesRef |>
+      CreateUsesRef_temp <- CreateUsesRef |>
         dplyr::filter(is.na(ATTAINS.UseName)) |>
         dplyr::left_join(
           use.names,
@@ -2213,11 +2234,11 @@ TADA_UsesForAnalysis <- function(
           Flag.UseInput = "This row was MODIFIED by your input(s)."
         )
 
-      CreateusesRef <- CreateusesRef |>
+      CreateUsesRef <- CreateUsesRef |>
         # dplyr::select(TADA.ComparableDataIdentifier, ATTAINS.ParameterName, ATTAINS.OrganizationIdentifier) |>
         dplyr::filter(!is.na(ATTAINS.UseName)) |>
         dplyr::full_join(
-          CreateusesRef_temp,
+          CreateUsesRef_temp,
           by = c(
             "ATTAINS.ParameterName",
             "ATTAINS.UseName",
@@ -2336,7 +2357,7 @@ TADA_UsesForAnalysis <- function(
       # identifies if a user has excluded any useParam rows. This row is showing up as a new entry but has not been defined.
       # This should flag users that they need to review this entry and if they
       # truly want to exclude it or not. What should the default be?
-      Flag1 <- CreateusesRef |>
+      Flag1 <- CreateUsesRef |>
         dplyr::anti_join(
           usesRef,
           by = c(
@@ -2354,7 +2375,7 @@ TADA_UsesForAnalysis <- function(
       # identifies if a user has MODIFIED any useParam rows.
       Flag2 <- usesRef |>
         dplyr::anti_join(
-          CreateusesRef,
+          CreateUsesRef,
           by = c(
             "TADA.ComparableDataIdentifier",
             "ATTAINS.OrganizationIdentifier",
@@ -2374,7 +2395,7 @@ TADA_UsesForAnalysis <- function(
           "ATTAINS.UseName"
         )
 
-      CreateusesRef <- usesRef |>
+      CreateUsesRef <- usesRef |>
         dplyr::select(
           "TADA.ComparableDataIdentifier",
           "ATTAINS.OrganizationIdentifier",
@@ -2470,7 +2491,8 @@ TADA_UsesForAnalysis <- function(
 
     # remove intermediate objects
     rm(ATTAINS_param)
-
+  }
+  if (excel == TRUE) {
     # Define the OneDrive Downloads path
     onedrive_downloads_path <- file.path(
       Sys.getenv("USERPROFILE"),
@@ -2493,100 +2515,100 @@ TADA_UsesForAnalysis <- function(
       downloads_path <- default_downloads_path
     }
 
-    if (excel == TRUE) {
-      # Print message if there are many combinations of TADA Characteristic as it may slow run time.
-      n <- nrow(CreateusesRef)
-      if (n > 100) {
-        message(paste0(
-          "There are ",
-          n,
-          " rows in your CreateusesRef.
-      This may result in slow runtime for TADA_UsesForAnalysis() when generating the excel spreadsheet.
-      Excel formulas will only be generated for the first 100 rows. Please fill down on Cells F1 and Cells G1 in excel
-      to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
-        ))
+    # Print message if there are many combinations of TADA Characteristic as it may slow run time.
+    n <- nrow(CreateUsesRef)
+    if (n > 100) {
+      message(paste0(
+        "There are ",
+        n,
+        " rows in your CreateUsesRef.
+    This may result in slow runtime for TADA_UsesForAnalysis() when generating the excel spreadsheet.
+    Excel formulas will only be generated for the first 100 rows. Please fill down on Cells F1 and Cells G1 in excel
+    to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
+      ))
+    }
+
+    # Create column names for an empty dataframe
+    columns <- c(
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.ParameterName",
+      "ATTAINS.UseName",
+      "ATTAINS.FlagParameterName",
+      "ATTAINS.FlagUseName"
+    )
+
+    # empty dataframe with just column names
+    par <- data.frame(matrix(nrow = 0, ncol = length(columns)))
+    colnames(par) <- columns
+
+    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+
+    # If a user chooses to rerun the TADA_UsesForAnalysis() function,
+    # the sheet will already exist and error.
+    tryCatch(
+      {
+        openxlsx::addWorksheet(wb, "CreateUsesRef")
+      },
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "CreateUsesRef")
+        openxlsx::addWorksheet(wb, "CreateUsesRef")
       }
+    )
 
-      # Create column names for an empty dataframe
-      columns <- c(
-        "ATTAINS.OrganizationIdentifier",
-        "ATTAINS.ParameterName",
-        "ATTAINS.UseName",
-        "ATTAINS.FlagParameterName",
-        "ATTAINS.FlagUseName"
-      )
+    # set zoom size
+    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
 
-      # empty dataframe with just column names
-      par <- data.frame(matrix(nrow = 0, ncol = length(columns)))
-      colnames(par) <- columns
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
 
-      wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    # Format Column widths
+    openxlsx::setColWidths(
+      wb,
+      "CreateUsesRef",
+      cols = 1:ncol(CreateUsesRef),
+      widths = "auto"
+    )
 
-      # If a user chooses to rerun the TADA_UsesForAnalysis() function,
-      # the sheet will already exist and error.
-      tryCatch(
-        {
-          openxlsx::addWorksheet(wb, "CreateusesRef")
-        },
-        error = function(e) {
-          openxlsx::removeWorksheet(wb, "CreateusesRef")
-          openxlsx::addWorksheet(wb, "CreateusesRef")
-        }
-      )
+    # Export CreateUsesRef dataframe into the excel spreadsheet tab
+    openxlsx::writeData(
+      wb,
+      "CreateUsesRef",
+      startCol = 1,
+      x = CreateUsesRef,
+      headerStyle = header_st
+    )
 
-      # set zoom size
-      set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-      n_sheets <- length(wb$worksheets)
-      for (i in 1:n_sheets) {
-        sV <- wb$worksheets[[i]]$sheetViews
-        wb$worksheets[[i]]$sheetViews <- set_zoom(90)
-      }
+    # Index of allowable values for drop-down lists
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 9,
+      x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
+    )
 
-      # Format column header
-      header_st <- openxlsx::createStyle(textDecoration = "Bold")
+    openxlsx::writeData(
+      wb,
+      "Index",
+      startCol = 7,
+      x = CreateUsesRef[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
+    )
 
-      # Format Column widths
-      openxlsx::setColWidths(
-        wb,
-        "CreateusesRef",
-        cols = 1:ncol(CreateusesRef),
-        widths = "auto"
-      )
-
-      # Export CreateusesRef dataframe into the excel spreadsheet tab
-      openxlsx::writeData(
-        wb,
-        "CreateusesRef",
-        startCol = 1,
-        x = CreateusesRef,
-        headerStyle = header_st
-      )
-
-      # Index of allowable values for drop-down lists
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 9,
-        x = data.frame("IncludeOrExclude" = c("Include", "Exclude"))
-      )
-
-      openxlsx::writeData(
-        wb,
-        "Index",
-        startCol = 7,
-        x = CreateusesRef[, c("ATTAINS.FlagUseName", "Flag.UseInput")]
-      )
-
-      # Data validation drop down list created below.
-      # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
-      # Since Use Names are individual to each Organization.
+    # Data validation drop down list created below.
+    # Note: ATTAINSOrgNamesParamRef contains the list of prior param and use cause by org names specific.
+    # Since Use Names are individual to each Organization.
+    if (!missing(.data)) {
       suppressWarnings(
         # Data validation for ATTAINS.UseName.
         openxlsx::dataValidation(
           wb,
-          sheet = "CreateusesRef",
+          sheet = "CreateUsesRef",
           cols = 4,
-          rows = 2:1000,
+          rows = 2:10000,
           type = "list",
           value = sprintf("'ATTAINSOrgNamesParamRef'!$E$2:$E$50000"),
           allowBlank = TRUE,
@@ -2594,147 +2616,165 @@ TADA_UsesForAnalysis <- function(
           showInputMsg = TRUE
         )
       )
+    }
 
+    # For case in which a blank template is generated, allowable use_name = entire ATTAINS domain value.
+    if (missing(.data)) {
       suppressWarnings(
-        # Data validation for "Include" or "Exclude" values.
+        # Data validation for ATTAINS.UseName.
         openxlsx::dataValidation(
           wb,
-          sheet = "CreateusesRef",
-          cols = 5,
-          rows = 2:1000,
+          sheet = "CreateUsesRef",
+          cols = 4,
+          rows = 2:10000,
           type = "list",
-          value = sprintf("'Index'!$I$2:$I$5"),
+          value = sprintf("'Index'!$F$2:$F$50000"),
           allowBlank = TRUE,
           showErrorMsg = TRUE,
           showInputMsg = TRUE
         )
       )
-
-      max_loops <- 0
-
-      for (i in 1:nrow(CreateusesRef)) {
-        # Formula based cell values in excel.
-        openxlsx::writeFormula(
-          wb,
-          "CreateusesRef",
-          startCol = 6,
-          startRow = i + 1,
-          array = TRUE,
-          x = paste0(
-            "=IF(E",
-            i + 1,
-            '="Exclude",
-              "Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",
-            IF(ISBLANK(D',
-            i + 1,
-            '),
-              "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-            IF(ISNA(MATCH(1,(D',
-            i + 1,
-            "=ATTAINSOrgNamesParamRef!E:E)*(B",
-            i + 1,
-            '=ATTAINSOrgNamesParamRef!A:A),0)),
-              "Use name is not listed as a prior cause in ATTAINS for this organization.",
-            IF(ISNA(MATCH(1,(C',
-            i + 1,
-            "=ATTAINSOrgNamesParamRef!D:D)*(D",
-            i + 1,
-            "=ATTAINSOrgNamesParamRef!E:E)*(B",
-            i + 1,
-            '=ATTAINSOrgNamesParamRef!A:A),0)),
-              "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
-              "Use name is listed as a prior cause in ATTAINS for this organization."))))'
-          )
-        )
-
-        openxlsx::writeFormula(
-          wb,
-          "CreateusesRef",
-          startCol = 7,
-          startRow = i + 1,
-          array = TRUE,
-          x = paste0(
-            "IF(F",
-            i + 1,
-            "=Index!G$",
-            i + 1,
-            ",Index!H$",
-            i + 1,
-            ',"This row was MODIFIED by your input(s).")'
-          )
-        )
-        max_loops <- max_loops + 1
-        if (max_loops > 100) break
-      }
-
-      # Conditional formatting created below.
-
-      # If a user has left an ATTAINS.UseName blank, flag as a red cell.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateusesRef",
-        cols = 4,
-        rows = 1:nrow(CreateusesRef) + 1,
-        type = "blanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-      )
-
-      # If a user has an ATTAINS.UseName filled out, flag as a yellow cell.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateusesRef",
-        cols = 4,
-        rows = 1:nrow(CreateusesRef) + 1,
-        type = "notBlanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-
-      # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateusesRef",
-        cols = 5,
-        rows = 1:nrow(CreateusesRef) + 1,
-        type = "contains",
-        rule = c("Exclude"),
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
-      )
-
-      # If a user has chose to Include a use name for a parameter, flag as a yellow cell.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateusesRef",
-        cols = 5,
-        rows = 1:nrow(CreateusesRef) + 1,
-        type = "contains",
-        rule = c("Include"),
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      )
-
-      # Format Column widths
-      openxlsx::setColWidths(
-        wb,
-        "CreateusesRef",
-        cols = 1:ncol(CreateusesRef) + 2,
-        widths = "auto"
-      )
-
-      # Handles overwriting the excel file.
-      if (overwrite == TRUE) {
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-      }
-
-      if (overwrite == FALSE) {
-        warning(
-          "If you would like to replace [CreateusesRef], use overwrite = TRUE argument in TADA_UsesForAnalysis"
-        )
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-      }
-
-      cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
     }
-    return(CreateusesRef)
+
+    suppressWarnings(
+      # Data validation for "Include" or "Exclude" values.
+      openxlsx::dataValidation(
+        wb,
+        sheet = "CreateUsesRef",
+        cols = 5,
+        rows = 2:1000,
+        type = "list",
+        value = sprintf("'Index'!$I$2:$I$5"),
+        allowBlank = TRUE,
+        showErrorMsg = TRUE,
+        showInputMsg = TRUE
+      )
+    )
+
+    max_loops <- 0
+
+    for (i in 1:nrow(CreateUsesRef)) {
+      # Formula based cell values in excel.
+      openxlsx::writeFormula(
+        wb,
+        "CreateUsesRef",
+        startCol = 6,
+        startRow = i + 1,
+        array = TRUE,
+        x = paste0(
+          "=IF(E",
+          i + 1,
+          '="Exclude",
+            "Use name does not apply for this ATTAINS.ParameterName. Excluding this use name from analysis.",
+          IF(ISBLANK(D',
+          i + 1,
+          '),
+            "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
+          IF(ISNA(MATCH(1,(D',
+          i + 1,
+          "=ATTAINSOrgNamesParamRef!E:E)*(B",
+          i + 1,
+          '=ATTAINSOrgNamesParamRef!A:A),0)),
+            "Use name is not listed as a prior cause in ATTAINS for this organization.",
+          IF(ISNA(MATCH(1,(C',
+          i + 1,
+          "=ATTAINSOrgNamesParamRef!D:D)*(D",
+          i + 1,
+          "=ATTAINSOrgNamesParamRef!E:E)*(B",
+          i + 1,
+          '=ATTAINSOrgNamesParamRef!A:A),0)),
+            "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
+            "Use name is listed as a prior cause in ATTAINS for this organization."))))'
+        )
+      )
+
+      openxlsx::writeFormula(
+        wb,
+        "CreateUsesRef",
+        startCol = 7,
+        startRow = i + 1,
+        array = TRUE,
+        x = paste0(
+          "IF(F",
+          i + 1,
+          "=Index!G$",
+          i + 1,
+          ",Index!H$",
+          i + 1,
+          ',"This row was MODIFIED by your input(s).")'
+        )
+      )
+      max_loops <- max_loops + 1
+      if (max_loops > 100) break
+    }
+
+    # Conditional formatting created below.
+
+    # If a user has left an ATTAINS.UseName blank, flag as a red cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateUsesRef",
+      cols = 4,
+      rows = 1:nrow(CreateUsesRef) + 1,
+      type = "blanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+
+    # If a user has an ATTAINS.UseName filled out, flag as a yellow cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateUsesRef",
+      cols = 4,
+      rows = 1:nrow(CreateUsesRef) + 1,
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+
+    # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateUsesRef",
+      cols = 5,
+      rows = 1:nrow(CreateUsesRef) + 1,
+      type = "contains",
+      rule = c("Exclude"),
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+
+    # If a user has chose to Include a use name for a parameter, flag as a yellow cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateUsesRef",
+      cols = 5,
+      rows = 1:nrow(CreateUsesRef) + 1,
+      type = "contains",
+      rule = c("Include"),
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+
+    # Format Formula Based Column widths
+    openxlsx::setColWidths(
+      wb,
+      "CreateUsesRef",
+      cols = 6:7,
+      widths = 16
+    )
+
+    # Handles overwriting the excel file.
+    if (overwrite == TRUE) {
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    }
+
+    if (overwrite == FALSE) {
+      warning(
+        "If you would like to replace [CreateUsesRef], use overwrite = TRUE argument in TADA_UsesForAnalysis"
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+    }
+
+    cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
   }
+  return(CreateUsesRef)
 }
 
 
@@ -2997,7 +3037,7 @@ TADA_AssignUsesToAU <- function(
       org_id <- ""
     }
     # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-    if (tolower(org_id) == "all") {
+    if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
@@ -3023,7 +3063,14 @@ TADA_AssignUsesToAU <- function(
     if (
       sum(
         !org_id[org_id != "EPA304a"] %in%
-          ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+          c(
+            utils::read.csv(system.file(
+              "extdata",
+              "ATTAINSOrgIDsRef.csv",
+              package = "EPATADA"
+            ))[, "code"],
+            ""
+          )
       ) >
         0
     ) {
@@ -3357,7 +3404,7 @@ TADA_AssignUsesToWaterType <- function(
     org_id <- ""
   }
   # if org_id = all, create a crosswalk for all ATTAINS org in the data frame.
-  if (tolower(org_id) == "all") {
+  if (tolower("all") %in% tolower(org_id)) {
     # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
     if (is.null(AUMLRef)) {
       print(paste0(
@@ -3390,7 +3437,14 @@ TADA_AssignUsesToWaterType <- function(
   if (
     sum(
       !org_id[org_id != "EPA304a"] %in%
-        ATTAINS_param_all$ATTAINS.OrganizationIdentifier
+        c(
+          utils::read.csv(system.file(
+            "extdata",
+            "ATTAINSOrgIDsRef.csv",
+            package = "EPATADA"
+          ))[, "code"],
+          ""
+        )
     ) >
       0
   ) {
@@ -3585,14 +3639,15 @@ TADA_MLSummary <- function(
     missing(.data) &&
       missing(org_id) &&
       missing(usesRef) &&
-      missing(excel) &&
-      missing(overwrite)
+      missing(AUMLRef) &&
+      missing(AU_UsesRef) &&
+      missing(MLSummaryRef)
   ) {
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
 
-    empty_df <- data.frame(
+    CreateMLSummaryRef <- data.frame(
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.AssessmentUnitIdentifier = character(0),
       MonitoringLocationIdentifier = character(0),
@@ -3608,8 +3663,6 @@ TADA_MLSummary <- function(
       IncludeOrExclude = character(0),
       UniqueSpatialCriteria = character(0)
     )
-
-    return(empty_df)
   } else {
     # overwrite argument should only be used when creating an excel file.
     if (excel == FALSE && overwrite == TRUE) {
@@ -3621,30 +3674,6 @@ TADA_MLSummary <- function(
 
     # Creates the data frame.
     CreateMLSummaryRef <- data.frame()
-
-    # default Downloads file location.
-    # Define the OneDrive Downloads path
-    onedrive_downloads_path <- file.path(
-      Sys.getenv("USERPROFILE"),
-      "OneDrive",
-      "Downloads",
-      "myfileRef.xlsx"
-    )
-
-    # Define the default Downloads path
-    default_downloads_path <- file.path(
-      Sys.getenv("USERPROFILE"),
-      "Downloads",
-      "myfileRef.xlsx"
-    )
-
-    # Check if the OneDrive Downloads path exists, and prioritize it
-    if (file.exists(onedrive_downloads_path)) {
-      downloads_path <- onedrive_downloads_path
-    } else {
-      downloads_path <- default_downloads_path
-    }
-
     # This allows a user to provide the mod 2 function TADA_CreateATTAINSAUMLCrosswalk() as the .data data frame.
     # In this case, the ML to AU crosswalk is generated from TADA_CreateATTAINSAUMLCrosswalk().
     if (!is.data.frame(.data)) {
@@ -3734,7 +3763,11 @@ TADA_MLSummary <- function(
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
     # set a limit of 100k rows if we want to display all sites-param-use combinations.
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) > 100000) {
+    if (
+      displayNA == TRUE &&
+        nrow(usesRef) * length(unique_ML) > 100000 |
+        length(org_id) > 20
+    ) {
       warning(paste0(
         "displayNA = TRUE: ",
         "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
@@ -3903,7 +3936,7 @@ TADA_MLSummary <- function(
         dplyr::arrange(MonitoringLocationIdentifier)
     }
 
-    # If a user DOES provide a AUMLRef, this will create the Spatial Table on an AU level
+    # If a user DOES provide an AUMLRef, this will create the Spatial Table on an AU level
     if (!is.null(AUMLRef)) {
       # NOTE: Check for required columns in AUMLRef
       # If a user provides output from TADA_CreateATTAINSAUMLCrosswalk, select only relevant columns
@@ -3911,11 +3944,11 @@ TADA_MLSummary <- function(
         AUMLRef,
         ATTAINS.OrganizationIdentifier,
         ATTAINS.AssessmentUnitIdentifier,
-        MonitoringLocationIdentifier = TADA.MonitoringLocationIdentifier,
+        MonitoringLocationIdentifier,
         ATTAINS.WaterType
       )
 
-      # If user does not provide a AU_UsesRef, run it to pull in prior uses for AU,
+      # If user does not provide an AU_UsesRef, run it to pull in prior uses for AU,
       # Otherwise, if a user has already customized this and provided this AU_UsesRef, then use that table.
       if (is.null(AU_UsesRef)) {
         # Pulls in AU_UsesRef
@@ -3934,7 +3967,7 @@ TADA_MLSummary <- function(
         )
       }
 
-      # Only keep rows that have include
+      # Only keep rows that have "Include"
       AU_UsesRef <- AU_UsesRef |>
         dplyr::filter(IncludeOrExclude == "Include") |>
         dplyr::select(-IncludeOrExclude)
@@ -4063,122 +4096,161 @@ TADA_MLSummary <- function(
         "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
       ))
     }
+  }
+  # Only run if user wants to create an excel guided spreadsheet.
+  if (excel == TRUE) {
+    # default Downloads file location.
+    # Define the OneDrive Downloads path
+    onedrive_downloads_path <- file.path(
+      Sys.getenv("USERPROFILE"),
+      "OneDrive",
+      "Downloads",
+      "myfileRef.xlsx"
+    )
 
-    # Only run if user wants to create an excel guided spreadsheet.
-    if (excel == TRUE) {
-      wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    # Define the default Downloads path
+    default_downloads_path <- file.path(
+      Sys.getenv("USERPROFILE"),
+      "Downloads",
+      "myfileRef.xlsx"
+    )
 
-      tryCatch(
-        {
-          openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
-        },
-        error = function(e) {
-          openxlsx::removeWorksheet(wb, "CreateMLSummaryRef")
-          openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
-        }
-      )
+    # Check if the OneDrive Downloads path exists, and prioritize it
+    if (file.exists(onedrive_downloads_path)) {
+      downloads_path <- onedrive_downloads_path
+    } else {
+      downloads_path <- default_downloads_path
+    }
 
-      # Format column header
-      header_st <- openxlsx::createStyle(textDecoration = "Bold")
-
-      # Format Column widths
-      openxlsx::setColWidths(
-        wb,
-        "CreateMLSummaryRef",
-        cols = 8:ncol(CreateMLSummaryRef),
-        widths = "auto"
-      )
-
-      # set zoom size
-      set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
-      n_sheets <- length(wb$worksheets)
-      for (i in 1:n_sheets) {
-        sV <- wb$worksheets[[i]]$sheetViews
-        wb$worksheets[[i]]$sheetViews <- set_zoom(90)
-      }
-
-      # writes CreateMLSummaryRef dataframe
-      openxlsx::writeData(
-        wb,
-        "CreateMLSummaryRef",
-        startCol = 1,
-        x = CreateMLSummaryRef,
-        headerStyle = header_st
-      )
-
-      # data validation drop down list created below.
-      suppressWarnings(
-        openxlsx::dataValidation(
-          wb,
-          sheet = "CreateMLSummaryRef",
-          cols = 9,
-          rows = 2:1000,
-          type = "list",
-          value = sprintf("'Index'!$B$2:$B$5"),
-          allowBlank = TRUE,
-          showErrorMsg = TRUE,
-          showInputMsg = TRUE
+    # if a user generates a blank template, the prior blank template must also be generated in excel
+    if (missing(.data)) {
+      suppressMessages(
+        TADA_ParametersForAnalysis(
+          excel = excel,
+          overwrite = overwrite
         )
       )
 
-      # Conditional Formatting
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateMLSummaryRef",
-        cols = 16,
-        rows = 2:(nrow(CreateMLSummaryRef) + 1),
-        type = "contains",
-        rule = "Include",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
-      ) # default values or indicates good to go cells.
-
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateMLSummaryRef",
-        cols = 16,
-        rows = 2:(nrow(CreateMLSummaryRef) + 1),
-        type = "contains",
-        rule = "Exclude",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      ) # using yellow to indicate modified cell
-      # conditionalFormatting(wb, "CreateMLSummaryRef",
-      #                       cols = 8, rows = 2:(nrow(CreateMLSummaryRef) + 1),
-      #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateMLSummaryRef",
-        cols = 17,
-        rows = 2:(nrow(CreateMLSummaryRef) + 1),
-        type = "blanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
-      ) # green is default values or indicates good to go cells.
-      openxlsx::conditionalFormatting(
-        wb,
-        "CreateMLSummaryRef",
-        cols = 17,
-        rows = 2:(nrow(CreateMLSummaryRef) + 1),
-        type = "notBlanks",
-        style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
-      ) # using yellow to indicate modified cell
-
-      if (overwrite == TRUE) {
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
-      }
-
-      if (overwrite == FALSE) {
-        warning(
-          "If you would like to replace the file, use overwrite = TRUE argument in TADA_ParametersForAnalysis"
+      suppressMessages(
+        TADA_UsesForAnalysis(
+          excel = excel,
+          overwrite = overwrite
         )
-        openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
-      }
-
-      cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
-
-      CreateMLSummaryRef <- openxlsx::read.xlsx(
-        downloads_path,
-        sheet = "CreateMLSummaryRef"
       )
     }
-    return(CreateMLSummaryRef)
+
+    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+
+    tryCatch(
+      {
+        openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
+      },
+      error = function(e) {
+        openxlsx::removeWorksheet(wb, "CreateMLSummaryRef")
+        openxlsx::addWorksheet(wb, "CreateMLSummaryRef")
+      }
+    )
+
+    # Format column header
+    header_st <- openxlsx::createStyle(textDecoration = "Bold")
+
+    # Format Column widths
+    openxlsx::setColWidths(
+      wb,
+      "CreateMLSummaryRef",
+      cols = 8:ncol(CreateMLSummaryRef),
+      widths = "auto"
+    )
+
+    # set zoom size
+    set_zoom <- function(x) gsub('(?<=zoomScale=")[0-9]+', x, sV, perl = TRUE)
+    n_sheets <- length(wb$worksheets)
+    for (i in 1:n_sheets) {
+      sV <- wb$worksheets[[i]]$sheetViews
+      wb$worksheets[[i]]$sheetViews <- set_zoom(90)
+    }
+
+    # writes CreateMLSummaryRef dataframe
+    openxlsx::writeData(
+      wb,
+      "CreateMLSummaryRef",
+      startCol = 1,
+      x = CreateMLSummaryRef,
+      headerStyle = header_st
+    )
+
+    # data validation drop down list created below.
+    suppressWarnings(
+      openxlsx::dataValidation(
+        wb,
+        sheet = "CreateMLSummaryRef",
+        cols = 9,
+        rows = 2:1000,
+        type = "list",
+        value = sprintf("'Index'!$B$2:$B$5"),
+        allowBlank = TRUE,
+        showErrorMsg = TRUE,
+        showInputMsg = TRUE
+      )
+    )
+
+    # Conditional Formatting
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateMLSummaryRef",
+      cols = 16,
+      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      type = "contains",
+      rule = "Include",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
+    ) # default values or indicates good to go cells.
+
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateMLSummaryRef",
+      cols = 16,
+      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      type = "contains",
+      rule = "Exclude",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    ) # using yellow to indicate modified cell
+    # conditionalFormatting(wb, "CreateMLSummaryRef",
+    #                       cols = 8, rows = 2:(nrow(CreateMLSummaryRef) + 1),
+    #                       type = "notContains", rule = c("Exclude","Include"), style = createStyle(bgFill = "red")) # Likely error. Invalid value is possible here.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateMLSummaryRef",
+      cols = 17,
+      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      type = "blanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[9])
+    ) # green is default values or indicates good to go cells.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateMLSummaryRef",
+      cols = 17,
+      rows = 2:(nrow(CreateMLSummaryRef) + 1),
+      type = "notBlanks",
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    ) # using yellow to indicate modified cell
+
+    if (overwrite == TRUE) {
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = T)
+    }
+
+    if (overwrite == FALSE) {
+      warning(
+        "If you would like to replace the file, use overwrite = TRUE argument in TADA_ParametersForAnalysis"
+      )
+      openxlsx::saveWorkbook(wb, downloads_path, overwrite = F)
+    }
+
+    cat("File saved to:", gsub("/", "\\\\", downloads_path), "\n")
+
+    CreateMLSummaryRef <- openxlsx::read.xlsx(
+      downloads_path,
+      sheet = "CreateMLSummaryRef"
+    )
   }
+  return(CreateMLSummaryRef)
 }

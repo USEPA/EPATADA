@@ -68,11 +68,15 @@ should contain a completed crosswalk of use names associated with each assessmen
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
-\item{epa304a}{A Boolean value to return epa304a recommended standards for any
-WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
+\item{epa304a}{A Boolean value to return a draft epa304a recommended standards
+for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
 
 \item{displayUniqueId}{A Boolean value. If TRUE, this will print all unique
-TADA.ComparableDataIdentifier in the criteria and methods table output. This is
+TADA.ComparableDataIdentifier in the criteria and methods table output. If your
+analysis needs are dependent on differing fractions or speciations, displaying
+the unique TADA.ComparableDataIdentifier will ensure you specify the correct
+crosswalk between ATTAINS.ParameterName that each individual
+TADA.ComparableDataIdentifier groups to in your TADA data frame. This is
 useful in the alternative options to generate the criteria and methods table
 without the reference tables.}
 

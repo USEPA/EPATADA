@@ -136,9 +136,9 @@ tada.MT <- TADA_DataRetrieval(
 )
 
 # clean up data set (minimal)
-tada.MT.clean <- tada.MT|>
-  TADA_RunKeyFlagFunctions()|>
-  TADA_SimpleCensoredMethods()|>
+tada.MT.clean <- tada.MT |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
 
 # remove intermediate objects
