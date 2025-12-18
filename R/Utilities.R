@@ -1405,7 +1405,7 @@ getTribalPopup <- function(layer, layername) {
     "EPA_ID" = "EPA ID"
   )
 
- # create popup text for each polygon
+  # create popup text for each polygon
   for (j in seq_len(nrow(layer))) {
     text <- paste0("<strong>", layername, "</strong><p>")
 
