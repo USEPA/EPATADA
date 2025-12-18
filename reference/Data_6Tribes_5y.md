@@ -3,7 +3,7 @@
 Original pull: Data_6Tribes_5y \<- TADA_DataRetrieval(organization =
 c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX",
 "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01" endDate =
-"2023-01-01")
+"2023-01-01", ask = FALSE)
 
 ## Format
 
