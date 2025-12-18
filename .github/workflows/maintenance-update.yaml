@@ -1,9 +1,10 @@
-name: Scheduled Component File Update
+name: Component File Update
 
 on:
-  # Daily at 2:01AM https://crontab.guru/
-  schedule:
-    - cron: '1 2 * * *'
+#  pull_request:
+#    branches:
+#      [develop]
+  workflow_dispatch:
 
 jobs:
   maintenance_updates:
@@ -12,15 +13,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout repo (existing branch)
-        uses: actions/checkout@v6
-        id: bad-checkout
-        continue-on-error: true
-        with:
-          ref: maintenance-branch
-        # If the first checkout fails, we checkout the `develop` branch by default
-      - name: Fallback to default branch
-        if: steps.bad-checkout.outcome == 'failure'
+      - name: Checkout repo
         uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
@@ -39,13 +32,13 @@ jobs:
           library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
         shell: Rscript {0}
-        
+
       - name: Update reference files
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateRefFiles()
         shell: Rscript {0}
-
+ 
       - name: Commit updated reference files
         uses: EndBug/add-and-commit@v9
         with:
@@ -53,14 +46,13 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: "Update reference files"
           add: '[./inst/extdata/*]'
-          new_branch: maintenance-branch
-
+          
       - name: Update example data
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateExampleData()
         shell: Rscript {0}
-
+        
       - name: Commit updated example data
         uses: EndBug/add-and-commit@v9
         with:
@@ -68,5 +60,7 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: "Update example data"
           add: '[./data/*]'
-          new_branch: maintenance-branch
           
+#      - uses: pre-commit/action@v3.0.1
+#        with:
+#          extra_args: --files = '[./data/*, ./inst/extdata/*]'
