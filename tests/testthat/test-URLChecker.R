@@ -62,14 +62,18 @@ suppressWarnings(
 
     if (workspace_dir == "") {
       if (requireNamespace("here", quietly = TRUE)) {
-        workspace_dir <- here::here()  # project root (preferred if you use RStudio projects)
+        workspace_dir <- here::here() # project root (preferred if you use RStudio projects)
       } else {
-        workspace_dir <- getwd()       # current working directory
+        workspace_dir <- getwd() # current working directory
       }
     }
 
     # Normalize the path (useful across OSes)
-    workspace_dir <- normalizePath(workspace_dir, winslash = "/", mustWork = FALSE)
+    workspace_dir <- normalizePath(
+      workspace_dir,
+      winslash = "/",
+      mustWork = FALSE
+    )
 
     other_files <- c(
       file.path(workspace_dir, "README.md"),
