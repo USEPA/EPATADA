@@ -57,16 +57,20 @@ suppressWarnings(
         stringr::str_remove_all("[<>]")
     }
 
-    file_path <- file.path(
-      Sys.getenv("GITHUB_WORKSPACE"),
-      "data",
-      "yourfile.txt"
-    )
+    # set workspace directory
+    workspace_dir <- Sys.getenv("GITHUB_WORKSPACE", unset = "")
 
-    # get workspace directory
-    workspace_dir <- Sys.getenv("GITHUB_WORKSPACE")
+    if (workspace_dir == "") {
+      if (requireNamespace("here", quietly = TRUE)) {
+        workspace_dir <- here::here()  # project root (preferred if you use RStudio projects)
+      } else {
+        workspace_dir <- getwd()       # current working directory
+      }
+    }
 
-    # create lists of files to check for URLs
+    # Normalize the path (useful across OSes)
+    workspace_dir <- normalizePath(workspace_dir, winslash = "/", mustWork = FALSE)
+
     other_files <- c(
       file.path(workspace_dir, "README.md"),
       file.path(workspace_dir, "DESCRIPTION"),
