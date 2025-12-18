@@ -1378,7 +1378,7 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 }
 
 #' Get text for tribal marker popup
-#' getPopup is used within TADA_addPolys and TADA_addPoints
+#' getTribalPopup is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layer A map feature layer
 #' @param layername Name of the layer
@@ -1389,16 +1389,19 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
 #' layer <- getLayer("extdata/OKTribe.shp")
 #' # Get popup text for individual markers
-#' getPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
-getPopup <- function(layer, layername) {
+getTribalPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
   cols <-
     c(
       "TRIBE_N" = "Tribe Name",
-      #"PARCEL_NO" = "Parcel Number",
-      "EPA_ID" = "EPA ID"#,
-      #"TYPE" = "Type"
+      "STATE" = "State",
+      "REGION" = "Region",
+      "AWATER_MI" = "Water Area (sq miles)",
+      "ALAND_MI" = "Land Area (sq miles)",
+      "TOTALAREA_MI" = "TOTALAREA_MI",
+      "EPA_ID" = "EPA ID"
     )
 
   for (i in seq(1, length(cols))) {
@@ -1443,7 +1446,7 @@ TADA_addPolys <- function(
   layerfilepath,
   layergroup,
   layername,
-  bbox = NULL,
+  bbox = NULL
 ) {
   layer <- getLayer(layerfilepath, bbox)
   if (is.null(layer)) {
@@ -1476,7 +1479,7 @@ TADA_addPolys <- function(
         weight = 2,
         bringToFront = TRUE
       ),
-      popup = getPopup(layer, layername),
+      popup = getTribalPopup(layer, layername),
       group = layergroup,
       options = leaflet::pathOptions(pane = "featurelayers")
     )
@@ -1538,7 +1541,7 @@ TADA_addPoints <- function(
       popupAnchorX = 20,
       popupAnchorY = 0
     ),
-    popup = getPopup(layer, layername),
+    popup = getTribalPopup(layer, layername),
     group = layergroup,
     options = leaflet::pathOptions(pane = "featurelayers")
   )
