@@ -1,9 +1,10 @@
-name: Update Component Files
+name: Component File Update
 
 on:
-  pull_request:
-    branches:
-      [develop]
+#  pull_request:
+#    branches:
+#      [develop]
+  workflow_dispatch:
 
 jobs:
   maintenance_updates:
@@ -13,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.head_ref }}
 
@@ -37,13 +38,29 @@ jobs:
           library(EPATADA)
           EPATADA:::.TADA_UpdateRefFiles()
         shell: Rscript {0}
-
+ 
+      - name: Commit updated reference files
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: "Update reference files"
+          add: '[./inst/extdata/*]'
+          
       - name: Update example data
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateExampleData()
         shell: Rscript {0}
-
-      - uses: pre-commit/action@v3.0.1
+        
+      - name: Commit updated example data
+        uses: EndBug/add-and-commit@v9
         with:
-          extra_args: --files = '[./data/*, ./inst/extdata/*]'
+          author_name: 'github-actions[bot]'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: "Update example data"
+          add: '[./data/*]'
+          
+#      - uses: pre-commit/action@v3.0.1
+#        with:
+#          extra_args: --files = '[./data/*, ./inst/extdata/*]'
