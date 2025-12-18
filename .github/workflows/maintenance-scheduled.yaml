@@ -4,8 +4,6 @@ on:
   # Daily at 2:01AM https://crontab.guru/
   schedule:
     - cron: '1 2 * * *'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   maintenance_updates:
