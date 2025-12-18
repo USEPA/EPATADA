@@ -157,8 +157,7 @@ TADA_FieldCounts <- function(
     cols <- names(df)
   }
 
-  df <- df |>
-    dplyr::select(dplyr::contains(cols))
+  df <- df |> dplyr::select(dplyr::contains(cols))
 
   # CREATE LIST OF FIELDS
   # Find count of unique values in each column
@@ -171,8 +170,7 @@ TADA_FieldCounts <- function(
   col.names <- col.names[, c(2, 1)]
 
   # Reorder Count column in col.names from largest to smallest number
-  col.names <- col.names |>
-    dplyr::arrange(desc(Count))
+  col.names <- col.names |> dplyr::arrange(desc(Count))
 
   return(col.names)
 }
@@ -482,9 +480,7 @@ TADA_AnalysisDataFilter <- function(
   }
 
   if (clean == FALSE) {
-    .data <- .data |>
-      dplyr::select(-TADA.Media.Flag) |>
-      TADA_OrderCols()
+    .data <- .data |> dplyr::select(-TADA.Media.Flag) |> TADA_OrderCols()
 
     print(
       "TADA_AnalysisDataFilter: Returning all results with TADA.UseForAnalysis.Flag column indicating if result should be used for assessments."

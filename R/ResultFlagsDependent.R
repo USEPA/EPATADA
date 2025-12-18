@@ -77,10 +77,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   check.data <- merge(
     .data,
     frac.ref[, c("Characteristic", "TADA.WQXVal.Flag", "Value")],
-    by.x = c(
-      "TADA.CharacteristicName",
-      "TADA.ResultSampleFractionText"
-    ),
+    by.x = c("TADA.CharacteristicName", "TADA.ResultSampleFractionText"),
     by.y = c("Characteristic", "Value"),
     all.x = TRUE
   )
@@ -285,11 +282,7 @@ TADA_FlagSpeciation <- function(
   # if all rows are "Pass", return input with flag column
   if (
     any(
-      c(
-        "Not Reviewed",
-        "Suspect",
-        "NonStandardized"
-      ) %in%
+      c("Not Reviewed", "Suspect", "NonStandardized") %in%
         unique(check.data$TADA.MethodSpeciation.Flag)
     ) ==
       FALSE
@@ -322,10 +315,7 @@ TADA_FlagSpeciation <- function(
     # filter out only "NonStandardized" characteristic-method speciation combinations
     clean.data <- dplyr::filter(
       check.data,
-      !TADA.MethodSpeciation.Flag %in%
-        c(
-          "NonStandardized"
-        )
+      !TADA.MethodSpeciation.Flag %in% c("NonStandardized")
     )
   }
 
@@ -426,11 +416,7 @@ TADA_FlagSpeciation <- function(
 #' # combinations, and exclude the flag column:
 #' ResultUnit_clean <- TADA_FlagResultUnit(Data_R5_TADAPackageDemo, clean = "both")
 #'
-TADA_FlagResultUnit <- function(
-  .data,
-  clean = "none",
-  flaggedonly = FALSE
-) {
+TADA_FlagResultUnit <- function(.data, clean = "none", flaggedonly = FALSE) {
   # Check if the input dataframe is blank (empty)
   if (nrow(.data) == 0) {
     stop("The input dataframe is blank. Please provide a dataframe with data.")

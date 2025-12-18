@@ -125,8 +125,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
   # if input for ref does not exist, use raw harmonization template
   if (missing(ref)) {
     # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data) |>
-      dplyr::distinct()
+    harm.ref <- TADA_GetSynonymRef(.data) |> dplyr::distinct()
   }
 
   # find places where metadata will be changed and add targets
@@ -210,8 +209,10 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
       dplyr::rowwise() |>
       dplyr::mutate(
         TADA.ResultMeasureValue = dplyr::case_when(
-          !is.na(Target.TADA.SpeciationConversionFactor) ~
-            (Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue),
+          !is.na(
+            Target.TADA.SpeciationConversionFactor
+          ) ~ (Target.TADA.SpeciationConversionFactor *
+            TADA.ResultMeasureValue),
           # is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
           .default = TADA.ResultMeasureValue
         )
@@ -467,21 +468,9 @@ TADA_CalculateTotalNP <- function(
           "Approximate Value",
           "Result Value/Unit Copied from Detection Limit"
         )) &
-      (.data$TADA.ResultUnit.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )) &
-      (.data$TADA.SampleFraction.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )) &
-      (.data$TADA.MethodSpeciation.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )),
+      (.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) &
+      (.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) &
+      (.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
   ]
 
   exclude_df <- .data[
@@ -495,21 +484,9 @@ TADA_CalculateTotalNP <- function(
           "Result Value/Unit Cannot Be Estimated From Detection Limit",
           "Coerced to NA"
         )) |
-      !(.data$TADA.ResultUnit.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )) |
-      !(.data$TADA.SampleFraction.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )) |
-      !(.data$TADA.MethodSpeciation.Flag %in%
-        c(
-          "Pass",
-          "Not Reviewed"
-        )),
+      !(.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) |
+      !(.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) |
+      !(.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
   ]
 
   # add flags noting these are not used in TN/TP summation
@@ -779,10 +756,7 @@ TADA_CalculateTotalNP <- function(
       dplyr::mutate(
         ResultIdentifier = paste0(
           "TADA-",
-          sample(
-            seq_len(1000000000),
-            dplyr::n()
-          )
+          sample(seq_len(1000000000), dplyr::n())
         )
       )
 

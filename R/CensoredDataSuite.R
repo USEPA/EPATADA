@@ -166,8 +166,7 @@ TADA_IDCensoredData <- function(.data) {
     ) |>
     dplyr::filter(!ResultIdentifier %in% cens_rm_flag$ResultIdentifier)
 
-  cens <- cens_rm_flag |>
-    rbind(cens_mq_flag)
+  cens <- cens_rm_flag |> rbind(cens_mq_flag)
 
   # Perform the filtering operation
   not_cens <- data_mq_flag |>
@@ -221,8 +220,7 @@ TADA_IDCensoredData <- function(.data) {
       dplyr::pull()
 
     cens$TADA.Detection_Type <- ifelse(
-      cens$ResultMeasureValue %in%
-        nd.rmv.list,
+      cens$ResultMeasureValue %in% nd.rmv.list,
       "Non-Detect",
       cens$TADA.Detection_Type
     )
@@ -322,11 +320,7 @@ TADA_IDCensoredData <- function(.data) {
     # Identify where there are conflicts
     cens$TADA.CensoredData.Flag <- ifelse(
       cens$TADA.Detection_Type %in%
-        c(
-          "Non-Detect",
-          "Over-Detect",
-          "Other"
-        ) &
+        c("Non-Detect", "Over-Detect", "Other") &
         cens$TADA.Limit_Type %in% c("Non-Detect", "Over-Detect", "Other") &
         !cens$TADA.Detection_Type == cens$TADA.Limit_Type,
       "Conflict between Condition and Limit",
@@ -359,8 +353,7 @@ TADA_IDCensoredData <- function(.data) {
       # Update the ResultMeasureValueDataTypes.Flag for records with the conflicting flag
       cens$TADA.ResultMeasureValueDataTypes.Flag[
         cens$TADA.CensoredData.Flag == "Conflict between Condition and Limit"
-      ] <-
-        "Result Value/Unit Cannot Be Estimated From Detection Limit"
+      ] <- "Result Value/Unit Cannot Be Estimated From Detection Limit"
 
       # Set TADA.ResultMeasureValue to NA for records with the conflicting flag
       cens$TADA.ResultMeasureValue[

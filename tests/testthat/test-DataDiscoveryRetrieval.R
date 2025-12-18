@@ -282,10 +282,7 @@ test_that("TADA_DataRetrieval", {
 
 test_that("TADA_DataRetrieval", {
   tada1 <- TADA_DataRetrieval(
-    siteid = c(
-      "USGS-054064785",
-      "USGS-430305089260600"
-    ),
+    siteid = c("USGS-054064785", "USGS-430305089260600"),
     characteristicName = "Phosphorus",
     ask = FALSE
   )
