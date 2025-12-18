@@ -566,7 +566,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         "ATTAINS_lines",
         "ATTAINS_polygons"
       ) %in%
-      names(.data)
+        names(.data)
     )
   ) {
     stop(
