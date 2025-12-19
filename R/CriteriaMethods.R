@@ -747,7 +747,7 @@ TADA_DefineCriteriaMethodology <- function(
         ) |>
         dplyr::full_join(
           definedCriteria,
-          by = join_by(
+          by = dplyr::join_by(
             ATTAINS.OrganizationIdentifier,
             ATTAINS.ParameterName,
             ATTAINS.UseName,
