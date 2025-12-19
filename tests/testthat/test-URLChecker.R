@@ -180,7 +180,7 @@ suppressWarnings(test_that("URLs are not broken", {
   # print url and response code for failures
   if (n.other.cols > 0) {
     print(
-      "The following URLs are required for EPATADA functions and have failing response codes."
+      "The following URLs are not required for EPATADA functions and have failing response codes."
     )
 
     print(other.cols)
