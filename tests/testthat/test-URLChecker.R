@@ -127,40 +127,40 @@ suppressWarnings(test_that("URLs are not broken", {
         !grepl("302", response_code)
     )
 
-    # extract urls function
-    extract_urls <- function(text) {
-      stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") |> unlist()
+  # extract urls function
+  extract_urls <- function(text) {
+    stringr::str_extract_all(text, "http[s]?://[^\\s\\)\\]]+") |> unlist()
+  }
+
+  # clean urls function
+  clean_url <- function(url) {
+    stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") |>
+      stringr::str_remove_all("[<>]")
+  }
+
+  # set workspace directory
+  workspace_dir <- Sys.getenv("GITHUB_WORKSPACE", unset = "")
+
+  if (workspace_dir == "") {
+    if (requireNamespace("here", quietly = TRUE)) {
+      workspace_dir <- here::here() # project root (preferred if you use RStudio projects)
+    } else {
+      workspace_dir <- getwd() # current working directory
     }
+  }
 
-    # clean urls function
-    clean_url <- function(url) {
-      stringr::str_remove_all(url, "[\\\\.,\\\")]+$|[{}].*") |>
-        stringr::str_remove_all("[<>]")
-    }
+  # Normalize the path (useful across OSes)
+  workspace_dir <- normalizePath(
+    workspace_dir,
+    winslash = "/",
+    mustWork = FALSE
+  )
 
-    # set workspace directory
-    workspace_dir <- Sys.getenv("GITHUB_WORKSPACE", unset = "")
-
-    if (workspace_dir == "") {
-      if (requireNamespace("here", quietly = TRUE)) {
-        workspace_dir <- here::here() # project root (preferred if you use RStudio projects)
-      } else {
-        workspace_dir <- getwd() # current working directory
-      }
-    }
-
-    # Normalize the path (useful across OSes)
-    workspace_dir <- normalizePath(
-      workspace_dir,
-      winslash = "/",
-      mustWork = FALSE
-    )
-
-    other_files <- c(
-      file.path(workspace_dir, "README.md"),
-      file.path(workspace_dir, "DESCRIPTION"),
-      file.path(workspace_dir, "NAMESPACE")
-    )
+  other_files <- c(
+    file.path(workspace_dir, "README.md"),
+    file.path(workspace_dir, "DESCRIPTION"),
+    file.path(workspace_dir, "NAMESPACE")
+  )
 
   other.cols <- df_false |> dplyr::filter(!urls %in% func.urls)
 

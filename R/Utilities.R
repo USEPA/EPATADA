@@ -1483,28 +1483,26 @@ TADA_addPolys <- function(
     areaColumn <- "AREA_KM"
   }
 
-  map <-
-    leaflet::addPolygons(
-      map,
-      data = layer,
-      color = "#A0522D",
-      weight = 0.35,
-      smoothFactor = 0.5,
-      opacity = 1.0,
-      fillOpacity = 0.2,
-      fillColor = ~ leaflet::colorNumeric(
-        "Oranges",
-        layer[[areaColumn]]
-      )(layer[[areaColumn]]),
-      highlightOptions = leaflet::highlightOptions(
-        color = "white",
-        weight = 2,
-        bringToFront = TRUE
-      ),
-      popup = getTribalPopup(layer, layername),
-      group = layergroup,
-      options = leaflet::pathOptions(pane = "featurelayers")
-    )
+  map <- leaflet::addPolygons(
+    map,
+    data = layer,
+    color = "#A0522D",
+    weight = 0.35,
+    smoothFactor = 0.5,
+    opacity = 1.0,
+    fillOpacity = 0.2,
+    fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[
+      areaColumn
+    ]]),
+    highlightOptions = leaflet::highlightOptions(
+      color = "white",
+      weight = 2,
+      bringToFront = TRUE
+    ),
+    popup = getTribalPopup(layer, layername),
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "featurelayers")
+  )
   return(map)
 }
 
