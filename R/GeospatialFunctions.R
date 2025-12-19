@@ -2782,6 +2782,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             "NHDPlus HR Catchment ID: ",
             ATTAINS_catchments$nhdplusid
           )
+        )
         overlay_groups <- c(overlay_groups, "ATTAINS catchments")
       },
       silent = TRUE
@@ -2812,6 +2813,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             "<br> NHDPlus HR Catchment ID: ",
             missing_raw_mapper$nhdplusid
           )
+        )
         overlay_groups <- c(overlay_groups, "ATTAINS outlines")
       },
       silent = TRUE
@@ -2839,6 +2841,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             " catchment ID: ",
             without_ATTAINS_catchments$nhd
           )
+        )
         overlay_groups <- c(
           overlay_groups,
           "missing ATTAINS catchment outlines"
@@ -2870,6 +2873,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             polygons_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
+        )
         overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
       },
       silent = TRUE
@@ -2897,6 +2901,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             lines_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
+        )
         overlay_groups <- c(overlay_groups, "ATTAINS line features")
       },
       silent = TRUE
@@ -2937,6 +2942,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             points_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
+        )
         overlay_groups <- c(overlay_groups, "ATTAINS point features")
       },
       silent = TRUE
@@ -3027,6 +3033,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
                   "<br> Assessment Unit Type: ",
                   "not available in ATTAINS"
                 )
+              )
               overlay_groups <- c(overlay_groups, "not in ATTAINS")
             },
             silent = TRUE
