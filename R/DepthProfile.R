@@ -279,8 +279,7 @@ TADA_FlagDepthCategory <- function(
   }
 
   if (clean == TRUE) {
-    .data <- .data |>
-      dplyr::filter(TADA.DepthCategory.Flag %in% depthcat.list)
+    .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag %in% depthcat.list)
   }
 
   if (clean == FALSE) {
@@ -330,8 +329,7 @@ TADA_FlagDepthCategory <- function(
       "ActivityStartDate"
     )
 
-    .data <- .data |>
-      dplyr::filter(TADA.DepthCategory.Flag == "Surface")
+    .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag == "Surface")
   }
 
   if (bycategory == "middle") {
@@ -346,8 +344,7 @@ TADA_FlagDepthCategory <- function(
       "ActivityStartDate"
     )
 
-    .data <- .data |>
-      dplyr::filter(TADA.DepthCategory.Flag == "Middle")
+    .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag == "Middle")
   }
 
   if (bycategory == "bottom") {
@@ -362,8 +359,7 @@ TADA_FlagDepthCategory <- function(
       "ActivityStartDate"
     )
 
-    .data <- .data |>
-      dplyr::filter(TADA.DepthCategory.Flag == "Bottom")
+    .data <- .data |> dplyr::filter(TADA.DepthCategory.Flag == "Bottom")
   }
 
   if (dailyagg == "none") {
@@ -1564,11 +1560,7 @@ TADA_DepthProfilePlot <- function(
         autorange = "reversed"
       ),
       hoverlabel = list(bgcolor = "white"),
-      title = list(
-        text = title,
-        xref = "paper",
-        x = 0.5
-      ),
+      title = list(text = title, xref = "paper", x = 0.5),
       plot_bgcolor = "#e5ecf6",
       margin = mrg,
       legend = list(
@@ -1602,10 +1594,7 @@ TADA_DepthProfilePlot <- function(
           param1$TADA.ResultMeasure.MeasureUnitCode[1],
           ")"
         )),
-        marker = list(
-          size = 10,
-          color = tada.pal[10]
-        ),
+        marker = list(size = 10, color = tada.pal[10]),
         line = list(color = tada.pal[5], width = 2),
         hoverinfo = "text",
         hovertext = paste(
@@ -1633,9 +1622,7 @@ TADA_DepthProfilePlot <- function(
           param1$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param1$TADA.DepthCategory.Flag
-          ),
+          paste0(param1$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1688,9 +1675,7 @@ TADA_DepthProfilePlot <- function(
           param1$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param1$TADA.DepthCategory.Flag
-          ),
+          paste0(param1$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1716,10 +1701,7 @@ TADA_DepthProfilePlot <- function(
           param2$TADA.ResultMeasure.MeasureUnitCode[1],
           ")"
         )),
-        marker = list(
-          size = 10,
-          color = tada.pal[12]
-        ),
+        marker = list(size = 10, color = tada.pal[12]),
         line = list(color = tada.pal[3], width = 2),
         hoverinfo = "text",
         hovertext = paste(
@@ -1747,9 +1729,7 @@ TADA_DepthProfilePlot <- function(
           param2$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param2$TADA.DepthCategory.Flag
-          ),
+          paste0(param2$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1803,9 +1783,7 @@ TADA_DepthProfilePlot <- function(
           param2$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param2$TADA.DepthCategory.Flag
-          ),
+          paste0(param2$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1831,10 +1809,7 @@ TADA_DepthProfilePlot <- function(
           param3$TADA.ResultMeasure.MeasureUnitCode[1],
           ")"
         )),
-        marker = list(
-          size = 10,
-          color = tada.pal[11]
-        ),
+        marker = list(size = 10, color = tada.pal[11]),
         line = list(color = tada.pal[9], width = 2),
         hoverinfo = "text",
         hovertext = paste(
@@ -1862,9 +1837,7 @@ TADA_DepthProfilePlot <- function(
           param3$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param3$TADA.DepthCategory.Flag
-          ),
+          paste0(param3$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1918,9 +1891,7 @@ TADA_DepthProfilePlot <- function(
           param3$ActivityRelativeDepthName,
           "<br>",
           "TADA.DepthCategory.Flag:",
-          paste0(
-            param3$TADA.DepthCategory.Flag
-          ),
+          paste0(param3$TADA.DepthCategory.Flag),
           "<br>"
         )
       )
@@ -1967,18 +1938,17 @@ TADA_DepthProfilePlot <- function(
           hovertext = paste(surfacevalue, fig.depth.unit, sep = " ")
         )
 
-      surface_text <-
-        list(
-          x = 1,
-          y = surfacevalue / 2,
-          xref = "paper",
-          yref = "y",
-          text = "Surface",
-          showarrow = F,
-          align = "right",
-          xanchor = "left",
-          yanchor = "center"
-        )
+      surface_text <- list(
+        x = 1,
+        y = surfacevalue / 2,
+        xref = "paper",
+        yref = "y",
+        text = "Surface",
+        showarrow = F,
+        align = "right",
+        xanchor = "left",
+        yanchor = "center"
+      )
 
       depth_annotations <- append(depth_annotations, list(surface_text))
     }
@@ -2008,35 +1978,33 @@ TADA_DepthProfilePlot <- function(
           )
         )
 
-      bottom_text <-
-        list(
-          x = 1,
-          y = (ymax + (bot.depth - bottomvalue)) / 2,
-          xref = "paper",
-          yref = "y",
-          text = "Bottom",
-          showarrow = F,
-          align = "right",
-          xanchor = "left",
-          yanchor = "center"
-        )
+      bottom_text <- list(
+        x = 1,
+        y = (ymax + (bot.depth - bottomvalue)) / 2,
+        xref = "paper",
+        yref = "y",
+        text = "Bottom",
+        showarrow = F,
+        align = "right",
+        xanchor = "left",
+        yanchor = "center"
+      )
 
       depth_annotations <- append(depth_annotations, list(bottom_text))
     }
 
     if (is.numeric(surfacevalue) & is.numeric(bottomvalue)) {
-      middle_text <-
-        list(
-          x = 1,
-          y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
-          xref = "paper",
-          yref = "y",
-          text = "Middle",
-          showarrow = F,
-          align = "right",
-          xanchor = "left",
-          yanchor = "center"
-        )
+      middle_text <- list(
+        x = 1,
+        y = (surfacevalue + (bot.depth - bottomvalue)) / 2,
+        xref = "paper",
+        yref = "y",
+        text = "Middle",
+        showarrow = F,
+        align = "right",
+        xanchor = "left",
+        yanchor = "center"
+      )
 
       depth_annotations <- append(depth_annotations, list(middle_text))
     }

@@ -411,9 +411,10 @@ TADA_DefineCriteriaMethodology <- function(
 
       unique_param <- unique(.data$TADA.CharacteristicName)
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      TADA_param <- dplyr::distinct(
-        .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
-      ) |>
+      TADA_param <- dplyr::distinct(.data[,
+        c("TADA.ComparableDataIdentifier"),
+        drop = FALSE
+      ]) |>
         dplyr::distinct() |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
         tidyr::complete(
@@ -423,8 +424,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
-      MLSummaryRef <- TADA_param |>
-        dplyr::full_join(MLSummaryRef)
+      MLSummaryRef <- TADA_param |> dplyr::full_join(MLSummaryRef)
 
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
@@ -625,34 +625,32 @@ TADA_DefineCriteriaMethodology <- function(
           )
         ) |>
         # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) |>
-        dplyr::bind_cols(
-          data.frame(
-            TADA.ResultSampleFractionText = as.character(NA),
-            TADA.MethodSpeciationName = as.character(NA),
-            AcuteChronic = as.character(NA),
-            # Criteria Columns
-            EquationBased = as.character(NA),
-            MagnitudeValueLower = as.numeric(NA),
-            MagnitudeValueUpper = as.numeric(NA),
-            MagnitudeUnit = as.character(NA),
-            DurationValue = as.numeric(NA),
-            DurationUnit = as.character(NA),
-            DurationMethod = as.character(NA),
-            FreqValue = as.numeric(NA),
-            FreqMethod = as.character(NA),
-            # Data Sufficiency Columns
-            AssessPeriod = as.character(NA),
-            AssessPeriodStartDate = as.Date(NA),
-            AssessPeriodEndDate = as.Date(NA),
-            Season = as.character(NA),
-            SeasonStartDate = as.Date(NA),
-            SeasonEndDate = as.Date(NA),
-            DistrCount = as.numeric(NA),
-            DistrPeriod = as.character(NA),
-            DistrMinSample = as.numeric(NA),
-            Notes = as.character(NA)
-          )
-        ) |>
+        dplyr::bind_cols(data.frame(
+          TADA.ResultSampleFractionText = as.character(NA),
+          TADA.MethodSpeciationName = as.character(NA),
+          AcuteChronic = as.character(NA),
+          # Criteria Columns
+          EquationBased = as.character(NA),
+          MagnitudeValueLower = as.numeric(NA),
+          MagnitudeValueUpper = as.numeric(NA),
+          MagnitudeUnit = as.character(NA),
+          DurationValue = as.numeric(NA),
+          DurationUnit = as.character(NA),
+          DurationMethod = as.character(NA),
+          FreqValue = as.numeric(NA),
+          FreqMethod = as.character(NA),
+          # Data Sufficiency Columns
+          AssessPeriod = as.character(NA),
+          AssessPeriodStartDate = as.Date(NA),
+          AssessPeriodEndDate = as.Date(NA),
+          Season = as.character(NA),
+          SeasonStartDate = as.Date(NA),
+          SeasonEndDate = as.Date(NA),
+          DistrCount = as.numeric(NA),
+          DistrPeriod = as.character(NA),
+          DistrMinSample = as.numeric(NA),
+          Notes = as.character(NA)
+        )) |>
         # tidyr::drop_na(ATTAINS.ParameterName) |>
         dplyr::select(
           "ATTAINS.OrganizationIdentifier",
@@ -783,9 +781,10 @@ TADA_DefineCriteriaMethodology <- function(
       # identifies all unique TADA.CharacteristicNames in TADA data frame
       unique_param <- unique(.data$TADA.CharacteristicName)
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      TADA_param <- dplyr::distinct(
-        .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-      ) |>
+      TADA_param <- dplyr::distinct(.data[, c(
+        "TADA.CharacteristicName",
+        "TADA.ComparableDataIdentifier"
+      )]) |>
         tidyr::uncount(weights = length(org_id))
 
       TADA_param <- TADA_param |>
@@ -810,8 +809,7 @@ TADA_DefineCriteriaMethodology <- function(
       # 3. Add missing columns with NA values using mutate()
       if (length(missing_cols) > 0) {
         for (col in missing_cols) {
-          criteriaMethods <- criteriaMethods |>
-            dplyr::mutate(!!col := NA)
+          criteriaMethods <- criteriaMethods |> dplyr::mutate(!!col := NA)
         }
       }
 
@@ -932,9 +930,10 @@ TADA_DefineCriteriaMethodology <- function(
       ))
 
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      TADA_param <- dplyr::distinct(
-        .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-      ) |>
+      TADA_param <- dplyr::distinct(.data[, c(
+        "TADA.CharacteristicName",
+        "TADA.ComparableDataIdentifier"
+      )]) |>
         tidyr::uncount(weights = length(org_id))
       TADA_param <- TADA_param |>
         dplyr::mutate(
@@ -1091,12 +1090,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if a user generates a blank template, the prior blank template must also be generated in excel
     if (missing(.data)) {
-      suppressMessages(
-        TADA_MLSummary(
-          excel = excel,
-          overwrite = overwrite
-        )
-      )
+      suppressMessages(TADA_MLSummary(excel = excel, overwrite = overwrite))
     }
 
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
@@ -1230,9 +1224,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 14,
       startRow = 1,
       # AcuteChronic
-      x = data.frame(
-        AcuteChronic = c("Acute", "Chronic", "NA")
-      )
+      x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))
     )
 
     # get list of ATTAINS Water Types from ATTAINS
@@ -1262,9 +1254,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 11,
       startRow = 1,
       # SaltFresh
-      x = data.frame(
-        SaltFresh = c("Salt", "Fresh", "NA")
-      )
+      x = data.frame(SaltFresh = c("Salt", "Fresh", "NA"))
     )
 
     openxlsx::writeData(
@@ -1284,9 +1274,7 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     if (is.null(MLSummaryRef)) {
-      MLSummaryRef <- data.frame(
-        UniqueSpatialCriteria = NA_character_
-      )
+      MLSummaryRef <- data.frame(UniqueSpatialCriteria = NA_character_)
     }
 
     openxlsx::writeData(
@@ -1309,9 +1297,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 15,
       startRow = 1,
       # EquationBased
-      x = data.frame(
-        EquationBased = c("Yes", "No", "NA")
-      )
+      x = data.frame(EquationBased = c("Yes", "No", "NA"))
     )
 
     openxlsx::writeData(
@@ -1332,13 +1318,7 @@ TADA_DefineCriteriaMethodology <- function(
       startRow = 1,
       # DurationUnit
       x = data.frame(
-        DurationUnit = c(
-          "n-hour",
-          "n-day",
-          "n-week",
-          "n-month",
-          "n-quarter"
-        )
+        DurationUnit = c("n-hour", "n-day", "n-week", "n-month", "n-quarter")
       )
     )
 
@@ -1402,15 +1382,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Index-Criteria",
       startCol = 27,
       startRow = 1,
-      x = data.frame(
-        Season = c(
-          "Summer",
-          "Fall",
-          "Spring",
-          "Winter",
-          "NA"
-        )
-      )
+      x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))
     )
 
     openxlsx::writeData(

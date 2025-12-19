@@ -207,12 +207,10 @@ TADA_DataRetrieval <- function(
     !is.null(aoi_sf) &
       any((tribal_area_type != "null") | (tribe_name_parcel != "null"))
   ) {
-    stop(
-      paste0(
-        "Both sf data and tribal information have been provided. ",
-        "Please use only one of these query options."
-      )
-    )
+    stop(paste0(
+      "Both sf data and tribal information have been provided. ",
+      "Please use only one of these query options."
+    ))
   }
 
   # Check for other arguments that indicate location. Function will ignore
@@ -229,12 +227,10 @@ TADA_DataRetrieval <- function(
         (statecode != "null")
       )
   ) {
-    warning(
-      paste0(
-        "Location information has been provided in addition to an sf object. ",
-        "Only the sf object will be used in the query."
-      )
-    )
+    warning(paste0(
+      "Location information has been provided in addition to an sf object. ",
+      "Only the sf object will be used in the query."
+    ))
   } else if (
     # Tribe info provided
     (tribal_area_type != "null") &
@@ -247,12 +243,10 @@ TADA_DataRetrieval <- function(
         (statecode != "null")
       )
   ) {
-    warning(
-      paste0(
-        "Location information has been provided in addition to tribal information. ",
-        "Only the tribal information will be used in the query."
-      )
-    )
+    warning(paste0(
+      "Location information has been provided in addition to tribal information. ",
+      "Only the tribal information will be used in the query."
+    ))
   }
 
   # Insufficient tribal info provided:
@@ -573,12 +567,10 @@ TADA_DataRetrieval <- function(
     # Check for either more than 300 sites or more records than max_recs.
     # If either is true then we'll approach the pull as a "big data" pull
     if (site_count > 300 | record_count > maxrecs) {
-      message(
-        paste0(
-          "The number of sites and/or records matched by the AOI and query terms is large, so the download may take some time. ",
-          "If your AOI is a county, state, country, or HUC boundary it would be more efficient to provide a code instead of an sf object."
-        )
-      )
+      message(paste0(
+        "The number of sites and/or records matched by the AOI and query terms is large, so the download may take some time. ",
+        "If your AOI is a county, state, country, or HUC boundary it would be more efficient to provide a code instead of an sf object."
+      ))
 
       # Use helper function to download large data volume
       results.DR <- withCallingHandlers(
@@ -598,14 +590,12 @@ TADA_DataRetrieval <- function(
 
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
-        print(
-          paste0(
-            "Returning empty results dataframe: ",
-            "Your WQP query returned no results (no data available). ",
-            "Try a different query. ",
-            "Removing some of your query filters OR broadening your search area may help."
-          )
-        )
+        print(paste0(
+          "Returning empty results dataframe: ",
+          "Your WQP query returned no results (no data available). ",
+          "Try a different query. ",
+          "Removing some of your query filters OR broadening your search area may help."
+        ))
         # Empty
         TADAprofile.clean <- results.DR
       } else {
@@ -648,9 +638,7 @@ TADA_DataRetrieval <- function(
           Sites = sites.DR,
           Projects = projects.DR
         ) |>
-          dplyr::mutate(
-            dplyr::across(tidyselect::everything(), as.character)
-          )
+          dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
@@ -675,14 +663,12 @@ TADA_DataRetrieval <- function(
       print(WQPquery)
 
       # Get results
-      results.DR <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          siteid = clipped_site_ids,
-          WQPquery,
-          dataProfile = "resultPhysChem",
-          ignore_attributes = TRUE
-        )
-      )
+      results.DR <- suppressMessages(dataRetrieval::readWQPdata(
+        siteid = clipped_site_ids,
+        WQPquery,
+        dataProfile = "resultPhysChem",
+        ignore_attributes = TRUE
+      ))
 
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
@@ -733,9 +719,7 @@ TADA_DataRetrieval <- function(
           Sites = sites.DR,
           Projects = projects.DR
         ) |>
-          dplyr::mutate(
-            dplyr::across(tidyselect::everything(), as.character)
-          )
+          dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
         # Run TADA_AutoClean function
         if (applyautoclean == TRUE) {
@@ -917,9 +901,7 @@ TADA_DataRetrieval <- function(
 
     site_count <- length(query_avail$MonitoringLocationIdentifier)
 
-    record_count <- query_avail |>
-      dplyr::pull(resultCount) |>
-      sum()
+    record_count <- query_avail |> dplyr::pull(resultCount) |> sum()
 
     # Should we proceed with downloads? If ask == TRUE then ask the user.
     if (ask == TRUE) {
@@ -941,15 +923,13 @@ TADA_DataRetrieval <- function(
       )
 
       # Use helper function to download large data volume
-      results.DR <- suppressMessages(
-        TADA_BigDataHelper(
-          record_summary = query_avail |>
-            dplyr::select(MonitoringLocationIdentifier, resultCount),
-          WQPquery = WQPquery,
-          maxrecs = maxrecs,
-          maxsites = 300
-        )
-      )
+      results.DR <- suppressMessages(TADA_BigDataHelper(
+        record_summary = query_avail |>
+          dplyr::select(MonitoringLocationIdentifier, resultCount),
+        WQPquery = WQPquery,
+        maxrecs = maxrecs,
+        maxsites = 300
+      ))
 
       rm(query_avail)
       gc()
@@ -1013,9 +993,7 @@ TADA_DataRetrieval <- function(
         Sites = sites.DR,
         Projects = projects.DR
       ) |>
-        dplyr::mutate(
-          dplyr::across(tidyselect::everything(), as.character)
-        )
+        dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
@@ -1035,13 +1013,11 @@ TADA_DataRetrieval <- function(
         "Downloading WQP query results. This may take some time depending upon the query size."
       )
       print(WQPquery)
-      results.DR <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          WQPquery,
-          dataProfile = "resultPhysChem",
-          ignore_attributes = TRUE
-        )
-      )
+      results.DR <- suppressMessages(dataRetrieval::readWQPdata(
+        WQPquery,
+        dataProfile = "resultPhysChem",
+        ignore_attributes = TRUE
+      ))
 
       # Check if any results are available
       if ((nrow(results.DR) > 0) == FALSE) {
@@ -1052,22 +1028,18 @@ TADA_DataRetrieval <- function(
       } else {
         sites.DR <- suppressMessages(dataRetrieval::whatWQPsites(WQPquery))
 
-        projects.DR <- suppressMessages(
-          dataRetrieval::readWQPdata(
-            WQPquery,
-            ignore_attributes = TRUE,
-            service = "Project"
-          )
-        )
+        projects.DR <- suppressMessages(dataRetrieval::readWQPdata(
+          WQPquery,
+          ignore_attributes = TRUE,
+          service = "Project"
+        ))
 
         TADAprofile <- TADA_JoinWQPProfiles(
           FullPhysChem = results.DR,
           Sites = sites.DR,
           Projects = projects.DR
         ) |>
-          dplyr::mutate(
-            dplyr::across(tidyselect::everything(), as.character)
-          )
+          dplyr::mutate(dplyr::across(tidyselect::everything(), as.character))
 
         # run TADA_AutoClean function
         if (applyautoclean == TRUE) {
@@ -1155,10 +1127,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
 
   # Convert to df if needed, export
   if (return_sf == FALSE) {
-    return(
-      tribal_area_sf |>
-        sf::st_drop_geometry()
-    )
+    return(tribal_area_sf |> sf::st_drop_geometry())
   } else {
     return(tribal_area_sf)
   }
@@ -1326,13 +1295,11 @@ TADA_BigDataHelper <- function(
       )
 
     # Status update to user
-    print(
-      paste0(
-        "Downloading data from sites with fewer than ",
-        maxrecs,
-        " results by grouping them together."
-      )
-    )
+    print(paste0(
+      "Downloading data from sites with fewer than ",
+      maxrecs,
+      " results by grouping them together."
+    ))
 
     small_prog_bar <- utils::txtProgressBar(
       min = 0,
@@ -1347,14 +1314,12 @@ TADA_BigDataHelper <- function(
         smallsitesgrp$group == i
       )
       # Query result data
-      results_small <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          siteid = small_site_chunk,
-          WQPquery,
-          dataProfile = "resultPhysChem",
-          ignore_attributes = TRUE
-        )
-      ) |>
+      results_small <- suppressMessages(dataRetrieval::readWQPdata(
+        siteid = small_site_chunk,
+        WQPquery,
+        dataProfile = "resultPhysChem",
+        ignore_attributes = TRUE
+      )) |>
         dplyr::mutate(dplyr::across(everything(), as.character))
 
       # If data is returned, stack with what's already been retrieved
@@ -1374,13 +1339,11 @@ TADA_BigDataHelper <- function(
 
   # Large sites (>= maxrecs) next:
   if (dim(bigsites)[1] > 0) {
-    print(
-      paste0(
-        "Downloading data from sites with greater than ",
-        maxrecs,
-        " results, chunking queries by site."
-      )
-    )
+    print(paste0(
+      "Downloading data from sites with greater than ",
+      maxrecs,
+      " results, chunking queries by site."
+    ))
 
     big_prog_bar <- utils::txtProgressBar(
       min = 0,
@@ -1394,14 +1357,12 @@ TADA_BigDataHelper <- function(
     # For each site
     for (i in 1:length(bsitesvec)) {
       # Download each site's data individually
-      results_big <- suppressMessages(
-        dataRetrieval::readWQPdata(
-          siteid = bsitesvec[i],
-          WQPquery,
-          dataProfile = "resultPhysChem",
-          ignore_attributes = TRUE
-        )
-      ) |>
+      results_big <- suppressMessages(dataRetrieval::readWQPdata(
+        siteid = bsitesvec[i],
+        WQPquery,
+        dataProfile = "resultPhysChem",
+        ignore_attributes = TRUE
+      )) |>
         dplyr::mutate(dplyr::across(everything(), as.character))
 
       if (dim(results_big)[1] > 0) {
