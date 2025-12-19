@@ -617,9 +617,10 @@ TADA_DefineCriteriaMethodology <- function(
       # identifies all unique TADA.CharacteristicNames in TADA data frame
       unique_param <- unique(.data$TADA.CharacteristicName)
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      TADA_param <- dplyr::distinct(
-        .data[, c("TADA.CharacteristicName", "TADA.ComparableDataIdentifier")]
-      ) |>
+      TADA_param <- dplyr::distinct(.data[, c(
+        "TADA.CharacteristicName",
+        "TADA.ComparableDataIdentifier"
+      )]) |>
         tidyr::uncount(weights = length(org_id))
 
       TADA_param <- TADA_param |>
@@ -644,8 +645,7 @@ TADA_DefineCriteriaMethodology <- function(
       # 3. Add missing columns with NA values using mutate()
       if (length(missing_cols) > 0) {
         for (col in missing_cols) {
-          criteriaMethods <- criteriaMethods |>
-            dplyr::mutate(!!col := NA)
+          criteriaMethods <- criteriaMethods |> dplyr::mutate(!!col := NA)
         }
       }
 
@@ -856,12 +856,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # if a user generates a blank template, the prior blank template must also be generated in excel
     if (missing(.data)) {
-      suppressMessages(
-        TADA_MLSummary(
-          excel = excel,
-          overwrite = overwrite
-        )
-      )
+      suppressMessages(TADA_MLSummary(excel = excel, overwrite = overwrite))
     }
 
     wb <- openxlsx::loadWorkbook(wb, downloads_path)
@@ -958,9 +953,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 14,
       startRow = 1,
       # AcuteChronic
-      x = data.frame(
-        AcuteChronic = c("Acute", "Chronic", "NA")
-      )
+      x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))
     )
 
     # get list of ATTAINS Water Types from ATTAINS
@@ -990,9 +983,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 11,
       startRow = 1,
       # SaltFresh
-      x = data.frame(
-        SaltFresh = c("Salt", "Fresh", "NA")
-      )
+      x = data.frame(SaltFresh = c("Salt", "Fresh", "NA"))
     )
 
     openxlsx::writeData(
@@ -1012,9 +1003,7 @@ TADA_DefineCriteriaMethodology <- function(
     )
 
     if (is.null(MLSummaryRef)) {
-      MLSummaryRef <- data.frame(
-        UniqueSpatialCriteria = NA_character_
-      )
+      MLSummaryRef <- data.frame(UniqueSpatialCriteria = NA_character_)
     }
 
     openxlsx::writeData(
@@ -1037,9 +1026,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 15,
       startRow = 1,
       # EquationBased
-      x = data.frame(
-        EquationBased = c("Yes", "No", "NA")
-      )
+      x = data.frame(EquationBased = c("Yes", "No", "NA"))
     )
 
     openxlsx::writeData(
@@ -1060,13 +1047,7 @@ TADA_DefineCriteriaMethodology <- function(
       startRow = 1,
       # DurationUnit
       x = data.frame(
-        DurationUnit = c(
-          "n-hour",
-          "n-day",
-          "n-week",
-          "n-month",
-          "n-quarter"
-        )
+        DurationUnit = c("n-hour", "n-day", "n-week", "n-month", "n-quarter")
       )
     )
 
@@ -1130,15 +1111,7 @@ TADA_DefineCriteriaMethodology <- function(
       "Index-Criteria",
       startCol = 27,
       startRow = 1,
-      x = data.frame(
-        Season = c(
-          "Summer",
-          "Fall",
-          "Spring",
-          "Winter",
-          "NA"
-        )
-      )
+      x = data.frame(Season = c("Summer", "Fall", "Spring", "Winter", "NA"))
     )
 
     openxlsx::writeData(

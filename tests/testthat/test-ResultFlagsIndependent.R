@@ -199,10 +199,7 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
       Min_n = length(unique(Minimum)),
       Max_n = length(unique(Maximum))
     ) |>
-    dplyr::filter(
-      Min_n > 1 |
-        Max_n > 1
-    )
+    dplyr::filter(Min_n > 1 | Max_n > 1)
 
   expect_true(nrow(find.dups) == 0)
 })

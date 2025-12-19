@@ -209,10 +209,7 @@ TADA_AdditionalCharAliasForReview <- function(
   ))
 
   WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(
-      CharacteristicName = Name,
-      Char_Flag = Domain.Value.Status
-    ) |>
+    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
     # select the columns of interest from the data frame.
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
 
@@ -247,9 +244,7 @@ TADA_AdditionalCharAliasForReview <- function(
   ATTAINSParamRef <- ATTAINS.raw[, "name", drop = FALSE]
 
   ATTAINSParamRef2 <- ATTAINSParamRef |>
-    dplyr::mutate(
-      name_words = stringr::str_split(name, pattern = " ")
-    ) |>
+    dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% c(" ", "-", "%", "--", "&", "#")) |>
     dplyr::distinct(name, name_words, .keep_all = TRUE)
@@ -316,9 +311,7 @@ TADA_AdditionalCharAliasForReview <- function(
       by = "CharacteristicName",
       relationship = "many-to-many"
     ) |>
-    dplyr::filter(
-      percent_match_WQX + percent_match_ATTAINS_WQX > 1
-    )
+    dplyr::filter(percent_match_WQX + percent_match_ATTAINS_WQX > 1)
 
   # less aggressive (prone to more mistake)
   temp_ATTAINS_WQX <- temp_ATTAINS_WQX |>
@@ -360,9 +353,7 @@ TADA_AdditionalCharAliasForReview <- function(
       by = "POLLUTANT_NAME",
       relationship = "many-to-many"
     ) |>
-    dplyr::filter(
-      percent_match_CST + percent_match_ATTAINS_CST > 1
-    )
+    dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 1)
 
   # remove intermediate variables
   rm(CST, WQXCharacteristicRef)
@@ -390,9 +381,7 @@ TADA_AdditionalCharAliasForReview <- function(
       by = c("name"),
       relationship = "many-to-many"
     ) |>
-    dplyr::mutate(
-      CAS.Number = dplyr::coalesce(CAS.Number, CAS_NO)
-    ) |>
+    dplyr::mutate(CAS.Number = dplyr::coalesce(CAS.Number, CAS_NO)) |>
     dplyr::full_join(
       WQX_CST_CAS_Ref,
       by = c("CAS.Number"),
@@ -527,8 +516,7 @@ TADA_GetATTAINSOrgIDsRef <- function() {
     )))
   }
 
-  ATTAINSOrgIDsRef <- raw.data |>
-    dplyr::distinct()
+  ATTAINSOrgIDsRef <- raw.data |> dplyr::distinct()
 
   # Save updated table in cache
   ATTAINSOrgIDsRef_Cached <- ATTAINSOrgIDsRef

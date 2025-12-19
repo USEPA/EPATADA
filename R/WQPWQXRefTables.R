@@ -250,21 +250,13 @@ TADA_GetDetCondRef <- function() {
 
   ## Add USGS detection conditions not in WQX domain table
   others <- data.frame(
-    Name = c(
-      "*Non-detect",
-      "*Present <QL",
-      "*Present"
-    ),
+    Name = c("*Non-detect", "*Present <QL", "*Present"),
     Description = c(
       "Hard-coded legacy detection condition",
       "Hard-coded legacy detection condition",
       "Hard-coded legacy detection condition"
     ),
-    TADA.Detection_Type = c(
-      "Non-Detect",
-      "Non-Detect",
-      "Non-Detect"
-    ),
+    TADA.Detection_Type = c("Non-Detect", "Non-Detect", "Non-Detect"),
     Last.Change.Date = c(
       "8/7/2023 12:00:00 PM",
       "8/7/2023 12:00:00 PM",
@@ -678,10 +670,7 @@ TADA_GetCharacteristicRef <- function() {
 
   # rename some columns
   WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(
-      CharacteristicName = Name,
-      Char_Flag = Domain.Value.Status
-    ) |>
+    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
 
   # Save updated table in cache
@@ -1195,12 +1184,9 @@ TADA_GetMonLocTypeRef <- function() {
             "Floodwater Urban",
             "Floodwater non-Urban"
           ) ~ as.character("Surface Water"),
-        Name %in%
-          c(
-            "Cave",
-            "Well",
-            "Other-Ground Water"
-          ) ~ as.character("Groundwater")
+        Name %in% c("Cave", "Well", "Other-Ground Water") ~ as.character(
+          "Groundwater"
+        )
       ),
       TADA.Media.Flag = ifelse(is.na(TADA.Media.Flag), "", TADA.Media.Flag)
     ) |>

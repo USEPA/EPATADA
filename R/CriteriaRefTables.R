@@ -45,8 +45,7 @@ TADA_GetCriteriaSearchToolRef <- function() {
       package = "EPATADA"
     )))
   }
-  CriteriaSearchToolRef <- raw.data |>
-    dplyr::distinct()
+  CriteriaSearchToolRef <- raw.data |> dplyr::distinct()
   # Save updated table in cache
   CriteriaSearchToolRef_Cached <- CriteriaSearchToolRef
   CriteriaSearchToolRef
@@ -114,8 +113,7 @@ TADA_GetLegendCSTRef <- function() {
       package = "EPATADA"
     )))
   }
-  LegendCSTRef <- raw.data |>
-    dplyr::distinct()
+  LegendCSTRef <- raw.data |> dplyr::distinct()
   # Save updated table in cache
   LegendCSTRef_Cached <- LegendCSTRef
   LegendCSTRef
@@ -180,8 +178,7 @@ TADA_GetSourcesCSTRef <- function() {
       package = "EPATADA"
     )))
   }
-  SourcesCSTRef <- raw.data |>
-    dplyr::distinct()
+  SourcesCSTRef <- raw.data |> dplyr::distinct()
   # Save updated table in cache
   SourcesCSTRef_Cached <- SourcesCSTRef
   SourcesCSTRef

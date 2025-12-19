@@ -998,14 +998,13 @@ TADA_CreateComparableID <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  .data$TADA.ComparableDataIdentifier <-
-    paste(
-      .data$TADA.CharacteristicName,
-      .data$TADA.ResultSampleFractionText,
-      .data$TADA.MethodSpeciationName,
-      .data$TADA.ResultMeasure.MeasureUnitCode,
-      sep = "_"
-    )
+  .data$TADA.ComparableDataIdentifier <- paste(
+    .data$TADA.CharacteristicName,
+    .data$TADA.ResultSampleFractionText,
+    .data$TADA.MethodSpeciationName,
+    .data$TADA.ResultMeasure.MeasureUnitCode,
+    sep = "_"
+  )
   return(.data)
 }
 
@@ -1330,10 +1329,7 @@ writeLayer <- function(url, layerfilepath) {
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
     layer <- layer |>
-      dplyr::rename(
-        TAREA_MI = TOTALAREA_MI,
-        TAREA_KM = TOTALAREA_KM
-      )
+      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
   }
   sf::st_write(layer, layerfilepath, delete_layer = TRUE)
 }
@@ -1393,13 +1389,12 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' }
 getPopup <- function(layer, layername) {
   text <- paste0("<strong>", layername, "</strong><p>")
-  cols <-
-    c(
-      "TRIBE_NAME" = "Tribe Name",
-      "PARCEL_NO" = "Parcel Number",
-      "EPA_ID" = "EPA ID",
-      "TYPE" = "Type"
-    )
+  cols <- c(
+    "TRIBE_NAME" = "Tribe Name",
+    "PARCEL_NO" = "Parcel Number",
+    "EPA_ID" = "EPA ID",
+    "TYPE" = "Type"
+  )
 
   for (i in seq(1, length(cols))) {
     if (names(cols[i]) %in% colnames(layer)) {
@@ -1458,28 +1453,26 @@ TADA_addPolys <- function(
     areaColumn <- "AREA_KM"
   }
 
-  map <-
-    leaflet::addPolygons(
-      map,
-      data = layer,
-      color = "#A0522D",
-      weight = 0.35,
-      smoothFactor = 0.5,
-      opacity = 1.0,
-      fillOpacity = 0.2,
-      fillColor = ~ leaflet::colorNumeric(
-        "Oranges",
-        layer[[areaColumn]]
-      )(layer[[areaColumn]]),
-      highlightOptions = leaflet::highlightOptions(
-        color = "white",
-        weight = 2,
-        bringToFront = TRUE
-      ),
-      popup = getPopup(layer, layername),
-      group = layergroup,
-      options = leaflet::pathOptions(pane = "featurelayers")
-    )
+  map <- leaflet::addPolygons(
+    map,
+    data = layer,
+    color = "#A0522D",
+    weight = 0.35,
+    smoothFactor = 0.5,
+    opacity = 1.0,
+    fillOpacity = 0.2,
+    fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[
+      areaColumn
+    ]]),
+    highlightOptions = leaflet::highlightOptions(
+      color = "white",
+      weight = 2,
+      bringToFront = TRUE
+    ),
+    popup = getPopup(layer, layername),
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "featurelayers")
+  )
   return(map)
 }
 

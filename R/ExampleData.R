@@ -24,7 +24,8 @@ NULL
 #'                                                  "PUEBLOOFTESUQUE",
 #'                                                  "CNENVSER"),
 #'                                       startDate = "2018-01-01"
-#'                                       endDate = "2023-01-01")
+#'                                       endDate = "2023-01-01",
+#'                                       ask = FALSE)
 #'
 #' This example includes monitoring data collected from Jan 2018 to present
 #' by six organizations:
