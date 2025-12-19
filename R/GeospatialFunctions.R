@@ -3319,6 +3319,9 @@ TADA_FindNearbySites <- function(
     )|>
     dplyr::distinct()
 
+  # convert to sf object
+  unique.mls <- try(TADA_MakeSpatial(unique.mls), silent = TRUE)
+
 
   if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
   # group by ATTAINS.AssessmentUnitIdentifier if required
@@ -3330,21 +3333,7 @@ TADA_FindNearbySites <- function(
 
   # Iterate over each group to compute distance matrices
   grouped.unique.mls.split <- dplyr::group_split(grouped.unique.mls)
-
-
-    purrr::walk(function(group) {
-      # Compute distance matrix for the current group
-      dist_matrix <- as.matrix(sf::st_distance(group))
-
-      # Store the result in a list, using the group value as the name
-      group.value <- unique(.data$ATTAINS.AssessmentUnitIdentifier)
-      distance.matrices[[as.character(group.value)]] <- dist_matrix
-    })
-
   }
-
-  # convert to sf object
-  unique.mls <- TADA_MakeSpatial(unique.mls)
 
   # create a distance matrix in meters
   dist.matrix <- as.matrix(sf::st_distance(unique.mls)) # Great Circle distance since in lat/lon
