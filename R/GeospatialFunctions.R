@@ -2717,11 +2717,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       ) |>
       leaflet.extras::addResetMapButton()
 
+    # Initialize vectors to hold the names of groups we actually add
+    overlay_groups <- character(0)
     # Add ATTAINS catchment outlines (if they exist):
-    try(
+    try({
       map <- map |>
         leaflet::addPolygons(
           data = ATTAINS_catchments,
+          group = "ATTAINS catchments",
           color = "black",
           fillColor = "grey",
           weight = 1,
@@ -2730,15 +2733,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             "NHDPlus HR Catchment ID: ",
             ATTAINS_catchments$nhdplusid
           )
-        ),
+        )
+        overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+      },
       silent = TRUE
     )
 
     # Add ATTAINS catchment outlines as AUs:
-    try(
+    try({
       map <- map |>
         leaflet::addPolygons(
           data = missing_raw_mapper,
+          group = "ATTAINS outlines",
           color = ~ missing_raw_mapper$col,
           fill = ~ missing_raw_mapper$col,
           weight = 3,
@@ -2758,7 +2764,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             "<br> NHDPlus HR Catchment ID: ",
             missing_raw_mapper$nhdplusid
           )
-        ),
+        )
+        overlay_groups <- c(overlay_groups, "ATTAINS outlines")
+      },
       silent = TRUE
     )
 
@@ -2771,10 +2779,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add missing catchment outlines (if they exist):
-    try(
+    try({
       map <- map |>
         leaflet::addPolygons(
           data = without_ATTAINS_catchments,
+          group = "missing ATTAINS catchment outlines",
           color = "black",
           weight = 1,
           fillOpacity = 0,
@@ -2783,15 +2792,21 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             " catchment ID: ",
             without_ATTAINS_catchments$nhd
           )
-        ),
+      )
+        overlay_groups <- c(
+          overlay_groups,
+          "missing ATTAINS catchment outlines"
+        )
+    },
       silent = TRUE
-    )
+  )
 
     # Add ATTAINS polygon features (if they exist):
-    try(
+    try({
       map <- map |>
         leaflet::addPolygons(
           data = polygons_mapper,
+          group = "ATTAINS polygon features",
           color = ~ polygons_mapper$col,
           fill = ~ polygons_mapper$col,
           weight = 3,
@@ -2809,15 +2824,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             polygons_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
-        ),
+        )
+        overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
+      },
       silent = TRUE
     )
 
     # Add ATTAINS lines features (if they exist):
-    try(
+    try({
       map <- map |>
         leaflet::addPolylines(
           data = lines_mapper,
+          group = "ATTAINS line features",
           color = ~ lines_mapper$col,
           weight = 4,
           fillOpacity = 1,
@@ -2834,16 +2852,18 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             lines_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
-        ),
+        )
+        overlay_groups <- c(overlay_groups, "ATTAINS line features")
+      },
       silent = TRUE
     )
 
     try(
       pointIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
-          points_mapper$overall == "Fully Supporting" ~ images[12],
-          points_mapper$overall == "Not Supporting" ~ images[11],
-          points_mapper$overall == "Not Assessed" ~ images[13]
+          points_mapper$overallstatus == "Fully Supporting" ~ images[12],
+          points_mapper$overallstatus == "Not Supporting" ~ images[11],
+          points_mapper$overallstatus == "Not Assessed" ~ images[13]
         ),
         iconWidth = 48,
         iconHeight = 48
@@ -2852,10 +2872,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add ATTAINS point features (if they exist):
-    try(
+    try({
       map <- map |>
         leaflet::addMarkers(
           data = points_mapper,
+          group = "ATTAINS point features",
           lng = ~X,
           lat = ~Y,
           icon = pointIcons,
@@ -2872,7 +2893,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             points_mapper$waterbodyreportlink,
             " target='_blank'>ATTAINS Link</a>"
           )
-        ),
+        )
+        overlay_groups <- c(overlay_groups, "ATTAINS point features")
+      },
       silent = TRUE
     )
 
@@ -2943,10 +2966,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           )
 
           # markers and popup for missing geometry to map
-          try(
+          try({
             map <- map |>
               leaflet::addMarkers(
                 data = missing.geo,
+                group = "not in ATTAINS",
                 lng = ~TADA.LongitudeMeasure,
                 lat = ~TADA.LatitudeMeasure,
                 icon = missingIcon,
@@ -2960,7 +2984,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
                   "<br> Assessment Unit Type: ",
                   "not available in ATTAINS"
                 )
-              ),
+              )
+              overlay_groups <- c(overlay_groups, "not in ATTAINS")
+            },
             silent = TRUE
           )
         }
@@ -3054,10 +3080,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add WQP observation features (should always exist):
-    try(
+    try({
       map <- map |>
         leaflet::addMarkers(
           data = sumdat,
+          group = "WQP Obersvations",
           lng = ~TADA.LongitudeMeasure,
           lat = ~TADA.LatitudeMeasure,
           icon = leaflet::icons(
@@ -3066,13 +3093,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
             iconHeight = 24
           ),
           popup = set.popup
-        ),
+        )
+      overlay_groups <- c(overlay_groups, "WQP Obersvations")
+    },
       silent = TRUE
     )
 
     # remove intermediate objects
     rm(wqp.urls, set.popup)
-
     # add legend to map
     map <- map |>
       leaflegend::addLegendImage(
@@ -3092,7 +3120,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # remove intermediate objects
     rm(images.ref, leg.labels)
-
     # add button to toggle map legend on/off
     map <- htmlwidgets::onRender(
       map,
@@ -3122,7 +3149,17 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }
 "
     )
-
+    # add layer control to map
+    if (length(overlay_groups) > 0) {
+      overlay_groups <- unique(overlay_groups)
+      map <- map |>
+        leaflet::addLayersControl(
+          baseGroups = c("World topo"), # Always include a base group
+          overlayGroups = overlay_groups,
+          position = "bottomleft",
+          options = leaflet::layersControlOptions(collapsed = TRUE)
+        )
+    }
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
