@@ -1125,9 +1125,7 @@ TADA_ParametersForAnalysis <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(
-          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
-        )
+        org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
 
@@ -2091,9 +2089,7 @@ TADA_UsesForAnalysis <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(
-          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
-        )
+        org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
 
@@ -3009,9 +3005,7 @@ TADA_AssignUsesToAU <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(
-          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
-        )
+        org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
 
@@ -3374,9 +3368,7 @@ TADA_AssignUsesToWaterType <- function(
         "org_id == 'All' was selected, ",
         "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
       ))
-      org_id <- unique(
-        stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
-      )
+      org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
     }
   }
 

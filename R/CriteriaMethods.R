@@ -268,9 +268,7 @@ TADA_DefineCriteriaMethodology <- function(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
-        org_id <- unique(
-          stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier)
-        )
+        org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
       }
     }
 
@@ -359,9 +357,10 @@ TADA_DefineCriteriaMethodology <- function(
 
       unique_param <- unique(.data$TADA.CharacteristicName)
       # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
-      TADA_param <- dplyr::distinct(
-        .data[, c("TADA.ComparableDataIdentifier"), drop = FALSE]
-      ) |>
+      TADA_param <- dplyr::distinct(.data[,
+        c("TADA.ComparableDataIdentifier"),
+        drop = FALSE
+      ]) |>
         dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
         tidyr::complete(
           TADA.ComparableDataIdentifier,
@@ -371,10 +370,7 @@ TADA_DefineCriteriaMethodology <- function(
 
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
       MLSummaryRef <- TADA_param |>
-        dplyr::full_join(
-          MLSummaryRef,
-          by = names(TADA_param)
-        )
+        dplyr::full_join(MLSummaryRef, by = names(TADA_param))
 
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
@@ -561,34 +557,32 @@ TADA_DefineCriteriaMethodology <- function(
           )
         ) |>
         # dplyr::filter(!dplyr::if_all(c(UniqueSpatialCriteria, ATTAINS.WaterType), is.na)) |>
-        dplyr::bind_cols(
-          data.frame(
-            TADA.ResultSampleFractionText = as.character(NA),
-            TADA.MethodSpeciationName = as.character(NA),
-            AcuteChronic = as.character(NA),
-            # Criteria Columns
-            EquationBased = as.character(NA),
-            MagnitudeValueLower = as.numeric(NA),
-            MagnitudeValueUpper = as.numeric(NA),
-            MagnitudeUnit = as.character(NA),
-            DurationValue = as.numeric(NA),
-            DurationUnit = as.character(NA),
-            DurationMethod = as.character(NA),
-            FreqValue = as.numeric(NA),
-            FreqMethod = as.character(NA),
-            # Data Sufficiency Columns
-            AssessPeriod = as.character(NA),
-            AssessPeriodStartDate = as.Date(NA),
-            AssessPeriodEndDate = as.Date(NA),
-            Season = as.character(NA),
-            SeasonStartDate = as.Date(NA),
-            SeasonEndDate = as.Date(NA),
-            DistrCount = as.numeric(NA),
-            DistrPeriod = as.character(NA),
-            DistrMinSample = as.numeric(NA),
-            Notes = as.character(NA)
-          )
-        ) |>
+        dplyr::bind_cols(data.frame(
+          TADA.ResultSampleFractionText = as.character(NA),
+          TADA.MethodSpeciationName = as.character(NA),
+          AcuteChronic = as.character(NA),
+          # Criteria Columns
+          EquationBased = as.character(NA),
+          MagnitudeValueLower = as.numeric(NA),
+          MagnitudeValueUpper = as.numeric(NA),
+          MagnitudeUnit = as.character(NA),
+          DurationValue = as.numeric(NA),
+          DurationUnit = as.character(NA),
+          DurationMethod = as.character(NA),
+          FreqValue = as.numeric(NA),
+          FreqMethod = as.character(NA),
+          # Data Sufficiency Columns
+          AssessPeriod = as.character(NA),
+          AssessPeriodStartDate = as.Date(NA),
+          AssessPeriodEndDate = as.Date(NA),
+          Season = as.character(NA),
+          SeasonStartDate = as.Date(NA),
+          SeasonEndDate = as.Date(NA),
+          DistrCount = as.numeric(NA),
+          DistrPeriod = as.character(NA),
+          DistrMinSample = as.numeric(NA),
+          Notes = as.character(NA)
+        )) |>
         dplyr::select(
           desired_cols # defined in beginning of code
         ) |>
@@ -774,13 +768,11 @@ TADA_DefineCriteriaMethodology <- function(
         "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
       ))
 
-      epa304a <- utils::read.csv(
-        system.file(
-          "extdata",
-          "EPA304a_criteria_table.csv",
-          package = "EPATADA"
-        )
-      )
+      epa304a <- utils::read.csv(system.file(
+        "extdata",
+        "EPA304a_criteria_table.csv",
+        package = "EPATADA"
+      ))
 
       # read in ref csv
       coltype.ref <- utils::read.csv(system.file(
@@ -790,9 +782,9 @@ TADA_DefineCriteriaMethodology <- function(
       ))
 
       epa304a <- suppressWarnings(correctColType(epa304a)) |>
-        dplyr::select(
-          names(epa304a)[names(epa304a) %in% coltype.ref$column_name]
-        ) |>
+        dplyr::select(names(epa304a)[
+          names(epa304a) %in% coltype.ref$column_name
+        ]) |>
         dplyr::filter(
           TADA.CharacteristicName %in%
             DefineCriteriaMethodology$TADA.CharacteristicName
