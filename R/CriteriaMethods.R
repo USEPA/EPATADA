@@ -799,7 +799,7 @@ TADA_DefineCriteriaMethodology <- function(
         )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        rbind(epa304a)
+        plyr::rbind.fill(epa304a)
     }
 
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
