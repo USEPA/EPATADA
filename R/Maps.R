@@ -124,17 +124,11 @@ TADA_OverviewMap <- function(.data) {
       # set color palette
       # set color palette for small number of characteristics (even intervals, no bins)
       if (length(unique(param_diff)) == 1 & param_length < 10) {
-        pal <- leaflet::colorFactor(
-          palette = tada.blues,
-          levels = param_counts
-        )
+        pal <- leaflet::colorFactor(palette = tada.blues, levels = param_counts)
       } else if (length(unique(param_counts)) == 1) {
         pal <- "orange"
       } else {
-        pal <- leaflet::colorBin(
-          palette = tada.blues,
-          bins = pretty.breaks
-        )
+        pal <- leaflet::colorBin(palette = tada.blues, bins = pretty.breaks)
       }
       # create custom fill color function so that data sets with one value for parameter count are displayed correctly
       customFillColor <- function(category, pal) {
@@ -156,8 +150,7 @@ TADA_OverviewMap <- function(.data) {
         ),
         crs = sf::st_crs(sumdat)
       )
-      vbbox <- bbox |>
-        as.vector()
+      vbbox <- bbox |> as.vector()
       map <- leaflet::leaflet() |>
         leaflet::addProviderTiles(
           "Esri.WorldTopoMap",

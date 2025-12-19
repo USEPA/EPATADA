@@ -75,9 +75,7 @@ r_files <- list.files(
 )
 
 # combine file lists
-files <- append(other_files, vignettes) |>
-  append(articles) |>
-  append(r_files)
+files <- append(other_files, vignettes) |> append(articles) |> append(r_files)
 
 # create list of urls
 urls <- purrr::map(files, ~ readLines(.x)) |>
@@ -142,10 +140,7 @@ find.dups <- unit.ref |>
     Min_n = length(unique(Minimum)),
     Max_n = length(unique(Maximum))
   ) |>
-  dplyr::filter(
-    Min_n > 1 |
-      Max_n > 1
-  )
+  dplyr::filter(Min_n > 1 | Max_n > 1)
 
 # create download path
 download.path <- file.path(

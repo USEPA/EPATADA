@@ -44,9 +44,7 @@ testthat::test_that("TADA_MakeSpatial handles custom CRS correctly", {
 testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   # Test with data that's missing required columns
   invalid_data <- data.frame(a = 1, b = 2)
-  testthat::expect_error(
-    TADA_MakeSpatial(.data = invalid_data)
-  )
+  testthat::expect_error(TADA_MakeSpatial(.data = invalid_data))
 
   # Test with data that's already spatial
   testthat::expect_error(
@@ -55,9 +53,7 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   )
 
   # Test with NULL data
-  testthat::expect_error(
-    TADA_MakeSpatial(.data = NULL)
-  )
+  testthat::expect_error(TADA_MakeSpatial(.data = NULL))
 })
 
 testthat::test_that("fetchATTAINS fails with appropriate errors", {

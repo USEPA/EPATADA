@@ -998,14 +998,13 @@ TADA_CreateComparableID <- function(.data) {
     return(NULL) # Exit the function early
   }
 
-  .data$TADA.ComparableDataIdentifier <-
-    paste(
-      .data$TADA.CharacteristicName,
-      .data$TADA.ResultSampleFractionText,
-      .data$TADA.MethodSpeciationName,
-      .data$TADA.ResultMeasure.MeasureUnitCode,
-      sep = "_"
-    )
+  .data$TADA.ComparableDataIdentifier <- paste(
+    .data$TADA.CharacteristicName,
+    .data$TADA.ResultSampleFractionText,
+    .data$TADA.MethodSpeciationName,
+    .data$TADA.ResultMeasure.MeasureUnitCode,
+    sep = "_"
+  )
   return(.data)
 }
 
@@ -1330,10 +1329,7 @@ writeLayer <- function(url, layerfilepath) {
   # truncated, so explicitly rename them first if they exist to avoid error.
   if ("TOTALAREA_MI" %in% colnames(layer)) {
     layer <- layer |>
-      dplyr::rename(
-        TAREA_MI = TOTALAREA_MI,
-        TAREA_KM = TOTALAREA_KM
-      )
+      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
   }
   sf::st_write(layer, layerfilepath, delete_layer = TRUE)
 }
