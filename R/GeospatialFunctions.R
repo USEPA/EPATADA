@@ -3186,8 +3186,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' is used to identify groups of nearby sites within the same catchment.
 #' Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
 #' which is created by concatenating the original
-#' TADA.MonitoringLocationIdentifiers of all sites within the group. Two
-#' additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
+#' TADA.MonitoringLocationIdentifiers of all sites within the group. If the
+#' ATTAINS.AssessmentUnitIdentifier column in present, the default is
+#' only monitoring locations within the same assessment unit will be grouped together.
+#' It is recommended to assign monitoring locations to assessment units before running
+#' this function. If ATTAINS.AssessmentUnitIdentifier is present and the user does not
+#' want it to be factored into to nearby site groupings, the by_AU param can be set to
+#' FALSE. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
 #' TADA.NearbySiteGroup contains a unique numeric value for each group of sites
 #' within the same catchment. TADA.NearbySites.Flag identifies whether or not
 #' a result is from a grouped site or not and for grouped sites identifies how
@@ -3221,6 +3226,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' the grouped nearby sites, "count" which selects the metadata associated with
 #' the greatest number of results, and "random" which selects random metadata
 #' from the site group. The default is meta_select = "random".
+#'
+#' @param
 #'
 #' @return Input dataframe with a TADA.SiteGroup column that indicates the
 #' nearby site group each monitoring location belongs to. Grouped sites are
@@ -3260,7 +3267,8 @@ TADA_FindNearbySites <- function(
   dist_buffer = 100,
   nhd_res = "Hi",
   org_hierarchy = "none",
-  meta_select = "random"
+  meta_select = "random",
+  by_AU = TRUE
 ) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
@@ -3271,15 +3279,64 @@ TADA_FindNearbySites <- function(
   TADA_CheckColumns(.data, expected_cols)
   rm(expected_cols)
 
+
+  # create base list of columns for fiding nearby sites
+  nearby.cols <- c("TADA.MonitoringLocationIdentifier",
+                   "TADA.LongitudeMeasure",
+                   "TADA.LatitudeMeasure",
+                   "HorizontalCoordinateReferenceSystemDatumName")
+
+  # set up grouping cols
+  grouping.cols <- c("Group")
+
+  # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
+  # and status of by_AU param
+  if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+
+    if(by_AU == TRUE) {
+
+    print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit.")
+
+      nearby.cols <- append(nearby.cols, "ATTAINS.AssessmentUnitIdentifier")
+
+      grouping.cols <- append(grouping.cols, "ATTAINS.AssessmentUnitIdentifier")
+
+    }
+
+      else {
+        print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites.")
+      }
+  } else {
+    print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is not present. Monitoring Location groupings cannot consider assessment unit.")
+
+    }
+
   # retain only necessary columns unique Monitoring Locations
   unique.mls <- .data |>
     dplyr::select(
-      TADA.MonitoringLocationIdentifier,
-      TADA.LongitudeMeasure,
-      TADA.LatitudeMeasure,
-      HorizontalCoordinateReferenceSystemDatumName
-    ) |>
+      dplyr::all_of(nearby.cols
+    )
+    )|>
     dplyr::distinct()
+
+  # group by ATTAINS.AssessmentUnitIdentifier if required
+  grouped.unique.mls <- unique.mls |>
+    dplyr::group_by(ATTAINS.AssessmentUnitIdentifier)
+
+  # Initialize a list to store distance matrices for each group
+  distance.matrices <- list()
+
+  # Iterate over each group to compute distance matrices
+  grouped.unique.mls |>
+    dplyr::group_split() |>
+    purrr::walk(function(group) {
+      # Compute distance matrix for the current group
+      dist_matrix <- as.matrix(sf::st_distance(group))
+
+      # Store the result in a list, using the group value as the name
+      group.value <- unique(group$ATTAINS.AssessmentUnitIdentifier)
+      distance.matrices[[as.character(group.value)]] <- dist_matrix
+    })
 
   # convert to sf object
   unique.mls <- TADA_MakeSpatial(unique.mls)
