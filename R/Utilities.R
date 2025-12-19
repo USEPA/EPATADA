@@ -1396,9 +1396,9 @@ getTribalPopup <- function(layer, layername) {
 
   # select and rename cols
   cols <- c(
-    "TRIBE_N" = "Tribe Name",
+    "TRIBE_N" = "Tribe",
     "STATE" = "State",
-    "REGION" = "Region",
+    "REGION" = "EPA Region",
     "AWATER_M" = "Water Area (sq miles)",
     "ALAND_M" = "Land Area (sq miles)",
     "TOTALAREA_M" = "Total Area (sq miles)",
