@@ -47,8 +47,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
 
   # remove method speciation from data.units
-  data.units <- data.units |>
-    dplyr::select(-TADA.MethodSpeciationName)
+  data.units <- data.units |> dplyr::select(-TADA.MethodSpeciationName)
 
   # import USGS default unit ref
   usgs.ref <- TADA_GetUSGSSynonymRef()
@@ -154,9 +153,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       TADA.Target.ResultMeasure.MeasureUnitCode = toupper(Target.Unit),
       TADA.ResultMeasure.MeasureUnitCode = toupper(tada.unit.ref$Code)
     ) |>
-    dplyr::rename(
-      MeasureUnitCode.match = TADA.ResultMeasure.MeasureUnitCode
-    ) |>
+    dplyr::rename(MeasureUnitCode.match = TADA.ResultMeasure.MeasureUnitCode) |>
     dplyr::select(-Target.Unit, -Code, -Last.Change.Date)
 
   # create df of TADA priority targets with TADA specific conversions
@@ -323,9 +320,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   rm(mult.target.chars)
 
   # remove intermediate columns tada.all df
-  tada.all <- tada.all |>
-    dplyr::select(-CharUnit) |>
-    dplyr::distinct()
+  tada.all <- tada.all |> dplyr::select(-CharUnit) |> dplyr::distinct()
 
   # return reference table for use in unit conversion functions or for more editing by user
   return(tada.all)
@@ -484,8 +479,9 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     .data <- .data
   } else {
     # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
-      toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- toupper(
+      .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+    )
   }
 
   expected_cols <- c(
@@ -554,8 +550,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
   # create df of all results without method speciation in units
-  other.results <- .data |>
-    dplyr::anti_join(usgs.results, by = colnames(.data))
+  other.results <- .data |> dplyr::anti_join(usgs.results, by = colnames(.data))
 
   # internal functions
   # internal function to join unit.ref to data
@@ -582,13 +577,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
       # remove existing conversion columns
       dplyr::select(-tidyselect::any_of(c(conversion.cols))) |>
       # add new conversion columns
-      dplyr::left_join(
-        ref,
-        by = c(
-          ref.join
-        ),
-        relationship = "many-to-many"
-      )
+      dplyr::left_join(ref, by = c(ref.join), relationship = "many-to-many")
   }
 
   # internal function add TADA.WQXResultUnitConversion flag column
@@ -663,8 +652,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     }
 
     # remove any duplicates in user supplied ref
-    unit.ref <- ref |>
-      dplyr::distinct()
+    unit.ref <- ref |> dplyr::distinct()
 
     # create usgs specific ref if any results have method speciation in result units
     if (dim(usgs.results)[1] > 0) {
@@ -734,8 +722,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
     if (ref == "tada") {
       unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
 
-      unit.ref <- unit.ref |>
-        dplyr::distinct()
+      unit.ref <- unit.ref |> dplyr::distinct()
 
       if (dim(usgs.results)[1] > 0) {
         unit.ref.usgs <- createUSGSUnitRef(
@@ -782,10 +769,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
             MeasureUnitCode.match
           )
         ) |>
-        dplyr::left_join(
-          wqx.ref,
-          by = dplyr::join_by(MeasureUnitCode.match)
-        ) |>
+        dplyr::left_join(wqx.ref, by = dplyr::join_by(MeasureUnitCode.match)) |>
         dplyr::select(-MeasureUnitCode.match) |>
         dplyr::distinct()
 
