@@ -107,6 +107,7 @@ Suggests:
     rvest,
     remotes,
     covr,
+    here,
     httr2 (>= 1.2.1),
     roxygen2
 Remotes:
