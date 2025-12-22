@@ -156,7 +156,9 @@ WQP_clean <- TADA_FindNearbySites(
   dist_buffer = 100,
   nhd_res = "Hi",
   org_hierarchy = "none",
-  meta_select = "random"
+  meta_select = "random",
+  by_AU = FALSE,
+  catchment = FALSE
 )
 
 TADA_NearbySitesMap(WQP_clean)
