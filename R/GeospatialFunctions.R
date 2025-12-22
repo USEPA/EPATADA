@@ -2637,7 +2637,7 @@ TADA_FindNearbySites <- function(
       )
 
       # create crosswalk for monitoring locations and assessment units
-      au.ml.cw <- .data %>%
+      au.ml.cw <- .data |>
         dplyr::select(
           TADA.MonitoringLocationIdentifier,
           ATTAINS.AssessmentUnitIdentifier
