@@ -16,7 +16,7 @@ TADA_AnalysisDataFilter(
 \arguments{
 \item{.data}{A data frame representing a TADA profile object.}
 
-\item{clean}{Logical. If \code{TRUE}, removes rows not flagged for analysis. Default is \code{FALSE}.}
+\item{clean}{Logical. If \code{TRUE}, removes rows that are not flagged for inclusion Default is \code{FALSE}.}
 
 \item{surface_water}{Logical. If \code{TRUE}, surface water results are flagged for inclusion. Default is \code{TRUE}.}
 
@@ -24,7 +24,7 @@ TADA_AnalysisDataFilter(
 
 \item{sediment}{Logical. If \code{TRUE}, sediment results are flagged for inclusion. Default is \code{FALSE}.}
 
-\item{other}{Logical. If \code{TRUE}, "other" results are flagged for inclusion. Default is \code{FALSE}.}
+\item{other}{Logical. If \code{TRUE}, "other" results are flagged for inclusion. Default is \code{TRUE}.}
 }
 \value{
 A data frame. If \code{clean = TRUE}, only rows flagged for inclusion are returned.

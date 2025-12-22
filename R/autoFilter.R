@@ -255,11 +255,11 @@ TADA_FieldValuesTable <- function(
 #' should be included or excluded.
 #'
 #' @param .data A data frame representing a TADA profile object.
-#' @param clean Logical. If `TRUE`, removes rows not flagged for analysis. Default is `FALSE`.
+#' @param clean Logical. If `TRUE`, removes rows that are not flagged for inclusion Default is `FALSE`.
 #' @param surface_water Logical. If `TRUE`, surface water results are flagged for inclusion. Default is `TRUE`.
 #' @param ground_water Logical. If `TRUE`, groundwater results are flagged for inclusion. Default is `FALSE`.
 #' @param sediment Logical. If `TRUE`, sediment results are flagged for inclusion. Default is `FALSE`.
-#' @param other Logical. If `TRUE`, "other" results are flagged for inclusion. Default is `FALSE`.
+#' @param other Logical. If `TRUE`, "other" results are flagged for inclusion. Default is `TRUE`.
 #'
 #' @return A data frame. If `clean = TRUE`, only rows flagged for inclusion are returned. 
 #' If `clean = FALSE`, all rows are returned with additional `TADA.UseForAnalysis.Flag` and 
@@ -310,7 +310,7 @@ TADA_AnalysisDataFilter <- function(
     sediment = FALSE,
     other = TRUE
 ) {
-
+  
   # Check if .data is a data frame
   if (!is.data.frame(.data)) {
     stop("Input object must be a data frame.")
@@ -334,17 +334,13 @@ TADA_AnalysisDataFilter <- function(
     .data$ActivityMediaName <- NA_character_
   }
   
-  # Import monitoring location types and their associated media flags
+  # Import monitoring location types and their associated media flags (and uppercase for join)
   monitoring_location_types <- utils::read.csv(
     system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")
-  ) |>
-  # Import monitoring location types and their associated media flags
-  monitoring_location_types <- utils::read.csv(system.file(
-    "extdata",
-    "WQXMonitoringLocationTypeNameRef.csv",
-    package = "EPATADA"
-  )) |>
-
+  )
+  monitoring_location_types <- monitoring_location_types |>
+    dplyr::mutate(MonitoringLocationTypeName = toupper(MonitoringLocationTypeName))
+  
   # Uppercase MonitoringLocationTypeName in .data so join works reliably
   .data <- .data |>
     dplyr::mutate(MonitoringLocationTypeName = toupper(MonitoringLocationTypeName))
@@ -363,77 +359,43 @@ TADA_AnalysisDataFilter <- function(
   }
   .data$gw_has_fields <- gw_has_fields
   
-  # Add TADA.Media.Flag column based on various criteria
+  # Add TADA.Media.Flag column based on various criteria, then fill from monitoring location ref
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        ActivityMediaSubdivisionName == "Groundwater" ~ "GROUNDWATER",
-
-        !is.na(AquiferName) |
-          !is.na(AquiferTypeName) |
-          !is.na(LocalAqfrName) |
-          !is.na(ConstructionDateText) |
-          !is.na(WellDepthMeasure.MeasureValue) |
-          !is.na(WellDepthMeasure.MeasureUnitCode) |
-          !is.na(WellHoleDepthMeasure.MeasureValue) |
-          !is.na(WellHoleDepthMeasure.MeasureUnitCode) ~ "GROUNDWATER",
+        ActivityMediaSubdivisionName == "Groundwater" | gw_has_fields ~ "GROUNDWATER",
         ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
-        !ActivityMediaName %in% c("WATER", "Water", "water") ~ toupper(ActivityMediaName),
-        TRUE ~ "OTHER"  # Default case for any unmatched values
+        !is.na(ActivityMediaName) & !ActivityMediaName %in% c("WATER", "Water", "water") ~ toupper(ActivityMediaName),
+        TRUE ~ NA_character_
       )
     ) |>
     dplyr::left_join(monitoring_location_types, by = "MonitoringLocationTypeName") |>
     dplyr::mutate(
-
-      TADA.Media.Flag = coalesce(TADA.Media.Flag, ML.Media.Flag, "OTHER"),
+      TADA.Media.Flag = dplyr::coalesce(TADA.Media.Flag, ML.Media.Flag, "OTHER"),
       TADA.Media.Flag = toupper(TADA.Media.Flag)
     ) |>
     dplyr::select(-ML.Media.Flag)
-  
-  # Define inclusion/exclusion flags for each media type
-  flags <- list(
-    "SEDIMENT" = ifelse(sediment, "Include", "Exclude"),
-    "SURFACE WATER" = ifelse(surface_water, "Include", "Exclude"),
-    "GROUNDWATER" = ifelse(ground_water, "Include", "Exclude"),
-    "OTHER" = ifelse(other, "Include", "Exclude")
-  )
   
   # Add TADA.UseForAnalysis.Flag column based on media flags
   .data <- .data |>
     dplyr::mutate(
       TADA.UseForAnalysis.Flag = dplyr::case_when(
-
-        TADA.Media.Flag == "SEDIMENT" ~ paste0(
-          sed.flag,
-          " - ",
-          TADA.Media.Flag
-        ),
-        TADA.Media.Flag == "SURFACE WATER" ~ paste0(
-          sur.water.flag,
-          " - ",
-          TADA.Media.Flag == "GROUNDWATER" ~ paste0(
-            gr.water.flag,
-            " - ",
-            TADA.Media.Flag
-          ),
-          TADA.Media.Flag == "OTHER" ~ paste0(other.flag, " - ", TADA.Media.Flag),
-          !TADA.Media.Flag %in%
-            c("SEDIMENT", "SURFACE WATER", "GROUNDWATER", "OTHER") ~ paste(
-              "No - ",
-              TADA.Media.Flag,
-              sep = ""
-            )
-        )
-
+        TADA.Media.Flag == "SEDIMENT" ~ paste0(ifelse(sediment, "Include", "Exclude"), " - ", TADA.Media.Flag),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste0(ifelse(surface_water, "Include", "Exclude"), " - ", TADA.Media.Flag),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste0(ifelse(ground_water, "Include", "Exclude"), " - ", TADA.Media.Flag),
+        TADA.Media.Flag == "OTHER" ~ paste0(ifelse(other, "Include", "Exclude"), " - ", TADA.Media.Flag),
+        TRUE ~ paste0("Exclude - ", TADA.Media.Flag)
+      )
+    )
+  
   if (clean) {
     # Filter out rows not flagged for inclusion and remove flag columns
     .data <- .data |>
-
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Include")) |>
       dplyr::select(-c(TADA.UseForAnalysis.Flag, TADA.Media.Flag)) |>
       TADA_OrderCols()
     
-    message("TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments.")
+    message("TADA_AnalysisDataFilter: Removing results flagged for exclusion from analyses.")
   } else {
     # Return all rows with flag columns
     .data <- .data |>
