@@ -1374,7 +1374,7 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 }
 
 #' Get text for tribal marker popup
-#' getPopup is used within TADA_addPolys and TADA_addPoints
+#' getTribalPopup is used within TADA_addPolys and TADA_addPoints
 #'
 #' @param layer A map feature layer
 #' @param layername Name of the layer
@@ -1385,32 +1385,62 @@ getLayer <- function(layerfilepath, bbox = NULL) {
 #' # Get the Oklahoma Tribal Statistical Areas feature layer
 #' layer <- getLayer("extdata/OKTribe.shp")
 #' # Get popup text for individual markers
-#' getPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' }
-getPopup <- function(layer, layername) {
-  text <- paste0("<strong>", layername, "</strong><p>")
+getTribalPopup <- function(layer, layername) {
+  popups <- vector("character", nrow(layer))
+
+  # select and rename cols
   cols <- c(
-    "TRIBE_NAME" = "Tribe Name",
-    "PARCEL_NO" = "Parcel Number",
-    "EPA_ID" = "EPA ID",
-    "TYPE" = "Type"
+    "TRIBE_N" = "Tribe",
+    "STATE" = "State",
+    "REGION" = "EPA Region",
+    "AWATER_M" = "Water Area (sq miles)",
+    "ALAND_M" = "Land Area (sq miles)",
+    "TOTALAREA_M" = "Total Area (sq miles)",
+    "EPA_ID" = "EPA ID"
   )
 
-  for (i in seq(1, length(cols))) {
-    if (names(cols[i]) %in% colnames(layer)) {
-      text <- paste0(
-        text,
-        "<strong>",
-        cols[i],
-        "</strong>: ",
-        layer[[names(cols[i])]],
-        "<br>"
-      )
-    }
-  }
-  return(text)
-}
+  # create popup text for each polygon
+  for (j in seq_len(nrow(layer))) {
+    text <- paste0("<strong>", layername, "</strong><p>")
 
+    for (i in seq_along(cols)) {
+      col_name <- names(cols[i])
+
+      if (col_name %in% colnames(layer)) {
+        value <- layer[j, col_name, drop = TRUE]
+
+        # if col is "REGION", process the semicolon-delimited string
+        if (col_name == "REGION") {
+          # split the string by semicolon, get unique values, and join them back
+          value <- unique(unlist(strsplit(value, ";\\s*")))
+        }
+
+        # if the col contains an area, round the value
+        if (col_name %in% c("AWATER_M", "ALAND_M", "TOTALAREA_M")) {
+          # round to two decimal places
+          value <- round(value, digits = 2)
+        }
+
+        value_str <- paste(value, collapse = ", ")
+
+        text <- paste0(
+          text,
+          "<strong>",
+          cols[i],
+          "</strong>: ",
+          value_str,
+          "<br>"
+        )
+      }
+    }
+
+    popups[j] <- text
+  }
+
+  return(popups)
+}
 
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
@@ -1469,7 +1499,7 @@ TADA_addPolys <- function(
       weight = 2,
       bringToFront = TRUE
     ),
-    popup = getPopup(layer, layername),
+    popup = getTribalPopup(layer, layername),
     group = layergroup,
     options = leaflet::pathOptions(pane = "featurelayers")
   )
@@ -1531,7 +1561,7 @@ TADA_addPoints <- function(
       popupAnchorX = 20,
       popupAnchorY = 0
     ),
-    popup = getPopup(layer, layername),
+    popup = getTribalPopup(layer, layername),
     group = layergroup,
     options = leaflet::pathOptions(pane = "featurelayers")
   )

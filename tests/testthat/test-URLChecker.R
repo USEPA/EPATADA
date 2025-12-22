@@ -56,10 +56,23 @@ suppressWarnings(test_that("URLs are not broken", {
       stringr::str_remove_all("[<>]")
   }
 
-  file_path <- file.path(Sys.getenv("GITHUB_WORKSPACE"), "data", "yourfile.txt")
-
   # get workspace directory
   workspace_dir <- Sys.getenv("GITHUB_WORKSPACE")
+
+  if (workspace_dir == "") {
+    if (requireNamespace("here", quietly = TRUE)) {
+      workspace_dir <- here::here() # project root (preferred if you use RStudio projects)
+    } else {
+      workspace_dir <- getwd() # current working directory
+    }
+  }
+
+  # normalize path
+  workspace_dir <- normalizePath(
+    workspace_dir,
+    winslash = "/",
+    mustWork = FALSE
+  )
 
   # create lists of files to check for URLs
   other_files <- c(
@@ -127,20 +140,19 @@ suppressWarnings(test_that("URLs are not broken", {
         !grepl("302", response_code)
     )
 
-  # count number of failed responses
-  func.cols <- df_false |> dplyr::filter(urls %in% func.urls) |> nrow()
-
-  n.func.cols <- nrow(func.cols)
-
-  if (is.null(n.func.cols)) {
-    n.func.cols <- 0
-  }
-
   other.cols <- df_false |> dplyr::filter(!urls %in% func.urls)
 
   n.other.cols <- nrow(other.cols)
 
   if (is.null(n.other.cols)) {
+    n.other.cols <- 0
+  }
+
+  func.cols <- df_false |> dplyr::filter(urls %in% func.urls)
+
+  n.func.cols <- nrow(func.cols)
+
+  if (is.null(n.func.cols)) {
     n.func.cols <- 0
   }
 
@@ -168,7 +180,7 @@ suppressWarnings(test_that("URLs are not broken", {
   # print url and response code for failures
   if (n.other.cols > 0) {
     print(
-      "The following URLs are required for EPATADA functions and have failing response codes."
+      "The following URLs are not required for EPATADA functions and have failing response codes."
     )
 
     print(other.cols)
