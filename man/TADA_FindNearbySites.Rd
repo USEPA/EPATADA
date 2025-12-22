@@ -94,6 +94,7 @@ TADA.LatitudeMeasure) were determined.
 
 # use MT example data set
 testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
+
 # example grouping nearby sites by distance only
 test.dist <- TADA_FindNearbySites(testdat,
                                   catchment = FALSE,
@@ -105,8 +106,15 @@ test.catch <- TADA_FindNearbySites(testdat,
                                    catchment = TRUE,
                                    by_AU = FALSE,
                                    dist_buffer = 250)
+
+# example grouping nearby sites by distance and assessment unit
+test.au.only <- TADA_FindNearbySites(testdat,
+                                     catchment = FALSE,
+                                     by_AU = TRUE,
+                                     dist_buffer = 250)
+
 # example grouping nearby sites by distance, catchment, and assessment unit
-test.au <- TADA_FindNearbySites(testdat,
+test.all <- TADA_FindNearbySites(testdat,
                                 catchment = TRUE,
                                 by_AU = TRUE,
                                dist_buffer = 250)
