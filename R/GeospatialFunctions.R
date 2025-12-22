@@ -3206,9 +3206,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' from one another to be considered "nearby" and grouped together.
 #'
 #' @param catchment Boolean. When catchment = TRUE, two sites will only be matched
-#' if they are within the same NHD catchment. When catchment = FALSE the distance
-#' between sites is the only criteria considered when matching sites. Default is
-#' catchment = TRUE.
+#' if they are within the same NHD catchment. When catchment = FALSE catchment
+#' is not considered when matching sites. Default is catchment = TRUE.
+#'
+#' @param by_AU Boolean. When by_AU = TRUE, two sites will only be matched
+#' if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
+#' assessment unit is not considered when matching nearby sites. In order to
+#' conisder assessment unit when matching, the TADA data frame must contain the
+#' column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.
 #'
 #' @param nhd_res Character argument to determine whether the NHD catchments
 #' used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
@@ -3231,8 +3236,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' the grouped nearby sites, "count" which selects the metadata associated with
 #' the greatest number of results, and "random" which selects random metadata
 #' from the site group. The default is meta_select = "random".
-#'
-#' @param
 #'
 #' @return Input dataframe with a TADA.SiteGroup column that indicates the
 #' nearby site group each monitoring location belongs to. Grouped sites are
@@ -3273,6 +3276,7 @@ TADA_FindNearbySites <- function(
   nhd_res = "Hi",
   org_hierarchy = "none",
   meta_select = "random",
+  catchment = TRUE,
   by_AU = TRUE
 ) {
 
@@ -3282,25 +3286,18 @@ TADA_FindNearbySites <- function(
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure"
   )
+
   TADA_CheckColumns(.data, expected_cols)
+
+  # remove intermediate object
   rm(expected_cols)
-
-
-  # create base list of columns for finding nearby sites
-  nearby.cols <- c("TADA.MonitoringLocationIdentifier",
-                   "TADA.LongitudeMeasure",
-                   "TADA.LatitudeMeasure",
-                   "HorizontalCoordinateReferenceSystemDatumName")
-
-  # set up grouping cols
-  grouping.cols <- c("Group")
 
   # retain only necessary columns unique Monitoring Locations
   unique.mls <- .data |>
-    dplyr::select(
-      dplyr::all_of(nearby.cols
-      )
-    )|>
+    dplyr::select("TADA.MonitoringLocationIdentifier",
+                  "TADA.LongitudeMeasure",
+                  "TADA.LatitudeMeasure",
+                  "HorizontalCoordinateReferenceSystemDatumName") |>
     dplyr::distinct()
 
   # convert to sf object if not already spatial
@@ -3321,7 +3318,7 @@ TADA_FindNearbySites <- function(
   colnames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
 
   # convert distances to those within buffer (1) and beyond buffer (0)
-  dist.mat1 <- apply(dist.matrix, c(1, 2), function(x) {
+  dist.matrix <- apply(dist.matrix, c(1, 2), function(x) {
     if (x <= dist_buffer) {
       x <- 1
     } else {
@@ -3329,12 +3326,9 @@ TADA_FindNearbySites <- function(
     }
   })
 
-  # remove intermediate object
-  rm(dist.matrix)
-
   # create adjacency graph
   adj.graph <- igraph::graph_from_adjacency_matrix(
-    dist.mat1,
+    dist.matrix,
     mode = "undirected",
     diag = FALSE
   )
@@ -3355,7 +3349,7 @@ TADA_FindNearbySites <- function(
     dplyr::ungroup()
 
   # remove intermediate objects
-  rm(dist.mat1, adj.graph, comp.results)
+  rm(dist.matrix, adj.graph, comp.results)
 
   # add flag column, stop function, and print message if no nearby sites found
   if (nrow(group.sites) == 0) {
@@ -3489,7 +3483,7 @@ TADA_FindNearbySites <- function(
     dplyr::distinct()
 
   # remove intermediate objects
-  rm(catch.groups, near.dfs, unique.mls)
+  rm(near.dfs, unique.mls)
 
   # create a df of unique grouped sites
   group.sites <- new.ids |>
@@ -3787,7 +3781,7 @@ TADA_FindNearbySites <- function(
   }
 
   # remove intermediate objects
-  rm(grouped.no.dates, org.meta.filter, org.string, meta.string)
+  rm(org.meta.filter, org.string, meta.string)
 
   # remove site group from crosswalk
   ml.crosswalk <- new.ids |>
