@@ -3256,19 +3256,27 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #'
 #' @examples
 #' \dontrun{
-#' # cleanup lat/long if needed
-#' GroupNearbySites <- TADA_FlagCoordinates(Data_Nutrients_UT,
-#'   clean_outsideUSA = "remove",
-#'   clean_imprecise = TRUE
-#' )
-#' # make sure there are no NA's in lat/long
-#' GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure), ]
-#' GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure), ]
-#' # group sites
-#' GroupNearbySites_100m <- TADA_FindNearbySites(GroupNearbySites)
-#' GroupNearbySites_10m <- TADA_FindNearbySites(GroupNearbySites,
-#'   dist_buffer = 10
-#' )
+#'
+#' # use MT example data set
+#' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
+
+#' # example grouping nearby sites by distance only
+#' test.dist <- TADA_FindNearbySites(testdat,
+#'                                   catchment = FALSE,
+#'                                   by_AU = FALSE,
+#'                                   dist_buffer = 250)
+#'
+#' # example grouping nearby sites by distance and catchment
+#' test.catch <- TADA_FindNearbySites(testdat,
+#'                                    catchment = TRUE,
+#'                                    by_AU = FALSE,
+#'                                    dist_buffer = 250)
+
+#' # example grouping nearby sites by distance, catchment, and assessment unit
+#' test.au <- TADA_FindNearbySites(testdat,
+#'                                 catchment = TRUE,
+#'                                 by_AU = TRUE,
+#'                                dist_buffer = 250)
 #' }
 TADA_FindNearbySites <- function(
   .data,
@@ -3409,7 +3417,8 @@ TADA_FindNearbySites <- function(
     dplyr::group_by(Group, NHD.nhdplusid) |>
     dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
     dplyr::filter(n > 1) |>
-    dplyr::select(TADA.MonitoringLocationIdentifier, Group)
+    dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
+    sf::st_drop_geometry()
 
   # remove intermediate objects
   rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
@@ -3489,8 +3498,8 @@ TADA_FindNearbySites <- function(
     ) |>
     dplyr::distinct()
 
-  # remove intermediate objects
-  rm(near.dfs, unique.mls)
+  # remove intermediate object
+  rm(unique.mls)
 
   # create a df of unique grouped sites
   group.sites <- new.ids |>
