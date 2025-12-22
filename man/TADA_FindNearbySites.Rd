@@ -49,7 +49,7 @@ is not considered when matching sites. Default is catchment = TRUE.}
 \item{by_AU}{Boolean. When by_AU = TRUE, two sites will only be matched
 if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
 assessment unit is not considered when matching nearby sites. In order to
-conisder assessment unit when matching, the TADA data frame must contain the
+consider assessment unit when matching, the TADA data frame must contain the
 column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.}
 }
 \value{
