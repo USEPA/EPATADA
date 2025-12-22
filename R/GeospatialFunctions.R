@@ -3203,7 +3203,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 #' @param .data TADA dataframe OR TADA sites dataframe.
 #'
 #' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
-#'   from one another to be considered "nearby" and grouped together.
+#' from one another to be considered "nearby" and grouped together.
+#'
+#' @param catchment Boolean. When catchment = TRUE, two sites will only be matched
+#' if they are within the same NHD catchment. When catchment = FALSE the distance
+#' between sites is the only criteria considered when matching sites. Default is
+#' catchment = TRUE.
 #'
 #' @param nhd_res Character argument to determine whether the NHD catchments
 #' used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
@@ -3270,6 +3275,7 @@ TADA_FindNearbySites <- function(
   meta_select = "random",
   by_AU = TRUE
 ) {
+
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -3280,7 +3286,7 @@ TADA_FindNearbySites <- function(
   rm(expected_cols)
 
 
-  # create base list of columns for fiding nearby sites
+  # create base list of columns for finding nearby sites
   nearby.cols <- c("TADA.MonitoringLocationIdentifier",
                    "TADA.LongitudeMeasure",
                    "TADA.LatitudeMeasure",
@@ -3289,50 +3295,19 @@ TADA_FindNearbySites <- function(
   # set up grouping cols
   grouping.cols <- c("Group")
 
-  # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
-  # and status of by_AU param
-  if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-
-    if(by_AU == TRUE) {
-
-    print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit.")
-
-      nearby.cols <- append(nearby.cols, "ATTAINS.AssessmentUnitIdentifier")
-
-      grouping.cols <- append(grouping.cols, "ATTAINS.AssessmentUnitIdentifier")
-
-    }
-
-      else {
-        print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites.")
-      }
-  } else {
-    print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is not present. Monitoring Location groupings cannot consider assessment unit.")
-
-    }
-
   # retain only necessary columns unique Monitoring Locations
   unique.mls <- .data |>
     dplyr::select(
       dplyr::all_of(nearby.cols
-    )
+      )
     )|>
     dplyr::distinct()
 
-  # convert to sf object
-  unique.mls <- try(TADA_MakeSpatial(unique.mls), silent = TRUE)
+  # convert to sf object if not already spatial
+  if(!inherits(.data, "sf")) {
 
+    unique.mls <- try(TADA_MakeSpatial(unique.mls), silent = TRUE)
 
-  if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-  # group by ATTAINS.AssessmentUnitIdentifier if required
-  grouped.unique.mls <- unique.mls |>
-    dplyr::group_by(ATTAINS.AssessmentUnitIdentifier)
-
-  # Initialize a list to store distance matrices for each group
-  distance.matrices <- list()
-
-  # Iterate over each group to compute distance matrices
-  grouped.unique.mls.split <- dplyr::group_split(grouped.unique.mls)
   }
 
   # create a distance matrix in meters
@@ -3382,6 +3357,7 @@ TADA_FindNearbySites <- function(
   # remove intermediate objects
   rm(dist.mat1, adj.graph, comp.results)
 
+  # add flag column, stop function, and print message if no nearby sites found
   if (nrow(group.sites) == 0) {
     # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
@@ -3397,6 +3373,9 @@ TADA_FindNearbySites <- function(
 
     return(.data)
   }
+
+  # if catchment should be factored into site groupings
+  if(catchment == TRUE) {
 
   # subset nearby sites
   near.sites <- unique.mls |>
@@ -3427,18 +3406,18 @@ TADA_FindNearbySites <- function(
   nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
 
   # join nhd catchments with monitoring locations, filter to include group/catchment
-  catch.groups <- near.sites |>
+  group.sites <- near.sites |>
     sf::st_join(nhd.catch.all, left = TRUE) |>
     dplyr::distinct() |>
     dplyr::group_by(Group, NHD.nhdplusid) |>
     dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
     dplyr::filter(n > 1) |>
-    dplyr::select(-n)
+    dplyr::select(TADA.MonitoringLocationIdentifier, Group)
 
   # remove intermediate objects
   rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
 
-  if (nrow(catch.groups) == 0) {
+  if (nrow(group.sites) == 0) {
     # #if no groups, give a TADA.NearbySiteGroup column filled with
     # "No nearby sites"
     print(
@@ -3453,9 +3432,41 @@ TADA_FindNearbySites <- function(
 
     return(.data)
   }
+}
+  # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
+  # and status of by_AU param
+  if("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+
+    if(by_AU == TRUE) {
+
+    print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit.")
+
+      # create crosswalk for monitoring locations and assessment units
+      au.ml.cw <- .data %>%
+        dplyr::select(TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier) |>
+        dplyr::distinct()
+
+      # group by ATTAINS.AssessmentUnitIdentifier (and catchment)
+      group.sites <- group.sites |>
+      sf::st_drop_geometry() |>
+      dplyr::left_join(au.ml.cw, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
+        dplyr::group_by(ATTAINS.AssessmentUnitIdentifier) |>
+        dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier),
+                      ATTAINS.AssessmentUnitIdentifier != "") |>
+        dplyr::mutate(Group.n = dplyr::n()) |>
+        dplyr::filter(Group.n > 1) |>
+        dplyr::select(-Group.n)
+
+    }
+
+      else {
+        print("TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites.")
+      }
+
+    }
 
   # create df of all groups and create unique id for each group
-  new.ids <- catch.groups |>
+  new.ids <- group.sites |>
     # create new TADA.MonitoringLocationIdentifier
     dplyr::mutate(
       TADA.MonitoringLocationIdentifier.New = paste(
@@ -3480,8 +3491,8 @@ TADA_FindNearbySites <- function(
   # remove intermediate objects
   rm(catch.groups, near.dfs, unique.mls)
 
-  # create a df of unique grouped sites, do not include any activity start dates
-  grouped.no.dates <- new.ids |>
+  # create a df of unique grouped sites
+  group.sites <- new.ids |>
     dplyr::full_join(
       .data,
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
@@ -3594,7 +3605,7 @@ TADA_FindNearbySites <- function(
   }
 
   # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
-  org.ranks.added <- grouped.no.dates |>
+  org.ranks.added <- group.sites |>
     dplyr::left_join(org.ranks, by = dplyr::join_by(OrganizationIdentifier))
 
   rm(org.ranks)
