@@ -176,7 +176,6 @@ come from the ATTAINS domain value for use_name.
 ``` r
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
-#> Joining with `by = join_by(TADA.ComparableDataIdentifier)`
 paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
   grepl("AMMONIA", TADA.ComparableDataIdentifier) ~ "AMMONIA, TOTAL",
   grepl("NITRATE", TADA.ComparableDataIdentifier) ~ "NITRATE",
@@ -186,13 +185,11 @@ paramRef_UT3 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   paramRef = paramRef_UT2, org_id = "UTAHDWQ", excel = FALSE
 )
-#> Joining with `by = join_by(TADA.ComparableDataIdentifier)`
 
 paramRef_UT4 <- TADA_ParametersForAnalysis(
   Data_Nutrients_UT,
   org_id = "UTAHDWQ", auto_assign = "All", excel = FALSE
 )
-#> Joining with `by = join_by(TADA.ComparableDataIdentifier)`
 #> [1] "auto_assign == 'All' was selected, finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
 
 # Next, enter the crosswalk generated above as the paramRef function input

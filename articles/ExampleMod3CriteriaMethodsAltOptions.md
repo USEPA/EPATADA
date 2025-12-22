@@ -240,7 +240,6 @@ MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
     ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
@@ -300,7 +299,6 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
     ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
 
 ``` r
@@ -347,7 +345,6 @@ MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
 ```
 
     ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
-
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
