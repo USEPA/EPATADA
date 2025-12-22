@@ -14,75 +14,72 @@ TADA_AnalysisDataFilter(
 )
 }
 \arguments{
-\item{.data}{A TADA profile object}
+\item{.data}{A data frame representing a TADA profile object.}
 
-\item{clean}{Boolean argument; TRUE removes all results not flagged for use in
-analysis workflow. TADA.UseForAnalysis.Flag column displaying the media type (as
-determined by this function) and "Yes"/"No" will be added when clean = FALSE.
-Results flagged "Yes" are identified as usable for further analysis. Default = FALSE.}
+\item{clean}{Logical. If \code{TRUE}, removes rows not flagged for analysis. Default is \code{FALSE}.}
 
-\item{surface_water}{Boolean argument; specifies whether surface water
-results should be flagged or removed in the returned dataframe. Default is
-surface_water = TRUE, surface water results are identified as usable for analysis.}
+\item{surface_water}{Logical. If \code{TRUE}, surface water results are flagged for inclusion. Default is \code{TRUE}.}
 
-\item{ground_water}{Boolean argument; specifies whether ground water
-results should be flagged or removed in the returned data frame. Default is
-ground_water = FALSE, ground water results are identified as not usable for analysis.}
+\item{ground_water}{Logical. If \code{TRUE}, groundwater results are flagged for inclusion. Default is \code{FALSE}.}
 
-\item{sediment}{Boolean argument; specifies whether sediment results should
-be flagged or removed in the returned data frame. Default is sediment = FALSE,
-sediment results are identified as not usable for analysis.}
+\item{sediment}{Logical. If \code{TRUE}, sediment results are flagged for inclusion. Default is \code{FALSE}.}
 
-\item{other}{Boolean argument; species whether "other" (uncategorized) results should be flagged
-or removed in the returned data frame. Default is other = TRUE, other results are retained for
-additional review by user/use in analysis.}
+\item{other}{Logical. If \code{TRUE}, "other" results are flagged for inclusion. Default is \code{FALSE}.}
 }
 \value{
-If clean = TRUE, returns the data frame with only the media types
-selected as usable (set to TRUE in function input) by the user are returned.
-If clean = FALSE, returns the data frame and an additional column,
-TADA.UseForAnalysis.Flag, indicating the media type (as determined by this function)
-and which results should be included or excluded from assessments based on user input.
+A data frame. If \code{clean = TRUE}, only rows flagged for inclusion are returned.
+If \code{clean = FALSE}, all rows are returned with additional \code{TADA.UseForAnalysis.Flag} and
+\code{TADA.Media.Flag} columns indicating the media type and inclusion status.
 }
 \description{
-With default settings (clean = FALSE), this function creates a TADA.UseForAnalysis.Flag
-column which flags any data that are NOT surface water results for
-removal (TADA.UseForAnalysis.Flag = "No") and flags surface water results
-for use in analysis (TADA.UseForAnalysis.Flag = "Yes"). If desired, a user
-can change the function input to clean = TRUE, and then the function will
-filter the dataframe to remove rows that are not going to be used in analyses,
-and retain only the media types selected by the user.Setting clean = TRUE, means
-that all results not flagged for use in the analysis workflow will be removed
-and the TADA.UseForAnalysis.Flag column will not be added.
+This function processes a TADA profile object to flag or filter data based on media type.
+By default (\code{clean = FALSE}), it adds two columns: \code{TADA.UseForAnalysis.Flag} and
+\code{TADA.Media.Flag}. The \code{TADA.UseForAnalysis.Flag} indicates whether each row should be included
+in the analysis along with the media type. If \code{clean = TRUE}, the function filters out rows
+not suitable for analysis, and these columns will not be added.
 }
 \details{
-It uses MonitoringLocationTypeName, ActivityMediaName, ActivityMediaSubdivisionName,
-AquiferName,
-LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue,
-WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue, and
-WellHoleDepthMeasure.MeasureUnitCode to identify samples. Users
-can select whether sediment, groundwater and/or surface water should be included.
-An additional column, TADA.UseForAnalysis.Flag, specifies whether each row should
-be included in the analysis workflow and why. Setting clean = TRUE, means
-that all results not flagged for use in the analysis workflow will be removed
-and the TADA.UseForAnalysis.Flag column will not be added.
+The function utilizes various columns including \code{MonitoringLocationTypeName},
+\code{ActivityMediaName}, \code{ActivityMediaSubdivisionName}, \code{AquiferName},
+\code{LocalAqfrName}, \code{ConstructionDateText}, \code{WellDepthMeasure.MeasureValue},
+\code{WellDepthMeasure.MeasureUnitCode}, \code{WellHoleDepthMeasure.MeasureValue}, and
+\code{WellHoleDepthMeasure.MeasureUnitCode}, and others to determine the media type.
+Users can specify which media types (surface water, groundwater, sediment, other)
+should be included or excluded.
 }
 \examples{
-\dontrun{
-utils::data(Data_6Tribes_5y_Harmonized)
-# Returns data with ONLY surface water results retained and no TADA.UseForAnalysis.Flag column
-Data_6Tribes_Assessment1 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
+utils::data(Data_R5_TADAPackageDemo)
+
+# Example 1: Retain only surface water results without adding flag columns
+Data_Assessment1 <- TADA_AnalysisDataFilter(
+  Data_R5_TADAPackageDemo,
   clean = TRUE,
-  surface_water = TRUE, ground_water = FALSE, sediment = FALSE
+  surface_water = TRUE, 
+  ground_water = FALSE, 
+  sediment = FALSE,
+  other = TRUE
 )
 
-# Returns dataframe with ONLY surface water results identified as usable and adds
-# TADA.UseForAnalysis.Flag column.
-Data_6Tribes_Assessment2 <- TADA_AnalysisDataFilter(Data_6Tribes_5y_Harmonized,
+# View unique values in TADA.UseForAnalysis.Flag to understand inclusion criteria
+unique(Data_Assessment1$TADA.UseForAnalysis.Flag)
+
+# View unique values in TADA.Media.Flag to see media type classification
+unique(Data_Assessment1$TADA.Media.Flag)
+
+# Example 2: Flag surface water results for analysis and include flag columns
+Data_Assessment2 <- TADA_AnalysisDataFilter(
+  Data_R5_TADAPackageDemo,
   clean = FALSE,
-  surface_water = TRUE, ground_water = FALSE, sediment = FALSE
+  surface_water = TRUE, 
+  ground_water = FALSE, 
+  sediment = FALSE,
+  other = FALSE
 )
-unique(Data_6Tribes_Assessment2$TADA.UseForAnalysis.Flag)
-}
+
+# View unique values in TADA.UseForAnalysis.Flag to understand inclusion criteria
+unique(Data_Assessment2$TADA.UseForAnalysis.Flag)
+
+# View unique values in TADA.Media.Flag to see media type classification
+unique(Data_Assessment2$TADA.Media.Flag)
 
 }

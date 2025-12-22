@@ -137,7 +137,6 @@ utils::globalVariables(c(
   "TADA.MultipleOrgDupGroupID",
   "TADA.WQXVal.Flag",
   "Concat",
-  ".",
   "MeasureQualifierCode.Split",
   "TADA.Media.Flag",
   "ML.Media.Flag",
