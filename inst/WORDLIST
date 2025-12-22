@@ -449,7 +449,7 @@ geospatial
 geospatially
 getFeatureLayer
 getLayer
-getPopup
+getTribalPopup
 getenv
 ggplot
 github

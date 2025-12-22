@@ -100,9 +100,7 @@ TADA_CreatePairRef <- function(
 
     # filter TADA df for hardness results
     hard.ref <- .data |>
-      dplyr::filter(
-        TADA.CharacteristicName %in% char.ref$CharacteristicName
-      ) |>
+      dplyr::filter(TADA.CharacteristicName %in% char.ref$CharacteristicName) |>
       prep.ref() |>
       dplyr::mutate(TADA.PairingGroup = "Hardness")
 
@@ -185,8 +183,7 @@ TADA_CreatePairRef <- function(
   }
 
   # remove any duplicate rows
-  pair.ref <- pair.ref |>
-    dplyr::distinct()
+  pair.ref <- pair.ref |> dplyr::distinct()
 
   # check to see if there are any rows in pair.ref
 
@@ -383,8 +380,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       )
 
     # drop activity id from pair subset
-    pair.subset2 <- pair.subset |>
-      dplyr::select(-ActivityIdentifier)
+    pair.subset2 <- pair.subset |> dplyr::select(-ActivityIdentifier)
 
     # pair by monitoring location and time
     pair.ml.time <- .data |>
@@ -431,9 +427,7 @@ TADA_PairForCriteriaCalc <- function(.data, ref = "null", hours_range = 4) {
       dplyr::slice_sample(n = 1)
 
     # combine paired dfs
-    all.pairs <- pair.activityid |>
-      rbind(pair.ml.time) |>
-      dplyr::distinct()
+    all.pairs <- pair.activityid |> rbind(pair.ml.time) |> dplyr::distinct()
 
     return(all.pairs)
   }

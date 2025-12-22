@@ -171,8 +171,9 @@ TADA_AutoClean <- function(.data) {
     .data <- .data
   } else {
     # create uppercase version of original DetectionQuantitationLimitMeasure.MeasureUnitCode
-    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <-
-      toupper(.data$DetectionQuantitationLimitMeasure.MeasureUnitCode)
+    .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode <- toupper(
+      .data$DetectionQuantitationLimitMeasure.MeasureUnitCode
+    )
   }
 
   if ("TADA.ActivityMediaName" %in% colnames(.data)) {
@@ -273,12 +274,9 @@ TADA_AutoClean <- function(.data) {
         TADA.ResultMeasure.MeasureUnitCode = "%"
       )
 
-    do.list <- do.data |>
-      dplyr::select(ResultIdentifier) |>
-      dplyr::pull()
+    do.list <- do.data |> dplyr::select(ResultIdentifier) |> dplyr::pull()
 
-    other.data <- .data |>
-      dplyr::filter(!ResultIdentifier %in% do.list)
+    other.data <- .data |> dplyr::filter(!ResultIdentifier %in% do.list)
 
     do.full.join <- colnames(.data)
 

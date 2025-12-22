@@ -162,13 +162,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
     )
 
     # figure margin
-    mrg <- list(
-      l = 50,
-      r = 20,
-      b = 20,
-      t = 55,
-      pad = 0
-    )
+    mrg <- list(l = 50, r = 20, b = 20, t = 55, pad = 0)
 
     # boxplot layout and labels
     base_boxplot <- base_boxplot |>
@@ -369,13 +363,7 @@ TADA_Histogram <- function(
         )
     }
 
-    mrg <- list(
-      l = 50,
-      r = 20,
-      b = 20,
-      t = 55,
-      pad = 0
-    )
+    mrg <- list(l = 50, r = 20, b = 20, t = 55, pad = 0)
 
     # histogram layout and labels
     histogram <- histogram |>
@@ -707,13 +695,7 @@ TADA_Scatterplot <- function(
     )
 
     # figure margin
-    mrg <- list(
-      l = 50,
-      r = 20,
-      b = 20,
-      t = 55,
-      pad = 0
-    )
+    mrg <- list(l = 50, r = 20, b = 20, t = 55, pad = 0)
 
     # scatterplot layout and labels
     one_scatterplot <- one_scatterplot |>
@@ -880,13 +862,7 @@ TADA_TwoCharacteristicScatterplot <- function(
   )
 
   # figure margin
-  mrg <- list(
-    l = 50,
-    r = 75,
-    b = 25,
-    t = 75,
-    pad = 0
-  )
+  mrg <- list(l = 50, r = 75, b = 25, t = 75, pad = 0)
 
   # create TADA color palette
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
@@ -955,12 +931,7 @@ TADA_TwoCharacteristicScatterplot <- function(
       title = title,
       plot_bgcolor = "#e5ecf6",
       margin = mrg,
-      legend = list(
-        orientation = "h",
-        xanchor = "center",
-        x = 0.5,
-        y = -0.2
-      )
+      legend = list(orientation = "h", xanchor = "center", x = 0.5, y = -0.2)
     ) |>
     # config options https://plotly.com/r/configuration-options/
     plotly::config(displaylogo = FALSE) |> # , displayModeBar = TRUE) # TRUE makes bar always visible
@@ -1225,9 +1196,7 @@ TADA_GroupedScatterplot <- function(
     "MonitoringLocationName",
     "OrganizationFormalName"
   )
-  required_cols <- required_cols |>
-    append(group_col) |>
-    unique()
+  required_cols <- required_cols |> append(group_col) |> unique()
   TADA_CheckColumns(.data, required_cols)
 
   # only allows for 1 column selection in id_cols
@@ -1385,13 +1354,7 @@ TADA_GroupedScatterplot <- function(
     )
 
     # figure margin
-    mrg <- list(
-      l = 50,
-      r = 75,
-      b = 25,
-      t = 75,
-      pad = 0
-    )
+    mrg <- list(l = 50, r = 75, b = 25, t = 75, pad = 0)
 
     # units label for y axis
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
@@ -1412,8 +1375,7 @@ TADA_GroupedScatterplot <- function(
     )
     plot.data.y$name <- gsub("_", " ", plot.data.y$name)
 
-    scatterplot <-
-      plotly::plot_ly(type = "scatter", mode = "markers") |>
+    scatterplot <- plotly::plot_ly(type = "scatter", mode = "markers") |>
       plotly::layout(
         xaxis = list(
           # title = "Activity Start Date", # not necessary?

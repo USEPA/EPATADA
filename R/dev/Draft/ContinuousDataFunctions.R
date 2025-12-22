@@ -68,12 +68,10 @@ TADA_listNWIS <- function(
     )) %in%
       c(2, 3)
   ) {
-    stop(
-      paste0(
-        "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
-        "Please use only one of these query options."
-      )
-    )
+    stop(paste0(
+      "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
+      "Please use only one of these query options."
+    ))
   } else if (
     sum(purrr::map_lgl(
       list(aoi_sf, statecode[1], siteid[1]),
@@ -81,34 +79,30 @@ TADA_listNWIS <- function(
     )) ==
       3
   ) {
-    stop(
-      paste0(
-        "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
-        "Please select from one of these query options."
-      )
-    )
+    stop(paste0(
+      "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
+      "Please select from one of these query options."
+    ))
   }
 
   # Create empty sf object template with correct structure for "no return" data
   empty_sf <- function() {
-    sf::st_sf(
-      data.frame(
-        site_no = character(),
-        site_name = character(),
-        site_type = character(),
-        site_type_cd = character(),
-        data_type = character(),
-        data_type_cd = character(),
-        stat_type = character(),
-        stat_cd = character(),
-        parameter = character(),
-        parameter_code = character(),
-        n_obs = character(),
-        begin_date = character(),
-        end_date = character(),
-        geometry = sf::st_sfc(crs = 4269)
-      )
-    )
+    sf::st_sf(data.frame(
+      site_no = character(),
+      site_name = character(),
+      site_type = character(),
+      site_type_cd = character(),
+      data_type = character(),
+      data_type_cd = character(),
+      stat_type = character(),
+      stat_cd = character(),
+      parameter = character(),
+      parameter_code = character(),
+      n_obs = character(),
+      begin_date = character(),
+      end_date = character(),
+      geometry = sf::st_sfc(crs = 4269)
+    ))
   }
 
   # Parameter code info grabber:
@@ -145,10 +139,7 @@ TADA_listNWIS <- function(
       table[[4]],
       table[[5]]
     ) |>
-      dplyr::select(
-        site_type_cd = 1,
-        site_type = 2
-      )
+      dplyr::select(site_type_cd = 1, site_type = 2)
 
     return(nwis_table)
   }
@@ -173,8 +164,7 @@ TADA_listNWIS <- function(
     og_epsg <- sf::st_crs(aoi_sf)$epsg
 
     if (sf::st_crs(aoi_sf)$epsg != 4269) {
-      aoi_sf <- aoi_sf |>
-        sf::st_transform(4269)
+      aoi_sf <- aoi_sf |> sf::st_transform(4269)
     }
 
     # Validate AOI features - stop if any bounding box exceeds 118,078 square miles
@@ -415,10 +405,7 @@ TADA_listNWIS <- function(
       })
     })
 
-    siteid <- siteid |>
-      dplyr::bind_rows() |>
-      dplyr::distinct() |>
-      .$site_no
+    siteid <- siteid |> dplyr::bind_rows() |> dplyr::distinct() |> .$site_no
 
     # Check and split 'siteid' into chunks if necessary
     site_chunks <- if (length(siteid) > 1000) {
@@ -585,12 +572,10 @@ TADA_getNWIS <- function(
     )) %in%
       c(2, 3)
   ) {
-    stop(
-      paste0(
-        "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
-        "Please use only one of these query options."
-      )
-    )
+    stop(paste0(
+      "Multiple data-querying arguments (`aoi_sf`, `statecode`, `siteid`) have been provided. ",
+      "Please use only one of these query options."
+    ))
   } else if (
     sum(purrr::map_lgl(
       list(aoi_sf, statecode[1], siteid[1]),
@@ -598,12 +583,10 @@ TADA_getNWIS <- function(
     )) ==
       3
   ) {
-    stop(
-      paste0(
-        "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
-        "Please select from one of these query options."
-      )
-    )
+    stop(paste0(
+      "No data-querying argument (`aoi_sf`, `statecode`, `siteid`) has been provided. ",
+      "Please select from one of these query options."
+    ))
   }
 
   # rename so filter works later
@@ -802,9 +785,7 @@ TADA_getNWIS <- function(
       })
     })
 
-    list <- siteid |>
-      dplyr::bind_rows() |>
-      dplyr::distinct()
+    list <- siteid |> dplyr::bind_rows() |> dplyr::distinct()
   } else if ((unlist(siteid)[1] != "null")) {
     list <- tibble::tibble(site_no = siteid)
   }
@@ -937,8 +918,7 @@ TADA_getNWIS <- function(
     ) |>
     dplyr::select(NWIS.status)
 
-  tidied <- dplyr::bind_cols(data, status) |>
-    dplyr::filter(!is.na(NWIS.value))
+  tidied <- dplyr::bind_cols(data, status) |> dplyr::filter(!is.na(NWIS.value))
 
   # Check if final data is empty after removing NA values
   if (nrow(tidied) == 0) {

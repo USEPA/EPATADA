@@ -110,11 +110,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     # if all rows are "Pass" or NA "Not Reviewed", return input unchanged
     ## note: Cristina edited this on 9/19/22 to keep Not Reviewed/NA data when clean = TRUE. Now only Suspect data is removed.
     if (
-      any(
-        "Suspect" %in%
-          unique(check.data$TADA.AnalyticalMethod.Flag)
-      ) ==
-        FALSE
+      any("Suspect" %in% unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE
     ) {
       print(
         "No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."
@@ -369,8 +365,7 @@ TADA_FlagContinuousData <- function(
     # Flag as continuous if time differences are within the specified window
     within_window <- info_match |>
       dplyr::filter(
-        time_diff_lead <= time_difference |
-          time_diff_lag <= time_difference
+        time_diff_lead <= time_difference | time_diff_lag <= time_difference
       )
 
     rm(info_match)
@@ -656,8 +651,7 @@ TADA_FlagAboveThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   )
 
   # Remove Maximum and TADA.WQXVal.Flag column from flag.data
-  flag.data <- flag.data |>
-    dplyr::select(-c(Maximum, TADA.WQXVal.Flag))
+  flag.data <- flag.data |> dplyr::select(-c(Maximum, TADA.WQXVal.Flag))
 
   # Handle different scenarios based on clean and flaggedonly parameters
   if (
@@ -942,8 +936,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   )
 
   # Remove Minimum and TADA.WQXVal.Flag column from flag.data
-  flag.data <- flag.data |>
-    dplyr::select(-c(Minimum, TADA.WQXVal.Flag))
+  flag.data <- flag.data |> dplyr::select(-c(Minimum, TADA.WQXVal.Flag))
 
   # Handle different scenarios based on clean and flaggedonly parameters
   if (
@@ -1559,8 +1552,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
   )])
 
   # Filter and process data as before
-  dupsites <- dupsites |>
-    dplyr::filter(!is.na(TADA.NearbySiteGroup))
+  dupsites <- dupsites |> dplyr::filter(!is.na(TADA.NearbySiteGroup))
 
   dupsprep <- .data |>
     dplyr::filter(

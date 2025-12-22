@@ -284,12 +284,7 @@ attains.cols <- c(
 )
 
 # Only used in TADA Shiny or should be at the end
-last.cols <- c(
-  "TADA.Remove",
-  "TADA.RemovalReason",
-  "TADAShiny.tab",
-  "geometry"
-)
+last.cols <- c("TADA.Remove", "TADA.RemovalReason", "TADAShiny.tab", "geometry")
 
 
 #' Order TADA Columns and Rows
@@ -530,9 +525,7 @@ TADA_RetainRequired <- function(.data) {
   )
 
   # create list of columns containing all NA values.
-  na.cols <- .data |>
-    purrr::keep(~ all(is.na(.x))) |>
-    names()
+  na.cols <- .data |> purrr::keep(~ all(is.na(.x))) |> names()
 
   # create list of columns to be removed by comparing columns containing all NA
   # values to required columns.
@@ -541,8 +534,7 @@ TADA_RetainRequired <- function(.data) {
   remove.cols <- setdiff(na.cols, require.cols)
 
   # remove not required columns containing all NA values from dataframe.
-  .data <- .data |>
-    dplyr::select(-dplyr::contains(remove.cols))
+  .data <- .data |> dplyr::select(-dplyr::contains(remove.cols))
 
   # check to make sure required columns contain some data that is not NA
   req.check <- intersect(require.cols, na.cols)
@@ -621,8 +613,7 @@ TADA_RetainRequired <- function(.data) {
   )
 
   # retain only columns identified as required or for filtering in the dataframe
-  .data <- .data |>
-    dplyr::select(dplyr::contains(keep.cols))
+  .data <- .data |> dplyr::select(dplyr::contains(keep.cols))
 
   # print a message to list names for all removed columns
   print(paste(
