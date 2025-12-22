@@ -777,7 +777,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     try(
       polygons_mapper <- ATTAINS_polygons |>
         dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Polygon Feature"),
+        dplyr::mutate(type = "Polygon Feature") |>
+        # sort df so smaller AUs will map on top of larger AUs if they overlap
+        dplyr::arrange(dplyr::desc(Shape_Area)),
       silent = TRUE
     )
 
@@ -930,7 +932,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           color = ~ polygons_mapper$col,
           fill = ~ polygons_mapper$col,
           weight = 3,
-          fillOpacity = 1,
+          fillOpacity = 0.5,
           popup = paste0(
             "Assessment Unit Name: ",
             polygons_mapper$assessmentunitname,
