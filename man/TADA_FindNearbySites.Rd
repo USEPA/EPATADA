@@ -9,7 +9,9 @@ TADA_FindNearbySites(
   dist_buffer = 100,
   nhd_res = "Hi",
   org_hierarchy = "none",
-  meta_select = "random"
+  meta_select = "random",
+  catchment = TRUE,
+  by_AU = TRUE
 )
 }
 \arguments{
@@ -39,6 +41,16 @@ metadata associated with the oldest result from the grouped nearby sites,
 the grouped nearby sites, "count" which selects the metadata associated with
 the greatest number of results, and "random" which selects random metadata
 from the site group. The default is meta_select = "random".}
+
+\item{catchment}{Boolean. When catchment = TRUE, two sites will only be matched
+if they are within the same NHD catchment. When catchment = FALSE catchment
+is not considered when matching sites. Default is catchment = TRUE.}
+
+\item{by_AU}{Boolean. When by_AU = TRUE, two sites will only be matched
+if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
+assessment unit is not considered when matching nearby sites. In order to
+consider assessment unit when matching, the TADA data frame must contain the
+column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.}
 }
 \value{
 Input dataframe with a TADA.SiteGroup column that indicates the
@@ -63,8 +75,13 @@ the same catchment, a distance matrix is created and an adjacency matrix
 is used to identify groups of nearby sites within the same catchment.
 Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
 which is created by concatenating the original
-TADA.MonitoringLocationIdentifiers of all sites within the group. Two
-additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
+TADA.MonitoringLocationIdentifiers of all sites within the group. If the
+ATTAINS.AssessmentUnitIdentifier column in present, the default is
+only monitoring locations within the same assessment unit will be grouped together.
+It is recommended to assign monitoring locations to assessment units before running
+this function. If ATTAINS.AssessmentUnitIdentifier is present and the user does not
+want it to be factored into to nearby site groupings, the by_AU param can be set to
+FALSE. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
 TADA.NearbySiteGroup contains a unique numeric value for each group of sites
 within the same catchment. TADA.NearbySites.Flag identifies whether or not
 a result is from a grouped site or not and for grouped sites identifies how
@@ -74,18 +91,32 @@ TADA.LatitudeMeasure) were determined.
 }
 \examples{
 \dontrun{
-# cleanup lat/long if needed
-GroupNearbySites <- TADA_FlagCoordinates(Data_Nutrients_UT,
-  clean_outsideUSA = "remove",
-  clean_imprecise = TRUE
-)
-# make sure there are no NA's in lat/long
-GroupNearbySites[!is.na(GroupNearbySites$LongitudeMeasure), ]
-GroupNearbySites[!is.na(GroupNearbySites$LatitudeMeasure), ]
-# group sites
-GroupNearbySites_100m <- TADA_FindNearbySites(GroupNearbySites)
-GroupNearbySites_10m <- TADA_FindNearbySites(GroupNearbySites,
-  dist_buffer = 10
-)
+
+# use MT example data set
+testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
+
+# example grouping nearby sites by distance only
+test.dist <- TADA_FindNearbySites(testdat,
+                                  catchment = FALSE,
+                                  by_AU = FALSE,
+                                  dist_buffer = 250)
+
+# example grouping nearby sites by distance and catchment
+test.catch <- TADA_FindNearbySites(testdat,
+                                   catchment = TRUE,
+                                   by_AU = FALSE,
+                                   dist_buffer = 250)
+
+# example grouping nearby sites by distance and assessment unit
+test.au.only <- TADA_FindNearbySites(testdat,
+                                     catchment = FALSE,
+                                     by_AU = TRUE,
+                                     dist_buffer = 250)
+
+# example grouping nearby sites by distance, catchment, and assessment unit
+test.all <- TADA_FindNearbySites(testdat,
+                                catchment = TRUE,
+                                by_AU = TRUE,
+                               dist_buffer = 250)
 }
 }
