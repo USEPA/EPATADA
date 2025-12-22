@@ -577,9 +577,9 @@ mywaterway@epa.gov.
   and return it as a sf object getLayer is used within TADA_addPolys and
   TADA_addPoints
 
-- [`getPopup()`](usepa.github.io/EPATADA/reference/getPopup.md) : Get
-  text for tribal marker popup getPopup is used within TADA_addPolys and
-  TADA_addPoints
+- [`getTribalPopup()`](usepa.github.io/EPATADA/reference/getTribalPopup.md)
+  : Get text for tribal marker popup getTribalPopup is used within
+  TADA_addPolys and TADA_addPoints
 
 - [`pchIcons()`](usepa.github.io/EPATADA/reference/pchIcons.md) : Create
   icon(s) to be used to represent points on a map feature layer pchIcons
