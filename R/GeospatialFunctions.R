@@ -3393,6 +3393,9 @@ TADA_FindNearbySites <- function(
         fetchNHD(resolution = nhd_res)
     )
 
+  # remove intermediate object
+  rm(near.dfs)
+
   # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
   nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
 
@@ -3461,6 +3464,10 @@ TADA_FindNearbySites <- function(
 
   # create df of all groups and create unique id for each group
   new.ids <- group.sites |>
+    # remove any previous grouping
+    dplyr::ungroup() |>
+    # add new grouping
+    dplyr::group_by(Group) |>
     # create new TADA.MonitoringLocationIdentifier
     dplyr::mutate(
       TADA.MonitoringLocationIdentifier.New = paste(
