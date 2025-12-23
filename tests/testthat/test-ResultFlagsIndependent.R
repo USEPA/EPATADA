@@ -177,7 +177,6 @@ test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each ro
   testthat::skip_if(is.null(testdat) || NROW(testdat) == 0, "Empty test data; skipping test.")
   
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
-  
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
   expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))
