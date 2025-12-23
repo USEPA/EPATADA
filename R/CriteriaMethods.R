@@ -333,6 +333,8 @@ TADA_DefineCriteriaMethodology <- function(
           .data,
           org_id = org_id,
           paramRef = TADA_ParamRef,
+          AU_UsesRef = AU_UsesRef,
+          AUMLRef = AUMLRef,
           auto_assign = TRUE,
           excel = excel,
           overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.

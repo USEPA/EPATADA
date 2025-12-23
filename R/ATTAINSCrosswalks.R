@@ -2939,7 +2939,7 @@ TADA_AssignUsesToAU <- function(
     if (is.null(AUMLRef)) {
       stop(paste0(
         "TADA_AssignUsesToAU: ",
-        "You must provide a AUMLRef to run this function."
+        "You must provide an AUMLRef to run this function."
       ))
     }
 
@@ -3137,59 +3137,75 @@ TADA_AssignUsesToAU <- function(
 
     # User provides their own AU_UsesRef that has been filled out.
     if (!is.null(AU_UsesRef)) {
+      AU_UsesRef_matches <- AU_UsesRef |>
+        dplyr::filter(
+          ATTAINS.AssessmentUnitIdentifier 
+          %in% CreateAU_UsesRef$ATTAINS.AssessmentUnitIdentifier
+        ) |>
+        dplyr::mutate(TADA.AssessmentUnitStatus = "Existing")
+      
+      CreateAU_UsesRef <- CreateAU_UsesRef |>
+        dplyr::filter(
+          !ATTAINS.AssessmentUnitIdentifier 
+          %in% AU_UsesRef$ATTAINS.AssessmentUnitIdentifier
+          ) |>
+        dplyr::mutate(TADA.AssessmentUnitStatus = "New: ATTAINS.UseName not found in prior ATTAINS assessment cycles for your org.") |>
+        plyr::rbind.fill(AU_UsesRef_matches)
+        
+      
       # What rows did the user have in their AU_UsesRef that was not found in the most recent ATTAINS data system?
-      Flag1 <- CreateAU_UsesRef |>
-        dplyr::anti_join(
-          AU_UsesRef,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.UseName",
-            "ATTAINS.WaterType",
-            "TADA.AssessmentUnitStatus",
-            "IncludeOrExclude"
-          )
-        ) |>
-        dplyr::mutate(
-          TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-            ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Suspect: Excluding from Assessment. This AU and use is not found in your AU_UsesRef"
-          )
-        ) |>
-        dplyr::mutate(
-          IncludeOrExclude = dplyr::case_when(
-            ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Exclude"
-          )
-        )
-
-      CreateAU_UsesRef <- Flag1 |>
-        dplyr::full_join(
-          AU_UsesRef,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.UseName",
-            "ATTAINS.WaterType",
-            "TADA.AssessmentUnitStatus",
-            "IncludeOrExclude"
-          )
-        ) |>
-        dplyr::mutate(
-          TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-            TRUE ~ TADA.AssessmentUnitStatus
-          )
-        ) |>
-        dplyr::arrange(
-          match(IncludeOrExclude, c("Include")),
-          ATTAINS.WaterType,
-          ATTAINS.UseName
-        ) |>
-        dplyr::distinct()
+      # Flag1 <- CreateAU_UsesRef |>
+      #   dplyr::anti_join(
+      #     AU_UsesRef,
+      #     by = c(
+      #       "ATTAINS.OrganizationIdentifier",
+      #       "ATTAINS.AssessmentUnitIdentifier",
+      #       "ATTAINS.UseName",
+      #       "ATTAINS.WaterType",
+      #       "TADA.AssessmentUnitStatus",
+      #       "IncludeOrExclude"
+      #     )
+      #   ) |>
+      #   dplyr::mutate(
+      #     TADA.AssessmentUnitStatus = dplyr::case_when(
+      #       !ATTAINS.AssessmentUnitIdentifier %in%
+      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
+      #       ATTAINS.AssessmentUnitIdentifier %in%
+      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Suspect: Excluding from Assessment. This AU and use is not found in your AU_UsesRef"
+      #     )
+      #   ) |>
+      #   dplyr::mutate(
+      #     IncludeOrExclude = dplyr::case_when(
+      #       ATTAINS.AssessmentUnitIdentifier %in%
+      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Exclude"
+      #     )
+      #   )
+      # 
+      # CreateAU_UsesRef <- Flag1 |>
+      #   dplyr::full_join(
+      #     AU_UsesRef,
+      #     by = c(
+      #       "ATTAINS.OrganizationIdentifier",
+      #       "ATTAINS.AssessmentUnitIdentifier",
+      #       "ATTAINS.UseName",
+      #       "ATTAINS.WaterType",
+      #       "TADA.AssessmentUnitStatus",
+      #       "IncludeOrExclude"
+      #     )
+      #   ) |>
+      #   dplyr::mutate(
+      #     TADA.AssessmentUnitStatus = dplyr::case_when(
+      #       !ATTAINS.AssessmentUnitIdentifier %in%
+      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
+      #       TRUE ~ TADA.AssessmentUnitStatus
+      #     )
+      #   ) |>
+      #   dplyr::arrange(
+      #     match(IncludeOrExclude, c("Include")),
+      #     ATTAINS.WaterType,
+      #     ATTAINS.UseName
+      #   ) |>
+      #   dplyr::distinct()
     }
 
     if (excel == TRUE) {
