@@ -384,6 +384,17 @@ TADA_FlaggedSitesMap <- function(.data) {
 #'
 #' @param .data TADA dataframe after running TADA.FindNearbySites.
 #' @param dist_buffer Distance in m to show a radius around each site marker.
+#' @param AU Boolean. If AU = TRUE and assessment unit geometry is available in
+#' the TADA data frame (from running TADA_CreateATTAINSAUMLCrosswalk or
+#' TADA_CreateAUMLCrosswalk), assessment units will be added to the review map.
+#' If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.
+#' @param catchment Boolean. If catchment = TRUE, the fetchNHD function is used
+#' to retrieve National Hydrography Dataset (NHD) catchments and add them to the
+#' review map. If catchment = FALSE, catchments are not added to the review map.
+#' Default is catchment = FALSE.
+#' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or
+#' medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset
+#' (NHD). Default is "Hi".
 #'
 #'
 #' @return A leaflet map that shows all sites in the dataframe that contain
@@ -403,7 +414,11 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
+TADA_NearbySitesMap <- function(.data,
+                                dist_buffer = 100,
+                                AU = TRUE,
+                                catchment = FALSE,
+                                resolution = "Hi") {
   if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
     .data <- TADA_FindNearbySites(.data)
   }
@@ -426,13 +441,31 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
       TADA.NearbySiteGroup
     ) |>
     dplyr::distinct()
-  icon.colors <- grDevices::rainbow(as.numeric(length(unique(
-    .data$TADA.NearbySiteGroup
-  ))))
-  pal <- leaflet::colorFactor(
-    palette = icon.colors,
+
+  # find number of colors needed for nearby site groups
+  n.colors <- length(unique(.data$TADA.NearbySiteGroup))
+
+  # get TADA color palette
+  tada.pal <- TADA_ColorPalette()
+
+  # create nearby site groups color palette
+  nearby.pal <- Polychrome::createPalette(n.colors,
+                                   seedcolors = c(
+                                     tada.pal[1],
+                                     tada.pal[3],
+                                     tada.pal[4],
+                                     tada.pal[7],
+                                     tada.pal[15]),
+                                   M = 5000)
+
+
+  # assign colors to nearby groups
+  nearby.pal <- leaflet::colorFactor(
+    palette = nearby.pal,
     domain = .data$TADA.NearbySiteGroup
   )
+
+  # create nearby sites map
   map <- leaflet::leaflet(.data) |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
@@ -448,9 +481,9 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
       leaflet::addCircleMarkers(
         ~LongitudeMeasure,
         ~LatitudeMeasure,
-        color = ~ pal(TADA.NearbySiteGroup),
+        color = ~ nearby.pal(TADA.NearbySiteGroup),
         opacity = 1,
-        fillColor = ~ pal(TADA.NearbySiteGroup),
+        fillColor = ~ nearby.pal(TADA.NearbySiteGroup),
         fillOpacity = 1,
         radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
         weight = 1,

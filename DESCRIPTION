@@ -108,6 +108,7 @@ Suggests:
     remotes,
     covr,
     here,
+    Polychrome,
     httr2 (>= 1.2.1),
     roxygen2
 Remotes:
