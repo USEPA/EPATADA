@@ -388,13 +388,15 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' the TADA data frame (from running TADA_CreateATTAINSAUMLCrosswalk or
 #' TADA_CreateAUMLCrosswalk), assessment units will be added to the review map.
 #' If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.
-#' @param catchment Boolean. If catchment = TRUE, the fetchNHD function is used
-#' to retrieve National Hydrography Dataset (NHD) catchments and add them to the
-#' review map. If catchment = FALSE, catchments are not added to the review map.
-#' Default is catchment = FALSE.
+#' @param catchment Boolean. If catchment = TRUE, any catchment data available in
+#' .data is added to the review map. If catchment = FALSE, catchments are not
+#' added to the review map. Default is catchment = FALSE.
 #' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or
 #' medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset
 #' (NHD). Default is "Hi".
+#' @param fetchNHD Boolean. Use the fetchNHD function to retrieve catchment data
+#' when fetchND = TRUE. When fetchNHD = FALSE, catchment data are not retrieved
+#' using fetchNHD. Default is fetchNHD = FALSE.
 #'
 #'
 #' @return A leaflet map that shows all sites in the dataframe that contain
@@ -418,7 +420,18 @@ TADA_NearbySitesMap <- function(.data,
                                 dist_buffer = 100,
                                 AU = TRUE,
                                 catchment = FALSE,
-                                resolution = "Hi") {
+                                resolution = "Hi",
+                                fetchNHD = FALSE) {
+
+  # check to see if input is a single df
+  if(inherits(.data, "data.frame")) {
+
+  }
+
+  # check to see if input is a list of dfs containing the output from
+  # TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk to faciliate
+  # mapping of AUs and catchments
+
   if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
     .data <- TADA_FindNearbySites(.data)
   }
@@ -449,6 +462,8 @@ TADA_NearbySitesMap <- function(.data,
   tada.pal <- TADA_ColorPalette()
 
   # create nearby site groups color palette
+  # if needed can incorporate functions from package "farver" to force pal colors
+  # away from tada.pal colors (HRM 12/23/25)
   nearby.pal <- Polychrome::createPalette(n.colors,
                                    seedcolors = c(
                                      tada.pal[1],
@@ -460,7 +475,7 @@ TADA_NearbySitesMap <- function(.data,
 
 
   # assign colors to nearby groups
-  nearby.pal <- leaflet::colorFactor(
+  pal <- leaflet::colorFactor(
     palette = nearby.pal,
     domain = .data$TADA.NearbySiteGroup
   )
@@ -476,14 +491,62 @@ TADA_NearbySitesMap <- function(.data,
       )
     ) |>
     leaflet.extras::addResetMapButton() # button to reset to initial zoom and lat/long
+
+  # if AU = TRUE and assessment unit geometry is inclueded in TADA df add AUs to map
+  if(AU == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+
+    # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
+    try(
+      {
+        # extract coordinates and convert to a tibble (to handle point or multipoint)
+        coords <- sf::st_coordinates(ATTAINS_points) |>
+          tibble::as_tibble() |>
+          tibble::rowid_to_column(var = "index")
+
+        # points mapper setup
+        points_mapper <- ATTAINS_points |>
+          dplyr::left_join(colors, by = "overallstatus") |>
+          dplyr::mutate(type = "Point Feature") |>
+          tibble::rowid_to_column(var = "index") |>
+          dplyr::right_join(coords, by = "index")
+
+        # remove intermediate object
+        rm(coords)
+      },
+      silent = TRUE
+    )
+
+    # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
+    try(
+      lines_mapper <- ATTAINS_lines |>
+        dplyr::left_join(colors, by = "overallstatus") |>
+        dplyr::mutate(type = "Line Feature"),
+      silent = TRUE
+    )
+
+    # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
+    try(
+      polygons_mapper <- ATTAINS_polygons |>
+        dplyr::left_join(colors, by = "overallstatus") |>
+        dplyr::mutate(type = "Polygon Feature") |>
+        # sort df so smaller AUs will map on top of larger AUs if they overlap
+        dplyr::arrange(dplyr::desc(Shape_Area)),
+      silent = TRUE
+    )
+  }
+
+
+
+
+  # add nearby sites to map
   if (nrow(.data) > 0) {
     map <- map |>
       leaflet::addCircleMarkers(
         ~LongitudeMeasure,
         ~LatitudeMeasure,
-        color = ~ nearby.pal(TADA.NearbySiteGroup),
+        color = ~ pal(TADA.NearbySiteGroup),
         opacity = 1,
-        fillColor = ~ nearby.pal(TADA.NearbySiteGroup),
+        fillColor = ~ pal(TADA.NearbySiteGroup),
         fillOpacity = 1,
         radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
         weight = 1,
