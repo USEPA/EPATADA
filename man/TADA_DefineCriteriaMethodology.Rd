@@ -12,7 +12,6 @@ TADA_DefineCriteriaMethodology(
   auto_assign = FALSE,
   AUMLRef = NULL,
   AU_UsesRef = NULL,
-  epa304a = FALSE,
   displayUniqueId = FALSE,
   excel = FALSE,
   overwrite = FALSE
@@ -67,9 +66,6 @@ See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCr
 should contain a completed crosswalk of use names associated with each assessment unit.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
-
-\item{epa304a}{A Boolean value to return a draft epa304a recommended standards
-for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.}
 
 \item{displayUniqueId}{A Boolean value. If TRUE, this will print all unique
 TADA.ComparableDataIdentifier in the criteria and methods table output. If your

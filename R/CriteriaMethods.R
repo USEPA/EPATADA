@@ -80,9 +80,6 @@
 #' useful in the alternative options to generate the criteria and methods table
 #' without the reference tables.
 #'
-#' @param epa304a A Boolean value to return a draft epa304a recommended standards
-#' for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
-#'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
@@ -144,7 +141,6 @@ TADA_DefineCriteriaMethodology <- function(
   auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
   AUMLRef = NULL,
   AU_UsesRef = NULL, # Optional if auto_assign = TRUE
-  epa304a = FALSE,
   displayUniqueId = FALSE,
   excel = FALSE,
   overwrite = FALSE
@@ -765,9 +761,9 @@ TADA_DefineCriteriaMethodology <- function(
 
     # User wants to populate the Criteria table using the EPA304a standards
     # joins the epa304a standards to the current Criteria Table.
-    if (epa304a == TRUE) {
+    if ("USEPA" %in% org_id) {
       print(paste0(
-        "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+        "USEPA was included in your 'org_id': Including EPA304a recommended standards by each unique TADA.CharacteristicName if one is found."
       ))
 
       epa304a <- utils::read.csv(system.file(
@@ -793,7 +789,14 @@ TADA_DefineCriteriaMethodology <- function(
         )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+        dplyr::filter(
+          !(ATTAINS.OrganizationIdentifier == "USEPA" &
+            TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName
+          )
+        )|> # filters out the blank EPA304a criteria table but keep any unique 
+        # TADA Characteristic not defined from the epa304a criteria table.
         plyr::rbind.fill(epa304a)
+      
     }
 
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
@@ -809,19 +812,13 @@ TADA_DefineCriteriaMethodology <- function(
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::mutate(TADA.ComparableDataIdentifier = NA) |>
         dplyr::arrange(
-          ATTAINS.OrganizationIdentifier != "EPA304a",
+          ATTAINS.OrganizationIdentifier != "USEPA",
           ATTAINS.OrganizationIdentifier,
           ATTAINS.UseName
         ) |>
         # tidyr::drop_na(ATTAINS.ParameterName) |>
         dplyr::distinct()
     }
-
-    # Final formatting considerations to output in the DefineCriteriaMethodology table
-    # if (!all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))) {
-    #   DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-    #     dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
-    # }
   }
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
