@@ -791,12 +791,10 @@ TADA_DefineCriteriaMethodology <- function(
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::filter(
           !(ATTAINS.OrganizationIdentifier == "USEPA" &
-            TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName
-          )
-        )|> # filters out the blank EPA304a criteria table but keep any unique 
+            TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName)
+        ) |> # filters out the blank EPA304a criteria table but keep any unique
         # TADA Characteristic not defined from the epa304a criteria table.
         plyr::rbind.fill(epa304a)
-      
     }
 
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
