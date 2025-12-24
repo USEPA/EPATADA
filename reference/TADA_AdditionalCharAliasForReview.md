@@ -87,21 +87,21 @@ positives). Default for now is to be more strict.
 
 ``` r
 review <- TADA_AdditionalCharAliasForReview()
-#> [1] "EQ_DomainValues: For param_name the values in the name column of the function output are the allowable values for rExpert Query functions."
+#> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
-#> [1] "EQ_DomainValues: For param_name the values in the name column of the function output are the allowable values for rExpert Query functions."
+#> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 
 review_more_strict <- TADA_AdditionalCharAliasForReview(
   displayPercent = TRUE,
   ATTAINS.WQX.tolerance = 1.0,
   WQX.ATTAINS.tolerance = 1.0
 )
-#> [1] "EQ_DomainValues: For param_name the values in the name column of the function output are the allowable values for rExpert Query functions."
+#> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 
 review_less_strict <- TADA_AdditionalCharAliasForReview(
   displayPercent = TRUE,
   ATTAINS.WQX.tolerance = 0.5,
   WQX.ATTAINS.tolerance = 0.5
 )
-#> [1] "EQ_DomainValues: For param_name the values in the name column of the function output are the allowable values for rExpert Query functions."
+#> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 ```
