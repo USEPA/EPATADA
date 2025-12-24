@@ -24,12 +24,11 @@ prior to running this function.}
 user. A list of organization identifiers can be found by downloading
 the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "OrgName" tab.
+organization identifiers are listed in the "OrgName" tab.
 The "code" column contains the organization identifiers that
-should be used for this parameter. If a user supplied crosswalk is entered
-into paramRef AND a user does not provide an org_id argument,
-the function can identify which organization identifier(s) to include
-based on the unique ATTAINS organization identifiers found in the dataframe.}
+should be used for this param. "USEPA" may be included as an org_id which will
+populate the epa304a recommended standards for any TADA.Characteristic if one
+is found. "All" or "NULL" are also allowable values.}
 
 \item{paramRef}{A dataframe which contains a completed crosswalk between
 TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to

@@ -32,9 +32,9 @@
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param criteriaMethods An optional data frame which contains the completed
 #' criteria and methodology table. This will be a user supplied table and any

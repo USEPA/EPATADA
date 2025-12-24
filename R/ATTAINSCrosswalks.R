@@ -933,12 +933,11 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' user. A list of organization identifiers can be found by downloading
 #' the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "OrgName" tab.
+#' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this parameter. If a user supplied crosswalk is entered
-#' into paramRef AND a user does not provide an org_id argument,
-#' the function can identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
@@ -1803,9 +1802,9 @@ TADA_ParametersForAnalysis <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param paramRef A dataframe which contains a completed crosswalk between
 #' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
@@ -2773,9 +2772,9 @@ TADA_UsesForAnalysis <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param AUMLRef A required data frame input. This data frame
 #' should contain a completed crosswalk of WQP Monitoring Locations
@@ -3153,60 +3152,6 @@ TADA_AssignUsesToAU <- function(
           TADA.AssessmentUnitStatus = "New: ATTAINS.UseName not found in prior ATTAINS assessment cycles for your org."
         ) |>
         plyr::rbind.fill(AU_UsesRef_matches)
-
-      # What rows did the user have in their AU_UsesRef that was not found in the most recent ATTAINS data system?
-      # Flag1 <- CreateAU_UsesRef |>
-      #   dplyr::anti_join(
-      #     AU_UsesRef,
-      #     by = c(
-      #       "ATTAINS.OrganizationIdentifier",
-      #       "ATTAINS.AssessmentUnitIdentifier",
-      #       "ATTAINS.UseName",
-      #       "ATTAINS.WaterType",
-      #       "TADA.AssessmentUnitStatus",
-      #       "IncludeOrExclude"
-      #     )
-      #   ) |>
-      #   dplyr::mutate(
-      #     TADA.AssessmentUnitStatus = dplyr::case_when(
-      #       !ATTAINS.AssessmentUnitIdentifier %in%
-      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-      #       ATTAINS.AssessmentUnitIdentifier %in%
-      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Suspect: Excluding from Assessment. This AU and use is not found in your AU_UsesRef"
-      #     )
-      #   ) |>
-      #   dplyr::mutate(
-      #     IncludeOrExclude = dplyr::case_when(
-      #       ATTAINS.AssessmentUnitIdentifier %in%
-      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Exclude"
-      #     )
-      #   )
-      #
-      # CreateAU_UsesRef <- Flag1 |>
-      #   dplyr::full_join(
-      #     AU_UsesRef,
-      #     by = c(
-      #       "ATTAINS.OrganizationIdentifier",
-      #       "ATTAINS.AssessmentUnitIdentifier",
-      #       "ATTAINS.UseName",
-      #       "ATTAINS.WaterType",
-      #       "TADA.AssessmentUnitStatus",
-      #       "IncludeOrExclude"
-      #     )
-      #   ) |>
-      #   dplyr::mutate(
-      #     TADA.AssessmentUnitStatus = dplyr::case_when(
-      #       !ATTAINS.AssessmentUnitIdentifier %in%
-      #         AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-      #       TRUE ~ TADA.AssessmentUnitStatus
-      #     )
-      #   ) |>
-      #   dplyr::arrange(
-      #     match(IncludeOrExclude, c("Include")),
-      #     ATTAINS.WaterType,
-      #     ATTAINS.UseName
-      #   ) |>
-      #   dplyr::distinct()
     }
 
     if (excel == TRUE) {
@@ -3335,9 +3280,9 @@ TADA_AssignUsesToAU <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param waterUseRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with a water type.
@@ -3498,9 +3443,9 @@ TADA_AssignUsesToWaterType <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' organization identifiers are listed in the "OrgName" tab.
 #' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' should be used for this param. "USEPA" may be included as an org_id which will
+#' populate the epa304a recommended standards for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values.
 #'
 #' @param usesRef A required data frame which contains a completed crosswalk of
 #' organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
