@@ -848,17 +848,16 @@ MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.CriteriaMethods.user.supplied)
 ```
 
-You can append epa304a recommended standards (if there is one found for
-a TADA.CharacteristicName)
+You can append epa304a recommended standards by specifying "USEPA" as
+part of org_id (if there is one found for a TADA.CharacteristicName)
 
 ```{r append-epa304a-recommended-standards}
 MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  org_id = "MTDEQ",
+  org_id = c("MTDEQ", "USEPA"),
   MLSummaryRef = NULL,
   criteriaMethods = criteria_table,
   displayUniqueId = TRUE,
-  epa304a = TRUE,
   excel = FALSE
   # excel = TRUE, overwrite = TRUE
 )

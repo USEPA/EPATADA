@@ -258,14 +258,13 @@ TADA_TableExport(MT.Criteria.auto2)
 
 We can also choose to append epa304a recommended standards into the
 criteria table for any WQP characteristics in your data frame that are
-found.
+found by specifying "USEPA" as part of the org_id argument input.
 
 ```{r auto-fill-epa304a-and-display}
 MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = "MTDEQ",
+  org_id = c("MTDEQ","USEPA"),
   auto_assign = TRUE,
-  epa304a = TRUE,
   displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
@@ -284,10 +283,7 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table. The
-user supplied table is prioritized. Any missing
-WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
-auto_assign = TRUE option.
+In this first example, a user supplies their own criteria table.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
@@ -295,49 +291,47 @@ Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ```{r user.supplied.w.epa304a}
-# Load the example MTDEQ criteria table
+# Load the example R8 criteria table
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 load(criteria_table)
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 
-MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   AU_UsesRef = Data_MT_AU_UsesRef,
   displayUniqueId = FALSE,
-  epa304a = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user.auto)
+TADA_TableExport(MT.Criteria.user)
 ```
 
+Users can also choose to append epa304a recommended standards to their criteria table by including "USEPA" in the org_id.
+
 Users will need to determine their level of desired grouping of
-TADA.CharacteristicName by aggregation. If a user has not gone through
-the review process with the 3 crosswalk reference files, they need to
-specify what combinations of fraction and speciations falls under an
+TADA.CharacteristicName by aggregation. If a user has not gone through the review process of assigning TADA.ComparableDataIdentifiers to ATTAINS.ParameterName then they must specify what combinations of fraction and speciations falls under an
 ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
-displayUniqueId = TRUE, this will display all combinations in the
+displayUniqueId = TRUE, this will display all unique TADA.ComparableDataIdentifier combinations in the
 criteria table output.
 
 ```{r displayID.and.user.supplied.w.epa304a}
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ",
+  org_id = c("MTDEQ", "USEPA"),
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
-  epa304a = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 
-TADA_TableExport(MT.Criteria.user.auto2)
+TADA_TableExport(MT.Criteria.user2)
 ```
 
 ## Choose a Final Criteria Template, Save and Re-use
@@ -349,7 +343,7 @@ TADA_TableExport(MT.Criteria.user.auto2)
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria.user.auto2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE

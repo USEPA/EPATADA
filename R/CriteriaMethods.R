@@ -771,6 +771,13 @@ TADA_DefineCriteriaMethodology <- function(
         "EPA304a_criteria_table.csv",
         package = "EPATADA"
       ))
+      
+      if(displayUniqueId == TRUE) {
+        uniqueID <- unique(.data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")])
+        epa304a <- epa304a |>
+          dplyr::select(-TADA.ComparableDataIdentifier) |>
+          dplyr::left_join(uniqueID)
+      }
 
       # read in ref csv
       coltype.ref <- utils::read.csv(system.file(
@@ -783,6 +790,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>
+        dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName)) |>
         dplyr::filter(
           TADA.CharacteristicName %in%
             DefineCriteriaMethodology$TADA.CharacteristicName
@@ -1052,9 +1060,10 @@ TADA_DefineCriteriaMethodology <- function(
           "arithmetic median",
           "arithmetic max",
           "arithmetic min",
+          "arithmetic extremes",
           "geometric mean",
           "rolling geometric mean",
-          "rolling arithmetric mean"
+          "rolling arithmetic mean"
         )
       )
     )
