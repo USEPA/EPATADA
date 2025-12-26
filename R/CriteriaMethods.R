@@ -771,9 +771,12 @@ TADA_DefineCriteriaMethodology <- function(
         "EPA304a_criteria_table.csv",
         package = "EPATADA"
       ))
-      
-      if(displayUniqueId == TRUE) {
-        uniqueID <- unique(.data[,c("TADA.ComparableDataIdentifier", "TADA.CharacteristicName")])
+
+      if (displayUniqueId == TRUE) {
+        uniqueID <- unique(.data[, c(
+          "TADA.ComparableDataIdentifier",
+          "TADA.CharacteristicName"
+        )])
         epa304a <- epa304a |>
           dplyr::select(-TADA.ComparableDataIdentifier) |>
           dplyr::left_join(uniqueID)
