@@ -241,17 +241,17 @@ TADA_FieldValuesTable <- function(
 #' TADA_AnalysisDataFilter
 #'
 #' This function processes a TADA profile object to flag or filter data based on media type.
-#' By default (`clean = FALSE`), it adds two columns: `TADA.UseForAnalysis.Flag` and 
-#' `TADA.Media.Flag`. The `TADA.UseForAnalysis.Flag` indicates whether each row should be included 
-#' in the analysis along with the media type. If `clean = TRUE`, the function filters out rows 
+#' By default (`clean = FALSE`), it adds two columns: `TADA.UseForAnalysis.Flag` and
+#' `TADA.Media.Flag`. The `TADA.UseForAnalysis.Flag` indicates whether each row should be included
+#' in the analysis along with the media type. If `clean = TRUE`, the function filters out rows
 #' not suitable for analysis, and these columns will not be added.
 #'
-#' The function utilizes various columns including `MonitoringLocationTypeName`, 
+#' The function utilizes various columns including `MonitoringLocationTypeName`,
 #' `ActivityMediaName`, `ActivityMediaSubdivisionName`, `AquiferName`,
 #' `LocalAqfrName`, `ConstructionDateText`, `WellDepthMeasure.MeasureValue`,
 #' `WellDepthMeasure.MeasureUnitCode`, `WellHoleDepthMeasure.MeasureValue`, and
-#' `WellHoleDepthMeasure.MeasureUnitCode`, and others to determine the media type. 
-#' Users can specify which media types (surface water, groundwater, sediment, other) 
+#' `WellHoleDepthMeasure.MeasureUnitCode`, and others to determine the media type.
+#' Users can specify which media types (surface water, groundwater, sediment, other)
 #' should be included or excluded.
 #'
 #' @param .data A data frame representing a TADA profile object.
@@ -261,148 +261,199 @@ TADA_FieldValuesTable <- function(
 #' @param sediment Logical. If `TRUE`, sediment results are flagged for inclusion. Default is `FALSE`.
 #' @param other Logical. If `TRUE`, "other" results are flagged for inclusion. Default is `TRUE`.
 #'
-#' @return A data frame. If `clean = TRUE`, only rows flagged for inclusion are returned. 
-#' If `clean = FALSE`, all rows are returned with additional `TADA.UseForAnalysis.Flag` and 
+#' @return A data frame. If `clean = TRUE`, only rows flagged for inclusion are returned.
+#' If `clean = FALSE`, all rows are returned with additional `TADA.UseForAnalysis.Flag` and
 #' `TADA.Media.Flag` columns indicating the media type and inclusion status.
 #'
 #' @export
 #'
 #' @examples
 #' utils::data(Data_R5_TADAPackageDemo)
-#' 
+#'
 #' # Example 1: Retain only surface water results without adding flag columns
 #' Data_Assessment1 <- TADA_AnalysisDataFilter(
 #'   Data_R5_TADAPackageDemo,
 #'   clean = TRUE,
-#'   surface_water = TRUE, 
-#'   ground_water = FALSE, 
+#'   surface_water = TRUE,
+#'   ground_water = FALSE,
 #'   sediment = FALSE,
 #'   other = TRUE
 #' )
-#' 
+#'
 #' # View unique values in TADA.UseForAnalysis.Flag to understand inclusion criteria
 #' unique(Data_Assessment1$TADA.UseForAnalysis.Flag)
-#' 
+#'
 #' # View unique values in TADA.Media.Flag to see media type classification
 #' unique(Data_Assessment1$TADA.Media.Flag)
-#' 
+#'
 #' # Example 2: Flag surface water results for analysis and include flag columns
 #' Data_Assessment2 <- TADA_AnalysisDataFilter(
 #'   Data_R5_TADAPackageDemo,
 #'   clean = FALSE,
-#'   surface_water = TRUE, 
-#'   ground_water = FALSE, 
+#'   surface_water = TRUE,
+#'   ground_water = FALSE,
 #'   sediment = FALSE,
 #'   other = FALSE
 #' )
-#' 
+#'
 #' # View unique values in TADA.UseForAnalysis.Flag to understand inclusion criteria
 #' unique(Data_Assessment2$TADA.UseForAnalysis.Flag)
-#' 
+#'
 #' # View unique values in TADA.Media.Flag to see media type classification
 #' unique(Data_Assessment2$TADA.Media.Flag)
 #'
 TADA_AnalysisDataFilter <- function(
-    .data,
-    clean = FALSE,
-    surface_water = TRUE,
-    ground_water = FALSE,
-    sediment = FALSE,
-    other = TRUE
+  .data,
+  clean = FALSE,
+  surface_water = TRUE,
+  ground_water = FALSE,
+  sediment = FALSE,
+  other = TRUE
 ) {
-  
   # Check if .data is a data frame
   if (!is.data.frame(.data)) {
     stop("Input object must be a data frame.")
   }
-  
+
   # Early exit if the data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
     return(NULL)
   }
-  
+
   # Check for required columns
-  required_columns <- c("ActivityMediaSubdivisionName", "AquiferName", "MonitoringLocationTypeName")
+  required_columns <- c(
+    "ActivityMediaSubdivisionName",
+    "AquiferName",
+    "MonitoringLocationTypeName"
+  )
   missing_columns <- setdiff(required_columns, names(.data))
   if (length(missing_columns) > 0) {
-    stop(paste("Missing required columns:", paste(missing_columns, collapse = ", ")))
+    stop(paste(
+      "Missing required columns:",
+      paste(missing_columns, collapse = ", ")
+    ))
   }
-  
+
   # Ensure optional columns exist so dplyr verbs don't fail
   if (!"ActivityMediaName" %in% names(.data)) {
     .data$ActivityMediaName <- NA_character_
   }
-  
+
   # Import monitoring location types and their associated media flags (and uppercase for join)
-  monitoring_location_types <- utils::read.csv(
-    system.file("extdata", "WQXMonitoringLocationTypeNameRef.csv", package = "EPATADA")
-  )
+  monitoring_location_types <- utils::read.csv(system.file(
+    "extdata",
+    "WQXMonitoringLocationTypeNameRef.csv",
+    package = "EPATADA"
+  ))
   monitoring_location_types <- monitoring_location_types |>
-    dplyr::mutate(MonitoringLocationTypeName = toupper(MonitoringLocationTypeName))
-  
+    dplyr::mutate(
+      MonitoringLocationTypeName = toupper(MonitoringLocationTypeName)
+    )
+
   # Uppercase MonitoringLocationTypeName in .data so join works reliably
   .data <- .data |>
-    dplyr::mutate(MonitoringLocationTypeName = toupper(MonitoringLocationTypeName))
-  
+    dplyr::mutate(
+      MonitoringLocationTypeName = toupper(MonitoringLocationTypeName)
+    )
+
   # Build a groundwater indicator from any available groundwater-related fields
   gw_cols <- c(
-    "AquiferName", "AquiferTypeName", "LocalAqfrName", "ConstructionDateText",
-    "WellDepthMeasure.MeasureValue", "WellDepthMeasure.MeasureUnitCode",
-    "WellHoleDepthMeasure.MeasureValue", "WellHoleDepthMeasure.MeasureUnitCode"
+    "AquiferName",
+    "AquiferTypeName",
+    "LocalAqfrName",
+    "ConstructionDateText",
+    "WellDepthMeasure.MeasureValue",
+    "WellDepthMeasure.MeasureUnitCode",
+    "WellHoleDepthMeasure.MeasureValue",
+    "WellHoleDepthMeasure.MeasureUnitCode"
   )
   present_gw_cols <- intersect(gw_cols, names(.data))
   if (length(present_gw_cols) > 0) {
-    gw_has_fields <- apply(.data[, present_gw_cols, drop = FALSE], 1, function(row) any(!is.na(row)))
+    gw_has_fields <- apply(
+      .data[, present_gw_cols, drop = FALSE],
+      1,
+      function(row) any(!is.na(row))
+    )
   } else {
     gw_has_fields <- rep(FALSE, nrow(.data))
   }
   .data$gw_has_fields <- gw_has_fields
-  
+
   # Add TADA.Media.Flag column based on various criteria, then fill from monitoring location ref
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        ActivityMediaSubdivisionName == "Groundwater" | gw_has_fields ~ "GROUNDWATER",
+        ActivityMediaSubdivisionName == "Groundwater" |
+          gw_has_fields ~ "GROUNDWATER",
         ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
-        !is.na(ActivityMediaName) & !ActivityMediaName %in% c("WATER", "Water", "water") ~ toupper(ActivityMediaName),
+        !is.na(ActivityMediaName) &
+          !ActivityMediaName %in% c("WATER", "Water", "water") ~ toupper(
+          ActivityMediaName
+        ),
         TRUE ~ NA_character_
       )
     ) |>
-    dplyr::left_join(monitoring_location_types, by = "MonitoringLocationTypeName") |>
+    dplyr::left_join(
+      monitoring_location_types,
+      by = "MonitoringLocationTypeName"
+    ) |>
     dplyr::mutate(
-      TADA.Media.Flag = dplyr::coalesce(TADA.Media.Flag, ML.Media.Flag, "OTHER"),
+      TADA.Media.Flag = dplyr::coalesce(
+        TADA.Media.Flag,
+        ML.Media.Flag,
+        "OTHER"
+      ),
       TADA.Media.Flag = toupper(TADA.Media.Flag)
     ) |>
     dplyr::select(-ML.Media.Flag)
-  
+
   # Add TADA.UseForAnalysis.Flag column based on media flags
   .data <- .data |>
     dplyr::mutate(
       TADA.UseForAnalysis.Flag = dplyr::case_when(
-        TADA.Media.Flag == "SEDIMENT" ~ paste0(ifelse(sediment, "Include", "Exclude"), " - ", TADA.Media.Flag),
-        TADA.Media.Flag == "SURFACE WATER" ~ paste0(ifelse(surface_water, "Include", "Exclude"), " - ", TADA.Media.Flag),
-        TADA.Media.Flag == "GROUNDWATER" ~ paste0(ifelse(ground_water, "Include", "Exclude"), " - ", TADA.Media.Flag),
-        TADA.Media.Flag == "OTHER" ~ paste0(ifelse(other, "Include", "Exclude"), " - ", TADA.Media.Flag),
+        TADA.Media.Flag == "SEDIMENT" ~ paste0(
+          ifelse(sediment, "Include", "Exclude"),
+          " - ",
+          TADA.Media.Flag
+        ),
+        TADA.Media.Flag == "SURFACE WATER" ~ paste0(
+          ifelse(surface_water, "Include", "Exclude"),
+          " - ",
+          TADA.Media.Flag
+        ),
+        TADA.Media.Flag == "GROUNDWATER" ~ paste0(
+          ifelse(ground_water, "Include", "Exclude"),
+          " - ",
+          TADA.Media.Flag
+        ),
+        TADA.Media.Flag == "OTHER" ~ paste0(
+          ifelse(other, "Include", "Exclude"),
+          " - ",
+          TADA.Media.Flag
+        ),
         TRUE ~ paste0("Exclude - ", TADA.Media.Flag)
       )
     )
-  
+
   if (clean) {
     # Filter out rows not flagged for inclusion and remove flag columns
     .data <- .data |>
       dplyr::filter(stringr::str_detect(TADA.UseForAnalysis.Flag, "Include")) |>
       dplyr::select(-c(TADA.UseForAnalysis.Flag, TADA.Media.Flag)) |>
       TADA_OrderCols()
-    
-    message("TADA_AnalysisDataFilter: Removing results flagged for exclusion from analyses.")
+
+    message(
+      "TADA_AnalysisDataFilter: Removing results flagged for exclusion from analyses."
+    )
   } else {
     # Return all rows with flag columns
-    .data <- .data |>
-      TADA_OrderCols()
-    
-    message("TADA_AnalysisDataFilter: Returning all results with TADA.Media.Flag column and TADA.UseForAnalysis.Flag column which indicates if result should be included or excluded from analyses.")
+    .data <- .data |> TADA_OrderCols()
+
+    message(
+      "TADA_AnalysisDataFilter: Returning all results with TADA.Media.Flag column and TADA.UseForAnalysis.Flag column which indicates if result should be included or excluded from analyses."
+    )
   }
-  
+
   return(.data)
 }
