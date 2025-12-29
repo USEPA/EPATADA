@@ -206,10 +206,10 @@ TADA_DefineCriteriaMethodology <- function(
   # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-    missing(MLSummaryRef) &&
-    missing(criteriaMethods) &&
-    missing(AUMLRef) &&
-    missing(AU_UsesRef)
+      missing(MLSummaryRef) &&
+      missing(criteriaMethods) &&
+      missing(AUMLRef) &&
+      missing(AU_UsesRef)
   ) {
     # if (!"USEPA" %in% org_id) {
     #   stop("org_id can only equal NULL or 'USEPA' if all other argument inputs are left blank.")
@@ -803,20 +803,17 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
     }
   }
-  
   # User wants to populate the Criteria table using the EPA304a standards
   # joins the epa304a standards to the current Criteria Table.
   if ("USEPA" %in% org_id) {
     print(paste0(
       "USEPA was included in your 'org_id': Including EPA304a recommended standards by each unique TADA.CharacteristicName if one is found."
     ))
-    
     epa304a <- utils::read.csv(system.file(
       "extdata",
       "EPA304a_criteria_table.csv",
       package = "EPATADA"
     ))
-    
     if (displayUniqueId == TRUE) {
       uniqueID <- unique(.data[, c(
         "TADA.ComparableDataIdentifier",
@@ -826,14 +823,12 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::select(-TADA.ComparableDataIdentifier) |>
         dplyr::left_join(uniqueID)
     }
-    
     # read in ref csv
     coltype.ref <- utils::read.csv(system.file(
       "extdata",
       "TADAColTypeRef.csv",
       package = "EPATADA"
     ))
-    
     if (missing(.data)) {
       epa304a <- suppressWarnings(correctColType(epa304a)) |>
         dplyr::select(names(epa304a)[
@@ -841,7 +836,6 @@ TADA_DefineCriteriaMethodology <- function(
         ]) |>
         dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName))
     }
-    
     if (!missing(.data)) {
       epa304a <- suppressWarnings(correctColType(epa304a)) |>
         dplyr::select(names(epa304a)[
@@ -859,12 +853,11 @@ TADA_DefineCriteriaMethodology <- function(
       # TADA Characteristic not defined from the epa304a criteria table.
       dplyr::filter(
         !(ATTAINS.OrganizationIdentifier == "USEPA" &
-            TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName)
+          TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName)
       ) |>
       plyr::rbind.fill(epa304a) |>
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "USEPA")
   }
-  
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
