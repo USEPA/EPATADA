@@ -157,14 +157,14 @@ DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
 
 # Example 2: fill template with epa304a standards
 epa_only <- TADA_DefineCriteriaMethodology(
-  Data_MT_MissoulaCounty, 
-  org_id = "USEPA", 
+  Data_MT_MissoulaCounty,
+  org_id = "USEPA",
   auto_assign = T
 )
 
-# Example 3: fill template with epa304a 
-# and ATTAINS parameters and uses for MTDEQ: 
-epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty, 
+# Example 3: fill template with epa304a
+# and ATTAINS parameters and uses for MTDEQ:
+epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
   org_id = c("USEPA", "MTDEQ"), auto_assign = T)
 
 }
