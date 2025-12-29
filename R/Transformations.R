@@ -317,7 +317,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'   (TADA.MonitoringLocationIdentifier) on the same day (ActivityStartDate),
 #'   this will select a single measurement to use in the
 #'   Total N or Total P summation. Defaults to 'max', but can be set
-#'   to 'min' or 'mean'. 
+#'   to 'min' or 'mean'.
 #'
 #' @return TADA dataframe with additional rows representing total N and P
 #'   summation values from adding up subspecies. Note that for total phosphorus,
@@ -360,11 +360,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 #'
 #' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
 #'
-TADA_CalculateTotalNP <- function(
-  .data,
-  sum_ref,
-  daily_agg = "max"
-) {
+TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   # check .data is data.frame and has required columns
   req_cols <- c(
     "TADA.CharacteristicName",
@@ -593,21 +589,23 @@ TADA_CalculateTotalNP <- function(
     "No aggregation needed",
     paste0("Selected as ", daily_agg, " aggregate value")
   )
-  
+
   # Try both original and cleaned column names
   flag_candidates <- "TADA.ResultValueAggregation.Flag"
   flag_col <- flag_candidates[flag_candidates %in% names(dat)]
-  
+
   # Column 'TADA.ResultValueAggregation.Flag' not found
   if (length(flag_col) == 0) {
-    message("There is no applicable data to calculate TN or TP. Returning data unchanged.")
+    message(
+      "There is no applicable data to calculate TN or TP. Returning data unchanged."
+    )
     return(.data)
   }
   flag_col <- flag_col[1]
-  
+
   # Build logical index, dropping NAs
   matching_rows <- !is.na(dat[[flag_col]]) & dat[[flag_col]] %in% valid_flags
-  
+
   dat_TNTP <- dat[matching_rows, , drop = FALSE]
 
   # join data to summation table and keep only those that match for summations

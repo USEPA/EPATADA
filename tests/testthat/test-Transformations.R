@@ -133,16 +133,18 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
 
 test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not applicable", {
   # Generate random testing data
-  df = TADA_DataRetrieval(statecode = "SC", 
-                          startDate = "2025-03-13", 
-                          endDate = "2025-03-14", 
-                          ask = FALSE)
+  df = TADA_DataRetrieval(
+    statecode = "SC",
+    startDate = "2025-03-13",
+    endDate = "2025-03-14",
+    ask = FALSE
+  )
 
   # Check if the required data frame is empty or null
   if (is.null(df) || nrow(df) == 0) {
     skip("Skipping test because df is empty or null")
   }
-  
+
   # Apply simple censored methods
   df2 <- TADA_SimpleCensoredMethods(
     df,
@@ -151,25 +153,25 @@ test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not a
     od_method = "as-is",
     od_multiplier = "null"
   )
-  
+
   # Check if df2 is empty or null
   if (is.null(df2) || nrow(df2) == 0) {
     skip("Skipping test because df2 is empty or null")
   }
-  
+
   # Run key flag functions
   df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-  
+
   # Harmonize synonyms
   df2 <- TADA_HarmonizeSynonyms(df2)
-  
+
   # Calculate total NP with daily aggregation
   df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-  
+
   # Check that all ResultIdentifier values from the original df2 are in df3
   original_identifiers <- unique(df2$ResultIdentifier)
   combined_identifiers <- unique(df3$ResultIdentifier)
-  
+
   # Test that no identifiers are missing
   missing_identifiers <- setdiff(original_identifiers, combined_identifiers)
   expect_true(
@@ -179,7 +181,7 @@ test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not a
       paste(missing_identifiers, collapse = ", ")
     )
   )
-  
+
   # Test for duplicate ResultIdentifier values in df3
   duplicate_ids <- df3$ResultIdentifier[duplicated(df3$ResultIdentifier)]
   expect_false(
@@ -189,10 +191,10 @@ test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not a
       paste(duplicate_ids, collapse = ", ")
     )
   )
-  
+
   # Optionally verify column names
   # print(names(df2))  # Uncomment to print column names for verification
-  
+
   # Optionally subset df2 to include only rows with missing identifiers
   # filtered_df2 <- df2[df2$ResultIdentifier %in% missing_identifiers, ]
 })
