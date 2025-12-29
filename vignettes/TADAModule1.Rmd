@@ -406,7 +406,7 @@ query inputs.
 ## Filter data based on media type
 
 Some TADA users are interested in using WQP data for surface water only
-or for analysis of some non-water data. The **TADA_AnalysisDataFilter**
+or for analysis of some non-water data. The **TADA_MediaFilter**
 function can assist in identifying results of interest. Multiple columns
 are used to identify groundwater results as different organizations may
 populate different combinations of fields in order to identify a result
@@ -414,34 +414,34 @@ as groundwater.
 
 This function identifies surface water, groundwater, and sediment
 results. Users can specify whether all results should be returned with a
-new column, *TADA.UseForAnalysis.Flag*, identifying if the result should
+new column, *TADA.Media.Flag*, identifying if the result should
 be included in further analysis or if only results that should be in
 included are returned.
 
 The defaults are to include surface water, exclude groundwater and
 sediment, and to return only the results that should be used for
 analysis (clean = TRUE). This is shown in the active example below. If
-you would like to see all results with the *TADA.UseForAnalysis.Flag*
+you would like to see all results with the *TADA.Media.Flag*
 column, you can uncomment the example where clean = FALSE.
 
-If you are not interested in using **TADA_AnalysisDataFilter**, but
+If you are not interested in using **TADA_MediaFilter**, but
 would like to filter by activity media, uncomment the example to filter
 for water data only by using dplyr::filter() with
 TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
 # Filter to retain only results for use in analysis
-TADAProfile <- TADA_AnalysisDataFilter(TADAProfile,
+TADAProfile <- TADA_MediaFilter(TADAProfile,
   clean = TRUE,
   surface_water = TRUE,
   ground_water = FALSE,
   sediment = FALSE
 )
 
-# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
-# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile, clean = FALSE)
+# Add TADA.Media.Flag column to identify which results should be used for analysis
+# TADAProfile <- TADA_MediaFilter(TADAProfile, clean = FALSE)
 
-# Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
+# Remove data for non-water media types, alternate workflow without using TADA_MediaFilter()
 # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
 

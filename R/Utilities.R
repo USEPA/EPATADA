@@ -140,7 +140,6 @@ utils::globalVariables(c(
   "MeasureQualifierCode.Split",
   "TADA.Media.Flag",
   "ML.Media.Flag",
-  "TADA.UseForAnalysis.Flag",
   "Unique.Identifier",
   "Domain",
   "Note.Recommendation",

@@ -1,4 +1,4 @@
-﻿column_name,column_type
+column_name,column_type
 ResultIdentifier,character
 TADA.MonitoringLocationName,character
 TADA.LatitudeMeasure,numeric
@@ -224,7 +224,6 @@ TADA.Remove,character
 TADA.NearbySites.Flag,character
 TADA.NearbySiteGroup,numeric
 TADA.SampleFraction.Flag,character
-TADA.UseForAnalysis.Flag,character
 TADA.DepthCategory.Flag,character
 TADA.DepthProfileAggregation.Flag,character
 TADA.NutrientSummation.Flag,character
