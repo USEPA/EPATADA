@@ -3008,7 +3008,7 @@ TADA_AssignUsesToAU <- function(
       }
     }
 
-    # Handle later, if multiple org_id are used, create a loop when calling rATTAINS (or if we use EQ National extract, no loop needed)
+    # Handle later, if multiple org_id are used, create a loop when calling rATTAINS (or if we use ATTAINS Expert Query National extract, no loop needed)
     # org_id <- as.list(org_id)
 
     # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
@@ -3032,9 +3032,9 @@ TADA_AssignUsesToAU <- function(
       ))
     }
 
-    # Pulls in Existing Uses by Existing AU from ATTAINS EQ
+    # Pulls in Existing Uses by Existing AU from ATTAINS Expert Query
     print(
-      "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
+      "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
     )
 
     OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(
