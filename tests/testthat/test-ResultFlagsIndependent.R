@@ -173,8 +173,13 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
 
 test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
+  testthat::skip_if(
+    is.null(testdat) || NROW(testdat) == 0,
+    "Empty test data; skipping test."
+  )
+
+  testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
   expect_false(any(is.na(testdat$TADA.MultipleOrgDuplicate)))
   expect_false(any(is.na(testdat$TADA.MonitoringLocationIdentifier)))

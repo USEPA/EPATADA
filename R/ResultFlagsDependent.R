@@ -916,29 +916,30 @@ TADA_PairReplicates <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y)
+#' utils::data(Data_Nutrients_UT)
 #'
 #' # Flag and keep all suspect samples:
 #' MeasureQualifierCode_flagged <-
-#'   TADA_FlagMeasureQualifierCode(Data_6Tribes_5y)
+#'   TADA_FlagMeasureQualifierCode(Data_Nutrients_UT)
 #'
 #' # Flag suspect samples and filter to suspect data only:
 #' MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(
-#'   Data_6Tribes_5y,
+#'   Data_Nutrients_UT,
 #'   flaggedonly = TRUE
 #' )
 #'
 #' # Remove all suspect samples:
-#' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_6Tribes_5y,
+#' MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT,
 #'   clean = TRUE
 #' )
 #'
 #' # Remove all suspect samples and DO NOT include a new column with
 #' # qualifier definitions (TADA.MeasureQualifierCode.Def):
 #' MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(
-#'   Data_6Tribes_5y,
+#'   Data_Nutrients_UT,
 #'   clean = TRUE, define = FALSE
 #' )
+#'
 TADA_FlagMeasureQualifierCode <- function(
   .data,
   clean = FALSE,
