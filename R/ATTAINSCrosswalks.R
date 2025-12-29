@@ -930,14 +930,20 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
-#' is found. "All" or "NULL" are also allowable values.
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
+#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually editted.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
@@ -1797,14 +1803,20 @@ TADA_ParametersForAnalysis <- function(
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
-#' is found. "All" or "NULL" are also allowable values.
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
+#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually editted.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param paramRef A dataframe which contains a completed crosswalk between
 #' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
@@ -2767,14 +2779,20 @@ TADA_UsesForAnalysis <- function(
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
-#' is found. "All" or "NULL" are also allowable values.
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
+#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually editted.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param AUMLRef A required data frame input. This data frame
 #' should contain a completed crosswalk of WQP Monitoring Locations
@@ -3275,14 +3293,20 @@ TADA_AssignUsesToAU <- function(
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
-#' is found. "All" or "NULL" are also allowable values.
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
+#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually editted.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param waterUseRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with a water type.
@@ -3438,14 +3462,20 @@ TADA_AssignUsesToWaterType <- function(
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
-#' is found. "All" or "NULL" are also allowable values.
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
+#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually editted.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param usesRef A required data frame which contains a completed crosswalk of
 #' organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
