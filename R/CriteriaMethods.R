@@ -5,36 +5,40 @@
 #' criteria and methodologies for each parameter and use combination they are
 #' interested in analyzing. This table can be filled out manually, auto-populated
 #' with uses and parameters from ATTAINS and the input WQP dataframe, or
-#' developed with TADA helper functions (recommended).It is recommended to run
+#' developed with TADA helper functions (recommended). It is recommended to run
 #' these three TADA helper functions, [TADA_ParametersForAnalysis()],
 #' [TADA_UsesForAnalysis], and [TADA_MLSummary], in that order to
 #' generate the Criteria and Methodology table specific for your organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and
-#' contain a list of allowable values within each column to define the full
-#' criteria, or magnitude only, values associated with an ATTAINS parameter name
-#' and use name. For each criteria/magnitude value,
-#' users will need to ensure they properly define any additional methods that
-#' reflects their water quality criteria and methodologies for a parameter and use.
-#' For example, if there are separate criteria and methods for acute versus chronic,
-#' rivers versus estuary, different seasons, etc., then a user will need to create
-#' additional rows to reflect this. Additional columns are included in this output
-#' to capture data sufficiency considerations such as minimum sample sizes,
-#' assessment period dates, and seasonality components.
-#'
+#' contain a list of allowable values within each column. For each ATTAINS parameter
+#' name and use name, users may choose to define the full criteria and methodologies
+#' information or magnitude values only. For example, if there are separate criteria 
+#' and methods for acute versus chronic, rivers versus estuaries, different seasons, 
+#' etc., then a user will need to create additional rows to reflect this. 
+#' Additional columns are included in this output
+#' to capture data sufficiency information such as minimum sample sizes,
+#' assessment period dates, and seasonality.
+#' 
+#' Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and 
+#' ATTAINS.OrganizationIdentifier:
+#' ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name")
+#' ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name")
+#' ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id")
+#' 
 #' @param .data A TADA dataframe. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. "USEPA" may be included as an org_id which will
+#' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to 
+#' get a list of valid organization identifiers. A list of organization identifiers 
+#' can also be found by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param criteriaMethods An optional data frame which contains the completed
 #' criteria and methodology table. This will be a user supplied table and any
@@ -96,7 +100,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' # Example 1
 #' # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 #' paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -131,7 +135,18 @@
 #'   displayUniqueId = TRUE,
 #'   excel = FALSE
 #' )
-#' }
+#' 
+#' # Example 2: fill template with epa304a standards
+#' epa_only <- TADA_DefineCriteriaMethodology(
+#'   Data_MT_MissoulaCounty, 
+#'   org_id = "USEPA", 
+#'   auto_assign = T
+#' )
+#' 
+#' # Example 3: fill template with epa304a 
+#' # and ATTAINS parameters and uses for MTDEQ: 
+#' epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty, 
+#'   org_id = c("USEPA", "MTDEQ"), auto_assign = T)
 #'
 TADA_DefineCriteriaMethodology <- function(
   .data,
