@@ -34,10 +34,10 @@
 #' user. "USEPA" may be included as an org_id which will
 #' populate the epa304a recommended standards for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values and may be helpful for new
-#' ATTAINS users or those performing assessments for multiple states and tribes. 
+#' ATTAINS users or those performing assessments for multiple states and tribes.
 #' If "All" is selected, this will return all prior ATTAINS information from all
-#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows 
-#' for each organization. If "NULL" is selected all unique prior ATTAINS 
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
+#' for each organization. If "NULL" is selected all unique prior ATTAINS
 #' information from any ATTAINS organizations are returned but are not labeled
 #' and can be manually editted.
 #' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
