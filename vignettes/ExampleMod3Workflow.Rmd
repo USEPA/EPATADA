@@ -826,7 +826,9 @@ TADA_TableExport(MT.CriteriaMethods)
 ```
 
 Now, if MTDEQ, already has a filled out/partially filled out criteria
-methods table, let's provide this as an argument input.
+methods table, let's provide this as an argument input. criteria_table
+is an example of a criteria table that has been filled out by a few R8
+states and tribes.
 
 Note: Whenever a criteriaMethods argument input value is provided, users
 will be warned if there are additional WQP characteristics (or

@@ -203,23 +203,39 @@ MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.blank)
 ```
 
-## Option B: Auto Fill option (Intermediate Tabs are Hidden)
+## Option B: View EPA304a Recommended Standards
+
+User can choose to view the full list of EPA304a standards that has been filled out in TADA format for most priority WQP Characteristic Name by including "USEPA" as part of the org_id argument input.
+
+```{r epa template output}
+MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
+  org_id = "USEPA"
+)
+
+TADA_TableExport(MT.Criteria.epa)
+```
+
+If a user is only interested in TADA.CharacteristicName(s) that are in their WQP data frame, user can provide their .data in TADA_DefineCriteriaMethodology. Any EPA304a criteria not found for any TADA.CharacteristicName will show up as an empty row. Users can choose to fill this value out as desired or leave this row unfilled/removed.
+
+```{r epa template filtered output}
+MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "USEPA"
+)
+
+TADA_TableExport(MT.Criteria.epa)
+```
+
+## Option C: Auto Fill option (Intermediate Tabs are Hidden)
 
 You can also generate auto_assigned value(s) of ATTAINS.ParameterName,
-ATTAINS.UseName to TADA.CharacteristicName using default options. Users
+ATTAINS.UseName to TADA.CharacteristicName using default options
+that are based on prior ATTAINS assessment cycles by each ATTAINS organization. Users
 should be aware that this will only return rows for any matching values
 from a WQP characteristic to ATTAINS parameter alias table. It is likely
 that these value(s) will require a thorough review process during each
 step of the process with the recommended workflow of
 TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
-
-Users can view the output of these 3 functions in the excel spreadsheet
-if desired. They are hidden as default (NOTE TO CONSIDER: Should these
-be kept hidden? The goal of this output has been to focus on an
-auto_assign option as a quick get around to needing to fill out the
-table from scratch, but if users may find it worthwhile, we can always
-show these hidden tabs to allow for an easier review process and
-updating of tables directly in the excel file.)
 
 ```{r auto-fill-output}
 MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
@@ -274,9 +290,9 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.auto3)
 ```
 
-## Option C: User Supplied Table
+## Option D: User Supplied Table
 
-A user has a completed or partially filled criteria file, let's use
+A user has a completed (or partially) filled criteria file, let's use
 MTDEQ as our example org. MTDEQ should thoroughly review this table and
 determine if there are values that needs to be fixed or if there are
 missing WQP Char to consider that isn't defined in their criteria and
