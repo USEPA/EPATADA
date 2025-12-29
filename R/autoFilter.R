@@ -296,7 +296,6 @@ TADA_FieldValuesTable <- function(
 #'   clean = TRUE,
 #'   surface_water = TRUE
 #' )
-#' 
 TADA_MediaFilter <- function(
     .data,
     clean = FALSE,
@@ -411,7 +410,7 @@ TADA_MediaFilter <- function(
       )
   }
   
-  # Normalize TADA.Media.Flag:
+  # Normalize TADA.Media.Flag
   core_flags <- c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
   .data <- .data |>
     dplyr::mutate(
@@ -460,7 +459,7 @@ TADA_MediaFilter <- function(
       TADA_OrderCols()
     
     message(sprintf(
-      "TADA_MediaFilter: Cleaned data by removing media types set to TRUE (%s); returning without flag columns.",
+      "TADA_MediaFilter: Removed media types: %s. Returning cleaned data without flag columns.",
       removed_types_str
     ))
   } else {
