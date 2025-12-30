@@ -24,7 +24,7 @@ prior to running this function.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. "USEPA" may be included as an org_id which will
-populate the epa304a recommended standards for any TADA.Characteristic if one
+populate the EPA304(a) recommended standards for any TADA.Characteristic if one
 is found. "All" or "NULL" are also allowable values and may be helpful for new
 ATTAINS users or those performing assessments for multiple states and tribes.
 If "All" is selected, this will return all prior ATTAINS information from all
@@ -161,14 +161,14 @@ DefineCriteriaMethodology_UT <- TADA_DefineCriteriaMethodology(
   excel = FALSE
 )
 
-# Example 2: fill template with epa304a standards
+# Example 2: fill template with EPA304(a) criteria
 epa_only <- TADA_DefineCriteriaMethodology(
   Data_MT_MissoulaCounty,
   org_id = "USEPA",
   auto_assign = TRUE
 )
 
-# Example 3: fill template with epa304a
+# Example 3: fill template with EPA304(a)
 # and ATTAINS parameters and uses for MTDEQ:
 epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE)
