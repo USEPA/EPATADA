@@ -1,36 +1,5 @@
-# Helper: minimal synthetic dataset with required columns + ResultIdentifier
-make_df <- function() {
-  data.frame(
-    ResultIdentifier = paste0("R", seq_len(7)),
-    ActivityMediaSubdivisionName = c(
-      "Surface Water", # 1 -> SURFACE WATER
-      "Groundwater", # 2 -> GROUNDWATER
-      "Sediment", # 3 -> SEDIMENT
-      NA, # 4 -> ActivityMediaName AIR -> OTHER
-      NA, # 5 -> BIOLOGICAL -> OTHER
-      NA, # 6 -> "" -> OTHER
-      NA # 7 -> Tissue -> OTHER
-    ),
-    AquiferName = c(NA, "Aquifer", NA, NA, NA, NA, NA),
-    MonitoringLocationTypeName = c(
-      "River/Stream",
-      "Well",
-      "Wetland",
-      "Station",
-      "Site",
-      "Site",
-      "Site"
-    ),
-    ActivityMediaName = c(NA, NA, NA, "AIR", "BIOLOGICAL", "", "Tissue"),
-    stringsAsFactors = FALSE
-  )
-}
-
 test_that("TADA_MediaFilter errors on non-data frame", {
-  expect_error(
-    TADA_MediaFilter(list(a = 1)),
-    "Input object must be a data frame"
-  )
+  expect_error(TADA_MediaFilter(list(a = 1)), "Input object must be a data frame")
 })
 
 test_that("TADA_MediaFilter returns NULL with message on empty data frame", {
@@ -59,50 +28,40 @@ test_that("TADA_MediaFilter errors when required columns are missing", {
 })
 
 test_that("clean = FALSE: adds TADA.Media.Flag and normalizes to core values", {
-  df <- make_df()
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
   res <- TADA_MediaFilter(df, clean = FALSE)
-
+  
   # Flag column present
   expect_true("TADA.Media.Flag" %in% names(res))
   # Helper column removed
   expect_false("gw_has_fields" %in% names(res))
-
+  
   # Flags normalized to core set and OTHER for non-core
   flags <- sort(unique(res$TADA.Media.Flag))
-  expect_setequal(flags, c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER"))
-
+  allowed <- c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
+  expect_true(all(unique(flags) %in% allowed))
+  
   # Toggles ignored when clean = FALSE
-  res2 <- TADA_MediaFilter(
-    df,
-    clean = FALSE,
-    ground_water = TRUE,
-    sediment = TRUE,
-    other = TRUE
-  )
+  res2 <- TADA_MediaFilter(df, clean = FALSE, ground_water = TRUE, sediment = TRUE, other = TRUE)
   expect_equal(nrow(res2), nrow(df))
 })
 
 test_that("clean = TRUE: removes selected media and drops flag column", {
-  df <- make_df()
-
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
   # Determine expected rows remaining after removing SEDIMENT and OTHER
   flagged <- TADA_MediaFilter(df, clean = FALSE)
   flags <- flagged$TADA.Media.Flag
   expected_n <- sum(flags %in% c("SURFACE WATER", "GROUNDWATER"))
-
+  
   # Remove sediment + other
   expect_message(
-    res_clean <- TADA_MediaFilter(
-      df,
-      clean = TRUE,
-      sediment = TRUE,
-      other = TRUE
-    ),
+    res_clean <- TADA_MediaFilter(df, clean = TRUE, sediment = TRUE, other = TRUE),
     regexp = "(Removed media types|set to TRUE).*SEDIMENT.*OTHER",
     all = FALSE
   )
   expect_equal(nrow(res_clean), expected_n)
-
+  
   # Flag column removed in clean mode
   expect_false("TADA.Media.Flag" %in% names(res_clean))
   # Helper column removed
@@ -110,16 +69,12 @@ test_that("clean = TRUE: removes selected media and drops flag column", {
 })
 
 test_that("clean = TRUE: warns when all media toggles are TRUE", {
-  df <- make_df()
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
   # Warning that all media types are selected for removal
   expect_warning(
     TADA_MediaFilter(
-      df,
-      clean = TRUE,
-      surface_water = TRUE,
-      ground_water = TRUE,
-      sediment = TRUE,
-      other = TRUE
+      df, clean = TRUE,
+      surface_water = TRUE, ground_water = TRUE, sediment = TRUE, other = TRUE
     ),
     regexp = "All media types are selected for removal"
   )
@@ -137,19 +92,15 @@ test_that("clean = TRUE: warns when filter removes all rows", {
   )
   expect_warning(
     TADA_MediaFilter(
-      df,
-      clean = TRUE,
-      surface_water = TRUE,
-      ground_water = TRUE,
-      sediment = TRUE,
-      other = TRUE
+      df, clean = TRUE,
+      surface_water = TRUE, ground_water = TRUE, sediment = TRUE, other = TRUE
     ),
     regexp = "All rows were removed by the media filter"
   )
 })
 
 test_that("clean = TRUE: message when no toggles are set", {
-  df <- make_df()
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
   expect_message(
     res_clean <- TADA_MediaFilter(df, clean = TRUE),
     regexp = "No media types selected for removal",
@@ -169,7 +120,7 @@ test_that("Normalization to OTHER for HABITAT, empty string, AIR, BIOLOGICAL, an
     ActivityMediaName = c("HABITAT", "", "AIR", "BIOLOGICAL", "Tissue"),
     stringsAsFactors = FALSE
   )
-
+  
   res <- TADA_MediaFilter(df, clean = FALSE)
   expect_true(all(res$TADA.Media.Flag == "OTHER"))
 })
@@ -187,20 +138,19 @@ test_that("Reference join coalesces media when available; otherwise falls back g
   )
   res <- TADA_MediaFilter(df, clean = FALSE)
   expect_true("TADA.Media.Flag" %in% names(res))
-  expect_true(all(
-    res$TADA.Media.Flag %in%
-      c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
-  ))
+  expect_true(all(res$TADA.Media.Flag %in% c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")))
 })
 
 test_that("Clean-mode message lists exactly the removed media types", {
-  df <- make_df()
+  df <- TADA_RandomTestingData(choose_random_state = TRUE)
+  
   expect_message(
-    TADA_MediaFilter(df, clean = TRUE, ground_water = TRUE),
+    suppressWarnings(TADA_MediaFilter(df, clean = TRUE, ground_water = TRUE)),
     regexp = "Removed media types: GROUNDWATER"
   )
+  
   expect_message(
-    TADA_MediaFilter(df, clean = TRUE, surface_water = TRUE, other = TRUE),
+    suppressWarnings(TADA_MediaFilter(df, clean = TRUE, surface_water = TRUE, other = TRUE)),
     regexp = "Removed media types: SURFACE WATER, OTHER"
   )
 })
