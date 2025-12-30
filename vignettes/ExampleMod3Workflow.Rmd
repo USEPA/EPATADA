@@ -217,7 +217,7 @@ A crosswalk between TADA characteristics and ATTAINS parameters is
 needed before we can integrate information from these two data sets.
 Before creating the TADA/WQP CharacteristicName and ATTAINS parameter
 crosswalk table (TADA_ParametersForAnalysis), let's review all the
-unique TADA.ComparableDataIdentifier's (characteristic, fraction and
+unique TADA.ComparableDataIdentifiers (characteristic, fraction and
 speciation combinations) in the example data. How many results are
 available for each within the example data set?
 
@@ -227,7 +227,7 @@ TADA_FieldValuesTable(tada.MT.clean, field = "TADA.ComparableDataIdentifier")
 ```
 
 In this vignette, we will crosswalk each of these
-TADA.ComparableDataIdentifier's to ATTAINS parameter names. ATTAINS has
+TADA.ComparableDataIdentifiers to ATTAINS parameter names. ATTAINS has
 multiple domains, including the parameter names domain, that have
 allowable values. Using the R package rExpertQuery, which provides
 functions for downloading tidy data from the ATTAINS public web services
@@ -261,14 +261,14 @@ blank column, "ATTAINS.ParameterName" for users to input the
 corresponding ATTAINS parameter name.
 
 TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to
-assist users in doing an exact match between TADA Characteristic Names
+assist users in finding exact matches between TADA Characteristic Names
 to ATTAINS Parameter Name. There are roughly 598 unique ATTAINS
 Parameter Names that have an exact match. \*\*It is important to note
 that even with these exact matches, there are additional complexities
 related to fraction, speciation and units that may be unique to your
 organization. For example, some organizations may consider Total
 Nitrogen, Nitrate/Nitrite, and Ammonia all to match the ATTAINS
-parameter "Nitrogen", while other organizations may consider only some
+parameter "Nitrogen", while others may consider only some
 fraction/speciation combinations analogous to the ATTAINS parameter
 "Nitrogen".
 
@@ -282,15 +282,15 @@ in R if desired, although there are no TADA-specific functions designed
 to facilitate this.
 
 When using TADA_ParametersForAnalysis(), users should specify the
-organization(s) of interest in the "org_names" argument. This ensures
-that the correct number of rows will be created in the reference table.
-When "excel = TRUE", specifying the organization(s) also creates a
-separate tab in the Excel file which contains the parameter names used
-in prior assessment cycles by the specified ATTAINS organization(s).
-This will allow users to decide whether to continue to use the same
-ATTAINS parameter names from prior assessments that their
-organizations(s) have used in the past, or to use other valid parameter
-names from the entire ATTAINS domain list.
+organization(s) of interest in the "org_id" argument. This ensures that
+the correct number of rows will be created in the reference table. When
+"excel = TRUE", specifying the organization(s) also creates a separate
+tab in the Excel file which contains the parameter names used in prior
+assessment cycles by the specified ATTAINS organization(s). This will
+allow users to decide whether to continue to use the same ATTAINS
+parameter names from prior assessments that their organizations(s) have
+used in the past, or to use other valid parameter names from the entire
+ATTAINS domain list.
 
 Keep in mind that only parameter names previously entered in ATTAINS by
 the selected organization(s) will be returned. Many organization only
@@ -472,12 +472,12 @@ rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.
 # TADA_UsesForAnalysis() Basics
 
 Our first example will pull in all prior ATTAINS uses (ATTAINS.UseNames)
-and parameter names (ATTAINS.ParameterName) specific to the specified
-ATTAINS organization (defined by the org_names function argument for
+and parameter names (ATTAINS.ParameterName) from the specified ATTAINS
+organization (defined by the org_id function argument for
 TADA_UsesForAnalysis), which in this case is "MTDEQ" (Montana) using
-ExpertQuery from the ATTAINS data system. Users will review the output
-and choose which ATTAINS.UseName(s) are applicable to their analysis.
-The default functionality is to "Include" all ATTAINS use_names (see the
+ExpertQuery web services. Users will review the output and choose which
+ATTAINS.UseName(s) are applicable to their analysis. The default
+functionality is to "Include" all ATTAINS use_names (see the
 "IncludeOrExclude" column) that has an ATTAINS.UseName associated with
 it. Later in the data analysis process, users will be asked to define
 criteria and methodologies that is applicable to each ATTAINS use_name
@@ -487,12 +487,11 @@ name and use name.
 
 ### Manual Uses to Parameter Assignment
 
-For any ATTAINS parameter name(s) that have not been used by an
-organization in prior assessment cycles, there will be no prior use
-names associated with them. In this case, users will be responsible for
-manually assigning the appropriate ATTAINS.UseName applicable to their
-org under the column 'ATTAINS.UseName', and for inputting additional
-rows as needed if the parameter applies to multiples uses. Users can
+Any ATTAINS parameter name(s) that have not been used by an organization
+in prior assessment cycles, will not have any associated prior use
+names. In this case, users must manually assign the appropriate
+ATTAINS.UseName under the column 'ATTAINS.UseName'. They may need to add
+additional rows if the parameter applies to multiples uses. Users can
 also choose to 'auto_assign' all unique ATTAINS.UseName by
 ATTAINS.OrganizationName to any ATTAINS.ParameterName missing a use name
 associated with it.
@@ -502,8 +501,8 @@ as the ATTAINS.ParameterNames that were assessed in prior assessment
 cycles for MTDEQ (see ATTAINS.FlagUseName column in NCTC_usesRef). "PH,
 HIGH" was not listed in ATTAINS for MTDEQ in the prior assessment cycle,
 but was included as a parameter name MTDEQ would like to assess for in
-this current assessment/analysis cycle. Thus, the ATTAINS.UseName is
-left blank for "PH, HIGH".
+this current assessment cycle. Thus, the ATTAINS.UseName is left blank
+for "PH, HIGH".
 
 ```{r usesRef-Manual}
 MT.usesRef.Manual <- TADA_UsesForAnalysis(
@@ -557,11 +556,11 @@ TADA_TableExport(MT.usesRef.Manual.Update)
 
 ### Auto_assign Option
 
-Alternatively, We can choose to assign all unique use names found in
+Alternatively, we can choose to assign all unique use names found in
 your current usesRef table, by your organization to those
 ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
-need to review this assignment carefully and choose include or exclude
-appropriately or include additional rows as needed if there are more
+need to review this assignment carefully, choose include or exclude
+appropriately, and include additional rows as needed if there are more
 ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
 captured by the auto_assign method.
 
@@ -607,8 +606,8 @@ MT.usesRef.with.AU_UsesRef <- TADA_UsesForAnalysis(
 
 Users can also choose to supply their own usesRef as an argument input.
 This may be useful if your organization has made significant changes to
-use names in the current cycle that cannot be retrieved from the prior
-ATTAINS assessment cycle or if there are just additional use names that
+use names in the current cycle (cannot be retrieved from the prior
+ATTAINS assessment cycle) or if there are just additional use names that
 were unable to be retrieved from the prior assessment cycle.
 
 (Note: TADA functions leverages the ATTAINS assessment profiles which
@@ -695,8 +694,8 @@ rm(MT.usesRef.AutoAssign, MT.UseParam.user.supplied, MT.usesRef.Manual, MT.usesR
 
 We can define your WQP data retrieval on either an assessment unit level
 summary or monitoring location sites level. Please refer to EPATADA
-Module 2 on more information on the geospatial functions to assist with
-your assessment unit and monitoring location sites overlay.
+Module 2 for more information on the geospatial functions to assist with
+assessment unit and monitoring location overlay.
 
 The general workflow of running module 3 functions for CWA water quality
 data analysis is shown below.
