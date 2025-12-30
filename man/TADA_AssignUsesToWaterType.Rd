@@ -25,7 +25,7 @@ If "All" is selected, this will return all prior ATTAINS information from all
 ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
 for each organization. If "NULL" is selected all unique prior ATTAINS
 information from any ATTAINS organizations are returned but are not labeled
-and can be manually editted.
+and can be manually edited.
 Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
 get a list of valid organization identifiers. A list of organization identifiers
 can also be found by downloading the ATTAINS Domains Excel file:
