@@ -131,15 +131,6 @@ Users will be warned in the ATTAINS.FlagUseName column if they choose to
 include an ATTAINS use name that was not listed in prior ATTAINS assessment cycles as:
 'Use name is not listed as a prior cause in ATTAINS for this organization' or
 'Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name'.
-
-Note: Future development work will allow for crosswalking other names from the WQP
-such as using pollutant names from the EPA's Criteria Search Tool (CST):
-www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa.
-The TADA Team has crosswalked the CST pollutant names for EPA 304(a) standards with
-TADA.ComparableDataIdentifier(s) to make the criteria values available for
-use within TADA functions. The ATTAINS.UseName(s) associated with the EPA 304(a)
-criteria are included from the CST. All other ATTAINS.UseName(s) are specific to an
-ATTAINS organization and come from the ATTAINS domain value for use_name.
 }
 \examples{
 # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):

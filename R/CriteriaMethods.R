@@ -804,10 +804,10 @@ TADA_DefineCriteriaMethodology <- function(
     }
   }
   # User wants to populate the Criteria table using the EPA304(a) criteria
-  # joins the EPA304(a) standards to the current Criteria Table.
+  # joins the EPA304(a) criteria to the current Criteria Table.
   if ("USEPA" %in% org_id) {
     print(paste0(
-      "USEPA was included in your 'org_id': Including EPA304a recommended standards by each unique TADA.CharacteristicName if one is found."
+      "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
     ))
     epa304a <- utils::read.csv(system.file(
       "extdata",
