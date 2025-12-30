@@ -91,7 +91,6 @@ TADA.LatitudeMeasure) were determined.
 }
 \examples{
 \dontrun{
-
 # use MT example data set
 testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 

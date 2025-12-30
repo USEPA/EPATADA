@@ -73,7 +73,7 @@ Data_Clean1 <- TADA_MediaFilter(
   ground_water = TRUE,
   sediment = TRUE
 )
-"TADA.Media.Flag" \%in\% names(Data_Clean1)  # should be FALSE
+"TADA.Media.Flag" \%in\% names(Data_Clean1) # should be FALSE
 
 # Example 3: Keep only surface water by removing groundwater, sediment, and other
 Data_Clean2 <- TADA_MediaFilter(
