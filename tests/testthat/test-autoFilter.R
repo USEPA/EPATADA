@@ -1,5 +1,8 @@
 test_that("TADA_MediaFilter errors on non-data frame", {
-  expect_error(TADA_MediaFilter(list(a = 1)), "Input object must be a data frame")
+  expect_error(
+    TADA_MediaFilter(list(a = 1)),
+    "Input object must be a data frame"
+  )
 })
 
 test_that("TADA_MediaFilter returns NULL with message on empty data frame", {
@@ -42,7 +45,13 @@ test_that("clean = FALSE: adds TADA.Media.Flag and normalizes to core values", {
   expect_true(all(unique(flags) %in% allowed))
 
   # Toggles ignored when clean = FALSE
-  res2 <- TADA_MediaFilter(df, clean = FALSE, ground_water = TRUE, sediment = TRUE, other = TRUE)
+  res2 <- TADA_MediaFilter(
+    df,
+    clean = FALSE,
+    ground_water = TRUE,
+    sediment = TRUE,
+    other = TRUE
+  )
   expect_equal(nrow(res2), nrow(df))
 })
 
@@ -56,7 +65,12 @@ test_that("clean = TRUE: removes selected media and drops flag column", {
 
   # Remove sediment + other
   expect_message(
-    res_clean <- TADA_MediaFilter(df, clean = TRUE, sediment = TRUE, other = TRUE),
+    res_clean <- TADA_MediaFilter(
+      df,
+      clean = TRUE,
+      sediment = TRUE,
+      other = TRUE
+    ),
     regexp = "(Removed media types|set to TRUE).*SEDIMENT.*OTHER",
     all = FALSE
   )
@@ -75,7 +89,10 @@ test_that("clean = TRUE: warns when all media toggles are TRUE", {
     TADA_MediaFilter(
       df,
       clean = TRUE,
-      surface_water = TRUE, ground_water = TRUE, sediment = TRUE, other = TRUE
+      surface_water = TRUE,
+      ground_water = TRUE,
+      sediment = TRUE,
+      other = TRUE
     ),
     regexp = "All media types are selected for removal"
   )
@@ -95,7 +112,10 @@ test_that("clean = TRUE: warns when filter removes all rows", {
     TADA_MediaFilter(
       df,
       clean = TRUE,
-      surface_water = TRUE, ground_water = TRUE, sediment = TRUE, other = TRUE
+      surface_water = TRUE,
+      ground_water = TRUE,
+      sediment = TRUE,
+      other = TRUE
     ),
     regexp = "All rows were removed by the media filter"
   )
@@ -140,7 +160,10 @@ test_that("Reference join coalesces media when available; otherwise falls back g
   )
   res <- TADA_MediaFilter(df, clean = FALSE)
   expect_true("TADA.Media.Flag" %in% names(res))
-  expect_true(all(res$TADA.Media.Flag %in% c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")))
+  expect_true(all(
+    res$TADA.Media.Flag %in%
+      c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
+  ))
 })
 
 test_that("Clean-mode message lists exactly the removed media types", {
@@ -152,7 +175,12 @@ test_that("Clean-mode message lists exactly the removed media types", {
   )
 
   expect_message(
-    suppressWarnings(TADA_MediaFilter(df, clean = TRUE, surface_water = TRUE, other = TRUE)),
+    suppressWarnings(TADA_MediaFilter(
+      df,
+      clean = TRUE,
+      surface_water = TRUE,
+      other = TRUE
+    )),
     regexp = "Removed media types: SURFACE WATER, OTHER"
   )
 })
