@@ -931,7 +931,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
-#' recommended standards for any TADA.Characteristic if one is found. "All" or
+#' recommended criteria for any TADA.Characteristic if one is found. "All" or
 #' "NULL" are also allowable values and may be helpful for new ATTAINS users or
 #' those performing assessments for multiple states and tribes. If "All" is
 #' selected, this will return all prior ATTAINS information from all ATTAINS
@@ -1801,7 +1801,7 @@ TADA_ParametersForAnalysis <- function(
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will
-#' populate the EPA 304(a) recommended standards for any TADA.Characteristic if one
+#' populate the EPA 304(a) recommended criteria for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values and may be helpful for new
 #' ATTAINS users or those performing assessments for multiple states and tribes.
 #' If "All" is selected, this will return all prior ATTAINS information from all
@@ -2774,7 +2774,7 @@ TADA_UsesForAnalysis <- function(
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will
-#' populate the EPA 304(a) recommended standards for any TADA.CharacteristicName
+#' populate the EPA 304(a) recommended criteria for any TADA.CharacteristicName
 #'  if one is found. "All" or "NULL" are also allowable values and may be helpful
 #' for new ATTAINS users or those performing assessments for multiple states and
 #' tribes. If "All" is selected, this will return all prior ATTAINS information
@@ -3287,7 +3287,7 @@ TADA_AssignUsesToAU <- function(
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will
-#' populate the EPA 304(a) recommended standards for any TADA.Characteristic if one
+#' populate the EPA 304(a) recommended criteria for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values and may be helpful for new
 #' ATTAINS users or those performing assessments for multiple states and tribes.
 #' If "All" is selected, this will return all prior ATTAINS information from all
@@ -3456,7 +3456,7 @@ TADA_AssignUsesToWaterType <- function(
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will
-#' populate the EPA 304(a) recommended standards for any TADA.Characteristic if one
+#' populate the EPA 304(a) recommended criteria for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values and may be helpful for new
 #' ATTAINS users or those performing assessments for multiple states and tribes.
 #' If "All" is selected, this will return all prior ATTAINS information from all

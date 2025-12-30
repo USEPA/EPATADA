@@ -22,7 +22,7 @@ have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
-recommended standards for any TADA.Characteristic if one is found. "All" or
+recommended criteria for any TADA.Characteristic if one is found. "All" or
 "NULL" are also allowable values and may be helpful for new ATTAINS users or
 those performing assessments for multiple states and tribes. If "All" is
 selected, this will return all prior ATTAINS information from all ATTAINS

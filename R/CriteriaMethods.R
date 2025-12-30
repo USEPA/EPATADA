@@ -32,7 +32,7 @@
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
 #' user. "USEPA" may be included as an org_id which will
-#' populate the EPA304(a) recommended standards for any TADA.Characteristic if one
+#' populate the EPA304(a) recommended criteria for any TADA.Characteristic if one
 #' is found. "All" or "NULL" are also allowable values and may be helpful for new
 #' ATTAINS users or those performing assessments for multiple states and tribes.
 #' If "All" is selected, this will return all prior ATTAINS information from all
@@ -803,7 +803,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
     }
   }
-  # User wants to populate the Criteria table using the EPA304a standards
+  # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) standards to the current Criteria Table.
   if ("USEPA" %in% org_id) {
     print(paste0(
