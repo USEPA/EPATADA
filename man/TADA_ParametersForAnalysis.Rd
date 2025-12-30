@@ -16,46 +16,43 @@ TADA_ParametersForAnalysis(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
-processing, harmonization, filtering, and handling of censored data functions
-prior to running this function.}
+\item{.data}{A TADA dataframe after all desired data cleaning,
+processing, harmonization, filtering, and censored data handling functions
+have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. "USEPA" may be included as an org_id which will
-populate the epa304a recommended standards for any TADA.Characteristic if one
-is found. "All" or "NULL" are also allowable values and may be helpful for new
-ATTAINS users or those performing assessments for multiple states and tribes.
-If "All" is selected, this will return all prior ATTAINS information from all
-ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
-for each organization. If "NULL" is selected all unique prior ATTAINS
-information from any ATTAINS organizations are returned but are not labeled
-and can be manually editted.
-Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
+user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+recommended standards for any TADA.Characteristic if one is found. "All" or
+"NULL" are also allowable values and may be helpful for new ATTAINS users or
+those performing assessments for multiple states and tribes. If "All" is
+selected, this will return all prior ATTAINS information from all ATTAINS
+organizations in prior ATTAINS assessment cycles as individual rows for each
+organization. If "NULL" is selected all unique prior ATTAINS information from
+any ATTAINS organizations are returned but are not labeled and can be manually
+edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
 get a list of valid organization identifiers. A list of organization identifiers
 can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
 \item{paramRef}{A dataframe which contains a completed crosswalk between
-TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
-ensure this crosswalk contains the appropriate column names in order to
-run the function. paramRef must contain at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName. Users who are
-interested in performing analyses for more than
-one organization (multiple states or tribes, or a single state/tribe and
+TADA_ComparableDataIdentifier and ATTAINS.ParameterName. paramRef must contain
+at least these two column names: TADA.ComparableDataIdentifier and
+ATTAINS.ParameterName. Users who are interested in performing analyses for more
+than one organization (multiple states or tribes, or a single state/tribe and
 EPA 304a criteria) also need to include an additional column name:
-'organization_identifier'.}
+organization_identifier'.}
 
-\item{auto_assign}{A string value of "None", "All", or "Org". Default is "All".
-If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
-currently based on and exact match of WQP CharacteristicName with
-ATTAINS ParameterName along with a few manual review). If "Org" then this
-only provide the TADA logic match if your ATTAINS organization has included that
-ATTAINS ParameterName in the past. If not, this will be left blank for your
-organization to specify. "None" will result in an empty ATTAINS.ParameterName
-column. Users will be required to fill this out on their own completely or
-through a prior paramRef crosswalk. See paramRef argument input above for more
-information.}
+\item{auto_assign}{Character string with value of "None", "All", or "Org".
+Default is "All". If a user selects "All" this provides a match using TADA
+logic (IN DEVELOPMENT: currently based on and exact match of WQP
+CharacteristicName with ATTAINS ParameterName along with a few manual review).
+If "Org" then this only provide the TADA logic match if the specified ATTAINS
+organization has included that ATTAINS ParameterName in the past. If not, this
+will be left blank for your organization to specify. "None" will result in an
+empty ATTAINS.ParameterName column. Users will be required to fill this out on
+their own completely or through a prior paramRef crosswalk. See paramRef
+argument input above for more information.}
 
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated

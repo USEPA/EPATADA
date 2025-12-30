@@ -17,13 +17,13 @@ TADA_UsesForAnalysis(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
-processing, harmonization, filtering, and handling of censored data functions
-prior to running this function.}
+\item{.data}{A TADA dataframe after all desired data cleaning,
+processing, harmonization, filtering, and censored data handling functions
+have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. "USEPA" may be included as an org_id which will
-populate the epa304a recommended standards for any TADA.Characteristic if one
+populate the EPA 304(a) recommended standards for any TADA.Characteristic if one
 is found. "All" or "NULL" are also allowable values and may be helpful for new
 ATTAINS users or those performing assessments for multiple states and tribes.
 If "All" is selected, this will return all prior ATTAINS information from all
@@ -135,9 +135,9 @@ include an ATTAINS use name that was not listed in prior ATTAINS assessment cycl
 Note: Future development work will allow for crosswalking other names from the WQP
 such as using pollutant names from the EPA's Criteria Search Tool (CST):
 www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa.
-The TADA Team has crosswalked the CST pollutant names for EPA304a standards with
+The TADA Team has crosswalked the CST pollutant names for EPA 304(a) standards with
 TADA.ComparableDataIdentifier(s) to make the criteria values available for
-use within TADA functions. The ATTAINS.UseName(s) associated with the EPA304a
+use within TADA functions. The ATTAINS.UseName(s) associated with the EPA 304(a)
 criteria are included from the CST. All other ATTAINS.UseName(s) are specific to an
 ATTAINS organization and come from the ATTAINS domain value for use_name.
 }

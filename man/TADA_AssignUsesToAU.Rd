@@ -15,20 +15,20 @@ TADA_AssignUsesToAU(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe. The user should run all desired data cleaning,
-processing, harmonization, filtering, and handling of censored data functions
-prior to running this function.}
+\item{.data}{A TADA dataframe after all desired data cleaning,
+processing, harmonization, filtering, and censored data handling functions
+have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
 user. "USEPA" may be included as an org_id which will
-populate the epa304a recommended standards for any TADA.Characteristic if one
-is found. "All" or "NULL" are also allowable values and may be helpful for new
-ATTAINS users or those performing assessments for multiple states and tribes.
-If "All" is selected, this will return all prior ATTAINS information from all
-ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
-for each organization. If "NULL" is selected all unique prior ATTAINS
+populate the EPA 304(a) recommended standards for any TADA.CharacteristicName
+if one is found. "All" or "NULL" are also allowable values and may be helpful
+for new ATTAINS users or those performing assessments for multiple states and
+tribes. If "All" is selected, this will return all prior ATTAINS information
+from all ATTAINS organizations in prior ATTAINS assessment cycles as individual
+rows for each organization. If "NULL" is selected all unique prior ATTAINS
 information from any ATTAINS organizations are returned but are not labeled
-and can be manually editted.
+and can be manually edited.
 Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
 get a list of valid organization identifiers. A list of organization identifiers
 can also be found by downloading the ATTAINS Domains Excel file:
@@ -42,14 +42,13 @@ this crosswalk contains the appropriate column names in order to run this functi
 See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
 
 \item{AU_UsesRef}{An optional data frame input. If provided, this data frame
-will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
+will contain a user supplied crosswalk of ATTAINS uses to ATTAINS assessment units.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
-\item{waterUseRef}{An optional data frame input. If provided, this data frame
-will contain a user supplied list of ATTAINS uses to ATTAINS water type.
-Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function.}
+\item{waterUseRef}{An optional data frame input containing a user supplied list
+of ATTAINS uses to ATTAINS water type. Users will need to ensure this crosswalk
+contains the appropriate column names in order to run the function.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -67,13 +66,11 @@ A data frame with all the MonitoringLocationIdentifier Sites for each defined AU
 }
 \description{
 This function pulls in all prior ATTAINS Use names associated with each
-ATTAINS organization's Assessment Unit (AU) from the prior ATTAINS cycle.
-This function requires an ATTAINS org_id and
-a crosswalk of an organization's WQP
-Monitoring Location's, ATTAINS Assessment Unit's, and ATTAINS
-Water Type codes as a function input (AUMLRef). The output from
-\code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can be used
-directly as the AUMLRef argument input in this function. Alternatively,
+Assessment Unit (AU) from the prior ATTAINS cycle. This function requires an
+ATTAINS org_id and a crosswalk of an organization's WQP Monitoring Locations,
+ATTAINS Assessment Units, and ATTAINS Water Type as a function input (AUMLRef).
+The output from \code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can
+be used directly as the AUMLRef argument input in this function. Alternatively,
 a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUMLCrosswalk()}
 and/or \code{TADA_UpdateATTAINSAUMLCrosswalk()} functions can be leveraged
 to generate the crosswalk.
@@ -86,16 +83,15 @@ into ATTAINS in the prior ATTAINS cycle (most recent assessment).
 For any NEW AUs and/or NEW uses, users must modify
 the output of this function to manually add those uses and AU's to the crosswalk.
 Alternatively, we have developed a helper function, \code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}},
-to assist with assigning uses to NEW AU's. This can be leveraged to assign
-uses for any new AUs based on the water type of the AU.
-Users can either supply their own Water
-Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water Type to
-Use reference file. This Water to Use reference file can be used to assign all
-unique Uses to a new/modified AU based on which uses have been assigned to that
-water type in the past for the specified ATTAINS organization.
+to assist with assigning uses to NEW AUs. This can be leveraged to assign
+uses for any new AUs based on the water type of the AU. Users can either supply
+their own Water Type to Use crosswalk or utilize ATTAINS webservices to pull in
+the Water Type to Use reference file. This Water to Use reference file can be
+used to assign all unique Uses to a new/modified AU based on which uses have been
+assigned to that water type in the past by the specified ATTAINS organization.
 Any new or modified AU and use information that gets submitted to ATTAINS
-in the current assessment cycle will not be available in ATTAINS until the
-assessment is approved and completed.
+in the current assessment cycle will not be available via ATTAINS webservices
+until the assessment is approved and completed.
 }
 \examples{
 \dontrun{

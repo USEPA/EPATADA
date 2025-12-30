@@ -187,7 +187,7 @@ criteria table
     guided workflow.
 
 Each option will allow the option to append additional rows to summarize
-EPA304a recommended standards, if one has been defined. Please contact
+EPA304(a) recommended criteria, if one has been defined. To view the criteria, go to Option B of this vignette. Please contact
 the TADA team if you believe there are additional entries or
 modification to these defined standards.
 
@@ -203,9 +203,9 @@ MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.blank)
 ```
 
-## Option B: View EPA304a Recommended Standards
+## Option B: View EPA304(a) Recommended Criteria
 
-User can choose to view the full list of EPA304a standards that has been filled out in TADA format for most priority WQP Characteristic Name by including "USEPA" as part of the org_id argument input.
+User can choose to view the full list of EPA304(a) criteria that has been filled out in TADA format for most priority WQP Characteristic Name by including "USEPA" as part of the org_id argument input.
 
 ```{r epa template output}
 MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
@@ -215,7 +215,7 @@ MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.epa)
 ```
 
-If a user is only interested in TADA.CharacteristicName(s) that are in their WQP data frame, user can provide their .data in TADA_DefineCriteriaMethodology. Any EPA304a criteria not found for any TADA.CharacteristicName will show up as an empty row. Users can choose to fill this value out as desired or leave this row unfilled/removed.
+If a user is only interested in showing TADA.CharacteristicName(s) that are in their WQP data frame, user can provide their .data in TADA_DefineCriteriaMethodology. Any EPA304(a) criteria not defined for a TADA.CharacteristicName(s) will show up as an unfilled row. Users can choose to fill this value out as desired or leave this row unfilled/removed.
 
 ```{r epa template filtered output}
 MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
@@ -272,7 +272,7 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.auto2)
 ```
 
-We can also choose to append epa304a recommended standards into the
+We can also choose to append EPA304(a) recommended criteria into the
 criteria table for any WQP characteristics in your data frame that are
 found by specifying "USEPA" as part of the org_id argument input.
 
@@ -327,7 +327,7 @@ MT.Criteria.user <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.user)
 ```
 
-Users can also choose to append epa304a recommended standards to their criteria table by including "USEPA" in the org_id.
+Users can also choose to append EPA304(a) recommended criteria to their criteria table by including "USEPA" in the org_id.
 
 Users will need to determine their level of desired grouping of
 TADA.CharacteristicName by aggregation. If a user has not gone through the review process of assigning TADA.ComparableDataIdentifiers to ATTAINS.ParameterName then they must specify what combinations of fraction and speciations falls under an
