@@ -82,8 +82,8 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #' - If `TADA.CensoredData.Flag` is not present, the function calls
 #'   `TADA_IDCensoredData()` to create it.
 #' - If `TADA.NutrientSummation.Flag` is present, an informational note is printed.
-#' - This function also suggests a ND_Estimation_Method following general guidance 
-#'   (Kaplan-Meier, ROS, MLE) based on censored percentage, censoring levels, 
+#' - This function also suggests a ND_Estimation_Method following general guidance
+#'   (Kaplan-Meier, ROS, MLE) based on censored percentage, censoring levels,
 #'   and measurement count.
 #'
 #' @export
@@ -102,10 +102,10 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #'   pct_digits = 0
 #' )
 TADA_Stats <- function(
-    .data,
-    group_cols = c("TADA.ComparableDataIdentifier"),
-    sig_figs = 3,
-    pct_digits = 1
+  .data,
+  group_cols = c("TADA.ComparableDataIdentifier"),
+  sig_figs = 3,
+  pct_digits = 1
 ) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
     sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(
@@ -117,19 +117,19 @@ TADA_Stats <- function(
       " results missing both a TADA result value and a detection limit. These values will not be represented in the stats summary table. Suggest removing or handling."
     ))
   }
-  
+
   if (!"TADA.CensoredData.Flag" %in% names(.data)) {
     .data <- TADA_IDCensoredData(.data)
   }
-  
+
   if ("TADA.NutrientSummation.Flag" %in% names(.data)) {
     print(
       "Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table."
     )
   }
-  
+
   group_cols <- unique(c("TADA.ComparableDataIdentifier", group_cols))
-  
+
   StatsTable <- .data |>
     dplyr::filter(!is.na(TADA.ResultMeasureValue)) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
@@ -158,9 +158,9 @@ TADA_Stats <- function(
       # posts that we compare each observation to. Any observations that are more than
       # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
       UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75), na.rm = TRUE) +
-                      (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
+        (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
       LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25), na.rm = TRUE) -
-                      (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
+        (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
       Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
       Mean = mean(TADA.ResultMeasureValue, na.rm = TRUE),
       Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
@@ -200,6 +200,6 @@ TADA_Stats <- function(
         ~ round(.x, pct_digits)
       )
     )
-  
+
   return(StatsTable)
 }
