@@ -27,55 +27,70 @@ TADA_MLSummary(
 
 - .data:
 
-  A TADA dataframe. The user should run all desired data cleaning,
-  processing, harmonization, filtering, and handling of censored data
-  functions prior to running this function.
+  A TADA dataframe after all desired data cleaning, processing,
+  harmonization, filtering, and censored data handling functions have
+  been applied.
 
 - org_id:
 
-  The ATTAINS organization identifier must be supplied by the user. A
-  list of organization identifiers can be found by downloading the
-  ATTAINS Domains Excel file:
+  The ATTAINS organization identifier must be supplied by the user.
+  "USEPA" may be included as an org_id which will populate the EPA
+  304(a) recommended criteria for any TADA.CharacteristicName if one is
+  found. "All" or "NULL" are also allowable values and may be helpful
+  for new ATTAINS users or those performing assessments for multiple
+  states and tribes. If "All" is selected, this will return all prior
+  ATTAINS information from all ATTAINS organizations in prior ATTAINS
+  assessment cycles as individual rows for each organization. If "NULL"
+  is selected all unique prior ATTAINS information from any ATTAINS
+  organizations are returned but are not labeled and can be manually
+  edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the
+  console to get a list of valid organization identifiers. A list of
+  organization identifiers can also be found by downloading the ATTAINS
+  Domains Excel file:
   https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-  organization identifiers are listed in the "OrgName" tab. The "code"
-  column contains the organization identifiers that should be used for
-  this param. If a user does not provide an org_id argument, the
-  function attempts to identify which organization identifier(s) to
-  include based on the unique ATTAINS organization identifiers found in
-  the dataframe.
+  Organization identifiers are listed in the "code" column of the
+  "OrgName" tab.
 
 - usesRef:
 
-  A required data frame which contains a completed crosswalk of
-  organization specific ATTAINS.UseName(s) for each
-  ATTAINS.ParameterName. Users will need to ensure this crosswalk
-  contains the appropriate column names in order to run the function.
-  Users who have previously completed this crosswalk table can re-use it
-  and review this output for accuracy.
+  A data frame which contains a completed crosswalk of
+  ATTAINS.ParameterName(s) that will be analyzed for each
+  ATTAINS.UseName. Users will need to ensure this crosswalk contains the
+  appropriate column names in order to run the function. Users who have
+  previously completed this crosswalk table can re-use it and review
+  this output for accuracy.
 
 - AUMLRef:
 
   An optional data frame input. If provided, this data frame should
   contain a completed crosswalk of monitoring location sites associated
-  with an assessment unit. Users will need to ensure this crosswalk
-  contains the appropriate column names in order to run the function.
-  See module 2 vignette and sample output of
-  [`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md).
+  with an assessment unit. This data frame must contain the following
+  column names which can be generated from the output of
+  TADA_CreateAUMLCrosswalk: ATTAINS.OrganizationIdentifier,
+  TADA.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
+  and ATTAINS.WaterType.
 
 - AU_UsesRef:
 
-  An optional data frame input. If provided, this data frame should
-  contain a completed crosswalk of use names associated with an
-  assessment unit. Users will need to ensure this crosswalk contains the
-  appropriate column names in order to run the function. See output of
-  [`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
-  for column names.
+  An optional data frame input. If provided, the ATTAINS.UseName will be
+  populated from the ATTAINS.UseName found in this data frame rather
+  than the ATTAINS assessment profile. This data frame must contain the
+  following column names which can be generated from the output of
+  TADA_AssignUsesToAU: ATTAINS.OrganizationIdentifier,
+  ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName, and
+  ATTAINS.WaterType.
 
 - MLSummaryRef:
 
   An optional data frame which contains the completed spatial crosswalk
   to assign any unique spatial criteria to a parameter, use, waterbody
-  or monitoring site/assessment unit.
+  or monitoring site/assessment unit. If provided the data frame must
+  contain these columns: "ATTAINS.OrganizationIdentifier",
+  "ATTAINS.AssessmentUnitIdentifier", "MonitoringLocationIdentifier",
+  "MonitoringLocationTypeName", "TADA.ComparableDataIdentifier",
+  "ATTAINS.ParameterName", "ATTAINS.UseName", "ATTAINS.WaterType",
+  "SaltFresh", "DepthCategory", "LongitudeMeasure", "LatitudeMeasure",
+  "IncludeOrExclude" and "UniqueSpatialCriteria".
 
 - displayNA:
 
@@ -84,11 +99,6 @@ TADA_MLSummary(
   contains WQP data for that parameter. This is useful if a user is
   interested in an explicit list of everything that will be analyzed.
   Default is FALSE.
-
-  An optional data frame input. If provided, this data frame should
-  contain a completed crosswalk of use names associated with a water
-  type. Users will need to ensure this crosswalk contains the
-  appropriate column names in order to run the function.
 
 - excel:
 
@@ -102,14 +112,20 @@ TADA_MLSummary(
 
 - overwrite:
 
-  A Boolean value that ensures the function will not overwrite the user
-  supplied crosswalk entered into this function via the paramRef
-  function input. This helps prevent users from overwriting their
-  progress.
+  A Boolean value. If overwrite = TRUE, the excel file will be replaced
+  (overwritten) by the new file you create if you re-run this function.
+  Users should only specify overwrite = TRUE once they are ready to
+  re-run this function if they have already ran it once.
 
 ## Value
 
-A data frame with any unique spatial descriptions defined for
+A data frame with any unique spatial descriptions defined with columns:
+"ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+"MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+"TADA.ComparableDataIdentifier", "ATTAINS.ParameterName",
+"ATTAINS.UseName", "ATTAINS.WaterType", "SaltFresh", "DepthCategory",
+"LongitudeMeasure", "LatitudeMeasure", "IncludeOrExclude" and
+"UniqueSpatialCriteria".
 
 ## Details
 

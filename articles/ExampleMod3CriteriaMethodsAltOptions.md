@@ -188,9 +188,10 @@ criteria table
     guided workflow.
 
 Each option will allow the option to append additional rows to summarize
-EPA304a recommended standards, if one has been defined. Please contact
-the TADA team if you believe there are additional entries or
-modification to these defined standards.
+EPA304(a) recommended criteria, if one has been defined. To view the
+criteria, go to Option B of this vignette. Please contact the TADA team
+if you believe there are additional entries or modification to these
+defined standards.
 
 ### Option A: Fully blank template
 
@@ -204,23 +205,57 @@ MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.blank)
 ```
 
-### Option B: Auto Fill option (Intermediate Tabs are Hidden)
+### Option B: View EPA304(a) Recommended Criteria
+
+User can choose to view the full list of EPA304(a) criteria that has
+been filled out in TADA format for most priority WQP Characteristic Name
+by including “USEPA” as part of the org_id argument input.
+
+``` r
+MT.Criteria.epa <- TADA_DefineCriteriaMethodology(
+  org_id = "USEPA"
+)
+```
+
+    ## [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+
+``` r
+TADA_TableExport(MT.Criteria.epa)
+```
+
+If a user is only interested in showing TADA.CharacteristicName(s) that
+are in their WQP data frame, user can provide their .data in
+TADA_DefineCriteriaMethodology. Any EPA304(a) criteria not defined for a
+TADA.CharacteristicName(s) will show up as an unfilled row. Users can
+choose to fill this value out as desired or leave this row
+unfilled/removed.
+
+``` r
+MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
+  .data = tada.MT.clean,
+  org_id = "USEPA"
+)
+```
+
+    ## [1] "NAs were found in ATTAINS.ParameterName. Please ensure that you have inputted all field values of interest in the ATTAINS.ParameterName column generated from TADA_ParametersForAnalysis() function."
+    ## [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+    ## [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+
+``` r
+TADA_TableExport(MT.Criteria.epa)
+```
+
+### Option C: Auto Fill option (Intermediate Tabs are Hidden)
 
 You can also generate auto_assigned value(s) of ATTAINS.ParameterName,
-ATTAINS.UseName to TADA.CharacteristicName using default options. Users
-should be aware that this will only return rows for any matching values
-from a WQP characteristic to ATTAINS parameter alias table. It is likely
-that these value(s) will require a thorough review process during each
-step of the process with the recommended workflow of
+ATTAINS.UseName to TADA.CharacteristicName using default options that
+are based on prior ATTAINS assessment cycles by each ATTAINS
+organization. Users should be aware that this will only return rows for
+any matching values from a WQP characteristic to ATTAINS parameter alias
+table. It is likely that these value(s) will require a thorough review
+process during each step of the process with the recommended workflow of
 TADA_ParametersForAnalysis, TADA_UsesForAnalysis and TADA_MLSummaryRef.
-
-Users can view the output of these 3 functions in the excel spreadsheet
-if desired. They are hidden as default (NOTE TO CONSIDER: Should these
-be kept hidden? The goal of this output has been to focus on an
-auto_assign option as a quick get around to needing to fill out the
-table from scratch, but if users may find it worthwhile, we can always
-show these hidden tabs to allow for an easier review process and
-updating of tables directly in the excel file.)
 
 ``` r
 MT.Criteria.auto <- TADA_DefineCriteriaMethodology(
@@ -276,16 +311,15 @@ MT.Criteria.auto2 <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT.Criteria.auto2)
 ```
 
-We can also choose to append epa304a recommended standards into the
+We can also choose to append EPA304(a) recommended criteria into the
 criteria table for any WQP characteristics in your data frame that are
-found.
+found by specifying “USEPA” as part of the org_id argument input.
 
 ``` r
 MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = "MTDEQ",
+  org_id = c("MTDEQ","USEPA"),
   auto_assign = TRUE,
-  epa304a = TRUE,
   displayUniqueId = TRUE,
   excel = FALSE
   # uncomment to run the excel file
@@ -294,30 +328,28 @@ MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
 ```
 
     ## [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+    ## [1] "TADA.CreateParamRef: More than one org_name was defined in your dataframe. Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
     ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
     ## [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
     ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
     ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
-    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+    ## [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
 
 ``` r
 TADA_TableExport(MT.Criteria.auto3)
 ```
 
-### Option C: User Supplied Table
+### Option D: User Supplied Table
 
-A user has a completed or partially filled criteria file, let’s use
+A user has a completed (or partially) filled criteria file, let’s use
 MTDEQ as our example org. MTDEQ should thoroughly review this table and
 determine if there are values that needs to be fixed or if there are
 missing WQP Char to consider that isn’t defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table. The
-user supplied table is prioritized. Any missing
-WQP/TADA.CharacteristicName will be matched from ATTAINS based on the
-auto_assign = TRUE option.
+In this first example, a user supplies their own criteria table.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
@@ -325,58 +357,59 @@ Otherwises the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ``` r
-# Load the example MTDEQ criteria table
+# Load the example R8 criteria table
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 load(criteria_table)
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 
-MT.Criteria.user.auto <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   AU_UsesRef = Data_MT_AU_UsesRef,
   displayUniqueId = FALSE,
-  epa304a = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 ```
 
-    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
     ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
-TADA_TableExport(MT.Criteria.user.auto)
+TADA_TableExport(MT.Criteria.user)
 ```
+
+Users can also choose to append EPA304(a) recommended criteria to their
+criteria table by including “USEPA” in the org_id.
 
 Users will need to determine their level of desired grouping of
 TADA.CharacteristicName by aggregation. If a user has not gone through
-the review process with the 3 crosswalk reference files, they need to
-specify what combinations of fraction and speciations falls under an
-ATTAINS.ParameterName and ATTAINS.UseName combination. By specifying
-displayUniqueId = TRUE, this will display all combinations in the
-criteria table output.
+the review process of assigning TADA.ComparableDataIdentifiers to
+ATTAINS.ParameterName then they must specify what combinations of
+fraction and speciations falls under an ATTAINS.ParameterName and
+ATTAINS.UseName combination. By specifying displayUniqueId = TRUE, this
+will display all unique TADA.ComparableDataIdentifier combinations in
+the criteria table output.
 
 ``` r
 # Will display all unique rows of TADA.Characteristic Name to ATTAINS ParameterName and ATTAINS UseName
-MT.Criteria.user.auto2 <- TADA_DefineCriteriaMethodology(
+MT.Criteria.user2 <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
   criteriaMethods = criteria_table, # user supplied table - all rows are kept from this table
-  org_id = "MTDEQ",
+  org_id = c("MTDEQ", "USEPA"),
   displayUniqueId = TRUE, # will display all unique TADA.ComparableDataIdentifier in this table.
-  epa304a = TRUE,
   excel = FALSE
   # uncomment to run the excel file
   # excel = TRUE, overwrite = TRUE
 )
 ```
 
-    ## [1] "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
+    ## [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
 
 ``` r
-TADA_TableExport(MT.Criteria.user.auto2)
+TADA_TableExport(MT.Criteria.user2)
 ```
 
 ### Choose a Final Criteria Template, Save and Re-use
@@ -388,7 +421,7 @@ TADA_TableExport(MT.Criteria.user.auto2)
 # We can now reuse this criteria table
 MT.Criteria.reuse <- TADA_DefineCriteriaMethodology(
   .data = tada.MT.clean,
-  criteriaMethods = MT.Criteria.user.auto2, # user supplied table - all rows are kept from this table
+  criteriaMethods = MT.Criteria.user2, # user supplied table - all rows are kept from this table
   org_id = "MTDEQ",
   displayUniqueId = FALSE,
   excel = FALSE

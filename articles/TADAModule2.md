@@ -721,7 +721,7 @@ MT.UseAURef <- TADA_AssignUsesToAU(
 )
 ```
 
-    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
+    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
 
 ##### **Advanced: Assigning Uses to New AUs**
 
@@ -747,7 +747,7 @@ MT.UseAURef_with_WaterUseRef <-
   )
 ```
 
-    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
+    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
     ## [1] "TADA_CreateWaterusesRef: Importing unique water types and uses by organization from Expert Query."
 
 Users also have the option to manually assign use names to new AUs if

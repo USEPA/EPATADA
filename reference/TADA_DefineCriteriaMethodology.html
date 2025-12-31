@@ -4,7 +4,7 @@ across the country. TADA users can fill out this template to define the specific
 criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
-developed with TADA helper functions (recommended).It is recommended to run
+developed with TADA helper functions (recommended). It is recommended to run
 these three TADA helper functions, TADA_ParametersForAnalysis(),
 TADA_UsesForAnalysis, and TADA_MLSummary, in that order to
 generate the Criteria and Methodology table specific for your organization."><meta property="og:description" content="Assessment criteria and methodologies used to evaluate water quality vary
@@ -12,7 +12,7 @@ across the country. TADA users can fill out this template to define the specific
 criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
-developed with TADA helper functions (recommended).It is recommended to run
+developed with TADA helper functions (recommended). It is recommended to run
 these three TADA helper functions, TADA_ParametersForAnalysis(),
 TADA_UsesForAnalysis, and TADA_MLSummary, in that order to
 generate the Criteria and Methodology table specific for your organization."></head><body>
@@ -80,7 +80,7 @@ across the country. TADA users can fill out this template to define the specific
 criteria and methodologies for each parameter and use combination they are
 interested in analyzing. This table can be filled out manually, auto-populated
 with uses and parameters from ATTAINS and the input WQP dataframe, or
-developed with TADA helper functions (recommended).It is recommended to run
+developed with TADA helper functions (recommended). It is recommended to run
 these three TADA helper functions, <code><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis()</a></code>,
 <a href="TADA_UsesForAnalysis.html">TADA_UsesForAnalysis</a>, and <a href="TADA_MLSummary.html">TADA_MLSummary</a>, in that order to
 generate the Criteria and Methodology table specific for your organization.</p>
@@ -96,7 +96,6 @@ generate the Criteria and Methodology table specific for your organization.</p>
 <span>  auto_assign <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  AUMLRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  AU_UsesRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  epa304a <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  displayUniqueId <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -108,37 +107,48 @@ generate the Criteria and Methodology table specific for your organization.</p>
 
 
 <dl><dt id="arg--data">.data<a class="anchor" aria-label="anchor" href="#arg--data"></a></dt>
-<dd><p>A TADA dataframe. The user should run all desired data cleaning,
+<dd><p>A TADA data frame. The user should run all desired data cleaning,
 processing, harmonization, filtering, and handling of censored data functions
 prior to running this function.</p></dd>
 
 
 <dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
 <dd><p>The ATTAINS organization identifier must be supplied by the
-user. A list of organization identifiers can be found by downloading
-the ATTAINS Domains Excel file:
+user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+"NULL" are also allowable values and may be helpful for new ATTAINS users or
+those performing assessments for multiple states and tribes. If "All" is
+selected, this will return all prior ATTAINS information from all ATTAINS
+organizations in prior ATTAINS assessment cycles as individual rows for each
+organization. If "NULL" is selected all unique prior ATTAINS information from
+any ATTAINS organizations are returned but are not labeled and can be manually
+edited. Enter <code>rExpertQuery::EQ_DomainValues("org_id")</code> into the console to
+get a list of valid organization identifiers. A list of organization identifiers
+can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-organization identifiers are listed in the "OrgName" tab.
-The "code" column contains the organization identifiers that
-should be used for this param. If a user does not provide an org_id argument,
-the function attempts to identify which organization identifier(s) to include
-based on the unique ATTAINS organization identifiers found in the dataframe.</p></dd>
+Organization identifiers are listed in the "code" column of the "OrgName" tab.</p></dd>
 
 
 <dt id="arg-mlsummaryref">MLSummaryRef<a class="anchor" aria-label="anchor" href="#arg-mlsummaryref"></a></dt>
 <dd><p>An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-or monitoring site/assessment unit. For any unique groupings of sites, this
-input is recommended.</p></dd>
+or monitoring site/assessment unit. If provided the data frame must contain
+these columns:
+"ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+"MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+"TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+"ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+"LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".</p></dd>
 
 
 <dt id="arg-criteriamethods">criteriaMethods<a class="anchor" aria-label="anchor" href="#arg-criteriamethods"></a></dt>
 <dd><p>An optional data frame which contains the completed
 criteria and methodology table. This will be a user supplied table and any
 inputs in this table will be prioritized. Additional rows for any parameter(s)
-and use(s) combinations that are not found in the user supplied table will be
-included in the output. These rows will need the criteria and methodology inputs
-filled out accordingly.</p></dd>
+that are not found in the user supplied table will be included in the output.
+These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName,
+and the criteria and methodology inputs filled out manually if you would like
+analysis to be done for it.</p></dd>
 
 
 <dt id="arg-auto-assign">auto_assign<a class="anchor" aria-label="anchor" href="#arg-auto-assign"></a></dt>
@@ -156,23 +166,21 @@ table that has already been filled out.</p></dd>
 
 
 <dt id="arg-aumlref">AUMLRef<a class="anchor" aria-label="anchor" href="#arg-aumlref"></a></dt>
-<dd><p>An optional data frame input. This data frame
-should contain a completed crosswalk of WQP Monitoring Locations
-associated with each ATTAINS Assessment Unit. Users will need to ensure
-this crosswalk contains the appropriate column names in order to run this function.
-See module 2 vignette and sample output of <code><a href="TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk()</a></code>.</p></dd>
+<dd><p>An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit. This data frame must contain the following
+column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.</p></dd>
 
 
 <dt id="arg-au-usesref">AU_UsesRef<a class="anchor" aria-label="anchor" href="#arg-au-usesref"></a></dt>
-<dd><p>An optional data frame input. If provided, this data frame
-should contain a completed crosswalk of use names associated with each assessment unit.
-Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function.</p></dd>
-
-
-<dt id="arg-epa-a">epa304a<a class="anchor" aria-label="anchor" href="#arg-epa-a"></a></dt>
-<dd><p>A Boolean value to return a draft epa304a recommended standards
-for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.</p></dd>
+<dd><p>An optional data frame input. If provided, the ATTAINS.UseName
+will be populated from the ATTAINS.UseName found in this data frame rather
+than the ATTAINS assessment profile. This data frame must contain the following
+column names which can be generated from the output of TADA_AssignUsesToAU:
+ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+and ATTAINS.WaterType.</p></dd>
 
 
 <dt id="arg-displayuniqueid">displayUniqueId<a class="anchor" aria-label="anchor" href="#arg-displayuniqueid"></a></dt>
@@ -196,9 +204,10 @@ the cells in which users should input information.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
-<dd><p>A Boolean value that ensures the function will not overwrite
-the user supplied crosswalk entered into this function.
-This helps prevent users from overwriting their progress.</p></dd>
+<dd><p>A Boolean value. If overwrite = TRUE, the excel file will be
+replaced (overwritten) by the new file you create if you re-run this function.
+Users should only specify overwrite = TRUE once they are ready to re-run this
+function if they have already ran it once.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -208,21 +217,24 @@ This helps prevent users from overwriting their progress.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This criteria and methodology table will be in a TADA compatible format and
-contain a list of allowable values within each column to define the full
-criteria, or magnitude only, values associated with an ATTAINS parameter name
-and use name. For each criteria/magnitude value,
-users will need to ensure they properly define any additional methods that
-reflects their water quality criteria and methodologies for a parameter and use.
-For example, if there are separate criteria and methods for acute versus chronic,
-rivers versus estuary, different seasons, etc., then a user will need to create
-additional rows to reflect this. Additional columns are included in this output
-to capture data sufficiency considerations such as minimum sample sizes,
-assessment period dates, and seasonality components.</p>
+contain a list of allowable values within each column. For each ATTAINS parameter
+name and use name, users may choose to define the full criteria and methodologies
+information or magnitude values only. For example, if there are separate criteria
+and methods for acute versus chronic, rivers versus estuaries, different seasons,
+etc., then a user will need to create additional rows to reflect this.
+Additional columns are included in this output
+to capture data sufficiency information such as minimum sample sizes,
+assessment period dates, and seasonality.</p>
+<p>Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
+ATTAINS.OrganizationIdentifier:
+ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name")
+ATTAINS.parameters &lt;- rExpertQuery::EQ_DomainValues("param_name")
+ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Example 1</span></span></span>
 <span class="r-in"><span><span class="co"># First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT</span> <span class="op">&lt;-</span> <span class="fu"><a href="TADA_ParametersForAnalysis.html">TADA_ParametersForAnalysis</a></span><span class="op">(</span><span class="va">Data_Nutrients_UT</span>, org_id <span class="op">=</span> <span class="st">"UTAHDWQ"</span>, excel <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">paramRef_UT2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">paramRef_UT</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span></span>
@@ -250,6 +262,7 @@ assessment period dates, and seasonality components.</p>
 <span class="r-in"><span>  usesRef <span class="op">=</span> <span class="va">usesRef_UT</span>,</span></span>
 <span class="r-in"><span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">DefineCriteriaMethodology_UT</span> <span class="op">&lt;-</span> <span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
@@ -257,7 +270,35 @@ assessment period dates, and seasonality components.</p>
 <span class="r-in"><span>  displayUniqueId <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 2: fill template with EPA304(a) criteria</span></span></span>
+<span class="r-in"><span><span class="va">epa_only</span> <span class="op">&lt;-</span> <span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"USEPA"</span>,</span></span>
+<span class="r-in"><span>  auto_assign <span class="op">=</span> <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example 3: fill template with EPA304(a)</span></span></span>
+<span class="r-in"><span><span class="co"># and ATTAINS parameters and uses for MTDEQ:</span></span></span>
+<span class="r-in"><span><span class="va">epa_MT</span> <span class="op">&lt;-</span> <span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span><span class="va">Data_MT_MissoulaCounty</span>,</span></span>
+<span class="r-in"><span>  org_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"USEPA"</span>, <span class="st">"MTDEQ"</span><span class="op">)</span>, auto_assign <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA.CreateParamRef: More than one org_name was defined in your dataframe. Generating duplicate rows of TADA.ComparableDataIdentifier for each org."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

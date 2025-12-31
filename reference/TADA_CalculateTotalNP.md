@@ -18,7 +18,7 @@ contained within the package but may be edited/customized by users.
 ## Usage
 
 ``` r
-TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
+TADA_CalculateTotalNP(.data, sum_ref, daily_agg = "max")
 ```
 
 ## Arguments
