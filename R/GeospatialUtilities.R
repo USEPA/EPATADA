@@ -1,3 +1,138 @@
+#' getMapIconsLabels
+#'
+#' Internal function to get list of icons (images) and/or a list of their labels
+#' for use in TADA mapping functions.
+#'
+#' @param icons Boolean argument. When icons = TRUE, the list of images used for
+#' TADA maps is returned. When icons = FALSE, no list of images is returned. Default
+#' is icons = TRUE.
+#'
+#' @param labels Boolean argument. When labels = TRUE, the list of labels used for
+#' TADA maps is returned. When labels = FALSE, no list of labels is returned. Default
+#' is labels = TRUE.
+#'
+#' @return Depending on user input either one list (either labels or icons) or a
+#' list containing both the labels list and the icons list.
+#'
+# create icon and label lists
+getMapIconLabels <- function(icons = TRUE,
+                             labels = TRUE) {
+
+# the commented out code creates the legend images using the TADA color palette
+# if the color palette is ever edited, this section needs to be uncommented and run again
+# set palette
+# tada.pal <- TADA_ColorPalette()
+#
+# square <- magick::image_read("vignettes/images/icons/square-solid-full.png")
+#
+# notsupport <- magick::image_fill(square, tada.pal[3], "+500+500")
+#
+# magick::image_write(notsupport, path = "vignettes/images/icons/square-ns.png")
+#
+# fullsupport <- magick::image_fill(square, tada.pal[4], "+500+500")
+#
+# magick::image_write(fullsupport, path = "vignettes/images/icons/square-fs.png")
+#
+# notassessed <- magick::image_fill(square, tada.pal[7], "+500+500")
+#
+# magick::image_write(notassessed, path = "vignettes/images/icons/square-na.png")
+#
+# outline.square <- magick::image_read("vignettes/images/icons/square-regular-full.png")
+#
+# catchment <- magick::image_fill(outline.square, "black", "+500+500")
+#
+# magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
+#
+# create images for mapping point AUs
+# #
+#   setupPointMarkers <- function(path, color, name) {
+#
+#     marker <- magick::image_fill(magick::image_read(path), color, "+500+500")
+#
+#     marker <- magick::image_background(marker, color = "none")
+#
+#     magick::image_write(marker, path = paste0(
+#       "inst/extdata/icons/", name, ".png"))
+#   }
+#
+#   ns.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                 color = tada.pal[3],
+#                                 name = "ns.point.circle")
+#
+#   s.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                color = tada.pal[4],
+#                                name = "s.point.circle")
+#
+#   na.point <- setupPointMarkers(path = "inst/extdata/icons/circle-solid-full.png",
+#                                 color = tada.pal[7],
+#                                 name = "na.point.circle")
+
+if(icons == TRUE) {
+# Define the paths to the images
+images <- c(
+  system.file("extdata/icons", "square-ns.png", package = "EPATADA"), # 1
+  system.file("extdata/icons", "square-fs.png", package = "EPATADA"), # 2
+  system.file("extdata/icons", "square-na.png", package = "EPATADA"), # 3
+  system.file("extdata/icons", "circle-dashed.png", package = "EPATADA"), # 4
+  system.file(
+    "extdata/icons",
+    "circle-user-solid-full.png",
+    package = "EPATADA"
+  ), # 5
+  system.file(
+    "extdata/icons",
+    "circle-check-solid-full.png",
+    package = "EPATADA"
+  ), # 6
+  system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 7
+  system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 8
+  system.file(
+    "extdata/icons",
+    "square-catchment-gray.png",
+    package = "EPATADA"
+  ), # 9
+  system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
+  system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
+  system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
+  system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
+)
+
+if(labels == FALSE) {
+
+}
+}
+
+if(labels == TRUE) {
+img.labels <- c(
+  "ATTAINS: Not Supporting", # 1
+  "ATTAINS: Supporting", # 2
+  "ATTAINS: Not Assessed", # 3
+  "ATTAINS: No Geometry Available", # 4
+  "WQP: User-supplied Ref", # 5
+  "WQP: ATTAINS Crosswalk", # 6
+  "WQP: TADA_CreateATTAINSAUMLCrosswalk", # 7
+  "WQP: Monitoring Location", # 8
+  "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", # 9
+  "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
+  "ATTAINS: Not Supporting Point", # 11
+  "ATTAINS: Supporting Point", # 12
+  "ATTAINS: Not Assessed Point" # 13
+)
+
+if(icons == FALSE) {
+
+  return(img.labels)
+}
+}
+
+  if(icons == TRUE & labels == TRUE) {
+
+  map.list <- list(images, img.labels)
+
+  return(map.list)
+  }
+}
+
 #' addATTAINS (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Internal function to add ATTAINS lines, points, or polygons to TADA maps.

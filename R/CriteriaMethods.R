@@ -5,36 +5,46 @@
 #' criteria and methodologies for each parameter and use combination they are
 #' interested in analyzing. This table can be filled out manually, auto-populated
 #' with uses and parameters from ATTAINS and the input WQP dataframe, or
-#' developed with TADA helper functions (recommended).It is recommended to run
+#' developed with TADA helper functions (recommended). It is recommended to run
 #' these three TADA helper functions, [TADA_ParametersForAnalysis()],
 #' [TADA_UsesForAnalysis], and [TADA_MLSummary], in that order to
 #' generate the Criteria and Methodology table specific for your organization.
 #'
 #' This criteria and methodology table will be in a TADA compatible format and
-#' contain a list of allowable values within each column to define the full
-#' criteria, or magnitude only, values associated with an ATTAINS parameter name
-#' and use name. For each criteria/magnitude value,
-#' users will need to ensure they properly define any additional methods that
-#' reflects their water quality criteria and methodologies for a parameter and use.
-#' For example, if there are separate criteria and methods for acute versus chronic,
-#' rivers versus estuary, different seasons, etc., then a user will need to create
-#' additional rows to reflect this. Additional columns are included in this output
-#' to capture data sufficiency considerations such as minimum sample sizes,
-#' assessment period dates, and seasonality components.
+#' contain a list of allowable values within each column. For each ATTAINS parameter
+#' name and use name, users may choose to define the full criteria and methodologies
+#' information or magnitude values only. For example, if there are separate criteria
+#' and methods for acute versus chronic, rivers versus estuaries, different seasons,
+#' etc., then a user will need to create additional rows to reflect this.
+#' Additional columns are included in this output
+#' to capture data sufficiency information such as minimum sample sizes,
+#' assessment period dates, and seasonality.
+#'
+#' Allowable values for ATTAINS.UseName, ATTAINS.ParameterName, and
+#' ATTAINS.OrganizationIdentifier:
+#' ATTAINS.uses = rExpertQuery::EQ_DomainValues("use_name")
+#' ATTAINS.parameters <- rExpertQuery::EQ_DomainValues("param_name")
+#' ATTAINS.organizations <- rExpertQuery::EQ_DomainValues("org_id")
 #'
 #' @param .data A TADA dataframe. The user should run all desired data cleaning,
 #' processing, harmonization, filtering, and handling of censored data functions
 #' prior to running this function.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will
+#' populate the EPA304(a) recommended criteria for any TADA.Characteristic if one
+#' is found. "All" or "NULL" are also allowable values and may be helpful for new
+#' ATTAINS users or those performing assessments for multiple states and tribes.
+#' If "All" is selected, this will return all prior ATTAINS information from all
+#' ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
+#' for each organization. If "NULL" is selected all unique prior ATTAINS
+#' information from any ATTAINS organizations are returned but are not labeled
+#' and can be manually edited.
+#' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param criteriaMethods An optional data frame which contains the completed
 #' criteria and methodology table. This will be a user supplied table and any
@@ -80,9 +90,6 @@
 #' useful in the alternative options to generate the criteria and methods table
 #' without the reference tables.
 #'
-#' @param epa304a A Boolean value to return a draft epa304a recommended standards
-#' for any WQP/TADA/ATTAINS parameter if one is found. Default is FALSE.
-#'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
@@ -99,7 +106,7 @@
 #' @export
 #'
 #' @examples
-#' \dontrun{
+#' # Example 1
 #' # First, generate and fill out a parameter crosswalk (see TADA_ParametersForAnalysis()):
 #' paramRef_UT <- TADA_ParametersForAnalysis(Data_Nutrients_UT, org_id = "UTAHDWQ", excel = FALSE)
 #' paramRef_UT2 <- dplyr::mutate(paramRef_UT, ATTAINS.ParameterName = dplyr::case_when(
@@ -134,7 +141,18 @@
 #'   displayUniqueId = TRUE,
 #'   excel = FALSE
 #' )
-#' }
+#'
+#' # Example 2: fill template with EPA304(a) criteria
+#' epa_only <- TADA_DefineCriteriaMethodology(
+#'   Data_MT_MissoulaCounty,
+#'   org_id = "USEPA",
+#'   auto_assign = TRUE
+#' )
+#'
+#' # Example 3: fill template with EPA304(a)
+#' # and ATTAINS parameters and uses for MTDEQ:
+#' epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
+#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE)
 #'
 TADA_DefineCriteriaMethodology <- function(
   .data,
@@ -144,7 +162,6 @@ TADA_DefineCriteriaMethodology <- function(
   auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
   AUMLRef = NULL,
   AU_UsesRef = NULL, # Optional if auto_assign = TRUE
-  epa304a = FALSE,
   displayUniqueId = FALSE,
   excel = FALSE,
   overwrite = FALSE
@@ -189,12 +206,14 @@ TADA_DefineCriteriaMethodology <- function(
   # Return an empty data frame with column names only if a user does not define any arg inputs.
   if (
     missing(.data) &&
-      missing(org_id) &&
       missing(MLSummaryRef) &&
       missing(criteriaMethods) &&
       missing(AUMLRef) &&
       missing(AU_UsesRef)
   ) {
+    # if (!"USEPA" %in% org_id) {
+    #   stop("org_id can only equal NULL or 'USEPA' if all other argument inputs are left blank.")
+    # }
     message(
       "All arguments are blank, returning an empty dataframe with column names only."
     )
@@ -333,6 +352,8 @@ TADA_DefineCriteriaMethodology <- function(
           .data,
           org_id = org_id,
           paramRef = TADA_ParamRef,
+          AU_UsesRef = AU_UsesRef,
+          AUMLRef = AUMLRef,
           auto_assign = TRUE,
           excel = excel,
           overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
@@ -761,39 +782,6 @@ TADA_DefineCriteriaMethodology <- function(
       )
     }
 
-    # User wants to populate the Criteria table using the EPA304a standards
-    # joins the epa304a standards to the current Criteria Table.
-    if (epa304a == TRUE) {
-      print(paste0(
-        "epa304a == TRUE was selected: Joining EPA304a recommended standards by each unique TADA.CharacteristicName only if found."
-      ))
-
-      epa304a <- utils::read.csv(system.file(
-        "extdata",
-        "EPA304a_criteria_table.csv",
-        package = "EPATADA"
-      ))
-
-      # read in ref csv
-      coltype.ref <- utils::read.csv(system.file(
-        "extdata",
-        "TADAColTypeRef.csv",
-        package = "EPATADA"
-      ))
-
-      epa304a <- suppressWarnings(correctColType(epa304a)) |>
-        dplyr::select(names(epa304a)[
-          names(epa304a) %in% coltype.ref$column_name
-        ]) |>
-        dplyr::filter(
-          TADA.CharacteristicName %in%
-            DefineCriteriaMethodology$TADA.CharacteristicName
-        )
-
-      DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        plyr::rbind.fill(epa304a)
-    }
-
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
     # Helps a user identifies all WQP data if they do not fill out the reference tables when TRUE
     # FALSE is recommended if a user has gone through a step by step review process to
@@ -807,19 +795,68 @@ TADA_DefineCriteriaMethodology <- function(
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::mutate(TADA.ComparableDataIdentifier = NA) |>
         dplyr::arrange(
-          ATTAINS.OrganizationIdentifier != "EPA304a",
+          ATTAINS.OrganizationIdentifier != "USEPA",
           ATTAINS.OrganizationIdentifier,
           ATTAINS.UseName
         ) |>
         # tidyr::drop_na(ATTAINS.ParameterName) |>
         dplyr::distinct()
     }
+  }
+  # User wants to populate the Criteria table using the EPA304(a) criteria
+  # joins the EPA304(a) standards to the current Criteria Table.
+  if ("USEPA" %in% org_id) {
+    print(paste0(
+      "USEPA was included in your 'org_id': Including EPA304a recommended standards by each unique TADA.CharacteristicName if one is found."
+    ))
+    epa304a <- utils::read.csv(system.file(
+      "extdata",
+      "EPA304a_criteria_table.csv",
+      package = "EPATADA"
+    ))
+    if (displayUniqueId == TRUE) {
+      uniqueID <- unique(.data[, c(
+        "TADA.ComparableDataIdentifier",
+        "TADA.CharacteristicName"
+      )])
+      epa304a <- epa304a |>
+        dplyr::select(-TADA.ComparableDataIdentifier) |>
+        dplyr::left_join(uniqueID)
+    }
+    # read in ref csv
+    coltype.ref <- utils::read.csv(system.file(
+      "extdata",
+      "TADAColTypeRef.csv",
+      package = "EPATADA"
+    ))
+    if (missing(.data)) {
+      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+        dplyr::select(names(epa304a)[
+          names(epa304a) %in% coltype.ref$column_name
+        ]) |>
+        dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName))
+    }
+    if (!missing(.data)) {
+      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+        dplyr::select(names(epa304a)[
+          names(epa304a) %in% coltype.ref$column_name
+        ]) |>
+        dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName)) |>
+        dplyr::filter(
+          TADA.CharacteristicName %in%
+            DefineCriteriaMethodology$TADA.CharacteristicName
+        )
+    }
 
-    # Final formatting considerations to output in the DefineCriteriaMethodology table
-    # if (!all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))) {
-    #   DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-    #     dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
-    # }
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      # filters out the blank EPA304a criteria table but keep any unique
+      # TADA Characteristic not defined from the epa304a criteria table.
+      dplyr::filter(
+        !(ATTAINS.OrganizationIdentifier == "USEPA" &
+          TADA.CharacteristicName %in% epa304a$TADA.CharacteristicName)
+      ) |>
+      plyr::rbind.fill(epa304a) |>
+      dplyr::arrange(ATTAINS.OrganizationIdentifier != "USEPA")
   }
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
@@ -1055,9 +1092,10 @@ TADA_DefineCriteriaMethodology <- function(
           "arithmetic median",
           "arithmetic max",
           "arithmetic min",
+          "arithmetic extremes",
           "geometric mean",
           "rolling geometric mean",
-          "rolling arithmetric mean"
+          "rolling arithmetic mean"
         )
       )
     )
