@@ -251,7 +251,7 @@
         ask = FALSE
       )
       # Filter for surface water data (optional)
-      Data_WV <- TADA_AnalysisDataFilter(
+      Data_WV <- TADA_MediaFilter(
         Data_WV,
         clean = TRUE,
         surface_water = TRUE,

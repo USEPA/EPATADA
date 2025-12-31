@@ -4,7 +4,12 @@
 \alias{TADA_Stats}
 \title{Generate Statistics Table}
 \usage{
-TADA_Stats(.data, group_cols = c("TADA.ComparableDataIdentifier"))
+TADA_Stats(
+  .data,
+  group_cols = c("TADA.ComparableDataIdentifier"),
+  sig_figs = 3,
+  pct_digits = 1
+)
 }
 \arguments{
 \item{.data}{TADA dataframe containing the data downloaded from the WQP,
@@ -16,15 +21,24 @@ columns 'TADA.ResultMeasureValue', 'TADA.ResultMeasure.MeasureUnitCode',
 run this function. The 'TADA.ComparableDataIdentifier' can be added to the
 dataframe by running the function TADA_CreateComparableID().}
 
-\item{group_cols}{This function automatically uses
-'TADA.ComparableDataIdentifier' as a grouping column. However, the user may
-want to summarize their dataset by additional grouping columns. For
-example, a user may want to create a summary table where each row is
-specific to one comparable data identifier AND one TADA monitoring location.
-This input would look like: group_cols = c("TADA.MonitoringLocationIdentifier")}
+\item{group_cols}{Character vector of additional grouping columns to include
+along with 'TADA.ComparableDataIdentifier'. For example:
+\code{group_cols = c("TADA.MonitoringLocationIdentifier")}.}
+
+\item{sig_figs}{Integer. Number of significant figures to display for
+continuous statistics (UpperFence, LowerFence, Min, Mean, Max, and
+percentiles). Default is 3. Uses \code{base::signif()}.}
+
+\item{pct_digits}{Integer. Number of decimal places to display for percentage
+fields (Non_Detect_Pct, Over_Detect_Pct). Default is 1. Uses \code{base::round()}.}
 }
 \value{
-stats table
+A dataframe (stats table) with one row per group and the following
+columns: Location_Count, Measurement_Count, Non_Detect_Count,
+Non_Detect_Pct, Non_Detect_Lvls, Over_Detect_Count, Over_Detect_Pct,
+UpperFence, LowerFence, Min, Mean, Max, Percentile_5th, Percentile_10th,
+Percentile_15th, Percentile_25th, Percentile_50th_Median, Percentile_75th,
+Percentile_85th, Percentile_95th, Percentile_98th, and ND_Estimation_Method.
 }
 \description{
 This function creates a summary table of the dataset based on grouping
@@ -41,10 +55,34 @@ non-detects in the dataset, and the number of censoring levels (detection
 limit types) and methods include Maximum Likelihood Estimation, Robust ROS
 and Kaplan Meier.
 }
+\details{
+The output is formatted for readability:
+\itemize{
+\item Continuous statistics (fences, min, mean, max, and percentiles) are rounded
+to a user-specified number of significant figures via \code{base::signif()}.
+\item Percentage fields (Non_Detect_Pct, Over_Detect_Pct) are rounded to a
+user-specified number of decimal places via \code{base::round()}.
+\item Missing values in \code{TADA.ResultMeasureValue} are excluded (\code{na.rm = TRUE})
+when computing summary statistics.
+\item If \code{TADA.CensoredData.Flag} is not present, the function calls
+\code{TADA_IDCensoredData()} to create it.
+\item If \code{TADA.NutrientSummation.Flag} is present, an informational note is printed.
+\item This function also suggests a ND_Estimation_Method following general guidance
+(Kaplan-Meier, ROS, MLE) based on censored percentage, censoring levels,
+and measurement count.
+}
+}
 \examples{
 # Load example dataset:
 utils::data(Data_6Tribes_5y_Harmonized)
-# Create stats table:
+
+# Default rounding: 3 significant figures for continuous stats, 1 decimal for percentages
 Data_6Tribes_5y_Harmonized_stats <- TADA_Stats(Data_6Tribes_5y_Harmonized)
 
+# Custom rounding: 4 significant figures and whole-number percentages
+Data_6Tribes_5y_Harmonized_stats_rounded <- TADA_Stats(
+  Data_6Tribes_5y_Harmonized,
+  sig_figs = 4,
+  pct_digits = 0
+)
 }

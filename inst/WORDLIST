@@ -23,10 +23,8 @@ ActivityTypeCode
 ActivityTypeCode's
 ActivityTypeCodes
 AggregateMeasurements
-AnalysisDataFilter
 AnalyticalMethod
 Animas
-AquiferName
 ArcGIS
 AssemblageSampledName
 AssessmentUnitIdentifier
@@ -60,7 +58,6 @@ ComparableDataIdentifier
 ComparableDataIdentifier's
 ComparableDataIdentifiers
 ConsolidatedDepth
-ConstructionDateText
 ContinuousData
 ConversionCoefficient
 ConversionFactor
@@ -159,8 +156,9 @@ Kaplan
 Kjeldahl
 LaboratoryName
 LatitudeMeasure
-LocalAqfrName
 LongitudeMeasure
+LowerFence
+Lvls
 MDE
 MLSummary
 MLSummaryRef
@@ -174,6 +172,7 @@ MeasureUnit
 MeasureUnitCode
 MeasureValue
 MeasureValueDataTypes
+MediaFilter
 MeetsStandard
 Memoranda
 MethodDescriptionText
@@ -348,7 +347,7 @@ UniqueSpatialCriteria
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
-UseForAnalysis
+UpperFence
 UseName
 UseName's
 UseNames
@@ -376,8 +375,6 @@ WaterSciCon
 WaterType
 Waterbody
 WaterbodyReport
-WellDepthMeasure
-WellHoleDepthMeasure
 Wikimedia
 YYYY
 addPoints
@@ -527,7 +524,6 @@ tidyverse
 tigris
 tmap
 un
-uncategorized
 uncomment
 uncommenting
 uniqueDataId

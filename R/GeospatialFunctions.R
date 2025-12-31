@@ -2446,34 +2446,36 @@ TADA_GetATTAINSByAUID <- function(
 #'
 #' @examples
 #' \dontrun{
-#'
 #' # use MT example data set
 #' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
 #'
-
 #' # example grouping nearby sites by distance only
 #' test.dist <- TADA_FindNearbySites(testdat,
-#'                                   catchment = FALSE,
-#'                                   by_AU = FALSE,
-#'                                   dist_buffer = 250)
+#'   catchment = FALSE,
+#'   by_AU = FALSE,
+#'   dist_buffer = 250
+#' )
 #'
 #' # example grouping nearby sites by distance and catchment
 #' test.catch <- TADA_FindNearbySites(testdat,
-#'                                    catchment = TRUE,
-#'                                    by_AU = FALSE,
-#'                                    dist_buffer = 250)
+#'   catchment = TRUE,
+#'   by_AU = FALSE,
+#'   dist_buffer = 250
+#' )
 #'
 #' # example grouping nearby sites by distance and assessment unit
 #' test.au.only <- TADA_FindNearbySites(testdat,
-#'                                      catchment = FALSE,
-#'                                      by_AU = TRUE,
-#'                                      dist_buffer = 250)
+#'   catchment = FALSE,
+#'   by_AU = TRUE,
+#'   dist_buffer = 250
+#' )
 #'
 #' # example grouping nearby sites by distance, catchment, and assessment unit
 #' test.all <- TADA_FindNearbySites(testdat,
-#'                                 catchment = TRUE,
-#'                                 by_AU = TRUE,
-#'                                dist_buffer = 250)
+#'   catchment = TRUE,
+#'   by_AU = TRUE,
+#'   dist_buffer = 250
+#' )
 #' }
 TADA_FindNearbySites <- function(
   .data,

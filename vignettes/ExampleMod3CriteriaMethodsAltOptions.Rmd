@@ -197,8 +197,7 @@ A blank template is generated. This can be generated and filled out in
 the excel file.
 
 ```{r blank template output}
-MT.Criteria.blank <- TADA_DefineCriteriaMethodology(
-)
+MT.Criteria.blank <- TADA_DefineCriteriaMethodology()
 
 TADA_TableExport(MT.Criteria.blank)
 ```
