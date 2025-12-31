@@ -405,7 +405,6 @@ TADA_MediaFilter <- function(
           nzchar(trimws(ActivityMediaName)) &&
           tolower(trimws(ActivityMediaName)) == "water" &&
           !gw_has_fields ~ "SURFACE WATER",
-
         ActivityMediaSubdivisionName == "Groundwater" |
           gw_has_fields ~ "GROUNDWATER",
         ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
@@ -416,7 +415,6 @@ TADA_MediaFilter <- function(
           tolower(trimws(ActivityMediaName)) != "water" ~ toupper(trimws(
           ActivityMediaName
         )),
-
         TRUE ~ NA_character_
       )
     )

@@ -320,7 +320,9 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
   rm(mult.target.chars)
 
   # remove intermediate columns tada.all df
-  tada.all <- tada.all |> dplyr::select(-CharUnit) |> dplyr::distinct()
+  tada.all <- tada.all |>
+    dplyr::select(-CharUnit) |>
+    dplyr::distinct()
 
   # return reference table for use in unit conversion functions or for more editing by user
   return(tada.all)
