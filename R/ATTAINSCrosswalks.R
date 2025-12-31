@@ -945,27 +945,27 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param paramRef A data frame which contains a completed crosswalk between
-#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s). 
+#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
 #' This data frame must contain at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. 
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 #' Users who are interested in performing analyses for more than
 #' one organization (multiple states and/or tribes) also need to include an
 #' additional column name: 'ATTAINS.OrganizationIdentifier'.
 #'
 #' @param auto_assign Character string with value of "None", "All", or "Org".
-#' Default is "All". If a user selects "All" this provides a match between 
+#' Default is "All". If a user selects "All" this provides a match between
 #' ATTAINS.ParameterName(s) and TADA.CharacteristicName(s)/TADA.ComparableDataIdentifier(s)
 #' using a TADA reviewed characteristic alias table. If "Org" is selected then
 #' this only returns the ATTAINS.ParameterName(s) and TADA.CharacteristicName(s)/
 #' TADA.ComparableDataIdentifier(s) match if the specified ATTAINS organization
 #' has included that ATTAINS parameter name in past assessment cycles. If "None"
 #' is selected, users will be required to fill the crosswalk on their own completely
-#' or provide their own paramRef crosswalk which contains the crosswalk of 
+#' or provide their own paramRef crosswalk which contains the crosswalk of
 #' ATTAINS.ParameterName(s) to TADA.CharacteristicName(s)/TADA.ComparableDataIdentifier(s).
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
@@ -977,8 +977,8 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be 
-#' replaced (overwritten) by the new file you create if you re-run this function. 
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
@@ -1809,9 +1809,9 @@ TADA_ParametersForAnalysis <- function(
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param paramRef A data frame which contains a completed crosswalk between
-#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s). 
+#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
 #' This data frame must contain at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. 
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
 #' Users who are interested in performing analyses for more than
 #' one organization (multiple states and/or tribes) also need to include an
 #' additional column name: 'ATTAINS.OrganizationIdentifier'.
@@ -1823,23 +1823,23 @@ TADA_ParametersForAnalysis <- function(
 #' this crosswalk table can re-use it and review this output for accuracy.
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be populated from the ATTAINS.UseName found in this data frame rather 
-#' than the ATTAINS assessment profile. This data frame must contain the following 
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
 #' column names which can be generated from the output of TADA_AssignUsesToAU:
 #' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType. 
+#' and ATTAINS.WaterType.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
 #' @param auto_assign A boolean value. If TRUE, this will assign all unique
-#' ATTAINS.UseName to an ATTAINS.ParameterName if that parameter has not been 
+#' ATTAINS.UseName to an ATTAINS.ParameterName if that parameter has not been
 #' included in prior ATTAINS assessment cycles for that ATTAINS.OrganizationIdentifier.
-#' If FALSE, the value for ATTAINS.UseName will be left blank for that ATTAINS.ParameterName 
+#' If FALSE, the value for ATTAINS.UseName will be left blank for that ATTAINS.ParameterName
 #' and you will need to manually assign the use names as needed.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
@@ -1849,8 +1849,8 @@ TADA_ParametersForAnalysis <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be 
-#' replaced (overwritten) by the new file you create if you re-run this function. 
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
@@ -2739,8 +2739,8 @@ TADA_UsesForAnalysis <- function(
 #'
 #' This function pulls in all prior ATTAINS Use names associated with each
 #' Assessment Unit (AU) from the prior ATTAINS cycle. This function requires an
-#' ATTAINS.OrganizationIdentifier and a crosswalk of an organization's WQP 
-#' Monitoring Locations, ATTAINS Assessment Units, and ATTAINS Water Type as a 
+#' ATTAINS.OrganizationIdentifier and a crosswalk of an organization's WQP
+#' Monitoring Locations, ATTAINS Assessment Units, and ATTAINS Water Type as a
 #' function input (AUMLRef). The output from the $ATTAINS_crosswalk list from
 #' `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can
 #' be used directly as the AUMLRef argument input in this function. Alternatively,
@@ -2785,15 +2785,15 @@ TADA_UsesForAnalysis <- function(
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be populated from the ATTAINS.UseName found in this data frame rather 
-#' than the ATTAINS assessment profile. This data frame must contain the following 
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
 #' column names which can be generated from the output of TADA_AssignUsesToAU:
 #' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType. 
+#' and ATTAINS.WaterType.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
@@ -2809,8 +2809,8 @@ TADA_UsesForAnalysis <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be 
-#' replaced (overwritten) by the new file you create if you re-run this function. 
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
@@ -3307,7 +3307,7 @@ TADA_AssignUsesToAU <- function(
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
@@ -3476,15 +3476,15 @@ TADA_AssignUsesToWaterType <- function(
 #' this crosswalk table can re-use it and review this output for accuracy.
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be populated from the ATTAINS.UseName found in this data frame rather 
-#' than the ATTAINS assessment profile. This data frame must contain the following 
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
 #' column names which can be generated from the output of TADA_AssignUsesToAU:
 #' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType. 
+#' and ATTAINS.WaterType.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
@@ -3494,16 +3494,16 @@ TADA_AssignUsesToWaterType <- function(
 #' or monitoring site/assessment unit. If provided the data frame must contain
 #' these columns:
 #' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
-#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName", 
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
 #' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure", 
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 #' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
 #' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
 #' for all uses and parameter assigned to a ML or AU regardless if that site contains
 #' WQP data for that parameter. This is useful if a user is interested in an explicit
 #' list of everything that will be analyzed. Default is FALSE.
-#' 
+#'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
 #' If you have any trouble locating the file, please type the following into
@@ -3511,16 +3511,16 @@ TADA_AssignUsesToWaterType <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be 
-#' replaced (overwritten) by the new file you create if you re-run this function. 
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
 #' @return A data frame with any unique spatial descriptions defined with columns:
 #' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
-#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName", 
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
 #' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure", 
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 #' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
 #' @seealso [TADA_UsesForAnalysis()]
