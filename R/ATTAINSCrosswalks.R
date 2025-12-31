@@ -925,60 +925,65 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' ATTAINS.ParameterName that was not used by the selected organization in prior
 #' ATTAINS assessment cycles.
 #'
-#' @param .data A TADA dataframe. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA dataframe after all desired data cleaning,
+#' processing, harmonization, filtering, and censored data handling functions
+#' have been applied.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
+#' those performing assessments for multiple states and tribes. If "All" is
+#' selected, this will return all prior ATTAINS information from all ATTAINS
+#' organizations in prior ATTAINS assessment cycles as individual rows for each
+#' organization. If "NULL" is selected all unique prior ATTAINS information from
+#' any ATTAINS organizations are returned but are not labeled and can be manually
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this parameter. If a user supplied crosswalk is entered
-#' into paramRef AND a user does not provide an org_id argument,
-#' the function can identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
+#'
+#' @param paramRef A data frame which contains a completed crosswalk between
+#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
+#' This data frame must contain at least these two column names:
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
+#' Users who are interested in performing analyses for more than
+#' one organization (multiple states and/or tribes) also need to include an
+#' additional column name: 'ATTAINS.OrganizationIdentifier'.
+#'
+#' @param auto_assign Character string with value of "None", "All", or "Org".
+#' Default is "All". If a user selects "All" this provides a match between
+#' ATTAINS.ParameterName(s) and TADA.CharacteristicName(s)/TADA.ComparableDataIdentifier(s)
+#' using a TADA reviewed characteristic alias table. If "Org" is selected then
+#' this only returns the ATTAINS.ParameterName(s) and TADA.CharacteristicName(s)/
+#' TADA.ComparableDataIdentifier(s) match if the specified ATTAINS organization
+#' has included that ATTAINS parameter name in past assessment cycles. If "None"
+#' is selected, users will be required to fill the crosswalk on their own completely
+#' or provide their own paramRef crosswalk which contains the crosswalk of
+#' ATTAINS.ParameterName(s) to TADA.CharacteristicName(s)/TADA.ComparableDataIdentifier(s).
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
-#' to ensure this crosswalk contains the appropriate column names in order to run
-#' the function. See module 2 vignette and sample output of [TADA_CreateAUMLCrosswalk()].
+#' with an assessment unit. This data frame must contain the following
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
-#' If needed, please type the following into your R console:
-#' file.path(Sys.getenv("USERPROFILE"), "Downloads") to ensure the file is downloaded
-#' to the correct location. The file will be named "myfileRef.xlsx".
+#' If you have any trouble locating the file, please type the following into
+#' your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
+#' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
+#' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
+#' Users should only specify overwrite = TRUE once they are ready to re-run this
+#' function if they have already ran it once.
 #'
-#' @param paramRef A dataframe which contains a completed crosswalk between
-#' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
-#' ensure this crosswalk contains the appropriate column names in order to
-#' run the function. paramRef must contain at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. Users who are
-#' interested in performing analyses for more than
-#' one organization (multiple states or tribes, or a single state/tribe and
-#' EPA 304a criteria) also need to include an additional column name:
-#' 'organization_identifier'.
-#'
-#' @param auto_assign A string value of "None", "All", or "Org". Default is "All".
-#' If a user selects "All" this provides a match using TADA logic (IN DEVELOPMENT:
-#' currently based on and exact match of WQP CharacteristicName with
-#' ATTAINS ParameterName along with a few manual review). If "Org" then this
-#' only provide the TADA logic match if your ATTAINS organization has included that
-#' ATTAINS ParameterName in the past. If not, this will be left blank for your
-#' organization to specify. "None" will result in an empty ATTAINS.ParameterName
-#' column. Users will be required to fill this out on their own completely or
-#' through a prior paramRef crosswalk. See paramRef argument input above for more
-#' information.
-#'
-#' @return A excel file or data frame which contains the columns:
-#' TADA.ComparableDataIdentifier, organization_identifier,
+#' @return An excel file or data frame which contains the columns:
+#' TADA.ComparableDataIdentifier, ATTAINS.OrganizationIdentifier,
 #' ATTAINS.ParameterName, and ATTAINS.FlagParameterName. Users will need to
 #' complete the crosswalk between ATTAINS.ParameterName and
 #' TADA.ComparableDataIdentifier.
@@ -1784,60 +1789,58 @@ TADA_ParametersForAnalysis <- function(
 #' 'Use name is not listed as a prior cause in ATTAINS for this organization' or
 #' 'Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name'.
 #'
-#' Note: Future development work will allow for crosswalking other names from the WQP
-#' such as using pollutant names from the EPA's Criteria Search Tool (CST):
-#' www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa.
-#' The TADA Team has crosswalked the CST pollutant names for EPA304a standards with
-#' TADA.ComparableDataIdentifier(s) to make the criteria values available for
-#' use within TADA functions. The ATTAINS.UseName(s) associated with the EPA304a
-#' criteria are included from the CST. All other ATTAINS.UseName(s) are specific to an
-#' ATTAINS organization and come from the ATTAINS domain value for use_name.
-#'
-#' @param .data A TADA dataframe. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA dataframe after all desired data cleaning,
+#' processing, harmonization, filtering, and censored data handling functions
+#' have been applied.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
+#' those performing assessments for multiple states and tribes. If "All" is
+#' selected, this will return all prior ATTAINS information from all ATTAINS
+#' organizations in prior ATTAINS assessment cycles as individual rows for each
+#' organization. If "NULL" is selected all unique prior ATTAINS information from
+#' any ATTAINS organizations are returned but are not labeled and can be manually
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
-#' @param paramRef A dataframe which contains a completed crosswalk between
-#' TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
-#' ensure this crosswalk contains the appropriate column names in order to
-#' run the function. paramRef must contain at least these two column names:
-#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName. Users who are
-#' interested in performing analyses for more than
+#' @param paramRef A data frame which contains a completed crosswalk between
+#' TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
+#' This data frame must contain at least these two column names:
+#' TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
+#' Users who are interested in performing analyses for more than
 #' one organization (multiple states and/or tribes) also need to include an
-#' additional column name: 'ATTAINS.OrganizationIdentifier'
+#' additional column name: 'ATTAINS.OrganizationIdentifier'.
 #'
-#' @param usesRef A dataframe which contains a completed crosswalk of
-#' organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
+#' @param usesRef A data frame which contains a completed crosswalk of
+#' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
 #'
-#' @param AU_UsesRef An optional data frame input. If provided, this data frame
-#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
+#' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
+#' column names which can be generated from the output of TADA_AssignUsesToAU:
+#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+#' and ATTAINS.WaterType.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
-#' to ensure this crosswalk contains the appropriate column names in order to run
-#' the function. See module 2 vignette and sample output of [TADA_CreateAUMLCrosswalk()].
+#' with an assessment unit. This data frame must contain the following
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
-#' @param auto_assign NOTE: this has not been developed, will this be helpful?
-#' A boolean value. If TRUE, this will assign all unique
-#' use names to an ATTAINS.ParameterName that has not been defined by your
-#' organization from ATTAINS. If FALSE, the values will be left blank and
-#' will need you to manually assign use names as needed.
+#' @param auto_assign A boolean value. If TRUE, this will assign all unique
+#' ATTAINS.UseName to an ATTAINS.ParameterName if that parameter has not been
+#' included in prior ATTAINS assessment cycles for that ATTAINS.OrganizationIdentifier.
+#' If FALSE, the value for ATTAINS.UseName will be left blank for that ATTAINS.ParameterName
+#' and you will need to manually assign the use names as needed.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -1846,9 +1849,10 @@ TADA_ParametersForAnalysis <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
+#' Users should only specify overwrite = TRUE once they are ready to re-run this
+#' function if they have already ran it once.
 #'
 #' @return A dataframe which contains the columns: TADA.ComparableDataIdentifier,
 #' ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName,
@@ -1946,7 +1950,7 @@ TADA_UsesForAnalysis <- function(
     }
 
     # If a user does not fill in ANY values for the crosswalk of ATTAINS.ParameterName.
-    # Users may want to proceed with only the EPA304a criteria crosswalk,
+    # Users may want to proceed with only the EPA 304(a) criteria crosswalk,
     # therefore we will allow users to proceed in this case.
     if (sum(!is.na(paramRef$ATTAINS.ParameterName)) == 0) {
       warning(paste0(
@@ -2093,7 +2097,7 @@ TADA_UsesForAnalysis <- function(
       }
     }
 
-    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
+    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
     # 5/14/25 KW: We should use separate columns for CST organization/pollutant/use names in the future.
     if (
       sum(
@@ -2734,13 +2738,12 @@ TADA_UsesForAnalysis <- function(
 #' ATTAINS Assessment Unit and Use Name Crosswalk
 #'
 #' This function pulls in all prior ATTAINS Use names associated with each
-#' ATTAINS organization's Assessment Unit (AU) from the prior ATTAINS cycle.
-#' This function requires an ATTAINS org_id and
-#' a crosswalk of an organization's WQP
-#' Monitoring Location's, ATTAINS Assessment Unit's, and ATTAINS
-#' Water Type codes as a function input (AUMLRef). The output from
-#' `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can be used
-#' directly as the AUMLRef argument input in this function. Alternatively,
+#' Assessment Unit (AU) from the prior ATTAINS cycle. This function requires an
+#' ATTAINS.OrganizationIdentifier and a crosswalk of an organization's WQP
+#' Monitoring Locations, ATTAINS Assessment Units, and ATTAINS Water Type as a
+#' function input (AUMLRef). The output from the $ATTAINS_crosswalk list from
+#' `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can
+#' be used directly as the AUMLRef argument input in this function. Alternatively,
 #' a user supplied crosswalk can be entered or `TADA_GetATTAINSAUMLCrosswalk()`
 #' and/or `TADA_UpdateATTAINSAUMLCrosswalk()` functions can be leveraged
 #' to generate the crosswalk.
@@ -2752,46 +2755,52 @@ TADA_UsesForAnalysis <- function(
 #' For any NEW AUs and/or NEW uses, users must modify
 #' the output of this function to manually add those uses and AU's to the crosswalk.
 #' Alternatively, we have developed a helper function, [TADA_AssignUsesToWaterType()],
-#' to assist with assigning uses to NEW AU's. This can be leveraged to assign
-#' uses for any new AUs based on the water type of the AU.
-#' Users can either supply their own Water
-#' Type to Use crosswalk or utilize ATTAINS webservices to pull in the Water Type to
-#' Use reference file. This Water to Use reference file can be used to assign all
-#' unique Uses to a new/modified AU based on which uses have been assigned to that
-#' water type in the past for the specified ATTAINS organization.
+#' to assist with assigning uses to NEW AUs. This can be leveraged to assign
+#' uses for any new AUs based on the water type of the AU. Users can either supply
+#' their own Water Type to Use crosswalk or utilize ATTAINS webservices to pull in
+#' the Water Type to Use reference file. This Water to Use reference file can be
+#' used to assign all unique Uses to a new/modified AU based on which uses have been
+#' assigned to that water type in the past by the specified ATTAINS organization.
 #' Any new or modified AU and use information that gets submitted to ATTAINS
-#' in the current assessment cycle will not be available in ATTAINS until the
-#' assessment is approved and completed.
+#' in the current assessment cycle will not be available via ATTAINS webservices
+#' until the assessment is approved and completed.
 #'
-#' @param .data A TADA dataframe. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA dataframe after all desired data cleaning,
+#' processing, harmonization, filtering, and censored data handling functions
+#' have been applied.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
+#' those performing assessments for multiple states and tribes. If "All" is
+#' selected, this will return all prior ATTAINS information from all ATTAINS
+#' organizations in prior ATTAINS assessment cycles as individual rows for each
+#' organization. If "NULL" is selected all unique prior ATTAINS information from
+#' any ATTAINS organizations are returned but are not labeled and can be manually
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
-#' @param AUMLRef A required data frame input. This data frame
-#' should contain a completed crosswalk of WQP Monitoring Locations
-#' associated with each ATTAINS Assessment Unit. Users will need to ensure
-#' this crosswalk contains the appropriate column names in order to run this function.
-#' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
+#' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
+#' column names which can be generated from the output of TADA_AssignUsesToAU:
+#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+#' and ATTAINS.WaterType.
 #'
-#' @param AU_UsesRef An optional data frame input. If provided, this data frame
-#' will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
+#' @param AUMLRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of monitoring location sites associated
+#' with an assessment unit. This data frame must contain the following
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
-#' @param waterUseRef An optional data frame input. If provided, this data frame
-#' will contain a user supplied list of ATTAINS uses to ATTAINS water type.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
+#' @param waterUseRef An optional data frame input containing a user supplied list
+#' of ATTAINS uses to ATTAINS water type. Users will need to ensure this crosswalk
+#' contains the appropriate column names in order to run the function.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -2800,9 +2809,10 @@ TADA_UsesForAnalysis <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
+#' Users should only specify overwrite = TRUE once they are ready to re-run this
+#' function if they have already ran it once.
 #'
 #' @seealso [TADA_DataRetrieval()] for the required format of .data
 #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()] to help generate the required AUMLRef
@@ -2939,7 +2949,7 @@ TADA_AssignUsesToAU <- function(
     if (is.null(AUMLRef)) {
       stop(paste0(
         "TADA_AssignUsesToAU: ",
-        "You must provide a AUMLRef to run this function."
+        "You must provide an AUMLRef to run this function."
       ))
     }
 
@@ -3009,10 +3019,10 @@ TADA_AssignUsesToAU <- function(
       }
     }
 
-    # Handle later, if multiple org_id are used, create a loop when calling rATTAINS (or if we use EQ National extract, no loop needed)
+    # Handle later, if multiple org_id are used, create a loop when calling rATTAINS (or if we use ATTAINS Expert Query National extract, no loop needed)
     # org_id <- as.list(org_id)
 
-    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
+    # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
     if (
       sum(
         !org_id[org_id != "EPA304a"] %in%
@@ -3033,9 +3043,9 @@ TADA_AssignUsesToAU <- function(
       ))
     }
 
-    # Pulls in Existing Uses by Existing AU from ATTAINS EQ
+    # Pulls in Existing Uses by Existing AU from ATTAINS Expert Query
     print(
-      "TADA_AssignUsesToAU: Importing existing uses by AU from Expert Query."
+      "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
     )
 
     OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(
@@ -3137,59 +3147,22 @@ TADA_AssignUsesToAU <- function(
 
     # User provides their own AU_UsesRef that has been filled out.
     if (!is.null(AU_UsesRef)) {
-      # What rows did the user have in their AU_UsesRef that was not found in the most recent ATTAINS data system?
-      Flag1 <- CreateAU_UsesRef |>
-        dplyr::anti_join(
-          AU_UsesRef,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.UseName",
-            "ATTAINS.WaterType",
-            "TADA.AssessmentUnitStatus",
-            "IncludeOrExclude"
-          )
+      AU_UsesRef_matches <- AU_UsesRef |>
+        dplyr::filter(
+          ATTAINS.AssessmentUnitIdentifier %in%
+            CreateAU_UsesRef$ATTAINS.AssessmentUnitIdentifier
         ) |>
-        dplyr::mutate(
-          TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-            ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Suspect: Excluding from Assessment. This AU and use is not found in your AU_UsesRef"
-          )
-        ) |>
-        dplyr::mutate(
-          IncludeOrExclude = dplyr::case_when(
-            ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "Exclude"
-          )
-        )
+        dplyr::mutate(TADA.AssessmentUnitStatus = "Existing")
 
-      CreateAU_UsesRef <- Flag1 |>
-        dplyr::full_join(
-          AU_UsesRef,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.AssessmentUnitIdentifier",
-            "ATTAINS.UseName",
-            "ATTAINS.WaterType",
-            "TADA.AssessmentUnitStatus",
-            "IncludeOrExclude"
-          )
+      CreateAU_UsesRef <- CreateAU_UsesRef |>
+        dplyr::filter(
+          !ATTAINS.AssessmentUnitIdentifier %in%
+            AU_UsesRef$ATTAINS.AssessmentUnitIdentifier
         ) |>
         dplyr::mutate(
-          TADA.AssessmentUnitStatus = dplyr::case_when(
-            !ATTAINS.AssessmentUnitIdentifier %in%
-              AUMLRef$ATTAINS.AssessmentUnitIdentifier ~ "New",
-            TRUE ~ TADA.AssessmentUnitStatus
-          )
+          TADA.AssessmentUnitStatus = "New: ATTAINS.UseName not found in prior ATTAINS assessment cycles for your org."
         ) |>
-        dplyr::arrange(
-          match(IncludeOrExclude, c("Include")),
-          ATTAINS.WaterType,
-          ATTAINS.UseName
-        ) |>
-        dplyr::distinct()
+        plyr::rbind.fill(AU_UsesRef_matches)
     }
 
     if (excel == TRUE) {
@@ -3308,30 +3281,36 @@ TADA_AssignUsesToAU <- function(
 #' prior assessment cycles are being done for an organization's assessment.
 #' Users are expected to modify this ref file as needed.
 #'
-#' @param .data A TADA dataframe. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA dataframe after all desired data cleaning,
+#' processing, harmonization, filtering, and censored data handling functions
+#' have been applied.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
+#' those performing assessments for multiple states and tribes. If "All" is
+#' selected, this will return all prior ATTAINS information from all ATTAINS
+#' organizations in prior ATTAINS assessment cycles as individual rows for each
+#' organization. If "NULL" is selected all unique prior ATTAINS information from
+#' any ATTAINS organizations are returned but are not labeled and can be manually
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param waterUseRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with a water type.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
 #' order to run the function.
 #'
-#' @param AUMLRef A required data frame input. This data frame
-#' should contain a completed crosswalk of WQP Monitoring Locations
-#' associated with each ATTAINS Assessment Unit. Users will need to ensure
-#' this crosswalk contains the appropriate column names in order to run this function.
-#' See module 2 vignette and sample output of [TADA_CreateATTAINSAUMLCrosswalk()].
+#' @param AUMLRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of monitoring location sites associated
+#' with an assessment unit. This data frame must contain the following
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
 #' @return A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
 #'
@@ -3382,7 +3361,7 @@ TADA_AssignUsesToWaterType <- function(
     package = "EPATADA"
   ))
 
-  # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA304a" as that is not an ATTAINS org_id.
+  # Checks if org_id are valid names found in ATTAINS - with the exception of "EPA 304(a)" as that is not an ATTAINS org_id.
   if (
     sum(
       !org_id[org_id != "EPA304a"] %in%
@@ -3471,25 +3450,59 @@ TADA_AssignUsesToWaterType <- function(
 #' to utilize the excel file for easy filtering across columns to apply any
 #' site specific criteria as needed.
 #'
-#' @param .data A TADA dataframe. The user should run all desired data cleaning,
-#' processing, harmonization, filtering, and handling of censored data functions
-#' prior to running this function.
+#' @param .data A TADA dataframe after all desired data cleaning,
+#' processing, harmonization, filtering, and censored data handling functions
+#' have been applied.
 #'
 #' @param org_id The ATTAINS organization identifier must be supplied by the
-#' user. A list of organization identifiers can be found by downloading
-#' the ATTAINS Domains Excel file:
+#' user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+#' recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+#' "NULL" are also allowable values and may be helpful for new ATTAINS users or
+#' those performing assessments for multiple states and tribes. If "All" is
+#' selected, this will return all prior ATTAINS information from all ATTAINS
+#' organizations in prior ATTAINS assessment cycles as individual rows for each
+#' organization. If "NULL" is selected all unique prior ATTAINS information from
+#' any ATTAINS organizations are returned but are not labeled and can be manually
+#' edited. Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
+#' get a list of valid organization identifiers. A list of organization identifiers
+#' can also be found by downloading the ATTAINS Domains Excel file:
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' organization identifiers are listed in the "OrgName" tab.
-#' The "code" column contains the organization identifiers that
-#' should be used for this param. If a user does not provide an org_id argument,
-#' the function attempts to identify which organization identifier(s) to include
-#' based on the unique ATTAINS organization identifiers found in the dataframe.
+#' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
-#' @param usesRef A required data frame which contains a completed crosswalk of
-#' organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
+#' @param usesRef A data frame which contains a completed crosswalk of
+#' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
+#'
+#' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
+#' column names which can be generated from the output of TADA_AssignUsesToAU:
+#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+#' and ATTAINS.WaterType.
+#'
+#' @param AUMLRef An optional data frame input. If provided, this data frame
+#' should contain a completed crosswalk of monitoring location sites associated
+#' with an assessment unit. This data frame must contain the following
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
+#'
+#' @param MLSummaryRef An optional data frame which contains the completed spatial
+#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
+#' or monitoring site/assessment unit. If provided the data frame must contain
+#' these columns:
+#' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+#' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
+#'
+#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
+#' for all uses and parameter assigned to a ML or AU regardless if that site contains
+#' WQP data for that parameter. This is useful if a user is interested in an explicit
+#' list of everything that will be analyzed. Default is FALSE.
 #'
 #' @param excel A Boolean value that returns an excel spreadsheet if
 #' excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -3498,36 +3511,17 @@ TADA_AssignUsesToWaterType <- function(
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value that ensures the function will not overwrite
-#' the user supplied crosswalk entered into this function via the paramRef
-#' function input. This helps prevent users from overwriting their progress.
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
+#' Users should only specify overwrite = TRUE once they are ready to re-run this
+#' function if they have already ran it once.
 #'
-#' @param AU_UsesRef An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of use names associated with an assessment unit.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function. See output of [TADA_AssignUsesToAU()] for column names.
-#'
-#' @param AUMLRef An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. Users will need to ensure this crosswalk contains the
-#' appropriate column names in order to run the function.
-#' See module 2 vignette and sample output of [TADA_CreateAUMLCrosswalk()].
-#'
-#' @param MLSummaryRef An optional data frame which contains the completed spatial
-#' crosswalk to assign any unique spatial criteria to a parameter, use, waterbody
-#' or monitoring site/assessment unit.
-#'
-#' @param displayNA A boolean value. If TRUE, this allows user to view MLSummaryRef
-#' for all uses and parameter assigned to a ML or AU regardless if that site contains
-#' WQP data for that parameter. This is useful if a user is interested in an explicit
-#' list of everything that will be analyzed. Default is FALSE.
-#'
-#' An optional data frame input. If provided, this data frame
-#' should contain a completed crosswalk of use names associated with a water type.
-#' Users will need to ensure this crosswalk contains the appropriate column names in
-#' order to run the function.
-#'
-#' @return A data frame with any unique spatial descriptions defined for
+#' @return A data frame with any unique spatial descriptions defined with columns:
+#' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
+#' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
+#' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
 #' @seealso [TADA_UsesForAnalysis()]
 #' @seealso [TADA_AssignUsesToAU()]

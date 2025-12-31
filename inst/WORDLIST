@@ -43,7 +43,6 @@ CFU
 CNENVSER
 COLI
 COMIDs
-CRS
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -97,6 +96,7 @@ EASP
 EASP's
 ECHO's
 EMEF
+EQ
 ExampleMod
 ExpertQuery
 FONDULAC
@@ -152,7 +152,6 @@ InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
 InvalidSpeciation
-JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -266,7 +265,6 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
-Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -300,6 +298,7 @@ SFNOES
 SSN
 STORET
 STV
+SaltFresh
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -345,6 +344,7 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UniqueSpatialCriteria
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
@@ -356,7 +356,6 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
-WGS
 WQC
 WQP
 WQS
@@ -421,7 +420,6 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
-datetimes
 decimaldigits
 depthcat
 devtools
@@ -502,8 +500,6 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
-repo
-reproducibility
 resultCount
 sampleMedia
 sd

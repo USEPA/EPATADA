@@ -4,7 +4,7 @@
 \alias{TADA_CalculateTotalNP}
 \title{Calculate Total Nitrogen and Phosphorus}
 \usage{
-TADA_CalculateTotalNP(.data, sum_ref, daily_agg = c("max", "min", "mean"))
+TADA_CalculateTotalNP(.data, sum_ref, daily_agg = "max")
 }
 \arguments{
 \item{.data}{TADA dataframe. TADA_AutoClean() must have been run (and the
