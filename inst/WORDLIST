@@ -93,6 +93,7 @@ EASP
 EASP's
 ECHO's
 EMEF
+EQ
 ExampleMod
 ExpertQuery
 FONDULAC
@@ -296,6 +297,7 @@ SFNOES
 SSN
 STORET
 STV
+SaltFresh
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -341,6 +343,7 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UniqueSpatialCriteria
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
