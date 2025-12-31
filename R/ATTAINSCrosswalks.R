@@ -1817,7 +1817,7 @@ TADA_ParametersForAnalysis <- function(
 #' additional column name: 'ATTAINS.OrganizationIdentifier'.
 #'
 #' @param usesRef A data frame which contains a completed crosswalk of
-#' ATTAINS.ParameterName(s) that will be analysed for each ATTAINS.UseName.
+#' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.
@@ -3470,7 +3470,7 @@ TADA_AssignUsesToWaterType <- function(
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
 #' @param usesRef A data frame which contains a completed crosswalk of
-#' ATTAINS.ParameterName(s) that will be analysed for each ATTAINS.UseName.
+#' ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 #' Users will need to ensure this crosswalk contains the appropriate column
 #' names in order to  run the function. Users who have previously completed
 #' this crosswalk table can re-use it and review this output for accuracy.

@@ -1651,9 +1651,9 @@ TADA_CriteriaDataDictionary <- function() {
       # AssessPeriod
       "Labels the assessment period of which the WQP data must be collected from. Users should define the assessment date range in the beginning and end date columns that proceeds this one.",
       # AssessPeriodStartDate
-      "The start date in which WQP data will be analysed for this parameter and use.",
+      "The start date in which WQP data will be analyzed for this parameter and use.",
       # AssessPeriodEndDate
-      "The end date in which WQP data will be analysed for this parameter and use.",
+      "The end date in which WQP data will be analyzed for this parameter and use.",
       # Season
       "Labels the season in which the standards apply for this parameter and use. Specify the start and end dates of your season in the proceeding two columns.",
       # SeasonStartDate

@@ -298,6 +298,7 @@ SFNOES
 SSN
 STORET
 STV
+SaltFresh
 SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
@@ -343,6 +344,7 @@ USGS's
 Uncomment
 UncommonAnalyticalMethodID
 UniqueHarmonizationRef
+UniqueSpatialCriteria
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
