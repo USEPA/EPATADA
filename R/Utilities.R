@@ -2360,7 +2360,8 @@ correctColType <- function(.data) {
     # check to see if each col.name is in .data
     if (col.name %in% names(.data)) {
       # coerce to correct type
-      .data[[col.name]] <- switch(col.type,
+      .data[[col.name]] <- switch(
+        col.type,
         "character" = as.character(.data[[col.name]]),
         "numeric" = as.numeric(.data[[col.name]]),
         "integer" = as.integer(.data[[col.name]]),
