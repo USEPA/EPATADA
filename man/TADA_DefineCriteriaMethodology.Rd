@@ -50,9 +50,10 @@ these columns:
 \item{criteriaMethods}{An optional data frame which contains the completed
 criteria and methodology table. This will be a user supplied table and any
 inputs in this table will be prioritized. Additional rows for any parameter(s)
-and use(s) combinations that are not found in the user supplied table will be
-included in the output. These rows will need the criteria and methodology inputs
-filled out accordingly.}
+that are not found in the user supplied table will be included in the output.
+These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName,
+and the criteria and methodology inputs filled out manually if you would like
+analysis to be done for it.}
 
 \item{auto_assign}{Boolean argument with two possible values: TRUE and FALSE.
 The default value is FALSE. If TRUE, a draft criteria and methods table is
