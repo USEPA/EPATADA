@@ -398,15 +398,27 @@ TADA_MediaFilter <- function(
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        ActivityMediaSubdivisionName == "Groundwater" |
-          gw_has_fields ~ "GROUNDWATER",
+        # New rule: if subdivision is missing and media name is WATER, treat as SURFACE WATER
+        (
+          is.na(ActivityMediaSubdivisionName) |
+            !nzchar(trimws(ActivityMediaSubdivisionName))
+        ) &&
+          !is.na(ActivityMediaName) &&
+          nzchar(trimws(ActivityMediaName)) &&
+          tolower(trimws(ActivityMediaName)) == "water" &&
+          !gw_has_fields ~ "SURFACE WATER",
+        
+        ActivityMediaSubdivisionName == "Groundwater" | gw_has_fields ~ "GROUNDWATER",
         ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
         ActivityMediaSubdivisionName == "Sediment" ~ "SEDIMENT",
+        
+        # Keep any non-"water" ActivityMediaName as-is (uppercased)
         !is.na(ActivityMediaName) &
           nzchar(trimws(ActivityMediaName)) &
           tolower(trimws(ActivityMediaName)) != "water" ~ toupper(trimws(
-          ActivityMediaName
-        )),
+            ActivityMediaName
+          )),
+        
         TRUE ~ NA_character_
       )
     )
