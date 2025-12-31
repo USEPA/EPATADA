@@ -142,7 +142,8 @@ TADA_Stats <- function(
       Non_Detect_Pct = length(TADA.CensoredData.Flag[
         TADA.CensoredData.Flag %in% c("Non-Detect")
       ]) /
-        length(TADA.CensoredData.Flag) * 100,
+        length(TADA.CensoredData.Flag) *
+        100,
       Non_Detect_Lvls = length(unique(DetectionQuantitationLimitTypeName[
         TADA.CensoredData.Flag %in% c("Non-Detect")
       ])),
@@ -152,46 +153,109 @@ TADA_Stats <- function(
       Over_Detect_Pct = length(TADA.CensoredData.Flag[
         TADA.CensoredData.Flag %in% c("Over-Detect")
       ]) /
-        length(TADA.CensoredData.Flag) * 100,
+        length(TADA.CensoredData.Flag) *
+        100,
       # To build this fence we take 1.5 times the IQR and then subtract this value
       # from Q1 and add this value to Q3. This gives us the minimum and maximum fence
       # posts that we compare each observation to. Any observations that are more than
       # 1.5 IQR below Q1 or more than 1.5 IQR above Q3 are considered outliers
-      UpperFence = (stats::quantile(TADA.ResultMeasureValue, c(.75), na.rm = TRUE) +
+      UpperFence = (stats::quantile(
+        TADA.ResultMeasureValue,
+        c(.75),
+        na.rm = TRUE
+      ) +
         (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
-      LowerFence = (stats::quantile(TADA.ResultMeasureValue, c(.25), na.rm = TRUE) -
+      LowerFence = (stats::quantile(
+        TADA.ResultMeasureValue,
+        c(.25),
+        na.rm = TRUE
+      ) -
         (1.5 * stats::IQR(TADA.ResultMeasureValue, na.rm = TRUE))),
       Min = min(TADA.ResultMeasureValue, na.rm = TRUE),
       Mean = mean(TADA.ResultMeasureValue, na.rm = TRUE),
       Max = max(TADA.ResultMeasureValue, na.rm = TRUE),
-      Percentile_5th = stats::quantile(TADA.ResultMeasureValue, .05, na.rm = TRUE),
-      Percentile_10th = stats::quantile(TADA.ResultMeasureValue, .10, na.rm = TRUE),
-      Percentile_15th = stats::quantile(TADA.ResultMeasureValue, .15, na.rm = TRUE),
-      Percentile_25th = stats::quantile(TADA.ResultMeasureValue, .25, na.rm = TRUE),
-      Percentile_50th_Median = stats::quantile(TADA.ResultMeasureValue, .50, na.rm = TRUE),
-      Percentile_75th = stats::quantile(TADA.ResultMeasureValue, .75, na.rm = TRUE),
-      Percentile_85th = stats::quantile(TADA.ResultMeasureValue, .85, na.rm = TRUE),
-      Percentile_95th = stats::quantile(TADA.ResultMeasureValue, .95, na.rm = TRUE),
-      Percentile_98th = stats::quantile(TADA.ResultMeasureValue, .98, na.rm = TRUE),
+      Percentile_5th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .05,
+        na.rm = TRUE
+      ),
+      Percentile_10th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .10,
+        na.rm = TRUE
+      ),
+      Percentile_15th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .15,
+        na.rm = TRUE
+      ),
+      Percentile_25th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .25,
+        na.rm = TRUE
+      ),
+      Percentile_50th_Median = stats::quantile(
+        TADA.ResultMeasureValue,
+        .50,
+        na.rm = TRUE
+      ),
+      Percentile_75th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .75,
+        na.rm = TRUE
+      ),
+      Percentile_85th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .85,
+        na.rm = TRUE
+      ),
+      Percentile_95th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .95,
+        na.rm = TRUE
+      ),
+      Percentile_98th = stats::quantile(
+        TADA.ResultMeasureValue,
+        .98,
+        na.rm = TRUE
+      ),
       .groups = "drop"
     ) |>
     dplyr::mutate(
       ND_Estimation_Method = dplyr::case_when(
         Non_Detect_Pct == 0 ~ as.character("No non-detects to estimate"),
-        Non_Detect_Pct > 80 ~ as.character("Percent censored too high for estimation methods"),
-        Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character("Kaplan-Meier"),
-        Non_Detect_Pct < 50 ~ as.character("Robust Regression Order Statistics"),
+        Non_Detect_Pct > 80 ~ as.character(
+          "Percent censored too high for estimation methods"
+        ),
+        Non_Detect_Pct < 50 & Non_Detect_Lvls > 1 ~ as.character(
+          "Kaplan-Meier"
+        ),
+        Non_Detect_Pct < 50 ~ as.character(
+          "Robust Regression Order Statistics"
+        ),
         Measurement_Count >= 50 ~ as.character("Maximum Likelihood Estimation"),
-        Measurement_Count < 50 ~ as.character("Robust Regression Order Statistics")
+        Measurement_Count < 50 ~ as.character(
+          "Robust Regression Order Statistics"
+        )
       )
     ) |>
     dplyr::mutate(
       dplyr::across(
         dplyr::all_of(c(
-          "UpperFence", "LowerFence", "Min", "Mean", "Max",
-          "Percentile_5th", "Percentile_10th", "Percentile_15th",
-          "Percentile_25th", "Percentile_50th_Median", "Percentile_75th",
-          "Percentile_85th", "Percentile_95th", "Percentile_98th"
+          "UpperFence",
+          "LowerFence",
+          "Min",
+          "Mean",
+          "Max",
+          "Percentile_5th",
+          "Percentile_10th",
+          "Percentile_15th",
+          "Percentile_25th",
+          "Percentile_50th_Median",
+          "Percentile_75th",
+          "Percentile_85th",
+          "Percentile_95th",
+          "Percentile_98th"
         )),
         ~ signif(.x, sig_figs)
       ),
