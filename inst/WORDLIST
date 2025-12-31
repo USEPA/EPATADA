@@ -156,6 +156,8 @@ Kjeldahl
 LaboratoryName
 LatitudeMeasure
 LongitudeMeasure
+LowerFence
+Lvls
 MDE
 MLSummary
 MLSummaryRef
@@ -342,6 +344,7 @@ UniqueHarmonizationRef
 UnitCode
 UpdateATTAINSAUMLCrosswalk
 UpdateTribalLayers
+UpperFence
 UseName
 UseName's
 UseNames
