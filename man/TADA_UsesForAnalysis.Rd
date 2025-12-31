@@ -22,52 +22,53 @@ processing, harmonization, filtering, and censored data handling functions
 have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. "USEPA" may be included as an org_id which will
-populate the EPA 304(a) recommended criteria for any TADA.Characteristic if one
-is found. "All" or "NULL" are also allowable values and may be helpful for new
-ATTAINS users or those performing assessments for multiple states and tribes.
-If "All" is selected, this will return all prior ATTAINS information from all
-ATTAINS organizations in prior ATTAINS assessment cycles as individual rows
-for each organization. If "NULL" is selected all unique prior ATTAINS
-information from any ATTAINS organizations are returned but are not labeled
-and can be manually edited.
-Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
+user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+"NULL" are also allowable values and may be helpful for new ATTAINS users or
+those performing assessments for multiple states and tribes. If "All" is
+selected, this will return all prior ATTAINS information from all ATTAINS
+organizations in prior ATTAINS assessment cycles as individual rows for each
+organization. If "NULL" is selected all unique prior ATTAINS information from
+any ATTAINS organizations are returned but are not labeled and can be manually
+edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
 get a list of valid organization identifiers. A list of organization identifiers
 can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
-\item{paramRef}{A dataframe which contains a completed crosswalk between
-TADA_ComparableDataIdentifier and ATTAINS.ParameterName. Users will need to
-ensure this crosswalk contains the appropriate column names in order to
-run the function. paramRef must contain at least these two column names:
-TADA.ComparableDataIdentifier and ATTAINS.ParameterName. Users who are
-interested in performing analyses for more than
+\item{paramRef}{A data frame which contains a completed crosswalk between
+TADA_ComparableDataIdentifier(s) and ATTAINS.ParameterName(s).
+This data frame must contain at least these two column names:
+TADA.ComparableDataIdentifier and ATTAINS.ParameterName.
+Users who are interested in performing analyses for more than
 one organization (multiple states and/or tribes) also need to include an
-additional column name: 'ATTAINS.OrganizationIdentifier'}
+additional column name: 'ATTAINS.OrganizationIdentifier'.}
 
-\item{usesRef}{A dataframe which contains a completed crosswalk of
-organization specific ATTAINS.UseName(s) for each ATTAINS.ParameterName.
+\item{usesRef}{A data frame which contains a completed crosswalk of
+ATTAINS.ParameterName(s) that will be analysed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
 
-\item{AU_UsesRef}{An optional data frame input. If provided, this data frame
-will contain a user supplied list of ATTAINS uses to ATTAINS assessment units.
-Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function.}
+\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
+will be populated from the ATTAINS.UseName found in this data frame rather
+than the ATTAINS assessment profile. This data frame must contain the following
+column names which can be generated from the output of TADA_AssignUsesToAU:
+ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
-with an assessment unit by its ATTAINS.OrganizationIdentifier. Users will need
-to ensure this crosswalk contains the appropriate column names in order to run
-the function. See module 2 vignette and sample output of \code{\link[=TADA_CreateAUMLCrosswalk]{TADA_CreateAUMLCrosswalk()}}.}
+with an assessment unit. This data frame must contain the following
+column names which can be generated from the output of TADA_AssignUsesToAU:
+ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
-\item{auto_assign}{NOTE: this has not been developed, will this be helpful?
-A boolean value. If TRUE, this will assign all unique
-use names to an ATTAINS.ParameterName that has not been defined by your
-organization from ATTAINS. If FALSE, the values will be left blank and
-will need you to manually assign use names as needed.}
+\item{auto_assign}{A boolean value. If TRUE, this will assign all unique
+ATTAINS.UseName to an ATTAINS.ParameterName if that parameter has not been
+included in prior ATTAINS assessment cycles for that ATTAINS.OrganizationIdentifier.
+If FALSE, the value for ATTAINS.UseName will be left blank for that ATTAINS.ParameterName
+and you will need to manually assign the use names as needed.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.
@@ -76,9 +77,10 @@ your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
 The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.}
 
-\item{overwrite}{A Boolean value that ensures the function will not overwrite
-the user supplied crosswalk entered into this function via the paramRef
-function input. This helps prevent users from overwriting their progress.}
+\item{overwrite}{A Boolean value. If overwrite = TRUE, the excel file will be
+replaced (overwritten) by the new file you create if you re-run this function.
+Users should only specify overwrite = TRUE once they are ready to re-run this
+function if they have already ran it once.}
 }
 \value{
 A dataframe which contains the columns: TADA.ComparableDataIdentifier,

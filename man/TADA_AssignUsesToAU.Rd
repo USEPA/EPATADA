@@ -20,16 +20,15 @@ processing, harmonization, filtering, and censored data handling functions
 have been applied.}
 
 \item{org_id}{The ATTAINS organization identifier must be supplied by the
-user. "USEPA" may be included as an org_id which will
-populate the EPA 304(a) recommended criteria for any TADA.CharacteristicName
-if one is found. "All" or "NULL" are also allowable values and may be helpful
-for new ATTAINS users or those performing assessments for multiple states and
-tribes. If "All" is selected, this will return all prior ATTAINS information
-from all ATTAINS organizations in prior ATTAINS assessment cycles as individual
-rows for each organization. If "NULL" is selected all unique prior ATTAINS
-information from any ATTAINS organizations are returned but are not labeled
-and can be manually edited.
-Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
+user. "USEPA" may be included as an org_id which will populate the EPA 304(a)
+recommended criteria for any TADA.CharacteristicName if one is found. "All" or
+"NULL" are also allowable values and may be helpful for new ATTAINS users or
+those performing assessments for multiple states and tribes. If "All" is
+selected, this will return all prior ATTAINS information from all ATTAINS
+organizations in prior ATTAINS assessment cycles as individual rows for each
+organization. If "NULL" is selected all unique prior ATTAINS information from
+any ATTAINS organizations are returned but are not labeled and can be manually
+edited. Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
 get a list of valid organization identifiers. A list of organization identifiers
 can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
@@ -57,9 +56,10 @@ your R console to locate it: file.path(Sys.getenv("USERPROFILE"), "Downloads").
 The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 the cells in which users should input information.}
 
-\item{overwrite}{A Boolean value that ensures the function will not overwrite
-the user supplied crosswalk entered into this function via the paramRef
-function input. This helps prevent users from overwriting their progress.}
+\item{overwrite}{A Boolean value. If overwrite = TRUE, the excel file will be
+replaced (overwritten) by the new file you create if you re-run this function.
+Users should only specify overwrite = TRUE once they are ready to re-run this
+function if they have already ran it once.}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for each defined AU.
@@ -67,9 +67,10 @@ A data frame with all the MonitoringLocationIdentifier Sites for each defined AU
 \description{
 This function pulls in all prior ATTAINS Use names associated with each
 Assessment Unit (AU) from the prior ATTAINS cycle. This function requires an
-ATTAINS org_id and a crosswalk of an organization's WQP Monitoring Locations,
-ATTAINS Assessment Units, and ATTAINS Water Type as a function input (AUMLRef).
-The output from \code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can
+ATTAINS.OrganizationIdentifier and a crosswalk of an organization's WQP
+Monitoring Locations, ATTAINS Assessment Units, and ATTAINS Water Type as a
+function input (AUMLRef). The output from the $ATTAINS_crosswalk list from
+\code{TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)} can
 be used directly as the AUMLRef argument input in this function. Alternatively,
 a user supplied crosswalk can be entered or \code{TADA_GetATTAINSAUMLCrosswalk()}
 and/or \code{TADA_UpdateATTAINSAUMLCrosswalk()} functions can be leveraged
