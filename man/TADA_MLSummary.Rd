@@ -37,7 +37,7 @@ https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
 \item{usesRef}{A data frame which contains a completed crosswalk of
-ATTAINS.ParameterName(s) that will be analysed for each ATTAINS.UseName.
+ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}

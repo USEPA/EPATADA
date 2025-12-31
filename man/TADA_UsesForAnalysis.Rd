@@ -45,7 +45,7 @@ one organization (multiple states and/or tribes) also need to include an
 additional column name: 'ATTAINS.OrganizationIdentifier'.}
 
 \item{usesRef}{A data frame which contains a completed crosswalk of
-ATTAINS.ParameterName(s) that will be analysed for each ATTAINS.UseName.
+ATTAINS.ParameterName(s) that will be analyzed for each ATTAINS.UseName.
 Users will need to ensure this crosswalk contains the appropriate column
 names in order to  run the function. Users who have previously completed
 this crosswalk table can re-use it and review this output for accuracy.}
