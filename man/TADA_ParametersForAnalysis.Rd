@@ -57,9 +57,9 @@ ATTAINS.ParameterName(s) to TADA.CharacteristicName(s)/TADA.ComparableDataIdenti
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. This data frame must contain the following
-column names which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType..}
+column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{excel}{A Boolean value that returns an excel spreadsheet if
 excel = TRUE. This spreadsheet is created in the user's downloads folder path.

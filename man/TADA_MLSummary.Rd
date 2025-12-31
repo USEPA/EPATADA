@@ -46,15 +46,15 @@ this crosswalk table can re-use it and review this output for accuracy.}
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. This data frame must contain the following
 column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
-ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
 will be populated from the ATTAINS.UseName found in this data frame rather
 than the ATTAINS assessment profile. This data frame must contain the following
 column names which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
+ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+and ATTAINS.WaterType.}
 
 \item{MLSummaryRef}{An optional data frame which contains the completed spatial
 crosswalk to assign any unique spatial criteria to a parameter, use, waterbody

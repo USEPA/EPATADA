@@ -36,11 +36,12 @@ should contain a completed crosswalk of use names associated with a water type.
 Users will need to ensure this crosswalk contains the appropriate column names in
 order to run the function.}
 
-\item{AUMLRef}{A required data frame input. This data frame
-should contain a completed crosswalk of WQP Monitoring Locations
-associated with each ATTAINS Assessment Unit. Users will need to ensure
-this crosswalk contains the appropriate column names in order to run this function.
-See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
+\item{AUMLRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit. This data frame must contain the following
+column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.

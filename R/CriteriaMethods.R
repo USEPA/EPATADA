@@ -67,14 +67,14 @@
 #' will be populated from the ATTAINS.UseName found in this data frame rather 
 #' than the ATTAINS assessment profile. This data frame must contain the following 
 #' column names which can be generated from the output of TADA_AssignUsesToAU:
-#' ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
-#' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType. 
+#' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+#' and ATTAINS.WaterType. 
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
 #' with an assessment unit. This data frame must contain the following 
-#' column names which can be generated from the output of TADA_AssignUsesToAU:
-#' ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+#' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+#' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
 #'
 #' @param auto_assign Boolean argument with two possible values: TRUE and FALSE.

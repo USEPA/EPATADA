@@ -34,16 +34,19 @@ can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 Organization identifiers are listed in the "code" column of the "OrgName" tab.}
 
-\item{AUMLRef}{A required data frame input. This data frame
-should contain a completed crosswalk of WQP Monitoring Locations
-associated with each ATTAINS Assessment Unit. Users will need to ensure
-this crosswalk contains the appropriate column names in order to run this function.
-See module 2 vignette and sample output of \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}}.}
+\item{AUMLRef}{An optional data frame input. If provided, this data frame
+should contain a completed crosswalk of monitoring location sites associated
+with an assessment unit. This data frame must contain the following
+column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
+ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
-\item{AU_UsesRef}{An optional data frame input. If provided, this data frame
-will contain a user supplied crosswalk of ATTAINS uses to ATTAINS assessment units.
-Users will need to ensure this crosswalk contains the appropriate column names in
-order to run the function.}
+\item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
+will be populated from the ATTAINS.UseName found in this data frame rather
+than the ATTAINS assessment profile. This data frame must contain the following
+column names which can be generated from the output of TADA_AssignUsesToAU:
+ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+and ATTAINS.WaterType.}
 
 \item{waterUseRef}{An optional data frame input containing a user supplied list
 of ATTAINS uses to ATTAINS water type. Users will need to ensure this crosswalk

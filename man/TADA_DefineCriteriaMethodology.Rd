@@ -70,16 +70,16 @@ table that has already been filled out.}
 \item{AUMLRef}{An optional data frame input. If provided, this data frame
 should contain a completed crosswalk of monitoring location sites associated
 with an assessment unit. This data frame must contain the following
-column names which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
+column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
+ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
 
 \item{AU_UsesRef}{An optional data frame input. If provided, the ATTAINS.UseName
 will be populated from the ATTAINS.UseName found in this data frame rather
 than the ATTAINS assessment profile. This data frame must contain the following
 column names which can be generated from the output of TADA_AssignUsesToAU:
-ATTAINS.OrganizationIdentifier, ATTAINS.MonitoringLocationIdentifier,
-ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
+ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
+and ATTAINS.WaterType.}
 
 \item{displayUniqueId}{A Boolean value. If TRUE, this will print all unique
 TADA.ComparableDataIdentifier in the criteria and methods table output. If your
