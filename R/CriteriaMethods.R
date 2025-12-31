@@ -48,8 +48,8 @@
 #' @param criteriaMethods An optional data frame which contains the completed
 #' criteria and methodology table. This will be a user supplied table and any
 #' inputs in this table will be prioritized. Additional rows for any parameter(s)
-#' that are not found in the user supplied table will be included in the output. 
-#' These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName, 
+#' that are not found in the user supplied table will be included in the output.
+#' These rows will need to have the ATTAINS.ParameterName, ATTAINS.UseName,
 #' and the criteria and methodology inputs filled out manually if you would like
 #' analysis to be done for it.
 #'
@@ -58,21 +58,21 @@
 #' or monitoring site/assessment unit. If provided the data frame must contain
 #' these columns:
 #' "ATTAINS.OrganizationIdentifier", "ATTAINS.AssessmentUnitIdentifier",
-#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName", 
+#' "MonitoringLocationIdentifier", "MonitoringLocationTypeName",
 #' "TADA.ComparableDataIdentifier", "ATTAINS.ParameterName", "ATTAINS.UseName",
-#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure", 
+#' "ATTAINS.WaterType", "SaltFresh", "DepthCategory", "LongitudeMeasure",
 #' "LatitudeMeasure", "IncludeOrExclude" and "UniqueSpatialCriteria".
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
-#' will be populated from the ATTAINS.UseName found in this data frame rather 
-#' than the ATTAINS assessment profile. This data frame must contain the following 
+#' will be populated from the ATTAINS.UseName found in this data frame rather
+#' than the ATTAINS assessment profile. This data frame must contain the following
 #' column names which can be generated from the output of TADA_AssignUsesToAU:
 #' ATTAINS.OrganizationIdentifier, ATTAINS.AssessmentUnitIdentifier, ATTAINS.UseName,
-#' and ATTAINS.WaterType. 
+#' and ATTAINS.WaterType.
 #'
 #' @param AUMLRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of monitoring location sites associated
-#' with an assessment unit. This data frame must contain the following 
+#' with an assessment unit. This data frame must contain the following
 #' column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 #' ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 #' ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.
@@ -105,8 +105,8 @@
 #' The file will be named "myfileRef.xlsx". The excel spreadsheet will highlight
 #' the cells in which users should input information.
 #'
-#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be 
-#' replaced (overwritten) by the new file you create if you re-run this function. 
+#' @param overwrite A Boolean value. If overwrite = TRUE, the excel file will be
+#' replaced (overwritten) by the new file you create if you re-run this function.
 #' Users should only specify overwrite = TRUE once they are ready to re-run this
 #' function if they have already ran it once.
 #'
