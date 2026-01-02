@@ -1786,7 +1786,7 @@ TADA_ParametersForAnalysis <- function(
 #' proceed by overriding the data validation by value pasting in Excel.
 #' Users will be warned in the ATTAINS.FlagUseName column if they choose to
 #' include an ATTAINS use name that was not listed in prior ATTAINS assessment cycles as:
-#' 'Use name is not listed as a prior cause in ATTAINS for this organization' or
+#' 'Use name has not been assessed in prior cycles by this organization' or
 #' 'Use name has been assessed in prior cycles by this organization, but not for this parameter name'.
 #'
 #' @param .data A TADA dataframe after all desired data cleaning,
@@ -2415,7 +2415,7 @@ TADA_UsesForAnalysis <- function(
               ) &
               ATTAINS.UseName %in%
                 ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
-            TRUE ~ "Use name is not listed as a prior cause in ATTAINS."
+            TRUE ~ "Use name has not been assessed in prior cycles."
           )
         ) |>
         dplyr::mutate(
@@ -2637,7 +2637,7 @@ TADA_UsesForAnalysis <- function(
           "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
           '=ATTAINSOrgNamesParamRef!A:A),0)),
-            "Use name is not listed as a prior cause in ATTAINS for this organization.",
+            "Use name has not been assessed in prior cycles.",
           IF(ISNA(MATCH(1,(C',
           i + 1,
           "=ATTAINSOrgNamesParamRef!D:D)*(D",
