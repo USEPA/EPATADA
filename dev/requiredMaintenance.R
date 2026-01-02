@@ -25,6 +25,5 @@ style_pkg()
 # Run devtools check and test
 devtools::test()
 # devtools::check()
-
 # more robust test for releases (includes broken link check)
 devtools::check(manual = FALSE, remote = TRUE, incoming = TRUE)

@@ -337,17 +337,17 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 test_that("TADA_CorrectColType applies expected classes from reference", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   out <- TADA_CorrectColType(testdat)
-  
+
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   expect_true(nzchar(ref_path) && file.exists(ref_path))
   ref <- utils::read.csv(ref_path, stringsAsFactors = FALSE, strip.white = TRUE)
-  
+
   # Normalization
   ref$column_name <- trimws(ref$column_name)
   ref$column_type <- tolower(trimws(ref$column_type))
-  
+
   present <- intersect(names(out), ref$column_name)
-  
+
   # Helper to check classes by reference type
   check_col_class <- function(x, type) {
     type <- tolower(type)
@@ -369,7 +369,7 @@ test_that("TADA_CorrectColType applies expected classes from reference", {
       succeed()
     }
   }
-  
+
   for (nm in present) {
     target_type <- ref$column_type[match(nm, ref$column_name)]
     check_col_class(out[[nm]], target_type)
@@ -378,23 +378,23 @@ test_that("TADA_CorrectColType applies expected classes from reference", {
 
 test_that("TADA_CorrectColType coerces from character to expected classes", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   ref <- utils::read.csv(ref_path, stringsAsFactors = FALSE, strip.white = TRUE)
   ref$column_name <- trimws(ref$column_name)
   ref$column_type <- tolower(trimws(ref$column_type))
-  
+
   present <- intersect(names(testdat), ref$column_name)
   # Take up to 5 columns to coerce from character regardless of their current class
   to_test <- head(present, 5)
-  
+
   # Coerce selected columns to character deliberately
   for (nm in to_test) {
     testdat[[nm]] <- as.character(testdat[[nm]])
   }
-  
+
   out <- TADA_CorrectColType(testdat)
-  
+
   check_col_class <- function(x, type) {
     type <- tolower(type)
     if (type == "character") {
@@ -413,7 +413,7 @@ test_that("TADA_CorrectColType coerces from character to expected classes", {
       succeed()
     }
   }
-  
+
   for (nm in to_test) {
     target_type <- ref$column_type[match(nm, ref$column_name)]
     check_col_class(out[[nm]], target_type)
@@ -422,40 +422,40 @@ test_that("TADA_CorrectColType coerces from character to expected classes", {
 
 test_that("TADA_CorrectColType leaves unknown columns unchanged", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   # Add an unknown column not present in the ref
   unknown_vals <- rep(1:3, length.out = nrow(testdat))
   testdat$Unknown_Column_For_Test <- unknown_vals
-  
+
   out <- TADA_CorrectColType(testdat)
-  
+
   expect_true("Unknown_Column_For_Test" %in% names(out))
   expect_identical(out$Unknown_Column_For_Test, unknown_vals)
 })
 
 test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   ref <- utils::read.csv(ref_path, stringsAsFactors = FALSE, strip.white = TRUE)
   ref$column_name <- trimws(ref$column_name)
   ref$column_type <- tolower(trimws(ref$column_type))
-  
+
   present <- intersect(names(testdat), ref$column_name)
-  
+
   # Prefer a numeric column for NA-introducing test; otherwise try date, then logical
   pick_type <- function(type) {
     candidate <- present[ref$column_type[match(present, ref$column_name)] == type]
     if (length(candidate)) candidate[1] else NULL
   }
-  
+
   nm <- pick_type("numeric")
   if (is.null(nm)) nm <- pick_type("integer")
   if (is.null(nm)) nm <- pick_type("date")
   if (is.null(nm)) nm <- pick_type("logical")
-  
+
   skip_if(is.null(nm), "No suitable column found to test NA-introducing warning.")
-  
+
   # Create a copy and inject non-convertible values in rows that are currently non-NA
   bad <- testdat
   idx <- which(!is.na(bad[[nm]]))
@@ -463,11 +463,11 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
     skip("No non-NA rows available in chosen column to test NA introduction.")
   }
   idx <- head(idx, min(3L, length(idx)))
-  
+
   # Ensure column is character before coercion attempt
   bad[[nm]] <- as.character(bad[[nm]])
   ref_type <- ref$column_type[match(nm, ref$column_name)]
-  
+
   if (ref_type %in% c("numeric", "integer")) {
     bad[[nm]][idx] <- "not_a_number"
   } else if (ref_type == "date") {
@@ -477,7 +477,7 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
   } else {
     skip("Chosen column type won't reliably introduce NA on coercion.")
   }
-  
+
   expect_warning(
     TADA_CorrectColType(bad),
     regexp = "introduced .* additional NA",
