@@ -938,54 +938,56 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Initialize vectors to hold the names of groups we actually add
     overlay_groups <- character(0)
     # Add ATTAINS catchment outlines (if they exist):
-    try({
-      map <- map |>
-        leaflet::addPolygons(
-          data = ATTAINS_catchments,
-          group = "ATTAINS catchments",
-          color = "black",
-          fillColor = "grey",
-          weight = 1,
-          fillOpacity = 0.3,
-          popup = paste0(
-            "NHDPlus HR Catchment ID: ",
-            ATTAINS_catchments$nhdplusid
+    try(
+      {
+        map <- map |>
+          leaflet::addPolygons(
+            data = ATTAINS_catchments,
+            group = "ATTAINS catchments",
+            color = "black",
+            fillColor = "grey",
+            weight = 1,
+            fillOpacity = 0.3,
+            popup = paste0(
+              "NHDPlus HR Catchment ID: ",
+              ATTAINS_catchments$nhdplusid
+            )
           )
-        )
-      overlay_groups <- c(overlay_groups, "ATTAINS catchments")
-    },
-    silent = TRUE
+        overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+      },
+      silent = TRUE
     )
 
     # Add ATTAINS catchment outlines as AUs:
-    try({
-      map <- map |>
-        leaflet::addPolygons(
-          data = missing_raw_mapper,
-          group = "ATTAINS outlines",
-          color = ~ missing_raw_mapper$col,
-          fill = ~ missing_raw_mapper$col,
-          weight = 3,
-          fillOpacity = 0.25,
-          popup = paste0(
-            "Assessment Unit Name: ",
-            missing_raw_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ",
-            missing_raw_mapper$assessmentunitidentifier,
-            "<br> Status: ",
-            missing_raw_mapper$overallstatus,
-            "<br> Assessment Unit Type: ",
-            missing_raw_mapper$type,
-            "<br> <a href=",
-            missing_raw_mapper$waterbodyreportlink,
-            " target='_blank'>ATTAINS Link</a>",
-            "<br> NHDPlus HR Catchment ID: ",
-            missing_raw_mapper$nhdplusid
+    try(
+      {
+        map <- map |>
+          leaflet::addPolygons(
+            data = missing_raw_mapper,
+            group = "ATTAINS outlines",
+            color = ~ missing_raw_mapper$col,
+            fill = ~ missing_raw_mapper$col,
+            weight = 3,
+            fillOpacity = 0.25,
+            popup = paste0(
+              "Assessment Unit Name: ",
+              missing_raw_mapper$assessmentunitname,
+              "<br> Assessment Unit ID: ",
+              missing_raw_mapper$assessmentunitidentifier,
+              "<br> Status: ",
+              missing_raw_mapper$overallstatus,
+              "<br> Assessment Unit Type: ",
+              missing_raw_mapper$type,
+              "<br> <a href=",
+              missing_raw_mapper$waterbodyreportlink,
+              " target='_blank'>ATTAINS Link</a>",
+              "<br> NHDPlus HR Catchment ID: ",
+              missing_raw_mapper$nhdplusid
+            )
           )
-        )
-      overlay_groups <- c(overlay_groups, "ATTAINS outlines")
-    },
-    silent = TRUE
+        overlay_groups <- c(overlay_groups, "ATTAINS outlines")
+      },
+      silent = TRUE
     )
 
     # add without ATTAINS catchments if available
@@ -997,83 +999,86 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add missing catchment outlines (if they exist):
-    try({
-      map <- map |>
-        leaflet::addPolygons(
-          data = without_ATTAINS_catchments,
-          group = "missing ATTAINS catchment outlines",
-          color = "black",
-          weight = 1,
-          fillOpacity = 0,
-          popup = paste0(
-            without_ATTAINS_catchments$NHD.resolution,
-            " catchment ID: ",
-            without_ATTAINS_catchments$nhd
+    try(
+      {
+        map <- map |>
+          leaflet::addPolygons(
+            data = without_ATTAINS_catchments,
+            group = "missing ATTAINS catchment outlines",
+            color = "black",
+            weight = 1,
+            fillOpacity = 0,
+            popup = paste0(
+              without_ATTAINS_catchments$NHD.resolution,
+              " catchment ID: ",
+              without_ATTAINS_catchments$nhd
+            )
           )
+        overlay_groups <- c(
+          overlay_groups,
+          "missing ATTAINS catchment outlines"
         )
-      overlay_groups <- c(
-        overlay_groups,
-        "missing ATTAINS catchment outlines"
-      )
-    },
-    silent = TRUE
+      },
+      silent = TRUE
     )
 
     # Add ATTAINS polygon features (if they exist):
-    try({
-      map <- map |>
-        leaflet::addPolygons(
-          data = polygons_mapper,
-          group = "ATTAINS polygon features",
-          color = ~ polygons_mapper$col,
-          fill = ~ polygons_mapper$col,
-          weight = 3,
-          fillOpacity = 0.5,
-          popup = paste0(
-            "Assessment Unit Name: ",
-            polygons_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ",
-            polygons_mapper$assessmentunitidentifier,
-            "<br> Status: ",
-            polygons_mapper$overallstatus,
-            "<br> Assessment Unit Type: ",
-            polygons_mapper$type,
-            "<br> <a href=",
-            polygons_mapper$waterbodyreportlink,
-            " target='_blank'>ATTAINS Link</a>"
+    try(
+      {
+        map <- map |>
+          leaflet::addPolygons(
+            data = polygons_mapper,
+            group = "ATTAINS polygon features",
+            color = ~ polygons_mapper$col,
+            fill = ~ polygons_mapper$col,
+            weight = 3,
+            fillOpacity = 0.5,
+            popup = paste0(
+              "Assessment Unit Name: ",
+              polygons_mapper$assessmentunitname,
+              "<br> Assessment Unit ID: ",
+              polygons_mapper$assessmentunitidentifier,
+              "<br> Status: ",
+              polygons_mapper$overallstatus,
+              "<br> Assessment Unit Type: ",
+              polygons_mapper$type,
+              "<br> <a href=",
+              polygons_mapper$waterbodyreportlink,
+              " target='_blank'>ATTAINS Link</a>"
+            )
           )
-        )
-      overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
-    },
-    silent = TRUE
+        overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
+      },
+      silent = TRUE
     )
 
     # Add ATTAINS lines features (if they exist):
-    try({
-      map <- map |>
-        leaflet::addPolylines(
-          data = lines_mapper,
-          group = "ATTAINS line features",
-          color = ~ lines_mapper$col,
-          weight = 4,
-          fillOpacity = 1,
-          popup = paste0(
-            "Assessment Unit Name: ",
-            lines_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ",
-            lines_mapper$assessmentunitidentifier,
-            "<br> Status: ",
-            lines_mapper$overallstatus,
-            "<br> Assessment Unit Type: ",
-            lines_mapper$type,
-            "<br> <a href=",
-            lines_mapper$waterbodyreportlink,
-            " target='_blank'>ATTAINS Link</a>"
+    try(
+      {
+        map <- map |>
+          leaflet::addPolylines(
+            data = lines_mapper,
+            group = "ATTAINS line features",
+            color = ~ lines_mapper$col,
+            weight = 4,
+            fillOpacity = 1,
+            popup = paste0(
+              "Assessment Unit Name: ",
+              lines_mapper$assessmentunitname,
+              "<br> Assessment Unit ID: ",
+              lines_mapper$assessmentunitidentifier,
+              "<br> Status: ",
+              lines_mapper$overallstatus,
+              "<br> Assessment Unit Type: ",
+              lines_mapper$type,
+              "<br> <a href=",
+              lines_mapper$waterbodyreportlink,
+              " target='_blank'>ATTAINS Link</a>"
+            )
           )
-        )
-      overlay_groups <- c(overlay_groups, "ATTAINS line features")
-    },
-    silent = TRUE
+        overlay_groups <- c(overlay_groups, "ATTAINS line features")
+      },
+      silent = TRUE
     )
 
     try(
@@ -1090,31 +1095,32 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add ATTAINS point features (if they exist):
-    try({
-      map <- map |>
-        leaflet::addMarkers(
-          data = points_mapper,
-          group = "ATTAINS point features",
-          lng = ~X,
-          lat = ~Y,
-          icon = pointIcons,
-          popup = paste0(
-            "Assessment Unit Name: ",
-            points_mapper$assessmentunitname,
-            "<br> Assessment Unit ID: ",
-            points_mapper$assessmentunitidentifier,
-            "<br> Status: ",
-            points_mapper$overallstatus,
-            "<br> Assessment Unit Type: ",
-            points_mapper$type,
-            "<br> <a href=",
-            points_mapper$waterbodyreportlink,
-            " target='_blank'>ATTAINS Link</a>"
+    try(
+      {
+        map <- map |>
+          leaflet::addMarkers(
+            data = points_mapper,
+            group = "ATTAINS point features",
+            lng = ~X,
+            lat = ~Y,
+            icon = pointIcons,
+            popup = paste0(
+              "Assessment Unit Name: ",
+              points_mapper$assessmentunitname,
+              "<br> Assessment Unit ID: ",
+              points_mapper$assessmentunitidentifier,
+              "<br> Status: ",
+              points_mapper$overallstatus,
+              "<br> Assessment Unit Type: ",
+              points_mapper$type,
+              "<br> <a href=",
+              points_mapper$waterbodyreportlink,
+              " target='_blank'>ATTAINS Link</a>"
+            )
           )
-        )
-      overlay_groups <- c(overlay_groups, "ATTAINS point features")
-    },
-    silent = TRUE
+        overlay_groups <- c(overlay_groups, "ATTAINS point features")
+      },
+      silent = TRUE
     )
 
     # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
@@ -1184,28 +1190,29 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
           )
 
           # markers and popup for missing geometry to map
-          try({
-            map <- map |>
-              leaflet::addMarkers(
-                data = missing.geo,
-                group = "not in ATTAINS",
-                lng = ~TADA.LongitudeMeasure,
-                lat = ~TADA.LatitudeMeasure,
-                icon = missingIcon,
-                popup = paste0(
-                  "Assessment Unit Name: ",
-                  "not available in ATTAINS",
-                  "<br> Assessment Unit ID: ",
-                  missing.geo$ATTAINS.AssessmentUnitIdentifier,
-                  "<br> Status: ",
-                  "not available in ATTAINS",
-                  "<br> Assessment Unit Type: ",
-                  "not available in ATTAINS"
+          try(
+            {
+              map <- map |>
+                leaflet::addMarkers(
+                  data = missing.geo,
+                  group = "not in ATTAINS",
+                  lng = ~TADA.LongitudeMeasure,
+                  lat = ~TADA.LatitudeMeasure,
+                  icon = missingIcon,
+                  popup = paste0(
+                    "Assessment Unit Name: ",
+                    "not available in ATTAINS",
+                    "<br> Assessment Unit ID: ",
+                    missing.geo$ATTAINS.AssessmentUnitIdentifier,
+                    "<br> Status: ",
+                    "not available in ATTAINS",
+                    "<br> Assessment Unit Type: ",
+                    "not available in ATTAINS"
+                  )
                 )
-              )
-            overlay_groups <- c(overlay_groups, "not in ATTAINS")
-          },
-          silent = TRUE
+              overlay_groups <- c(overlay_groups, "not in ATTAINS")
+            },
+            silent = TRUE
           )
         }
       }
@@ -1298,23 +1305,24 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add WQP observation features (should always exist):
-    try({
-      map <- map |>
-        leaflet::addMarkers(
-          data = sumdat,
-          group = "WQP Obersvations",
-          lng = ~TADA.LongitudeMeasure,
-          lat = ~TADA.LatitudeMeasure,
-          icon = leaflet::icons(
-            iconUrl = wqp.urls,
-            iconWidth = 24,
-            iconHeight = 24
-          ),
-          popup = set.popup
-        )
-      overlay_groups <- c(overlay_groups, "WQP Obersvations")
-    },
-    silent = TRUE
+    try(
+      {
+        map <- map |>
+          leaflet::addMarkers(
+            data = sumdat,
+            group = "WQP Obersvations",
+            lng = ~TADA.LongitudeMeasure,
+            lat = ~TADA.LatitudeMeasure,
+            icon = leaflet::icons(
+              iconUrl = wqp.urls,
+              iconWidth = 24,
+              iconHeight = 24
+            ),
+            popup = set.popup
+          )
+        overlay_groups <- c(overlay_groups, "WQP Obersvations")
+      },
+      silent = TRUE
     )
 
     # remove intermediate objects

@@ -12,3 +12,5 @@ readme.html
 ^doc$
 ^Meta$
 ^vignettes/articles/*_files$
+^air\.toml$
+^dev$

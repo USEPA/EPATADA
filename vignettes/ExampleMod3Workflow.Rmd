@@ -462,8 +462,7 @@ identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
 TADA_TableExport(MT.ParamRef.Final)
 ```
 
-remove intermediate variable, keep only the crosswalk table that we will
-continue to use in the workflow.
+Remove intermediate variable, we will keep only the crosswalk tables that are relevant for the remaining workflow.
 
 ```{r remove-intermediate-variables}
 rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
@@ -476,14 +475,7 @@ and parameter names (ATTAINS.ParameterName) from the specified ATTAINS
 organization (defined by the org_id function argument for
 TADA_UsesForAnalysis), which in this case is "MTDEQ" (Montana) using
 ExpertQuery web services. Users will review the output and choose which
-ATTAINS.UseName(s) are applicable to their analysis. The default
-functionality is to "Include" all ATTAINS use_names (see the
-"IncludeOrExclude" column) that has an ATTAINS.UseName associated with
-it. Later in the data analysis process, users will be asked to define
-criteria and methodologies that is applicable to each ATTAINS use_name
-and parameter name labeled as "Include". If an ATTAINS.UseName is not
-applicable, users should choose "Exclude" for that ATTAINS parameter
-name and use name.
+ATTAINS.UseName(s) are applicable to their analysis. Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use name and parameter name labeled as "Include". If an ATTAINS.UseName is not applicable, users should choose "Exclude" for that ATTAINS parameter name and use name.
 
 ### Manual Uses to Parameter Assignment
 
@@ -692,17 +684,13 @@ rm(MT.usesRef.AutoAssign, MT.UseParam.user.supplied, MT.usesRef.Manual, MT.usesR
 
 # TADA_MLSummary(): Create and Define Spatial Reference Tables
 
-We can define your WQP data retrieval on either an assessment unit level
+We can define your WQP data set on either an assessment unit level
 summary or monitoring location sites level. Please refer to EPATADA
 Module 2 for more information on the geospatial functions to assist with
 assessment unit and monitoring location overlay.
 
 The general workflow of running module 3 functions for CWA water quality
 data analysis is shown below.
-
-TADA_ParametersForAnalysis requires a crosswalk between ATTAINS
-parameter names and WQP characteristic names/TADA comparable data
-identifiers.
 
 ![Monitoring Location Summary](images/FlowChartMLModule3.jpg)
 
@@ -732,10 +720,10 @@ TADA_TableExport(MT.MLSummaryRef.ML)
 ## Define Spatial Summary by Monitoring Location (AU)
 
 Now let's compare this to the AU level of summary. To provide the ML to
-AU level of summary, AUML and AU_UsesRef are required. We recommend
-reviewing the ExampleMod2Workflow vignette for more in depth information
-on this crosswalk. We will load these example reference tables into this
-vignette.
+AU level of summary, this requires an AUML crosswalk and an AU_UsesRef,
+we recommend you to review the ExampleMod2Workflow vignette for more in
+depth information on this crosswalk. We will load these example
+reference tables into this vignette.
 
 We now have all assignments of ATTAINS Uses, ATTAINS Parameters, and WQP
 Monitoring Location Sites to each AU defined. Users can do a final
