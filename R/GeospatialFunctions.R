@@ -56,25 +56,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Reference table for CRS/EPSG codes
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg           ,
-      "NAD83"                                       ,            4269 ,
-      "WGS84"                                       ,            4326 ,
-      "NAD27"                                       ,            4267 ,
-      "UNKWN"                                       , as.numeric(crs) ,
-      "Unknown"                                     , as.numeric(crs) ,
-      "OTHER"                                       , as.numeric(crs) ,
-      "OLDHI"                                       ,            4135 ,
-      "AMSMA"                                       ,            4169 ,
-      "ASTRO"                                       ,            4727 ,
-      "GUAM"                                        ,            4675 ,
-      "JHNSN"                                       ,            4725 ,
-      "PR"                                          ,            6139 ,
-      "SGEOR"                                       ,            4138 ,
-      "SLAWR"                                       ,            4136 ,
-      "SPAUL"                                       ,            4137 ,
-      "WAKE"                                        ,            6732 ,
-      "WGS72"                                       ,            6322 ,
-      "HARN"                                        ,            4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", as.numeric(crs),
+      "Unknown", as.numeric(crs),
+      "OTHER", as.numeric(crs),
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # Handle missing/unknown CRS labels
@@ -364,9 +364,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
+                                             points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>

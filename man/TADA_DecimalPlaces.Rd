@@ -7,13 +7,18 @@
 TADA_DecimalPlaces(x)
 }
 \arguments{
-\item{x}{A numeric value or vector from the TADA profile.}
+\item{x}{A numeric value or vector (or character vector) from the TADA profile.}
 }
 \value{
-An integer representing the number of decimal places in the numeric value.
-If the input is an integer or a numeric value with no decimal places, the function returns 0.
+An integer vector representing the number of decimal places for each element in \code{x}.
+Returns 0 if no decimal point is present. Returns NA for NA inputs.
 }
 \description{
-This function calculates the number of decimal places in a numeric value.
-It returns the number of digits to the right of the decimal point for numeric data.
+This function calculates the number of decimal places in a numeric or character vector.
+It returns the number of digits to the right of the decimal point for each element.
+}
+\details{
+Note: For numeric inputs, R does not preserve trailing zeros (e.g., 12.30 becomes 12.3),
+so the count reflects the minimal decimal representation. If you must preserve the
+original textual precision, call this on the original character field instead of numeric.
 }

@@ -1359,11 +1359,14 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' )
 #'
 TADA_FlagCoordinates <- function(
-  .data,
-  clean_outsideUSA = c("no", "remove", "change sign"),
-  clean_imprecise = FALSE,
-  flaggedonly = FALSE
+    .data,
+    clean_outsideUSA = "no",
+    clean_imprecise = FALSE,
+    flaggedonly = FALSE
 ) {
+  # Allowed options and input checks
+  choices_outside <- c("no", "remove", "change sign")
+  
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check clean_outsideUSA is character
@@ -1374,15 +1377,18 @@ TADA_FlagCoordinates <- function(
   if (!is.numeric(.data$TADA.LongitudeMeasure)) {
     warning("TADA.LongitudeMeasure field must be numeric")
   }
-
   if (!is.numeric(.data$TADA.LatitudeMeasure)) {
     warning("TADA.LatitudeMeasure field must be numeric")
   }
-  # check that clean_outsideUSA is either "no", "remove", or "change sign"
-  clean_outsideUSA <- match.arg(clean_outsideUSA)
-
-  orig_dim <- dim(.data)[1]
-
+  
+  # match clean_outsideUSA arg against allowed choices
+  clean_outsideUSA <- match.arg(clean_outsideUSA, choices = choices_outside)
+  orig_dim <- nrow(.data)
+  
+  # Precompute decimal places (vectorized)
+  dec_lat <- TADA_DecimalPlaces(.data$TADA.LatitudeMeasure)
+  dec_lon <- TADA_DecimalPlaces(.data$TADA.LongitudeMeasure)
+  
   # execute function after checks are passed
   .data <- .data |>
     dplyr::mutate(
@@ -1400,30 +1406,24 @@ TADA_FlagCoordinates <- function(
           TADA.LongitudeMeasure < 144.956712 &
           TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
         TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
-        TADA.LongitudeMeasure > 0 &
-          TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
-        # for below, lat and long fields must be numeric
-        # this checks if there are at least 3 significant figures to the
-        # right of the decimal point
-        sapply(.data$TADA.LatitudeMeasure, TADA_DecimalPlaces) < 3 |
-          sapply(.data$TADA.LongitudeMeasure, TADA_DecimalPlaces) <
-            3 ~ "Imprecise_lessthan3decimaldigits"
+        TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
+        # Imprecise if fewer than 3 decimal digits in either coordinate
+        dec_lat < 3L | dec_lon < 3L ~ "Imprecise_lessthan3decimaldigits",
+        TRUE ~ NA_character_
       )
     )
-
+  
   # Fill in flag for coordinates that appear OK/PASS tests
-  .data$TADA.SuspectCoordinates.Flag[is.na(
-    .data$TADA.SuspectCoordinates.Flag
-  )] <- "Pass"
-
+  .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
+  
   # if clean_imprecise is TRUE, remove imprecise station metadata
-  if (clean_imprecise == TRUE) {
+  if (isTRUE(clean_imprecise)) {
     .data <- dplyr::filter(
       .data,
-      !TADA.SuspectCoordinates.Flag %in% "Imprecise_lessthan3decimaldigits"
+      TADA.SuspectCoordinates.Flag != "Imprecise_lessthan3decimaldigits"
     )
   }
-
+  
   # if clean_outsideUSA is "remove", remove stations flagged as outside the USA
   if (clean_outsideUSA == "remove") {
     .data <- dplyr::filter(
@@ -1431,43 +1431,47 @@ TADA_FlagCoordinates <- function(
       !TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA")
     )
   }
-
+  
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print(
-      "When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."
+    message(
+      "When clean_outsideUSA == 'change sign', the sign for any lat/long coordinates flagged as outside of USA are switched. ",
+      "This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. ",
+      "For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."
     )
     .data <- .data |>
       dplyr::mutate(
         TADA.LatitudeMeasure = dplyr::case_when(
-          TADA.SuspectCoordinates.Flag ==
-            "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
           TRUE ~ TADA.LatitudeMeasure
         ),
         TADA.LongitudeMeasure = dplyr::case_when(
-          TADA.SuspectCoordinates.Flag ==
-            "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
           TRUE ~ TADA.LongitudeMeasure
         )
       )
   }
-
-  # return only flagged data if flaggedonly = true
-  if ((flaggedonly == TRUE)) {
-    .data <- dplyr::filter(.data, !TADA.SuspectCoordinates.Flag %in% c("OK"))
+  
+  # return only flagged data if flaggedonly = TRUE
+  if (isTRUE(flaggedonly)) {
+    .data <- dplyr::filter(.data, TADA.SuspectCoordinates.Flag != "Pass")
   }
-
-  if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
-    if (orig_dim == dim(.data)[1]) {
-      print(
-        "Your dataframe does not contain monitoring stations with Suspect coordinates. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
+  
+  # Status messages
+  if (all(.data$TADA.SuspectCoordinates.Flag == "Pass")) {
+    if (orig_dim == nrow(.data)) {
+      message(
+        "Your dataframe does not contain monitoring stations with Suspect coordinates. ",
+        "Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     } else {
-      print(
-        "All Suspect coordinates were removed. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
+      message(
+        "All Suspect coordinates were removed. ",
+        "Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     }
   }
+  
   .data <- TADA_OrderCols(.data)
   return(.data)
 }

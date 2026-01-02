@@ -459,23 +459,36 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 
 #' Calculate Decimal Places
 #'
-#' This function calculates the number of decimal places in a numeric value.
-#' It returns the number of digits to the right of the decimal point for numeric data.
+#' This function calculates the number of decimal places in a numeric or character vector.
+#' It returns the number of digits to the right of the decimal point for each element.
 #'
-#' @param x A numeric value or vector from the TADA profile.
+#' Note: For numeric inputs, R does not preserve trailing zeros (e.g., 12.30 becomes 12.3),
+#' so the count reflects the minimal decimal representation. If you must preserve the
+#' original textual precision, call this on the original character field instead of numeric.
 #'
-#' @return An integer representing the number of decimal places in the numeric value.
-#' If the input is an integer or a numeric value with no decimal places, the function returns 0.
+#' @param x A numeric value or vector (or character vector) from the TADA profile.
+#' @return An integer vector representing the number of decimal places for each element in `x`.
+#'   Returns 0 if no decimal point is present. Returns NA for NA inputs.
+#' @export
 TADA_DecimalPlaces <- function(x) {
-  # Convert the number to a character string, remove trailing zeros, and split by the decimal point
-  parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
-
-  # If there is a decimal part, return its length; otherwise, return 0
-  if (length(parts) > 1) {
-    return(nchar(parts[[2]]))
+  if (length(x) == 0) return(integer(0))
+  
+  # Convert to strings; avoid scientific notation for numeric
+  x_chr <- if (is.numeric(x)) {
+    format(x, scientific = FALSE, trim = TRUE)
   } else {
-    return(0)
+    as.character(x)
   }
+  x_chr <- trimws(x_chr)
+  
+  vapply(x_chr, function(s) {
+    if (is.na(s) || s == "" || s %in% c("NA", "NaN")) return(NA_integer_)
+    s <- sub(",", "", s)            # remove any thousands separators
+    s <- sub("0+$", "", s)          # trim trailing zeros if present
+    if (!grepl("\\.", s)) return(0L)
+    dec <- sub(".*\\.", "", s)      # substring after decimal point
+    nchar(dec)
+  }, integer(1))
 }
 
 

@@ -6,7 +6,7 @@
 \usage{
 TADA_FlagCoordinates(
   .data,
-  clean_outsideUSA = c("no", "remove", "change sign"),
+  clean_outsideUSA = "no",
   clean_imprecise = FALSE,
   flaggedonly = FALSE
 )
