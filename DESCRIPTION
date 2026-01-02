@@ -59,7 +59,7 @@ Imports:
     stats, 
     lubridate (>= 1.5.0), 
     ggplot2, 
-    sf,
+    sf (>= 1.0-0),
     leaflet,
     leaflet.extras,
     plotly,
