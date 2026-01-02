@@ -620,7 +620,9 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
+      DefineCriteriaMethodology <- TADA_CorrectColType(
+        DefineCriteriaMethodology
+      )
     }
 
     # User wants to populate the criteria table using a user supplied table.

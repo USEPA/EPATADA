@@ -445,16 +445,27 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
 
   # Prefer a numeric column for NA-introducing test; otherwise try date, then logical
   pick_type <- function(type) {
-    candidate <- present[ref$column_type[match(present, ref$column_name)] == type]
+    candidate <- present[
+      ref$column_type[match(present, ref$column_name)] == type
+    ]
     if (length(candidate)) candidate[1] else NULL
   }
 
   nm <- pick_type("numeric")
-  if (is.null(nm)) nm <- pick_type("integer")
-  if (is.null(nm)) nm <- pick_type("date")
-  if (is.null(nm)) nm <- pick_type("logical")
+  if (is.null(nm)) {
+    nm <- pick_type("integer")
+  }
+  if (is.null(nm)) {
+    nm <- pick_type("date")
+  }
+  if (is.null(nm)) {
+    nm <- pick_type("logical")
+  }
 
-  skip_if(is.null(nm), "No suitable column found to test NA-introducing warning.")
+  skip_if(
+    is.null(nm),
+    "No suitable column found to test NA-introducing warning."
+  )
 
   # Create a copy and inject non-convertible values in rows that are currently non-NA
   bad <- testdat
