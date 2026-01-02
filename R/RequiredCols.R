@@ -340,14 +340,29 @@ last.cols <- c("TADA.Remove", "TADA.RemovalReason", "TADAShiny.tab", "geometry")
 #' }
 #'
 TADA_OrderCols <- function(.data) {
+  # If input is NULL, return a zero-row tibble with expected columns (guard for pipeline safety)
+  if (is.null(.data)) {
+    all_cols <- unique(c(
+      require.cols,
+      extra.cols,
+      last.cols,
+      attains.cols,
+      "ResultIdentifier"
+    ))
+    empty <- tibble::as_tibble(
+      stats::setNames(
+        rep(list(character(0)), length(all_cols)),
+        all_cols
+      )
+    )
+    return(empty)
+  }
+  
   required_cols <- require.cols[require.cols %in% names(.data)]
-
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
-
   last_cols <- last.cols[last.cols %in% names(.data)]
-
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
-
+  
   rearranged <- .data |>
     dplyr::relocate(tidyselect::any_of(required_cols)) |>
     dplyr::relocate(
@@ -362,9 +377,13 @@ TADA_OrderCols <- function(.data) {
       tidyselect::any_of(attains_cols),
       .after = tidyselect::any_of(last_cols)
     )
-
-  rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
-
+  
+  # Order rows by ResultIdentifier only if the column exists
+  if ("ResultIdentifier" %in% names(rearranged)) {
+    # dplyr::arrange is clearer and handles tibbles naturally
+    rearranged <- dplyr::arrange(rearranged, .data$ResultIdentifier)
+  }
+  
   return(rearranged)
 }
 
