@@ -161,7 +161,8 @@
 #' # Example 3: fill template with EPA304(a)
 #' # and ATTAINS parameters and uses for MTDEQ:
 #' epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE)
+#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
+#' )
 #'
 TADA_DefineCriteriaMethodology <- function(
   .data,
@@ -234,7 +235,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     names(DefineCriteriaMethodology) <- desired_cols
 
-    DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
+    DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
   } else {
     # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {
@@ -534,7 +535,7 @@ TADA_DefineCriteriaMethodology <- function(
     # as an option and will include these values if they have been populated.
     if (!is.null(MLSummaryRef)) {
       # corrects for data types
-      MLSummaryRef <- correctColType(MLSummaryRef)
+      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
       # Extracts the characteristic, speciation and fraction columns to join
       MLSummaryRef <- MLSummaryRef |>
         dplyr::right_join(
@@ -619,7 +620,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
+      DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
     }
 
     # User wants to populate the criteria table using a user supplied table.
@@ -839,14 +840,14 @@ TADA_DefineCriteriaMethodology <- function(
       package = "EPATADA"
     ))
     if (missing(.data)) {
-      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>
         dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName))
     }
     if (!missing(.data)) {
-      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>

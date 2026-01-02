@@ -49,25 +49,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
-      "NAD83"                                       ,  4269 ,
-      "WGS84"                                       ,  4326 ,
-      "NAD27"                                       ,  4267 ,
-      "UNKWN"                                       , crs   ,
-      "Unknown"                                     , crs   ,
-      "OTHER"                                       , crs   ,
-      "OLDHI"                                       ,  4135 ,
-      "AMSMA"                                       ,  4169 ,
-      "ASTRO"                                       ,  4727 ,
-      "GUAM"                                        ,  4675 ,
-      "JHNSN"                                       ,  4725 ,
-      "PR"                                          ,  6139 ,
-      "SGEOR"                                       ,  4138 ,
-      "SLAWR"                                       ,  4136 ,
-      "SPAUL"                                       ,  4137 ,
-      "WAKE"                                        ,  6732 ,
-      "WGS72"                                       ,  6322 ,
-      "HARN"                                        ,  4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", crs,
+      "Unknown", crs,
+      "OTHER", crs,
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # Handle missing or unknown CRS values
@@ -338,11 +338,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
-    ) {
+    perform_iterative_clustering <- function(points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100) {
       bbox_area <- function(df, clust) {
         df |>
           dplyr::filter(cluster == clust) |>
@@ -567,7 +565,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
 
-    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
+    bbox <- points_sf |>
+      sf::st_bbox() |>
+      toString() |>
+      urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 
@@ -1928,7 +1929,7 @@ TADA_GetATTAINSByAUID <- function(
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
-      correctColType() |>
+      TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # In this case we'll need to return empty ATTAINS objects
@@ -2172,7 +2173,7 @@ TADA_GetATTAINSByAUID <- function(
   # remove unnecessary column from attains.geo
   attains.geo <- attains.geo |>
     dplyr::select(-assessmentunitidentifier) |>
-    correctColType()
+    TADA_CorrectColType()
 
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
@@ -2277,7 +2278,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
-    correctColType() |>
+    TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
     renameATTAINSCols() |>
@@ -3658,7 +3659,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
     # correct column types and filter out invalid geometries for each dataframe
-    user <- correctColType(user[[df.name]])
+    user <- TADA_CorrectColType(user[[df.name]])
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
       user <- sf::st_make_valid(user)
@@ -3680,7 +3681,7 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    attains <- correctColType(attains[[df.name]])
+    attains <- TADA_CorrectColType(attains[[df.name]])
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
       attains <- sf::st_make_valid(attains)
@@ -3701,7 +3702,7 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    get.attains <- correctColType(get.attains[[df.name]])
+    get.attains <- TADA_CorrectColType(get.attains[[df.name]])
 
     if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
       get.attains <- sf::st_make_valid(get.attains)

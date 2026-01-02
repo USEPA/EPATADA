@@ -357,12 +357,12 @@ TADA_OrderCols <- function(.data) {
     )
     return(empty)
   }
-  
+
   required_cols <- require.cols[require.cols %in% names(.data)]
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
   last_cols <- last.cols[last.cols %in% names(.data)]
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
-  
+
   rearranged <- .data |>
     dplyr::relocate(tidyselect::any_of(required_cols)) |>
     dplyr::relocate(
@@ -377,13 +377,13 @@ TADA_OrderCols <- function(.data) {
       tidyselect::any_of(attains_cols),
       .after = tidyselect::any_of(last_cols)
     )
-  
+
   # Order rows by ResultIdentifier only if the column exists
   if ("ResultIdentifier" %in% names(rearranged)) {
     # dplyr::arrange is clearer and handles tibbles naturally
     rearranged <- dplyr::arrange(rearranged, .data$ResultIdentifier)
   }
-  
+
   return(rearranged)
 }
 
@@ -544,7 +544,9 @@ TADA_RetainRequired <- function(.data) {
   )
 
   # create list of columns containing all NA values.
-  na.cols <- .data |> purrr::keep(~ all(is.na(.x))) |> names()
+  na.cols <- .data |>
+    purrr::keep(~ all(is.na(.x))) |>
+    names()
 
   # create list of columns to be removed by comparing columns containing all NA
   # values to required columns.
