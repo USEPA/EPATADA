@@ -64,7 +64,6 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
-CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -75,6 +74,7 @@ CreateWaterusesRef
 CriteriaMethods
 CriteriaSearchToolRef
 Cybertown
+DBF
 DataFrame
 DataQuality
 DataRetrieval
@@ -122,6 +122,7 @@ FlagSpeciation
 FlagUseName
 FractionAssumptions
 FullPhysChem
+GDAL
 Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
@@ -215,6 +216,7 @@ NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
 OA
+OKTribe
 ORs
 Okabe
 OrgName
@@ -321,9 +323,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
-TADAColTypeRef
 TADADataRetrieval
-TADAGeospatialRefLayers
 TADAModule
 TADAPackageDemo
 TADAPriorityChar
@@ -348,7 +348,6 @@ UniqueHarmonizationRef
 UniqueSpatialCriteria
 UnitCode
 UpdateATTAINSAUMLCrosswalk
-UpdateTribalLayers
 UpperFence
 UseName
 UseName's
@@ -406,6 +405,7 @@ checkColNames
 cleanNA
 coli
 comid
+correctColType
 countrycode
 countycode
 cristinamullin
@@ -519,7 +519,6 @@ tada
 terra
 testthat
 th
-tibble
 tidyverse
 tigris
 tmap
