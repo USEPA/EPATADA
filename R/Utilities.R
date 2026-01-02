@@ -1007,7 +1007,6 @@ TADA_CreateComparableID <- function(.data) {
     as.character(.data$TADA.ResultMeasure.MeasureUnitCode),
     sep = "_"
   )
-  
   return(.data)
 }
 
