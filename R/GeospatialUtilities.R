@@ -1,4 +1,5 @@
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #' getMapIconsLabels
 #'
 #' Internal function to get list of icons (images) and/or a list of their labels
@@ -136,6 +137,8 @@ if(icons == FALSE) {
 
 =======
 >>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 #' addATTAINS (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Internal function to add ATTAINS lines, points, or polygons to TADA maps.
@@ -181,8 +184,11 @@ addATTAINS <- function(.data,
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 # select
 =======
+=======
+>>>>>>> Stashed changes
 # select required dfs for mapping
 
   df.list <- .data
@@ -202,6 +208,9 @@ addATTAINS <- function(.data,
     "ATTAINS polygon features" = "#7f7f7f"
   )
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 # add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
