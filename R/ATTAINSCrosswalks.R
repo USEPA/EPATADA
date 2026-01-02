@@ -1321,12 +1321,12 @@ TADA_ParametersForAnalysis <- function(
                 paste(
                   ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                   ATTAINS_param_all$ATTAINS.ParameterName
-                ) ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+                ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
                 ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                 ATTAINS_param_all$ATTAINS.ParameterName
-              ) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization."
+              ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
         dplyr::mutate(
@@ -1391,19 +1391,19 @@ TADA_ParametersForAnalysis <- function(
                 paste(
                   ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                   ATTAINS_param_all$ATTAINS.ParameterName
-                ) ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+                ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
                 ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                 ATTAINS_param_all$ATTAINS.ParameterName
-              ) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization."
+              ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization."
           )
         ) |>
         # since auto_assign = Org matches only, then we must flag the parameter name, then only keep if it is a match
         dplyr::mutate(
           ATTAINS.ParameterName = dplyr::if_else(
             ATTAINS.FlagParameterName ==
-              "Parameter name is listed as a prior cause in ATTAINS for this organization." |
+              "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization." |
               ATTAINS.OrganizationIdentifier == "",
             ATTAINS.ParameterName,
             NA
@@ -1464,12 +1464,12 @@ TADA_ParametersForAnalysis <- function(
                 paste(
                   ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                   ATTAINS_param_all$ATTAINS.ParameterName
-                ) ~ "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
+                ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
             paste(ATTAINS.OrganizationIdentifier, ATTAINS.ParameterName) %in%
               paste(
                 ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                 ATTAINS_param_all$ATTAINS.ParameterName
-              ) ~ "Parameter name is listed as a prior cause in ATTAINS for this organization"
+              ) ~ "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization"
           )
         ) |>
         dplyr::select(
@@ -1673,8 +1673,8 @@ TADA_ParametersForAnalysis <- function(
           "=ATTAINSOrgNamesParamRef!D:D)*(B",
           i + 1,
           '=ATTAINSOrgNamesParamRef!A:A),0)),
-            "Parameter name is listed as a prior cause in ATTAINS, but not for this organization.",
-            "Parameter name is listed as a prior cause in ATTAINS for this organization.")))'
+            "This ATTAINS parameter name was included in past ATTAINS assessment cycles, but not for this organization.",
+            "This ATTAINS parameter name was included in past ATTAINS assessment cycles for this organization.")))'
         )
       )
 
@@ -1787,7 +1787,7 @@ TADA_ParametersForAnalysis <- function(
 #' Users will be warned in the ATTAINS.FlagUseName column if they choose to
 #' include an ATTAINS use name that was not listed in prior ATTAINS assessment cycles as:
 #' 'Use name is not listed as a prior cause in ATTAINS for this organization' or
-#' 'Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name'.
+#' 'Use name has been assessed in prior cycles by this organization, but not for this parameter name'.
 #'
 #' @param .data A TADA dataframe after all desired data cleaning,
 #' processing, harmonization, filtering, and censored data handling functions
@@ -2161,7 +2161,7 @@ TADA_UsesForAnalysis <- function(
         ATTAINS.FlagUseName = dplyr::if_else(
           is.na(ATTAINS.UseName),
           "No use name is provided. Consider choosing an appropriate ATTAINS.UseName.",
-          "Use name is listed as a prior cause in ATTAINS for this organization."
+          "Use name has been assessed in prior cycles by this organization."
         )
       ) |>
       dplyr::mutate(
@@ -2224,7 +2224,7 @@ TADA_UsesForAnalysis <- function(
                 ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                 ATTAINS_param_all$ATTAINS.ParameterName,
                 ATTAINS_param_all$ATTAINS.UseName
-              ) ~ "Use name is listed as a prior cause in ATTAINS for this organization.",
+              ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
               ATTAINS.ParameterName,
@@ -2236,7 +2236,7 @@ TADA_UsesForAnalysis <- function(
                 ATTAINS_param_all$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
+                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             is.na(
               ATTAINS.UseName
             ) ~ "No use name is provided. Consider choosing an appropriate ATTAINS.UseName."
@@ -2402,7 +2402,7 @@ TADA_UsesForAnalysis <- function(
                 ATTAINS_param_all$ATTAINS.OrganizationIdentifier,
                 ATTAINS_param_all$ATTAINS.ParameterName,
                 ATTAINS_param_all$ATTAINS.UseName
-              ) ~ "Use name is listed as a prior cause in ATTAINS for this organization.",
+              ) ~ "Use name has been assessed in prior cycles by this organization.",
             !paste(
               ATTAINS.OrganizationIdentifier,
               ATTAINS.ParameterName,
@@ -2414,7 +2414,7 @@ TADA_UsesForAnalysis <- function(
                 ATTAINS_param_all$ATTAINS.UseName
               ) &
               ATTAINS.UseName %in%
-                ATTAINS_param_all$ATTAINS.UseName ~ "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
+                ATTAINS_param_all$ATTAINS.UseName ~ "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
             TRUE ~ "Use name is not listed as a prior cause in ATTAINS."
           )
         ) |>
@@ -2645,8 +2645,8 @@ TADA_UsesForAnalysis <- function(
           "=ATTAINSOrgNamesParamRef!E:E)*(B",
           i + 1,
           '=ATTAINSOrgNamesParamRef!A:A),0)),
-            "Use name is listed as a prior cause in ATTAINS for this organization, but not for this parameter name.",
-            "Use name is listed as a prior cause in ATTAINS for this organization."))))'
+            "Use name has been assessed in prior cycles by this organization, but not for this parameter name.",
+            "Use name has been assessed in prior cycles by this organization."))))'
         )
       )
 
