@@ -56,37 +56,44 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Reference table for CRS/EPSG codes
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
-      "NAD83", 4269,
-      "WGS84", 4326,
-      "NAD27", 4267,
-      "UNKWN", as.numeric(crs),
-      "Unknown", as.numeric(crs),
-      "OTHER", as.numeric(crs),
-      "OLDHI", 4135,
-      "AMSMA", 4169,
-      "ASTRO", 4727,
-      "GUAM", 4675,
-      "JHNSN", 4725,
-      "PR", 6139,
-      "SGEOR", 4138,
-      "SLAWR", 4136,
-      "SPAUL", 4137,
-      "WAKE", 6732,
-      "WGS72", 6322,
-      "HARN", 4152
+      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg           ,
+      "NAD83"                                       ,            4269 ,
+      "WGS84"                                       ,            4326 ,
+      "NAD27"                                       ,            4267 ,
+      "UNKWN"                                       , as.numeric(crs) ,
+      "Unknown"                                     , as.numeric(crs) ,
+      "OTHER"                                       , as.numeric(crs) ,
+      "OLDHI"                                       ,            4135 ,
+      "AMSMA"                                       ,            4169 ,
+      "ASTRO"                                       ,            4727 ,
+      "GUAM"                                        ,            4675 ,
+      "JHNSN"                                       ,            4725 ,
+      "PR"                                          ,            6139 ,
+      "SGEOR"                                       ,            4138 ,
+      "SLAWR"                                       ,            4136 ,
+      "SPAUL"                                       ,            4137 ,
+      "WAKE"                                        ,            6732 ,
+      "WGS72"                                       ,            6322 ,
+      "HARN"                                        ,            4152
     )
 
     # Handle missing/unknown CRS labels
-    if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-      any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
+    if (
+      any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
+        any(
+          .data$HorizontalCoordinateReferenceSystemDatumName %in%
+            c("UNKWN", "Unknown", "OTHER")
+        )
+    ) {
       message(paste0(
         "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). ",
-        "For these, we have assigned CRS ", crs, "."
+        "For these, we have assigned CRS ",
+        crs,
+        "."
       ))
-      .data$HorizontalCoordinateReferenceSystemDatumName[
-        is.na(.data$HorizontalCoordinateReferenceSystemDatumName)
-      ] <- "Unknown"
+      .data$HorizontalCoordinateReferenceSystemDatumName[is.na(
+        .data$HorizontalCoordinateReferenceSystemDatumName
+      )] <- "Unknown"
     }
 
     # Prepare data: attach EPSG and numeric lon/lat
@@ -107,27 +114,32 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     }
 
     # Convert each CRS subset to sf, then transform to target CRS
-    sflist <- lapply(split(df, df$HorizontalCoordinateReferenceSystemDatumName), function(subset_data) {
-      if (nrow(subset_data) == 0) {
-        return(NULL)
+    sflist <- lapply(
+      split(df, df$HorizontalCoordinateReferenceSystemDatumName),
+      function(subset_data) {
+        if (nrow(subset_data) == 0) {
+          return(NULL)
+        }
+        epsg_val <- unique(subset_data$epsg)
+        if (length(epsg_val) != 1 || is.na(epsg_val)) {
+          epsg_val <- as.numeric(crs)
+        }
+        sf_obj <- sf::st_as_sf(
+          subset_data,
+          coords = c("lon", "lat"),
+          crs = epsg_val,
+          remove = TRUE
+        )
+        sf::st_transform(sf_obj, sf::st_crs(as.numeric(crs)))
       }
-      epsg_val <- unique(subset_data$epsg)
-      if (length(epsg_val) != 1 || is.na(epsg_val)) {
-        epsg_val <- as.numeric(crs)
-      }
-      sf_obj <- sf::st_as_sf(
-        subset_data,
-        coords = c("lon", "lat"),
-        crs = epsg_val,
-        remove = TRUE
-      )
-      sf::st_transform(sf_obj, sf::st_crs(as.numeric(crs)))
-    })
+    )
 
     # Remove empty elements
     sflist <- Filter(Negate(is.null), sflist)
     if (length(sflist) == 0) {
-      stop("No valid point geometries could be created (check latitude/longitude and CRS values).")
+      stop(
+        "No valid point geometries could be created (check latitude/longitude and CRS values)."
+      )
     }
 
     # Row-bind while preserving sf class
@@ -351,9 +363,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100) {
+    perform_iterative_clustering <- function(
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
+    ) {
       bbox_area <- function(df, clust) {
         df |>
           dplyr::filter(cluster == clust) |>
@@ -578,10 +592,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
 
-    bbox <- points_sf |>
-      sf::st_bbox() |>
-      toString() |>
-      urltools::url_encode()
+    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 

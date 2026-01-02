@@ -18,9 +18,9 @@ library(styler)
 # Recommended styler setup to approximate air.toml
 style_pkg(
   transformers = tidyverse_style(
-    scope     = "line_breaks",  # applies all levels up to line_breaks
+    scope = "line_breaks", # applies all levels up to line_breaks
     indent_by = 2,
-    strict    = TRUE
+    strict = TRUE
   )
 )
 

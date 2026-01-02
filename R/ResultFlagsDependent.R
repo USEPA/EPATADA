@@ -671,7 +671,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- dplyr::filter(flag.data, TADA.ActivityType.Flag == "Non_QC")
   } else {
     # Remove only specified QC category
-    remove_flags <- switch(clean,
+    remove_flags <- switch(
+      clean,
       duplicates = "QC_duplicate",
       blanks = "QC_blank",
       calibrations = "QC_calibration",

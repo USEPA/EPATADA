@@ -2460,7 +2460,8 @@ TADA_CorrectColType <- function(.data) {
 
   # Converter per type
   convert <- function(x, type) {
-    switch(type,
+    switch(
+      type,
       character = as.character(x),
       numeric = suppressWarnings(as.numeric(x)),
       integer = suppressWarnings(as.integer(x)),
@@ -2474,8 +2475,16 @@ TADA_CorrectColType <- function(.data) {
         if (is.character(x)) {
           lx <- trimws(tolower(x))
           map <- c(
-            "true" = "TRUE", "t" = "TRUE", "y" = "TRUE", "yes" = "TRUE", "1" = "TRUE",
-            "false" = "FALSE", "f" = "FALSE", "n" = "FALSE", "no" = "FALSE", "0" = "FALSE"
+            "true" = "TRUE",
+            "t" = "TRUE",
+            "y" = "TRUE",
+            "yes" = "TRUE",
+            "1" = "TRUE",
+            "false" = "FALSE",
+            "f" = "FALSE",
+            "n" = "FALSE",
+            "no" = "FALSE",
+            "0" = "FALSE"
           )
           lx <- ifelse(lx %in% names(map), map[lx], lx)
           return(as.logical(lx))
@@ -2516,7 +2525,11 @@ TADA_CorrectColType <- function(.data) {
     new <- try(convert(old, target_type), silent = TRUE)
 
     if (inherits(new, "try-error")) {
-      warning(sprintf("Failed to coerce column '%s' to type '%s'; leaving unchanged.", nm, target_type))
+      warning(sprintf(
+        "Failed to coerce column '%s' to type '%s'; leaving unchanged.",
+        nm,
+        target_type
+      ))
       next
     }
 
@@ -2524,7 +2537,9 @@ TADA_CorrectColType <- function(.data) {
     if (after_na > before_na) {
       warning(sprintf(
         "Coercing column '%s' to '%s' introduced %d additional NA values.",
-        nm, target_type, after_na - before_na
+        nm,
+        target_type,
+        after_na - before_na
       ))
     }
 

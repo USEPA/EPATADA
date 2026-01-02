@@ -24,7 +24,9 @@ TADA_dataframe_no_coords <- TADA_dataframe |>
 # TADA_MakeSpatial Tests on local sample ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object (using rows with valid coordinates)", {
   if (!has_valid_coords) {
-    testthat::skip("No valid coordinates present in sample data; cannot test sf conversion.")
+    testthat::skip(
+      "No valid coordinates present in sample data; cannot test sf conversion."
+    )
   }
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe_valid)
 
@@ -38,7 +40,9 @@ testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object (us
 
 testthat::test_that("TADA_MakeSpatial preserves input data structure and content (for valid rows)", {
   if (!has_valid_coords) {
-    testthat::skip("No valid coordinates present in sample data; skipping preservation checks.")
+    testthat::skip(
+      "No valid coordinates present in sample data; skipping preservation checks."
+    )
   }
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe_valid)
 
@@ -55,7 +59,9 @@ testthat::test_that("TADA_MakeSpatial preserves input data structure and content
 
 testthat::test_that("TADA_MakeSpatial handles custom CRS correctly", {
   if (!has_valid_coords) {
-    testthat::skip("No valid coordinates present in sample data; skipping CRS checks.")
+    testthat::skip(
+      "No valid coordinates present in sample data; skipping CRS checks."
+    )
   }
   test_wgs84 <- TADA_MakeSpatial(.data = TADA_dataframe_valid, crs = 4326)
   test_nad83 <- TADA_MakeSpatial(.data = TADA_dataframe_valid, crs = 4269)
@@ -136,7 +142,9 @@ testthat::test_that("TADA_MakeSpatial works on real example data (random state)"
     testthat::skip("No random example data available (NULL).")
   }
   if (!testdat_has_valid) {
-    testthat::skip("Random example data has no valid coordinates; skipping sf conversion test.")
+    testthat::skip(
+      "Random example data has no valid coordinates; skipping sf conversion test."
+    )
   }
   test_sf <- TADA_MakeSpatial(.data = testdat_valid)
 
@@ -155,7 +163,9 @@ testthat::test_that("TADA_MakeSpatial sets custom CRS correctly for real data", 
     testthat::skip("No random example data available (NULL).")
   }
   if (!testdat_has_valid) {
-    testthat::skip("Random example data has no valid coordinates; skipping CRS checks.")
+    testthat::skip(
+      "Random example data has no valid coordinates; skipping CRS checks."
+    )
   }
   test_4326 <- TADA_MakeSpatial(.data = testdat_valid, crs = 4326)
   test_3857 <- TADA_MakeSpatial(.data = testdat_valid, crs = 3857) # Web Mercator
