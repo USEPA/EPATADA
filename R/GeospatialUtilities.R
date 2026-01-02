@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #' getMapIconsLabels
 #'
 #' Internal function to get list of icons (images) and/or a list of their labels
@@ -133,6 +134,8 @@ if(icons == FALSE) {
   }
 }
 
+=======
+>>>>>>> Stashed changes
 #' addATTAINS (UNDER ACTIVE DEVELOPMENT)
 #'
 #' Internal function to add ATTAINS lines, points, or polygons to TADA maps.
@@ -177,7 +180,29 @@ addATTAINS <- function(.data,
   stop("addATTAINS: overlay_groups must be supplied to run this function.")
   }
 
+<<<<<<< Updated upstream
 # select
+=======
+# select required dfs for mapping
+
+  df.list <- .data
+
+  .data <- switch(group_name,
+                  "ATTAINS catchments" = "black",
+                  "ATTAINS outlines" = .data$col,
+                  "missing ATTAINS catchment outlines" = "#d62728",
+                  "ATTAINS polygon features" = "#7f7f7f"
+  ))
+
+  set.color <- switch(
+    group_name,
+    "ATTAINS catchments" = "black",
+    "ATTAINS outlines" = .data$col,
+    "missing ATTAINS catchment outlines" = "#d62728",
+    "ATTAINS polygon features" = "#7f7f7f"
+  )
+
+>>>>>>> Stashed changes
 
 # add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
 
