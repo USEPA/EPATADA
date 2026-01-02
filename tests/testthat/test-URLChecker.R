@@ -100,7 +100,9 @@ suppressWarnings(test_that("URLs are not broken", {
   )
 
   # combine file lists
-  files <- append(other_files, vignettes) |> append(articles) |> append(r_files)
+  files <- append(other_files, vignettes) |>
+    append(articles) |>
+    append(r_files)
 
   files <- purrr::map(files, normalizePath)
 
