@@ -37,7 +37,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   if (inherits(.data, "sf")) {
     stop("Your data is already a spatial object.")
   }
-  
+
   required_cols <- c(
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -50,36 +50,36 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       "`TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
-  
+
   message("Transforming your data into a spatial object.")
-  
+
   suppressMessages(suppressWarnings({
     # Reference table for CRS/EPSG codes
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
-      "NAD83"                                       ,  4269 ,
-      "WGS84"                                       ,  4326 ,
-      "NAD27"                                       ,  4267 ,
-      "UNKWN"                                       ,  as.numeric(crs) ,
-      "Unknown"                                     ,  as.numeric(crs) ,
-      "OTHER"                                       ,  as.numeric(crs) ,
-      "OLDHI"                                       ,  4135 ,
-      "AMSMA"                                       ,  4169 ,
-      "ASTRO"                                       ,  4727 ,
-      "GUAM"                                        ,  4675 ,
-      "JHNSN"                                       ,  4725 ,
-      "PR"                                          ,  6139 ,
-      "SGEOR"                                       ,  4138 ,
-      "SLAWR"                                       ,  4136 ,
-      "SPAUL"                                       ,  4137 ,
-      "WAKE"                                        ,  6732 ,
-      "WGS72"                                       ,  6322 ,
-      "HARN"                                        ,  4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", as.numeric(crs),
+      "Unknown", as.numeric(crs),
+      "OTHER", as.numeric(crs),
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
-    
+
     # Handle missing/unknown CRS labels
     if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-        any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
+      any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
       message(paste0(
         "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). ",
         "For these, we have assigned CRS ", crs, "."
@@ -88,7 +88,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         is.na(.data$HorizontalCoordinateReferenceSystemDatumName)
       ] <- "Unknown"
     }
-    
+
     # Prepare data: attach EPSG and numeric lon/lat
     df <- dplyr::left_join(
       .data,
@@ -99,16 +99,18 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         lat = suppressWarnings(as.numeric(.data$TADA.LatitudeMeasure)),
         lon = suppressWarnings(as.numeric(.data$TADA.LongitudeMeasure))
       )
-    
+
     # Drop rows with missing coordinates
     df <- df[!is.na(df$lon) & !is.na(df$lat), ]
     if (nrow(df) == 0) {
       stop("No valid rows with latitude/longitude found.")
     }
-    
+
     # Convert each CRS subset to sf, then transform to target CRS
     sflist <- lapply(split(df, df$HorizontalCoordinateReferenceSystemDatumName), function(subset_data) {
-      if (nrow(subset_data) == 0) return(NULL)
+      if (nrow(subset_data) == 0) {
+        return(NULL)
+      }
       epsg_val <- unique(subset_data$epsg)
       if (length(epsg_val) != 1 || is.na(epsg_val)) {
         epsg_val <- as.numeric(crs)
@@ -121,13 +123,13 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       )
       sf::st_transform(sf_obj, sf::st_crs(as.numeric(crs)))
     })
-    
+
     # Remove empty elements
     sflist <- Filter(Negate(is.null), sflist)
     if (length(sflist) == 0) {
       stop("No valid point geometries could be created (check latitude/longitude and CRS values).")
     }
-    
+
     # Row-bind while preserving sf class
     sf_out <- tryCatch(
       {
@@ -138,7 +140,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       }
     )
   }))
-  
+
   return(sf_out)
 }
 
@@ -349,11 +351,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
-    ) {
+    perform_iterative_clustering <- function(points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100) {
       bbox_area <- function(df, clust) {
         df |>
           dplyr::filter(cluster == clust) |>
@@ -578,7 +578,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
 
-    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
+    bbox <- points_sf |>
+      sf::st_bbox() |>
+      toString() |>
+      urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 

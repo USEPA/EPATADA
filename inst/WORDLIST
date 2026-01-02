@@ -64,6 +64,7 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -323,6 +324,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADAColTypeRef
 TADADataRetrieval
 TADAModule
 TADAPackageDemo
@@ -518,6 +520,7 @@ tada
 terra
 testthat
 th
+tibble
 tidyverse
 tigris
 tmap

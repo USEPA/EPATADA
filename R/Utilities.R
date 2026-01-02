@@ -2437,89 +2437,89 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 #' @importFrom utils read.csv
 TADA_CorrectColType <- function(.data) {
   stopifnot(is.data.frame(.data))
-  
+
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   if (!nzchar(ref_path) || !file.exists(ref_path)) {
     stop("TADAColTypeRef.csv not found in EPATADA/extdata.")
   }
-  
+
   coltype.ref <- utils::read.csv(
     ref_path,
     stringsAsFactors = FALSE,
     strip.white = TRUE
   )
-  
+
   required_cols <- c("column_name", "column_type")
   if (!all(required_cols %in% names(coltype.ref))) {
     stop("TADAColTypeRef.csv must contain columns: column_name, column_type.")
   }
-  
+
   # Normalize entries
   coltype.ref$column_name <- trimws(coltype.ref$column_name)
   coltype.ref$column_type <- tolower(trimws(coltype.ref$column_type))
-  
+
   # Converter per type
   convert <- function(x, type) {
     switch(type,
-           character = as.character(x),
-           numeric = suppressWarnings(as.numeric(x)),
-           integer = suppressWarnings(as.integer(x)),
-           logical = {
-             if (is.logical(x)) {
-               return(x)
-             }
-             if (is.numeric(x)) {
-               return(x != 0)
-             }
-             if (is.character(x)) {
-               lx <- trimws(tolower(x))
-               map <- c(
-                 "true" = "TRUE", "t" = "TRUE", "y" = "TRUE", "yes" = "TRUE", "1" = "TRUE",
-                 "false" = "FALSE", "f" = "FALSE", "n" = "FALSE", "no" = "FALSE", "0" = "FALSE"
-               )
-               lx <- ifelse(lx %in% names(map), map[lx], lx)
-               return(as.logical(lx))
-             }
-             as.logical(x)
-           },
-           factor = as.factor(x),
-           date = {
-             if (inherits(x, "Date")) {
-               return(x)
-             }
-             if (inherits(x, "POSIXt")) {
-               return(as.Date(x))
-             }
-             if (is.character(x)) {
-               out <- suppressWarnings(as.Date(x))
-               if (all(is.na(out)) && any(grepl("[:T]", x))) {
-                 out <- suppressWarnings(as.Date(as.POSIXct(x, tz = "UTC")))
-               }
-               return(out)
-             }
-             suppressWarnings(as.Date(x))
-           },
-           # Default: unknown type -> leave unchanged
-           x
+      character = as.character(x),
+      numeric = suppressWarnings(as.numeric(x)),
+      integer = suppressWarnings(as.integer(x)),
+      logical = {
+        if (is.logical(x)) {
+          return(x)
+        }
+        if (is.numeric(x)) {
+          return(x != 0)
+        }
+        if (is.character(x)) {
+          lx <- trimws(tolower(x))
+          map <- c(
+            "true" = "TRUE", "t" = "TRUE", "y" = "TRUE", "yes" = "TRUE", "1" = "TRUE",
+            "false" = "FALSE", "f" = "FALSE", "n" = "FALSE", "no" = "FALSE", "0" = "FALSE"
+          )
+          lx <- ifelse(lx %in% names(map), map[lx], lx)
+          return(as.logical(lx))
+        }
+        as.logical(x)
+      },
+      factor = as.factor(x),
+      date = {
+        if (inherits(x, "Date")) {
+          return(x)
+        }
+        if (inherits(x, "POSIXt")) {
+          return(as.Date(x))
+        }
+        if (is.character(x)) {
+          out <- suppressWarnings(as.Date(x))
+          if (all(is.na(out)) && any(grepl("[:T]", x))) {
+            out <- suppressWarnings(as.Date(as.POSIXct(x, tz = "UTC")))
+          }
+          return(out)
+        }
+        suppressWarnings(as.Date(x))
+      },
+      # Default: unknown type -> leave unchanged
+      x
     )
   }
-  
+
   present <- intersect(coltype.ref$column_name, names(.data))
   if (length(present) == 0L) {
     return(.data)
   }
-  
+
   for (nm in present) {
     target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
     old <- .data[[nm]]
     before_na <- sum(is.na(old))
     new <- try(convert(old, target_type), silent = TRUE)
-    
+
     if (inherits(new, "try-error")) {
       warning(sprintf("Failed to coerce column '%s' to type '%s'; leaving unchanged.", nm, target_type))
       next
     }
-    
+
     after_na <- sum(is.na(new))
     if (after_na > before_na) {
       warning(sprintf(
@@ -2527,9 +2527,9 @@ TADA_CorrectColType <- function(.data) {
         nm, target_type, after_na - before_na
       ))
     }
-    
+
     .data[[nm]] <- new
   }
-  
+
   .data
 }

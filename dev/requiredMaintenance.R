@@ -14,17 +14,15 @@ spelling::get_wordlist()
 ###########################################################
 
 library(styler)
-# Recommended styler setup to approximate our air.toml
-air_style <- function(...) {
-  tidyverse_style(
-    scope     = c("tokens", "spaces", "indention", "line_breaks"),
+
+# Recommended styler setup to approximate air.toml
+style_pkg(
+  transformers = tidyverse_style(
+    scope     = "line_breaks",  # applies all levels up to line_breaks
     indent_by = 2,
-    strict    = TRUE,  # optional: tighter spacing rules
-    ...
+    strict    = TRUE
   )
-}
-# Style the whole package
-style_pkg(style = air_style())
+)
 
 ###########################################################
 
