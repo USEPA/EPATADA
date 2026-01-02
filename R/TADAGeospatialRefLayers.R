@@ -30,7 +30,6 @@
 #' @keywords internal
 #' @noRd
 TADA_UpdateTribalLayers <- function() {
-  
   # ---- Resolve internal EPATADA objects without requiring export ----
   ns_get <- function(name) {
     ns <- asNamespace("EPATADA")
@@ -40,60 +39,88 @@ TADA_UpdateTribalLayers <- function() {
       stop("Object '", name, "' not found in EPATADA namespace.")
     }
   }
-  
+
   # ---- Sidecar metadata (canonical signature + lastEditDate) ----
   meta_path <- function(dest_shp) {
-    meta_dir <- getOption("TADA.tribal.meta_dir",
-                          file.path(dirname(dest_shp), ".meta"))
+    meta_dir <- getOption(
+      "TADA.tribal.meta_dir",
+      file.path(dirname(dest_shp), ".meta")
+    )
     dir.create(meta_dir, recursive = TRUE, showWarnings = FALSE)
-    file.path(meta_dir, paste0(basename(tools::file_path_sans_ext(dest_shp)), ".rds"))
+    file.path(
+      meta_dir,
+      paste0(basename(tools::file_path_sans_ext(dest_shp)), ".rds")
+    )
   }
   read_meta <- function(dest_shp) {
     p <- meta_path(dest_shp)
     if (file.exists(p)) {
       tryCatch(readRDS(p), error = function(e) NULL)
-    } else NULL
+    } else {
+      NULL
+    }
   }
   write_meta <- function(dest_shp, meta) {
     saveRDS(meta, meta_path(dest_shp))
   }
-  
+
   # ---- Preflight: ArcGIS lastEditDate (optional, requires jsonlite) ----
   get_arcgis_last_edit <- function(url) {
-    if (!requireNamespace("jsonlite", quietly = TRUE)) return(NULL)
-    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
-    if (!is_arcgis) return(NULL)
-    u <- paste0(sub("[?].*$", "", url), if (grepl("[?]", url)) "&" else "?", "f=json")
-    out <- tryCatch(jsonlite::fromJSON(u, simplifyVector = TRUE),
-                    error = function(e) NULL)
-    if (is.null(out)) return(NULL)
+    if (!requireNamespace("jsonlite", quietly = TRUE)) {
+      return(NULL)
+    }
+    is_arcgis <- is.character(url) &&
+      grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    if (!is_arcgis) {
+      return(NULL)
+    }
+    u <- paste0(
+      sub("[?].*$", "", url),
+      if (grepl("[?]", url)) "&" else "?",
+      "f=json"
+    )
+    out <- tryCatch(
+      jsonlite::fromJSON(u, simplifyVector = TRUE),
+      error = function(e) NULL
+    )
+    if (is.null(out)) {
+      return(NULL)
+    }
     le <- NULL
-    if (!is.null(out$editingInfo$lastEditDate)) le <- out$editingInfo$lastEditDate
+    if (!is.null(out$editingInfo$lastEditDate)) {
+      le <- out$editingInfo$lastEditDate
+    }
     if (is.null(le) && !is.null(out$timeInfo$timeExtent)) {
       le <- out$timeInfo$timeExtent[2]
     }
     if (is.null(le)) NULL else as.numeric(le)
   }
-  
+
   # ---- Canonical signature: attributes + geometry (WKT), sorted deterministically ----
   canonical_signature <- function(s, digits = 8, num_round = 6) {
     s <- sf::st_zm(s, drop = TRUE, what = "ZM")
     wkt <- sf::st_as_text(sf::st_geometry(s), digits = digits)
-    x   <- sf::st_set_geometry(s, NULL)
+    x <- sf::st_set_geometry(s, NULL)
     x[[".__WKT__"]] <- wkt
-    
+
     is_factor <- vapply(x, is.factor, logical(1))
-    if (any(is_factor)) x[is_factor] <- lapply(x[is_factor], as.character)
-    
+    if (any(is_factor)) {
+      x[is_factor] <- lapply(x[is_factor], as.character)
+    }
+
     is_num <- vapply(x, is.numeric, logical(1))
-    if (any(is_num)) x[is_num] <- lapply(x[is_num], function(col) round(col, num_round))
-    
+    if (any(is_num)) {
+      x[is_num] <- lapply(x[is_num], function(col) round(col, num_round))
+    }
+
     x <- x[, order(names(x)), drop = FALSE]
-    for (nm in names(x)) if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
+    for (nm in names(x)) {
+      if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
+    }
     ord <- do.call(order, c(x, list(na.last = TRUE)))
     x[ord, , drop = FALSE]
   }
-  
+
   # ---- Normalize epoch-ms -> Date for selected columns ----
   is_epoch_ms <- function(x) {
     is.numeric(x) &&
@@ -103,14 +130,21 @@ TADA_UpdateTribalLayers <- function() {
         is.finite(rng[1]) && is.finite(rng[2]) && rng[1] > 1e11 && rng[2] < 1e14
       })
   }
-  to_date_from_ms <- function(x) as.Date(as.POSIXct(x / 1000, origin = "1970-01-01", tz = "UTC"))
+  to_date_from_ms <- function(x) {
+    as.Date(as.POSIXct(x / 1000, origin = "1970-01-01", tz = "UTC"))
+  }
   fix_date_cols <- function(s) {
-    date_candidates <- getOption("TADA.tribal.date_fields", c("DATE_MO", "CURRENT"))
+    date_candidates <- getOption(
+      "TADA.tribal.date_fields",
+      c("DATE_MO", "CURRENT")
+    )
     to_fix <- intersect(date_candidates, names(s))
-    for (nm in to_fix) if (is_epoch_ms(s[[nm]])) s[[nm]] <- to_date_from_ms(s[[nm]])
+    for (nm in to_fix) {
+      if (is_epoch_ms(s[[nm]])) s[[nm]] <- to_date_from_ms(s[[nm]])
+    }
     s
   }
-  
+
   # ---- Shapefile helpers ----
   remove_shapefile_set <- function(dest_shp) {
     base <- tools::file_path_sans_ext(dest_shp)
@@ -119,71 +153,87 @@ TADA_UpdateTribalLayers <- function() {
     files <- files[file.exists(files)]
     if (length(files)) unlink(files, force = TRUE)
   }
-  
+
   # Try to read the layer as sf in one step; fallback to EPATADA::writeLayer -> read
   read_layer_as_sf <- function(url) {
     s <- tryCatch(sf::read_sf(url, quiet = TRUE), error = function(e) NULL)
-    if (!is.null(s)) return(s)
+    if (!is.null(s)) {
+      return(s)
+    }
     tmp_dir <- tempfile("layer_tmp_")
     dir.create(tmp_dir)
     on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
     tmp_shp <- file.path(tmp_dir, "layer.shp")
     ns_get("writeLayer")(url, tmp_shp)
-    tryCatch(sf::st_read(tmp_shp, quiet = TRUE),
-             error = function(e) stop("Failed to read temp shapefile: ", e$message))
+    tryCatch(sf::st_read(tmp_shp, quiet = TRUE), error = function(e) {
+      stop("Failed to read temp shapefile: ", e$message)
+    })
   }
-  
+
   # ---- Core update logic for a single layer ----
   has_sf <- requireNamespace("sf", quietly = TRUE)
-  
+
   update_one <- function(url, dest_shp) {
     if (!has_sf) {
-      message("sf not available; writing ", basename(dest_shp), " unconditionally.")
+      message(
+        "sf not available; writing ",
+        basename(dest_shp),
+        " unconditionally."
+      )
       ns_get("writeLayer")(url, dest_shp)
       return(invisible(TRUE))
     }
-    
+
     # Preflight (ArcGIS): skip fast if lastEditDate unchanged and files exist
     last_edit_remote <- get_arcgis_last_edit(url)
     meta <- read_meta(dest_shp)
-    if (!is.null(last_edit_remote) && !is.null(meta) && !is.null(meta$last_edit) &&
-        isTRUE(file.exists(dest_shp)) && identical(meta$last_edit, last_edit_remote)) {
+    if (
+      !is.null(last_edit_remote) &&
+        !is.null(meta) &&
+        !is.null(meta$last_edit) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$last_edit, last_edit_remote)
+    ) {
       message(basename(dest_shp), " unchanged (preflight) — skipping download.")
       return(invisible(FALSE))
     }
-    
+
     # Read as sf and normalize epoch-ms date fields
     s_new <- read_layer_as_sf(url)
     s_new <- fix_date_cols(s_new)
-    
+
     # Build canonical signature and compare with cached signature
     sig_new <- canonical_signature(s_new)
-    if (!is.null(meta) && !is.null(meta$sig) &&
-        isTRUE(file.exists(dest_shp)) && identical(meta$sig, sig_new)) {
+    if (
+      !is.null(meta) &&
+        !is.null(meta$sig) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$sig, sig_new)
+    ) {
       write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
       message(basename(dest_shp), " unchanged — skipping write.")
       return(invisible(FALSE))
     }
-    
+
     # Write: ensure path, remove existing set, write once with normalized schema
     dir.create(dirname(dest_shp), recursive = TRUE, showWarnings = FALSE)
     remove_shapefile_set(dest_shp)
     sf::st_write(s_new, dest_shp, delete_dsn = TRUE, quiet = TRUE)
-    
+
     # Update sidecar metadata (signature + optional lastEditDate)
     write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
-    
+
     message(basename(dest_shp), " updated.")
     invisible(TRUE)
   }
-  
+
   # ---- Run updates (sequential; parallelize outside if desired) ----
-  update_one(ns_get("AKAllotmentsUrl"),   "inst/extdata/AKAllotments.shp")
-  update_one(ns_get("AKVillagesUrl"),     "inst/extdata/AKVillages.shp")
+  update_one(ns_get("AKAllotmentsUrl"), "inst/extdata/AKAllotments.shp")
+  update_one(ns_get("AKVillagesUrl"), "inst/extdata/AKVillages.shp")
   update_one(ns_get("AmericanIndianUrl"), "inst/extdata/AmericanIndian.shp")
   update_one(ns_get("OffReservationUrl"), "inst/extdata/OffReservation.shp")
-  update_one(ns_get("OKTribeUrl"),        "inst/extdata/OKTribe.shp")
-  update_one(ns_get("VATribeUrl"),        "inst/extdata/VATribe.shp")
-  
+  update_one(ns_get("OKTribeUrl"), "inst/extdata/OKTribe.shp")
+  update_one(ns_get("VATribeUrl"), "inst/extdata/VATribe.shp")
+
   invisible(TRUE)
 }

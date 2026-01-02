@@ -501,14 +501,14 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
 # Helper to create a minimal sf layer with fields that exercise renaming and sanitization
 sample_layer <- function() {
   df <- data.frame(
-    TOTALAREA_MI   = c(1, 2),
-    TOTALAREA_KM   = c(3, 4),
-    LongFieldName  = c("A", "B"),
-    LongFieldNum   = c("C", "D"),    # Will collide with LongFieldName after 10-char truncation
-    `White space`  = c("E", "F"),
+    TOTALAREA_MI = c(1, 2),
+    TOTALAREA_KM = c(3, 4),
+    LongFieldName = c("A", "B"),
+    LongFieldNum = c("C", "D"), # Will collide with LongFieldName after 10-char truncation
+    `White space` = c("E", "F"),
     x = c(0, 1),
     y = c(0, 1),
-    check.names = FALSE              # preserve "White space" as-is
+    check.names = FALSE # preserve "White space" as-is
   )
   sf::st_as_sf(df, coords = c("x", "y"), crs = 4326)
 }
@@ -517,7 +517,7 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
   layer <- sample_layer()
   capture_env <- new.env(parent = emptyenv())
   capture_env$calls <- 0L
-  
+
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) layer,
@@ -531,19 +531,30 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
         },
         {
           out_path <- file.path(tempdir(), "nested1", "nested2", "ok.shp")
-          ret <- EPATADA:::writeLayer("http://fake/query", out_path, sanitize_names = TRUE)
-          
+          ret <- EPATADA:::writeLayer(
+            "http://fake/query",
+            out_path,
+            sanitize_names = TRUE
+          )
+
           expect_equal(ret, normalizePath(out_path, mustWork = FALSE))
           expect_true(dir.exists(dirname(out_path)))
           expect_identical(capture_env$calls, 1L)
-          
+
           layer_passed <- capture_env$last_args$obj
           expect_s3_class(layer_passed, "sf")
           expect_identical(attr(layer_passed, "sf_column"), "geometry")
-          
+
           expect_identical(
             names(layer_passed),
-            c("tarea_mi", "tarea_km", "longfieldn", "longfieldn_1", "white_spac", "geometry")
+            c(
+              "tarea_mi",
+              "tarea_km",
+              "longfieldn",
+              "longfieldn_1",
+              "white_spac",
+              "geometry"
+            )
           )
         }
       )
@@ -565,12 +576,23 @@ test_that("writeLayer can skip sanitization but still renames TOTALAREA_*", {
         },
         {
           out_path <- file.path(tempdir(), "nosanitize.shp")
-          EPATADA:::writeLayer("http://fake/query", out_path, sanitize_names = FALSE)
-          
+          EPATADA:::writeLayer(
+            "http://fake/query",
+            out_path,
+            sanitize_names = FALSE
+          )
+
           layer_passed <- capture_env$last
           expect_identical(
             names(layer_passed),
-            c("TAREA_MI", "TAREA_KM", "LongFieldName", "LongFieldNum", "White space", "geometry")
+            c(
+              "TAREA_MI",
+              "TAREA_KM",
+              "LongFieldName",
+              "LongFieldNum",
+              "White space",
+              "geometry"
+            )
           )
         }
       )
@@ -583,17 +605,13 @@ test_that("writeLayer warns when layerfilepath does not end with .shp", {
     .package = "EPATADA",
     getFeatureLayer = function(url) sample_layer(),
     {
-      with_mocked_bindings(
-        .package = "sf",
-        st_write = function(...) TRUE,
-        {
-          out_path <- file.path(tempdir(), "layer.gpkg")
-          expect_warning(
-            EPATADA:::writeLayer("http://fake/query", out_path),
-            "does not end with .shp"
-          )
-        }
-      )
+      with_mocked_bindings(.package = "sf", st_write = function(...) TRUE, {
+        out_path <- file.path(tempdir(), "layer.gpkg")
+        expect_warning(
+          EPATADA:::writeLayer("http://fake/query", out_path),
+          "does not end with .shp"
+        )
+      })
     }
   )
 })
@@ -604,7 +622,10 @@ test_that("writeLayer reports getFeatureLayer errors clearly", {
     getFeatureLayer = function(url) stop("network fail"),
     {
       expect_error(
-        EPATADA:::writeLayer("http://fake/query", file.path(tempdir(), "a.shp")),
+        EPATADA:::writeLayer(
+          "http://fake/query",
+          file.path(tempdir(), "a.shp")
+        ),
         "getFeatureLayer\\(\\) failed for URL: .* — network fail"
       )
     }
@@ -621,7 +642,10 @@ test_that("writeLayer reports st_write errors clearly", {
         st_write = function(...) stop("GDAL write failure"),
         {
           expect_error(
-            EPATADA:::writeLayer("http://fake/query", file.path(tempdir(), "b.shp")),
+            EPATADA:::writeLayer(
+              "http://fake/query",
+              file.path(tempdir(), "b.shp")
+            ),
             "st_write\\(\\) failed for path: .* — GDAL write failure"
           )
         }
@@ -634,7 +658,7 @@ test_that("writeLayer validates inputs", {
   expect_error(EPATADA:::writeLayer(123, file.path(tempdir(), "x.shp")))
   expect_error(EPATADA:::writeLayer(character(), file.path(tempdir(), "x.shp")))
   expect_error(EPATADA:::writeLayer("", file.path(tempdir(), "x.shp")))
-  
+
   expect_error(EPATADA:::writeLayer("http://fake/query", 1))
   expect_error(EPATADA:::writeLayer("http://fake/query", character()))
   expect_error(EPATADA:::writeLayer("http://fake/query", ""))

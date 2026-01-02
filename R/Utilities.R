@@ -1339,18 +1339,23 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' }
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
-  stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
-  
-  if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
-    warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
-  }
-  
-  # Retrieve the feature layer as an sf object
-  layer <- tryCatch(
-    getFeatureLayer(url),
-    error = function(e) stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+  stopifnot(
+    is.character(layerfilepath),
+    length(layerfilepath) == 1L,
+    nchar(layerfilepath) > 0L
   )
-  
+
+  if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
+    warning(
+      "layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension."
+    )
+  }
+
+  # Retrieve the feature layer as an sf object
+  layer <- tryCatch(getFeatureLayer(url), error = function(e) {
+    stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+  })
+
   # Avoid DBF name collisions after 10-char truncation
   # Special-case the known problematic fields first
   if ("TOTALAREA_MI" %in% names(layer)) {
@@ -1359,7 +1364,7 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   if ("TOTALAREA_KM" %in% names(layer)) {
     layer <- dplyr::rename(layer, TAREA_KM = TOTALAREA_KM)
   }
-  
+
   # Optionally sanitize all field names to <= 10 chars and ensure uniqueness
   if (isTRUE(sanitize_names)) {
     nm <- names(layer)
@@ -1373,10 +1378,10 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     nm_sanitized[keep] <- make.unique(nm_sanitized[keep], sep = "_")
     names(layer) <- nm_sanitized
   }
-  
+
   # Ensure output directory exists
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
-  
+
   # Overwrite the shapefile dataset (delete_dsn removes the entire set)
   ok <- tryCatch(
     {
@@ -1390,10 +1395,15 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
       TRUE
     },
     error = function(e) {
-      stop("st_write() failed for path: ", layerfilepath, " — ", conditionMessage(e))
+      stop(
+        "st_write() failed for path: ",
+        layerfilepath,
+        " — ",
+        conditionMessage(e)
+      )
     }
   )
-  
+
   invisible(normalizePath(layerfilepath, mustWork = FALSE))
 }
 
