@@ -2,24 +2,40 @@
 % Please edit documentation in R/Utilities.R
 \name{writeLayer}
 \alias{writeLayer}
-\title{Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.}
+\title{Download a shapefile from an API and save it locally (overwrite-safe)}
 \usage{
-writeLayer(url, layerfilepath)
+writeLayer(url, layerfilepath, sanitize_names = TRUE)
 }
 \arguments{
-\item{url}{URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
+\item{url}{Character(1). URL of the layer REST service, typically ending
+with "/query". Example:
+"https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"}
 
-\item{layerfilepath}{Local path to save the .shp file to}
+\item{layerfilepath}{Character(1). Local path for the output .shp, e.g.,
+"inst/extdata/OKTribe.shp".}
+
+\item{sanitize_names}{Logical. If TRUE, ensure all DBF field names are unique
+and at most 10 characters (default: TRUE).}
+}
+\value{
+Invisibly returns the normalized path to the .shp file.
 }
 \description{
-Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+Downloads a feature layer as an \code{sf} object and saves it to a local ESRI
+Shapefile. If a shapefile with the same base name exists, it is overwritten.
+}
+\details{
+Notes:
+\itemize{
+\item Shapefile attribute names are limited to 10 characters; they are truncated
+automatically by GDAL/DBF. This function preemptively renames
+\code{TOTALAREA_MI} and \code{TOTALAREA_KM} to avoid collisions after truncation.
+\item Directory for \code{layerfilepath} is created if it does not exist.
+}
 }
 \examples{
 \dontrun{
-# Get the Oklahoma Tribal Statistical Areas feature layer and write
-# local file to inst/extdata/OKTribe.shp
+# Get the Oklahoma Tribal Statistical Areas layer and write to inst/extdata/OKTribe.shp
 OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 }

@@ -2,23 +2,21 @@
 #'
 #' Downloads and refreshes cached tribal feature layers in `inst/extdata`,
 #' replacing a shapefile set only when the layer content has actually changed.
-#' Messages indicate whether each layer was skipped (preflight or unchanged), 
-#' created, or updated.
 #'
-#' @details
-#' For each configured tribal layer URL, the function:
-#' - Optionally preflights ArcGIS layers via `?f=json` to read `lastEditDate`; if
-#'   unchanged and the destination exists, it skips downloading and canonicalization.
-#' - Loads the layer as `sf`, converts configured epoch-millisecond columns to `Date`,
-#'   computes a canonical signature (stable ordering and geometry as WKT), and compares
-#'   it to a cached signature in a sidecar RDS file. If identical, it skips writing.
-#' - Otherwise it removes the existing shapefile set and writes the new one via
-#'   `sf::st_write()`, then updates the sidecar cache (signature and lastEditDate).
+#' This variant avoids external hashing packages by computing a canonical
+#' signature (normalized attributes + geometry in WKT, rows/columns sorted)
+#' and caching it in a small sidecar RDS. Subsequent runs compare with
+#' `identical()` and skip writing when unchanged.
+#'
+#' Epoch-millisecond numeric columns (e.g., `DATE_MO`, `CURRENT`) are converted to
+#' DBF-compatible `Date` to avoid GDAL warnings about values too large for field width.
 #'
 #' @section Dependencies:
-#' - Imports/Suggests: `sf`, `jsonlite` (optional, for ArcGIS preflight).
-#' - Requires a writer function: `EPATADA::writeLayer(url, out_path)` that writes
-#'   an ESRI shapefile set using `out_path` as the base name (e.g., `"x.shp"`).
+#' - Imports: `sf`
+#' - Suggests (optional preflight): `jsonlite`
+#'
+#' @return Invisibly returns `TRUE`. Messages indicate whether each layer was
+#' skipped (preflight or unchanged), created, or updated.
 #'
 #' @seealso
 #' sf::st_read(), sf::st_write(), jsonlite::fromJSON()
@@ -32,6 +30,16 @@
 #' @keywords internal
 #' @noRd
 TADA_UpdateTribalLayers <- function() {
+  
+  # ---- Resolve internal EPATADA objects without requiring export ----
+  ns_get <- function(name) {
+    ns <- asNamespace("EPATADA")
+    if (exists(name, envir = ns, inherits = FALSE)) {
+      get(name, envir = ns, inherits = FALSE)
+    } else {
+      stop("Object '", name, "' not found in EPATADA namespace.")
+    }
+  }
   
   # ---- Sidecar metadata (canonical signature + lastEditDate) ----
   meta_path <- function(dest_shp) {
@@ -50,10 +58,10 @@ TADA_UpdateTribalLayers <- function() {
     saveRDS(meta, meta_path(dest_shp))
   }
   
-  # ---- Preflight: ArcGIS lastEditDate (optional) ----
+  # ---- Preflight: ArcGIS lastEditDate (optional, requires jsonlite) ----
   get_arcgis_last_edit <- function(url) {
     if (!requireNamespace("jsonlite", quietly = TRUE)) return(NULL)
-    is_arcgis <- grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
     if (!is_arcgis) return(NULL)
     u <- paste0(sub("[?].*$", "", url), if (grepl("[?]", url)) "&" else "?", "f=json")
     out <- tryCatch(jsonlite::fromJSON(u, simplifyVector = TRUE),
@@ -69,24 +77,18 @@ TADA_UpdateTribalLayers <- function() {
   
   # ---- Canonical signature: attributes + geometry (WKT), sorted deterministically ----
   canonical_signature <- function(s, digits = 8, num_round = 6) {
-    # Drop Z/M to avoid noise
     s <- sf::st_zm(s, drop = TRUE, what = "ZM")
-    # Geometry -> text with fixed precision
     wkt <- sf::st_as_text(sf::st_geometry(s), digits = digits)
     x   <- sf::st_set_geometry(s, NULL)
     x[[".__WKT__"]] <- wkt
     
-    # Stabilize types/values
     is_factor <- vapply(x, is.factor, logical(1))
     if (any(is_factor)) x[is_factor] <- lapply(x[is_factor], as.character)
     
     is_num <- vapply(x, is.numeric, logical(1))
     if (any(is_num)) x[is_num] <- lapply(x[is_num], function(col) round(col, num_round))
     
-    # Order columns for stability
     x <- x[, order(names(x)), drop = FALSE]
-    
-    # Ensure atomic for ordering
     for (nm in names(x)) if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
     ord <- do.call(order, c(x, list(na.last = TRUE)))
     x[ord, , drop = FALSE]
@@ -126,7 +128,7 @@ TADA_UpdateTribalLayers <- function() {
     dir.create(tmp_dir)
     on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
     tmp_shp <- file.path(tmp_dir, "layer.shp")
-    EPATADA::writeLayer(url, tmp_shp)
+    ns_get("writeLayer")(url, tmp_shp)
     tryCatch(sf::st_read(tmp_shp, quiet = TRUE),
              error = function(e) stop("Failed to read temp shapefile: ", e$message))
   }
@@ -137,7 +139,7 @@ TADA_UpdateTribalLayers <- function() {
   update_one <- function(url, dest_shp) {
     if (!has_sf) {
       message("sf not available; writing ", basename(dest_shp), " unconditionally.")
-      EPATADA::writeLayer(url, dest_shp)
+      ns_get("writeLayer")(url, dest_shp)
       return(invisible(TRUE))
     }
     
@@ -158,7 +160,6 @@ TADA_UpdateTribalLayers <- function() {
     sig_new <- canonical_signature(s_new)
     if (!is.null(meta) && !is.null(meta$sig) &&
         isTRUE(file.exists(dest_shp)) && identical(meta$sig, sig_new)) {
-      # Update meta with new last_edit (if available) and return
       write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
       message(basename(dest_shp), " unchanged — skipping write.")
       return(invisible(FALSE))
@@ -177,12 +178,12 @@ TADA_UpdateTribalLayers <- function() {
   }
   
   # ---- Run updates (sequential; parallelize outside if desired) ----
-  update_one(EPATADA::AKAllotmentsUrl,   "inst/extdata/AKAllotments.shp")
-  update_one(EPATADA::AKVillagesUrl,     "inst/extdata/AKVillages.shp")
-  update_one(EPATADA::AmericanIndianUrl, "inst/extdata/AmericanIndian.shp")
-  update_one(EPATADA::OffReservationUrl, "inst/extdata/OffReservation.shp")
-  update_one(EPATADA::OKTribeUrl,        "inst/extdata/OKTribe.shp")
-  update_one(EPATADA::VATribeUrl,        "inst/extdata/VATribe.shp")
+  update_one(ns_get("AKAllotmentsUrl"),   "inst/extdata/AKAllotments.shp")
+  update_one(ns_get("AKVillagesUrl"),     "inst/extdata/AKVillages.shp")
+  update_one(ns_get("AmericanIndianUrl"), "inst/extdata/AmericanIndian.shp")
+  update_one(ns_get("OffReservationUrl"), "inst/extdata/OffReservation.shp")
+  update_one(ns_get("OKTribeUrl"),        "inst/extdata/OKTribe.shp")
+  update_one(ns_get("VATribeUrl"),        "inst/extdata/VATribe.shp")
   
   invisible(TRUE)
 }

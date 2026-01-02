@@ -1310,32 +1310,92 @@ getFeatureLayer <- function(url, bbox = NULL) {
   return(layer)
 }
 
-
-#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
-#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#' Download a shapefile from an API and save it locally (overwrite-safe)
 #'
-#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param layerfilepath Local path to save the .shp file to
+#' Downloads a feature layer as an `sf` object and saves it to a local ESRI
+#' Shapefile. If a shapefile with the same base name exists, it is overwritten.
+#'
+#' Notes:
+#' - Shapefile attribute names are limited to 10 characters; they are truncated
+#'   automatically by GDAL/DBF. This function preemptively renames
+#'   `TOTALAREA_MI` and `TOTALAREA_KM` to avoid collisions after truncation.
+#' - Directory for `layerfilepath` is created if it does not exist.
+#'
+#' @param url Character(1). URL of the layer REST service, typically ending
+#'   with "/query". Example:
+#'   "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+#' @param layerfilepath Character(1). Local path for the output .shp, e.g.,
+#'   "inst/extdata/OKTribe.shp".
+#' @param sanitize_names Logical. If TRUE, ensure all DBF field names are unique
+#'   and at most 10 characters (default: TRUE).
+#'
+#' @return Invisibly returns the normalized path to the .shp file.
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer and write
-#' # local file to inst/extdata/OKTribe.shp
+#' # Get the Oklahoma Tribal Statistical Areas layer and write to inst/extdata/OKTribe.shp
 #' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
 #' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
 #' }
-writeLayer <- function(url, layerfilepath) {
-  layer <- getFeatureLayer(url)
-  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
-  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
-  # truncated, so explicitly rename them first if they exist to avoid error.
-  if ("TOTALAREA_MI" %in% colnames(layer)) {
-    layer <- layer |>
-      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
+writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
+  stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
+  stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
+  
+  if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
+    warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
   }
-  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
+  
+  # Retrieve the feature layer as an sf object
+  layer <- tryCatch(
+    getFeatureLayer(url),
+    error = function(e) stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+  )
+  
+  # Avoid DBF name collisions after 10-char truncation
+  # Special-case the known problematic fields first
+  if ("TOTALAREA_MI" %in% names(layer)) {
+    layer <- dplyr::rename(layer, TAREA_MI = TOTALAREA_MI)
+  }
+  if ("TOTALAREA_KM" %in% names(layer)) {
+    layer <- dplyr::rename(layer, TAREA_KM = TOTALAREA_KM)
+  }
+  
+  # Optionally sanitize all field names to <= 10 chars and ensure uniqueness
+  if (isTRUE(sanitize_names)) {
+    nm <- names(layer)
+    # Leave geometry column alone
+    geom_col <- attr(layer, "sf_column") %||% "geometry"
+    keep <- nm != geom_col
+    nm_sanitized <- nm
+    nm_sanitized[keep] <- tolower(gsub("[^A-Za-z0-9_]", "_", nm[keep]))
+    nm_sanitized[keep] <- substr(nm_sanitized[keep], 1L, 10L)
+    # Ensure uniqueness deterministically
+    nm_sanitized[keep] <- make.unique(nm_sanitized[keep], sep = "_")
+    names(layer) <- nm_sanitized
+  }
+  
+  # Ensure output directory exists
+  dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
+  
+  # Overwrite the shapefile dataset (delete_dsn removes the entire set)
+  ok <- tryCatch(
+    {
+      sf::st_write(
+        layer,
+        layerfilepath,
+        delete_dsn = TRUE,
+        quiet = TRUE,
+        layer_options = c("ENCODING=UTF-8")
+      )
+      TRUE
+    },
+    error = function(e) {
+      stop("st_write() failed for path: ", layerfilepath, " — ", conditionMessage(e))
+    }
+  )
+  
+  invisible(normalizePath(layerfilepath, mustWork = FALSE))
 }
-
 
 #' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
 #' getLayer is used within TADA_addPolys and TADA_addPoints
