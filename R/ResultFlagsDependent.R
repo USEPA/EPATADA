@@ -590,27 +590,41 @@ TADA_FlagResultUnit <- function(.data, clean = "none", flaggedonly = FALSE) {
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 #'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # Check if the input .data is NULL
+  # If input is NULL, return a zero-row tibble with minimal expected columns
   if (is.null(.data)) {
     warning(
-      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
+      "TADA_FindQCActivities: The input dataframe is NULL. Returning an empty dataframe."
     )
-    return(NULL)
+    empty <- tibble::tibble(
+      ActivityTypeCode = character(0),
+      TADA.ActivityType.Flag = character(0)
+    )
+    return(empty)
   }
-  # check .data is data.frame and has required columns
+  
+  # Check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
-  # check that clean is boolean
-  TADA_CheckType(clean, "logical")
-  # check flaggedonly is boolean
+  # Normalize and validate 'clean'
+  # Backward compatibility: logical TRUE -> "all", FALSE -> "none"
+  if (is.logical(clean)) {
+    clean <- ifelse(isTRUE(clean), "all", "none")
+  }
+  allowed_clean <- c("none", "all", "duplicates", "blanks", "calibrations", "other")
+  if (is.na(clean) || !(clean %in% allowed_clean)) {
+    stop("TADA_FindQCActivities: 'clean' must be one of: ",
+         paste(allowed_clean, collapse = ", "),
+         " (or a logical TRUE/FALSE for backward compatibility).")
+  }
+  
+  # Check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-
-  # execute function after checks are passed
-  # delete existing flag column
-  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
+  
+  # Delete existing flag column if present
+  if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
   }
-
-  # load in ActivityTypeRef Table
+  
+  # Load ActivityType reference table
   qc.ref <- utils::read.csv(system.file(
     "extdata",
     "WQXActivityTypeRef.csv",
@@ -618,9 +632,8 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   )) |>
     dplyr::rename(ActivityTypeCode = Code) |>
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
-
-  # identify any Activity Type Codes not in reference table
-  # these are likely USGS only values
+  
+  # Identify any Activity Type Codes not in reference table (likely USGS-only values)
   codes <- unique(.data$ActivityTypeCode)
   if (any(!codes %in% qc.ref$ActivityTypeCode)) {
     missing_codes <- codes[!codes %in% qc.ref$ActivityTypeCode]
@@ -629,63 +642,91 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.ActivityType.Flag = "Not Reviewed"
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
-    missing_codes <- paste(missing_codes, collapse = ", ")
-    print(paste0(
+    missing_codes_str <- paste(missing_codes, collapse = ", ")
+    message(paste0(
       "TADA_FindQCActivities: ActivityTypeCode column in dataset contains value(s) ",
-      missing_codes,
-      " which is/are not in the ActivityType WQX domain table. These data records are USGS only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please review these carefully to detemine data usability."
+      missing_codes_str,
+      " which is/are not in the ActivityType WQX domain table. These data records ",
+      "are USGS-only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. ",
+      "Please review these carefully to determine data usability."
     ))
   }
-
-  # populate flag column in data
-  flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode")
-  flag.data <- flag.data |> dplyr::distinct()
-
-  # clean dataframe
-  # if clean = FALSE, return full dataframe
-  if (clean == FALSE) {
+  
+  # Populate flag column in data
+  flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode") |>
+    dplyr::distinct()
+  
+  # Treat missing flags (e.g., NA ActivityTypeCode) as "Not Reviewed"
+  flag.data$TADA.ActivityType.Flag[is.na(flag.data$TADA.ActivityType.Flag)] <- "Not Reviewed"
+  
+  # Clean dataframe according to 'clean'
+  if (clean == "none") {
     clean.data <- flag.data
-  }
-  # if clean = TRUE, remove flagged data
-  if (clean == TRUE) {
-    clean.data <- dplyr::filter(
-      flag.data,
-      flag.data$TADA.ActivityType.Flag == "Non_QC"
+  } else if (clean == "all") {
+    # Keep only Non_QC rows
+    clean.data <- dplyr::filter(flag.data, TADA.ActivityType.Flag == "Non_QC")
+  } else {
+    # Remove only specified QC category
+    remove_flags <- switch(clean,
+                           duplicates   = "QC_duplicate",
+                           blanks       = "QC_blank",
+                           calibrations = "QC_calibration",
+                           other        = "QC_other"
     )
+    clean.data <- dplyr::filter(flag.data, !(TADA.ActivityType.Flag %in% remove_flags))
   }
-
-  # if flaggedonly = FALSE, return full clean dataframe
-  if (flaggedonly == FALSE) {
-    final.data <- clean.data
-    # if the dataframe is empty, print message
-    if (nrow(final.data) == 0) {
-      print(
-        "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed"
-      )
-    }
-    # if there are no flags, print message
-    if (sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
-      print(
-        "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
-      )
-    }
-  }
-
-  # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
-  if (flaggedonly == TRUE) {
-    # filter to review only samples that are not Non_QC
+  
+  # Determine final data based on flaggedonly
+  if (isTRUE(flaggedonly)) {
+    # Show only QC (non-Non_QC) rows
     final.data <- dplyr::filter(clean.data, TADA.ActivityType.Flag != "Non_QC")
-
-    # if the dataframe is empty, print message
+    
     if (nrow(final.data) == 0) {
-      print(
-        "TADA_FindQCActivities: This dataframe is empty because either we did not find any QC samples or because they were all removed"
+      message(
+        "TADA_FindQCActivities: This dataframe is empty because either we did not find any ",
+        "QC samples or because they were all removed."
+      )
+      # Return a zero-row dataframe with the same schema as the flagged data
+      final.data <- dplyr::slice(flag.data, 0)
+    }
+  } else {
+    final.data <- clean.data
+    # Informative messages
+    if (nrow(final.data) == 0) {
+      message(
+        "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed."
+      )
+    } else if (sum(final.data$TADA.ActivityType.Flag != "Non_QC", na.rm = TRUE) == 0) {
+      message(
+        "TADA_FindQCActivities: Quality control samples have been removed or were not present ",
+        "in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
       )
     }
   }
-
-  # order and return final dataframe
+  
+  # If final.data is empty, return it after attempting to order columns
+  if (nrow(final.data) == 0) {
+    final.data <- tryCatch(
+      TADA_OrderCols(final.data),
+      error = function(e) final.data
+    )
+    return(final.data)
+  }
+  
+  # For non-empty data, proceed with ID creation and column ordering
   final.data <- TADA_CreateComparableID(final.data)
+  
+  # Guard in case downstream function returns NULL unexpectedly
+  if (is.null(final.data)) {
+    warning("TADA_FindQCActivities: TADA_CreateComparableID returned NULL. Returning an empty dataframe.")
+    final.data <- dplyr::slice(clean.data, 0)
+    final.data <- tryCatch(
+      TADA_OrderCols(final.data),
+      error = function(e) final.data
+    )
+    return(final.data)
+  }
+  
   final.data <- TADA_OrderCols(final.data)
   return(final.data)
 }
