@@ -64,6 +64,7 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -320,6 +321,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADAColTypeRef
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -404,13 +406,10 @@ checkColNames
 cleanNA
 coli
 comid
-correctColType
 countrycode
 countycode
 cristinamullin
 criteriaMethods
-crosswalked
-crosswalking
 crs
 csv
 cwa
@@ -520,6 +519,7 @@ tada
 terra
 testthat
 th
+tibble
 tidyverse
 tigris
 tmap
