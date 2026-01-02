@@ -235,7 +235,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     names(DefineCriteriaMethodology) <- desired_cols
 
-    DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
+    DefineCriteriaMethodology <- EPATADA::TADA_CorrectColType(DefineCriteriaMethodology)
   } else {
     # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {
@@ -535,7 +535,7 @@ TADA_DefineCriteriaMethodology <- function(
     # as an option and will include these values if they have been populated.
     if (!is.null(MLSummaryRef)) {
       # corrects for data types
-      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
+      MLSummaryRef <- EPATADA::TADA_CorrectColType(MLSummaryRef)
       # Extracts the characteristic, speciation and fraction columns to join
       MLSummaryRef <- MLSummaryRef |>
         dplyr::right_join(
@@ -620,7 +620,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      DefineCriteriaMethodology <- TADA_CorrectColType(
+      DefineCriteriaMethodology <- EPATADA::TADA_CorrectColType(
         DefineCriteriaMethodology
       )
     }
@@ -842,14 +842,14 @@ TADA_DefineCriteriaMethodology <- function(
       package = "EPATADA"
     ))
     if (missing(.data)) {
-      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
+      epa304a <- suppressWarnings(EPATADA::TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>
         dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName))
     }
     if (!missing(.data)) {
-      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
+      epa304a <- suppressWarnings(EPATADA::TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>

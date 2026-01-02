@@ -336,7 +336,7 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
 
 test_that("TADA_CorrectColType applies expected classes from reference", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  out <- TADA_CorrectColType(testdat)
+  out <- EPATADA::TADA_CorrectColType(testdat)
 
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   expect_true(nzchar(ref_path) && file.exists(ref_path))
@@ -393,7 +393,7 @@ test_that("TADA_CorrectColType coerces from character to expected classes", {
     testdat[[nm]] <- as.character(testdat[[nm]])
   }
 
-  out <- TADA_CorrectColType(testdat)
+  out <- EPATADA::TADA_CorrectColType(testdat)
 
   check_col_class <- function(x, type) {
     type <- tolower(type)
@@ -427,7 +427,7 @@ test_that("TADA_CorrectColType leaves unknown columns unchanged", {
   unknown_vals <- rep(1:3, length.out = nrow(testdat))
   testdat$Unknown_Column_For_Test <- unknown_vals
 
-  out <- TADA_CorrectColType(testdat)
+  out <- EPATADA::TADA_CorrectColType(testdat)
 
   expect_true("Unknown_Column_For_Test" %in% names(out))
   expect_identical(out$Unknown_Column_For_Test, unknown_vals)
@@ -490,7 +490,7 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
   }
 
   expect_warning(
-    TADA_CorrectColType(bad),
+    EPATADA::TADA_CorrectColType(bad),
     regexp = "introduced .* additional NA",
     info = paste0("Expected coercion to introduce NA in column '", nm, "'")
   )

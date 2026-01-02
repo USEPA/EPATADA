@@ -1939,7 +1939,7 @@ TADA_GetATTAINSByAUID <- function(
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
-      TADA_CorrectColType() |>
+      EPATADA::TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # In this case we'll need to return empty ATTAINS objects
@@ -2183,7 +2183,7 @@ TADA_GetATTAINSByAUID <- function(
   # remove unnecessary column from attains.geo
   attains.geo <- attains.geo |>
     dplyr::select(-assessmentunitidentifier) |>
-    TADA_CorrectColType()
+    EPATADA::TADA_CorrectColType()
 
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
@@ -2288,7 +2288,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
-    TADA_CorrectColType() |>
+    EPATADA::TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
     renameATTAINSCols() |>
@@ -3897,7 +3897,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
     # correct column types and filter out invalid geometries for each dataframe
-    user <- TADA_CorrectColType(user[[df.name]])
+    user <- EPATADA::TADA_CorrectColType(user[[df.name]])
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
       # ADDED: tryCatch around st_make_valid to tolerate GEOS/GDAL issues on servers
@@ -3944,7 +3944,7 @@ TADA_CreateAUMLCrosswalk <- function(
       }
     }
 
-    attains <- TADA_CorrectColType(attains[[df.name]])
+    attains <- EPATADA::TADA_CorrectColType(attains[[df.name]])
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
       attains <- tryCatch(sf::st_make_valid(attains), error = function(e) {
@@ -3987,7 +3987,7 @@ TADA_CreateAUMLCrosswalk <- function(
       }
     }
 
-    get.attains <- TADA_CorrectColType(get.attains[[df.name]])
+    get.attains <- EPATADA::TADA_CorrectColType(get.attains[[df.name]])
 
     if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
       get.attains <- tryCatch(

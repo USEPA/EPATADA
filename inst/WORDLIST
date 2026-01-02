@@ -405,7 +405,6 @@ checkColNames
 cleanNA
 coli
 comid
-correctColType
 countrycode
 countycode
 cristinamullin
