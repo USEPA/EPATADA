@@ -983,7 +983,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # Check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -991,19 +991,23 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+  
+  # If zero rows, add an empty character column and return (type-stable; never returns NULL)
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    message("TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added.")
+    return(.data)
   }
-
+  
+  # Create the ComparableDataIdentifier (coerce to character to avoid factor issues)
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
-    .data$TADA.ResultSampleFractionText,
-    .data$TADA.MethodSpeciationName,
-    .data$TADA.ResultMeasure.MeasureUnitCode,
+    as.character(.data$TADA.CharacteristicName),
+    as.character(.data$TADA.ResultSampleFractionText),
+    as.character(.data$TADA.MethodSpeciationName),
+    as.character(.data$TADA.ResultMeasure.MeasureUnitCode),
     sep = "_"
   )
+  
   return(.data)
 }
 
