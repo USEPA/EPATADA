@@ -3330,6 +3330,70 @@ TADA_CreateAUMLCrosswalk <- function(
   return_nearest = TRUE,
   batch_upload = FALSE
 ) {
+  # ADDED: Defensive checks to fail early if required packages are missing.
+  # This is particularly helpful on Shiny servers where system dependencies differ from local.
+  stopifnot(requireNamespace("sf", quietly = TRUE))
+  stopifnot(requireNamespace("dplyr", quietly = TRUE))
+  stopifnot(requireNamespace("purrr", quietly = TRUE))
+  stopifnot(requireNamespace("stringi", quietly = TRUE))
+  stopifnot(requireNamespace("spsUtil", quietly = TRUE))
+  stopifnot(requireNamespace("httr", quietly = TRUE))
+
+  # ADDED: Increase timeout for remote calls (can be overridden by user via options(timeout))
+  # Many hosted environments have low default timeouts; increase for ATTAINS queries.
+  if (getOption("timeout") < 120) {
+    options(timeout = 120)
+  }
+
+  # ADDED: Pre-initialize objects that are referenced conditionally later.
+  # In Shiny, org_id may be NULL at startup; initializing avoids "object not found".
+  attains.cw <- NULL
+  attains.cw.mls <- NULL
+  au.ref.mls <- NULL
+
+  # ADDED: In Shiny, inputs often start as NULL. To ensure ATTAINS is actually queried,
+  # coerce NULL org_id to "all" unless the user explicitly set "none".
+  if (is.null(org_id)) {
+    print(
+      "TADA_CreateAUMLCrosswalk: org_id is NULL; defaulting to 'all' so ATTAINS will be queried. Set org_id = 'none' to skip."
+    )
+    org_id <- "all"
+  }
+
+  # ADDED: Preflight connectivity check to ATTAINS. This surfaces network/proxy issues up front
+  preflight_attains <- function(timeout_sec = getOption("timeout", 120)) {
+    tryCatch(
+      {
+        t0 <- Sys.time()
+        print(paste0(
+          "Preflight: checking ATTAINS connectivity at ",
+          t0,
+          " (timeout=",
+          timeout_sec,
+          "s)"
+        ))
+        resp <- httr::GET(
+          "https://attains.epa.gov/attains-public/api/domains/organizations",
+          httr::timeout(timeout_sec)
+        )
+        httr::stop_for_status(resp)
+        t1 <- Sys.time()
+        print(paste0(
+          "Preflight: ATTAINS reachable at ",
+          t1,
+          " (elapsed ",
+          round(as.numeric(difftime(t1, t0, units = "secs")), 1),
+          " s)"
+        ))
+        TRUE
+      },
+      error = function(e) {
+        message("Preflight: ATTAINS connectivity failed: ", conditionMessage(e))
+        FALSE
+      }
+    )
+  }
+
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,
@@ -3404,12 +3468,62 @@ TADA_CreateAUMLCrosswalk <- function(
         ) |>
         dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
 
-      if (dim(au.ref.mls)[1] > 0) {
+      if (nrow(au.ref.mls) > 0) {
         # get geospatial data for au_ref monitoring locations
-        user.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
-          au.ref.mls,
-          au_ref = au_ref,
-          fill_ATTAINS_catch = fill_ATTAINS_catch
+        # ADDED: tryCatch to avoid hard failure if network or geospatial errors occur on server
+        # ADDED: timing instrumentation to confirm remote call latency
+        t0 <- Sys.time()
+        print(paste0(
+          "Starting ATTAINS geospatial fetch for user-supplied AUs at ",
+          t0,
+          if (isTRUE(fill_ATTAINS_catch)) {
+            " (fill_ATTAINS_catch=TRUE may increase runtime)"
+          } else {
+            ""
+          }
+        ))
+
+        # ADDED: Ensure ATTAINS preflight passes before attempting the call.
+        if (!preflight_attains()) {
+          message(
+            "Skipping TADA_GetATTAINSByAUID (user ref); ATTAINS not reachable."
+          )
+          user.matches <- list(
+            "TADA_with_ATTAINS" = NULL,
+            "ATTAINS_catchments" = NULL,
+            "ATTAINS_points" = NULL,
+            "ATTAINS_lines" = NULL,
+            "ATTAINS_polygons" = NULL
+          )
+        } else {
+          user.matches <- tryCatch(
+            spsUtil::quiet(TADA_GetATTAINSByAUID(
+              au.ref.mls,
+              au_ref = au_ref,
+              fill_ATTAINS_catch = fill_ATTAINS_catch
+            )),
+            error = function(e) {
+              message(
+                "TADA_GetATTAINSByAUID (user ref) failed: ",
+                conditionMessage(e)
+              )
+              list(
+                "TADA_with_ATTAINS" = NULL,
+                "ATTAINS_catchments" = NULL,
+                "ATTAINS_points" = NULL,
+                "ATTAINS_lines" = NULL,
+                "ATTAINS_polygons" = NULL
+              )
+            }
+          )
+        }
+        t1 <- Sys.time()
+        print(paste0(
+          "Finished ATTAINS geospatial fetch for user-supplied AUs at ",
+          t1,
+          " (elapsed ",
+          round(as.numeric(difftime(t1, t0, units = "secs")), 1),
+          " s)"
         ))
 
         # add AUIDs if user ref contained AUs not found in ATTAINS
@@ -3425,18 +3539,23 @@ TADA_CreateAUMLCrosswalk <- function(
           )
 
         # replace NA AUIDs with AUID from user ref where possible
-        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
-          dplyr::left_join(user.aus) |>
-          dplyr::mutate(
-            ATTAINS.AssessmentUnitIdentifier = ifelse(
-              is.na(ATTAINS.AssessmentUnitIdentifier) &
-                !is.na(UserRef.AssessmentUnitIdentifier),
-              UserRef.AssessmentUnitIdentifier,
-              ATTAINS.AssessmentUnitIdentifier
-            )
-          ) |>
-          dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
-          dplyr::distinct()
+        if (!is.null(user.matches$TADA_with_ATTAINS)) {
+          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
+            dplyr::left_join(
+              user.aus,
+              by = "TADA.MonitoringLocationIdentifier"
+            ) |>
+            dplyr::mutate(
+              ATTAINS.AssessmentUnitIdentifier = ifelse(
+                is.na(ATTAINS.AssessmentUnitIdentifier) &
+                  !is.na(UserRef.AssessmentUnitIdentifier),
+                UserRef.AssessmentUnitIdentifier,
+                ATTAINS.AssessmentUnitIdentifier
+              )
+            ) |>
+            dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
+            dplyr::distinct()
+        }
 
         # remove intermediate object
         rm(user.aus)
@@ -3457,7 +3576,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (!is.null(org_id)) {
-    if (org_id == "none" | is.null(org_id)) {
+    if (any(org_id == "none") | is.null(org_id)) {
       print(paste0(
         "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
         "should not be checked for monitoring location and assessment unit matches."
@@ -3466,11 +3585,37 @@ TADA_CreateAUMLCrosswalk <- function(
   }
 
   # if an org id is provided, ATTAINS is checked for a crosswalk
-  if (format(org_id) != "none" & !is.null(org_id)) {
+  # ADDED: robust, vector-safe org_id handling. Avoids use of format() which is brittle in if() conditions.
+  if (!is.null(org_id) && !any(org_id == "none")) {
     print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
 
+    # ADDED: timing around crosswalk query
+    t0 <- Sys.time()
+    print(paste0("Starting ATTAINS crosswalk query at ", t0))
+
     # get crosswalk from ATTAINS
-    attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
+    # ADDED: tryCatch to tolerate API/network failures on server; preflight check
+    if (!preflight_attains()) {
+      message("Skipping TADA_GetATTAINSAUMLCrosswalk; ATTAINS not reachable.")
+      attains.cw <- NULL
+    } else {
+      attains.cw <- tryCatch(
+        spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id)),
+        error = function(e) {
+          message("TADA_GetATTAINSAUMLCrosswalk failed: ", conditionMessage(e))
+          NULL
+        }
+      )
+    }
+
+    t1 <- Sys.time()
+    print(paste0(
+      "Finished ATTAINS crosswalk query at ",
+      t1,
+      " (elapsed ",
+      round(as.numeric(difftime(t1, t0, units = "secs")), 1),
+      " s)"
+    ))
 
     # create string to describe ATTAINS orgs for print message
     org.text <- ifelse(
@@ -3484,7 +3629,8 @@ TADA_CreateAUMLCrosswalk <- function(
     )
 
     # count number of records from ATTAINS crosswalk
-    record.count <- dim(attains.cw)[1]
+    # ADDED: guard for NULL attains.cw
+    record.count <- if (!is.null(attains.cw)) nrow(attains.cw) else 0
 
     # create text to describe number of records
     count.text <- ifelse(record.count == 0, "no", record.count)
@@ -3502,7 +3648,8 @@ TADA_CreateAUMLCrosswalk <- function(
     rm(org.text, record.count, count.text)
   }
 
-  if (dim(attains.cw)[1] > 0) {
+  # ADDED: guard against NULL before using attains.cw
+  if (!is.null(attains.cw) && nrow(attains.cw) > 0) {
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
     # we could remove or make this step optional, but it is helpful for making sure
@@ -3528,7 +3675,7 @@ TADA_CreateAUMLCrosswalk <- function(
     rm(tada.mls)
 
     # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
-    if (!is.null(au_ref)) {
+    if (!is.null(au_ref) && !is.null(au.ref.mls)) {
       attains.cw.mls <- .data |>
         dplyr::filter(
           !TADA.MonitoringLocationIdentifier %in%
@@ -3548,7 +3695,7 @@ TADA_CreateAUMLCrosswalk <- function(
     }
 
     # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
-    if (dim(attains.cw.mls)[1] == 0) {
+    if (is.null(attains.cw.mls) || nrow(attains.cw.mls) == 0) {
       attains.matches <- list(
         "TADA_with_ATTAINS" = NULL,
         "ATTAINS_catchments" = NULL,
@@ -3566,10 +3713,59 @@ TADA_CreateAUMLCrosswalk <- function(
         "for assessment units from the ATTAINS crosswalk."
       ))
       # get geospatial data for attains cw monitoring locations
-      attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
-        attains.cw.mls,
-        au_ref = attains.cw,
-        fill_ATTAINS_catch = fill_ATTAINS_catch
+      # ADDED: tryCatch to guard remote/geospatial errors
+      # ADDED: timing instrumentation to confirm remote call latency
+      t0 <- Sys.time()
+      print(paste0(
+        "Starting ATTAINS geospatial fetch for ATTAINS crosswalk AUs at ",
+        t0,
+        if (isTRUE(fill_ATTAINS_catch)) {
+          " (fill_ATTAINS_catch=TRUE may increase runtime)"
+        } else {
+          ""
+        }
+      ))
+
+      if (!preflight_attains()) {
+        message(
+          "Skipping TADA_GetATTAINSByAUID (ATTAINS cw); ATTAINS not reachable."
+        )
+        attains.matches <- list(
+          "TADA_with_ATTAINS" = NULL,
+          "ATTAINS_catchments" = NULL,
+          "ATTAINS_points" = NULL,
+          "ATTAINS_lines" = NULL,
+          "ATTAINS_polygons" = NULL
+        )
+      } else {
+        attains.matches <- tryCatch(
+          spsUtil::quiet(TADA_GetATTAINSByAUID(
+            attains.cw.mls,
+            au_ref = attains.cw,
+            fill_ATTAINS_catch = fill_ATTAINS_catch
+          )),
+          error = function(e) {
+            message(
+              "TADA_GetATTAINSByAUID (ATTAINS cw) failed: ",
+              conditionMessage(e)
+            )
+            list(
+              "TADA_with_ATTAINS" = NULL,
+              "ATTAINS_catchments" = NULL,
+              "ATTAINS_points" = NULL,
+              "ATTAINS_lines" = NULL,
+              "ATTAINS_polygons" = NULL
+            )
+          }
+        )
+      }
+      t1 <- Sys.time()
+      print(paste0(
+        "Finished ATTAINS geospatial fetch for ATTAINS crosswalk AUs at ",
+        t1,
+        " (elapsed ",
+        round(as.numeric(difftime(t1, t0, units = "secs")), 1),
+        " s)"
       ))
     }
 
@@ -3586,7 +3782,8 @@ TADA_CreateAUMLCrosswalk <- function(
 
   get.attains.mls <- .data
 
-  if (!is.null(attains.matches$TADA_with_ATTAINS)) {
+  # ADDED: Guard both the matched list and the source index (attains.cw.mls) to avoid referencing NULL
+  if (!is.null(attains.matches$TADA_with_ATTAINS) && !is.null(attains.cw.mls)) {
     get.attains.mls <- get.attains.mls |>
       dplyr::filter(
         !TADA.MonitoringLocationIdentifier %in%
@@ -3594,7 +3791,7 @@ TADA_CreateAUMLCrosswalk <- function(
       )
   }
 
-  if (!is.null(user.matches$TADA_with_ATTAINS)) {
+  if (!is.null(user.matches$TADA_with_ATTAINS) && !is.null(au.ref.mls)) {
     get.attains.mls <- get.attains.mls |>
       dplyr::filter(
         !TADA.MonitoringLocationIdentifier %in%
@@ -3606,7 +3803,7 @@ TADA_CreateAUMLCrosswalk <- function(
   }
 
   # add code here for if there are no remaining mls to match
-  if (dim(get.attains.mls)[1] == 0) {
+  if (nrow(get.attains.mls) == 0) {
     print(paste0(
       "TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
       "already been matched to an assessment unit by the user or ATTAINS."
@@ -3621,7 +3818,7 @@ TADA_CreateAUMLCrosswalk <- function(
     )
   }
 
-  if (dim(get.attains.mls)[1] > 0) {
+  if (nrow(get.attains.mls) > 0) {
     print(
       "TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit."
     )
@@ -3631,12 +3828,43 @@ TADA_CreateAUMLCrosswalk <- function(
       dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
     # use get attains for matching remaining monitoring locations
-    get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
-      get.attains.mls,
-      return_nearest = return_nearest,
-      fill_USGS_catch = fill_USGS_catch,
-      return_sf = TRUE,
-      org_id = org_id
+    # ADDED: tryCatch to guard remote/geospatial errors
+    # ADDED: timing instrumentation to confirm remote call latency
+    t0 <- Sys.time()
+    print(paste0(
+      "Starting spatial matching via TADA_CreateATTAINSAUMLCrosswalk at ",
+      t0
+    ))
+
+    # ADDED: Even though this call may use local/cached data, we still run it;
+    # if it internally queries ATTAINS, preflight will help surface network issues.
+    # (Call left as-is; preflight is primarily for direct ATTAINS API calls above.)
+    get.attains.matches <- tryCatch(
+      spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
+        get.attains.mls,
+        return_nearest = return_nearest,
+        fill_USGS_catch = fill_USGS_catch,
+        return_sf = TRUE,
+        org_id = org_id
+      )),
+      error = function(e) {
+        message("TADA_CreateATTAINSAUMLCrosswalk failed: ", conditionMessage(e))
+        list(
+          "TADA_with_ATTAINS" = NULL,
+          "ATTAINS_catchments" = NULL,
+          "ATTAINS_points" = NULL,
+          "ATTAINS_lines" = NULL,
+          "ATTAINS_polygons" = NULL
+        )
+      }
+    )
+    t1 <- Sys.time()
+    print(paste0(
+      "Finished spatial matching via TADA_CreateATTAINSAUMLCrosswalk at ",
+      t1,
+      " (elapsed ",
+      round(as.numeric(difftime(t1, t0, units = "secs")), 1),
+      " s)"
     ))
   }
 
@@ -3662,65 +3890,140 @@ TADA_CreateAUMLCrosswalk <- function(
     user <- TADA_CorrectColType(user[[df.name]])
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
-      user <- sf::st_make_valid(user)
+      # ADDED: tryCatch around st_make_valid to tolerate GEOS/GDAL issues on servers
+      user <- tryCatch(sf::st_make_valid(user), error = function(e) {
+        message("st_make_valid (user) failed: ", conditionMessage(e))
+        user
+      })
     }
 
     if (!is.null(user) & df.name == "TADA_with_ATTAINS") {
-      user_geometry <- sf::st_as_sf(
-        user,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
+      # ADDED: Guard against missing coordinates which can occur if inputs have NA lat/long
+      # This avoids errors in st_as_sf on Shiny servers with incomplete data
+      if (
+        "TADA.LongitudeMeasure" %in%
+          names(user) &&
+          "TADA.LatitudeMeasure" %in% names(user)
+      ) {
+        user <- user |>
+          dplyr::filter(
+            !is.na(.data$TADA.LongitudeMeasure),
+            !is.na(.data$TADA.LatitudeMeasure)
+          )
+      }
+      user_geometry <- tryCatch(
+        sf::st_as_sf(
+          user,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        ),
+        error = function(e) {
+          message("st_as_sf (user geometry) failed: ", conditionMessage(e))
+          NULL
+        }
       )
 
-      geometry <- sf::st_geometry(user_geometry)
-
-      user$geometry <- geometry
-
-      user <- sf::st_as_sf(user)
-
-      rm(geometry)
+      if (!is.null(user_geometry)) {
+        geometry <- sf::st_geometry(user_geometry)
+        user$geometry <- geometry
+        user <- tryCatch(sf::st_as_sf(user), error = function(e) {
+          message("st_as_sf (user final) failed: ", conditionMessage(e))
+          user
+        })
+        rm(geometry)
+      }
     }
 
     attains <- TADA_CorrectColType(attains[[df.name]])
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
-      attains <- sf::st_make_valid(attains)
+      attains <- tryCatch(sf::st_make_valid(attains), error = function(e) {
+        message("st_make_valid (attains) failed: ", conditionMessage(e))
+        attains
+      })
     }
 
     if (!is.null(attains) & df.name == "TADA_with_ATTAINS") {
-      attains_geometry <- sf::st_as_sf(
-        attains,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
+      if (
+        "TADA.LongitudeMeasure" %in%
+          names(attains) &&
+          "TADA.LatitudeMeasure" %in% names(attains)
+      ) {
+        attains <- attains |>
+          dplyr::filter(
+            !is.na(.data$TADA.LongitudeMeasure),
+            !is.na(.data$TADA.LatitudeMeasure)
+          )
+      }
+      attains_geometry <- tryCatch(
+        sf::st_as_sf(
+          attains,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        ),
+        error = function(e) {
+          message("st_as_sf (attains geometry) failed: ", conditionMessage(e))
+          NULL
+        }
       )
-      geometry <- sf::st_geometry(attains_geometry)
-
-      attains$geometry <- geometry
-
-      attains <- sf::st_as_sf(attains)
-
-      rm(geometry)
+      if (!is.null(attains_geometry)) {
+        geometry <- sf::st_geometry(attains_geometry)
+        attains$geometry <- geometry
+        attains <- tryCatch(sf::st_as_sf(attains), error = function(e) {
+          message("st_as_sf (attains final) failed: ", conditionMessage(e))
+          attains
+        })
+        rm(geometry)
+      }
     }
 
     get.attains <- TADA_CorrectColType(get.attains[[df.name]])
 
     if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
-      get.attains <- sf::st_make_valid(get.attains)
+      get.attains <- tryCatch(
+        sf::st_make_valid(get.attains),
+        error = function(e) {
+          message("st_make_valid (get.attains) failed: ", conditionMessage(e))
+          get.attains
+        }
+      )
     }
 
     if (!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
-      get.attains_geometry <- sf::st_as_sf(
-        get.attains,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
+      if (
+        "TADA.LongitudeMeasure" %in%
+          names(get.attains) &&
+          "TADA.LatitudeMeasure" %in% names(get.attains)
+      ) {
+        get.attains <- get.attains |>
+          dplyr::filter(
+            !is.na(.data$TADA.LongitudeMeasure),
+            !is.na(.data$TADA.LatitudeMeasure)
+          )
+      }
+      get.attains_geometry <- tryCatch(
+        sf::st_as_sf(
+          get.attains,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        ),
+        error = function(e) {
+          message(
+            "st_as_sf (get.attains geometry) failed: ",
+            conditionMessage(e)
+          )
+          NULL
+        }
       )
-      geometry <- sf::st_geometry(get.attains_geometry)
-
-      get.attains$geometry <- geometry
-
-      get.attains <- sf::st_as_sf(get.attains)
-
-      rm(geometry)
+      if (!is.null(get.attains_geometry)) {
+        geometry <- sf::st_geometry(get.attains_geometry)
+        get.attains$geometry <- geometry
+        get.attains <- tryCatch(sf::st_as_sf(get.attains), error = function(e) {
+          message("st_as_sf (get.attains final) failed: ", conditionMessage(e))
+          get.attains
+        })
+        rm(geometry)
+      }
     }
 
     # Check if any of the inputs are not NULL
@@ -3844,14 +4147,25 @@ TADA_CreateAUMLCrosswalk <- function(
 
   # add nhd catchments without ATTAINS matches if user has selected this option
   if (fill_USGS_catch == TRUE) {
-    # add nhd catchment related dfs to output if required
-    final_list <- c(
-      final_list,
-      list(
-        "with_NHD_catchments" = get.attains.matches$without_ATTAINS_catchment
-      ),
-      list("TADA_with_NHD" = get.attains.matches$TADA_without_ATTAINS)
-    )
+    # ADDED: guard in case get.attains.matches does not include these elements (e.g., no unmatched MLs)
+    if (
+      exists("get.attains.matches") &&
+        !is.null(get.attains.matches$without_ATTAINS_catchment) &&
+        !is.null(get.attains.matches$TADA_without_ATTAINS)
+    ) {
+      # add nhd catchment related dfs to output if required
+      final_list <- c(
+        final_list,
+        list(
+          "with_NHD_catchments" = get.attains.matches$without_ATTAINS_catchment
+        ),
+        list("TADA_with_NHD" = get.attains.matches$TADA_without_ATTAINS)
+      )
+    } else {
+      message(
+        "fill_USGS_catch = TRUE, but there are no USGS catchment outputs to append (no unmatched MLs or matching failed)."
+      )
+    }
   }
 
   # remove intermediate objects
