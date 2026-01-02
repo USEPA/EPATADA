@@ -2,17 +2,17 @@
 test_that("TADA_Stats suggestions complete", {
   # Load example dataset shipped with the package
   utils::data(Data_6Tribes_5y_Harmonized, package = "EPATADA")
-  
+
   check <- TADA_Stats(Data_6Tribes_5y_Harmonized)
   expect_true(all(!is.na(check$ND_Estimation_Method)))
 })
 
 # Helper: build a clean, single-group subset from random data with a mix of flags
 make_clean_group <- function(
-    testdat,
-    target_n = 20,
-    nd_frac = 0.4,
-    od_frac = 0.2
+  testdat,
+  target_n = 20,
+  nd_frac = 0.4,
+  od_frac = 0.2
 ) {
   sub <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
   # If too few rows, recycle to reach target_n
@@ -21,11 +21,11 @@ make_clean_group <- function(
   } else {
     sub <- sub[seq_len(target_n), , drop = FALSE]
   }
-  
+
   # Single group identifier and unique ResultIdentifier
   sub$TADA.ComparableDataIdentifier <- "GroupA"
   sub$ResultIdentifier <- paste0("RID_", seq_len(nrow(sub)))
-  
+
   # Ensure MonitoringLocationIdentifier and DL types are populated
   sub$TADA.MonitoringLocationIdentifier[is.na(
     sub$TADA.MonitoringLocationIdentifier
@@ -33,7 +33,7 @@ make_clean_group <- function(
   sub$DetectionQuantitationLimitTypeName[is.na(
     sub$DetectionQuantitationLimitTypeName
   )] <- "DLX"
-  
+
   # Set flags with given fractions (ND < 50% to exercise KM/ROS branches)
   n <- nrow(sub)
   nd_n <- max(1L, floor(n * nd_frac))
@@ -42,7 +42,7 @@ make_clean_group <- function(
   nd_idx <- idx[seq_len(nd_n)]
   od_idx <- setdiff(idx, nd_idx)[seq_len(od_n)]
   nc_idx <- setdiff(idx, c(nd_idx, od_idx))
-  
+
   sub$TADA.CensoredData.Flag <- "Not-Censored"
   if (length(nd_idx)) {
     sub$TADA.CensoredData.Flag[nd_idx] <- "Non-Detect"
@@ -50,13 +50,13 @@ make_clean_group <- function(
   if (length(od_idx)) {
     sub$TADA.CensoredData.Flag[od_idx] <- "Over-Detect"
   }
-  
+
   # Ensure at least two DL types among ND to trigger KM when ND < 50%
   if (length(nd_idx) > 1) {
     dl_vals <- rep(c("DL_A", "DL_B"), length.out = length(nd_idx))
     sub$DetectionQuantitationLimitTypeName[nd_idx] <- dl_vals
   }
-  
+
   sub
 }
 
@@ -65,13 +65,13 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   sub <- make_clean_group(testdat, target_n = 20, nd_frac = 0.45, od_frac = 0.2)
   subf <- sub[!is.na(sub$TADA.ResultMeasureValue), , drop = FALSE]
-  
+
   out <- TADA_Stats(sub)
-  
+
   # structure
   expect_s3_class(out, c("tbl_df", "tbl", "data.frame"))
   expect_equal(nrow(out), 1L)
-  
+
   # counts and percentages
   expected_location_count <- length(unique(
     subf$TADA.MonitoringLocationIdentifier
@@ -85,7 +85,7 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
   expected_nd_lvls <- length(unique(subf$DetectionQuantitationLimitTypeName[
     subf$TADA.CensoredData.Flag == "Non-Detect"
   ]))
-  
+
   expect_equal(out$Location_Count, expected_location_count)
   expect_equal(out$Measurement_Count, expected_measurement_count)
   expect_equal(out$Non_Detect_Count, expected_nd_count)
@@ -93,7 +93,7 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
   expect_equal(out$Non_Detect_Pct, round(expected_nd_pct_raw, 1))
   expect_equal(out$Over_Detect_Pct, round(expected_over_pct_raw, 1))
   expect_equal(out$Non_Detect_Lvls, expected_nd_lvls)
-  
+
   # fences and continuous stats (default sig_figs = 3)
   q1 <- stats::quantile(subf$TADA.ResultMeasureValue, 0.25, na.rm = TRUE)
   q3 <- stats::quantile(subf$TADA.ResultMeasureValue, 0.75, na.rm = TRUE)
@@ -112,7 +112,7 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
     out$Max,
     signif(max(subf$TADA.ResultMeasureValue, na.rm = TRUE), 3)
   )
-  
+
   # percentiles
   p <- function(prob) {
     stats::quantile(subf$TADA.ResultMeasureValue, prob, na.rm = TRUE)
@@ -126,7 +126,7 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
   expect_equal(out$Percentile_85th, signif(p(0.85), 3))
   expect_equal(out$Percentile_95th, signif(p(0.95), 3))
   expect_equal(out$Percentile_98th, signif(p(0.98), 3))
-  
+
   # ND estimation method (raw ND pct, not rounded)
   expected_method <- {
     if (expected_nd_pct_raw == 0) {
@@ -149,17 +149,17 @@ test_that("TADA_Stats computes stats correctly for a single random group", {
 test_that("TADA_Stats respects additional grouping columns on random data", {
   set.seed(124)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   # Filter to non-NA results to avoid degenerate groups
   filtered <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
   out <- TADA_Stats(
     filtered,
     group_cols = c("TADA.MonitoringLocationIdentifier")
   )
-  
+
   # All rows should represent one location per group
   expect_true(all(out$Location_Count == 1L))
-  
+
   # Number of rows equals number of unique (ComparableID, Location) pairs
   expected_nrows <- nrow(unique(filtered[, c(
     "TADA.ComparableDataIdentifier",
@@ -173,12 +173,12 @@ test_that("TADA_Stats rounding parameters modify outputs on random data", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   sub <- make_clean_group(testdat, target_n = 15, nd_frac = 0.33, od_frac = 0.0)
   subf <- sub[!is.na(sub$TADA.ResultMeasureValue), , drop = FALSE]
-  
+
   out <- TADA_Stats(sub, sig_figs = 4, pct_digits = 0)
-  
+
   expected_mean <- signif(mean(subf$TADA.ResultMeasureValue, na.rm = TRUE), 4)
   expect_equal(out$Mean, expected_mean)
-  
+
   expected_nd_count <- sum(subf$TADA.CensoredData.Flag == "Non-Detect")
   total_flags <- length(subf$TADA.CensoredData.Flag)
   expect_equal(
@@ -190,11 +190,11 @@ test_that("TADA_Stats rounding parameters modify outputs on random data", {
 test_that("TADA_Stats prints notes for NA values and nutrient summation flag", {
   set.seed(127)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   # Inject an NA and add NutrientSummation flag
   testdat$TADA.ResultMeasureValue[1] <- NA_real_
   testdat$TADA.NutrientSummation.Flag <- TRUE
-  
+
   expect_output(
     TADA_Stats(testdat),
     regexp = "Dataset contains .* results missing.*Note: Your dataset contains TADA-generated total nutrient results",
@@ -205,7 +205,7 @@ test_that("TADA_Stats prints notes for NA values and nutrient summation flag", {
 test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (derived from random data)", {
   set.seed(128)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   # Helper to finalize DF: ensure required columns and unique ResultIdentifier
   finalize_df <- function(df) {
     df$ResultIdentifier <- paste0("RID_", seq_len(nrow(df)))
@@ -218,12 +218,12 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
     )] <- "DLX"
     df
   }
-  
+
   base <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
   if (nrow(base) < 60) {
     base <- base[rep(seq_len(nrow(base)), length.out = 60), , drop = FALSE]
   }
-  
+
   # Case A: ND_Pct > 80% => too high
   df_high <- finalize_df(base[seq_len(10), , drop = FALSE])
   df_high$TADA.CensoredData.Flag <- c(rep("Non-Detect", 9), "Not-Censored")
@@ -232,7 +232,7 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
     out_high$ND_Estimation_Method,
     "Percent censored too high for estimation methods"
   )
-  
+
   # Case B: 50% <= ND_Pct <= 80% and Measurement_Count >= 50 => MLE
   df_mle <- finalize_df(base[seq_len(60), , drop = FALSE])
   df_mle$TADA.CensoredData.Flag <- c(
@@ -246,7 +246,7 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
   expect_equal(out_mle$Measurement_Count, 60L)
   expect_equal(out_mle$Non_Detect_Pct, round(75, 1))
   expect_equal(out_mle$ND_Estimation_Method, "Maximum Likelihood Estimation")
-  
+
   # Case C: 50% <= ND_Pct <= 80% and Measurement_Count < 50 => ROS
   df_ros <- finalize_df(base[seq_len(40), , drop = FALSE])
   df_ros$TADA.CensoredData.Flag <- c(
@@ -263,13 +263,13 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
     out_ros$ND_Estimation_Method,
     "Robust Regression Order Statistics"
   )
-  
+
   # Case D: ND_Pct == 0 => No estimation
   df_none <- finalize_df(base[seq_len(20), , drop = FALSE])
   df_none$TADA.CensoredData.Flag <- rep("Not-Censored", nrow(df_none))
   out_none <- TADA_Stats(df_none)
   expect_equal(out_none$ND_Estimation_Method, "No non-detects to estimate")
-  
+
   # Case E: ND_Pct < 50 and ND levels > 1 => KM
   df_km <- finalize_df(base[seq_len(20), , drop = FALSE])
   df_km$TADA.CensoredData.Flag <- c(
@@ -287,16 +287,16 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
 test_that("TADA_Stats calls TADA_IDCensoredData when TADA.CensoredData.Flag is missing (single group)", {
   set.seed(126)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-  
+
   # Use a subset and remove the flag
   sub <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
-  sub <- sub[seq_len(min(50L, nrow(sub))), , drop = FALSE]  # more rows so single group has enough records
+  sub <- sub[seq_len(min(50L, nrow(sub))), , drop = FALSE] # more rows so single group has enough records
   sub$TADA.CensoredData.Flag <- NULL
-  
+
   # Filter to a single comparable group so TADA_Stats produces exactly one row
   one_grp <- sub$TADA.ComparableDataIdentifier[1]
   sub <- sub[sub$TADA.ComparableDataIdentifier == one_grp, , drop = FALSE]
-  
+
   # Mock TADA_IDCensoredData to create the missing flag based on value relative to median
   testthat::with_mocked_bindings(
     TADA_IDCensoredData = function(.data) {
@@ -314,7 +314,7 @@ test_that("TADA_Stats calls TADA_IDCensoredData when TADA.CensoredData.Flag is m
     {
       out <- TADA_Stats(sub)
       expect_equal(nrow(out), 1L)
-      
+
       # Expected ND count and pct (raw, not rounded) based on the same rule
       nd_count <- sum(
         sub$TADA.ResultMeasureValue <
@@ -322,14 +322,14 @@ test_that("TADA_Stats calls TADA_IDCensoredData when TADA.CensoredData.Flag is m
       )
       total <- nrow(sub)
       nd_pct_raw <- (nd_count / total) * 100
-      
+
       expect_equal(out$Non_Detect_Count, nd_count)
       expect_equal(out$Non_Detect_Pct, round(nd_pct_raw, 1))
-      
+
       # Use out's summarised fields for ND levels and measurement count
       nd_lvls_out <- out$Non_Detect_Lvls
       measurement_count_out <- out$Measurement_Count
-      
+
       # Mirror ND_Estimation_Method logic from TADA_Stats
       expected_method <- if (nd_pct_raw == 0) {
         "No non-detects to estimate"

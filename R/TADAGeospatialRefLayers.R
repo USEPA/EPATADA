@@ -30,7 +30,10 @@ TADA_UpdateTribalLayers <- function() {
   meta_path <- function(dest_shp) {
     meta_dir <- file.path(dirname(dest_shp), ".meta")
     dir.create(meta_dir, recursive = TRUE, showWarnings = FALSE)
-    file.path(meta_dir, paste0(basename(tools::file_path_sans_ext(dest_shp)), ".rds"))
+    file.path(
+      meta_dir,
+      paste0(basename(tools::file_path_sans_ext(dest_shp)), ".rds")
+    )
   }
   read_meta <- function(dest_shp) {
     p <- meta_path(dest_shp)
@@ -49,19 +52,27 @@ TADA_UpdateTribalLayers <- function() {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
       return(NULL)
     }
-    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    is_arcgis <- is.character(url) &&
+      grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
     if (!is_arcgis) {
       return(NULL)
     }
-    u <- paste0(sub("[?].*$", "", url), if (grepl("[?]", url)) "&" else "?", "f=json")
-    out <- tryCatch(jsonlite::fromJSON(u, simplifyVector = TRUE),
+    u <- paste0(
+      sub("[?].*$", "", url),
+      if (grepl("[?]", url)) "&" else "?",
+      "f=json"
+    )
+    out <- tryCatch(
+      jsonlite::fromJSON(u, simplifyVector = TRUE),
       error = function(e) NULL
     )
     if (is.null(out)) {
       return(NULL)
     }
     le <- NULL
-    if (!is.null(out$editingInfo$lastEditDate)) le <- out$editingInfo$lastEditDate
+    if (!is.null(out$editingInfo$lastEditDate)) {
+      le <- out$editingInfo$lastEditDate
+    }
     if (is.null(le) && !is.null(out$timeInfo$timeExtent)) {
       le <- out$timeInfo$timeExtent[2]
     }
@@ -76,18 +87,28 @@ TADA_UpdateTribalLayers <- function() {
     x[[".__WKT__"]] <- wkt
 
     is_factor <- vapply(x, is.factor, logical(1))
-    if (any(is_factor)) x[is_factor] <- lapply(x[is_factor], as.character)
+    if (any(is_factor)) {
+      x[is_factor] <- lapply(x[is_factor], as.character)
+    }
 
-    is_num <- vapply(x, function(col) is.numeric(col) || inherits(col, "integer64"), logical(1))
+    is_num <- vapply(
+      x,
+      function(col) is.numeric(col) || inherits(col, "integer64"),
+      logical(1)
+    )
     if (any(is_num)) {
       x[is_num] <- lapply(x[is_num], function(col) {
-        if (inherits(col, "integer64")) col <- as.numeric(col)
+        if (inherits(col, "integer64")) {
+          col <- as.numeric(col)
+        }
         round(col, num_round)
       })
     }
 
     x <- x[, order(names(x)), drop = FALSE]
-    for (nm in names(x)) if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
+    for (nm in names(x)) {
+      if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
+    }
     ord <- do.call(order, c(x, list(na.last = TRUE)))
     x[ord, , drop = FALSE]
   }
@@ -95,7 +116,9 @@ TADA_UpdateTribalLayers <- function() {
   # ---- Normalize epoch-ms -> Date by auto-detection ----
   is_epoch_ms <- function(x) {
     # Accept numeric or integer64; coerce integer64 for testing ranges
-    if (inherits(x, "integer64")) x <- as.numeric(x)
+    if (inherits(x, "integer64")) {
+      x <- as.numeric(x)
+    }
     is.numeric(x) &&
       any(!is.na(x)) &&
       suppressWarnings({
@@ -104,15 +127,23 @@ TADA_UpdateTribalLayers <- function() {
       })
   }
   to_date_from_ms <- function(x) {
-    if (inherits(x, "integer64")) x <- as.numeric(x)
+    if (inherits(x, "integer64")) {
+      x <- as.numeric(x)
+    }
     as.Date(as.POSIXct(x / 1000, origin = "1970-01-01", tz = "UTC"))
   }
   fix_date_cols <- function(s) {
     nm <- names(s)
-    numeric_cols <- nm[vapply(s, function(col) is.numeric(col) || inherits(col, "integer64"), logical(1))]
+    numeric_cols <- nm[vapply(
+      s,
+      function(col) is.numeric(col) || inherits(col, "integer64"),
+      logical(1)
+    )]
     to_fix <- Filter(function(nm) is_epoch_ms(s[[nm]]), numeric_cols)
     if (length(to_fix)) {
-      for (n in to_fix) s[[n]] <- to_date_from_ms(s[[n]])
+      for (n in to_fix) {
+        s[[n]] <- to_date_from_ms(s[[n]])
+      }
     }
     s
   }
@@ -137,9 +168,9 @@ TADA_UpdateTribalLayers <- function() {
     on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
     tmp_shp <- file.path(tmp_dir, "layer.shp")
     ns_get("writeLayer")(url, tmp_shp)
-    tryCatch(sf::st_read(tmp_shp, quiet = TRUE),
-      error = function(e) stop("Failed to read temp shapefile: ", e$message)
-    )
+    tryCatch(sf::st_read(tmp_shp, quiet = TRUE), error = function(e) {
+      stop("Failed to read temp shapefile: ", e$message)
+    })
   }
 
   # ---- Core update logic for a single layer ----
@@ -147,7 +178,11 @@ TADA_UpdateTribalLayers <- function() {
 
   update_one <- function(url, dest_shp) {
     if (!has_sf) {
-      message("sf not available; writing ", basename(dest_shp), " unconditionally.")
+      message(
+        "sf not available; writing ",
+        basename(dest_shp),
+        " unconditionally."
+      )
       ns_get("writeLayer")(url, dest_shp)
       return(invisible(TRUE))
     }
@@ -155,8 +190,13 @@ TADA_UpdateTribalLayers <- function() {
     # Preflight (ArcGIS): skip fast if lastEditDate unchanged and files exist
     last_edit_remote <- get_arcgis_last_edit(url)
     meta <- read_meta(dest_shp)
-    if (!is.null(last_edit_remote) && !is.null(meta) && !is.null(meta$last_edit) &&
-      isTRUE(file.exists(dest_shp)) && identical(meta$last_edit, last_edit_remote)) {
+    if (
+      !is.null(last_edit_remote) &&
+        !is.null(meta) &&
+        !is.null(meta$last_edit) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$last_edit, last_edit_remote)
+    ) {
       message(basename(dest_shp), " unchanged (preflight) — skipping download.")
       return(invisible(FALSE))
     }
@@ -167,8 +207,12 @@ TADA_UpdateTribalLayers <- function() {
 
     # Build canonical signature and compare with cached signature
     sig_new <- canonical_signature(s_new)
-    if (!is.null(meta) && !is.null(meta$sig) &&
-      isTRUE(file.exists(dest_shp)) && identical(meta$sig, sig_new)) {
+    if (
+      !is.null(meta) &&
+        !is.null(meta$sig) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$sig, sig_new)
+    ) {
       write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
       message(basename(dest_shp), " unchanged — skipping write.")
       return(invisible(FALSE))
