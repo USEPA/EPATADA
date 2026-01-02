@@ -991,14 +991,14 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
   # If zero rows, add an empty character column and return (type-stable; never returns NULL)
   if (nrow(.data) == 0) {
     .data$TADA.ComparableDataIdentifier <- character(0)
-    message("TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added.")
+    message(
+      "TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added."
+    )
     return(.data)
   }
-  
   # Create the ComparableDataIdentifier (coerce to character to avoid factor issues)
   .data$TADA.ComparableDataIdentifier <- paste(
     as.character(.data$TADA.CharacteristicName),
