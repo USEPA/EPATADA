@@ -120,6 +120,8 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
 
 test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when unchanged", {
   skip_if_not_installed("sf")
+  skip_if_not_installed("jsonlite")  # ensure preflight path can run
+  
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
   if (inherits(ns, "try-error")) skip("EPATADA namespace not available.")
   url_syms <- c("AKAllotmentsUrl", "AKVillagesUrl", "AmericanIndianUrl",
@@ -136,40 +138,48 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
   withr::local_options(TADA.tribal.meta_dir = file.path("inst/extdata", ".meta"))
   
   # Create trivial shapefile at each destination so file.exists(dest_shp) is TRUE
-  trivial <- sf::st_sf(data.frame(x = 1L), geom = sf::st_sfc(sf::st_point(c(-120, 38)), crs = 4326))
+  trivial <- sf::st_sf(
+    data.frame(x = 1L),
+    geom = sf::st_sfc(sf::st_point(c(-120, 38)), crs = 4326)
+  )
   dests <- file.path("inst/extdata", c(
     "AKAllotments.shp", "AKVillages.shp", "AmericanIndian.shp",
     "OffReservation.shp", "OKTribe.shp", "VATribe.shp"
   ))
   for (d in dests) {
-    sf::st_write(trivial, d, delete_dsn = TRUE, quiet = TRUE)
+    # Avoid delete_dsn on initial creation to prevent GDAL warnings
+    sf::st_write(trivial, d, quiet = TRUE)
   }
   
   # Provide sidecar meta with matching last_edit dates for all
   matching_last_edit <- 1234567890000 # epoch-ms
   dir.create(file.path("inst/extdata", ".meta"), recursive = TRUE, showWarnings = FALSE)
   for (d in dests) {
-    meta_file <- file.path("inst/extdata/.meta", paste0(tools::file_path_sans_ext(basename(d)), ".rds"))
+    meta_file <- file.path("inst/extdata/.meta",
+                           paste0(tools::file_path_sans_ext(basename(d)), ".rds"))
     saveRDS(list(sig = data.frame(dummy = 1), last_edit = matching_last_edit), meta_file)
   }
   
-  # Set all URLs to look like ArcGIS FeatureServer (string is enough for preflight check)
+  # Set all URLs to look like ArcGIS FeatureServer (to trigger preflight)
   fake_arcgis_url <- "https://example.com/FeatureServer/0"
   for (sym in url_syms) {
     if (bindingIsLocked(sym, ns)) unlockBinding(sym, ns)
     assignInNamespace(sym, fake_arcgis_url, ns = "EPATADA")
   }
   
-  # Mock jsonlite::fromJSON to return editingInfo$lastEditDate = matching_last_edit
-  # so preflight detects "unchanged" and skips download.
+  # Mock jsonlite::fromJSON from within jsonlite's namespace
   testthat::with_mocked_bindings(
-    `jsonlite::fromJSON` = function(...) list(editingInfo = list(lastEditDate = matching_last_edit)),
+    fromJSON = function(...) list(editingInfo = list(lastEditDate = matching_last_edit)),
+    .package = "jsonlite",
     {
       # Capture mtimes to verify they don't change after preflight skip
       old_mtimes <- file.info(dests)$mtime
-      expect_message(TADA_UpdateTribalLayers(), "unchanged \\(preflight\\) — skipping download\\.", fixed = FALSE)
+      expect_message(
+        TADA_UpdateTribalLayers(),
+        "unchanged \\(preflight\\) — skipping download\\.",
+        fixed = FALSE
+      )
       new_mtimes <- file.info(dests)$mtime
-      # All mtimes should remain the same
       expect_true(all(new_mtimes == old_mtimes))
     }
   )
