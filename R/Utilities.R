@@ -991,14 +991,14 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-
   # If zero rows, add an empty character column and return (type-stable; never returns NULL)
   if (nrow(.data) == 0) {
     .data$TADA.ComparableDataIdentifier <- character(0)
-    message("TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added.")
+    message(
+      "TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added."
+    )
     return(.data)
   }
-
   # Create the ComparableDataIdentifier (coerce to character to avoid factor issues)
   .data$TADA.ComparableDataIdentifier <- paste(
     as.character(.data$TADA.CharacteristicName),
@@ -1007,7 +1007,6 @@ TADA_CreateComparableID <- function(.data) {
     as.character(.data$TADA.ResultMeasure.MeasureUnitCode),
     sep = "_"
   )
-
   return(.data)
 }
 
@@ -2338,129 +2337,43 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   }
 }
 
-#' TADA_CorrectColType
+#' correctColType (UNDER ACTIVE DEVELOPMENT)
 #'
-#' Correct column data types for TADA, ATTAINS, and user reference data using the
-#' TADA column-type reference file bundled with EPATADA. This ensures downstream
-#' TADA functions operate with expected classes.
+#' This function corrects the column data types for TADA, ATTAINS and User Ref data to
+#' ensure all TADA functions can function correctly.
 #'
-#' The mapping of column names to target classes is read from:
-#' inst/extdata/TADAColTypeRef.csv within the EPATADA package.
+#' @param .data A data frame containing columns required for TADA functions.
 #'
-#' Supported types in the reference file are:
-#' - character
-#' - numeric
-#' - integer
-#' - logical
-#' - factor
-#' - date
+#' @return A data frame with correct column data types to use TADA functions.
 #'
-#' Unrecognized or missing types are left unchanged.
-#'
-#' @param .data A data.frame (or tibble) containing columns required for TADA functions.
-#'
-#' @return A data.frame with corrected column classes.
-#'
-#' @examples
-#' # df <- TADA_CorrectColType()
-#'
-#' @export
-#' @importFrom utils read.csv
-TADA_CorrectColType <- function(.data) {
-  stopifnot(is.data.frame(.data))
+# coerce column types based TADA ref file
+correctColType <- function(.data) {
+  # read in ref csv
+  coltype.ref <- utils::read.csv(system.file(
+    "extdata",
+    "TADAColTypeRef.csv",
+    package = "EPATADA"
+  ))
 
-  ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
-  if (!nzchar(ref_path) || !file.exists(ref_path)) {
-    stop("TADAColTypeRef.csv not found in EPATADA/extdata.")
-  }
+  # Iterate over each row in the type specification
+  for (i in 1:nrow(coltype.ref)) {
+    col.name <- coltype.ref$column_name[i]
+    col.type <- coltype.ref$column_type[i]
 
-  coltype.ref <- utils::read.csv(
-    ref_path,
-    stringsAsFactors = FALSE,
-    strip.white = TRUE
-  )
-
-  required_cols <- c("column_name", "column_type")
-  if (!all(required_cols %in% names(coltype.ref))) {
-    stop("TADAColTypeRef.csv must contain columns: column_name, column_type.")
-  }
-
-  # Normalize entries
-  coltype.ref$column_name <- trimws(coltype.ref$column_name)
-  coltype.ref$column_type <- tolower(trimws(coltype.ref$column_type))
-
-  # Converter per type
-  convert <- function(x, type) {
-    switch(type,
-      character = as.character(x),
-      numeric = suppressWarnings(as.numeric(x)),
-      integer = suppressWarnings(as.integer(x)),
-      logical = {
-        if (is.logical(x)) {
-          return(x)
-        }
-        if (is.numeric(x)) {
-          return(x != 0)
-        }
-        if (is.character(x)) {
-          lx <- trimws(tolower(x))
-          map <- c(
-            "true" = "TRUE", "t" = "TRUE", "y" = "TRUE", "yes" = "TRUE", "1" = "TRUE",
-            "false" = "FALSE", "f" = "FALSE", "n" = "FALSE", "no" = "FALSE", "0" = "FALSE"
-          )
-          lx <- ifelse(lx %in% names(map), map[lx], lx)
-          return(as.logical(lx))
-        }
-        as.logical(x)
-      },
-      factor = as.factor(x),
-      date = {
-        if (inherits(x, "Date")) {
-          return(x)
-        }
-        if (inherits(x, "POSIXt")) {
-          return(as.Date(x))
-        }
-        if (is.character(x)) {
-          out <- suppressWarnings(as.Date(x))
-          if (all(is.na(out)) && any(grepl("[:T]", x))) {
-            out <- suppressWarnings(as.Date(as.POSIXct(x, tz = "UTC")))
-          }
-          return(out)
-        }
-        suppressWarnings(as.Date(x))
-      },
-      # Default: unknown type -> leave unchanged
-      x
-    )
-  }
-
-  present <- intersect(coltype.ref$column_name, names(.data))
-  if (length(present) == 0L) {
-    return(.data)
-  }
-
-  for (nm in present) {
-    target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
-    old <- .data[[nm]]
-    before_na <- sum(is.na(old))
-    new <- try(convert(old, target_type), silent = TRUE)
-
-    if (inherits(new, "try-error")) {
-      warning(sprintf("Failed to coerce column '%s' to type '%s'; leaving unchanged.", nm, target_type))
-      next
+    # check to see if each col.name is in .data
+    if (col.name %in% names(.data)) {
+      # coerce to correct type
+      .data[[col.name]] <- switch(
+        col.type,
+        "character" = as.character(.data[[col.name]]),
+        "numeric" = as.numeric(.data[[col.name]]),
+        "integer" = as.integer(.data[[col.name]]),
+        "logical" = as.logical(.data[[col.name]]),
+        "factor" = as.factor(.data[[col.name]]),
+        "date" = as.Date(.data[[col.name]])
+      )
     }
-
-    after_na <- sum(is.na(new))
-    if (after_na > before_na) {
-      warning(sprintf(
-        "Coercing column '%s' to '%s' introduced %d additional NA values.",
-        nm, target_type, after_na - before_na
-      ))
-    }
-
-    .data[[nm]] <- new
   }
 
-  .data
+  return(.data)
 }

@@ -601,7 +601,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     )
     return(empty)
   }
-
   # Check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
   # Normalize and validate 'clean'
@@ -609,7 +608,14 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   if (is.logical(clean)) {
     clean <- ifelse(isTRUE(clean), "all", "none")
   }
-  allowed_clean <- c("none", "all", "duplicates", "blanks", "calibrations", "other")
+  allowed_clean <- c(
+    "none",
+    "all",
+    "duplicates",
+    "blanks",
+    "calibrations",
+    "other"
+  )
   if (is.na(clean) || !(clean %in% allowed_clean)) {
     stop(
       "TADA_FindQCActivities: 'clean' must be one of: ",
@@ -617,15 +623,12 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       " (or a logical TRUE/FALSE for backward compatibility)."
     )
   }
-
   # Check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-
   # Delete existing flag column if present
   if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
     .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
   }
-
   # Load ActivityType reference table
   qc.ref <- utils::read.csv(system.file(
     "extdata",
@@ -634,7 +637,6 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   )) |>
     dplyr::rename(ActivityTypeCode = Code) |>
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
-
   # Identify any Activity Type Codes not in reference table (likely USGS-only values)
   codes <- unique(.data$ActivityTypeCode)
   if (any(!codes %in% qc.ref$ActivityTypeCode)) {
@@ -653,13 +655,13 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       "Please review these carefully to determine data usability."
     ))
   }
-
   # Populate flag column in data
   flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode") |>
     dplyr::distinct()
-
   # Treat missing flags (e.g., NA ActivityTypeCode) as "Not Reviewed"
-  flag.data$TADA.ActivityType.Flag[is.na(flag.data$TADA.ActivityType.Flag)] <- "Not Reviewed"
+  flag.data$TADA.ActivityType.Flag[is.na(
+    flag.data$TADA.ActivityType.Flag
+  )] <- "Not Reviewed"
 
   # Clean dataframe according to 'clean'
   if (clean == "none") {
@@ -669,20 +671,22 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     clean.data <- dplyr::filter(flag.data, TADA.ActivityType.Flag == "Non_QC")
   } else {
     # Remove only specified QC category
-    remove_flags <- switch(clean,
-      duplicates   = "QC_duplicate",
-      blanks       = "QC_blank",
+    remove_flags <- switch(
+      clean,
+      duplicates = "QC_duplicate",
+      blanks = "QC_blank",
       calibrations = "QC_calibration",
-      other        = "QC_other"
+      other = "QC_other"
     )
-    clean.data <- dplyr::filter(flag.data, !(TADA.ActivityType.Flag %in% remove_flags))
+    clean.data <- dplyr::filter(
+      flag.data,
+      !(TADA.ActivityType.Flag %in% remove_flags)
+    )
   }
-
   # Determine final data based on flaggedonly
   if (isTRUE(flaggedonly)) {
     # Show only QC (non-Non_QC) rows
     final.data <- dplyr::filter(clean.data, TADA.ActivityType.Flag != "Non_QC")
-
     if (nrow(final.data) == 0) {
       message(
         "TADA_FindQCActivities: This dataframe is empty because either we did not find any ",
@@ -698,37 +702,35 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       message(
         "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed."
       )
-    } else if (sum(final.data$TADA.ActivityType.Flag != "Non_QC", na.rm = TRUE) == 0) {
+    } else if (
+      sum(final.data$TADA.ActivityType.Flag != "Non_QC", na.rm = TRUE) == 0
+    ) {
       message(
         "TADA_FindQCActivities: Quality control samples have been removed or were not present ",
         "in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
       )
     }
   }
-
   # If final.data is empty, return it after attempting to order columns
   if (nrow(final.data) == 0) {
-    final.data <- tryCatch(
-      TADA_OrderCols(final.data),
-      error = function(e) final.data
-    )
+    final.data <- tryCatch(TADA_OrderCols(final.data), error = function(e) {
+      final.data
+    })
     return(final.data)
   }
-
   # For non-empty data, proceed with ID creation and column ordering
   final.data <- TADA_CreateComparableID(final.data)
-
   # Guard in case downstream function returns NULL unexpectedly
   if (is.null(final.data)) {
-    warning("TADA_FindQCActivities: TADA_CreateComparableID returned NULL. Returning an empty dataframe.")
-    final.data <- dplyr::slice(clean.data, 0)
-    final.data <- tryCatch(
-      TADA_OrderCols(final.data),
-      error = function(e) final.data
+    warning(
+      "TADA_FindQCActivities: TADA_CreateComparableID returned NULL. Returning an empty dataframe."
     )
+    final.data <- dplyr::slice(clean.data, 0)
+    final.data <- tryCatch(TADA_OrderCols(final.data), error = function(e) {
+      final.data
+    })
     return(final.data)
   }
-
   final.data <- TADA_OrderCols(final.data)
   return(final.data)
 }
