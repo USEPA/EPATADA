@@ -11,6 +11,7 @@ None. The function saves processed data files in the package's \verb{data/} dire
 }
 \description{
 This internal function retrieves, processes, and saves various datasets for the EPATADA package.
+It only writes a data file if its contents have changed compared to an existing .rda file.
 }
 \details{
 The function fetches data from specified sources based on given parameters, processes it using

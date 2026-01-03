@@ -471,8 +471,10 @@ VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer
 #'   Returns 0 if no decimal point is present. Returns NA for NA inputs.
 #' @export
 TADA_DecimalPlaces <- function(x) {
-  if (length(x) == 0) return(integer(0))
-  
+  if (length(x) == 0) {
+    return(integer(0))
+  }
+
   # Convert to strings; avoid scientific notation for numeric
   x_chr <- if (is.numeric(x)) {
     format(x, scientific = FALSE, trim = TRUE)
@@ -480,13 +482,17 @@ TADA_DecimalPlaces <- function(x) {
     as.character(x)
   }
   x_chr <- trimws(x_chr)
-  
+
   vapply(x_chr, function(s) {
-    if (is.na(s) || s == "" || s %in% c("NA", "NaN")) return(NA_integer_)
-    s <- sub(",", "", s)            # remove any thousands separators
-    s <- sub("0+$", "", s)          # trim trailing zeros if present
-    if (!grepl("\\.", s)) return(0L)
-    dec <- sub(".*\\.", "", s)      # substring after decimal point
+    if (is.na(s) || s == "" || s %in% c("NA", "NaN")) {
+      return(NA_integer_)
+    }
+    s <- sub(",", "", s) # remove any thousands separators
+    s <- sub("0+$", "", s) # trim trailing zeros if present
+    if (!grepl("\\.", s)) {
+      return(0L)
+    }
+    dec <- sub(".*\\.", "", s) # substring after decimal point
     nchar(dec)
   }, integer(1))
 }

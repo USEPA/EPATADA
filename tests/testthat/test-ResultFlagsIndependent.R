@@ -2,47 +2,47 @@ test_that("SuspectCoordinates works", {
   # flag-only review
   SuspectCoord_flags <- TADA_FlagCoordinates(Data_Nutrients_UT)
   unique(SuspectCoord_flags$TADA.SuspectCoordinates.Flag)
-  
+
   reviewselectcolumns <- SuspectCoord_flags |>
     dplyr::select(
       TADA.SuspectCoordinates.Flag,
       TADA.LatitudeMeasure,
       TADA.LongitudeMeasure
     )
-  
+
   # Only rows that were flagged (exclude Pass)
   reviewflagsonly <- dplyr::filter(
     reviewselectcolumns,
     TADA.SuspectCoordinates.Flag != "Pass"
   )
   unique(reviewflagsonly$TADA.SuspectCoordinates.Flag)
-  
+
   # Remove imprecise coordinates
   ImpreciseCoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_imprecise = TRUE
   )
   unique(ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag)
-  
+
   # Ensure no imprecise flags remain
   expect_false(any(
     ImpreciseCoord_removed$TADA.SuspectCoordinates.Flag ==
       "Imprecise_lessthan3decimaldigits"
   ))
-  
+
   # Remove data with coordinates outside the USA, keep imprecise
   OutsideUSACoord_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
     clean_outsideUSA = "remove"
   )
   unique(OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag)
-  
+
   # Ensure no outside-USA flags remain
   expect_false(any(
     OutsideUSACoord_removed$TADA.SuspectCoordinates.Flag %in%
       c("LONG_OutsideUSA", "LAT_OutsideUSA")
   ))
-  
+
   # Remove both imprecise and outside-USA data
   Suspect_removed <- TADA_FlagCoordinates(
     Data_Nutrients_UT,
@@ -50,7 +50,7 @@ test_that("SuspectCoordinates works", {
     clean_imprecise = TRUE
   )
   unique(Suspect_removed$TADA.SuspectCoordinates.Flag)
-  
+
   # Ensure no suspect/imprecise flags remain
   expect_false(any(
     Suspect_removed$TADA.SuspectCoordinates.Flag %in%
@@ -72,7 +72,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
       TADA_DecimalPlaces(TADA.LatitudeMeasure) < 3
     ) |>
     dplyr::distinct()
-  
+
   expect_true(all(
     TADA_DecimalPlaces(FLAGSONLY$TADA.LatitudeMeasure) < 4
   ))
@@ -255,7 +255,7 @@ test_that("Imprecise_lessthan3decimaldigits works", {
       TADA_DecimalPlaces(TADA.LongitudeMeasure) < 3
     ) |>
     dplyr::distinct()
-  
+
   expect_true(all(
     TADA_DecimalPlaces(FLAGSONLY$TADA.LongitudeMeasure) < 4
   ))

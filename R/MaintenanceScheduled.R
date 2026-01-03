@@ -110,6 +110,7 @@
 #' Update Example Data for EPATADA Package (Internal)
 #'
 #' This internal function retrieves, processes, and saves various datasets for the EPATADA package.
+#' It only writes a data file if its contents have changed compared to an existing .rda file.
 #'
 #' @details
 #' The function fetches data from specified sources based on given parameters, processes it using
@@ -124,6 +125,37 @@
 #' .TADA_UpdateExampleData()
 #' }
 .TADA_UpdateExampleData <- function() {
+  
+  # Helper that saves a dataset only when its content has changed
+  save_if_changed <- function(object, name,
+                              data_dir = file.path(usethis::proj_get(), "data"),
+                              compress = "xz", version = 3, ascii = FALSE) {
+    if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
+    file_path <- file.path(data_dir, paste0(name, ".rda"))
+    
+    changed <- TRUE
+    if (file.exists(file_path)) {
+      e <- new.env(parent = emptyenv())
+      loaded_names <- load(file_path, envir = e)
+      if (name %in% loaded_names) {
+        # Compare existing object to new one
+        changed <- !identical(e[[name]], object)
+      }
+    }
+    
+    if (changed) {
+      # Save with the correct object name inside the .rda
+      tmp_env <- new.env(parent = emptyenv())
+      assign(name, object, envir = tmp_env)
+      save(list = name, file = file_path, envir = tmp_env,
+           compress = compress, version = version, ascii = ascii)
+      message(sprintf("Saved dataset '%s' to %s (changed).", name, file_path))
+    } else {
+      message(sprintf("Skipped saving dataset '%s' (unchanged).", name))
+    }
+    invisible(!changed) # returns FALSE if saved, TRUE if skipped (unchanged)
+  }
+  
   tryCatch(
     {
       # =======================================
@@ -138,16 +170,15 @@
       )
       message("Data_Nutrients_UT")
       message(dim(Data_Nutrients_UT))
-      usethis::use_data(
-        Data_Nutrients_UT,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_Nutrients_UT,
+        name = "Data_Nutrients_UT",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
       rm(Data_Nutrients_UT)
-
+      
       # =======================================
       # Generate Data_6Tribes_5y
       # =======================================
@@ -166,15 +197,14 @@
       )
       message("Data_6Tribes_5y")
       message(dim(Data_6Tribes_5y))
-      usethis::use_data(
-        Data_6Tribes_5y,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_6Tribes_5y,
+        name = "Data_6Tribes_5y",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
-
+      
       # =======================================
       # Harmonize Data_6Tribes_5y
       # =======================================
@@ -187,7 +217,7 @@
         clean = "both"
       )
       rm(Data_6Tribes_5y)
-
+      
       harmonized_data <- harmonized_data |>
         TADA_FlagMethod(clean = TRUE) |>
         TADA_FlagAboveThreshold(clean = TRUE) |>
@@ -206,20 +236,19 @@
             TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
             !is.na(TADA.ResultMeasureValue)
         )
-
+      
       Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
       message("Data_6Tribes_5y_Harmonized")
       message(dim(Data_6Tribes_5y_Harmonized))
-      usethis::use_data(
-        Data_6Tribes_5y_Harmonized,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_6Tribes_5y_Harmonized,
+        name = "Data_6Tribes_5y_Harmonized",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
       rm(Data_6Tribes_5y_Harmonized, harmonized_data)
-
+      
       # =======================================
       # Generate Data_R5_TADAPackageDemo
       # =======================================
@@ -231,16 +260,15 @@
       )
       message("Data_R5_TADAPackageDemo")
       message(dim(Data_R5_TADAPackageDemo))
-      usethis::use_data(
-        Data_R5_TADAPackageDemo,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_R5_TADAPackageDemo,
+        name = "Data_R5_TADAPackageDemo",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
       rm(Data_R5_TADAPackageDemo)
-
+      
       # =======================================
       # Module 3 Vignette Example Data
       # =======================================
@@ -299,16 +327,15 @@
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
       message(dim(Data_HUC8_02070004_Mod1Output))
-      usethis::use_data(
-        Data_HUC8_02070004_Mod1Output,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_HUC8_02070004_Mod1Output,
+        name = "Data_HUC8_02070004_Mod1Output",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
       rm(Data_HUC8_02070004_Mod1Output, Data_WV)
-
+      
       # =======================================
       # Generate Data_MT_MissoulaCounty
       # =======================================
@@ -323,18 +350,17 @@
         TADA_RunKeyFlagFunctions() |>
         TADA_SimpleCensoredMethods() |>
         TADA_HarmonizeSynonyms()
-
+      
       message("Data_MT_MissoulaCounty")
       message(dim(Data_MT_MissoulaCounty))
-      usethis::use_data(
-        Data_MT_MissoulaCounty,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_MT_MissoulaCounty,
+        name = "Data_MT_MissoulaCounty",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
-
+      
       # =======================================
       # Generate Data_MT_AUMLRef
       # =======================================
@@ -343,7 +369,7 @@
       clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
         org_id = "MTDEQ"
       )
-
+      
       # Create a user-supplied crosswalk for demonstration purposes
       user_supplied_cw <- clean.existing.attains.MT |>
         dplyr::select(
@@ -372,7 +398,7 @@
           MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
           WaterType = "LAKE, FRESHWATER"
         ))
-
+      
       MT_AUMLRef <- TADA_CreateAUMLCrosswalk(
         Data_MT_MissoulaCounty,
         au_ref = user_supplied_cw,
@@ -382,20 +408,19 @@
         return_nearest = TRUE,
         batch_upload = TRUE
       )
-
+      
       Data_MT_AUMLRef <- MT_AUMLRef
-
+      
       message("Data_MT_AUMLRef")
       message(dim(Data_MT_AUMLRef))
-      usethis::use_data(
-        Data_MT_AUMLRef,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_MT_AUMLRef,
+        name = "Data_MT_AUMLRef",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
-
+      
       # =======================================
       # Generate Data_MT_AU_UsesRef
       # =======================================
@@ -403,18 +428,17 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-
+      
       message("Data_MT_AU_UsesRef")
       message(dim(Data_MT_AU_UsesRef))
-      usethis::use_data(
-        Data_MT_AU_UsesRef,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_MT_AU_UsesRef,
+        name = "Data_MT_AU_UsesRef",
         compress = "xz",
         version = 3,
         ascii = FALSE
       )
-
+      
       # =======================================
       # Generate Data_MT_AU_UsesRef_Water
       # =======================================
@@ -423,14 +447,12 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-
+      
       message("Data_MT_AU_UsesRef_Water")
       message(dim(Data_MT_AU_UsesRef_Water))
-
-      usethis::use_data(
-        Data_MT_AU_UsesRef_Water,
-        internal = FALSE,
-        overwrite = TRUE,
+      save_if_changed(
+        object = Data_MT_AU_UsesRef_Water,
+        name = "Data_MT_AU_UsesRef_Water",
         compress = "xz",
         version = 3,
         ascii = FALSE

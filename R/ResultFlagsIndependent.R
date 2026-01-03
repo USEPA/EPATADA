@@ -1359,14 +1359,14 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' )
 #'
 TADA_FlagCoordinates <- function(
-    .data,
-    clean_outsideUSA = "no",
-    clean_imprecise = FALSE,
-    flaggedonly = FALSE
+  .data,
+  clean_outsideUSA = "no",
+  clean_imprecise = FALSE,
+  flaggedonly = FALSE
 ) {
   # Allowed options and input checks
   choices_outside <- c("no", "remove", "change sign")
-  
+
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check clean_outsideUSA is character
@@ -1380,15 +1380,15 @@ TADA_FlagCoordinates <- function(
   if (!is.numeric(.data$TADA.LatitudeMeasure)) {
     warning("TADA.LatitudeMeasure field must be numeric")
   }
-  
+
   # match clean_outsideUSA arg against allowed choices
   clean_outsideUSA <- match.arg(clean_outsideUSA, choices = choices_outside)
   orig_dim <- nrow(.data)
-  
+
   # Precompute decimal places (vectorized)
   dec_lat <- TADA_DecimalPlaces(.data$TADA.LatitudeMeasure)
   dec_lon <- TADA_DecimalPlaces(.data$TADA.LongitudeMeasure)
-  
+
   # execute function after checks are passed
   .data <- .data |>
     dplyr::mutate(
@@ -1412,10 +1412,10 @@ TADA_FlagCoordinates <- function(
         TRUE ~ NA_character_
       )
     )
-  
+
   # Fill in flag for coordinates that appear OK/PASS tests
   .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
-  
+
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (isTRUE(clean_imprecise)) {
     .data <- dplyr::filter(
@@ -1423,7 +1423,7 @@ TADA_FlagCoordinates <- function(
       TADA.SuspectCoordinates.Flag != "Imprecise_lessthan3decimaldigits"
     )
   }
-  
+
   # if clean_outsideUSA is "remove", remove stations flagged as outside the USA
   if (clean_outsideUSA == "remove") {
     .data <- dplyr::filter(
@@ -1431,7 +1431,7 @@ TADA_FlagCoordinates <- function(
       !TADA.SuspectCoordinates.Flag %in% c("LAT_OutsideUSA", "LONG_OutsideUSA")
     )
   }
-  
+
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
     message(
@@ -1451,12 +1451,12 @@ TADA_FlagCoordinates <- function(
         )
       )
   }
-  
+
   # return only flagged data if flaggedonly = TRUE
   if (isTRUE(flaggedonly)) {
     .data <- dplyr::filter(.data, TADA.SuspectCoordinates.Flag != "Pass")
   }
-  
+
   # Status messages
   if (all(.data$TADA.SuspectCoordinates.Flag == "Pass")) {
     if (orig_dim == nrow(.data)) {
@@ -1471,7 +1471,7 @@ TADA_FlagCoordinates <- function(
       )
     }
   }
-  
+
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
