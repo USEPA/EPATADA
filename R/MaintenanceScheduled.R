@@ -125,14 +125,14 @@
 #' .TADA_UpdateExampleData()
 #' }
 .TADA_UpdateExampleData <- function() {
-  
+
   # Helper that saves a dataset only when its content has changed
   save_if_changed <- function(object, name,
                               data_dir = file.path(usethis::proj_get(), "data"),
                               compress = "xz", version = 3, ascii = FALSE) {
     if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
     file_path <- file.path(data_dir, paste0(name, ".rda"))
-    
+
     changed <- TRUE
     if (file.exists(file_path)) {
       e <- new.env(parent = emptyenv())
@@ -142,20 +142,20 @@
         changed <- !identical(e[[name]], object)
       }
     }
-    
+
     if (changed) {
       # Save with the correct object name inside the .rda
       tmp_env <- new.env(parent = emptyenv())
       assign(name, object, envir = tmp_env)
       save(list = name, file = file_path, envir = tmp_env,
-           compress = compress, version = version, ascii = ascii)
+        compress = compress, version = version, ascii = ascii)
       message(sprintf("Saved dataset '%s' to %s (changed).", name, file_path))
     } else {
       message(sprintf("Skipped saving dataset '%s' (unchanged).", name))
     }
     invisible(!changed) # returns FALSE if saved, TRUE if skipped (unchanged)
   }
-  
+
   tryCatch(
     {
       # =======================================
@@ -178,7 +178,7 @@
         ascii = FALSE
       )
       rm(Data_Nutrients_UT)
-      
+
       # =======================================
       # Generate Data_6Tribes_5y
       # =======================================
@@ -204,7 +204,7 @@
         version = 3,
         ascii = FALSE
       )
-      
+
       # =======================================
       # Harmonize Data_6Tribes_5y
       # =======================================
@@ -217,7 +217,7 @@
         clean = "both"
       )
       rm(Data_6Tribes_5y)
-      
+
       harmonized_data <- harmonized_data |>
         TADA_FlagMethod(clean = TRUE) |>
         TADA_FlagAboveThreshold(clean = TRUE) |>
@@ -236,7 +236,7 @@
             TADA.ResultMeasureValueDataTypes.Flag != "NA - Not Available" &
             !is.na(TADA.ResultMeasureValue)
         )
-      
+
       Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
       message("Data_6Tribes_5y_Harmonized")
       message(dim(Data_6Tribes_5y_Harmonized))
@@ -248,7 +248,7 @@
         ascii = FALSE
       )
       rm(Data_6Tribes_5y_Harmonized, harmonized_data)
-      
+
       # =======================================
       # Generate Data_R5_TADAPackageDemo
       # =======================================
@@ -268,7 +268,7 @@
         ascii = FALSE
       )
       rm(Data_R5_TADAPackageDemo)
-      
+
       # =======================================
       # Module 3 Vignette Example Data
       # =======================================
@@ -335,7 +335,7 @@
         ascii = FALSE
       )
       rm(Data_HUC8_02070004_Mod1Output, Data_WV)
-      
+
       # =======================================
       # Generate Data_MT_MissoulaCounty
       # =======================================
@@ -350,7 +350,7 @@
         TADA_RunKeyFlagFunctions() |>
         TADA_SimpleCensoredMethods() |>
         TADA_HarmonizeSynonyms()
-      
+
       message("Data_MT_MissoulaCounty")
       message(dim(Data_MT_MissoulaCounty))
       save_if_changed(
@@ -360,7 +360,7 @@
         version = 3,
         ascii = FALSE
       )
-      
+
       # =======================================
       # Generate Data_MT_AUMLRef
       # =======================================
@@ -369,7 +369,7 @@
       clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(
         org_id = "MTDEQ"
       )
-      
+
       # Create a user-supplied crosswalk for demonstration purposes
       user_supplied_cw <- clean.existing.attains.MT |>
         dplyr::select(
@@ -398,7 +398,7 @@
           MonitoringLocationIdentifier = "NARS_WQX-NWC_MT-10184",
           WaterType = "LAKE, FRESHWATER"
         ))
-      
+
       MT_AUMLRef <- TADA_CreateAUMLCrosswalk(
         Data_MT_MissoulaCounty,
         au_ref = user_supplied_cw,
@@ -408,9 +408,9 @@
         return_nearest = TRUE,
         batch_upload = TRUE
       )
-      
+
       Data_MT_AUMLRef <- MT_AUMLRef
-      
+
       message("Data_MT_AUMLRef")
       message(dim(Data_MT_AUMLRef))
       save_if_changed(
@@ -420,7 +420,7 @@
         version = 3,
         ascii = FALSE
       )
-      
+
       # =======================================
       # Generate Data_MT_AU_UsesRef
       # =======================================
@@ -428,7 +428,7 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-      
+
       message("Data_MT_AU_UsesRef")
       message(dim(Data_MT_AU_UsesRef))
       save_if_changed(
@@ -438,7 +438,7 @@
         version = 3,
         ascii = FALSE
       )
-      
+
       # =======================================
       # Generate Data_MT_AU_UsesRef_Water
       # =======================================
@@ -447,7 +447,7 @@
         AUMLRef = Data_MT_AUMLRef$ATTAINS_crosswalk,
         org_id = "MTDEQ"
       )
-      
+
       message("Data_MT_AU_UsesRef_Water")
       message(dim(Data_MT_AU_UsesRef_Water))
       save_if_changed(

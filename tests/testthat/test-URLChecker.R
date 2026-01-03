@@ -51,9 +51,7 @@ testthat::test_that("URLs are not broken", {
     # Incomplete endpoint; needs a parameter to be valid
     "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
     # External mirror with inconsistent status behavior; not relevant to package
-    "http://cran.us.r-project.org",
-    "https://attains.epa.gov/attains-public/api/domains/organizations",
-    "https://attains.epa.gov/attains-public/api/domains/organizations/"
+    "http://cran.us.r-project.org"
   )
 
   # extract urls function

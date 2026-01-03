@@ -89,6 +89,15 @@ the TADA prefixed metadata columns (TADA.MonitoringLocationName,
 TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and
 TADA.LatitudeMeasure) were determined.
 }
+\note{
+Implementation safeguards:
+\itemize{
+\item Ensures sf objects are used for spatial operations (no st_join with non-sf)
+\item Avoids one-to-many spatial joins by assigning at most one catchment per site (st_within + first match)
+\item Ungroups before select/distinct that would drop grouping variables to keep the console clean
+\item Fixes minor issues: grouped.sites reference, default OrgRank used when missing
+}
+}
 \examples{
 \dontrun{
 # use MT example data set

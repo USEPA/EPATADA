@@ -45,8 +45,7 @@ run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
 NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
 with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
 the returned list splits observations into two dataframes: WQP observations
-with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
-observations without ATTAINS catchment data. Defaults to FALSE. This param
+with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP#' observations without ATTAINS catchment data. Defaults to FALSE. This param
 applies only to WQP observations that do not have matches in the user-supplied ref
 or ATTAINS.}
 
