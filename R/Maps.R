@@ -840,102 +840,49 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add ATTAINS polygon features (if they exist):
-    try(
-      {
-        map <- map |>
-          leaflet::addPolygons(
-            data = polygons_mapper,
-            group = "ATTAINS polygon features",
-            color = ~ polygons_mapper$col,
-            fill = ~ polygons_mapper$col,
-            weight = 3,
-            fillOpacity = 0.5,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              polygons_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              polygons_mapper$assessmentunitidentifier,
-              "<br> Status: ",
-              polygons_mapper$overallstatus,
-              "<br> Assessment Unit Type: ",
-              polygons_mapper$type,
-              "<br> <a href=",
-              polygons_mapper$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
-      },
-      silent = TRUE
-    )
+ try(
+   {
+     polygons_aus <- addATTAINSAUs(polygons_mapper,
+                                   map = map,
+                                   overlay_groups = overlay_groups)
+
+ map <- polygons_aus$map
+
+ overlay_groups <- polygons_aus$overlay_groups
+
+ # remove intermediate object
+ rm(polygons_aus)
+ },
+ silent = TRUE
+ )
 
     # Add ATTAINS lines features (if they exist):
     try(
       {
-        map <- map |>
-          leaflet::addPolylines(
-            data = lines_mapper,
-            group = "ATTAINS line features",
-            color = ~ lines_mapper$col,
-            weight = 4,
-            fillOpacity = 1,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              lines_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              lines_mapper$assessmentunitidentifier,
-              "<br> Status: ",
-              lines_mapper$overallstatus,
-              "<br> Assessment Unit Type: ",
-              lines_mapper$type,
-              "<br> <a href=",
-              lines_mapper$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS line features")
-      },
-      silent = TRUE
-    )
+        lines_aus <- addATTAINSAUs(lines_mapper,
+                                   map = map,
+                                   overlay_groups = overlay_groups)
 
-    try(
-      pointIcons <- leaflet::icons(
-        iconUrl = dplyr::case_when(
-          points_mapper$overallstatus == "Fully Supporting" ~ images[12],
-          points_mapper$overallstatus == "Not Supporting" ~ images[11],
-          points_mapper$overallstatus == "Not Assessed" ~ images[13]
-        ),
-        iconWidth = 48,
-        iconHeight = 48
-      ),
+        map <- lines_aus$map
+
+        overlay_groups <- lines_aus$overlay_groups
+
+        # remove intermediate object
+        rm(lines_aus)
+      },
       silent = TRUE
     )
 
     # Add ATTAINS point features (if they exist):
     try(
       {
-        map <- map |>
-          leaflet::addMarkers(
-            data = points_mapper,
-            group = "ATTAINS point features",
-            lng = ~X,
-            lat = ~Y,
-            icon = pointIcons,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              points_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              points_mapper$assessmentunitidentifier,
-              "<br> Status: ",
-              points_mapper$overallstatus,
-              "<br> Assessment Unit Type: ",
-              points_mapper$type,
-              "<br> <a href=",
-              points_mapper$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS point features")
+       points_aus <- addATTAINSAUs(points_mapper,
+                                   map = map,
+                                   overlay_groups = overlay_groups)
+
+       map <- points_aus$map
+
+      overlay_groups <- points_aus$overlay_groups
       },
       silent = TRUE
     )

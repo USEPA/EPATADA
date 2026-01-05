@@ -290,6 +290,8 @@ getMapIconLabels <- function(icons = TRUE,
 
     au.list <- list(map, overlay_groups)
 
+    names(au.list) <- c('map', 'overlay_groups')
+
     # return map and list of overlay groups
     return(au.list)
   }
