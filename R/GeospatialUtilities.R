@@ -704,3 +704,85 @@ getWQPSiteStats <- function(.data,
     return(sumdat)
   }
 }
+
+#' createTADABasemap
+#'
+#' Internal function to create base leaflet map for TADA mapping functions.
+#'
+#' @param .data Data frame. Must contain the columns TADA.LatitudeMeasure and
+#' TADA.Longitude measure to set the extent of the map.
+#'
+#' @return A list containing elments to produce leaflet base map.
+#'
+# Create base map
+createTADABasemap <- function(.data) {
+
+  if(!all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))) {
+
+    stop("createTADABasemap: .data must contain TADA.LongitudeMeasure and TADA.LatitudeMeasure columns.")
+  }
+
+  bbox <- createBBox(.data, as_vector = TRUE)
+
+  map <- leaflet::leaflet() |>
+  leaflet::addProviderTiles(
+    "Esri.WorldTopoMap",
+    group = "World topo",
+    options = leaflet::providerTileOptions(
+      updateWhenZooming = FALSE,
+      updateWhenIdle = TRUE
+    )
+  ) |>
+  leaflet::clearShapes() |>
+  leaflet::fitBounds(
+    lng1 = bbox[1],
+    lat1 = bbox[2],
+    lng2 = bbox[3],
+    lat2 = bbox[4]
+  ) |>
+  leaflet.extras::addResetMapButton()
+
+  # remove intermediate objects
+  rm(bbox)
+
+  return(map)
+}
+
+#' createBBox
+#'
+#' Internal function to create bounding box for maps based on TADA.LatitudeMeasure
+#' and TADA.LongitudeMeasure columns.
+#'
+#' @param .data Data frame. Must contain the columns TADA.LatitudeMeasure and
+#' TADA.Longitude measure to set the extent of the map.
+#'
+#' @param as_vector Boolean argument. When as_vector = TRUE, the bounding box values
+#' are returned as vector. When as_vector = FALSE, values are returned as a bounding
+#' box. Default is as_vector = TRUE.
+#'
+#' @return A bounding box for use in leaflet mapping functions.
+# Create bounding box
+createBBox <- function(.data, as_vector = TRUE) {
+
+  bbox <- sf::st_bbox(
+    c(
+      xmin = min(.data$TADA.LongitudeMeasure),
+      ymin = min(.data$TADA.LatitudeMeasure),
+      xmax = max(.data$TADA.LongitudeMeasure),
+      ymax = max(.data$TADA.LatitudeMeasure)
+    ),
+    crs = sf::st_crs(.data)
+  )
+
+  if(as_vector == FALSE) {
+
+    return(bbox)
+  }
+
+  if(as_vector == TRUE) {
+
+    bbox <- bbox |> as.vector()
+
+    return(bbox)
+  }
+}
