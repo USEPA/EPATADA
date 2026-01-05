@@ -551,7 +551,7 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
               "tarea_mi",
               "tarea_km",
               "longfieldn",
-              "longfieldn_1",
+              "longfield1", # ≤10 chars with numeric suffix applied
               "white_spac",
               "geometry"
             )

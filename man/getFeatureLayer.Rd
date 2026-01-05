@@ -2,28 +2,34 @@
 % Please edit documentation in R/Utilities.R
 \name{getFeatureLayer}
 \alias{getFeatureLayer}
-\title{Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used by writeLayer to write feature layers to local files}
+\title{Retrieve feature layer from ArcGIS REST service}
 \usage{
 getFeatureLayer(url, bbox = NULL)
 }
 \arguments{
-\item{url}{URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)}
+\item{url}{Character(1). URL of the layer REST service, ending with “/query”.
+Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query}
 
-\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
+\item{bbox}{An optional bounding box from \code{sf::st_bbox}; used to filter query
+results. Defaults to NULL.}
 }
 \value{
-ArcGIS feature layer
+An \code{sf} object representing the feature layer.
 }
 \description{
-Retrieve feature layer from ArcGIS REST service
-getFeatureLayer is used by writeLayer to write feature layers to local files
+Retrieves an ArcGIS feature layer as an \code{sf} object. If a bounding box is
+provided, it is passed as the \code{geometry} parameter to filter the results.
+When no bounding box is provided, the \code{geometry} parameter is omitted.
+}
+\details{
+Notes:
+• Uses an em dash (—) in error messages for consistency with other module functions.
 }
 \examples{
 \dontrun{
 # Load example dataset
 utils::data(Data_Nutrients_UT)
-# Get the bounding box of the data
+# Build a bounding box based on the example data
 bbox <- sf::st_bbox(
   c(
     xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),
@@ -33,8 +39,10 @@ bbox <- sf::st_bbox(
   ),
   crs = sf::st_crs(Data_Nutrients_UT)
 )
-# Get the American Indian Reservations feature layer,
-# filtered by the bounding box for the Data_Nutrients_UT example dataset
-getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+# Retrieve a layer, filtered by the bounding box
+getFeatureLayer(
+  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query",
+  bbox
+)
 }
 }

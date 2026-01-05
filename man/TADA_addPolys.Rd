@@ -7,30 +7,46 @@
 TADA_addPolys(map, layerfilepath, layergroup, layername, bbox = NULL)
 }
 \arguments{
-\item{map}{A leaflet map}
+\item{map}{A leaflet map object.}
 
-\item{layerfilepath}{Local path to the .shp file for the layer}
+\item{layerfilepath}{Character(1). Local path to the \code{.shp} file for the layer.}
 
-\item{layergroup}{Name of the layer group}
+\item{layergroup}{Character(1). Name of the layer group.}
 
-\item{layername}{Name of the layer}
+\item{layername}{Character(1). Name of the layer (used in popup headers).}
 
-\item{bbox}{A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.}
+\item{bbox}{Optional bounding box from \code{sf::st_bbox} to crop the layer before
+adding it to the map. Defaults to NULL.}
 }
 \value{
-The original map with polygons from the feature layer added to it.
+The input leaflet map with polygons added.
 }
 \description{
-Add polygons from an ArcGIS feature layer to a leaflet map
+Adds polygons from a local Shapefile (read via \code{getLayer}) to a leaflet map,
+with a color fill based on an automatically detected “area” column.
+}
+\details{
+Notes:
+• The function resolves area columns case‑insensitively and supports multiple
+candidate names, including sanitized or shortened DBF names (e.g., \code{ALAND_KM},
+\code{AREA_KM}, \code{TAREA_KM}, etc.). If no suitable area column is found, a fixed
+fill color is used.
+• Popups are created by \code{getTribalPopup()} and are robust to case differences
+and sanitized field names.
 }
 \examples{
 \dontrun{
-# Create a leaflet map
+# Create a leaflet map and add a polygon layer from a local Shapefile
 lmap <- leaflet::leaflet() |>
   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
   leaflet::addMapPane("featurelayers", zIndex = 300)
-# Add the American Indian Reservations feature layer to the map
-lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+
+lmap <- TADA_addPolys(
+  lmap,
+  "extdata/AmericanIndian.shp",
+  "Tribes",
+  "American Indian Reservations"
+)
 lmap
 }
 }

@@ -2,19 +2,19 @@
 % Please edit documentation in R/Utilities.R
 \name{writeLayer}
 \alias{writeLayer}
-\title{Download a shapefile from an API and save it locally (overwrite-safe)}
+\title{Download a shapefile from an API and save it locally (overwrite‑safe)}
 \usage{
 writeLayer(url, layerfilepath, sanitize_names = TRUE)
 }
 \arguments{
-\item{url}{Character(1). URL of the layer REST service, typically ending
-with "/query". Example:
-"https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"}
+\item{url}{Character(1). URL of the layer REST service, typically ending with
+“/query”. Example:
+“https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query”}
 
 \item{layerfilepath}{Character(1). Local path for the output .shp, e.g.,
-"inst/extdata/OKTribe.shp".}
+“inst/extdata/OKTribe.shp”.}
 
-\item{sanitize_names}{Logical. If TRUE, ensure all DBF field names are unique
+\item{sanitize_names}{Logical. If TRUE, ensure DBF field names are unique
 and at most 10 characters (default: TRUE).}
 }
 \value{
@@ -26,12 +26,22 @@ Shapefile. If a shapefile with the same base name exists, it is overwritten.
 }
 \details{
 Notes:
-\itemize{
-\item Shapefile attribute names are limited to 10 characters; they are truncated
-automatically by GDAL/DBF. This function preemptively renames
-\code{TOTALAREA_MI} and \code{TOTALAREA_KM} to avoid collisions after truncation.
-\item Directory for \code{layerfilepath} is created if it does not exist.
-}
+• Shapefile attribute names are limited to 10 characters. If
+\code{sanitize_names = TRUE}, this function ensures names are lowercased, use
+only Unicode letters/digits/underscore, are at most 10 characters, and are
+unique even after suffixing. It does not transliterate to ASCII.
+Depending on GDAL/DBF behavior, non‑ASCII field names may be altered at
+write time by the driver.
+• To avoid known DBF truncation collisions, fields \code{TOTALAREA_MI} and
+\code{TOTALAREA_KM} are preemptively renamed to \code{TAREA_MI} and \code{TAREA_KM}.
+If \code{sanitize_names = TRUE}, these names will subsequently be lowercased.
+• Some services store dates as epoch milliseconds (e.g., 1682899200000).
+Shapefile cannot represent such large integers in numeric fields without
+width issues; this function converts likely epoch‑millisecond columns to
+Date or POSIXct automatically before writing.
+• The directory for \code{layerfilepath} is created if it does not exist.
+• The output path is normalized (on Windows, forward slashes are used) before
+writing to reduce transient GDAL warnings about temporary paths.
 }
 \examples{
 \dontrun{

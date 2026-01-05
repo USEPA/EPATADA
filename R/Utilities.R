@@ -1289,17 +1289,26 @@ pchIcons <- function(
 }
 
 #' Retrieve feature layer from ArcGIS REST service
-#' getFeatureLayer is used by writeLayer to write feature layers to local files
 #'
-#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
-#' @return ArcGIS feature layer
+#' Retrieves an ArcGIS feature layer as an `sf` object. If a bounding box is
+#' provided, it is passed as the `geometry` parameter to filter the results.
+#' When no bounding box is provided, the `geometry` parameter is omitted.
+#'
+#' Notes:
+#' • Uses an em dash (—) in error messages for consistency with other module functions.
+#'
+#' @param url Character(1). URL of the layer REST service, ending with “/query”.
+#'   Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query
+#' @param bbox An optional bounding box from `sf::st_bbox`; used to filter query
+#'   results. Defaults to NULL.
+#'
+#' @return An `sf` object representing the feature layer.
 #'
 #' @examples
 #' \dontrun{
 #' # Load example dataset
 #' utils::data(Data_Nutrients_UT)
-#' # Get the bounding box of the data
+#' # Build a bounding box based on the example data
 #' bbox <- sf::st_bbox(
 #'   c(
 #'     xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),
@@ -1309,43 +1318,57 @@ pchIcons <- function(
 #'   ),
 #'   crs = sf::st_crs(Data_Nutrients_UT)
 #' )
-#' # Get the American Indian Reservations feature layer,
-#' # filtered by the bounding box for the Data_Nutrients_UT example dataset
-#' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' # Retrieve a layer, filtered by the bounding box
+#' getFeatureLayer(
+#'   "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query",
+#'   bbox
+#' )
 #' }
 getFeatureLayer <- function(url, bbox = NULL) {
-  if (is.null(bbox)) {
-    inputGeom <- NULL
-  } else {
-    inputGeom <- getBboxJson(bbox)
-  }
-  url <- paste0(
+  q <- paste0(
     url,
-    "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",
-    inputGeom,
-    "&f=geojson"
+    "?where=1%3D1&outFields=*&returnGeometry=true&f=geojson"
   )
-  layer <- sf::read_sf(url)
-  return(layer)
+  if (!is.null(bbox)) {
+    q <- paste0(q, "&geometry=", getBboxJson(bbox))
+  }
+  tryCatch(
+    sf::read_sf(q),
+    error = function(e) {
+      stop("read_sf() failed for URL: ", url, " — ", conditionMessage(e))
+    }
+  )
 }
 
-#' Download a shapefile from an API and save it locally (overwrite-safe)
+#' Download a shapefile from an API and save it locally (overwrite‑safe)
 #'
 #' Downloads a feature layer as an `sf` object and saves it to a local ESRI
 #' Shapefile. If a shapefile with the same base name exists, it is overwritten.
 #'
 #' Notes:
-#' - Shapefile attribute names are limited to 10 characters; they are truncated
-#'   automatically by GDAL/DBF. This function preemptively renames
-#'   `TOTALAREA_MI` and `TOTALAREA_KM` to avoid collisions after truncation.
-#' - Directory for `layerfilepath` is created if it does not exist.
+#' • Shapefile attribute names are limited to 10 characters. If
+#'   `sanitize_names = TRUE`, this function ensures names are lowercased, use
+#'   only Unicode letters/digits/underscore, are at most 10 characters, and are
+#'   unique even after suffixing. It does not transliterate to ASCII.
+#'   Depending on GDAL/DBF behavior, non‑ASCII field names may be altered at
+#'   write time by the driver.
+#' • To avoid known DBF truncation collisions, fields `TOTALAREA_MI` and
+#'   `TOTALAREA_KM` are preemptively renamed to `TAREA_MI` and `TAREA_KM`.
+#'   If `sanitize_names = TRUE`, these names will subsequently be lowercased.
+#' • Some services store dates as epoch milliseconds (e.g., 1682899200000).
+#'   Shapefile cannot represent such large integers in numeric fields without
+#'   width issues; this function converts likely epoch‑millisecond columns to
+#'   Date or POSIXct automatically before writing.
+#' • The directory for `layerfilepath` is created if it does not exist.
+#' • The output path is normalized (on Windows, forward slashes are used) before
+#'   writing to reduce transient GDAL warnings about temporary paths.
 #'
-#' @param url Character(1). URL of the layer REST service, typically ending
-#'   with "/query". Example:
-#'   "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+#' @param url Character(1). URL of the layer REST service, typically ending with
+#'   “/query”. Example:
+#'   “https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query”
 #' @param layerfilepath Character(1). Local path for the output .shp, e.g.,
-#'   "inst/extdata/OKTribe.shp".
-#' @param sanitize_names Logical. If TRUE, ensure all DBF field names are unique
+#'   “inst/extdata/OKTribe.shp”.
+#' @param sanitize_names Logical. If TRUE, ensure DBF field names are unique
 #'   and at most 10 characters (default: TRUE).
 #'
 #' @return Invisibly returns the normalized path to the .shp file.
@@ -1358,72 +1381,148 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' }
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
-  stopifnot(
-    is.character(layerfilepath),
-    length(layerfilepath) == 1L,
-    nchar(layerfilepath) > 0L
-  )
+  stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
 
   if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
-    warning(
-      "layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension."
-    )
+    warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
   }
 
   # Retrieve the feature layer as an sf object
-  layer <- tryCatch(getFeatureLayer(url), error = function(e) {
-    stop("getFeatureLayer() failed for URL: ", url, " - ", conditionMessage(e))
-  })
+  layer <- tryCatch(
+    getFeatureLayer(url),
+    error = function(e) {
+      stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+    }
+  )
 
-  # Avoid DBF name collisions after 10-char truncation
-  # Special-case the known problematic fields first
-  if ("TOTALAREA_MI" %in% names(layer)) {
-    layer <- dplyr::rename(layer, TAREA_MI = TOTALAREA_MI)
-  }
-  if ("TOTALAREA_KM" %in% names(layer)) {
-    layer <- dplyr::rename(layer, TAREA_KM = TOTALAREA_KM)
-  }
+  # Preemptively rename known problematic fields using base R
+  nm <- names(layer)
+  if ("TOTALAREA_MI" %in% nm) nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
+  if ("TOTALAREA_KM" %in% nm) nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
+  names(layer) <- nm
 
-  # Optionally sanitize all field names to <= 10 chars and ensure uniqueness
+  # Optionally sanitize all field names to ≤ 10 chars and unique, leaving geometry column untouched
   if (isTRUE(sanitize_names)) {
+    geom_col <- attr(layer, "sf_column")
+    if (is.null(geom_col)) geom_col <- "geometry"
     nm <- names(layer)
-    # Leave geometry column alone
-    geom_col <- attr(layer, "sf_column") %||% "geometry"
     keep <- nm != geom_col
-    nm_sanitized <- nm
-    nm_sanitized[keep] <- tolower(gsub("[^A-Za-z0-9_]", "_", nm[keep]))
-    nm_sanitized[keep] <- substr(nm_sanitized[keep], 1L, 10L)
-    # Ensure uniqueness deterministically
-    nm_sanitized[keep] <- make.unique(nm_sanitized[keep], sep = "_")
-    names(layer) <- nm_sanitized
+    nm[keep] <- .sanitize_dbf_names_unicode(nm[keep])
+    names(layer) <- nm
   }
+
+  # Convert epoch‑millisecond numeric fields to Date/POSIXct to avoid DBF width warnings
+  layer <- .convert_epoch_ms_dates(layer)
 
   # Ensure output directory exists
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
 
+  # Normalize path (helps on Windows)
+  layerfilepath_norm <- normalizePath(layerfilepath, winslash = "/", mustWork = FALSE)
+
   # Overwrite the shapefile dataset (delete_dsn removes the entire set)
-  ok <- tryCatch(
+  tryCatch(
     {
       sf::st_write(
         layer,
-        layerfilepath,
+        layerfilepath_norm,
         delete_dsn = TRUE,
         quiet = TRUE,
         layer_options = c("ENCODING=UTF-8")
       )
-      TRUE
     },
     error = function(e) {
-      stop(
-        "st_write() failed for path: ",
-        layerfilepath,
-        " - ",
-        conditionMessage(e)
-      )
+      # Use em dash in the message
+      stop(sprintf(
+        "st_write() failed for path: %s \u2014 %s",
+        layerfilepath_norm, conditionMessage(e)
+      ))
     }
   )
 
   invisible(normalizePath(layerfilepath, mustWork = FALSE))
+}
+
+# Internal helper: enforce Shapefile field‑name rules without ASCII transliteration.
+# • Keep only Unicode letters/digits/underscore
+# • Must start with a letter (prefix ‘f’ if needed)
+# • ≤ 10 characters
+# • Unique, with numeric suffixes applied WITHOUT exceeding 10 chars
+.sanitize_dbf_names_unicode <- function(nm) {
+  # Remove characters outside Unicode letters/digits/underscore
+  nm <- gsub("[^\\p{L}\\p{N}_]", "_", nm, perl = TRUE)
+  nm <- tolower(nm)
+
+  # Remove leading underscores; ensure names start with a letter
+  nm <- gsub("^_+", "", nm, perl = TRUE)
+  nm[nm == ""] <- "f"
+  starts_with_letter <- grepl("^\\p{L}", nm, perl = TRUE)
+  nm[!starts_with_letter] <- paste0("f", nm[!starts_with_letter])
+
+  out <- character(length(nm))
+  for (i in seq_along(nm)) {
+    base <- .substr_u(nm[i], 1L, 10L)
+    candidate <- base
+    n <- 1L
+    while (candidate %in% out) {
+      suffix <- as.character(n) # no underscore to save space
+      allowed <- 10L - nchar(suffix, type = "chars", allowNA = FALSE, keepNA = FALSE)
+      if (allowed <= 0L) {
+        # Extremely many collisions; fall back to last 10 chars of suffix
+        total <- nchar(suffix, type = "chars")
+        start <- max(1L, total - 9L)
+        candidate <- .substr_u(suffix, start, total)
+      } else {
+        candidate <- paste0(.substr_u(nm[i], 1L, allowed), suffix)
+      }
+      n <- n + 1L
+    }
+    out[i] <- candidate
+  }
+  out
+}
+
+# Unicode‑aware substring helper using character counts
+.substr_u <- function(x, start, stop) {
+  # Convert to vector of characters (code points) and paste back
+  ch <- strsplit(x, "", fixed = FALSE, useBytes = FALSE)[[1L]]
+  if (length(ch) == 0L) {
+    return("")
+  }
+  start <- max(1L, start)
+  stop <- min(length(ch), stop)
+  if (start > stop) {
+    return("")
+  }
+  paste0(ch[start:stop], collapse = "")
+}
+
+# Detect and convert epoch‑millisecond numeric fields to Date/POSIXct
+# Heuristic: values between 1e11 and 1e14 are interpreted as milliseconds since 1970‑01‑01.
+# If all times are midnight UTC, convert to Date; otherwise keep POSIXct (UTC).
+.convert_epoch_ms_dates <- function(x) {
+  if (!inherits(x, "sf")) {
+    return(x)
+  }
+  geom_col <- attr(x, "sf_column")
+  for (col in names(x)) {
+    if (!is.null(geom_col) && identical(col, geom_col)) next
+    v <- x[[col]]
+    if (!is.numeric(v)) next
+    v_ok <- is.finite(v) & !is.na(v)
+    if (!any(v_ok)) next
+    vv <- v[v_ok]
+    if (min(vv) >= 1e11 && max(vv) <= 1e14) {
+      dt <- as.POSIXct(v / 1000, origin = "1970-01-01", tz = "UTC")
+      hhmmss <- format(dt[v_ok], "%H%M%S")
+      if (all(hhmmss == "000000")) {
+        x[[col]] <- as.Date(dt)
+      } else {
+        x[[col]] <- dt
+      }
+    }
+  }
+  x
 }
 
 #' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
@@ -1464,94 +1563,150 @@ getLayer <- function(layerfilepath, bbox = NULL) {
   return(layer)
 }
 
-#' Get text for tribal marker popup
-#' getTribalPopup is used within TADA_addPolys and TADA_addPoints
+#' Build popup text for tribal map features
 #'
-#' @param layer A map feature layer
-#' @param layername Name of the layer
-#' @return Vector of strings to be used as the text for the popups when clicking on a tribal marker
+#' Creates HTML popup text for map features, resolving columns case‑insensitively
+#' and supporting alternative or sanitized DBF names for common fields
+#' (e.g., `TRIBE_N`/`TRIBE_NAME`, `ALAND_KM`/`TAREA_KM`, etc.).
+#'
+#' Notes:
+#' • Area fields are rounded to two decimal places.
+#' • The “EPA Region” field may be semicolon‑delimited in the data; this is
+#'   normalized to a comma‑separated list for display.
+#' • Area units are inferred from column suffixes: “_KM” → “(sq kilometers)”
+#'   and anything else defaults to “(sq miles)”.
+#'
+#' @param layer An `sf` object containing the features to display.
+#' @param layername Character(1). Human‑readable name of the layer (used as a header).
+#'
+#' @return A character vector of HTML strings to use as popup content.
 #'
 #' @examples
 #' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas feature layer
+#' # Load a local layer and build popup text
 #' layer <- getLayer("extdata/OKTribe.shp")
-#' # Get popup text for individual markers
-#' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' popups <- getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' head(popups)
 #' }
 getTribalPopup <- function(layer, layername) {
-  popups <- vector("character", nrow(layer))
+  n <- nrow(layer)
+  if (n == 0) {
+    return(character(0))
+  }
 
-  # select and rename cols
-  cols <- c(
-    "TRIBE_N" = "Tribe",
-    "STATE" = "State",
-    "REGION" = "EPA Region",
-    "AWATER_M" = "Water Area (sq miles)",
-    "ALAND_M" = "Land Area (sq miles)",
-    "TOTALAREA_M" = "Total Area (sq miles)",
-    "EPA_ID" = "EPA ID"
+  # Case-insensitive resolver
+  resolve_col_ci <- function(nm, candidates) {
+    nm_low <- tolower(nm)
+    cand_low <- tolower(candidates)
+    idx <- match(cand_low, nm_low)
+    idx <- idx[!is.na(idx)]
+    if (length(idx)) nm[idx[1]] else NA_character_
+  }
+
+  # Core identifiers
+  tribe_col <- resolve_col_ci(names(layer), c("TRIBE_N", "TRIBE_NAME", "TRIBE"))
+  state_col <- resolve_col_ci(names(layer), c("STATE"))
+  region_col <- resolve_col_ci(names(layer), c("REGION"))
+  epaid_col <- resolve_col_ci(names(layer), c("EPA_ID", "EPAID", "EPA_ID_"))
+
+  # Area field candidates (support mi/km variants and TAREA_* fallbacks)
+  water_candidates <- c("AWATER_MI", "AWATER_KM", "AWATER_M", "AWATER_K")
+  land_candidates <- c("ALAND_MI", "ALAND_KM", "ALAND_M", "ALAND_K")
+  total_candidates <- c(
+    "TOTALAREA_MI", "TOTALAREA_KM", "TOTALAREA_M", "TOTALAREA_K",
+    "TAREA_MI", "TAREA_KM"
   )
 
-  # create popup text for each polygon
-  for (j in seq_len(nrow(layer))) {
-    text <- paste0("<strong>", layername, "</strong><p>")
+  water_col <- resolve_col_ci(names(layer), water_candidates)
+  land_col <- resolve_col_ci(names(layer), land_candidates)
+  total_col <- resolve_col_ci(names(layer), total_candidates)
 
-    for (i in seq_along(cols)) {
-      col_name <- names(cols[i])
+  unit_label <- function(colname) {
+    if (is.na(colname)) {
+      return("")
+    }
+    if (grepl("_km$", colname, ignore.case = TRUE)) {
+      " (sq kilometers)"
+    } else {
+      " (sq miles)"
+    }
+  }
 
-      if (col_name %in% colnames(layer)) {
-        value <- layer[j, col_name, drop = TRUE]
+  popups <- vector("character", n)
+  for (j in seq_len(n)) {
+    txt <- paste0("<strong>", layername, "</strong><p>")
 
-        # if col is "REGION", process the semicolon-delimited string
-        if (col_name == "REGION") {
-          # split the string by semicolon, get unique values, and join them back
-          value <- unique(unlist(strsplit(value, ";\\s*")))
-        }
-
-        # if the col contains an area, round the value
-        if (col_name %in% c("AWATER_M", "ALAND_M", "TOTALAREA_M")) {
-          # round to two decimal places
-          value <- round(value, digits = 2)
-        }
-
-        value_str <- paste(value, collapse = ", ")
-
-        text <- paste0(
-          text,
-          "<strong>",
-          cols[i],
-          "</strong>: ",
-          value_str,
-          "<br>"
-        )
+    add_field <- function(label, col) {
+      if (!is.na(col) && col %in% names(layer)) {
+        v <- layer[j, col, drop = TRUE]
+        if (is.numeric(v)) v <- round(v, 2)
+        v <- paste(v, collapse = ", ")
+        paste0("<strong>", label, "</strong>: ", v, "<br>")
+      } else {
+        ""
       }
     }
 
-    popups[j] <- text
-  }
+    # REGION may be semicolon-separated; normalize for display
+    region_val <- ""
+    if (!is.na(region_col) && region_col %in% names(layer)) {
+      v <- layer[j, region_col, drop = TRUE]
+      v <- unique(unlist(strsplit(as.character(v), ";\\s*")))
+      region_val <- paste0("<strong>EPA Region</strong>: ", paste(v, collapse = ", "), "<br>")
+    }
 
-  return(popups)
+    txt <- paste0(
+      txt,
+      add_field("Tribe", tribe_col),
+      add_field("State", state_col),
+      region_val,
+      add_field(paste0("Water Area", unit_label(water_col)), water_col),
+      add_field(paste0("Land Area", unit_label(land_col)), land_col),
+      add_field(paste0("Total Area", unit_label(total_col)), total_col),
+      add_field("EPA ID", epaid_col)
+    )
+    popups[j] <- txt
+  }
+  popups
 }
 
 #' Add polygons from an ArcGIS feature layer to a leaflet map
 #'
-#' @param map A leaflet map
-#' @param layerfilepath Local path to the .shp file for the layer
-#' @param layergroup Name of the layer group
-#' @param layername Name of the layer
-#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
-#' @return The original map with polygons from the feature layer added to it.
+#' Adds polygons from a local Shapefile (read via `getLayer`) to a leaflet map,
+#' with a color fill based on an automatically detected “area” column.
+#'
+#' Notes:
+#' • The function resolves area columns case‑insensitively and supports multiple
+#'   candidate names, including sanitized or shortened DBF names (e.g., `ALAND_KM`,
+#'   `AREA_KM`, `TAREA_KM`, etc.). If no suitable area column is found, a fixed
+#'   fill color is used.
+#' • Popups are created by `getTribalPopup()` and are robust to case differences
+#'   and sanitized field names.
+#'
+#' @param map A leaflet map object.
+#' @param layerfilepath Character(1). Local path to the `.shp` file for the layer.
+#' @param layergroup Character(1). Name of the layer group.
+#' @param layername Character(1). Name of the layer (used in popup headers).
+#' @param bbox Optional bounding box from `sf::st_bbox` to crop the layer before
+#'   adding it to the map. Defaults to NULL.
+#'
+#' @return The input leaflet map with polygons added.
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' # Create a leaflet map
+#' # Create a leaflet map and add a polygon layer from a local Shapefile
 #' lmap <- leaflet::leaflet() |>
 #'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
 #'   leaflet::addMapPane("featurelayers", zIndex = 300)
-#' # Add the American Indian Reservations feature layer to the map
-#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#'
+#' lmap <- TADA_addPolys(
+#'   lmap,
+#'   "extdata/AmericanIndian.shp",
+#'   "Tribes",
+#'   "American Indian Reservations"
+#' )
 #' lmap
 #' }
 TADA_addPolys <- function(
@@ -1565,13 +1720,44 @@ TADA_addPolys <- function(
   if (is.null(layer)) {
     return(map)
   }
+
   lbbox <- sf::st_bbox(layer)
   if (is.na(lbbox[1])) {
     return(map)
   }
-  areaColumn <- "ALAND_KM"
-  if (!(areaColumn %in% colnames(layer))) {
-    areaColumn <- "AREA_KM"
+
+  # Case-insensitive resolver for column names
+  resolve_col_ci <- function(nm, candidates) {
+    nm_low <- tolower(nm)
+    cand_low <- tolower(candidates)
+    idx <- match(cand_low, nm_low)
+    idx <- idx[!is.na(idx)]
+    if (length(idx)) nm[idx[1]] else NA_character_
+  }
+
+  # Prefer land/area in km, then alternative fields (supports sanitized names)
+  candidates <- c(
+    "ALAND_KM", "ALAND_MI", "AREA_KM", "AREA_MI",
+    "ALAND_M", "AREA_M", "AREASQKM",
+    "TOTALAREA_KM", "TAREA_KM", "TOTALAREA_MI", "TAREA_MI"
+  )
+  area_col <- resolve_col_ci(names(layer), candidates)
+
+  # Fallback: any numeric column containing area/land/water
+  if (is.na(area_col)) {
+    num_cols <- names(layer)[sapply(layer, is.numeric)]
+    area_like <- grep("(area|land|water)", num_cols, ignore.case = TRUE, value = TRUE)
+    area_col <- if (length(area_like)) area_like[1] else NA_character_
+  }
+
+  pal_fun <- NULL
+  fill_col <- NULL
+  if (!is.na(area_col)) {
+    vals <- layer[[area_col]]
+    if (is.numeric(vals)) {
+      pal_fun <- leaflet::colorNumeric("Oranges", vals)
+      fill_col <- pal_fun(vals)
+    }
   }
 
   map <- leaflet::addPolygons(
@@ -1582,9 +1768,7 @@ TADA_addPolys <- function(
     smoothFactor = 0.5,
     opacity = 1.0,
     fillOpacity = 0.2,
-    fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[
-      areaColumn
-    ]]),
+    fillColor = if (!is.null(fill_col)) fill_col else "#FDBE85",
     highlightOptions = leaflet::highlightOptions(
       color = "white",
       weight = 2,
@@ -1594,7 +1778,7 @@ TADA_addPolys <- function(
     group = layergroup,
     options = leaflet::pathOptions(pane = "featurelayers")
   )
-  return(map)
+  map
 }
 
 #' Add points from an ArcGIS feature layer to a leaflet map

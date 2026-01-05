@@ -2,28 +2,36 @@
 % Please edit documentation in R/Utilities.R
 \name{getTribalPopup}
 \alias{getTribalPopup}
-\title{Get text for tribal marker popup
-getTribalPopup is used within TADA_addPolys and TADA_addPoints}
+\title{Build popup text for tribal map features}
 \usage{
 getTribalPopup(layer, layername)
 }
 \arguments{
-\item{layer}{A map feature layer}
+\item{layer}{An \code{sf} object containing the features to display.}
 
-\item{layername}{Name of the layer}
+\item{layername}{Character(1). Human‑readable name of the layer (used as a header).}
 }
 \value{
-Vector of strings to be used as the text for the popups when clicking on a tribal marker
+A character vector of HTML strings to use as popup content.
 }
 \description{
-Get text for tribal marker popup
-getTribalPopup is used within TADA_addPolys and TADA_addPoints
+Creates HTML popup text for map features, resolving columns case‑insensitively
+and supporting alternative or sanitized DBF names for common fields
+(e.g., \code{TRIBE_N}/\code{TRIBE_NAME}, \code{ALAND_KM}/\code{TAREA_KM}, etc.).
+}
+\details{
+Notes:
+• Area fields are rounded to two decimal places.
+• The “EPA Region” field may be semicolon‑delimited in the data; this is
+normalized to a comma‑separated list for display.
+• Area units are inferred from column suffixes: “_KM” → “(sq kilometers)”
+and anything else defaults to “(sq miles)”.
 }
 \examples{
 \dontrun{
-# Get the Oklahoma Tribal Statistical Areas feature layer
+# Load a local layer and build popup text
 layer <- getLayer("extdata/OKTribe.shp")
-# Get popup text for individual markers
-getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
+popups <- getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
+head(popups)
 }
 }
