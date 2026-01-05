@@ -131,109 +131,50 @@ getMapIconLabels <- function(icons = TRUE,
   }
 }
 
-#' #' addATTAINS (UNDER ACTIVE DEVELOPMENT)
-#' #'
-#' #' Internal function to add ATTAINS lines, points, or polygons to TADA maps.
-#' #'
-#' #' @param .data The list of data frames created from TADA_CreateAUMLCrosswalk or
-#' #' TADA_CreateATTAINSAUMLCrosswalk.
-#' #'
-#' #' @param geo_type Character string. Valid options are "line", "point", or
-#' #' "polygon". This is required to run the function. If it is NULL, the function
-#' #' will fail with an error message. Default is geo_type = NULL.
-#' #'
-#' #' @param overlay_groups Initialized vector to add names of groups added to map. If
-#' #' it is NULL, the function will fail with an error message. Default is
-#' #' overlay_list = NULL.
-#' #'
-#' #' @param group_name Character string. This is the layer name that will appear
-#' #' to turn map layers on and off.
-#' #'
-#' #' @param color Color of line
-#' #'
-#' #' @param fillColor Fill color for polygons
-#' #'
-#' #' @param opacity
-#' #'
-#' #' @param weight
-#' #'
-#' #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
-#' #'
-#' # add ATTAINS geometry to existing leaflet map
-#' addATTAINS <- function(.data,
-#'                         map = NULL,
-#'                         geo_type = NULL,
-#'                         overlay_groups = NULL,
-#'                         group_name = "ATTAINS catchments",
-#'                         color = "black",
-#'                         fillColor = "gray",
-#'                         opacity = 0.3,
-#'                         weight = 1
-#'                         ) {
-#'    # stop function if map is not provided
-#'    if(is.null(map)) {
-#'      stop("addATTAINS: a leaflet map must be supplied to run this function.")
-#'    }
+#'  addATTAINSAUs
+#' Internal function to add ATTAINS assessment unit lines, points, or polygons to
+#' TADA maps.
 #'
-#'    # stop function if geometry type is not provided
-#'    if(is.null(geo_type)) {
-#'    stop("addATTAINS: geo_type must be supplied to run this function.")
-#'  }
+#' @param .data A data frames created from prepATTAINSMapper contains a geometry
+#' column.
 #'
-#'    # stop function if overlay list is not provided
-#'    if(is.null(overlay_groups)) {
-#'    stop("addATTAINS: overlay_groups must be supplied to run this function.")
-#'    }
+#' @param overlay_groups Initialized vector to add names of groups added to map. If
+#' it is NULL, the function will fail with an error message. Default is overlay_list
+#' = NULL.
 #'
-#' # select required dfs for mapping
+#' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
-#'    df.list <- .data
-#'
-#'    .data <- switch(group_name,
-#'                    "ATTAINS catchments" = "black",
-#'                    "ATTAINS outlines" = .data$col,
-#'                    "missing ATTAINS catchment outlines" = "#d62728",
-#'                    "ATTAINS polygon features" = "#7f7f7f"
-#'    ))
-#'
-#'    set.color <- switch(
-#'      group_name,
-#'      "ATTAINS catchments" = "black",
-#'      "ATTAINS outlines" = .data$col,
-#'      "missing ATTAINS catchment outlines" = "#d62728",
-#'      "ATTAINS polygon features" = "#7f7f7f"
-#'    )
-#'
-#' # add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
-#'
-#' # Add ATTAINS polygons
-#'    # options for adding ATTAINS polygons are: ATTAINS catchments, ATTAINS outlines,
-#'    # missing ATTAINS catchment outlines, ATTAINS polygon features
-#'
-#'    if(geo_type == "polygon") {
-#'
-#'    if(!group_name %in% c("ATTAINS catchments",
-#'                         "ATTAINS outlines",
-#'                         "missing ATTAINS catchment outlines",
-#'                         "ATTAINS polygon features")) {
-#'      stop("addATTAINS: Supplied group name does not match allowable ATTAINS polygon
-#'           group. group_name must be 'ATTAINS catchments', 'ATTAINS outlines',
-#'           'missing ATTAINS catchment outlines' or 'ATTAINS polygon features'")
-#'    }
-#'
-#'      if(!group_name %in% c("missing ATTAINS catchment outlines",
-#'                            "ATTAINS catchments")) {
-#'        .data <-
-#'      }
-#'
-#'          add without ATTAINS catchments if available
-#'        without_ATTAINS_catchments <- NULL
-#'      try(
-#'        without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-#'          dplyr::rename(nhd = 1),
-#'         silent = TRUE
-#'       )
-#'
+# add ATTAINS geometry to existing leaflet map
+  addATTAINSAUs <- function(.data,
+                         map = NULL,
+                         overlay_groups = NULL
+                         ) {
+    # stop function if map is not provided
+    if(is.null(map)) {
+      stop("addATTAINS: a leaflet map must be supplied to run this function.")
+    }
+
+    # stop function if overlay list is not provided
+    if(is.null(overlay_groups)) {
+    stop("addATTAINS: overlay_groups must be supplied to run this function.")
+    }
+
+    # get geometry type
+    geo.type <- .data$type[1]
+
+    # set group name
+    .data <- switch(group_name,
+                    "Point Feature" = "ATTAINS point features",
+                    "Line Feature" = "ATTAINS line features",
+                    "Polygon Feature" = "ATTAINS polygon features")
+
+    # remove intermediate object
+    rm(geo.type)
+
+    # add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
+
+  # Add ATTAINS polygons
+
 #'      set.color <- switch(
 #'        group_name,
 #'        "ATTAINS catchments" = "black",
@@ -649,13 +590,21 @@ getWQPSiteStats <- function(.data,
     }
 
     if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+
+      if(!"TADA.AURefSource" %in% names(.data)) {
+
+        .data <- .data |>
+          dplyr::mutate(TADA.AURefSource = "not provided")
+      }
+
       sumdat <- .data |>
         dplyr::group_by(
           TADA.MonitoringLocationIdentifier,
           TADA.MonitoringLocationName,
           OrganizationFormalName,
           TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure
+          TADA.LongitudeMeasure,
+          TADA.AURefSource
         ) |>
         dplyr::summarize(
           Sample_Count = length(unique(ResultIdentifier)),
@@ -664,12 +613,7 @@ getWQPSiteStats <- function(.data,
           Organization_Count = length(unique(OrganizationIdentifier)),
           ATTAINS_AUs = as.character(list(unique(
             ATTAINS.AssessmentUnitIdentifier
-          ))),
-          TADA.AURefSource = ifelse(
-            "TADA.AURefSource" %in% names(.data),
-            as.character(TADA.AURefSource),
-            "not provided"
-          )
+          )))
         ) |>
         dplyr::mutate(
           ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
