@@ -231,6 +231,8 @@ Otherwises
 OutsideUSA
 OverviewMap
 POJOAQUE
+POSIXct
+POSIXlt
 PUEBLOOFTESUQUE
 PairForCriteriaCalc
 PairReplicates
@@ -423,9 +425,9 @@ decimaldigits
 depthcat
 devtools
 df
+difftime
 displayNA
 displayUniqueId
-dplyr
 du
 eXchange
 ecc
@@ -526,8 +528,8 @@ tibble
 tidyverse
 tigris
 tmap
+tz
 un
-uncomment
 uncommenting
 uniqueDataId
 useR

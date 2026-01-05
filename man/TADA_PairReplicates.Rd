@@ -10,10 +10,12 @@ TADA_PairReplicates(.data, type = c("QC_replicate"), time_difference = 600)
 \item{.data}{TADA dataframe which must include the columns 'OrganizationIdentifier',
 'ActivityTypeCode', 'ActivityStartDate', 'ActivityStartDateTime', 'ResultIdentifier',
 'ActivityRelativeDepthName', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
-'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag',
+'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier',
 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and
-'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.}
+'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.
+The column 'TADA.ActivityType.Flag' is optional; if missing, it will be created
+internally using TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE).}
 
 \item{type}{Character argument identifying which Activity Types to look for while pairing replicates
 to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes:
@@ -23,26 +25,33 @@ to their parent samples. The default type is "QC_replicate", which includes Acti
 "Quality Control Field Replicate Sample-Composite", and
 "Quality Control Sample-Field Replicate".}
 
-\item{time_difference}{Numeric argument defining the maximum time difference in seconds
-to search for parent samples. The default time window is 600 seconds or 10 minutes.
-The time_difference can be as large as the user would like, but parent-replicate pairs will only be
+\item{time_difference}{Numeric scalar defining the maximum time difference in seconds
+to search for parent samples. The default time window is 600 seconds (10 minutes).
+The time_difference can be as large as the user would like, but parent–replicate pairs will only be
 identified if they were collected on the same date.}
 }
 \value{
-This function adds one column to the original dataframe: 'TADA.ReplicateSampleID'.
-'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample
-if a parent sample match is identified. Both the replicate sample and the parent sample
-will have the same 'ResultIdentifier' code in this column, marking them as a pair.
-If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
-column but does not have an associated parent sample in the dataframe, the 'TADA.ReplicateSampleID'
-column will contain the flag 'Orphan'. If more than one parent or replicate sample is identified
-in the dataframe, the 'TADA.ReplicateSampleID' column for all samples will contain the
-'ResultIdentifier' value from one of the replicate samples marking them as a grouping.
+If replicates of the requested type are present, this function adds one column
+to the dataframe: 'TADA.ReplicateSampleID'. When added, it is initialized to the string
+"NA - Not Available", matched pairs receive the replicate sample's 'ResultIdentifier',
+and unmatched replicate rows are assigned "Orphan". If no replicates of the requested type
+are found, the function emits a message and returns the input unchanged (no column added).
 }
 \description{
 This function looks for replicate samples and pairs them to their original or
 parent sample for further analysis. Replicate samples without an associated original
 sample are flagged as orphan samples.
+}
+\details{
+\itemize{
+\item Column creation is conditional: 'TADA.ReplicateSampleID' is added only when replicates
+of the requested type exist; if present already, it will be overwritten.
+\item If 'ActivityStartDateTime' is not POSIXct/POSIXlt, the function will attempt to parse it
+internally (format "\%Y-\%m-\%d \%H:\%M:\%S", tz = "UTC") for time-window filtering.
+If parsing fails (all values NA), time filtering is skipped.
+\item Time comparisons are performed in seconds using difftime(..., units = "secs").
+\item Parent–replicate pairing is only considered when 'ActivityStartDate' matches.
+}
 }
 \examples{
 # Load example dataset:

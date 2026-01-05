@@ -279,17 +279,6 @@ columns are used to identify groundwater results as organizations may
 populate different combinations of fields in order to identify
 groundwater results.
 
-Users can specify whether all results should be returned with a new
-column, *TADA.Media.Flag*, providing information about the
-result's media type and identifying if the result should be included in
-further analysis, or if only results that should be included are
-returned.
-
-The defaults are to include surface water, exclude groundwater and
-sediment, and to return all results with the added
-*TADA.Media.Flag* column (clean = FALSE). This is shown in the
-example below.
-
 We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again
 to review this more specific breakdown of results by media type.
 

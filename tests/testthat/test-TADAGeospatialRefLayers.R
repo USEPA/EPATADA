@@ -1,5 +1,26 @@
+# Small helpers for these tests (ASCII-only, no withr)
+capture_msgs <- function(expr) {
+  paste(
+    capture.output(
+      suppressWarnings(eval.parent(substitute(expr))),
+      type = "message"
+    ),
+    collapse = "\n"
+  )
+}
+
+setup_test_dir <- function() {
+  owd <- getwd()
+  tmp <- tempfile("tada-test-")
+  dir.create(tmp, recursive = TRUE, showWarnings = FALSE)
+  setwd(tmp)
+  function() {
+    setwd(owd)
+    unlink(tmp, recursive = TRUE, force = TRUE)
+  }
+}
+
 test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skips when unchanged", {
-  skip_if_not_installed("sf")
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
   if (inherits(ns, "try-error")) {
     skip("EPATADA namespace not available.")
@@ -18,9 +39,10 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
     }
   }
 
-  # Create a temporary project root with inst/extdata
-  tmp <- withr::local_tempdir()
-  withr::local_dir(tmp)
+  # Base-R local temp project (no withr)
+  cleanup <- setup_test_dir()
+  on.exit(cleanup(), add = TRUE)
+
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
 
   # Use proper geometry: points and extra epoch-ms fields (<=10 chars to avoid shapefile name warning)
@@ -46,7 +68,7 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
 
   # Prepare a local source dataset (GeoJSON) for all URLs
   s1 <- make_points_sf(n = 2, offset = 0L)
-  src1 <- file.path(tmp, "src1.geojson")
+  src1 <- file.path(getwd(), "src1.geojson")
   sf::write_sf(s1, src1, quiet = TRUE)
 
   # Assign all internal URL symbols to this local source
@@ -58,11 +80,8 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
   }
 
   # 1) First run: write all shapefiles and create meta sidecars
-  expect_message(
-    suppressWarnings(TADA_UpdateTribalLayers()),
-    "updated\\.",
-    fixed = FALSE
-  )
+  msg1 <- capture_msgs(TADA_UpdateTribalLayers())
+  expect_true(grepl("updated", msg1, fixed = TRUE))
 
   dests <- file.path(
     "inst/extdata",
@@ -104,16 +123,21 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
     }
   }
 
+  # Capture mtimes after first run
+  mtimes_after_first <- file.info(dests)$mtime
+
   # 2) Second run unchanged: should skip write based on canonical signature
-  expect_message(
-    suppressWarnings(TADA_UpdateTribalLayers()),
-    "unchanged — skipping write\\.",
-    fixed = FALSE
-  )
+  msg2 <- capture_msgs(TADA_UpdateTribalLayers())
+  expect_true(grepl("unchanged", msg2, fixed = TRUE))
+  expect_true(grepl("skipping write", msg2, fixed = TRUE))
+
+  # Verify none of the shapefiles were touched on unchanged run
+  mtimes_after_second <- file.info(dests)$mtime
+  expect_true(all(mtimes_after_second == mtimes_after_first))
 
   # 3) Change content for one URL and verify update occurs and replaces shapefile
   s2 <- make_points_sf(n = 3, offset = 0L) # add a row -> content change
-  src2 <- file.path(tmp, "src2.geojson")
+  src2 <- file.path(getwd(), "src2.geojson")
   sf::write_sf(s2, src2, quiet = TRUE)
 
   # Change only AKAllotmentsUrl to src2
@@ -122,13 +146,16 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
   }
   assignInNamespace("AKAllotmentsUrl", src2, ns = "EPATADA")
 
+  # Ensure filesystem mtime resolution will capture the change reliably
+  Sys.sleep(1.1)
+
   # Capture mtime before update to confirm change afterwards
   prev_mtime <- file.info("inst/extdata/AKAllotments.shp")$mtime
-  expect_message(
-    suppressWarnings(TADA_UpdateTribalLayers()),
-    "AKAllotments.shp updated\\.",
-    fixed = FALSE
-  )
+
+  msg3 <- capture_msgs(TADA_UpdateTribalLayers())
+  expect_true(grepl("AKAllotments.shp", msg3, fixed = TRUE))
+  expect_true(grepl("updated", msg3, fixed = TRUE))
+
   new_mtime <- file.info("inst/extdata/AKAllotments.shp")$mtime
   expect_true(new_mtime > prev_mtime)
 
@@ -147,7 +174,6 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
 })
 
 test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when unchanged", {
-  skip_if_not_installed("sf")
   skip_if_not_installed("jsonlite")
 
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
@@ -168,8 +194,10 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
     }
   }
 
-  tmp <- withr::local_tempdir()
-  withr::local_dir(tmp)
+  # Base-R local temp project (no withr)
+  cleanup <- setup_test_dir()
+  on.exit(cleanup(), add = TRUE)
+
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
 
   # Create trivial shapefile at each destination so file.exists(dest_shp) is TRUE
@@ -229,11 +257,12 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
     {
       # Capture mtimes to verify they don't change after preflight skip
       old_mtimes <- file.info(dests)$mtime
-      expect_message(
-        suppressWarnings(TADA_UpdateTribalLayers()),
-        "unchanged \\(preflight\\) — skipping download\\.",
-        fixed = FALSE
-      )
+
+      msg4 <- capture_msgs(TADA_UpdateTribalLayers())
+      expect_true(grepl("unchanged", msg4, fixed = TRUE))
+      expect_true(grepl("preflight", msg4, fixed = TRUE))
+      expect_true(grepl("skipping download", msg4, fixed = TRUE))
+
       new_mtimes <- file.info(dests)$mtime
       expect_true(all(new_mtimes == old_mtimes))
     }

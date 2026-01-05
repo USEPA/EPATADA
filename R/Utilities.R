@@ -1372,7 +1372,7 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
 
   # Retrieve the feature layer as an sf object
   layer <- tryCatch(getFeatureLayer(url), error = function(e) {
-    stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+    stop("getFeatureLayer() failed for URL: ", url, " - ", conditionMessage(e))
   })
 
   # Avoid DBF name collisions after 10-char truncation
@@ -1417,7 +1417,7 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
       stop(
         "st_write() failed for path: ",
         layerfilepath,
-        " — ",
+        " - ",
         conditionMessage(e)
       )
     }

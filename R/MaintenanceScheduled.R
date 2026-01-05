@@ -279,13 +279,12 @@
         ask = FALSE
       )
       # Filter for surface water data (optional)
-      Data_WV <- TADA_MediaFilter(
-        Data_WV,
+      Data_WV <- TADA_MediaFilter(Data_WV,
         clean = TRUE,
-        surface_water = TRUE,
-        ground_water = FALSE,
-        sediment = FALSE
-      )
+        surface_water = FALSE,
+        ground_water = TRUE,
+        sediment = TRUE,
+        other = TRUE)
       # Remove single organization duplicates (required)
       Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(Data_WV)
       Data_WV <- dplyr::filter(Data_WV, TADA.SingleOrgDup.Flag == "Unique")

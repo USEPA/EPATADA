@@ -197,7 +197,7 @@ TADA_UpdateTribalLayers <- function() {
         isTRUE(file.exists(dest_shp)) &&
         identical(meta$last_edit, last_edit_remote)
     ) {
-      message(basename(dest_shp), " unchanged (preflight) — skipping download.")
+      message(basename(dest_shp), " unchanged (preflight) - skipping download.")
       return(invisible(FALSE))
     }
 
@@ -214,7 +214,7 @@ TADA_UpdateTribalLayers <- function() {
         identical(meta$sig, sig_new)
     ) {
       write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
-      message(basename(dest_shp), " unchanged — skipping write.")
+      message(basename(dest_shp), " unchanged - skipping write.")
       return(invisible(FALSE))
     }
 

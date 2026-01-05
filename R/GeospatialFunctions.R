@@ -53,105 +53,106 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 
   message("Transforming your data into a spatial object.")
 
-  suppressMessages(suppressWarnings({
-    # Reference table for CRS/EPSG codes
-    epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
-      "NAD83", 4269,
-      "WGS84", 4326,
-      "NAD27", 4267,
-      "UNKWN", as.numeric(crs),
-      "Unknown", as.numeric(crs),
-      "OTHER", as.numeric(crs),
-      "OLDHI", 4135,
-      "AMSMA", 4169,
-      "ASTRO", 4727,
-      "GUAM", 4675,
-      "JHNSN", 4725,
-      "PR", 6139,
-      "SGEOR", 4138,
-      "SLAWR", 4136,
-      "SPAUL", 4137,
-      "WAKE", 6732,
-      "WGS72", 6322,
-      "HARN", 4152
-    )
-
-    # Handle missing/unknown CRS labels
-    if (
-      any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-        any(
-          .data$HorizontalCoordinateReferenceSystemDatumName %in%
-            c("UNKWN", "Unknown", "OTHER")
-        )
-    ) {
-      message(paste0(
-        "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). ",
-        "For these, we have assigned CRS ",
-        crs,
-        "."
-      ))
-      .data$HorizontalCoordinateReferenceSystemDatumName[is.na(
-        .data$HorizontalCoordinateReferenceSystemDatumName
-      )] <- "Unknown"
+  # Resolve target CRS (as EPSG and crs object)
+  target_epsg <- suppressWarnings(as.numeric(crs))
+  if (is.na(target_epsg)) {
+    # allow st_crs inputs like "EPSG:4326" or list crs objects
+    target_crs_obj <- sf::st_crs(crs)
+    target_epsg <- target_crs_obj$epsg
+    if (is.na(target_epsg)) {
+      stop("Could not interpret `crs`. Provide an EPSG code (e.g., 4326) or a valid `st_crs` value.")
     }
+  }
+  target_crs_obj <- sf::st_crs(target_epsg)
 
-    # Prepare data: attach EPSG and numeric lon/lat
-    df <- dplyr::left_join(
-      .data,
-      epsg_codes,
-      by = "HorizontalCoordinateReferenceSystemDatumName"
-    ) |>
-      dplyr::mutate(
-        lat = suppressWarnings(as.numeric(.data$TADA.LatitudeMeasure)),
-        lon = suppressWarnings(as.numeric(.data$TADA.LongitudeMeasure))
+  # Reference table for CRS/EPSG codes
+  epsg_codes <- tibble::tribble(
+    ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+    "NAD83", 4269,
+    "WGS84", 4326,
+    "NAD27", 4267,
+    "UNKWN", target_epsg,
+    "Unknown", target_epsg,
+    "OTHER", target_epsg,
+    "OLDHI", 4135,
+    "AMSMA", 4169,
+    "ASTRO", 4727,
+    "GUAM", 4675,
+    "JHNSN", 4725,
+    "PR", 6139,
+    "SGEOR", 4138,
+    "SLAWR", 4136,
+    "SPAUL", 4137,
+    "WAKE", 6732,
+    "WGS72", 6322,
+    "HARN", 4152
+  )
+
+  # Handle missing/unknown CRS labels
+  if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
+    any(.data$HorizontalCoordinateReferenceSystemDatumName %in% c("UNKWN", "Unknown", "OTHER"))) {
+    message(
+      sprintf(
+        "Your WQP dataframe contains observations without a listed CRS. Assigning CRS %s to those rows.",
+        target_epsg
       )
+    )
+    .data$HorizontalCoordinateReferenceSystemDatumName[
+      is.na(.data$HorizontalCoordinateReferenceSystemDatumName)
+    ] <- "Unknown"
+  }
 
-    # Drop rows with missing coordinates
-    df <- df[!is.na(df$lon) & !is.na(df$lat), ]
-    if (nrow(df) == 0) {
-      stop("No valid rows with latitude/longitude found.")
-    }
-
-    # Convert each CRS subset to sf, then transform to target CRS
-    sflist <- lapply(
-      split(df, df$HorizontalCoordinateReferenceSystemDatumName),
-      function(subset_data) {
-        if (nrow(subset_data) == 0) {
-          return(NULL)
-        }
-        epsg_val <- unique(subset_data$epsg)
-        if (length(epsg_val) != 1 || is.na(epsg_val)) {
-          epsg_val <- as.numeric(crs)
-        }
-        sf_obj <- sf::st_as_sf(
-          subset_data,
-          coords = c("lon", "lat"),
-          crs = epsg_val,
-          remove = TRUE
-        )
-        sf::st_transform(sf_obj, sf::st_crs(as.numeric(crs)))
-      }
+  # Prepare data: attach EPSG and numeric lon/lat
+  df <- dplyr::left_join(
+    .data,
+    epsg_codes,
+    by = "HorizontalCoordinateReferenceSystemDatumName"
+  ) |>
+    dplyr::mutate(
+      lat = suppressWarnings(as.numeric(TADA.LatitudeMeasure)),
+      lon = suppressWarnings(as.numeric(TADA.LongitudeMeasure))
     )
 
-    # Remove empty elements
-    sflist <- Filter(Negate(is.null), sflist)
-    if (length(sflist) == 0) {
-      stop(
-        "No valid point geometries could be created (check latitude/longitude and CRS values)."
+  # Drop rows with missing coordinates
+  n_before <- nrow(df)
+  df <- df[!is.na(df$lon) & !is.na(df$lat), ]
+  n_dropped <- n_before - nrow(df)
+  if (n_dropped > 0) {
+    message(sprintf("Dropped %d rows with missing longitude/latitude.", n_dropped))
+  }
+  if (nrow(df) == 0) {
+    stop("No valid rows with latitude/longitude found.")
+  }
+
+  # Convert each CRS subset to sf, then transform to target CRS
+  sflist <- lapply(
+    split(df, df$HorizontalCoordinateReferenceSystemDatumName),
+    function(subset_data) {
+      if (nrow(subset_data) == 0) {
+        return(NULL)
+      }
+      epsg_val <- unique(subset_data$epsg)
+      if (length(epsg_val) != 1 || is.na(epsg_val)) {
+        epsg_val <- target_epsg
+      }
+      sf_obj <- sf::st_as_sf(
+        subset_data,
+        coords = c("lon", "lat"),
+        crs = epsg_val,
+        remove = TRUE
       )
+      sf::st_transform(sf_obj, target_crs_obj)
     }
+  )
 
-    # Row-bind while preserving sf class
-    sf_out <- tryCatch(
-      {
-        do.call(sf::st_rbind, sflist)
-      },
-      error = function(e) {
-        do.call(rbind, sflist)
-      }
-    )
-  }))
+  # Remove empty elements
+  sflist <- Filter(Negate(is.null), sflist)
+  if (length(sflist) == 0) {
+    stop("No valid point geometries could be created (check latitude/longitude and CRS values).")
+  }
+
+  # Row-bind while preserving sf class (rbind has S3 methods for sf)
+  sf_out <- do.call(rbind, sflist)
 
   return(sf_out)
 }
