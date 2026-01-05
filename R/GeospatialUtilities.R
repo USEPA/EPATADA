@@ -610,3 +610,299 @@ createBBox <- function(.data, as_vector = TRUE) {
     return(bbox)
   }
 }
+
+#' showMissingATTAINSAUs
+#' Internal function to apply a dashed circle marking around WQP monitoring locations
+#' with a user supplied assessment unit assignment which does not have corresponding
+#' geometry in ATTAINS.
+#'
+#' @param ATTAINS_table A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs).
+#'
+#' @param ATTAINS_points A data frame containing ATTAINS point assessment units data
+#' including geometry that was created with TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk.
+#'
+#' @param ATTAINS_lines A data frame containing ATTAINS line assessment units data
+#' including geometry that was created with TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk.
+#'
+#' @param ATTAINS_polygons A data frame containing ATTAINS polygon assessment units data
+#' including geometry that was created with TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk.
+#'
+#' @param map A leaflet map of TADA data to apply the symbology for missing ATTAINS
+#' AUs to.
+#'
+#' @param overlay_groups Initialized vector to add names of groups added to map. If
+#' it is NULL, the function will fail with an error message. Default is overlay_list
+#' = NULL.
+#'
+#' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+#'
+# add ATTAINS geometry to existing leaflet map
+showMissingATTAINSAUs <- function(map = NULL,
+                                  overlay_groups = NULL,
+                                  ATTAINS_table = NULL,
+                                  ATTAINS_points = NULL,
+                                  ATTAINS_lines = NULL,
+                                  ATTAINS_polygons = NULL) {
+
+  # stop function if map is not provided
+  if(is.null(map)) {
+    stop("addATTAINS: a leaflet map must be supplied to run this function.")
+  }
+
+  # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
+  if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
+    user.refs <- ATTAINS_table |>
+      dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure,
+        ATTAINS.WaterType
+      ) |>
+      dplyr::distinct()
+
+    # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+
+    if (dim(user.refs)[1] > 0) {
+      # internal function to create list of auids
+      listAUIDs <- function(.data) {
+        if (dim(.data)[1] == 0) {
+          list <- list()
+        } else {
+          list <- .data |>
+            sf::st_drop_geometry() |>
+            dplyr::select(assessmentunitidentifier) |>
+            dplyr::distinct() |>
+            dplyr::pull()
+        }
+
+        return(list)
+      }
+
+      # create list of assessment units with geometry
+      point.aus <- listAUIDs(ATTAINS_points)
+
+      line.aus <- listAUIDs(ATTAINS_lines)
+
+      polygon.aus <- listAUIDs(ATTAINS_polygons)
+
+      # combine lists and retain unique values
+      all.attains.aus <- unique(Reduce(c, list(point.aus, line.aus, polygon.aus)))
+
+      # find if any assigned aus are missing geometry
+      missing.geo <- user.refs |>
+        dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
+
+      # remove intermediate objects
+      rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
+
+      # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
+      if (dim(missing.geo)[1] > 0) {
+
+        # set up icons for missing geometry
+        missingIcon <- leaflet::icons(
+          iconUrl = system.file(
+            "extdata/icons",
+            "circle-dashed.png",
+            package = "EPATADA"
+          ),
+          iconWidth = 48,
+          iconHeight = 48
+        )
+
+
+        # add missing AU symbology to map
+        map <- map |>
+              leaflet::addMarkers(
+                data = missing.geo,
+                group = "not in ATTAINS",
+                lng = ~TADA.LongitudeMeasure,
+                lat = ~TADA.LatitudeMeasure,
+                icon = missingIcon,
+                popup = paste0(
+                  "Assessment Unit Name: ",
+                  "not available in ATTAINS",
+                  "<br> Assessment Unit ID: ",
+                  missing.geo$ATTAINS.AssessmentUnitIdentifier,
+                  "<br> Status: ",
+                  "not available in ATTAINS",
+                  "<br> Assessment Unit Type: ",
+                  "not available in ATTAINS"
+                )
+              )
+
+            overlay_groups <- c(overlay_groups, "not in ATTAINS")
+
+            missing.list <- list(map, overlay_groups)
+
+            names(missing.list) <- c('map', 'overlay_groups')
+
+            # remove intermediate objects
+            rm(map, overlay_groups)
+
+            # return updated map and list of overlay_groups
+            return(missing.list)
+      }
+    }
+  }
+}
+
+#' addWQPSites
+#' Internal function to add WQP sites to a leaflet map. If TADA.AURefSource is
+#' included in the TADA data frame, the default is to display varying icons to
+#' indicate the source of the assessment unit/monitoring location crosswalk. If
+#' TADA.AURefSource is not included or the user does not want to display
+#' assessment unit identifier information via the icons (by
+#' setting ref_icons = FALSE), solid black circle markers are used to display
+#' all WQP sites.
+#'
+#' @param .data A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
+#' or a subsetted TADA data frame containing all columns required for building map
+#' and pop up (Note: Add list of required columns (HRM 1/5/26)). Needs to be in sumdat
+#' format or getWQPSiteStats will be run.
+#'
+#' @param map A leaflet map of TADA data to apply the symbology for missing ATTAINS
+#' AUs to.
+#'
+#' @param icons Character argument. The list of icon paths generated by the internal
+#' function getMapIconLabels. If already called in a larger mapping function, it can
+#' be referenced here (for efficiency). If icons = NULL, getMapIconLabels will run
+#' and fetch the list. Default is icons = NULL. This argument is only applied to
+#' for point AUs.
+#'
+#' @param icon_labels Character argument.
+#'
+#' @param ref_icons Boolean argument. Determines whether custom icons are displayed to differentiate between
+#' different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
+#' information is included in the TADA_with_ATTAINS dataframe supplied to the function. When
+#' ref_icons = TRUE three different icons will be used for the map.
+#' 1) The circle with the user icon is for matches from the user supplied
+#' ref if that was supplied as an input to TADA_CreateAUMLCrosswalk().
+#' 2) The circle with a check mark is for matches from [TADA_GetATTAINSAUMLCrosswalk()] which
+#' runs within TADA_CreateAUMLCrosswalk(). If an organization has recorded this
+#' information in ATTAINS, this gets the organizations crosswalk of known
+#' monitoring location identifiers and assessment unit associations.
+#' 3) The plain circle represents matches
+#' made with [TADA_CreateATTAINSAUMLCrosswalk()] which also runs within
+#' TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit
+#' data to Water Quality Portal observations.
+#' When ref_icons = FALSE or the source is not provided in .data, all
+#' Monitoring Locations are show with a plain circle.
+#'
+#' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+#'
+# add ATTAINS geometry to existing leaflet map
+addWQPSites <- function(.data,
+                        map = NULL,
+                        icons = NULL,
+                        ref_icons = TRUE) {
+
+  if (!all(req.cols %in% names(color_ref)))
+
+  if(!all(c("Sample_Count",
+            "Visit_Count",
+            "Parameter_Count",
+            "ATTAINS_AUs")) %in% names(.data))
+
+# set base pop up for monitoring locations
+set.popup <- paste0(
+  "Site ID: ",
+  .data$TADA.MonitoringLocationIdentifier,
+  "<br> Site Name: ",
+  .data$TADA.MonitoringLocationName,
+  "<br> Organization Name: ",
+  .data$OrganizationFormalName,
+  "<br> Measurement Count: ",
+  .data$Sample_Count,
+  "<br> Visit Count: ",
+  .data$Visit_Count,
+  "<br> Characteristic Count: ",
+  .data$Parameter_Count,
+  "<br> ATTAINS Assessment Unit(s): ",
+  .data$ATTAINS_AUs
+)
+
+# add au ref source to pop up  if available
+if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
+  set.popup <- paste0(
+    set.popup,
+    "<br>",
+    "Crosswalk Source: ",
+    .data$TADA.AURefSource
+  )
+}
+
+# check if icons are provided
+if(is.null(icons)) {
+
+  get.icons <- getMapIconLabels()
+
+  images <- get.icons[1]
+
+  img.labels <- get.icons[2]
+
+  # remove intermediate objects
+  rm(get.icons)
+} else {
+
+  images <- icons
+
+  img.labels <- icon.labels
+}
+
+# set image ref, image label, and icon url lists for WQP monitoring locations
+if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
+  wqp.imgs <- images[8]
+  wqp.labels <- img.labels[8]
+
+  wqp.urls <- images[8]
+} else {
+  wqp.imgs <- images[5:7]
+  wqp.labels <- img.labels[5:7]
+
+  wqp.urls <- dplyr::case_when(
+    sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
+    sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
+      7
+    ],
+    sumdat$TADA.AURefSource == "User-supplied Ref" ~ images[5]
+  )
+}
+
+# Add WQP observation features (should always exist):
+    map <- map |>
+      leaflet::addMarkers(
+        data = .data,
+        group = "WQP Obersvations",
+        lng = ~TADA.LongitudeMeasure,
+        lat = ~TADA.LatitudeMeasure,
+        icon = leaflet::icons(
+          iconUrl = wqp.urls,
+          iconWidth = 24,
+          iconHeight = 24
+        ),
+        popup = set.popup
+      )
+
+    overlay_groups <- c(overlay_groups, "WQP Obersvations")
+
+    wqp.list <- list(map, overlay_groups)
+
+    names(wqp.list) <- c('map', 'overlay_groups')
+
+    # remove intermediate objects
+    rm(map, overlay_groups, wqp.urls, set.popup)
+
+    # return updated map and list of overlay_groups
+    return(wqp.list)
+}
+
+
+
+

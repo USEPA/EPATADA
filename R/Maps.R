@@ -573,7 +573,7 @@ TADA_NearbySitesMap <- function(.data,
 #' made with [TADA_CreateATTAINSAUMLCrosswalk()] which also runs within
 #' TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit
 #' data to Water Quality Portal observations.
-#' When rec_icons = FALSE or the source is not provided in .data, all
+#' When ref_icons = FALSE or the source is not provided in .data, all
 #' Monitoring Locations are show with a plain circle.
 #'
 #' @return A leaflet map visualizing Monitoring Locations and linked ATTAINS assessment units. All maps are in WGS84.
@@ -887,100 +887,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
-    # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
-    if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
-      user.refs <- ATTAINS_table |>
-        dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
-        dplyr::select(
-          TADA.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier,
-          TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure,
-          ATTAINS.WaterType
-        ) |>
-        dplyr::distinct()
+    # add symbology for any assessment units missing geometry from ATTAINS
+    try(
+      {
+      missing_aus <- showMissingATTAINSAUs(ATTAINS_table = ATTAINS_table,
+                                           ATTAINS_polygons = ATTAINS_polygons,
+                                           ATTAINS_points = ATTAINS_points,
+                                           ATTAINS_lines = ATTAINS_lines,
+                                           map = map,
+                                           overlay_groups = overlay_groups)
 
-      # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+      map <- missing_aus$map
 
-      if (dim(user.refs)[1] > 0) {
-        # internal function to create list of auids
-        listAUIDs <- function(.data) {
-          if (dim(.data)[1] == 0) {
-            list <- list()
-          } else {
-            list <- .data |>
-              sf::st_drop_geometry() |>
-              dplyr::select(assessmentunitidentifier) |>
-              dplyr::distinct() |>
-              dplyr::pull()
-          }
+      overlay_groups <- missing_aus$overlay_groups
 
-          return(list)
-        }
-
-        # create list of assessment units with geometry
-        point.aus <- listAUIDs(ATTAINS_points)
-
-        line.aus <- listAUIDs(ATTAINS_lines)
-
-        polygon.aus <- listAUIDs(ATTAINS_polygons)
-
-        # combine lists
-        all.attains.aus <- append(point.aus, line.aus)
-
-        all.attains.aus <- append(all.attains.aus, polygon.aus)
-
-        # retain unique assessment unit identifiers
-        all.attains.aus <- unique(all.attains.aus)
-
-        # find if any assigned aus are missing geometry
-        missing.geo <- user.refs |>
-          dplyr::filter(!ATTAINS.AssessmentUnitIdentifier %in% all.attains.aus)
-
-        # remove intermediate objects
-        rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
-
-        # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
-        if (dim(missing.geo)[1] > 0) {
-          # set up icons for missing geometry
-          missingIcon <- leaflet::icons(
-            iconUrl = system.file(
-              "extdata/icons",
-              "circle-dashed.png",
-              package = "EPATADA"
-            ),
-            iconWidth = 48,
-            iconHeight = 48
-          )
-
-          # markers and popup for missing geometry to map
-          try(
-            {
-              map <- map |>
-                leaflet::addMarkers(
-                  data = missing.geo,
-                  group = "not in ATTAINS",
-                  lng = ~TADA.LongitudeMeasure,
-                  lat = ~TADA.LatitudeMeasure,
-                  icon = missingIcon,
-                  popup = paste0(
-                    "Assessment Unit Name: ",
-                    "not available in ATTAINS",
-                    "<br> Assessment Unit ID: ",
-                    missing.geo$ATTAINS.AssessmentUnitIdentifier,
-                    "<br> Status: ",
-                    "not available in ATTAINS",
-                    "<br> Assessment Unit Type: ",
-                    "not available in ATTAINS"
-                  )
-                )
-              overlay_groups <- c(overlay_groups, "not in ATTAINS")
-            },
-            silent = TRUE
-          )
-        }
-      }
-    }
+      # remove intermediate objects
+      rm(missing_aus)
+    })
 
     # set base pop up for monitoring locations
     set.popup <- paste0(

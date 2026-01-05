@@ -4,12 +4,36 @@
 \alias{TADA_NearbySitesMap}
 \title{Create Nearby Sites Map}
 \usage{
-TADA_NearbySitesMap(.data, dist_buffer = 100)
+TADA_NearbySitesMap(
+  .data,
+  dist_buffer = 100,
+  AU = TRUE,
+  catchment = FALSE,
+  resolution = "Hi",
+  fetchNHD = FALSE
+)
 }
 \arguments{
 \item{.data}{TADA dataframe after running TADA.FindNearbySites.}
 
 \item{dist_buffer}{Distance in m to show a radius around each site marker.}
+
+\item{AU}{Boolean. If AU = TRUE and assessment unit geometry is available in
+the TADA data frame (from running TADA_CreateATTAINSAUMLCrosswalk or
+TADA_CreateAUMLCrosswalk), assessment units will be added to the review map.
+If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.}
+
+\item{catchment}{Boolean. If catchment = TRUE, any catchment data available in
+.data is added to the review map. If catchment = FALSE, catchments are not
+added to the review map. Default is catchment = FALSE.}
+
+\item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or
+medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset
+(NHD). Default is "Hi".}
+
+\item{fetchNHD}{Boolean. Use the fetchNHD function to retrieve catchment data
+when fetchND = TRUE. When fetchNHD = FALSE, catchment data are not retrieved
+using fetchNHD. Default is fetchNHD = FALSE.}
 }
 \value{
 A leaflet map that shows all sites in the dataframe that contain
