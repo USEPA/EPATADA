@@ -131,346 +131,576 @@ getMapIconLabels <- function(icons = TRUE,
   }
 }
 
-#' addATTAINS (UNDER ACTIVE DEVELOPMENT)
+#' #' addATTAINS (UNDER ACTIVE DEVELOPMENT)
+#' #'
+#' #' Internal function to add ATTAINS lines, points, or polygons to TADA maps.
+#' #'
+#' #' @param .data The list of data frames created from TADA_CreateAUMLCrosswalk or
+#' #' TADA_CreateATTAINSAUMLCrosswalk.
+#' #'
+#' #' @param geo_type Character string. Valid options are "line", "point", or
+#' #' "polygon". This is required to run the function. If it is NULL, the function
+#' #' will fail with an error message. Default is geo_type = NULL.
+#' #'
+#' #' @param overlay_groups Initialized vector to add names of groups added to map. If
+#' #' it is NULL, the function will fail with an error message. Default is
+#' #' overlay_list = NULL.
+#' #'
+#' #' @param group_name Character string. This is the layer name that will appear
+#' #' to turn map layers on and off.
+#' #'
+#' #' @param color Color of line
+#' #'
+#' #' @param fillColor Fill color for polygons
+#' #'
+#' #' @param opacity
+#' #'
+#' #' @param weight
+#' #'
+#' #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+#' #'
+#' # add ATTAINS geometry to existing leaflet map
+#' addATTAINS <- function(.data,
+#'                         map = NULL,
+#'                         geo_type = NULL,
+#'                         overlay_groups = NULL,
+#'                         group_name = "ATTAINS catchments",
+#'                         color = "black",
+#'                         fillColor = "gray",
+#'                         opacity = 0.3,
+#'                         weight = 1
+#'                         ) {
+#'    # stop function if map is not provided
+#'    if(is.null(map)) {
+#'      stop("addATTAINS: a leaflet map must be supplied to run this function.")
+#'    }
 #'
-#' Internal function to add ATTAINS lines, points, or polygons to TADA maps.
+#'    # stop function if geometry type is not provided
+#'    if(is.null(geo_type)) {
+#'    stop("addATTAINS: geo_type must be supplied to run this function.")
+#'  }
 #'
-#' @param .data The list of data frames created from TADA_CreateAUMLCrosswalk or
-#' TADA_CreateATTAINSAUMLCrosswalk.
+#'    # stop function if overlay list is not provided
+#'    if(is.null(overlay_groups)) {
+#'    stop("addATTAINS: overlay_groups must be supplied to run this function.")
+#'    }
 #'
-#' @param geo_type Character string. Valid options are "line", "point", or
-#' "polygon". This is required to run the function. If it is NULL, the function
-#' will fail with an error message. Default is geo_type = NULL.
+#' # select required dfs for mapping
 #'
-#' @param overlay_groups Initialized vector to add names of groups added to map. If
-#' it is NULL, the function will fail with an error message. Default is
-#' overlay_list = NULL.
+#'    df.list <- .data
 #'
-#' @param group_name Character string. This is the layer name that will appear
-#' to turn map layers on and off.
+#'    .data <- switch(group_name,
+#'                    "ATTAINS catchments" = "black",
+#'                    "ATTAINS outlines" = .data$col,
+#'                    "missing ATTAINS catchment outlines" = "#d62728",
+#'                    "ATTAINS polygon features" = "#7f7f7f"
+#'    ))
 #'
-#' @param color Color of line
+#'    set.color <- switch(
+#'      group_name,
+#'      "ATTAINS catchments" = "black",
+#'      "ATTAINS outlines" = .data$col,
+#'      "missing ATTAINS catchment outlines" = "#d62728",
+#'      "ATTAINS polygon features" = "#7f7f7f"
+#'    )
 #'
-#' @param fillColor Fill color for polygons
+#' # add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
 #'
-#' @param opacity
+#' # Add ATTAINS polygons
+#'    # options for adding ATTAINS polygons are: ATTAINS catchments, ATTAINS outlines,
+#'    # missing ATTAINS catchment outlines, ATTAINS polygon features
 #'
-#' @param weight
+#'    if(geo_type == "polygon") {
 #'
-#' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+#'    if(!group_name %in% c("ATTAINS catchments",
+#'                         "ATTAINS outlines",
+#'                         "missing ATTAINS catchment outlines",
+#'                         "ATTAINS polygon features")) {
+#'      stop("addATTAINS: Supplied group name does not match allowable ATTAINS polygon
+#'           group. group_name must be 'ATTAINS catchments', 'ATTAINS outlines',
+#'           'missing ATTAINS catchment outlines' or 'ATTAINS polygon features'")
+#'    }
 #'
-# add ATTAINS geometry to existing leaflet map
-addATTAINS <- function(.data,
-                        map = NULL,
-                        geo_type = NULL,
-                        overlay_groups = NULL,
-                        group_name = "ATTAINS catchments",
-                        color = "black",
-                        fillColor = "gray",
-                        opacity = 0.3,
-                        weight = 1
-                        ) {
-   # stop function if map is not provided
-   if(is.null(map)) {
-     stop("addATTAINS: a leaflet map must be supplied to run this function.")
-   }
+#'      if(!group_name %in% c("missing ATTAINS catchment outlines",
+#'                            "ATTAINS catchments")) {
+#'        .data <-
+#'      }
+#'
+#'          add without ATTAINS catchments if available
+#'        without_ATTAINS_catchments <- NULL
+#'      try(
+#'        without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+#'          dplyr::rename(nhd = 1),
+#'         silent = TRUE
+#'       )
+#'
+#'      set.color <- switch(
+#'        group_name,
+#'        "ATTAINS catchments" = "black",
+#'        "ATTAINS outlines" = .data$col,
+#'        "missing ATTAINS catchment outlines" = "#d62728",
+#'        "ATTAINS polygon features" = "#7f7f7f"
+#'      )
+#'
+#'      set.fillColor <- switch(
+#'        group_name,
+#'        "ATTAINS catchments" = "gray",
+#'        "ATTAINS outlines" = .data$col,
+#'        "missing ATTAINS catchment outlines" = "#d62728",
+#'        "ATTAINS polygon features" = "#7f7f7f"
+#'      )
+#'
+#'      set.weight <- switch(
+#'        group_name,
+#'        "ATTAINS catchments" = 1,
+#'        "ATTAINS outlines" = 3,
+#'        "missing ATTAINS catchment outlines" = "#d62728",
+#'        "ATTAINS polygon features" = "#7f7f7f"
+#'      )
+#'
+#'      set.fillOpacity <- switch(
+#'        group_name,
+#'        "ATTAINS catchments" = 0.3,
+#'        "ATTAINS outlines" = 0.25,
+#'        "missing ATTAINS catchment outlines" = "#d62728",
+#'        "ATTAINS polygon features" = "#7f7f7f"
+#'      )
+#'
+#'      set.popup <- switch(
+#'        group_name,
+#'        "ATTAINS catchments" = paste0(
+#'          "NHDPlus HR Catchment ID: ",
+#'          .data$nhdplusid
+#'        ),
+#'        "ATTAINS outlines" = paste0(
+#'          "Assessment Unit Name: ",
+#'          missing_raw_mapper$assessmentunitname,
+#'          "<br> Assessment Unit ID: ",
+#'          missing_raw_mapper$assessmentunitidentifier,
+#'          "<br> Status: ",
+#'          missing_raw_mapper$overallstatus,
+#'          "<br> Assessment Unit Type: ",
+#'          missing_raw_mapper$type,
+#'          "<br> <a href=",
+#'          missing_raw_mapper$waterbodyreportlink,
+#'          " target='_blank'>ATTAINS Link</a>",
+#'          "<br> NHDPlus HR Catchment ID: ",
+#'          missing_raw_mapper$nhdplusid
+#'        ),
+#'        "missing ATTAINS catchment outlines" = "#d62728",
+#'        "ATTAINS polygon features" = "#7f7f7f"
+#'      )
+#'
+#'  try({
+#'    map <- map |>
+#'      leaflet::addPolygons(
+#'        data = .data,
+#'        group = group_name,
+#'        color = set.color,
+#'        fillColor = set.fillColor,
+#'        weight = set.weight,
+#'        fillOpacity = set.fillOpacity,
+#'        popup = set.popup
+#'      )
+#'    overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+#'  },
+#'  silent = TRUE
+#'  )
+#'  }
+#'
+#'
+#'  addATTAINS(ATTAINS_catchments,
+#'             map = orig.map,
+#'             geo_type = "polygon",
+#'             overlay_groups = overlay_groups)
+#'
+#'  # Add ATTAINS catchment outlines as AUs:
+#'  try({
+#'    map <- map |>
+#'      leaflet::addPolygons(
+#'        data = missing_raw_mapper,
+#'        group = "ATTAINS outlines",
+#'        color = ~ missing_raw_mapper$col,
+#'        fill = ~ missing_raw_mapper$col,
+#'        weight = 3,
+#'        fillOpacity = 0.25,
+#'        popup = paste0(
+#'          "Assessment Unit Name: ",
+#'          missing_raw_mapper$assessmentunitname,
+#'          "<br> Assessment Unit ID: ",
+#'          missing_raw_mapper$assessmentunitidentifier,
+#'          "<br> Status: ",
+#'          missing_raw_mapper$overallstatus,
+#'          "<br> Assessment Unit Type: ",
+#'          missing_raw_mapper$type,
+#'          "<br> <a href=",
+#'          missing_raw_mapper$waterbodyreportlink,
+#'          " target='_blank'>ATTAINS Link</a>",
+#'          "<br> NHDPlus HR Catchment ID: ",
+#'          missing_raw_mapper$nhdplusid
+#'        )
+#'      )
+#'    overlay_groups <- c(overlay_groups, "ATTAINS outlines")
+#'  },
+#'  silent = TRUE
+#'  )
+#'
+#'  # add without ATTAINS catchments if available
+#'  without_ATTAINS_catchments <- NULL
+#'  try(
+#'    without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+#'      dplyr::rename(nhd = 1),
+#'    silent = TRUE
+#'  )
+#'
+#'  # Add missing catchment outlines (if they exist):
+#'  try({
+#'    map <- map |>
+#'      leaflet::addPolygons(
+#'        data = without_ATTAINS_catchments,
+#'        group = "missing ATTAINS catchment outlines",
+#'        color = "black",
+#'        weight = 1,
+#'        fillOpacity = 0,
+#'        popup = paste0(
+#'          without_ATTAINS_catchments$NHD.resolution,
+#'          " catchment ID: ",
+#'          without_ATTAINS_catchments$nhd
+#'        )
+#'      )
+#'    overlay_groups <- c(
+#'      overlay_groups,
+#'      "missing ATTAINS catchment outlines"
+#'    )
+#'  },
+#'  silent = TRUE
+#'  )
+#'
+#'  # Add ATTAINS polygon features (if they exist):
+#'  try({
+#'    map <- map |>
+#'      leaflet::addPolygons(
+#'        data = polygons_mapper,
+#'        group = "ATTAINS polygon features",
+#'        color = ~ polygons_mapper$col,
+#'        fill = ~ polygons_mapper$col,
+#'        weight = 3,
+#'        fillOpacity = 0.5,
+#'        popup = paste0(
+#'          "Assessment Unit Name: ",
+#'          polygons_mapper$assessmentunitname,
+#'          "<br> Assessment Unit ID: ",
+#'          polygons_mapper$assessmentunitidentifier,
+#'          "<br> Status: ",
+#'          polygons_mapper$overallstatus,
+#'          "<br> Assessment Unit Type: ",
+#'          polygons_mapper$type,
+#'          "<br> <a href=",
+#'          polygons_mapper$waterbodyreportlink,
+#'          " target='_blank'>ATTAINS Link</a>"
+#'        )
+#'      )
+#'    overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
+#'  },
+#'  silent = TRUE
+#'  )
+#'
+#' # Add ATTAINS lines features (if they exist):
+#' try({
+#'    map <- map |>
+#'      leaflet::addPolylines(
+#'        data = lines_mapper,
+#'        group = "ATTAINS line features",
+#'        color = ~ lines_mapper$col,
+#'        weight = 4,
+#'        fillOpacity = 1,
+#'        popup = paste0(
+#'          "Assessment Unit Name: ",
+#'          lines_mapper$assessmentunitname,
+#'          "<br> Assessment Unit ID: ",
+#'          lines_mapper$assessmentunitidentifier,
+#'          "<br> Status: ",
+#'          lines_mapper$overallstatus,
+#'          "<br> Assessment Unit Type: ",
+#'          lines_mapper$type,
+#'          "<br> <a href=",
+#'          lines_mapper$waterbodyreportlink,
+#'          " target='_blank'>ATTAINS Link</a>"
+#'        )
+#'      )
+#'    overlay_groups <- c(overlay_groups, "ATTAINS line features")
+#'  },
+#'  silent = TRUE
+#'  )
+#'
+#'  try(
+#'    pointIcons <- leaflet::icons(
+#'      iconUrl = dplyr::case_when(
+#'        points_mapper$overallstatus == "Fully Supporting" ~ images[12],
+#'        points_mapper$overallstatus == "Not Supporting" ~ images[11],
+#'        points_mapper$overallstatus == "Not Assessed" ~ images[13]
+#'      ),
+#'      iconWidth = 48,
+#'      iconHeight = 48
+#'    ),
+#'    silent = TRUE
+#'  )
+#'
+#'  # Add ATTAINS point features (if they exist):
+#'  try({
+#'    map <- map |>
+#'      leaflet::addMarkers(
+#'        data = points_mapper,
+#'        group = "ATTAINS point features",
+#'        lng = ~X,
+#'        lat = ~Y,
+#'        icon = pointIcons,
+#'        popup = paste0(
+#'          "Assessment Unit Name: ",
+#'          points_mapper$assessmentunitname,
+#'          "<br> Assessment Unit ID: ",
+#'          points_mapper$assessmentunitidentifier,
+#'          "<br> Status: ",
+#'          points_mapper$overallstatus,
+#'          "<br> Assessment Unit Type: ",
+#'          points_mapper$type,
+#'          "<br> <a href=",
+#'          points_mapper$waterbodyreportlink,
+#'          " target='_blank'>ATTAINS Link</a>"
+#'        )
+#'      )
+#'    overlay_groups <- c(overlay_groups, "ATTAINS point features")
+#'  },
+#'  silent = TRUE
+#'  )
+#'  }
+#'
 
-   # stop function if geometry type is not provided
-   if(is.null(geo_type)) {
-   stop("addATTAINS: geo_type must be supplied to run this function.")
- }
+#' getATTAINSColorsRef
+#'
+#' Internal function to return a data framespecifying the color the feature should be
+#' displayed in for a leaflet map based on the value in the "overallstatus" column
+#' in the ATTAINS_points, ATTAINS_polygons, or ATTAINS_lines data frames created
+#' with TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
+#'
+#' @return A data frame with the columns overallstatus, col, dark_col, and priority.
+#'
+# create icon and label lists
+getATTAINSColorsRef <- function() {
+  # get TADA palette
+  tada.pal <- TADA_ColorPalette()
 
-   # stop function if overlay list is not provided
-   if(is.null(overlay_groups)) {
-   stop("addATTAINS: overlay_groups must be supplied to run this function.")
-   }
+  # create df of colors for use in mapping functions
+  colors <- data.frame(
+    overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
+    col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
+    dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
+    priority = c(1, 2, 3)
+  )
 
-# select required dfs for mapping
+  # remove intermediate object
+  rm(tada.pal)
 
-   df.list <- .data
+  return(colors)
+}
 
-   .data <- switch(group_name,
-                   "ATTAINS catchments" = "black",
-                   "ATTAINS outlines" = .data$col,
-                   "missing ATTAINS catchment outlines" = "#d62728",
-                   "ATTAINS polygon features" = "#7f7f7f"
-   ))
+#' prepATTAINSMapper
+#'
+#' Internal function to prepare ATTAINS geometry from TADA_CreateATTAINSAUMLCrosswalk
+#' or TADA_CreateAUMLCrosswalk for display in a leaflet map.
+#'
+#' @param .data Data frame. One of the data frames containing geometry from the
+#' output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk
+#' (ATTAINS_catchments, ATTAINS_polygons, ATTAINS_points, or ATTAINS_lines).
+#'
+#' @param color_ref Data frame. A data frame containing the colors that should be
+#' applied to a feature based on its overallstatus in ATTAAINS. Must contain the
+#' columns overallstatus, col, dark_col, and priority. Can be created with the
+#' internal function getATTAINSColorRef. If color_ref = NULL, the function will
+#' run getATTAINSColorRef to create a color ref data frame.
+#'
+#' @param geo_type Character string. Type of geometry to be prepared for mapping.
+#' Allowable values are "points", "lines", and "polygons". If no geo_type (geo_type
+#' = NULL) is supplied the function will attempt to determine the type from the
+#' "geometry" column. If geo_type is not supplied and cannot be determined, the
+#' function will stop with an error.
+#'
+#' @return A data frame with the columns overallstatus, col, dark_col, and priority.
+#'
+# prep data for mapping with ATTAINS
+prepATTAINSMapper <- function(.data,
+                              geo_type = NULL,
+                              color_ref = NULL) {
+  # if geo_type is not provided, determine it from .data
+  if (is.null(geo_type)) {
+    # get geometry type
+    check.type <- unique(as.character(sf::st_geometry_type(.data, by_geometry = TRUE)))
 
-   set.color <- switch(
-     group_name,
-     "ATTAINS catchments" = "black",
-     "ATTAINS outlines" = .data$col,
-     "missing ATTAINS catchment outlines" = "#d62728",
-     "ATTAINS polygon features" = "#7f7f7f"
-   )
+    # check length of check.type
+    if (length(check.type) > 1) {
+      # find base type if multi types are present
+      base <- sub("^MULTI", "", check.type)
 
-# add additional check for structure of overlay list (NOTE: HRM 12/30/25)?
+      check.type <- unique(base)
 
-# Add ATTAINS polygons
-   # options for adding ATTAINS polygons are: ATTAINS catchments, ATTAINS outlines,
-   # missing ATTAINS catchment outlines, ATTAINS polygon features
+      if (length(check.type) > 2) {
+        stop("prepATTAINSMapper: geometry column in .data must contain only one base geometry type.")
+      }
+    }
 
-   if(geo_type == "polygon") {
+    # normalize geometry type
+    geo_type <- dplyr::case_when(
+      check.type %in% c("POINT", "MULTIPOINT") ~ "points",
+      check.type %in% c("LINESTRING", "MULTILINESTRING") ~ "lines",
+      check.type %in% c("POLYGON", "MULTIPOLYGON") ~ "polygons",
+      # check.type %in% c() have to add for catchments raw feature unavail
+    )
 
-   if(!group_name %in% c("ATTAINS catchments",
-                        "ATTAINS outlines",
-                        "missing ATTAINS catchment outlines",
-                        "ATTAINS polygon features")) {
-     stop("addATTAINS: Supplied group name does not match allowable ATTAINS polygon
-          group. group_name must be 'ATTAINS catchments', 'ATTAINS outlines',
-          'missing ATTAINS catchment outlines' or 'ATTAINS polygon features'")
-   }
+    # remove intermediate object
+    rm(check.type)
+  }
 
-     if(!group_name %in% c("missing ATTAINS catchment outlines",
-                           "ATTAINS catchments")) {
-       .data <-
-     }
+  # check for color ref and create if it does not exist
+  if (is.null(color_ref)) {
+    color_ref <- getATTAINSColorsRef()
+  }
 
-         add without ATTAINS catchments if available
-       without_ATTAINS_catchments <- NULL
-     try(
-       without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-         dplyr::rename(nhd = 1),
-        silent = TRUE
+  # check user supplied color ref df to see if it contains required cols
+  if (!is.null(color_ref)) {
+    req.cols <- c("overallstatus", "col", "dark_col", "priority")
+
+    # stop function if any required columns are missing
+    if (!all(req.cols %in% names(color_ref))) {
+      stop("prepATTAINSMapper: color_ref must contain the following columns: overallstatus, col, dark_col, priority.")
+    }
+  }
+
+  # prep point data
+  if (geo_type == "points") {
+    # extract coordinates and convert to a tibble (to handle point or multipoint)
+    coords <- sf::st_coordinates(.data) |>
+      tibble::as_tibble() |>
+      tibble::rowid_to_column(var = "index")
+
+    # points mapper setup
+    mapper <- .data |>
+      dplyr::left_join(color_ref, by = "overallstatus") |>
+      dplyr::mutate(type = "Point Feature") |>
+      tibble::rowid_to_column(var = "index") |>
+      dplyr::right_join(coords, by = "index")
+
+    # remove intermediate objects
+    rm(coords, color_ref)
+
+    # return mapper df
+    return(mapper)
+  }
+
+  # prep line data
+  if (geo_type == "lines") {
+    # add colors to line features
+    mapper <- .data |>
+      dplyr::left_join(color_ref, by = "overallstatus") |>
+      dplyr::mutate(type = "Line Feature")
+
+    return(mapper)
+  }
+
+  # prep polygon data
+  if (geo_type == "polygons") {
+    # add colors to polygon features
+    mapper <- .data |>
+      dplyr::left_join(color_ref, by = "overallstatus") |>
+      dplyr::mutate(type = "Polygon Feature") |>
+      # sort df so smaller AUs will map on top of larger AUs if they overlap
+      dplyr::arrange(dplyr::desc(Shape_Area))
+
+    return(mapper)
+  }
+}
+
+#' getWQPSiteStats
+#'
+#' Internal function to prepare site data for use in leaflet map popup.
+#'
+#' @param .data TADA data frame. This function can incorporate ATTAINS data in the
+#' TADA data frame (for example, using the TADA_with_ATTAINS df created with
+#' TADA_CreateATTAINSAUMLCrosswalk, TADA_CreateAUMLCrosswalk).
+#'
+#' @param attains Boolean argument. If attains = TRUE and ATTAINS prefixed columns
+#' are included in .data, ATTAINS Assessment Units will be listed in the popup. If
+#' attains = FALSE (or there are no ATTAINS prefixed columns in .data), no assessment
+#' unit data is included in popup. Default is attains = TRUE.
+#'
+#' @return A data frame formatted correctly for use in a leaflet pop up containing
+#' WQP site data.
+#'
+# Develop WQP site stats (e.g. count of observations, parameters, per site)
+getWQPSiteStats <- function(.data,
+                            attains = TRUE) {
+  if (attains == TRUE) {
+    if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+      attains <- FALSE
+
+      print(paste0(
+        "getWQPSiteStats: ATTAINS.AssessmentUnitIdentifier is not present in .data. ",
+        "Returning WQP site stats without assessment unit identifiers."
+      ))
+    }
+
+    if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+      sumdat <- .data |>
+        dplyr::group_by(
+          TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationName,
+          OrganizationFormalName,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure
+        ) |>
+        dplyr::summarize(
+          Sample_Count = length(unique(ResultIdentifier)),
+          Visit_Count = length(unique(ActivityStartDate)),
+          Parameter_Count = length(unique(TADA.CharacteristicName)),
+          Organization_Count = length(unique(OrganizationIdentifier)),
+          ATTAINS_AUs = as.character(list(unique(
+            ATTAINS.AssessmentUnitIdentifier
+          ))),
+          TADA.AURefSource = ifelse(
+            "TADA.AURefSource" %in% names(.data),
+            as.character(TADA.AURefSource),
+            "not provided"
+          )
+        ) |>
+        dplyr::mutate(
+          ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
+          LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
+          LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
+        )
+
+      return(sumdat)
+    }
+  }
+
+  if (attains == FALSE) {
+    sumdat <- .data |>
+      dplyr::group_by(
+        TADA.MonitoringLocationIdentifier,
+        TADA.MonitoringLocationName,
+        OrganizationFormalName,
+        TADA.LatitudeMeasure,
+        TADA.LongitudeMeasure
+      ) |>
+      dplyr::summarize(
+        Sample_Count = length(unique(ResultIdentifier)),
+        Visit_Count = length(unique(ActivityStartDate)),
+        Parameter_Count = length(unique(TADA.CharacteristicName)),
+        Organization_Count = length(unique(OrganizationIdentifier))
+      ) |>
+      dplyr::mutate(
+        LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
+        LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
       )
 
-     set.color <- switch(
-       group_name,
-       "ATTAINS catchments" = "black",
-       "ATTAINS outlines" = .data$col,
-       "missing ATTAINS catchment outlines" = "#d62728",
-       "ATTAINS polygon features" = "#7f7f7f"
-     )
-
-     set.fillColor <- switch(
-       group_name,
-       "ATTAINS catchments" = "gray",
-       "ATTAINS outlines" = .data$col,
-       "missing ATTAINS catchment outlines" = "#d62728",
-       "ATTAINS polygon features" = "#7f7f7f"
-     )
-
-     set.weight <- switch(
-       group_name,
-       "ATTAINS catchments" = 1,
-       "ATTAINS outlines" = 3,
-       "missing ATTAINS catchment outlines" = "#d62728",
-       "ATTAINS polygon features" = "#7f7f7f"
-     )
-
-     set.fillOpacity <- switch(
-       group_name,
-       "ATTAINS catchments" = 0.3,
-       "ATTAINS outlines" = 0.25,
-       "missing ATTAINS catchment outlines" = "#d62728",
-       "ATTAINS polygon features" = "#7f7f7f"
-     )
-
-     set.popup <- switch(
-       group_name,
-       "ATTAINS catchments" = paste0(
-         "NHDPlus HR Catchment ID: ",
-         .data$nhdplusid
-       ),
-       "ATTAINS outlines" = paste0(
-         "Assessment Unit Name: ",
-         missing_raw_mapper$assessmentunitname,
-         "<br> Assessment Unit ID: ",
-         missing_raw_mapper$assessmentunitidentifier,
-         "<br> Status: ",
-         missing_raw_mapper$overallstatus,
-         "<br> Assessment Unit Type: ",
-         missing_raw_mapper$type,
-         "<br> <a href=",
-         missing_raw_mapper$waterbodyreportlink,
-         " target='_blank'>ATTAINS Link</a>",
-         "<br> NHDPlus HR Catchment ID: ",
-         missing_raw_mapper$nhdplusid
-       ),
-       "missing ATTAINS catchment outlines" = "#d62728",
-       "ATTAINS polygon features" = "#7f7f7f"
-     )
-
- try({
-   map <- map |>
-     leaflet::addPolygons(
-       data = .data,
-       group = group_name,
-       color = set.color,
-       fillColor = set.fillColor,
-       weight = set.weight,
-       fillOpacity = set.fillOpacity,
-       popup = set.popup
-     )
-   overlay_groups <- c(overlay_groups, "ATTAINS catchments")
- },
- silent = TRUE
- )
- }
-
-
- addATTAINS(ATTAINS_catchments,
-            map = orig.map,
-            geo_type = "polygon",
-            overlay_groups = overlay_groups)
-
- # Add ATTAINS catchment outlines as AUs:
- try({
-   map <- map |>
-     leaflet::addPolygons(
-       data = missing_raw_mapper,
-       group = "ATTAINS outlines",
-       color = ~ missing_raw_mapper$col,
-       fill = ~ missing_raw_mapper$col,
-       weight = 3,
-       fillOpacity = 0.25,
-       popup = paste0(
-         "Assessment Unit Name: ",
-         missing_raw_mapper$assessmentunitname,
-         "<br> Assessment Unit ID: ",
-         missing_raw_mapper$assessmentunitidentifier,
-         "<br> Status: ",
-         missing_raw_mapper$overallstatus,
-         "<br> Assessment Unit Type: ",
-         missing_raw_mapper$type,
-         "<br> <a href=",
-         missing_raw_mapper$waterbodyreportlink,
-         " target='_blank'>ATTAINS Link</a>",
-         "<br> NHDPlus HR Catchment ID: ",
-         missing_raw_mapper$nhdplusid
-       )
-     )
-   overlay_groups <- c(overlay_groups, "ATTAINS outlines")
- },
- silent = TRUE
- )
-
- # add without ATTAINS catchments if available
- without_ATTAINS_catchments <- NULL
- try(
-   without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-     dplyr::rename(nhd = 1),
-   silent = TRUE
- )
-
- # Add missing catchment outlines (if they exist):
- try({
-   map <- map |>
-     leaflet::addPolygons(
-       data = without_ATTAINS_catchments,
-       group = "missing ATTAINS catchment outlines",
-       color = "black",
-       weight = 1,
-       fillOpacity = 0,
-       popup = paste0(
-         without_ATTAINS_catchments$NHD.resolution,
-         " catchment ID: ",
-         without_ATTAINS_catchments$nhd
-       )
-     )
-   overlay_groups <- c(
-     overlay_groups,
-     "missing ATTAINS catchment outlines"
-   )
- },
- silent = TRUE
- )
-
- # Add ATTAINS polygon features (if they exist):
- try({
-   map <- map |>
-     leaflet::addPolygons(
-       data = polygons_mapper,
-       group = "ATTAINS polygon features",
-       color = ~ polygons_mapper$col,
-       fill = ~ polygons_mapper$col,
-       weight = 3,
-       fillOpacity = 0.5,
-       popup = paste0(
-         "Assessment Unit Name: ",
-         polygons_mapper$assessmentunitname,
-         "<br> Assessment Unit ID: ",
-         polygons_mapper$assessmentunitidentifier,
-         "<br> Status: ",
-         polygons_mapper$overallstatus,
-         "<br> Assessment Unit Type: ",
-         polygons_mapper$type,
-         "<br> <a href=",
-         polygons_mapper$waterbodyreportlink,
-         " target='_blank'>ATTAINS Link</a>"
-       )
-     )
-   overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
- },
- silent = TRUE
- )
-
-# Add ATTAINS lines features (if they exist):
-try({
-   map <- map |>
-     leaflet::addPolylines(
-       data = lines_mapper,
-       group = "ATTAINS line features",
-       color = ~ lines_mapper$col,
-       weight = 4,
-       fillOpacity = 1,
-       popup = paste0(
-         "Assessment Unit Name: ",
-         lines_mapper$assessmentunitname,
-         "<br> Assessment Unit ID: ",
-         lines_mapper$assessmentunitidentifier,
-         "<br> Status: ",
-         lines_mapper$overallstatus,
-         "<br> Assessment Unit Type: ",
-         lines_mapper$type,
-         "<br> <a href=",
-         lines_mapper$waterbodyreportlink,
-         " target='_blank'>ATTAINS Link</a>"
-       )
-     )
-   overlay_groups <- c(overlay_groups, "ATTAINS line features")
- },
- silent = TRUE
- )
-
- try(
-   pointIcons <- leaflet::icons(
-     iconUrl = dplyr::case_when(
-       points_mapper$overallstatus == "Fully Supporting" ~ images[12],
-       points_mapper$overallstatus == "Not Supporting" ~ images[11],
-       points_mapper$overallstatus == "Not Assessed" ~ images[13]
-     ),
-     iconWidth = 48,
-     iconHeight = 48
-   ),
-   silent = TRUE
- )
-
- # Add ATTAINS point features (if they exist):
- try({
-   map <- map |>
-     leaflet::addMarkers(
-       data = points_mapper,
-       group = "ATTAINS point features",
-       lng = ~X,
-       lat = ~Y,
-       icon = pointIcons,
-       popup = paste0(
-         "Assessment Unit Name: ",
-         points_mapper$assessmentunitname,
-         "<br> Assessment Unit ID: ",
-         points_mapper$assessmentunitidentifier,
-         "<br> Status: ",
-         points_mapper$overallstatus,
-         "<br> Assessment Unit Type: ",
-         points_mapper$type,
-         "<br> <a href=",
-         points_mapper$waterbodyreportlink,
-         " target='_blank'>ATTAINS Link</a>"
-       )
-     )
-   overlay_groups <- c(overlay_groups, "ATTAINS point features")
- },
- silent = TRUE
- )
- }
+    return(sumdat)
+  }
+}

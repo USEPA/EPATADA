@@ -747,51 +747,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(), silent = TRUE)
 
-    tada.pal <- TADA_ColorPalette()
-
-    colors <- data.frame(
-      overallstatus = c("Not Supporting", "Fully Supporting", "Not Assessed"),
-      col = c(tada.pal[3], tada.pal[4], tada.pal[7]),
-      dark_col = c(tada.pal[12], tada.pal[6], tada.pal[11]),
-      priority = c(1, 2, 3)
-    )
+    # create df to assign color based on ATTAINS overall status
+    colors <- getATTAINSColorsRef()
 
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
-      {
-        # extract coordinates and convert to a tibble (to handle point or multipoint)
-        coords <- sf::st_coordinates(ATTAINS_points) |>
-          tibble::as_tibble() |>
-          tibble::rowid_to_column(var = "index")
-
-        # points mapper setup
-        points_mapper <- ATTAINS_points |>
-          dplyr::left_join(colors, by = "overallstatus") |>
-          dplyr::mutate(type = "Point Feature") |>
-          tibble::rowid_to_column(var = "index") |>
-          dplyr::right_join(coords, by = "index")
-
-        # remove intermediate object
-        rm(coords)
-      },
+       points_mapper <- prepATTAINSMapper(ATTAINS_points,
+                                          geo_type = "points",
+                                          color_ref = colors),
       silent = TRUE
     )
 
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
-      lines_mapper <- ATTAINS_lines |>
-        dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Line Feature"),
+      lines_mapper <- prepATTAINSMapper(ATTAINS_lines,
+                                        geo_type = "lines",
+                                        color_ref = colors),
       silent = TRUE
     )
 
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
-      polygons_mapper <- ATTAINS_polygons |>
-        dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Polygon Feature") |>
-        # sort df so smaller AUs will map on top of larger AUs if they overlap
-        dplyr::arrange(dplyr::desc(Shape_Area)),
+      polygons_mapper <- prepATTAINSMapper(ATTAINS_polygons,
+                                           geo_type = "polygons",
+                                           color_ref = colors),
       silent = TRUE
     )
 
@@ -804,33 +783,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Develop WQP site stats (e.g. count of observations, parameters, per site)
-    sumdat <- ATTAINS_table |>
-      dplyr::group_by(
-        TADA.MonitoringLocationIdentifier,
-        TADA.MonitoringLocationName,
-        OrganizationFormalName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure
-      ) |>
-      dplyr::summarize(
-        Sample_Count = length(unique(ResultIdentifier)),
-        Visit_Count = length(unique(ActivityStartDate)),
-        Parameter_Count = length(unique(TADA.CharacteristicName)),
-        Organization_Count = length(unique(OrganizationIdentifier)),
-        ATTAINS_AUs = as.character(list(unique(
-          ATTAINS.AssessmentUnitIdentifier
-        ))),
-        TADA.AURefSource = ifelse(
-          "TADA.AURefSource" %in% names(ATTAINS_table),
-          as.character(TADA.AURefSource),
-          "not provided"
-        )
-      ) |>
-      dplyr::mutate(
-        ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
-        LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
-        LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
-      )
+    sumdat <- getWQPSiteStats(ATTAINS_table, attains = TRUE)
 
     # Basemap for AOI:
     map <- leaflet::leaflet() |>

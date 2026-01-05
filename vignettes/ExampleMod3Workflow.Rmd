@@ -462,7 +462,8 @@ identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
 TADA_TableExport(MT.ParamRef.Final)
 ```
 
-Remove intermediate variable, we will keep only the crosswalk tables that are relevant for the remaining workflow.
+Remove intermediate variable, we will keep only the crosswalk tables
+that are relevant for the remaining workflow.
 
 ```{r remove-intermediate-variables}
 rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
@@ -475,7 +476,12 @@ and parameter names (ATTAINS.ParameterName) from the specified ATTAINS
 organization (defined by the org_id function argument for
 TADA_UsesForAnalysis), which in this case is "MTDEQ" (Montana) using
 ExpertQuery web services. Users will review the output and choose which
-ATTAINS.UseName(s) are applicable to their analysis. Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use name and parameter name labeled as "Include". If an ATTAINS.UseName is not applicable, users should choose "Exclude" for that ATTAINS parameter name and use name.
+ATTAINS.UseName(s) are applicable to their analysis. Later in the data
+analysis process, users will be asked to define criteria and
+methodologies that is applicable to each ATTAINS use name and parameter
+name labeled as "Include". If an ATTAINS.UseName is not applicable,
+users should choose "Exclude" for that ATTAINS parameter name and use
+name.
 
 ### Manual Uses to Parameter Assignment
 
