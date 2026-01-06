@@ -311,8 +311,8 @@ TADA_AdditionalCharAliasForReview <- function(
       WQXCharacteristicRef,
       by = "CharacteristicName",
       relationship = "many-to-many"
-    ) 
-    #dplyr::filter(percent_match_WQX + percent_match_ATTAINS_WQX > 1)
+    )
+  #dplyr::filter(percent_match_WQX + percent_match_ATTAINS_WQX > 1)
 
   # less aggressive (prone to more mistake)
   temp_ATTAINS_WQX <- temp_ATTAINS_WQX |>
@@ -350,12 +350,8 @@ TADA_AdditionalCharAliasForReview <- function(
     # dplyr::slice_max(
     #   order_by = percent_match_CST + percent_match_ATTAINS_CST
     # ) |>
-    dplyr::right_join(
-      CST,
-      by = "POLLUTANT_NAME",
-      relationship = "many-to-many"
-    )
-    #dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 1)
+    dplyr::right_join(CST, by = "POLLUTANT_NAME", relationship = "many-to-many")
+  #dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 1)
 
   # remove intermediate variables
   rm(CST, WQXCharacteristicRef)
