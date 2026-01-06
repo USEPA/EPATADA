@@ -107,46 +107,6 @@ are strongly encouraged. WQP monitoring location metadata may also be helpful
 for matching waterbody names with ATTAINS waterbody names instead of relying
 solely on the geospatial location (lat/long).
 }
-\examples{
-\dontrun{
-tada_data <- TADA_DataRetrieval(
-  startDate = "2018-05-01",
-  endDate = "2018-05-05",
-  characteristicName = "pH",
-  statecode = "VA",
-  applyautoclean = TRUE,
-  ask = FALSE
-)
-
-# note: these example ATTAINS data retrieval queries below may take a long
-# time (10+ minutes) to run
-tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = FALSE,
-  return_sf = FALSE,
-  return_nearest = FALSE
-)
-
-tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = FALSE,
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = TRUE,
-  resolution = "Hi",
-  return_sf = FALSE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = TRUE,
-  resolution = "Hi",
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-}
-}
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}}
 

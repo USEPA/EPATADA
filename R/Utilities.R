@@ -1350,8 +1350,6 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #'   `sanitize_names = TRUE`, this function ensures names are lowercased, use
 #'   only Unicode letters/digits/underscore, are at most 10 characters, and are
 #'   unique even after suffixing. It does not transliterate to ASCII.
-#'   Depending on GDAL/DBF behavior, non‑ASCII field names may be altered at
-#'   write time by the driver.
 #' • To avoid known DBF truncation collisions, fields `TOTALAREA_MI` and
 #'   `TOTALAREA_KM` are preemptively renamed to `TAREA_MI` and `TAREA_KM`.
 #'   If `sanitize_names = TRUE`, these names will subsequently be lowercased.
@@ -1363,44 +1361,60 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' • The output path is normalized (on Windows, forward slashes are used) before
 #'   writing to reduce transient GDAL warnings about temporary paths.
 #'
-#' @param url Character(1). URL of the layer REST service, typically ending with
-#'   “/query”. Example:
-#'   “https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query”
-#' @param layerfilepath Character(1). Local path for the output .shp, e.g.,
-#'   “inst/extdata/OKTribe.shp”.
-#' @param sanitize_names Logical. If TRUE, ensure DBF field names are unique
-#'   and at most 10 characters (default: TRUE).
+#' @param url Character(1). URL of the layer REST service, typically ending with “/query”.
+#' @param layerfilepath Character(1). Local path for the output .shp.
+#' @param sanitize_names Logical. If TRUE, ensure DBF field names are unique and ≤ 10 chars.
 #'
 #' @return Invisibly returns the normalized path to the .shp file.
-#'
-#' @examples
-#' \dontrun{
-#' # Get the Oklahoma Tribal Statistical Areas layer and write to inst/extdata/OKTribe.shp
-#' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
-#' }
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
   stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
-
+  
+  # Helpers for shapefile sets
+  remove_shapefile_set <- function(path) {
+    base <- tools::file_path_sans_ext(path)
+    exts <- c("shp", "shx", "dbf", "prj", "cpg", "qix", "sbn", "sbx", "shp.xml")
+    files <- file.path(dirname(base), paste0(basename(base), ".", exts))
+    files <- files[file.exists(files)]
+    if (length(files)) unlink(files, force = TRUE)
+  }
+  shapefile_set_exists <- function(path) {
+    base <- tools::file_path_sans_ext(path)
+    any(file.exists(file.path(dirname(base), paste0(basename(base), ".", c("shp", "shx", "dbf", "prj")))))
+  }
+  
   if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
     warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
   }
-
-  # Retrieve the feature layer as an sf object
-  layer <- tryCatch(
-    getFeatureLayer(url),
-    error = function(e) {
-      stop("getFeatureLayer() failed for URL: ", url, " — ", conditionMessage(e))
+  
+  # Retrieve the feature layer as an sf object (prefer arcgislayers when available)
+  layer <- tryCatch({
+    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
+      lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
+      q <- arcgislayers::arc_select(
+        lyr,
+        where = "1=1",
+        out_fields = "*",
+        out_sr = 4326
+      )
+      arcgislayers::arc_collect(q, as_sf = TRUE)
+    } else {
+      getFeatureLayer(url)
     }
-  )
-
+  }, error = function(e) {
+    # If arcgislayers path fails, fall back to original method
+    tryCatch(getFeatureLayer(url), error = function(e2) {
+      stop("getFeatureLayer()/arcgislayers failed for URL: ", url, " — ", conditionMessage(e2))
+    })
+  })
+  
   # Preemptively rename known problematic fields using base R
   nm <- names(layer)
   if ("TOTALAREA_MI" %in% nm) nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
   if ("TOTALAREA_KM" %in% nm) nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
   names(layer) <- nm
-
+  
   # Optionally sanitize all field names to ≤ 10 chars and unique, leaving geometry column untouched
   if (isTRUE(sanitize_names)) {
     geom_col <- attr(layer, "sf_column")
@@ -1410,36 +1424,67 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     nm[keep] <- .sanitize_dbf_names_unicode(nm[keep])
     names(layer) <- nm
   }
-
+  
   # Convert epoch‑millisecond numeric fields to Date/POSIXct to avoid DBF width warnings
   layer <- .convert_epoch_ms_dates(layer)
-
+  
+  # Coerce geometry to a shapefile-supported type (handles GeometryCollection/mixed)
+  coerce_for_shapefile <- function(s) {
+    s <- sf::st_zm(s, drop = TRUE, what = "ZM")
+    
+    if (all(sf::st_is(s, c("POLYGON", "MULTIPOLYGON")) | sf::st_is_empty(s))) {
+      return(suppressWarnings(sf::st_cast(s, "MULTIPOLYGON")))
+    }
+    s_poly <- suppressWarnings(sf::st_collection_extract(s, "POLYGON"))
+    s_poly <- s_poly[!sf::st_is_empty(s_poly), , drop = FALSE]
+    if (nrow(s_poly)) return(suppressWarnings(sf::st_cast(s_poly, "MULTIPOLYGON")))
+    
+    s_line <- suppressWarnings(sf::st_collection_extract(s, "LINESTRING"))
+    s_line <- s_line[!sf::st_is_empty(s_line), , drop = FALSE]
+    if (nrow(s_line)) return(suppressWarnings(sf::st_cast(s_line, "MULTILINESTRING")))
+    
+    s_pt <- suppressWarnings(sf::st_collection_extract(s, "POINT"))
+    s_pt <- s_pt[!sf::st_is_empty(s_pt), , drop = FALSE]
+    if (nrow(s_pt)) return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
+    
+    stop("Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type.")
+  }
+  layer <- coerce_for_shapefile(layer)
+  
   # Ensure output directory exists
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
-
+  
   # Normalize path (helps on Windows)
   layerfilepath_norm <- normalizePath(layerfilepath, winslash = "/", mustWork = FALSE)
-
-  # Overwrite the shapefile dataset (delete_dsn removes the entire set)
+  
+  # Decide overwrite behavior based on extension/driver
+  is_shp <- grepl("\\.shp$", layerfilepath_norm, ignore.case = TRUE)
+  
+  # For shapefiles: proactively remove the set, then write without delete_dsn
+  if (is_shp && shapefile_set_exists(layerfilepath_norm)) {
+    remove_shapefile_set(layerfilepath_norm)
+  }
+  
+  delete_dsn_flag <- if (is_shp) FALSE else file.exists(layerfilepath_norm)
+  
   tryCatch(
     {
       sf::st_write(
         layer,
         layerfilepath_norm,
-        delete_dsn = TRUE,
+        delete_dsn = delete_dsn_flag,
         quiet = TRUE,
         layer_options = c("ENCODING=UTF-8")
       )
     },
     error = function(e) {
-      # Use em dash in the message
       stop(sprintf(
         "st_write() failed for path: %s \u2014 %s",
         layerfilepath_norm, conditionMessage(e)
       ))
     }
   )
-
+  
   invisible(normalizePath(layerfilepath, mustWork = FALSE))
 }
 
@@ -2669,6 +2714,7 @@ TADA_CorrectColType <- function(.data) {
       numeric = suppressWarnings(as.numeric(x)),
       integer = suppressWarnings(as.integer(x)),
       logical = {
+        # Leave as-is if already logical; convert reasonable string/numeric representations
         if (is.logical(x)) {
           return(x)
         }
@@ -2716,13 +2762,37 @@ TADA_CorrectColType <- function(.data) {
     )
   }
 
+  # Columns present in both the CSV and the data
   present <- intersect(coltype.ref$column_name, names(.data))
-  if (length(present) == 0L) {
+
+  # Also ensure we process any ATTAINS.*Use columns even if not listed in CSV
+  use_cols <- grep("^ATTAINS\\..*Use$", names(.data), value = TRUE)
+  extra_use_cols <- setdiff(use_cols, present)
+
+  # Union of CSV-present columns and ATTAINS.*Use columns
+  process_cols <- union(present, extra_use_cols)
+
+  if (length(process_cols) == 0L) {
     return(.data)
   }
 
-  for (nm in present) {
-    target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
+  for (nm in process_cols) {
+    # Skip geometry columns (sf objects)
+    if (inherits(.data[[nm]], "sfc")) next
+
+    # Determine target type: from CSV if present, otherwise default for ATTAINS.*Use
+    if (nm %in% present) {
+      target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
+    } else {
+      # Any ATTAINS.*Use not in CSV gets coerced to character
+      target_type <- "character"
+    }
+
+    # Generic override: ensure any ATTAINS.*Use column ends up as character
+    if (grepl("^ATTAINS\\..*Use$", nm)) {
+      target_type <- "character"
+    }
+
     old <- .data[[nm]]
     before_na <- sum(is.na(old))
     new <- try(convert(old, target_type), silent = TRUE)

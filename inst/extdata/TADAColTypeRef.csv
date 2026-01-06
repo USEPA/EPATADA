@@ -263,3 +263,6 @@ DistrPeriod,character
 DistrMinSample,numeric
 Notes,character
 ATTAINS.EcologicalUse,character
+ATTAINS.FishConsumptionUse,character
+ATTAINS.RecreationUse,character
+ATTAINS.OtherUse,character

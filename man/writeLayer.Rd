@@ -7,15 +7,11 @@
 writeLayer(url, layerfilepath, sanitize_names = TRUE)
 }
 \arguments{
-\item{url}{Character(1). URL of the layer REST service, typically ending with
-“/query”. Example:
-“https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query”}
+\item{url}{Character(1). URL of the layer REST service, typically ending with “/query”.}
 
-\item{layerfilepath}{Character(1). Local path for the output .shp, e.g.,
-“inst/extdata/OKTribe.shp”.}
+\item{layerfilepath}{Character(1). Local path for the output .shp.}
 
-\item{sanitize_names}{Logical. If TRUE, ensure DBF field names are unique
-and at most 10 characters (default: TRUE).}
+\item{sanitize_names}{Logical. If TRUE, ensure DBF field names are unique and ≤ 10 chars.}
 }
 \value{
 Invisibly returns the normalized path to the .shp file.
@@ -30,8 +26,6 @@ Notes:
 \code{sanitize_names = TRUE}, this function ensures names are lowercased, use
 only Unicode letters/digits/underscore, are at most 10 characters, and are
 unique even after suffixing. It does not transliterate to ASCII.
-Depending on GDAL/DBF behavior, non‑ASCII field names may be altered at
-write time by the driver.
 • To avoid known DBF truncation collisions, fields \code{TOTALAREA_MI} and
 \code{TOTALAREA_KM} are preemptively renamed to \code{TAREA_MI} and \code{TAREA_KM}.
 If \code{sanitize_names = TRUE}, these names will subsequently be lowercased.
@@ -42,11 +36,4 @@ Date or POSIXct automatically before writing.
 • The directory for \code{layerfilepath} is created if it does not exist.
 • The output path is normalized (on Windows, forward slashes are used) before
 writing to reduce transient GDAL warnings about temporary paths.
-}
-\examples{
-\dontrun{
-# Get the Oklahoma Tribal Statistical Areas layer and write to inst/extdata/OKTribe.shp
-OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
-writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
-}
 }

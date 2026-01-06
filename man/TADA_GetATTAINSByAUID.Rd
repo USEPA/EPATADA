@@ -57,32 +57,8 @@ identifier/monitoring location combinations.
 }
 \examples{
 \dontrun{
-# Example 1: Basic use with default settings
-# Assume my_data is a TADA data frame with some monitoring
-# location results
-# Assume my_au_ref is a data frame containing known AU and monitoring
-# location combinations
 result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
-
-# Example 2: Fetching ATTAINS data with catchment information
-# Set fill_ATTAINS_catch to TRUE to include catchment data in the output
-result_with_catch <- TADA_GetATTAINSByAUID(my_data,
-  au_ref = my_au_ref,
-  fill_ATTAINS_catch = TRUE
-)
-
-# Example 3: Handling empty data frames
-# If the input data frame has no observations, the function returns an
-# empty data frame with ATTAINS columns
-empty_data <- data.frame()
-empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
-
-# Example 4: Custom AU reference data from an external file
-# Load AU reference data from a CSV file and use it in the function
-au_ref_from_file <- read.csv("path/to/au_ref.csv")
-result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
-  au_ref = au_ref_from_file
-)
+result_with_catch <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref, fill_ATTAINS_catch = TRUE)
 }
 
 }

@@ -309,3 +309,153 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
     "Your WQP dataframe has no observations"
   )
 })
+
+##### Test CRS Compatibility
+
+testthat::test_that("TADA_MakeSpatial honors requested CRS on TADA_RandomTestingData", {
+  testthat::skip_if_not_installed("sf")
+  testthat::skip_if_not_installed("dplyr")
+
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  # Keep a small, valid subset with coordinates
+  sub <- testdat |>
+    dplyr::filter(!is.na(.data$TADA.LongitudeMeasure),
+      !is.na(.data$TADA.LatitudeMeasure)) |>
+    dplyr::slice_head(n = 200)
+
+  sf_4326 <- TADA_MakeSpatial(sub, crs = 4326)
+  testthat::expect_s3_class(sf_4326, "sf")
+  testthat::expect_false(is.na(sf::st_crs(sf_4326)))
+  testthat::expect_equal(sf::st_crs(sf_4326)$epsg, 4326)
+  testthat::expect_gt(nrow(sf_4326), 0)
+
+  sf_4269 <- TADA_MakeSpatial(sub, crs = 4269)
+  testthat::expect_s3_class(sf_4269, "sf")
+  testthat::expect_false(is.na(sf::st_crs(sf_4269)))
+  testthat::expect_equal(sf::st_crs(sf_4269)$epsg, 4269)
+})
+
+testthat::test_that("fetchATTAINS returns features in EPSG:4326 (catchments_only)", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline(host = "gispub.epa.gov")
+  testthat::skip_if_not_installed("sf")
+  testthat::skip_if_not_installed("dplyr")
+
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  pts <- testdat |>
+    dplyr::filter(!is.na(.data$TADA.LongitudeMeasure),
+      !is.na(.data$TADA.LatitudeMeasure)) |>
+    dplyr::slice_head(n = 200) |>
+    TADA_MakeSpatial(crs = 4326)
+
+  res <- fetchATTAINS(.data = pts, catchments_only = TRUE, org_id = "all")
+
+  testthat::expect_true(is.list(res))
+  catch <- res[["ATTAINS_catchments"]]
+  if (!is.null(catch) && inherits(catch, "sf") && nrow(catch) > 0) {
+    testthat::expect_equal(sf::st_crs(catch)$epsg, 4326)
+  } else {
+    testthat::expect_true(is.null(catch) || (inherits(catch, "sf") && nrow(catch) == 0))
+  }
+})
+
+testthat::test_that("fetchNHD returns EPSG:4326 for Hi and Med resolutions", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline(host = "hydro.nationalmap.gov")
+  testthat::skip_if_not_installed("sf")
+  testthat::skip_if_not_installed("dplyr")
+
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  pts <- testdat |>
+    dplyr::filter(!is.na(.data$TADA.LongitudeMeasure),
+      !is.na(.data$TADA.LatitudeMeasure)) |>
+    dplyr::slice_head(n = 100) |>
+    TADA_MakeSpatial(crs = 4326)
+
+  # HiRes
+  nhd_hi <- fetchNHD(.data = pts, resolution = "Hi", features = "catchments")
+  if (inherits(nhd_hi, "sf") && nrow(nhd_hi) > 0) {
+    testthat::expect_equal(sf::st_crs(nhd_hi)$epsg, 4326)
+  } else {
+    testthat::expect_true(is.null(nhd_hi) || (inherits(nhd_hi, "sf") && nrow(nhd_hi) == 0))
+  }
+
+  # MedRes
+  nhd_med <- fetchNHD(.data = pts, resolution = "Med", features = "catchments")
+  if (inherits(nhd_med, "sf") && nrow(nhd_med) > 0) {
+    testthat::expect_equal(sf::st_crs(nhd_med)$epsg, 4326)
+  } else {
+    testthat::expect_true(is.null(nhd_med) || (inherits(nhd_med, "sf") && nrow(nhd_med) == 0))
+  }
+})
+
+testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk outputs all sf layers with identical CRS", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline(host = "gispub.epa.gov")
+  testthat::skip_if_not_installed("sf")
+  testthat::skip_if_not_installed("dplyr")
+
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  sub <- testdat |>
+    dplyr::filter(!is.na(.data$TADA.LongitudeMeasure),
+      !is.na(.data$TADA.LatitudeMeasure)) |>
+    dplyr::slice_head(n = 150)
+
+  res <- TADA_CreateATTAINSAUMLCrosswalk(
+    .data = sub,
+    org_id = "all",
+    return_nearest = TRUE,
+    fill_USGS_catch = FALSE,
+    return_sf = TRUE
+  )
+
+  testthat::expect_true(is.list(res))
+
+  # helper to check CRS equality among available sf layers
+  expect_same_crs <- function(lst) {
+    crs_vals <- lapply(lst, function(x) if (inherits(x, "sf")) sf::st_crs(x) else NULL)
+    crs_vals <- Filter(function(x) !is.null(x) && !is.na(x), crs_vals)
+    if (length(crs_vals) <= 1) {
+      return(TRUE)
+    }
+    epsg0 <- crs_vals[[1]]$epsg
+    for (c in crs_vals[-1]) testthat::expect_identical(c$epsg, epsg0)
+    TRUE
+  }
+
+  expect_same_crs(res[c("TADA_with_ATTAINS",
+    "ATTAINS_catchments",
+    "ATTAINS_points",
+    "ATTAINS_lines",
+    "ATTAINS_polygons")])
+})
+
+testthat::test_that("Functions accept input sf in non-4326 and still return 4326 outputs", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline(host = "gispub.epa.gov")
+  testthat::skip_if_offline(host = "hydro.nationalmap.gov")
+  testthat::skip_if_not_installed("sf")
+  testthat::skip_if_not_installed("dplyr")
+
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  sf_4269 <- testdat |>
+    dplyr::filter(!is.na(.data$TADA.LongitudeMeasure),
+      !is.na(.data$TADA.LatitudeMeasure)) |>
+    dplyr::slice_head(n = 120) |>
+    TADA_MakeSpatial(crs = 4269) # non-4326 on purpose
+
+  # fetchATTAINS should handle and return 4326
+  resA <- fetchATTAINS(.data = sf_4269, catchments_only = TRUE, org_id = "all")
+  catch <- resA[["ATTAINS_catchments"]]
+  if (!is.null(catch) && inherits(catch, "sf") && nrow(catch) > 0) {
+    testthat::expect_equal(sf::st_crs(catch)$epsg, 4326)
+  }
+
+  # fetchNHD should also return 4326
+  nhd <- fetchNHD(.data = sf_4269, resolution = "Hi", features = "catchments")
+  if (inherits(nhd, "sf") && nrow(nhd) > 0) {
+    testthat::expect_equal(sf::st_crs(nhd)$epsg, 4326)
+  }
+})
+
+#####
