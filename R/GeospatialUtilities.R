@@ -1,4 +1,4 @@
-#' getMapIconsLabels
+#' getMapIconLabels
 #'
 #' Internal function to get list of icons (images) and/or a list of their labels
 #' for use in TADA mapping functions.
@@ -42,7 +42,7 @@ getMapIconLabels <- function(icons = TRUE,
 
   # magick::image_write(catchment, path = "vignettes/images/icons/square-catchment.png")
 
-  # # create images for mapping point AUs
+  # # create images for mapping point assessment units
   # setupPointMarkers <- function(path, color, name) {
   #
   #     marker <- magick::image_fill(magick::image_read(path), color, "+500+500")
@@ -149,7 +149,7 @@ getMapIconLabels <- function(icons = TRUE,
 #' function getMapIconLabels. If already called in a larger mapping function, it can
 #' be referenced here (for efficiency). If icons = NULL, getMapIconLabels will run
 #' and fetch the list. Default is icons = NULL. This argument is only applied to
-#' for point AUs.
+#' for point assessment units.
 #'
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
@@ -300,7 +300,7 @@ addATTAINSAUs <- function(.data,
 
 #' getATTAINSColorsRef
 #'
-#' Internal function to return a data framespecifying the color the feature should be
+#' Internal function to return a data frames pecifying the color the feature should be
 #' displayed in for a leaflet map based on the value in the "overallstatus" column
 #' in the ATTAINS_points, ATTAINS_polygons, or ATTAINS_lines data frames created
 #' with TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
@@ -336,9 +336,9 @@ getATTAINSColorsRef <- function() {
 #' (ATTAINS_catchments, ATTAINS_polygons, ATTAINS_points, or ATTAINS_lines).
 #'
 #' @param color_ref Data frame. A data frame containing the colors that should be
-#' applied to a feature based on its overallstatus in ATTAAINS. Must contain the
+#' applied to a feature based on its overallstatus in ATTAINS. Must contain the
 #' columns overallstatus, col, dark_col, and priority. Can be created with the
-#' internal function getATTAINSColorRef. If color_ref = NULL, the function will
+#' internal function getATTAINSColorsRef. If color_ref = NULL, the function will
 #' run getATTAINSColorRef to create a color ref data frame.
 #'
 #' @param geo_type Character string. Type of geometry to be prepared for mapping.
@@ -435,7 +435,7 @@ prepATTAINSMapper <- function(.data,
     mapper <- .data |>
       dplyr::left_join(color_ref, by = "overallstatus") |>
       dplyr::mutate(type = "Polygon Feature") |>
-      # sort df so smaller AUs will map on top of larger AUs if they overlap
+      # sort df so smaller assessment units will map on top of larger ones if they overlap
       dplyr::arrange(dplyr::desc(Shape_Area))
 
     return(mapper)
@@ -641,7 +641,7 @@ createBBox <- function(.data, as_vector = TRUE) {
 #' or TADA_CreateAUMLCrosswalk.
 #'
 #' @param map A leaflet map of TADA data to apply the symbology for missing ATTAINS
-#' AUs to.
+#' assessment units to.
 #'
 #' @param overlay_groups Initialized vector to add names of groups added to map. If
 #' it is NULL, the function will fail with an error message. Default is overlay_list
@@ -663,7 +663,7 @@ showMissingATTAINSAUs <- function(map = NULL,
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
   }
 
-  # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
+  # check for Monitoring Locations with assigned assessment units that do not have geometry from ATTAINS
   if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
     user.refs <- ATTAINS_table |>
       dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
@@ -676,9 +676,9 @@ showMissingATTAINSAUs <- function(map = NULL,
       ) |>
       dplyr::distinct()
 
-    # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+    # if any assessment unit ids were assigned by user check to see if they have matching geometry from ATTAINS
     if (dim(user.refs)[1] > 0) {
-      # internal function to create list of auids
+      # internal function to create list of assessment unit ids
       listAUIDs <- function(.data) {
         if (dim(.data)[1] == 0) {
           list <- list()
@@ -724,7 +724,7 @@ showMissingATTAINSAUs <- function(map = NULL,
         )
 
 
-        # add missing AU symbology to map
+        # add missing assessment unit symbology to map
         map <- map |>
           leaflet::addMarkers(
             data = missing.geo,
@@ -851,7 +851,7 @@ addWQPSites <- function(.data,
     .data$ATTAINS_AUs
   )
 
-  # add au ref source to pop up  if available
+  # add assessment unit ref source to pop up  if available
   if ("TADA.AURefSource" %in% names(.data)) {
     set.popup <- paste0(
       set.popup,
@@ -978,7 +978,7 @@ addWQPSites <- function(.data,
 #'
 #' @param attains_missing Boolean argument. Determines whether the dashed circle
 #' indicating whether WQP sites with assessment units assigned by the user are
-#' missing correspodning geometry in ATTAINS is shown in the legend. The dashed
+#' missing corresponding geometry in ATTAINS is shown in the legend. The dashed
 #' circle icon is show when attains_missing = TRUE. The default is attains_missing
 #' = TRUE.
 #'

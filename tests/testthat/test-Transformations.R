@@ -133,7 +133,7 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
 
 test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not applicable", {
   # Generate random testing data
-  df = TADA_DataRetrieval(
+  df <- TADA_DataRetrieval(
     statecode = "SC",
     startDate = "2025-03-13",
     endDate = "2025-03-14",

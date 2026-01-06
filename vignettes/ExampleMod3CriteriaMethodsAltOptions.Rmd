@@ -278,7 +278,7 @@ found by specifying "USEPA" as part of the org_id argument input.
 ```{r auto-fill-epa304a-and-display}
 MT.Criteria.auto3 <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
-  org_id = c("MTDEQ","USEPA"),
+  org_id = c("MTDEQ", "USEPA"),
   auto_assign = TRUE,
   displayUniqueId = TRUE,
   excel = FALSE

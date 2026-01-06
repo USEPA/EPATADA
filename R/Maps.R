@@ -141,9 +141,9 @@ TADA_OverviewMap <- function(.data) {
       # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
       # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
       # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
-     map <- createTADABasemap(.data)
+      map <- createTADABasemap(.data)
 
-     map <- map |>
+      map <- map |>
         leaflet::addMapPane("featurelayers", zIndex = 300) |>
         leaflet::addCircleMarkers(
           data = sumdat,
@@ -199,8 +199,8 @@ TADA_OverviewMap <- function(.data) {
             opacity = 0.5
           )
       }
-     # create bbox for adding tribal layers
-     bbox <- createBBox(sumdat, as_vector = FALSE)
+      # create bbox for adding tribal layers
+      bbox <- createBBox(sumdat, as_vector = FALSE)
 
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
@@ -296,13 +296,15 @@ TADA_FlaggedSitesMap <- function(.data) {
 
   if (nrow(outsideusa) > 0) {
     map <- addFlaggedSitesMarkers(outsideusa,
-                                  map = map,
-                                  flag_type = "outsideusa")
+      map = map,
+      flag_type = "outsideusa"
+    )
   }
   if (nrow(lowres) > 0) {
     map <- addFlaggedSitesMarkers(lowres,
-                                  map = map,
-                                  flag_type = "lowres")
+      map = map,
+      flag_type = "lowres"
+    )
   }
 
   # remove intermediate objects
@@ -355,11 +357,8 @@ TADA_NearbySitesMap <- function(.data,
                                 catchment = FALSE,
                                 resolution = "Hi",
                                 fetchNHD = FALSE) {
-
   # check to see if input is a single df
-  if(inherits(.data, "data.frame")) {
-
-  }
+  if (inherits(.data, "data.frame")) {}
 
   # check to see if input is a list of dfs containing the output from
   # TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk to faciliate
@@ -398,13 +397,15 @@ TADA_NearbySitesMap <- function(.data,
   # if needed can incorporate functions from package "farver" to force pal colors
   # away from tada.pal colors (HRM 12/23/25)
   nearby.pal <- Polychrome::createPalette(n.colors,
-                                   seedcolors = c(
-                                     tada.pal[1],
-                                     tada.pal[3],
-                                     tada.pal[4],
-                                     tada.pal[7],
-                                     tada.pal[15]),
-                                   M = 5000)
+    seedcolors = c(
+      tada.pal[1],
+      tada.pal[3],
+      tada.pal[4],
+      tada.pal[7],
+      tada.pal[15]
+    ),
+    M = 5000
+  )
 
 
   # assign colors to nearby groups
@@ -417,8 +418,7 @@ TADA_NearbySitesMap <- function(.data,
   map <- createTADABasemap(.data)
 
   # if AU = TRUE and assessment unit geometry is inclueded in TADA df add AUs to map
-  if(AU == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-
+  if (AU == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
       {
@@ -458,8 +458,6 @@ TADA_NearbySitesMap <- function(.data,
       silent = TRUE
     )
   }
-
-
 
 
   # add nearby sites to map
@@ -599,7 +597,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }
 
- # use internal function to get paths to images and labels
+  # use internal function to get paths to images and labels
   list.images <- getMapIconLabels()
 
   # define the paths to the images
@@ -676,25 +674,28 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
     try(
-       points_mapper <- prepATTAINSMapper(ATTAINS_points,
-                                          geo_type = "points",
-                                          color_ref = colors),
+      points_mapper <- prepATTAINSMapper(ATTAINS_points,
+        geo_type = "points",
+        color_ref = colors
+      ),
       silent = TRUE
     )
 
     # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
     try(
       lines_mapper <- prepATTAINSMapper(ATTAINS_lines,
-                                        geo_type = "lines",
-                                        color_ref = colors),
+        geo_type = "lines",
+        color_ref = colors
+      ),
       silent = TRUE
     )
 
     # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
     try(
       polygons_mapper <- prepATTAINSMapper(ATTAINS_polygons,
-                                           geo_type = "polygons",
-                                           color_ref = colors),
+        geo_type = "polygons",
+        color_ref = colors
+      ),
       silent = TRUE
     )
 
@@ -800,28 +801,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     )
 
     # Add ATTAINS polygon features (if they exist):
- try(
-   {
-     polygons_aus <- addATTAINSAUs(polygons_mapper,
-                                   map = map,
-                                   overlay_groups = overlay_groups)
+    try(
+      {
+        polygons_aus <- addATTAINSAUs(polygons_mapper,
+          map = map,
+          overlay_groups = overlay_groups
+        )
 
- map <- polygons_aus$map
+        map <- polygons_aus$map
 
- overlay_groups <- polygons_aus$overlay_groups
+        overlay_groups <- polygons_aus$overlay_groups
 
- # remove intermediate object
- rm(polygons_aus)
- },
- silent = TRUE
- )
+        # remove intermediate object
+        rm(polygons_aus)
+      },
+      silent = TRUE
+    )
 
     # Add ATTAINS lines features (if they exist):
     try(
       {
         lines_aus <- addATTAINSAUs(lines_mapper,
-                                   map = map,
-                                   overlay_groups = overlay_groups)
+          map = map,
+          overlay_groups = overlay_groups
+        )
 
         map <- lines_aus$map
 
@@ -836,26 +839,28 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS point features (if they exist):
     try(
       {
-       points_aus <- addATTAINSAUs(points_mapper,
-                                   map = map,
-                                   overlay_groups = overlay_groups)
+        points_aus <- addATTAINSAUs(points_mapper,
+          map = map,
+          overlay_groups = overlay_groups
+        )
 
-       map <- points_aus$map
+        map <- points_aus$map
 
-      overlay_groups <- points_aus$overlay_groups
+        overlay_groups <- points_aus$overlay_groups
       },
       silent = TRUE
     )
 
     # add symbology for any assessment units missing geometry from ATTAINS
-    try(
-      {
-      missing_aus <- showMissingATTAINSAUs(ATTAINS_table = ATTAINS_table,
-                                           ATTAINS_polygons = ATTAINS_polygons,
-                                           ATTAINS_points = ATTAINS_points,
-                                           ATTAINS_lines = ATTAINS_lines,
-                                           map = map,
-                                           overlay_groups = overlay_groups)
+    try({
+      missing_aus <- showMissingATTAINSAUs(
+        ATTAINS_table = ATTAINS_table,
+        ATTAINS_polygons = ATTAINS_polygons,
+        ATTAINS_points = ATTAINS_points,
+        ATTAINS_lines = ATTAINS_lines,
+        map = map,
+        overlay_groups = overlay_groups
+      )
 
       map <- missing_aus$map
 
@@ -869,10 +874,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     try(
       {
         wqp_sites <- addWQPSites(sumdat,
-                           map = map,
-                           icons = images,
-                           ref_icons = TRUE,
-                           overlay_groups = overlay_groups)
+          map = map,
+          icons = images,
+          ref_icons = TRUE,
+          overlay_groups = overlay_groups
+        )
 
         map <- wqp_sites$map
 
@@ -883,48 +889,57 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # set up params for adding custom legend
     # ATTAINS assessment units
-    attains_au <- ifelse(any(c("ATTAINS line features",
-                                         "ATTAINS point features",
-                                         "ATTAINS polygon features") %in% overlay_groups),
-                         TRUE,
-                         FALSE)
+    attains_au <- ifelse(any(c(
+      "ATTAINS line features",
+      "ATTAINS point features",
+      "ATTAINS polygon features"
+    ) %in% overlay_groups),
+    TRUE,
+    FALSE
+    )
 
     # attains missing
     attains_missing <- ifelse("not in ATTAINS" %in% overlay_groups,
-                              TRUE,
-                              FALSE)
+      TRUE,
+      FALSE
+    )
 
     # NHD catchments containing ATTAINS features
 
     nhd_attains <- ifelse("ATTAINS catchments" %in% overlay_groups,
-                          TRUE,
-                          FALSE)
+      TRUE,
+      FALSE
+    )
 
     # NHD catchments without ATTAINS features
 
     nhd_no_attains <- ifelse("missing ATTAINS catchment outlines" %in% overlay_groups,
-                             TRUE,
-                             FALSE)
+      TRUE,
+      FALSE
+    )
 
 
     # add TADA custom legend to map
-    map <- addTADAMapLegend(map = map,
-                            icons = images,
-                            icon_labels = img.labels,
-                            wqp = TRUE,
-                            ref_icons = ref_icons,
-                            attains_au = attains_au,
-                            attains_missing = attains_missing,
-                            nhd_attains = nhd_attains,
-                            nhd_no_attains = nhd_no_attains
-                            )
+    map <- addTADAMapLegend(
+      map = map,
+      icons = images,
+      icon_labels = img.labels,
+      wqp = TRUE,
+      ref_icons = ref_icons,
+      attains_au = attains_au,
+      attains_missing = attains_missing,
+      nhd_attains = nhd_attains,
+      nhd_no_attains = nhd_no_attains
+    )
 
     # add button to toggle map legend on/off
     map <- addLegendToggle(map = map)
 
     # add layer control to map
-    map <- addLayerControl(map = map,
-                           overlay_groups = overlay_groups)
+    map <- addLayerControl(
+      map = map,
+      overlay_groups = overlay_groups
+    )
 
     # remove intermediate objects
     rm(sumdat, overlay_groups)
