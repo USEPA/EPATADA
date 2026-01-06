@@ -2,32 +2,8 @@
 % Please edit documentation in R/GeospatialUtilities.R
 \name{addFlaggedSitesMarkers}
 \alias{addFlaggedSitesMarkers}
-\title{#' checkIconAndLabels
-#'
-#'  Internal function to check for the icon and icon_labels lists used in TADA
-#'  mapping functions. If both are missing a message is printed indicating that
-#'  getMapIconLabels will be run to create them. If only one is missing, this
-#'  function can either (1) print a message indicating which param is missing
-#'  and run getMapIconLabels to create both icon and icon parm lists or (2) stop
-#'  the function with an error message identifying which param is missing. This
-#'  is determined by the "fail" param. When fail = FALSE, a message is printed
-#'  and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#'  icons or icon_labels is missing.
-#'
-#' @param fail Boolean argument. When fail = FALSE, a message is printed
-#' and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#' icons or icon_labels is missing. Default is fail = FALSE.
-#'
-#' @param icons
-#'
-#' @param icon_labels
-#'
-#' @return Printed message to display status of icons and icon_labels params.
-#'check icons and icon_labels
-
-checkIconAndLabels <- function(fail = FALSE,
-icons = NULL,
-icon_labels = NULL) {}
+\title{addFlaggedSitesMarkers
+Internal function to add flagged sites to map for review.}
 \usage{
 addFlaggedSitesMarkers(.data, map = NULL, flag_type = NULL)
 }
@@ -43,37 +19,6 @@ TADA.LongitudeMeasure for mapping.}
 A TADA leaflet map with flagged site markers added.
 }
 \description{
-#' checkIconAndLabels
-#'
-#'  Internal function to check for the icon and icon_labels lists used in TADA
-#'  mapping functions. If both are missing a message is printed indicating that
-#'  getMapIconLabels will be run to create them. If only one is missing, this
-#'  function can either (1) print a message indicating which param is missing
-#'  and run getMapIconLabels to create both icon and icon parm lists or (2) stop
-#'  the function with an error message identifying which param is missing. This
-#'  is determined by the "fail" param. When fail = FALSE, a message is printed
-#'  and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#'  icons or icon_labels is missing.
-#'
-#' @param fail Boolean argument. When fail = FALSE, a message is printed
-#' and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#' icons or icon_labels is missing. Default is fail = FALSE.
-#'
-#' @param icons
-#'
-#' @param icon_labels
-#'
-#' @return Printed message to display status of icons and icon_labels params.
-#'check icons and icon_labels
-
-checkIconAndLabels <- function(fail = FALSE,
-icons = NULL,
-icon_labels = NULL) {
+addFlaggedSitesMarkers
+Internal function to add flagged sites to map for review.
 }
-\details{
-
-}
-\section{check is both icons and icon_labels are not null}{
-
-}
-

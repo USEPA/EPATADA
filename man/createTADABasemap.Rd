@@ -7,11 +7,11 @@
 createTADABasemap(.data)
 }
 \arguments{
-\item{.data}{Data frame. Must contain the columns TADA.LatitudeMeasure and
-TADA.Longitude measure to set the extent of the map.}
+\item{.data}{A TADA data frame. Must contain the columns TADA.LatitudeMeasure
+and TADA.Longitude measure to set the extent of the map.}
 }
 \value{
-A list containing elments to produce leaflet base map.
+The basemap for TADA mapping functions.
 }
 \description{
 Internal function to create base leaflet map for TADA mapping functions.

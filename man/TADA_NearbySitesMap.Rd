@@ -33,10 +33,6 @@ added to the review map. Default is catchment = FALSE.}
 \item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or
 medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset
 (NHD). Default is "Hi".}
-
-\item{fetchNHD}{Boolean. Use the fetchNHD function to retrieve catchment data
-when fetchND = TRUE. When fetchNHD = FALSE, catchment data are not retrieved
-using fetchNHD. Default is fetchNHD = FALSE.}
 }
 \value{
 A leaflet map that shows all sites in the dataframe that contain

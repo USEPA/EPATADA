@@ -40,7 +40,9 @@ including geometry that was created with TADA_CreateATTAINSAUMLCrosswalk
 or TADA_CreateAUMLCrosswalk.}
 }
 \value{
-ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+A TADA leaflet map marking WQP monitoring locations with user
+supplied assessment unit identifiers that do not have matching geometry in
+ATTAINS by circling them with a black dashed line.
 }
 \description{
 showMissingATTAINSAUs

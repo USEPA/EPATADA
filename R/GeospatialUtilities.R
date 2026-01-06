@@ -134,7 +134,7 @@ getMapIconLabels <- function(icons = TRUE,
   }
 }
 
-#'addATTAINSAUs
+#' addATTAINSAUs
 #' Internal function to add ATTAINS assessment unit lines, points, or polygons to
 #' TADA maps.
 #'
@@ -154,151 +154,148 @@ getMapIconLabels <- function(icons = TRUE,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add ATTAINS geometry to existing leaflet map
-  addATTAINSAUs <- function(.data,
-                         map = NULL,
-                         overlay_groups = NULL,
-                         icons = NULL
-                         ) {
-    # stop function if map is not provided
-    if(is.null(map)) {
-      stop("addATTAINS: a leaflet map must be supplied to run this function.")
-    }
+addATTAINSAUs <- function(.data,
+                          map = NULL,
+                          overlay_groups = NULL,
+                          icons = NULL) {
+  # stop function if map is not provided
+  if (is.null(map)) {
+    stop("addATTAINS: a leaflet map must be supplied to run this function.")
+  }
 
-    # stop function if overlay list is not provided
-    if(is.null(overlay_groups)) {
+  # stop function if overlay list is not provided
+  if (is.null(overlay_groups)) {
     stop("addATTAINS: overlay_groups must be supplied to run this function.")
-    }
+  }
 
-    # get geometry type
-    geo.type <- .data$type[1]
+  # get geometry type
+  geo.type <- .data$type[1]
 
-    # set group name
-    group.name <- switch(geo.type,
-                    "Point Feature" = "ATTAINS point features",
-                    "Line Feature" = "ATTAINS line features",
-                    "Polygon Feature" = "ATTAINS polygon features")
+  # set group name
+  group.name <- switch(geo.type,
+    "Point Feature" = "ATTAINS point features",
+    "Line Feature" = "ATTAINS line features",
+    "Polygon Feature" = "ATTAINS polygon features"
+  )
 
-    # remove intermediate object
-    rm(geo.type)
+  # remove intermediate object
+  rm(geo.type)
 
   # Add ATTAINS assessment units
-    # polygon assessment units
-    if(group.name == "ATTAINS polygon features") {
-        map <- map |>
-          leaflet::addPolygons(
-            data = .data,
-            group = "ATTAINS polygon features",
-            color = ~ .data$col,
-            fill = ~ .data$col,
-            weight = 3,
-            fillOpacity = 0.5,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              .data$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              .data$assessmentunitidentifier,
-              "<br> Status: ",
-              .data$overallstatus,
-              "<br> Assessment Unit Type: ",
-              .data$type,
-              "<br> <a href=",
-              .data$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
-    }
-
-    # polygon assessment units
-    if(group.name == "ATTAINS line features") {
-        map <- map |>
-          leaflet::addPolylines(
-            data = .data,
-            group = "ATTAINS line features",
-            color = ~ .data$col,
-            weight = 4,
-            fillOpacity = 1,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              .data$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              .data$assessmentunitidentifier,
-              "<br> Status: ",
-              .data$overallstatus,
-              "<br> Assessment Unit Type: ",
-              .data$type,
-              "<br> <a href=",
-              .data$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS line features")
-    }
-
-    # point assessment units
-    if(group.name == "ATTAINS point features") {
-
-      if(is.null(icons)) {
-
-        get.icons <- getMapIconLabels()
-
-        images <- unlist(get.icons[1])
-
-        # remove intermediate objects
-        rm(get.icons)
-      } else {
-
-        images <- icons
-
-        # remove intermediate objects
-        rm(icons)
-      }
-
-      pointIcons <- leaflet::icons(
-        iconUrl = dplyr::case_when(
-          .data$overallstatus == "Fully Supporting" ~ images[12],
-          .data$overallstatus == "Not Supporting" ~ images[11],
-          .data$overallstatus == "Not Assessed" ~ images[13]
-        ),
-        iconWidth = 48,
-        iconHeight = 48
+  # polygon assessment units
+  if (group.name == "ATTAINS polygon features") {
+    map <- map |>
+      leaflet::addPolygons(
+        data = .data,
+        group = "ATTAINS polygon features",
+        color = ~ .data$col,
+        fill = ~ .data$col,
+        weight = 3,
+        fillOpacity = 0.5,
+        popup = paste0(
+          "Assessment Unit Name: ",
+          .data$assessmentunitname,
+          "<br> Assessment Unit ID: ",
+          .data$assessmentunitidentifier,
+          "<br> Status: ",
+          .data$overallstatus,
+          "<br> Assessment Unit Type: ",
+          .data$type,
+          "<br> <a href=",
+          .data$waterbodyreportlink,
+          " target='_blank'>ATTAINS Link</a>"
+        )
       )
-
-        map <- map |>
-          leaflet::addMarkers(
-            data = .data,
-            group = "ATTAINS point features",
-            lng = ~X,
-            lat = ~Y,
-            icon = pointIcons,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              .data$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              .data$assessmentunitidentifier,
-              "<br> Status: ",
-              .data$overallstatus,
-              "<br> Assessment Unit Type: ",
-              .data$type,
-              "<br> <a href=",
-              .data$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>"
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS point features")
-
-        # remove intermediate objects
-        rm(images, pointIcons)
-      }
-
-    # create list containing map and overlay_groups
-    au.list <- list(map, overlay_groups)
-
-    names(au.list) <- c('map', 'overlay_groups')
-
-    # return map and list of overlay groups
-    return(au.list)
+    overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
   }
+
+  # polygon assessment units
+  if (group.name == "ATTAINS line features") {
+    map <- map |>
+      leaflet::addPolylines(
+        data = .data,
+        group = "ATTAINS line features",
+        color = ~ .data$col,
+        weight = 4,
+        fillOpacity = 1,
+        popup = paste0(
+          "Assessment Unit Name: ",
+          .data$assessmentunitname,
+          "<br> Assessment Unit ID: ",
+          .data$assessmentunitidentifier,
+          "<br> Status: ",
+          .data$overallstatus,
+          "<br> Assessment Unit Type: ",
+          .data$type,
+          "<br> <a href=",
+          .data$waterbodyreportlink,
+          " target='_blank'>ATTAINS Link</a>"
+        )
+      )
+    overlay_groups <- c(overlay_groups, "ATTAINS line features")
+  }
+
+  # point assessment units
+  if (group.name == "ATTAINS point features") {
+    if (is.null(icons)) {
+      get.icons <- getMapIconLabels()
+
+      images <- unlist(get.icons[1])
+
+      # remove intermediate objects
+      rm(get.icons)
+    } else {
+      images <- icons
+
+      # remove intermediate objects
+      rm(icons)
+    }
+
+    pointIcons <- leaflet::icons(
+      iconUrl = dplyr::case_when(
+        .data$overallstatus == "Fully Supporting" ~ images[12],
+        .data$overallstatus == "Not Supporting" ~ images[11],
+        .data$overallstatus == "Not Assessed" ~ images[13]
+      ),
+      iconWidth = 48,
+      iconHeight = 48
+    )
+
+    map <- map |>
+      leaflet::addMarkers(
+        data = .data,
+        group = "ATTAINS point features",
+        lng = ~X,
+        lat = ~Y,
+        icon = pointIcons,
+        popup = paste0(
+          "Assessment Unit Name: ",
+          .data$assessmentunitname,
+          "<br> Assessment Unit ID: ",
+          .data$assessmentunitidentifier,
+          "<br> Status: ",
+          .data$overallstatus,
+          "<br> Assessment Unit Type: ",
+          .data$type,
+          "<br> <a href=",
+          .data$waterbodyreportlink,
+          " target='_blank'>ATTAINS Link</a>"
+        )
+      )
+    overlay_groups <- c(overlay_groups, "ATTAINS point features")
+
+    # remove intermediate objects
+    rm(images, pointIcons)
+  }
+
+  # create list containing map and overlay_groups
+  au.list <- list(map, overlay_groups)
+
+  names(au.list) <- c("map", "overlay_groups")
+
+  # return map and list of overlay groups
+  return(au.list)
+}
 
 
 #' getATTAINSColorsRef
@@ -464,63 +461,67 @@ prepATTAINSMapper <- function(.data,
 # Develop WQP site stats (e.g. count of observations, parameters, per site)
 getWQPSiteStats <- function(.data,
                             attains = TRUE) {
+  # set base list of columns to group .data for summarizing
+  group.cols <- c(
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationName",
+    "OrganizationFormalName",
+    "TADA.LatitudeMeasure",
+    "TADA.LongitudeMeasure",
+    "TADA.AURefSource"
+  )
+
+
   if (attains == TRUE) {
+    # if assessment unit data are not available, set attains param to FALSE
     if (!"ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
       attains <- FALSE
 
+      # print missing to user explaning that assessment unit data are not present
       print(paste0(
         "getWQPSiteStats: ATTAINS.AssessmentUnitIdentifier is not present in .data. ",
         "Returning WQP site stats without assessment unit identifiers."
       ))
     }
 
-    group.cols <- c("TADA.MonitoringLocationIdentifier",
-                   "TADA.MonitoringLocationName",
-                    "OrganizationFormalName",
-                    "TADA.LatitudeMeasure",
-                    "TADA.LongitudeMeasure",
-                    "TADA.AURefSource")
 
+    # if assessment unit data are available
     if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-
-      if(!"TADA.AURefSource" %in% names(.data)) {
-
+      # check for ref source, add if missing
+      if (!"TADA.AURefSource" %in% names(.data)) {
         .data <- .data |>
           dplyr::mutate(TADA.AURefSource = "not provided")
       }
 
+      # add TADA.AURefSource to grouping
       group.cols <- append(group.cols, "TADA.AURefSource")
-
-      sumdat <- .data |>
-        dplyr::group_by(!!!rlang::syms(group.cols)) |>
-        dplyr::summarize(
-          Sample_Count = length(unique(ResultIdentifier)),
-          Visit_Count = length(unique(ActivityStartDate)),
-          Parameter_Count = length(unique(TADA.CharacteristicName)),
-          Organization_Count = length(unique(OrganizationIdentifier)),
-          ATTAINS_AUs = as.character(list(unique(
-            ATTAINS.AssessmentUnitIdentifier
-          )))
-        ) |>
-        dplyr::mutate(
-          ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
-          LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
-          LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
-        )
-
-      return(sumdat)
     }
+
+    # create data summary including ATTAINS assessment unit identifiers
+    sumdat <- .data |>
+      dplyr::group_by(!!!rlang::syms(group.cols)) |>
+      dplyr::summarize(
+        Sample_Count = length(unique(ResultIdentifier)),
+        Visit_Count = length(unique(ActivityStartDate)),
+        Parameter_Count = length(unique(TADA.CharacteristicName)),
+        Organization_Count = length(unique(OrganizationIdentifier)),
+        ATTAINS_AUs = as.character(list(unique(
+          ATTAINS.AssessmentUnitIdentifier
+        )))
+      ) |>
+      dplyr::mutate(
+        ATTAINS_AUs = ifelse(is.na(ATTAINS_AUs), "None", ATTAINS_AUs),
+        LatitudeMeasure = as.numeric(TADA.LatitudeMeasure),
+        LongitudeMeasure = as.numeric(TADA.LongitudeMeasure)
+      )
+
+    return(sumdat)
   }
 
   if (attains == FALSE) {
+    # create summary without ATTAIINS data
     sumdat <- .data |>
-      dplyr::group_by(
-        TADA.MonitoringLocationIdentifier,
-        TADA.MonitoringLocationName,
-        OrganizationFormalName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure
-      ) |>
+      dplyr::group_by(!!!rlang::syms(group.cols)) |>
       dplyr::summarize(
         Sample_Count = length(unique(ResultIdentifier)),
         Visit_Count = length(unique(ActivityStartDate)),
@@ -540,42 +541,43 @@ getWQPSiteStats <- function(.data,
 #'
 #' Internal function to create base leaflet map for TADA mapping functions.
 #'
-#' @param .data Data frame. Must contain the columns TADA.LatitudeMeasure and
-#' TADA.Longitude measure to set the extent of the map.
+#' @param .data A TADA data frame. Must contain the columns TADA.LatitudeMeasure
+#' and TADA.Longitude measure to set the extent of the map.
 #'
-#' @return A list containing elments to produce leaflet base map.
+#' @return The basemap for TADA mapping functions.
 #'
 # Create base map
 createTADABasemap <- function(.data) {
-
-  if(!all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))) {
-
+  if (!all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))) {
     stop("createTADABasemap: .data must contain TADA.LongitudeMeasure and TADA.LatitudeMeasure columns.")
   }
 
+  # create bounding box for map using internal function
   bbox <- createBBox(.data, as_vector = TRUE)
 
+  # create base map
   map <- leaflet::leaflet() |>
-  leaflet::addProviderTiles(
-    "Esri.WorldTopoMap",
-    group = "World topo",
-    options = leaflet::providerTileOptions(
-      updateWhenZooming = FALSE,
-      updateWhenIdle = TRUE
-    )
-  ) |>
-  leaflet::clearShapes() |>
-  leaflet::fitBounds(
-    lng1 = bbox[1],
-    lat1 = bbox[2],
-    lng2 = bbox[3],
-    lat2 = bbox[4]
-  ) |>
-  leaflet.extras::addResetMapButton()
+    leaflet::addProviderTiles(
+      "Esri.WorldTopoMap",
+      group = "World topo",
+      options = leaflet::providerTileOptions(
+        updateWhenZooming = FALSE,
+        updateWhenIdle = TRUE
+      )
+    ) |>
+    leaflet::clearShapes() |>
+    leaflet::fitBounds(
+      lng1 = bbox[1],
+      lat1 = bbox[2],
+      lng2 = bbox[3],
+      lat2 = bbox[4]
+    ) |>
+    leaflet.extras::addResetMapButton()
 
   # remove intermediate objects
   rm(bbox)
 
+  # return base map
   return(map)
 }
 
@@ -594,7 +596,7 @@ createTADABasemap <- function(.data) {
 #' @return A bounding box for use in leaflet mapping functions.
 # Create bounding box
 createBBox <- function(.data, as_vector = TRUE) {
-
+  # create bounding box
   bbox <- sf::st_bbox(
     c(
       xmin = min(.data$TADA.LongitudeMeasure),
@@ -605,13 +607,13 @@ createBBox <- function(.data, as_vector = TRUE) {
     crs = sf::st_crs(.data)
   )
 
-  if(as_vector == FALSE) {
-
+  # return as bounding box
+  if (as_vector == FALSE) {
     return(bbox)
   }
 
-  if(as_vector == TRUE) {
-
+  # return as vector (required for some TADA functions)
+  if (as_vector == TRUE) {
     bbox <- bbox |> as.vector()
 
     return(bbox)
@@ -645,7 +647,9 @@ createBBox <- function(.data, as_vector = TRUE) {
 #' it is NULL, the function will fail with an error message. Default is overlay_list
 #' = NULL.
 #'
-#' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
+#' @return A TADA leaflet map marking WQP monitoring locations with user
+#' supplied assessment unit identifiers that do not have matching geometry in
+#' ATTAINS by circling them with a black dashed line.
 #'
 # add ATTAINS geometry to existing leaflet map
 showMissingATTAINSAUs <- function(map = NULL,
@@ -654,9 +658,8 @@ showMissingATTAINSAUs <- function(map = NULL,
                                   ATTAINS_points = NULL,
                                   ATTAINS_lines = NULL,
                                   ATTAINS_polygons = NULL) {
-
   # stop function if map is not provided
-  if(is.null(map)) {
+  if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
   }
 
@@ -674,7 +677,6 @@ showMissingATTAINSAUs <- function(map = NULL,
       dplyr::distinct()
 
     # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
-
     if (dim(user.refs)[1] > 0) {
       # internal function to create list of auids
       listAUIDs <- function(.data) {
@@ -710,7 +712,6 @@ showMissingATTAINSAUs <- function(map = NULL,
 
       # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
       if (dim(missing.geo)[1] > 0) {
-
         # set up icons for missing geometry
         missingIcon <- leaflet::icons(
           iconUrl = system.file(
@@ -725,35 +726,35 @@ showMissingATTAINSAUs <- function(map = NULL,
 
         # add missing AU symbology to map
         map <- map |>
-              leaflet::addMarkers(
-                data = missing.geo,
-                group = "not in ATTAINS",
-                lng = ~TADA.LongitudeMeasure,
-                lat = ~TADA.LatitudeMeasure,
-                icon = missingIcon,
-                popup = paste0(
-                  "Assessment Unit Name: ",
-                  "not available in ATTAINS",
-                  "<br> Assessment Unit ID: ",
-                  missing.geo$ATTAINS.AssessmentUnitIdentifier,
-                  "<br> Status: ",
-                  "not available in ATTAINS",
-                  "<br> Assessment Unit Type: ",
-                  "not available in ATTAINS"
-                )
-              )
+          leaflet::addMarkers(
+            data = missing.geo,
+            group = "not in ATTAINS",
+            lng = ~TADA.LongitudeMeasure,
+            lat = ~TADA.LatitudeMeasure,
+            icon = missingIcon,
+            popup = paste0(
+              "Assessment Unit Name: ",
+              "not available in ATTAINS",
+              "<br> Assessment Unit ID: ",
+              missing.geo$ATTAINS.AssessmentUnitIdentifier,
+              "<br> Status: ",
+              "not available in ATTAINS",
+              "<br> Assessment Unit Type: ",
+              "not available in ATTAINS"
+            )
+          )
 
-            overlay_groups <- c(overlay_groups, "not in ATTAINS")
+        overlay_groups <- c(overlay_groups, "not in ATTAINS")
 
-            missing.list <- list(map, overlay_groups)
+        missing.list <- list(map, overlay_groups)
 
-            names(missing.list) <- c('map', 'overlay_groups')
+        names(missing.list) <- c("map", "overlay_groups")
 
-            # remove intermediate objects
-            rm(map, overlay_groups)
+        # remove intermediate objects
+        rm(map, overlay_groups)
 
-            # return updated map and list of overlay_groups
-            return(missing.list)
+        # return updated map and list of overlay_groups
+        return(missing.list)
       }
     }
   }
@@ -783,7 +784,14 @@ showMissingATTAINSAUs <- function(map = NULL,
 #' and fetch the list. Default is icons = NULL. This argument is only applied to
 #' for point AUs.
 #'
-#' @param icon_labels Character argument.
+#' @param icon_labels Character argument. The list of icon labels generated by the
+#' internal function getMapIconLabels. If already called in a larger mapping function,
+#' it can be referenced here (for efficiency). If icons = NULL, getMapIconLabels
+#' will run and fetch the list. Default is icons = NULL. This argument is only
+#' applied for point AUs.
+#'
+#' @param overlay_groups List of names of groups added to map. If it is NULL, the
+#' function will fail with an error message. Default is overlay_list = NULL.
 #'
 #' @param ref_icons Boolean argument. Determines whether custom icons are displayed to differentiate between
 #' different crosswalk sources for the assignment of WQP Monitoring Locations to Assessment Units if this
@@ -811,117 +819,115 @@ addWQPSites <- function(.data,
                         icon_labels = NULL,
                         ref_icons = TRUE,
                         overlay_groups = NULL) {
-
   # data summary columns
-  sum.cols <- c("Sample_Count",
-                "Visit_Count",
-                "Parameter_Count",
-                "ATTAINS_AUs")
+  sum.cols <- c(
+    "Sample_Count",
+    "Visit_Count",
+    "Parameter_Count",
+    "ATTAINS_AUs"
+  )
 
   # check to see if data summary columns are present in .data
-  if(!all(sum.cols %in% names(.data))) {
-
+  if (!all(sum.cols %in% names(.data))) {
     # calculate summary columns if required
     .data <- getWQPSiteStats(.data)
   }
 
-# set base pop up for monitoring locations
-set.popup <- paste0(
-  "Site ID: ",
-  .data$TADA.MonitoringLocationIdentifier,
-  "<br> Site Name: ",
-  .data$TADA.MonitoringLocationName,
-  "<br> Organization Name: ",
-  .data$OrganizationFormalName,
-  "<br> Measurement Count: ",
-  .data$Sample_Count,
-  "<br> Visit Count: ",
-  .data$Visit_Count,
-  "<br> Characteristic Count: ",
-  .data$Parameter_Count,
-  "<br> ATTAINS Assessment Unit(s): ",
-  .data$ATTAINS_AUs
-)
-
-# add au ref source to pop up  if available
-if ("TADA.AURefSource" %in% names(.data)) {
+  # set base pop up for monitoring locations
   set.popup <- paste0(
-    set.popup,
-    "<br>",
-    "Crosswalk Source: ",
-    .data$TADA.AURefSource
+    "Site ID: ",
+    .data$TADA.MonitoringLocationIdentifier,
+    "<br> Site Name: ",
+    .data$TADA.MonitoringLocationName,
+    "<br> Organization Name: ",
+    .data$OrganizationFormalName,
+    "<br> Measurement Count: ",
+    .data$Sample_Count,
+    "<br> Visit Count: ",
+    .data$Visit_Count,
+    "<br> Characteristic Count: ",
+    .data$Parameter_Count,
+    "<br> ATTAINS Assessment Unit(s): ",
+    .data$ATTAINS_AUs
   )
-}
 
-# check if icons are provided
-if(is.null(icons)) {
+  # add au ref source to pop up  if available
+  if ("TADA.AURefSource" %in% names(.data)) {
+    set.popup <- paste0(
+      set.popup,
+      "<br>",
+      "Crosswalk Source: ",
+      .data$TADA.AURefSource
+    )
+  }
 
-  # get icons if not provided
-  get.icons <- getMapIconLabels()
+  # check if icons are provided
+  if (is.null(icons)) {
+    # get icons if not provided
+    get.icons <- getMapIconLabels()
 
-  # list of icon image paths
-  images <- unlist(get.icons[1])
+    # list of icon image paths
+    images <- unlist(get.icons[1])
 
-  # list of icon image labels
-  img.labels <- unlist(get.icons[2])
-
-  # remove intermediate objects
-  rm(get.icons)
-} else {
-
-  images <- icons
-
-  img.labels <- icon_labels
-
-  # remove intermediate objects
-  rm(icons, icon.labels)
-}
-
-# set image ref, image label, and icon url lists for WQP monitoring locations
-if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
-  wqp.imgs <- images[8]
-  wqp.labels <- img.labels[8]
-
-  wqp.urls <- images[8]
-} else {
-  wqp.imgs <- images[5:7]
-  wqp.labels <- img.labels[5:7]
-
-  wqp.urls <- dplyr::case_when(
-    .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
-    .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
-      7
-    ],
-    .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
-  )
-}
-
-# Add WQP observation features (should always exist):
-    map <- map |>
-      leaflet::addMarkers(
-        data = .data,
-        group = "WQP Obersvations",
-        lng = ~TADA.LongitudeMeasure,
-        lat = ~TADA.LatitudeMeasure,
-        icon = leaflet::icons(
-          iconUrl = wqp.urls,
-          iconWidth = 24,
-          iconHeight = 24
-        ),
-        popup = set.popup
-      )
-
-    overlay_groups <- c(overlay_groups, "WQP Obersvations")
-
-    wqp.list <- list(map, overlay_groups)
-
-    names(wqp.list) <- c('map', 'overlay_groups')
+    # list of icon image labels
+    img.labels <- unlist(get.icons[2])
 
     # remove intermediate objects
-    rm(map, overlay_groups, wqp.urls, set.popup)
+    rm(get.icons)
+  } else {
+    images <- icons
 
-    # return updated map and list of overlay_groups
-    return(wqp.list)
+    img.labels <- icon_labels
+
+    # remove intermediate objects
+    rm(icons, icon.labels)
+  }
+
+  # set image ref, image label, and icon url lists for WQP monitoring locations
+  if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
+    wqp.imgs <- images[8]
+    wqp.labels <- img.labels[8]
+
+    wqp.urls <- images[8]
+  } else {
+    wqp.imgs <- images[5:7]
+    wqp.labels <- img.labels[5:7]
+
+    wqp.urls <- dplyr::case_when(
+      .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
+      .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
+        7
+      ],
+      .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
+    )
+  }
+
+  # Add WQP observation features (should always exist):
+  map <- map |>
+    leaflet::addMarkers(
+      data = .data,
+      group = "WQP Obersvations",
+      lng = ~TADA.LongitudeMeasure,
+      lat = ~TADA.LatitudeMeasure,
+      icon = leaflet::icons(
+        iconUrl = wqp.urls,
+        iconWidth = 24,
+        iconHeight = 24
+      ),
+      popup = set.popup
+    )
+
+  overlay_groups <- c(overlay_groups, "WQP Obersvations")
+
+  wqp.list <- list(map, overlay_groups)
+
+  names(wqp.list) <- c("map", "overlay_groups")
+
+  # remove intermediate objects
+  rm(map, overlay_groups, wqp.urls, set.popup)
+
+  # return updated map and list of overlay_groups
+  return(wqp.list)
 }
 
 #' addTADAMapLegend
@@ -930,6 +936,11 @@ if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
 #'  legend will display: circle markers based on ATTAINS assessment unit user ref,
 #'  assessment unit overall status, ATTAINS assessment unit catchments, and
 #'  assessment units identified by the user which are missing geometry in ATTAINS.
+#'
+#'  Suggested usage is to assign values to the wqp, ref_icons, attains_au,
+#'  attains_missing, nhd_attains, and nhd_no_attains params as part of the
+#'  workflow in larger TADA mapping functions (rather than relying on defaults)
+#'  to ensure the resulting legend is appropriate for each map.
 #'
 #' @param .data A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 #' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
@@ -962,14 +973,25 @@ if (!"TADA.AURefSource" %in% names(.data) | ref_icons == FALSE) {
 #'
 #' @param attains_au Boolean argument. Determines whether overall status for ATTAINS
 #' aus colors are shown in the legend. When attains_au = TRUE, the colors indicating
-#' ATTAINS assessment unit overall status are shown in the legend. Default
+#' ATTAINS assessment unit overall status are shown in the legend. Default is
+#' attains_au = TRUE.
 #'
-#' @param attains_missing Boolean argument.
+#' @param attains_missing Boolean argument. Determines whether the dashed circle
+#' indicating whether WQP sites with assessment units assigned by the user are
+#' missing correspodning geometry in ATTAINS is shown in the legend. The dashed
+#' circle icon is show when attains_missing = TRUE. The default is attains_missing
+#' = TRUE.
 #'
-#' @param nhd_attains Boolean argument.
+#' @param nhd_attains Boolean argument. Determines whether the icon for NHD
+#' catchments containing ATTAINS features, a gray square with a black outline,
+#' is shown in the legend. When nhd_attains = TRUE, the icon is shown in the legend.
+#' Default is nhd_attains = TRUE.
 #'
-#' @param nhd_no_attains Boolean argument.
-
+#' @param nhd_no_attains Boolean argument. Determines whether the icon for NHD
+#' catchments not containing ATTAINS features, a square with no fill color and
+#' a black outline, is shown in the legend. When nhd_no_attains = TRUE, the icon
+#' is shown in the legend. Default is nhd_attains = TRUE.
+#'
 #' @return Custom leaflet legend for TADA maps.
 #'
 # add ATTAINS geometry to existing leaflet map
@@ -982,14 +1004,13 @@ addTADAMapLegend <- function(map = NULL,
                              attains_missing = TRUE,
                              nhd_attains = TRUE,
                              nhd_no_attains = FALSE) {
-
-  if(is.null(map)) {
-
+  # stop function if no map is provided
+  if (is.null(map)) {
     stop("addTADAMapLegend: Param map is missing. A leaflet map is required to add the legend.")
   }
 
-  if(is.null(icons) | is.null(icon_labels)) {
-
+  # if icons or icon labels are not provided, fetch them with internal function getMapIconLabels
+  if (is.null(icons) | is.null(icon_labels)) {
     get.icons <- getMapIconLabels()
 
     images <- unlist(get.icons[1])
@@ -1005,14 +1026,9 @@ addTADAMapLegend <- function(map = NULL,
 
   leg.labels <- character(0)
 
-# set base image and label ref lists for each section of legend
+  # set base image and label ref lists for each section of legend
   # ATTAINS assessment unit overall status
-  if(attains_au == TRUE) {
-
-    #attains.imgs <- images[1:3]
-
-    #attains.labels <- img.labels[1:3]
-
+  if (attains_au == TRUE) {
     images.ref <- append(images.ref, images[1:3])
 
     leg.labels <- append(leg.labels, img.labels[1:3])
@@ -1021,23 +1037,23 @@ addTADAMapLegend <- function(map = NULL,
   }
 
   # ATTAINS missing geometry
-  if(attains_missing == TRUE) {
-
+  if (attains_missing == TRUE) {
     images.ref <- append(images.ref, images[4])
 
     leg.labels <- append(leg.labels, img.labels[4])
   }
 
   # add WQP icons to legend
-  if(wqp == TRUE) {
-
-    if(ref_icons == TRUE){
+  if (wqp == TRUE) {
+    # add ref icons for assessment unit crosswalk sources
+    if (ref_icons == TRUE) {
       images.ref <- append(images.ref, images[5:7])
 
       leg.labels <- append(leg.labels, img.labels[5:7])
     }
 
-    if(ref_icons == FALSE){
+    # add solid black circle markers for all WQP sites
+    if (ref_icons == FALSE) {
       images.ref <- append(images.ref, images[8])
 
       leg.labels <- append(leg.labels, img.labels[8])
@@ -1045,16 +1061,14 @@ addTADAMapLegend <- function(map = NULL,
   }
 
   # NHD catchments with ATTAINS features
-  if(nhd_attains == TRUE) {
-
+  if (nhd_attains == TRUE) {
     images.ref <- append(images.ref, images[9])
 
     leg.labels <- append(leg.labels, img.labels[9])
   }
 
   # NHD catchments without ATTAINS features
-  if(nhd_no_attains == TRUE) {
-
+  if (nhd_no_attains == TRUE) {
     images.ref <- append(images.ref, images[10])
 
     leg.labels <- append(leg.labels, img.labels[10])
@@ -1073,9 +1087,9 @@ addTADAMapLegend <- function(map = NULL,
         "Legend",
         style = "font-size: 14px;
         text-align: left; font-weight: bold;"
-        ),
+      ),
       position = "bottomright"
-      )
+    )
 
   # remove intermediate objects
   rm(images.ref, leg.labels)
@@ -1091,11 +1105,13 @@ addTADAMapLegend <- function(map = NULL,
 #' @param map A TADA leaflet map to add the Toggle Legend button.
 #'
 #' @return A TADA map with the Toggle Legend button added
+#'
 addLegendToggle <- function(map = NULL) {
-  if(is.null(map)) {
+  if (is.null(map)) {
     stop("addLegendToggle: a TADA leaflet map must be specified in order to add the legend.")
   }
 
+  # add legend toggle to map
   map <- htmlwidgets::onRender(
     map,
     "
@@ -1124,7 +1140,6 @@ addLegendToggle <- function(map = NULL) {
   }
 "
   )
-
   return(map)
 }
 
@@ -1134,15 +1149,16 @@ addLegendToggle <- function(map = NULL) {
 #'
 #' @param map A TADA leaflet map to add layer control to.
 #'
-#' @param overlay_groups
+#' @param overlay_groups Character argument. List of names of groups added to map.
+#' If it is NULL, the function will fail with an error message. Default is
+#' overlay_list = NULL.
 #'
 #' @return A TADA map with the layer control added.
 #'
 # add layer control
 addLayerControl <- function(map = NULL,
                             overlay_groups = NULL) {
-
-  if(is.null(map)) {
+  if (is.null(map)) {
     stop("addLayerControl: a TADA leaflet map must be specified in order to add the legend.")
   }
 
@@ -1164,94 +1180,8 @@ addLayerControl <- function(map = NULL,
     # return map with added layer control
     return(map)
   }
-
 }
 
-#' #' checkIconAndLabels
-#' #'
-#' #'  Internal function to check for the icon and icon_labels lists used in TADA
-#' #'  mapping functions. If both are missing a message is printed indicating that
-#' #'  getMapIconLabels will be run to create them. If only one is missing, this
-#' #'  function can either (1) print a message indicating which param is missing
-#' #'  and run getMapIconLabels to create both icon and icon parm lists or (2) stop
-#' #'  the function with an error message identifying which param is missing. This
-#' #'  is determined by the "fail" param. When fail = FALSE, a message is printed
-#' #'  and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#' #'  icons or icon_labels is missing.
-#' #'
-#' #' @param fail Boolean argument. When fail = FALSE, a message is printed
-#' #' and getMapIconLabels is run. When fail = TRUE, the function stops if either
-#' #' icons or icon_labels is missing. Default is fail = FALSE.
-#' #'
-#' #' @param icons
-#' #'
-#' #' @param icon_labels
-#' #'
-#' #' @return Printed message to display status of icons and icon_labels params.
-#' #'
-#' # check icons and icon_labels
-#' checkIconAndLabels <- function(fail = FALSE,
-#'                                icons = NULL,
-#'                                icon_labels = NULL) {
-#'
-#'   # check is both icons and icon_labels are not null
-#'   if(!is.null(icons) & !is.null(icon_labels)) {
-#'
-#'     # print message confirming both params are not null
-#'     print("checkIconAndLabels: Both icons and icon_labels were provided")
-#'   }
-#'
-#'   if((is.null(icons) & is.null(icon_labels)) |
-#'      (!is.null(icons) & is.null(icon_labels)) |
-#'      (is.null(icons) & !is.null(icon_labels))) {
-#'
-#'     param.miss <- dplyr::case_when(
-#'       is.null(icons) & is.null(icon_labels) ~ "The icons and icon_labels params were both NULL."
-#'       !is.null(icons) & is.null(icon_labels) ~ "The icon_labels param was NULL."
-#'       is.null(icons) & !is.null(icon_labels) ~ "The icons param was NULL."
-#'     )
-#'
-#'     if(fail == TRUE) {
-#'
-#'       stop(paste0("checkIconAndLabels: ",
-#'                   param.miss,
-#'                   " Provide icon and icon_labels or set fail = FALSE to use getMapIconLabels."))
-#'
-#'     }
-#'
-#'     if(fail == FALSE) {
-#'
-#'       print(paste0("checkIconAndLabels: ",
-#'                         param.miss,
-#'                         " TADA icons and icon_llabels will be fetched with getMapIconLabels.")))
-#'     }
-#'   }
-#'
-#'     # get icons if not provided
-#'     get.icons <- getMapIconLabels()
-#'
-#'     # list of icon image paths
-#'     images <- unlist(get.icons[1])
-#'
-#'     # list of icon image labels
-#'     img.labels <- unlist(get.icons[2])
-#'
-#'     # remove intermediate objects
-#'     rm(get.icons)
-#'   } else {
-#'
-#'     images <- icons
-#'
-#'     img.labels <- icon_labels
-#'
-#'     # remove intermediate objects
-#'     rm(icons, icon.labels)
-#'   }
-#'
-#'
-#'
-#' }
-#'
 #' addFlaggedSitesMarkers
 #' Internal function to add flagged sites to map for review.
 #'
@@ -1271,47 +1201,50 @@ addFlaggedSitesMarkers <- function(.data,
   # add line for null map
 
   # set markers based on flag type
-  if(flag_type == "lowres") {
-  flagIcon <- leaflet::makeAwesomeIcon(
-    icon = "circle",
-    library = "fa",
-    iconColor = "#ffffff",
-    markerColor = "green"
-  )
+  # low resolution markers
+  if (flag_type == "lowres") {
+    flagIcon <- leaflet::makeAwesomeIcon(
+      icon = "circle",
+      library = "fa",
+      iconColor = "#ffffff",
+      markerColor = "green"
+    )
   }
 
-  if(flag_type == "outsideusa")
-  flagIcon <- leaflet::makeAwesomeIcon(
-    icon = "circle",
-    library = "fa",
-    iconColor = "#ffffff",
-    markerColor = "darkblue"
-  )
-
-    map <- map |>
-      leaflet::addAwesomeMarkers(
-        ~TADA.LongitudeMeasure,
-        ~TADA.LatitudeMeasure,
-        icon = flagIcon,
-        # label = ~as.character(MonitoringLocationIdentifier),
-        popup = paste0(
-          "Site ID: ",
-          .data$TADA.MonitoringLocationIdentifier,
-          "<br> Site Name: ",
-          .data$TADA.MonitoringLocationName,
-          "<br> Organization Name: ",
-          .data$TADA.OrganizationFormalName,
-          "<br> Latitude: ",
-          .data$TADA.LatitudeMeasure,
-          "<br> Longitude: ",
-          .data$TADA.LongitudeMeasure
-        ),
-        data = .data
-      )
-
-    # remove intermediate objects
-    rm(flagIcon)
-
-    # return map
-    return(map)
+  # outside usa markers
+  if (flag_type == "outsideusa") {
+    flagIcon <- leaflet::makeAwesomeIcon(
+      icon = "circle",
+      library = "fa",
+      iconColor = "#ffffff",
+      markerColor = "darkblue"
+    )
   }
+
+  # create map with selected markers
+  map <- map |>
+    leaflet::addAwesomeMarkers(
+      ~TADA.LongitudeMeasure,
+      ~TADA.LatitudeMeasure,
+      icon = flagIcon,
+      popup = paste0(
+        "Site ID: ",
+        .data$TADA.MonitoringLocationIdentifier,
+        "<br> Site Name: ",
+        .data$TADA.MonitoringLocationName,
+        "<br> Organization Name: ",
+        .data$TADA.OrganizationFormalName,
+        "<br> Latitude: ",
+        .data$TADA.LatitudeMeasure,
+        "<br> Longitude: ",
+        .data$TADA.LongitudeMeasure
+      ),
+      data = .data
+    )
+
+  # remove intermediate objects
+  rm(flagIcon)
+
+  # return map
+  return(map)
+}

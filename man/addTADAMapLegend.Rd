@@ -42,13 +42,24 @@ the legend. Default is ref_icons = TRUE.}
 
 \item{attains_au}{Boolean argument. Determines whether overall status for ATTAINS
 aus colors are shown in the legend. When attains_au = TRUE, the colors indicating
-ATTAINS assessment unit overall status are shown in the legend. Default}
+ATTAINS assessment unit overall status are shown in the legend. Default is
+attains_au = TRUE.}
 
-\item{attains_missing}{Boolean argument.}
+\item{attains_missing}{Boolean argument. Determines whether the dashed circle
+indicating whether WQP sites with assessment units assigned by the user are
+missing correspodning geometry in ATTAINS is shown in the legend. The dashed
+circle icon is show when attains_missing = TRUE. The default is attains_missing
+= TRUE.}
 
-\item{nhd_attains}{Boolean argument.}
+\item{nhd_attains}{Boolean argument. Determines whether the icon for NHD
+catchments containing ATTAINS features, a gray square with a black outline,
+is shown in the legend. When nhd_attains = TRUE, the icon is shown in the legend.
+Default is nhd_attains = TRUE.}
 
-\item{nhd_no_attains}{Boolean argument.}
+\item{nhd_no_attains}{Boolean argument. Determines whether the icon for NHD
+catchments not containing ATTAINS features, a square with no fill color and
+a black outline, is shown in the legend. When nhd_no_attains = TRUE, the icon
+is shown in the legend. Default is nhd_attains = TRUE.}
 
 \item{.data}{A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
@@ -64,4 +75,10 @@ Internal function to add a legend to TADA maps. Based on user inputs, the
 legend will display: circle markers based on ATTAINS assessment unit user ref,
 assessment unit overall status, ATTAINS assessment unit catchments, and
 assessment units identified by the user which are missing geometry in ATTAINS.
+}
+\details{
+Suggested usage is to assign values to the wqp, ref_icons, attains_au,
+attains_missing, nhd_attains, and nhd_no_attains params as part of the
+workflow in larger TADA mapping functions (rather than relying on defaults)
+to ensure the resulting legend is appropriate for each map.
 }

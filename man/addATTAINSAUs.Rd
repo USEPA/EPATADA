@@ -9,8 +9,8 @@ TADA maps.}
 addATTAINSAUs(.data, map = NULL, overlay_groups = NULL, icons = NULL)
 }
 \arguments{
-\item{.data}{A data frames created from prepATTAINSMapper contains a geometry
-column.}
+\item{.data}{A data frame created using prepATTAINSMapper (must contain a geometry
+column).}
 
 \item{overlay_groups}{Initialized vector to add names of groups added to map. If
 it is NULL, the function will fail with an error message. Default is overlay_list
