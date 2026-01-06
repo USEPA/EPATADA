@@ -96,6 +96,7 @@ getMapIconLabels <- function(icons = TRUE,
       system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
     )
 
+    # return only images if labels are not required
     if (labels == FALSE) {
       return(images)
     }
@@ -119,11 +120,13 @@ getMapIconLabels <- function(icons = TRUE,
       "ATTAINS: Not Assessed Point" # 13
     )
 
+    # return only labels if images are not required
     if (icons == FALSE) {
       return(img.labels)
     }
   }
 
+  # return a list containing the image paths and labels if both are required (default setting)
   if (icons == TRUE & labels == TRUE) {
     map.list <- list(images, img.labels)
 
@@ -131,12 +134,12 @@ getMapIconLabels <- function(icons = TRUE,
   }
 }
 
-#'  addATTAINSAUs
+#'addATTAINSAUs
 #' Internal function to add ATTAINS assessment unit lines, points, or polygons to
 #' TADA maps.
 #'
-#' @param .data A data frames created from prepATTAINSMapper contains a geometry
-#' column.
+#' @param .data A data frame created using prepATTAINSMapper (must contain a geometry
+#' column).
 #'
 #' @param overlay_groups Initialized vector to add names of groups added to map. If
 #' it is NULL, the function will fail with an error message. Default is overlay_list
@@ -288,6 +291,7 @@ getMapIconLabels <- function(icons = TRUE,
         rm(images, pointIcons)
       }
 
+    # create list containing map and overlay_groups
     au.list <- list(map, overlay_groups)
 
     names(au.list) <- c('map', 'overlay_groups')
