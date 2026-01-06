@@ -314,14 +314,17 @@ TADA_FlaggedSitesMap <- function(.data) {
 
 #' Create Nearby Sites Map
 #'
-#' @param .data TADA dataframe after running TADA.FindNearbySites.
+#' @param .data Either(1) a TADA dataframe or (2) the list of data frames created
+#' by TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk. If
+#' TADA_FindNearbySites has not been previously run, it will be as part of this
+#' function.
 #' @param dist_buffer Distance in m to show a radius around each site marker.
-#' @param AU Boolean. If AU = TRUE and assessment unit geometry is available in
-#' the TADA data frame (from running TADA_CreateATTAINSAUMLCrosswalk or
-#' TADA_CreateAUMLCrosswalk), assessment units will be added to the review map.
+#' @param AU Boolean. If AU = TRUE and assessment unit geometry is available
+#' in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
+#' TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
 #' If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.
 #' @param catchment Boolean. If catchment = TRUE, any catchment data available in
-#' .data is added to the review map. If catchment = FALSE, catchments are not
+#' .data are added to the review map. If catchment = FALSE, catchments are not
 #' added to the review map. Default is catchment = FALSE.
 #' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or
 #' medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset

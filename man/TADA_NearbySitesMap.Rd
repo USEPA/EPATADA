@@ -14,17 +14,20 @@ TADA_NearbySitesMap(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe after running TADA.FindNearbySites.}
+\item{.data}{Either(1) a TADA dataframe or (2) the list of data frames created
+by TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk. If
+TADA_FindNearbySites has not been previously run, it will be as part of this
+function.}
 
 \item{dist_buffer}{Distance in m to show a radius around each site marker.}
 
-\item{AU}{Boolean. If AU = TRUE and assessment unit geometry is available in
-the TADA data frame (from running TADA_CreateATTAINSAUMLCrosswalk or
-TADA_CreateAUMLCrosswalk), assessment units will be added to the review map.
+\item{AU}{Boolean. If AU = TRUE and assessment unit geometry is available
+in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
+TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
 If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.}
 
 \item{catchment}{Boolean. If catchment = TRUE, any catchment data available in
-.data is added to the review map. If catchment = FALSE, catchments are not
+.data are added to the review map. If catchment = FALSE, catchments are not
 added to the review map. Default is catchment = FALSE.}
 
 \item{resolution}{Whether to download the NHDPlus HiRes resolution ("Hi") or
