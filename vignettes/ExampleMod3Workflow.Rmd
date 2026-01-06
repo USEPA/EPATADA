@@ -143,7 +143,7 @@ link it information from ATTAINS. While TADA functions can help generate
 these crosswalks and fill in some values, users must review and modify
 the tables generated in each step to ensure accuracy. The TADA team has
 also incorporated national recommended Clean Water Act (CWA) EPA 304(a)
-numeric criteria for optional use in Module 3 functions that has been filled out anf reviewed by the TADA team.
+numeric criteria for optional use in Module 3 functions that has been filled out and reviewed by the TADA team.
 This allows users to analyze their data against the EPA 304(a) criteria; and
 to easily compare results when when using EPA 304(a) criteria vs. their own state or tribe's
 criteria.
