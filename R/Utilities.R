@@ -1369,7 +1369,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
   stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
-  
+
   # Helpers for shapefile sets
   remove_shapefile_set <- function(path) {
     base <- tools::file_path_sans_ext(path)
@@ -1382,11 +1382,11 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     base <- tools::file_path_sans_ext(path)
     any(file.exists(file.path(dirname(base), paste0(basename(base), ".", c("shp", "shx", "dbf", "prj")))))
   }
-  
+
   if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
     warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
   }
-  
+
   # Retrieve the feature layer as an sf object (prefer arcgislayers when available)
   layer <- tryCatch({
     is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
@@ -1408,13 +1408,13 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
       stop("getFeatureLayer()/arcgislayers failed for URL: ", url, " — ", conditionMessage(e2))
     })
   })
-  
+
   # Preemptively rename known problematic fields using base R
   nm <- names(layer)
   if ("TOTALAREA_MI" %in% nm) nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
   if ("TOTALAREA_KM" %in% nm) nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
   names(layer) <- nm
-  
+
   # Optionally sanitize all field names to ≤ 10 chars and unique, leaving geometry column untouched
   if (isTRUE(sanitize_names)) {
     geom_col <- attr(layer, "sf_column")
@@ -1424,49 +1424,55 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     nm[keep] <- .sanitize_dbf_names_unicode(nm[keep])
     names(layer) <- nm
   }
-  
+
   # Convert epoch‑millisecond numeric fields to Date/POSIXct to avoid DBF width warnings
   layer <- .convert_epoch_ms_dates(layer)
-  
+
   # Coerce geometry to a shapefile-supported type (handles GeometryCollection/mixed)
   coerce_for_shapefile <- function(s) {
     s <- sf::st_zm(s, drop = TRUE, what = "ZM")
-    
+
     if (all(sf::st_is(s, c("POLYGON", "MULTIPOLYGON")) | sf::st_is_empty(s))) {
       return(suppressWarnings(sf::st_cast(s, "MULTIPOLYGON")))
     }
     s_poly <- suppressWarnings(sf::st_collection_extract(s, "POLYGON"))
     s_poly <- s_poly[!sf::st_is_empty(s_poly), , drop = FALSE]
-    if (nrow(s_poly)) return(suppressWarnings(sf::st_cast(s_poly, "MULTIPOLYGON")))
-    
+    if (nrow(s_poly)) {
+      return(suppressWarnings(sf::st_cast(s_poly, "MULTIPOLYGON")))
+    }
+
     s_line <- suppressWarnings(sf::st_collection_extract(s, "LINESTRING"))
     s_line <- s_line[!sf::st_is_empty(s_line), , drop = FALSE]
-    if (nrow(s_line)) return(suppressWarnings(sf::st_cast(s_line, "MULTILINESTRING")))
-    
+    if (nrow(s_line)) {
+      return(suppressWarnings(sf::st_cast(s_line, "MULTILINESTRING")))
+    }
+
     s_pt <- suppressWarnings(sf::st_collection_extract(s, "POINT"))
     s_pt <- s_pt[!sf::st_is_empty(s_pt), , drop = FALSE]
-    if (nrow(s_pt)) return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
-    
+    if (nrow(s_pt)) {
+      return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
+    }
+
     stop("Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type.")
   }
   layer <- coerce_for_shapefile(layer)
-  
+
   # Ensure output directory exists
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
-  
+
   # Normalize path (helps on Windows)
   layerfilepath_norm <- normalizePath(layerfilepath, winslash = "/", mustWork = FALSE)
-  
+
   # Decide overwrite behavior based on extension/driver
   is_shp <- grepl("\\.shp$", layerfilepath_norm, ignore.case = TRUE)
-  
+
   # For shapefiles: proactively remove the set, then write without delete_dsn
   if (is_shp && shapefile_set_exists(layerfilepath_norm)) {
     remove_shapefile_set(layerfilepath_norm)
   }
-  
+
   delete_dsn_flag <- if (is_shp) FALSE else file.exists(layerfilepath_norm)
-  
+
   tryCatch(
     {
       sf::st_write(
@@ -1484,7 +1490,7 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
       ))
     }
   )
-  
+
   invisible(normalizePath(layerfilepath, mustWork = FALSE))
 }
 
