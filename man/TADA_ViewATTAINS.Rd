@@ -25,7 +25,7 @@ monitoring location identifiers and assessment unit associations.
 made with \code{\link[=TADA_CreateATTAINSAUMLCrosswalk]{TADA_CreateATTAINSAUMLCrosswalk()}} which also runs within
 TADA_CreateAUMLCrosswalk() to link catchment-based ATTAINS assessment unit
 data to Water Quality Portal observations.
-When rec_icons = FALSE or the source is not provided in .data, all
+When ref_icons = FALSE or the source is not provided in .data, all
 Monitoring Locations are show with a plain circle.
 }}
 }

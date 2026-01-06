@@ -921,25 +921,53 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
+    # set up params for adding custom legend
+    # ATTAINS assessment units
+    attains_au <- ifelse(any(c("ATTAINS line features",
+                                         "ATTAINS point features",
+                                         "ATTAINS polygon features") %in% overlay_groups),
+                         TRUE,
+                         FALSE)
+
+    # attains missing
+    attains_missing <- ifelse("not in ATTAINS" %in% overlay_groups,
+                              TRUE,
+                              FALSE)
+
+    # NHD catchments containing ATTAINS features
+
+    nhd_attains <- ifelse("ATTAINS catchments" %in% overlay_groups,
+                          TRUE,
+                          FALSE)
+
+    # NHD catchments without ATTAINS features
+
+    nhd_no_attains <- ifelse("missing ATTAINS catchment outlines" %in% overlay_groups,
+                             TRUE,
+                             FALSE)
+
+
     # add TADA custom legend to map
     map <- addTADAMapLegend(map = map,
                             icons = images,
-                            icon_labels = img.labels)
+                            icon_labels = img.labels,
+                            wqp = TRUE,
+                            ref_icons = ref_icons,
+                            attains_au = attains_au,
+                            attains_missing = attains_missing,
+                            nhd_attains = nhd_attains,
+                            nhd_no_attains = nhd_no_attains
+                            )
 
     # add button to toggle map legend on/off
     map <- addLegendToggle(map = map)
 
     # add layer control to map
-    if (length(overlay_groups) > 0) {
-      overlay_groups <- unique(overlay_groups)
-      map <- map |>
-        leaflet::addLayersControl(
-          baseGroups = c("World topo"), # Always include a base group
-          overlayGroups = overlay_groups,
-          position = "bottomleft",
-          options = leaflet::layersControlOptions(collapsed = TRUE)
-        )
-    }
+    map <- addLayerControl(map = map,
+                           overlay_groups = overlay_groups)
+
+    # remove intermediate objects
+    rm(sumdat, overlay_groups)
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))

@@ -1121,6 +1121,45 @@ addLegendToggle <- function(map = NULL) {
   return(map)
 }
 
+#' addLayerControl
+#' Internal function to add layer control to a TADA leaflet map to toggle the
+#' legend on/off.
+#'
+#' @param map A TADA leaflet map to add layer control to.
+#'
+#' @param overlay_groups
+#'
+#' @return A TADA map with the layer control added.
+#'
+# add layer control
+addLayerControl <- function(map = NULL,
+                            overlay_groups = NULL) {
+
+  if(is.null(map)) {
+    stop("addLayerControl: a TADA leaflet map must be specified in order to add the legend.")
+  }
+
+  # add layer control to map
+  if (length(overlay_groups) > 0) {
+    overlay_groups <- unique(overlay_groups)
+
+    map <- map |>
+      leaflet::addLayersControl(
+        baseGroups = c("World topo"), # Always include a base group
+        overlayGroups = overlay_groups,
+        position = "bottomleft",
+        options = leaflet::layersControlOptions(collapsed = TRUE)
+      )
+
+    # remove intermediate objects
+    rm(overlay_groups)
+
+    # return map with added layer control
+    return(map)
+  }
+
+}
+
 #' #' checkIconAndLabels
 #' #'
 #' #'  Internal function to check for the icon and icon_labels lists used in TADA
