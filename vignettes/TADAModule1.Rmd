@@ -433,9 +433,10 @@ TADA.ActivityMediaName.
 # Filter to retain only results for use in analysis
 TADAProfile <- TADA_MediaFilter(TADAProfile,
   clean = TRUE,
-  surface_water = TRUE,
-  ground_water = FALSE,
-  sediment = FALSE
+  surface_water = FALSE,
+  ground_water = TRUE,
+  sediment = TRUE,
+  other = TRUE
 )
 
 # Add TADA.Media.Flag column to identify which results should be used for analysis
