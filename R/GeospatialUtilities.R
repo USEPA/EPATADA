@@ -366,8 +366,10 @@ prepATTAINSMapper <- function(.data,
       # find base type if multi types are present
       base <- sub("^MULTI", "", check.type)
 
+      # get list of unique base types
       check.type <- unique(base)
 
+      # stop function with error message if multiple geometry base types are found
       if (length(check.type) > 2) {
         stop("prepATTAINSMapper: geometry column in .data must contain only one base geometry type.")
       }
@@ -377,8 +379,7 @@ prepATTAINSMapper <- function(.data,
     geo_type <- dplyr::case_when(
       check.type %in% c("POINT", "MULTIPOINT") ~ "points",
       check.type %in% c("LINESTRING", "MULTILINESTRING") ~ "lines",
-      check.type %in% c("POLYGON", "MULTIPOLYGON") ~ "polygons",
-      # check.type %in% c() have to add for catchments raw feature unavail
+      check.type %in% c("POLYGON", "MULTIPOLYGON") ~ "polygons"
     )
 
     # remove intermediate object
@@ -473,6 +474,13 @@ getWQPSiteStats <- function(.data,
       ))
     }
 
+    group.cols <- c("TADA.MonitoringLocationIdentifier",
+                   "TADA.MonitoringLocationName",
+                    "OrganizationFormalName",
+                    "TADA.LatitudeMeasure",
+                    "TADA.LongitudeMeasure",
+                    "TADA.AURefSource")
+
     if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
 
       if(!"TADA.AURefSource" %in% names(.data)) {
@@ -481,15 +489,10 @@ getWQPSiteStats <- function(.data,
           dplyr::mutate(TADA.AURefSource = "not provided")
       }
 
+      group.cols <- append(group.cols, "TADA.AURefSource")
+
       sumdat <- .data |>
-        dplyr::group_by(
-          TADA.MonitoringLocationIdentifier,
-          TADA.MonitoringLocationName,
-          OrganizationFormalName,
-          TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure,
-          TADA.AURefSource
-        ) |>
+        dplyr::group_by(!!!rlang::syms(group.cols)) |>
         dplyr::summarize(
           Sample_Count = length(unique(ResultIdentifier)),
           Visit_Count = length(unique(ActivityStartDate)),
