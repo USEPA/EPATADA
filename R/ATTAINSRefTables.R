@@ -249,11 +249,11 @@ TADA_AdditionalCharAliasForReview <- function(
     dplyr::filter(!name_words %in% c(" ", "-", "%", "--", "&", "#")) |>
     dplyr::distinct(name, name_words, .keep_all = TRUE)
 
-  ATTAINSParamRef2$name_words <- gsub(
+  ATTAINSParamRef2$name_words <- toupper(gsub(
     "[^[:alnum:] ]",
     "",
     ATTAINSParamRef2$name_words
-  )
+  ))
 
   # remove intermediate variables
   rm(ATTAINSParamRef, ATTAINS.raw)
@@ -303,6 +303,7 @@ TADA_AdditionalCharAliasForReview <- function(
       percent_match_WQX = n / stringr::str_count(CharacteristicName, "\\S+"),
       percent_match_ATTAINS_WQX = n / stringr::str_count(name, "\\S+")
     ) |>
+    # ATTAINS param to WQX char must be strict, choose best match only
     dplyr::slice_max(
       order_by = percent_match_WQX + percent_match_ATTAINS_WQX
     ) |>
@@ -310,8 +311,8 @@ TADA_AdditionalCharAliasForReview <- function(
       WQXCharacteristicRef,
       by = "CharacteristicName",
       relationship = "many-to-many"
-    ) |>
-    dplyr::filter(percent_match_WQX + percent_match_ATTAINS_WQX > 1)
+    ) 
+    #dplyr::filter(percent_match_WQX + percent_match_ATTAINS_WQX > 1)
 
   # less aggressive (prone to more mistake)
   temp_ATTAINS_WQX <- temp_ATTAINS_WQX |>
@@ -345,15 +346,16 @@ TADA_AdditionalCharAliasForReview <- function(
       percent_match_CST = n / stringr::str_count(POLLUTANT_NAME, "\\S+"),
       percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
     ) |>
-    dplyr::slice_max(
-      order_by = percent_match_CST + percent_match_ATTAINS_CST
-    ) |>
+    # CST to ATTAINS will be less strict, no slice_max. This is to help populate more cases from CST magnitude values.
+    # dplyr::slice_max(
+    #   order_by = percent_match_CST + percent_match_ATTAINS_CST
+    # ) |>
     dplyr::right_join(
       CST,
       by = "POLLUTANT_NAME",
       relationship = "many-to-many"
-    ) |>
-    dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 1)
+    )
+    #dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 1)
 
   # remove intermediate variables
   rm(CST, WQXCharacteristicRef)

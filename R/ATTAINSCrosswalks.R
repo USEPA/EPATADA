@@ -2826,7 +2826,7 @@ TADA_UsesForAnalysis <- function(
 #'
 #' @examples
 #' \dontrun{
-#' # Pull a sample WQP data query
+#' # Pull a sample TADA data frame
 #' TADA_AK_Example <- TADA_DataRetrieval(
 #'   startDate = "2022-01-01", endDate = "2022-12-31",
 #'   organization = "AKDECWQ", statecode = "AK",
@@ -3699,10 +3699,10 @@ TADA_MLSummary <- function(
     # Identify all unique monitoring location id in the .data data frame to filter by.
     unique_ML <- unique(.data$MonitoringLocationIdentifier)
 
-    # set a limit of 100k rows if we want to display all sites-param-use combinations.
+    # set a limit of 1k if we want to display all sites-param-use combinations.
     if (
       displayNA == TRUE &&
-        nrow(usesRef) * length(unique_ML) > 100000 |
+        nrow(usesRef) * length(unique_ML) > 1000 |
         length(org_id) > 20
     ) {
       warning(paste0(
@@ -3714,10 +3714,10 @@ TADA_MLSummary <- function(
       displayNA <- FALSE
     }
 
-    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 100000) {
+    if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 1000) {
       print(paste0(
         "displayNA = TRUE: ",
-        "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+        "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
       ))
 
       # Applies all unique combos of param and uses to each monitoring location.
@@ -3776,7 +3776,7 @@ TADA_MLSummary <- function(
         dplyr::mutate(IncludeOrExclude = "Include") |>
         dplyr::mutate(DepthCategory = NA) |>
         dplyr::mutate(
-          TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your WQP data query."
+          TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your TADA data frame."
         ) |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
@@ -3804,8 +3804,8 @@ TADA_MLSummary <- function(
         dplyr::mutate(
           TADA.ParameterInSite.Flag = dplyr::if_else(
             is.na(TADA.ParameterInSite.Flag),
-            "Suspect: This ML site does not contain information for this parameter in your WQP data query.",
-            "Pass: This ML contains the parameter in your WQP data query."
+            "Suspect: This ML site does not contain information for this parameter in your TADA data frame.",
+            "Pass: This ML contains the parameter in your TADA data frame."
           )
         ) |>
         dplyr::select(
@@ -3832,7 +3832,7 @@ TADA_MLSummary <- function(
     if (displayNA == FALSE) {
       print(paste0(
         "displayNA = FALSE: ",
-        "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+        "This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
       ))
 
       CreateMLSummaryRef2 <- usesRef |>
@@ -3848,7 +3848,7 @@ TADA_MLSummary <- function(
         dplyr::mutate(IncludeOrExclude = "Include") |>
         dplyr::mutate(DepthCategory = NA) |>
         dplyr::mutate(
-          TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your WQP data query."
+          TADA.ParameterInSite.Flag = "Pass: This ML contains the parameter in your TADA data frame."
         ) |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
@@ -3951,7 +3951,7 @@ TADA_MLSummary <- function(
       if (displayNA == TRUE) {
         print(paste0(
           "displayNA = TRUE:",
-          "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+          "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
         CreateMLSummaryRef <- CreateMLSummaryRef |>
@@ -3995,7 +3995,7 @@ TADA_MLSummary <- function(
       if (displayNA == FALSE) {
         print(paste0(
           "displayNA = FALSE:",
-          "This MLSummaryRef table will only display parameters and uses for a ML/AU if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+          "This MLSummaryRef table will only display parameters and uses for a ML/AU if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
         CreateMLSummaryRef <- CreateMLSummaryRef |>
