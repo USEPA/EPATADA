@@ -290,66 +290,25 @@ TADA_FlaggedSitesMap <- function(.data) {
     invalid$TADA.SuspectCoordinates.Flag %in%
       c("LAT_OutsideUSA", "LONG_OutsideUSA"),
   ]
-  lowresIcon <- leaflet::makeAwesomeIcon(
-    icon = "circle",
-    library = "fa",
-    iconColor = "#ffffff",
-    markerColor = "green"
-  )
-  outsideIcon <- leaflet::makeAwesomeIcon(
-    icon = "circle",
-    library = "fa",
-    iconColor = "#ffffff",
-    markerColor = "darkblue"
-  )
 
   # create TADA basemap
   map <- createTADABasemap(.data)
 
   if (nrow(outsideusa) > 0) {
-    map <- map |>
-      leaflet::addAwesomeMarkers(
-        ~TADA.LongitudeMeasure,
-        ~TADA.LatitudeMeasure,
-        icon = outsideIcon,
-        # label = ~as.character(MonitoringLocationIdentifier),
-        popup = paste0(
-          "Site ID: ",
-          outsideusa$MonitoringLocationIdentifier,
-          "<br> Site Name: ",
-          outsideusa$MonitoringLocationName,
-          "<br> Organization Name: ",
-          outsideusa$OrganizationFormalName,
-          "<br> Latitude: ",
-          outsideusa$TADA.LatitudeMeasure,
-          "<br> Longitude: ",
-          outsideusa$TADA.LongitudeMeasure
-        ),
-        data = outsideusa
-      )
+    map <- addFlaggedSitesMarkers(outsideusa,
+                                  map = map,
+                                  flag_type = "outsideusa")
   }
   if (nrow(lowres) > 0) {
-    map <- map |>
-      leaflet::addAwesomeMarkers(
-        ~TADA.LongitudeMeasure,
-        ~TADA.LatitudeMeasure,
-        icon = lowresIcon,
-        # label = ~as.character(MonitoringLocationIdentifier),
-        popup = paste0(
-          "Site ID: ",
-          lowres$MonitoringLocationIdentifier,
-          "<br> Site Name: ",
-          lowres$MonitoringLocationName,
-          "<br> Organization Name: ",
-          lowres$OrganizationFormalName,
-          "<br> Latitude: ",
-          lowres$TADA.LatitudeMeasure,
-          "<br> Longitude: ",
-          lowres$TADA.LongitudeMeasure
-        ),
-        data = lowres
-      )
+    map <- addFlaggedSitesMarkers(lowres,
+                                  map = map,
+                                  flag_type = "lowres")
   }
+
+  # remove intermediate objects
+  rm(invalid, lowres, outsideusa)
+
+  # return flagged sites map
   return(map)
 }
 

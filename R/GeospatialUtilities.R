@@ -1245,5 +1245,66 @@ addLayerControl <- function(map = NULL,
 #'
 #' }
 #'
+#' addFlaggedSitesMarkers
+#' Internal function to add flagged sites to map for review.
 #'
+#' @param .data A TADA data frame containing TADA.LatitudeMeasure and
+#' TADA.LongitudeMeasure for mapping.
 #'
+#' @param flag_type Character argument. Flag types are "lowres" and "outsideusa".
+#'
+#' @param map A leaflet map of TADA data to apply the symbology for flagged sites to.
+#'
+#' @return A TADA leaflet map with flagged site markers added.
+#'
+# add ATTAINS geometry to existing leaflet map
+addFlaggedSitesMarkers <- function(.data,
+                                   map = NULL,
+                                   flag_type = NULL) {
+  # add line for null map
+
+  # set markers based on flag type
+  if(flag_type == "lowres") {
+  flagIcon <- leaflet::makeAwesomeIcon(
+    icon = "circle",
+    library = "fa",
+    iconColor = "#ffffff",
+    markerColor = "green"
+  )
+  }
+
+  if(flag_type == "outsideusa")
+  flagIcon <- leaflet::makeAwesomeIcon(
+    icon = "circle",
+    library = "fa",
+    iconColor = "#ffffff",
+    markerColor = "darkblue"
+  )
+
+    map <- map |>
+      leaflet::addAwesomeMarkers(
+        ~TADA.LongitudeMeasure,
+        ~TADA.LatitudeMeasure,
+        icon = flagIcon,
+        # label = ~as.character(MonitoringLocationIdentifier),
+        popup = paste0(
+          "Site ID: ",
+          .data$TADA.MonitoringLocationIdentifier,
+          "<br> Site Name: ",
+          .data$TADA.MonitoringLocationName,
+          "<br> Organization Name: ",
+          .data$TADA.OrganizationFormalName,
+          "<br> Latitude: ",
+          .data$TADA.LatitudeMeasure,
+          "<br> Longitude: ",
+          .data$TADA.LongitudeMeasure
+        ),
+        data = .data
+      )
+
+    # remove intermediate objects
+    rm(flagIcon)
+
+    # return map
+    return(map)
+  }
