@@ -643,10 +643,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   list.images <- getMapIconLabels()
 
   # define the paths to the images
-  images <- list.images[[1]]
+  images <- unlist(list.images[1])
 
   # define the labels
-  img.labels <- list.images[[2]]
+  img.labels <- unlist(list.images[2])
 
   # remove intermediate objects
   rm(list.images)
@@ -905,163 +905,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       rm(missing_aus)
     })
 
-    # set base pop up for monitoring locations
-    set.popup <- paste0(
-      "Site ID: ",
-      sumdat$TADA.MonitoringLocationIdentifier,
-      "<br> Site Name: ",
-      sumdat$TADA.MonitoringLocationName,
-      "<br> Organization Name: ",
-      sumdat$OrganizationFormalName,
-      "<br> Measurement Count: ",
-      sumdat$Sample_Count,
-      "<br> Visit Count: ",
-      sumdat$Visit_Count,
-      "<br> Characteristic Count: ",
-      sumdat$Parameter_Count,
-      "<br> ATTAINS Assessment Unit(s): ",
-      sumdat$ATTAINS_AUs
-    )
-
-    # add au ref source to pop up  if available
-    if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
-      set.popup <- paste0(
-        set.popup,
-        "<br>",
-        "Crosswalk Source: ",
-        sumdat$TADA.AURefSource
-      )
-    }
-
-    # set base image and label ref lists for legend
-    attains.imgs <- images[1:3]
-    attains.labels <- img.labels[1:3]
-
-    # add missing geometry image and label if needed
-    if (exists("missing.geo")) {
-      if (dim(missing.geo)[1] > 0) {
-        attains.imgs <- append(attains.imgs, images[4])
-        attains.labels <- append(attains.labels, img.labels[4])
-
-        # remove intermediate object
-        rm(missing.geo)
-      }
-    }
-
-    # set image ref, image label, and icon url lists for WQP monitoring locations
-    if (!"TADA.AURefSource" %in% names(ATTAINS_table) | ref_icons == FALSE) {
-      wqp.imgs <- images[8]
-      wqp.labels <- img.labels[8]
-
-      wqp.urls <- images[8]
-    } else {
-      wqp.imgs <- images[5:7]
-      wqp.labels <- img.labels[5:7]
-
-      wqp.urls <- dplyr::case_when(
-        sumdat$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
-        sumdat$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
-          7
-        ],
-        sumdat$TADA.AURefSource == "User-supplied Ref" ~ images[5]
-      )
-    }
-
-    # set image ref for catchments
-    catch.imgs <- images[9]
-    catch.labels <- img.labels[9]
-
-    if ("without_ATTAINS_catchments" %in% names(.data)) {
-      catch.imgs <- append(catch.imgs, images[10])
-      catch.labels <- append(catch.labels, img.labels[10])
-    }
-
-    # create overall legend labels and images
-    images.ref <- c(attains.imgs, wqp.imgs, catch.imgs)
-
-    leg.labels <- c(attains.labels, wqp.labels, catch.labels)
-
-    # remove intermediate objects
-    rm(
-      attains.imgs,
-      attains.labels,
-      wqp.imgs,
-      wqp.labels,
-      catch.imgs,
-      catch.labels
-    )
-
     # Add WQP observation features (should always exist):
     try(
       {
-        map <- map |>
-          leaflet::addMarkers(
-            data = sumdat,
-            group = "WQP Obersvations",
-            lng = ~TADA.LongitudeMeasure,
-            lat = ~TADA.LatitudeMeasure,
-            icon = leaflet::icons(
-              iconUrl = wqp.urls,
-              iconWidth = 24,
-              iconHeight = 24
-            ),
-            popup = set.popup
-          )
-        overlay_groups <- c(overlay_groups, "WQP Obersvations")
+        wqp_sites <- addWQPSites(sumdat,
+                           map = map,
+                           icons = images,
+                           ref_icons = TRUE,
+                           overlay_groups = overlay_groups)
+
+        map <- wqp_sites$map
+
+        overlay_groups <- wqp_sites$overlay_groups
       },
       silent = TRUE
     )
 
-    # remove intermediate objects
-    rm(wqp.urls, set.popup)
-    # add legend to map
-    map <- map |>
-      leaflegend::addLegendImage(
-        images = images.ref,
-        labels = leg.labels,
-        labelStyle = "font-size: 14px;",
-        width = 14,
-        height = 14,
-        orientation = "vertical",
-        title = htmltools::tags$div(
-          "Legend",
-          style = "font-size: 14px;
-                                             text-align: left; font-weight: bold;"
-        ),
-        position = "bottomright"
-      )
+    # add TADA custom legend to map
+    map <- addTADAMapLegend(map = map,
+                            icons = images,
+                            icon_labels = img.labels)
 
-    # remove intermediate objects
-    rm(images.ref, leg.labels)
     # add button to toggle map legend on/off
-    map <- htmlwidgets::onRender(
-      map,
-      "
-  function(el, x) {
-    var button = document.createElement('button');
-    button.innerHTML = 'Toggle Legend';
-    button.style.position = 'absolute';
-    button.style.top = '10px';
-    button.style.right = '10px'; // Positioning in the top-right corner
-    button.style.zIndex = 1000;
-    button.style.padding = '5px 10px';
-    button.style.backgroundColor = '#fff';
-    button.style.border = '1px solid #ccc';
-    button.style.borderRadius = '4px';
-    button.onclick = function() {
-      var legend = el.querySelector('.leaflet-control.legend'); // Adjust this selector to target the legend only
-      if (legend) {
-        if (legend.style.display === 'none') {
-          legend.style.display = 'block';
-        } else {
-          legend.style.display = 'none';
-        }
-      }
-    };
-    el.appendChild(button);
-  }
-"
-    )
+    map <- addLegendToggle(map = map)
+
     # add layer control to map
     if (length(overlay_groups) > 0) {
       overlay_groups <- unique(overlay_groups)
