@@ -434,7 +434,10 @@ prepATTAINSMapper <- function(.data,
   # prep point data
   if (geo_type == "points") {
     # extract coordinates and convert to a tibble (to handle point or multipoint)
-    coords <- sf::st_coordinates(.data) |>
+    coords <- sf::st_coordinates(.data)
+
+    if(dim(coords)[1] > 1) {
+      coords <- coords |>
       tibble::as_tibble() |>
       tibble::rowid_to_column(var = "index")
 
@@ -447,6 +450,10 @@ prepATTAINSMapper <- function(.data,
 
     # remove intermediate objects
     rm(coords, color_ref)
+
+    } else {
+      mapper <- NULL
+    }
 
     # return mapper df
     return(mapper)
