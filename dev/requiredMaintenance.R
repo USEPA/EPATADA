@@ -16,6 +16,7 @@ spelling::get_wordlist()
 library(styler)
 
 # Recommended styler setup to approximate air.toml
+
 style_pkg(
   transformers = tidyverse_style(
     scope     = I(c("tokens", "spaces", "indention")),  # no "line_breaks" let air handle that

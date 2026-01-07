@@ -472,19 +472,15 @@ TADA_DataRetrieval <- function(
     # Alert & stop if an http error was received
     if (is.null(quiet_bbox_avail$result)) {
       stop_message <- quiet_bbox_avail$messages |>
-        grep(
-          pattern = "failed|HTTP",
-          x = .,
-          ignore.case = FALSE,
-          value = TRUE
-        ) |>
-        paste("\n", ., collapse = "") |>
-        paste(
-          "The WQP request returned a NULL with the following message(s): \n",
-          .,
-          "The bounding box may be too large for this process. Reduce your area of interest and try again.",
+        (\(msgs) grep("failed|HTTP", msgs, ignore.case = FALSE, value = TRUE))() |>
+        (\(hits) paste(
+          c(
+            "The WQP request returned a NULL with the following message(s):",
+            hits,
+            "The bounding box may be too large for this process. Reduce your area of interest and try again."
+          ),
           collapse = "\n"
-        )
+        ))()
 
       stop(stop_message)
     }
@@ -505,18 +501,16 @@ TADA_DataRetrieval <- function(
 
     if (is.null(quiet_bbox_sites$result)) {
       stop_message <- quiet_bbox_sites$messages |>
-        grep(
-          pattern = "failed|HTTP",
-          x = .,
-          ignore.case = FALSE,
-          value = TRUE
-        ) |>
-        paste("\n", ., collapse = "") |>
-        paste(
-          "The WQP request returned a NULL with the following message(s): \n",
-          .,
+        (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+        (\(hits) paste(
+          c(
+            "The WQP request returned a NULL with the following message(s):",
+            hits,
+            "The bounding box may be too large for this process. Reduce your area of interest and try again."
+          ),
           collapse = "\n"
-        )
+        ))()
+
       stop(stop_message)
     }
 
@@ -614,18 +608,13 @@ TADA_DataRetrieval <- function(
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages |>
-            grep(
-              pattern = "failed|HTTP",
-              x = .,
-              ignore.case = FALSE,
-              value = TRUE
-            ) |>
-            paste("\n", ., collapse = "") |>
-            paste(
+            (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+            (\(hits) paste("\n", hits, collapse = ""))() |>
+            (\(txt) paste(
               "The WQP request returned a NULL with the following message(s): \n",
-              .,
+              txt,
               collapse = "\n"
-            )
+            ))()
 
           stop(stop_message)
         }
@@ -695,18 +684,13 @@ TADA_DataRetrieval <- function(
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages |>
-            grep(
-              pattern = "failed|HTTP",
-              x = .,
-              ignore.case = FALSE,
-              value = TRUE
-            ) |>
-            paste("\n", ., collapse = "") |>
-            paste(
+            (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+            (\(hits) paste("\n", hits, collapse = ""))() |>
+            (\(txt) paste(
               "The WQP request returned a NULL with the following message(s): \n",
-              .,
+              txt,
               collapse = "\n"
-            )
+            ))()
 
           stop(stop_message)
         }
@@ -881,18 +865,13 @@ TADA_DataRetrieval <- function(
 
     if (is.null(quiet_query_avail$result)) {
       stop_message <- quiet_query_avail$messages |>
-        grep(
-          pattern = "failed|HTTP",
-          x = .,
-          ignore.case = FALSE,
-          value = TRUE
-        ) |>
-        paste("\n", ., collapse = "") |>
-        paste(
+        (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+        (\(hits) paste("\n", hits, collapse = ""))() |>
+        (\(txt) paste(
           "The WQP request returned a NULL with the following message(s): \n",
-          .,
+          txt,
           collapse = "\n"
-        )
+        ))()
 
       stop(stop_message)
     }
@@ -941,18 +920,13 @@ TADA_DataRetrieval <- function(
 
       if (is.null(quiet_sites.DR$result)) {
         stop_message <- quiet_sites.DR$messages |>
-          grep(
-            pattern = "failed|HTTP",
-            x = .,
-            ignore.case = FALSE,
-            value = TRUE
-          ) |>
-          paste("\n", ., collapse = "") |>
-          paste(
+          (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+          (\(hits) paste("\n", hits, collapse = ""))() |>
+          (\(txt) paste(
             "The WQP request returned a NULL with the following message(s): \n",
-            .,
+            txt,
             collapse = "\n"
-          )
+          ))()
 
         stop(stop_message)
       }
@@ -969,18 +943,13 @@ TADA_DataRetrieval <- function(
 
       if (is.null(quiet_projects.DR$result)) {
         stop_message <- quiet_projects.DR$messages |>
-          grep(
-            pattern = "failed|HTTP",
-            x = .,
-            ignore.case = FALSE,
-            value = TRUE
-          ) |>
-          paste("\n", ., collapse = "") |>
-          paste(
+          (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+          (\(hits) paste("\n", hits, collapse = ""))() |>
+          (\(txt) paste(
             "The WQP request returned a NULL with the following message(s): \n",
-            .,
+            txt,
             collapse = "\n"
-          )
+          ))()
 
         stop(stop_message)
       }
