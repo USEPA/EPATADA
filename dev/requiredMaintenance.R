@@ -19,9 +19,9 @@ library(styler)
 
 style_pkg(
   transformers = tidyverse_style(
-    scope     = I(c("tokens", "spaces", "indention")),  # no "line_breaks" let air handle that
+    scope = I(c("tokens", "spaces", "indention")), # no "line_breaks" let air handle that
     indent_by = 2,
-    strict    = TRUE
+    strict = TRUE
   )
 )
 

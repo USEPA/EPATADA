@@ -485,7 +485,10 @@ TADA_MediaFilter <- function(
 
     # Warn if all rows were removed, except when all toggles were TRUE (pre-flight warning already emitted)
     if (nrow(.data) == 0 && !all_selected) {
-      warning("TADA_MediaFilter: All rows were removed by the media filter.", call. = FALSE)
+      warning(
+        "TADA_MediaFilter: All rows were removed by the media filter.",
+        call. = FALSE
+      )
     }
 
     # Build a readable list of which media types were set to TRUE

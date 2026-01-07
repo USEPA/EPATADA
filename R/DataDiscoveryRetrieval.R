@@ -377,12 +377,12 @@ TADA_DataRetrieval <- function(
       # Make a reference table for tribal area type + url matching
       # (options that don't return results are commented out)
       map_service_urls <- tibble::tribble(
-        ~tribal_area, ~url,
-        "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+        ~tribal_area                        , ~url                                                                  ,
+        "Alaska Native Allotments"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
         # "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-        "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-        "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-        "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
+        "American Indian Reservations"      , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+        "Off-reservation Trust Lands"       , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+        "Oklahoma Tribal Statistical Areas" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
         # "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
       )
 
@@ -472,15 +472,19 @@ TADA_DataRetrieval <- function(
     # Alert & stop if an http error was received
     if (is.null(quiet_bbox_avail$result)) {
       stop_message <- quiet_bbox_avail$messages |>
-        (\(msgs) grep("failed|HTTP", msgs, ignore.case = FALSE, value = TRUE))() |>
-        (\(hits) paste(
-          c(
-            "The WQP request returned a NULL with the following message(s):",
-            hits,
-            "The bounding box may be too large for this process. Reduce your area of interest and try again."
-          ),
-          collapse = "\n"
-        ))()
+        (\(msgs) {
+          grep("failed|HTTP", msgs, ignore.case = FALSE, value = TRUE)
+        })() |>
+        (\(hits) {
+          paste(
+            c(
+              "The WQP request returned a NULL with the following message(s):",
+              hits,
+              "The bounding box may be too large for this process. Reduce your area of interest and try again."
+            ),
+            collapse = "\n"
+          )
+        })()
 
       stop(stop_message)
     }
@@ -501,15 +505,24 @@ TADA_DataRetrieval <- function(
 
     if (is.null(quiet_bbox_sites$result)) {
       stop_message <- quiet_bbox_sites$messages |>
-        (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
-        (\(hits) paste(
-          c(
-            "The WQP request returned a NULL with the following message(s):",
-            hits,
-            "The bounding box may be too large for this process. Reduce your area of interest and try again."
-          ),
-          collapse = "\n"
-        ))()
+        (\(msgs) {
+          grep(
+            pattern = "failed|HTTP",
+            x = msgs,
+            ignore.case = FALSE,
+            value = TRUE
+          )
+        })() |>
+        (\(hits) {
+          paste(
+            c(
+              "The WQP request returned a NULL with the following message(s):",
+              hits,
+              "The bounding box may be too large for this process. Reduce your area of interest and try again."
+            ),
+            collapse = "\n"
+          )
+        })()
 
       stop(stop_message)
     }
@@ -608,13 +621,22 @@ TADA_DataRetrieval <- function(
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages |>
-            (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+            (\(msgs) {
+              grep(
+                pattern = "failed|HTTP",
+                x = msgs,
+                ignore.case = FALSE,
+                value = TRUE
+              )
+            })() |>
             (\(hits) paste("\n", hits, collapse = ""))() |>
-            (\(txt) paste(
-              "The WQP request returned a NULL with the following message(s): \n",
-              txt,
-              collapse = "\n"
-            ))()
+            (\(txt) {
+              paste(
+                "The WQP request returned a NULL with the following message(s): \n",
+                txt,
+                collapse = "\n"
+              )
+            })()
 
           stop(stop_message)
         }
@@ -684,13 +706,22 @@ TADA_DataRetrieval <- function(
 
         if (is.null(quiet_projects.DR$result)) {
           stop_message <- quiet_projects.DR$messages |>
-            (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+            (\(msgs) {
+              grep(
+                pattern = "failed|HTTP",
+                x = msgs,
+                ignore.case = FALSE,
+                value = TRUE
+              )
+            })() |>
             (\(hits) paste("\n", hits, collapse = ""))() |>
-            (\(txt) paste(
-              "The WQP request returned a NULL with the following message(s): \n",
-              txt,
-              collapse = "\n"
-            ))()
+            (\(txt) {
+              paste(
+                "The WQP request returned a NULL with the following message(s): \n",
+                txt,
+                collapse = "\n"
+              )
+            })()
 
           stop(stop_message)
         }
@@ -865,13 +896,22 @@ TADA_DataRetrieval <- function(
 
     if (is.null(quiet_query_avail$result)) {
       stop_message <- quiet_query_avail$messages |>
-        (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+        (\(msgs) {
+          grep(
+            pattern = "failed|HTTP",
+            x = msgs,
+            ignore.case = FALSE,
+            value = TRUE
+          )
+        })() |>
         (\(hits) paste("\n", hits, collapse = ""))() |>
-        (\(txt) paste(
-          "The WQP request returned a NULL with the following message(s): \n",
-          txt,
-          collapse = "\n"
-        ))()
+        (\(txt) {
+          paste(
+            "The WQP request returned a NULL with the following message(s): \n",
+            txt,
+            collapse = "\n"
+          )
+        })()
 
       stop(stop_message)
     }
@@ -920,13 +960,22 @@ TADA_DataRetrieval <- function(
 
       if (is.null(quiet_sites.DR$result)) {
         stop_message <- quiet_sites.DR$messages |>
-          (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+          (\(msgs) {
+            grep(
+              pattern = "failed|HTTP",
+              x = msgs,
+              ignore.case = FALSE,
+              value = TRUE
+            )
+          })() |>
           (\(hits) paste("\n", hits, collapse = ""))() |>
-          (\(txt) paste(
-            "The WQP request returned a NULL with the following message(s): \n",
-            txt,
-            collapse = "\n"
-          ))()
+          (\(txt) {
+            paste(
+              "The WQP request returned a NULL with the following message(s): \n",
+              txt,
+              collapse = "\n"
+            )
+          })()
 
         stop(stop_message)
       }
@@ -943,13 +992,22 @@ TADA_DataRetrieval <- function(
 
       if (is.null(quiet_projects.DR$result)) {
         stop_message <- quiet_projects.DR$messages |>
-          (\(msgs) grep(pattern = "failed|HTTP", x = msgs, ignore.case = FALSE, value = TRUE))() |>
+          (\(msgs) {
+            grep(
+              pattern = "failed|HTTP",
+              x = msgs,
+              ignore.case = FALSE,
+              value = TRUE
+            )
+          })() |>
           (\(hits) paste("\n", hits, collapse = ""))() |>
-          (\(txt) paste(
-            "The WQP request returned a NULL with the following message(s): \n",
-            txt,
-            collapse = "\n"
-          ))()
+          (\(txt) {
+            paste(
+              "The WQP request returned a NULL with the following message(s): \n",
+              txt,
+              collapse = "\n"
+            )
+          })()
 
         stop(stop_message)
       }
@@ -1068,13 +1126,13 @@ TADA_DataRetrieval <- function(
 TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Make a reference table for tribal area type + url matching
   map_service_urls <- tibble::tribble(
-    ~tribal_area, ~url,
-    "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
-    "Alaska Native Villages", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-    "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-    "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-    "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
-    "Virginia Federally Recognized Tribes", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+    ~tribal_area                           , ~url                                                                  ,
+    "Alaska Native Allotments"             , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
+    "Alaska Native Villages"               , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1" ,
+    "American Indian Reservations"         , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+    "Off-reservation Trust Lands"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+    "Oklahoma Tribal Statistical Areas"    , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" ,
+    "Virginia Federally Recognized Tribes" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
   )
 
   # Confirm usable string provided
