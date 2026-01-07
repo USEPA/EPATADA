@@ -874,10 +874,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     silent = TRUE
   )
 
-  # set param tada_no_attains
-  set_no_attains <- ifelse("without_ATTAINS_catchments" %in% names(.data),
-                           .data$without_ATTAINS_catchments,
-                           NULL)
+  # set param tada_no_attains for checkForWQPData
+  if("without_ATTAINS_catchments" %in% names(.data)) {
+    set_no_attains <- .data$without_ATTAINS_catchments
+  } else {
+    set_no_attains <- NULL
+  }
 
   # check to make sure WQP observations exist
   checkForWQPData(tada_attains = ATTAINS_table,
@@ -893,32 +895,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
 
-    # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
-    try(
-      points_mapper <- prepATTAINSMapper(ATTAINS_points,
-        geo_type = "points",
-        color_ref = colors
-      ),
-      silent = TRUE
-    )
+    # prep ATTAINS assessment unit features
+    au_mapper <- prepAllATTAINSMapper(color_ref = colors,
+                                      lines_layer = ATTAINS_lines,
+                                      points_layer = ATTAINS_points,
+                                      polygons_layer = ATTAINS_polygons)
 
-    # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
-    try(
-      lines_mapper <- prepATTAINSMapper(ATTAINS_lines,
-        geo_type = "lines",
-        color_ref = colors
-      ),
-      silent = TRUE
-    )
-
-    # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
-    try(
-      polygons_mapper <- prepATTAINSMapper(ATTAINS_polygons,
-        geo_type = "polygons",
-        color_ref = colors
-      ),
-      silent = TRUE
-    )
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -1018,7 +1000,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS polygon features (if they exist):
     try(
       {
-        polygons_aus <- addATTAINS(polygons_mapper,
+        polygons_aus <- addATTAINS(au_mapper$polygons_mapper,
           map = map,
           overlay_groups = overlay_groups
         )
@@ -1036,7 +1018,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS lines features (if they exist):
     try(
       {
-        lines_aus <- addATTAINS(lines_mapper,
+        lines_aus <- addATTAINS(au_mapper$lines_mapper,
           map = map,
           overlay_groups = overlay_groups
         )
@@ -1054,7 +1036,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS point features (if they exist):
     try(
       {
-        points_aus <- addATTAINS(points_mapper,
+        points_aus <- addATTAINS(au_mapper$points_mapper,
           map = map,
           overlay_groups = overlay_groups
         )

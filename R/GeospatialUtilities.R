@@ -475,6 +475,57 @@ prepATTAINSMapper <- function(.data,
   }
 }
 
+#' prepAllATTAINSMapper
+#'
+#' Internal function to prepare all ATTAINS geometry from
+#' TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk for display in a
+#' leaflet map by running prepATTAINSMapper for all available assessment unit
+#' layers.
+#'
+#' @param lines_layer
+#'
+#' @param polygons_layer
+#'
+#' @param points_layer
+#'
+#' @param color_ref
+#'
+#' @return A list of data frames ready for use in a TADA leaflet map.
+# prep all ATTAINS layers for use in leaflet map
+prepAllATTAINSMapper <- function(lines_layer = NULL,
+                                 polygons_layer = NULL,
+                                 points_layer = NULL,
+                                 # catch_layer = NULL,
+                                 color_ref = NULL) {
+
+  # get color ref for ATTAINS overall status if not provided
+  if(is.null(color_ref)) {
+    color_ref <- getATTAINSColorsRef()
+  }
+
+# point assessment units
+  points_mapper <- prepATTAINSMapper(points_layer,
+                                     geo_type = "points",
+                                     color_ref = color_ref)
+
+# line assessment units
+  lines_mapper <- prepATTAINSMapper(lines_layer,
+                                    geo_type = "lines",
+                                    color_ref = colors)
+
+# polygon assessment units
+  polygons_mapper <- prepATTAINSMapper(polygons_layer,
+                                       geo_type = "polygons",
+                                       color_ref = colors)
+# create list of mapper dfs
+  au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
+
+  names(au_mapper) <- c("points_mapper", "lines_mapper", "polygons_mapper")
+
+  # return data frames ready for mapping
+  return(au_mapper)
+}
+
 #' getWQPSiteStats
 #'
 #' Internal function to prepare site data for use in leaflet map popup.
@@ -1422,7 +1473,7 @@ checkForATTAINSGeo <- function(points_layer = NULL,
                                lines_layer = NULL,
                                polygons_layer = NULL) {
 if (
-  is.null(lines_layer) & is.null(points_layer) & is.null(polygons_later)
+  is.null(lines_layer) & is.null(points_layer) & is.null(polygons_layer)
 ) {
   message("No ATTAINS data associated with this Water Quality Portal data.")
 }
