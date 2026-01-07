@@ -843,12 +843,18 @@ TADA_PairReplicates <- function(
   dt_vec <- .data$ActivityStartDateTime
   posix_ok <- inherits(dt_vec, "POSIXt")
   if (!posix_ok) {
-    dt_parsed <- suppressWarnings(as.POSIXct(dt_vec, format = "%Y-%m-%d %H:%M:%S", tz = "UTC"))
+    dt_parsed <- suppressWarnings(as.POSIXct(
+      dt_vec,
+      format = "%Y-%m-%d %H:%M:%S",
+      tz = "UTC"
+    ))
     if (any(!is.na(dt_parsed))) {
       dt_vec <- dt_parsed
       posix_ok <- TRUE
     } else {
-      warning("ActivityStartDateTime is not POSIXct/POSIXlt and could not be parsed; time filtering will be skipped.")
+      warning(
+        "ActivityStartDateTime is not POSIXct/POSIXlt and could not be parsed; time filtering will be skipped."
+      )
     }
   }
 
@@ -865,7 +871,8 @@ TADA_PairReplicates <- function(
       message("No replicates found in dataframe. Returning input unchanged.")
     } else {
       message(paste0(
-        "No replicates of type '", paste(type, collapse = "', '"),
+        "No replicates of type '",
+        paste(type, collapse = "', '"),
         "' found in dataframe. Returning input unchanged."
       ))
     }
@@ -877,8 +884,14 @@ TADA_PairReplicates <- function(
 
   # loop through rows to find matches
   for (i in seq_len(nrow(.data))) {
-    x <- if ("QC_replicate" %in% type) .data$TADA.ActivityType.Flag[i] else .data$ActivityTypeCode[i]
-    if (is.na(x) || !(x %in% type)) next
+    x <- if ("QC_replicate" %in% type) {
+      .data$TADA.ActivityType.Flag[i]
+    } else {
+      .data$ActivityTypeCode[i]
+    }
+    if (is.na(x) || !(x %in% type)) {
+      next
+    }
 
     # match on date, location, org, comparable ID, and depths
     info_match <- which(
@@ -886,45 +899,35 @@ TADA_PairReplicates <- function(
         .data$TADA.LatitudeMeasure == .data$TADA.LatitudeMeasure[i] &
         .data$TADA.LongitudeMeasure == .data$TADA.LongitudeMeasure[i] &
         .data$OrganizationIdentifier == .data$OrganizationIdentifier[i] &
-        .data$TADA.ComparableDataIdentifier == .data$TADA.ComparableDataIdentifier[i] &
-        (
-          (.data$TADA.ActivityDepthHeightMeasure.MeasureValue ==
-            .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) |
-            (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) &
-              is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))
-        ) &
-        (
-          (.data$TADA.ResultDepthHeightMeasure.MeasureValue ==
-            .data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) |
-            (is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue) &
-              is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))
-        ) &
-        (
-          (.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue ==
-            .data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) |
-            (is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) &
-              is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))
-        ) &
-        (
-          (.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue ==
-            .data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) |
-            (is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
-              is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]))
-        ) &
-        (
-          (.data$ActivityRelativeDepthName == .data$ActivityRelativeDepthName[i]) |
-            (is.na(.data$ActivityRelativeDepthName) &
-              is.na(.data$ActivityRelativeDepthName[i]))
-        )
+        .data$TADA.ComparableDataIdentifier ==
+          .data$TADA.ComparableDataIdentifier[i] &
+        ((.data$TADA.ActivityDepthHeightMeasure.MeasureValue ==
+          .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) |
+          (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) &
+            is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+        ((.data$TADA.ResultDepthHeightMeasure.MeasureValue ==
+          .data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) |
+          (is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue) &
+            is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
+        ((.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue ==
+          .data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) |
+          (is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) &
+            is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
+        ((.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue ==
+          .data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) |
+          (is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
+            is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[
+              i
+            ]))) &
+        ((.data$ActivityRelativeDepthName ==
+          .data$ActivityRelativeDepthName[i]) |
+          (is.na(.data$ActivityRelativeDepthName) &
+            is.na(.data$ActivityRelativeDepthName[i])))
     )
 
     # time window filter (in seconds), only if parsed timestamps available and current row’s timestamp is non-NA
     if (posix_ok && !is.na(dt_vec[i]) && length(info_match) > 0) {
-      td <- abs(difftime(
-        dt_vec[info_match],
-        dt_vec[i],
-        units = "secs"
-      ))
+      td <- abs(difftime(dt_vec[info_match], dt_vec[i], units = "secs"))
       info_match <- info_match[as.numeric(td) <= time_difference]
     }
 

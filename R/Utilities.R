@@ -483,18 +483,22 @@ TADA_DecimalPlaces <- function(x) {
   }
   x_chr <- trimws(x_chr)
 
-  vapply(x_chr, function(s) {
-    if (is.na(s) || s == "" || s %in% c("NA", "NaN")) {
-      return(NA_integer_)
-    }
-    s <- sub(",", "", s) # remove any thousands separators
-    s <- sub("0+$", "", s) # trim trailing zeros if present
-    if (!grepl("\\.", s)) {
-      return(0L)
-    }
-    dec <- sub(".*\\.", "", s) # substring after decimal point
-    nchar(dec)
-  }, integer(1))
+  vapply(
+    x_chr,
+    function(s) {
+      if (is.na(s) || s == "" || s %in% c("NA", "NaN")) {
+        return(NA_integer_)
+      }
+      s <- sub(",", "", s) # remove any thousands separators
+      s <- sub("0+$", "", s) # trim trailing zeros if present
+      if (!grepl("\\.", s)) {
+        return(0L)
+      }
+      dec <- sub(".*\\.", "", s) # substring after decimal point
+      nchar(dec)
+    },
+    integer(1)
+  )
 }
 
 
@@ -1325,19 +1329,13 @@ pchIcons <- function(
 #' )
 #' }
 getFeatureLayer <- function(url, bbox = NULL) {
-  q <- paste0(
-    url,
-    "?where=1%3D1&outFields=*&returnGeometry=true&f=geojson"
-  )
+  q <- paste0(url, "?where=1%3D1&outFields=*&returnGeometry=true&f=geojson")
   if (!is.null(bbox)) {
     q <- paste0(q, "&geometry=", getBboxJson(bbox))
   }
-  tryCatch(
-    sf::read_sf(q),
-    error = function(e) {
-      stop("read_sf() failed for URL: ", url, " — ", conditionMessage(e))
-    }
-  )
+  tryCatch(sf::read_sf(q), error = function(e) {
+    stop("read_sf() failed for URL: ", url, " — ", conditionMessage(e))
+  })
 }
 
 #' Download a shapefile from an API and save it locally (overwrite‑safe)
@@ -1368,7 +1366,11 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' @return Invisibly returns the normalized path to the .shp file.
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)
-  stopifnot(is.character(layerfilepath), length(layerfilepath) == 1L, nchar(layerfilepath) > 0L)
+  stopifnot(
+    is.character(layerfilepath),
+    length(layerfilepath) == 1L,
+    nchar(layerfilepath) > 0L
+  )
 
   # Helpers for shapefile sets
   remove_shapefile_set <- function(path) {
@@ -1380,45 +1382,65 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   }
   shapefile_set_exists <- function(path) {
     base <- tools::file_path_sans_ext(path)
-    any(file.exists(file.path(dirname(base), paste0(basename(base), ".", c("shp", "shx", "dbf", "prj")))))
+    any(file.exists(file.path(
+      dirname(base),
+      paste0(basename(base), ".", c("shp", "shx", "dbf", "prj"))
+    )))
   }
 
   if (!grepl("\\.shp$", layerfilepath, ignore.case = TRUE)) {
-    warning("layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension.")
+    warning(
+      "layerfilepath does not end with .shp; proceeding but the driver will be inferred from extension."
+    )
   }
 
   # Retrieve the feature layer as an sf object (prefer arcgislayers when available)
-  layer <- tryCatch({
-    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
-    if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
-      lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
-      q <- arcgislayers::arc_select(
-        lyr,
-        where = "1=1",
-        out_fields = "*",
-        out_sr = 4326
-      )
-      arcgislayers::arc_collect(q, as_sf = TRUE)
-    } else {
-      getFeatureLayer(url)
+  layer <- tryCatch(
+    {
+      is_arcgis <- is.character(url) &&
+        grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+      if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
+        lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
+        q <- arcgislayers::arc_select(
+          lyr,
+          where = "1=1",
+          out_fields = "*",
+          out_sr = 4326
+        )
+        arcgislayers::arc_collect(q, as_sf = TRUE)
+      } else {
+        getFeatureLayer(url)
+      }
+    },
+    error = function(e) {
+      # If arcgislayers path fails, fall back to original method
+      tryCatch(getFeatureLayer(url), error = function(e2) {
+        stop(
+          "getFeatureLayer()/arcgislayers failed for URL: ",
+          url,
+          " — ",
+          conditionMessage(e2)
+        )
+      })
     }
-  }, error = function(e) {
-    # If arcgislayers path fails, fall back to original method
-    tryCatch(getFeatureLayer(url), error = function(e2) {
-      stop("getFeatureLayer()/arcgislayers failed for URL: ", url, " — ", conditionMessage(e2))
-    })
-  })
+  )
 
   # Preemptively rename known problematic fields using base R
   nm <- names(layer)
-  if ("TOTALAREA_MI" %in% nm) nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
-  if ("TOTALAREA_KM" %in% nm) nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
+  if ("TOTALAREA_MI" %in% nm) {
+    nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
+  }
+  if ("TOTALAREA_KM" %in% nm) {
+    nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
+  }
   names(layer) <- nm
 
   # Optionally sanitize all field names to ≤ 10 chars and unique, leaving geometry column untouched
   if (isTRUE(sanitize_names)) {
     geom_col <- attr(layer, "sf_column")
-    if (is.null(geom_col)) geom_col <- "geometry"
+    if (is.null(geom_col)) {
+      geom_col <- "geometry"
+    }
     nm <- names(layer)
     keep <- nm != geom_col
     nm[keep] <- .sanitize_dbf_names_unicode(nm[keep])
@@ -1453,7 +1475,9 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
       return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
     }
 
-    stop("Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type.")
+    stop(
+      "Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type."
+    )
   }
   layer <- coerce_for_shapefile(layer)
 
@@ -1461,7 +1485,11 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
 
   # Normalize path (helps on Windows)
-  layerfilepath_norm <- normalizePath(layerfilepath, winslash = "/", mustWork = FALSE)
+  layerfilepath_norm <- normalizePath(
+    layerfilepath,
+    winslash = "/",
+    mustWork = FALSE
+  )
 
   # Decide overwrite behavior based on extension/driver
   is_shp <- grepl("\\.shp$", layerfilepath_norm, ignore.case = TRUE)
@@ -1486,7 +1514,8 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     error = function(e) {
       stop(sprintf(
         "st_write() failed for path: %s \u2014 %s",
-        layerfilepath_norm, conditionMessage(e)
+        layerfilepath_norm,
+        conditionMessage(e)
       ))
     }
   )
@@ -1517,7 +1546,8 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     n <- 1L
     while (candidate %in% out) {
       suffix <- as.character(n) # no underscore to save space
-      allowed <- 10L - nchar(suffix, type = "chars", allowNA = FALSE, keepNA = FALSE)
+      allowed <- 10L -
+        nchar(suffix, type = "chars", allowNA = FALSE, keepNA = FALSE)
       if (allowed <= 0L) {
         # Extremely many collisions; fall back to last 10 chars of suffix
         total <- nchar(suffix, type = "chars")
@@ -1557,11 +1587,17 @@ writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   }
   geom_col <- attr(x, "sf_column")
   for (col in names(x)) {
-    if (!is.null(geom_col) && identical(col, geom_col)) next
+    if (!is.null(geom_col) && identical(col, geom_col)) {
+      next
+    }
     v <- x[[col]]
-    if (!is.numeric(v)) next
+    if (!is.numeric(v)) {
+      next
+    }
     v_ok <- is.finite(v) & !is.na(v)
-    if (!any(v_ok)) next
+    if (!any(v_ok)) {
+      next
+    }
     vv <- v[v_ok]
     if (min(vv) >= 1e11 && max(vv) <= 1e14) {
       dt <- as.POSIXct(v / 1000, origin = "1970-01-01", tz = "UTC")
@@ -1664,8 +1700,12 @@ getTribalPopup <- function(layer, layername) {
   water_candidates <- c("AWATER_MI", "AWATER_KM", "AWATER_M", "AWATER_K")
   land_candidates <- c("ALAND_MI", "ALAND_KM", "ALAND_M", "ALAND_K")
   total_candidates <- c(
-    "TOTALAREA_MI", "TOTALAREA_KM", "TOTALAREA_M", "TOTALAREA_K",
-    "TAREA_MI", "TAREA_KM"
+    "TOTALAREA_MI",
+    "TOTALAREA_KM",
+    "TOTALAREA_M",
+    "TOTALAREA_K",
+    "TAREA_MI",
+    "TAREA_KM"
   )
 
   water_col <- resolve_col_ci(names(layer), water_candidates)
@@ -1690,7 +1730,9 @@ getTribalPopup <- function(layer, layername) {
     add_field <- function(label, col) {
       if (!is.na(col) && col %in% names(layer)) {
         v <- layer[j, col, drop = TRUE]
-        if (is.numeric(v)) v <- round(v, 2)
+        if (is.numeric(v)) {
+          v <- round(v, 2)
+        }
         v <- paste(v, collapse = ", ")
         paste0("<strong>", label, "</strong>: ", v, "<br>")
       } else {
@@ -1703,7 +1745,11 @@ getTribalPopup <- function(layer, layername) {
     if (!is.na(region_col) && region_col %in% names(layer)) {
       v <- layer[j, region_col, drop = TRUE]
       v <- unique(unlist(strsplit(as.character(v), ";\\s*")))
-      region_val <- paste0("<strong>EPA Region</strong>: ", paste(v, collapse = ", "), "<br>")
+      region_val <- paste0(
+        "<strong>EPA Region</strong>: ",
+        paste(v, collapse = ", "),
+        "<br>"
+      )
     }
 
     txt <- paste0(
@@ -1788,16 +1834,29 @@ TADA_addPolys <- function(
 
   # Prefer land/area in km, then alternative fields (supports sanitized names)
   candidates <- c(
-    "ALAND_KM", "ALAND_MI", "AREA_KM", "AREA_MI",
-    "ALAND_M", "AREA_M", "AREASQKM",
-    "TOTALAREA_KM", "TAREA_KM", "TOTALAREA_MI", "TAREA_MI"
+    "ALAND_KM",
+    "ALAND_MI",
+    "AREA_KM",
+    "AREA_MI",
+    "ALAND_M",
+    "AREA_M",
+    "AREASQKM",
+    "TOTALAREA_KM",
+    "TAREA_KM",
+    "TOTALAREA_MI",
+    "TAREA_MI"
   )
   area_col <- resolve_col_ci(names(layer), candidates)
 
   # Fallback: any numeric column containing area/land/water
   if (is.na(area_col)) {
     num_cols <- names(layer)[sapply(layer, is.numeric)]
-    area_like <- grep("(area|land|water)", num_cols, ignore.case = TRUE, value = TRUE)
+    area_like <- grep(
+      "(area|land|water)",
+      num_cols,
+      ignore.case = TRUE,
+      value = TRUE
+    )
     area_col <- if (length(area_like)) area_like[1] else NA_character_
   }
 
@@ -2784,7 +2843,9 @@ TADA_CorrectColType <- function(.data) {
 
   for (nm in process_cols) {
     # Skip geometry columns (sf objects)
-    if (inherits(.data[[nm]], "sfc")) next
+    if (inherits(.data[[nm]], "sfc")) {
+      next
+    }
 
     # Determine target type: from CSV if present, otherwise default for ATTAINS.*Use
     if (nm %in% present) {

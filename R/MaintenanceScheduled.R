@@ -125,12 +125,18 @@
 #' .TADA_UpdateExampleData()
 #' }
 .TADA_UpdateExampleData <- function() {
-
   # Helper that saves a dataset only when its content has changed
-  save_if_changed <- function(object, name,
-                              data_dir = file.path(usethis::proj_get(), "data"),
-                              compress = "xz", version = 3, ascii = FALSE) {
-    if (!dir.exists(data_dir)) dir.create(data_dir, recursive = TRUE)
+  save_if_changed <- function(
+    object,
+    name,
+    data_dir = file.path(usethis::proj_get(), "data"),
+    compress = "xz",
+    version = 3,
+    ascii = FALSE
+  ) {
+    if (!dir.exists(data_dir)) {
+      dir.create(data_dir, recursive = TRUE)
+    }
     file_path <- file.path(data_dir, paste0(name, ".rda"))
 
     changed <- TRUE
@@ -147,8 +153,14 @@
       # Save with the correct object name inside the .rda
       tmp_env <- new.env(parent = emptyenv())
       assign(name, object, envir = tmp_env)
-      save(list = name, file = file_path, envir = tmp_env,
-        compress = compress, version = version, ascii = ascii)
+      save(
+        list = name,
+        file = file_path,
+        envir = tmp_env,
+        compress = compress,
+        version = version,
+        ascii = ascii
+      )
       message(sprintf("Saved dataset '%s' to %s (changed).", name, file_path))
     } else {
       message(sprintf("Skipped saving dataset '%s' (unchanged).", name))
@@ -279,12 +291,14 @@
         ask = FALSE
       )
       # Filter for surface water data (optional)
-      Data_WV <- TADA_MediaFilter(Data_WV,
+      Data_WV <- TADA_MediaFilter(
+        Data_WV,
         clean = TRUE,
         surface_water = FALSE,
         ground_water = TRUE,
         sediment = TRUE,
-        other = TRUE)
+        other = TRUE
+      )
       # Remove single organization duplicates (required)
       Data_WV <- TADA_FindPotentialDuplicatesSingleOrg(Data_WV)
       Data_WV <- dplyr::filter(Data_WV, TADA.SingleOrgDup.Flag == "Unique")

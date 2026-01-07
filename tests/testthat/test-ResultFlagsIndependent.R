@@ -68,14 +68,10 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
     dplyr::filter(
       TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits"
     ) |>
-    dplyr::filter(
-      TADA_DecimalPlaces(TADA.LatitudeMeasure) < 3
-    ) |>
+    dplyr::filter(TADA_DecimalPlaces(TADA.LatitudeMeasure) < 3) |>
     dplyr::distinct()
 
-  expect_true(all(
-    TADA_DecimalPlaces(FLAGSONLY$TADA.LatitudeMeasure) < 4
-  ))
+  expect_true(all(TADA_DecimalPlaces(FLAGSONLY$TADA.LatitudeMeasure) < 4))
 })
 
 test_that("No NA's in independent flag columns", {
@@ -236,14 +232,10 @@ test_that("Imprecise_lessthan3decimaldigits works", {
     dplyr::filter(
       TADA.SuspectCoordinates.Flag == "Imprecise_lessthan3decimaldigits"
     ) |>
-    dplyr::filter(
-      TADA_DecimalPlaces(TADA.LongitudeMeasure) < 3
-    ) |>
+    dplyr::filter(TADA_DecimalPlaces(TADA.LongitudeMeasure) < 3) |>
     dplyr::distinct()
 
-  expect_true(all(
-    TADA_DecimalPlaces(FLAGSONLY$TADA.LongitudeMeasure) < 4
-  ))
+  expect_true(all(TADA_DecimalPlaces(FLAGSONLY$TADA.LongitudeMeasure) < 4))
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {

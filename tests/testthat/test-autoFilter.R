@@ -259,7 +259,12 @@ test_that("clean = TRUE: warns when all media toggles are TRUE (muffling post-fi
       ),
       warning = function(w) {
         # Muffle only the post-filter warning
-        if (grepl("All rows were removed by the media filter", conditionMessage(w))) {
+        if (
+          grepl(
+            "All rows were removed by the media filter",
+            conditionMessage(w)
+          )
+        ) {
           invokeRestart("muffleWarning")
         }
       }

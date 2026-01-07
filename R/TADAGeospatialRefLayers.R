@@ -49,7 +49,8 @@ TADA_UpdateTribalLayers <- function() {
 
   # ---- Preflight: ArcGIS lastEditDate (prefer arcgislayers; fallback jsonlite) ----
   get_arcgis_last_edit <- function(url) {
-    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    is_arcgis <- is.character(url) &&
+      grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
     if (!is_arcgis) {
       return(NULL)
     }
@@ -65,7 +66,9 @@ TADA_UpdateTribalLayers <- function() {
       )
       if (!is.null(info)) {
         le <- NULL
-        if (!is.null(info$editingInfo$lastEditDate)) le <- info$editingInfo$lastEditDate
+        if (!is.null(info$editingInfo$lastEditDate)) {
+          le <- info$editingInfo$lastEditDate
+        }
         if (is.null(le) && !is.null(info$timeInfo$timeExtent)) {
           # timeExtent can be a vector/list; take the end time
           le <- info$timeInfo$timeExtent[[2]]
@@ -83,14 +86,21 @@ TADA_UpdateTribalLayers <- function() {
       if (grepl("[?]", url)) "&" else "?",
       "f=json"
     )
-    out <- tryCatch(jsonlite::fromJSON(u, simplifyVector = TRUE), error = function(e) NULL)
+    out <- tryCatch(
+      jsonlite::fromJSON(u, simplifyVector = TRUE),
+      error = function(e) NULL
+    )
     if (is.null(out)) {
       return(NULL)
     }
 
     le <- NULL
-    if (!is.null(out$editingInfo$lastEditDate)) le <- out$editingInfo$lastEditDate
-    if (is.null(le) && !is.null(out$timeInfo$timeExtent)) le <- out$timeInfo$timeExtent[2]
+    if (!is.null(out$editingInfo$lastEditDate)) {
+      le <- out$editingInfo$lastEditDate
+    }
+    if (is.null(le) && !is.null(out$timeInfo$timeExtent)) {
+      le <- out$timeInfo$timeExtent[2]
+    }
     if (is.null(le)) NULL else as.numeric(le)
   }
 
@@ -113,7 +123,9 @@ TADA_UpdateTribalLayers <- function() {
     )
     if (any(is_num)) {
       x[is_num] <- lapply(x[is_num], function(col) {
-        if (inherits(col, "integer64")) col <- as.numeric(col)
+        if (inherits(col, "integer64")) {
+          col <- as.numeric(col)
+        }
         round(col, num_round)
       })
     }
@@ -128,7 +140,9 @@ TADA_UpdateTribalLayers <- function() {
 
   # ---- Normalize epoch-ms -> Date by auto-detection ----
   is_epoch_ms <- function(x) {
-    if (inherits(x, "integer64")) x <- as.numeric(x)
+    if (inherits(x, "integer64")) {
+      x <- as.numeric(x)
+    }
     is.numeric(x) &&
       any(!is.na(x)) &&
       suppressWarnings({
@@ -137,7 +151,9 @@ TADA_UpdateTribalLayers <- function() {
       })
   }
   to_date_from_ms <- function(x) {
-    if (inherits(x, "integer64")) x <- as.numeric(x)
+    if (inherits(x, "integer64")) {
+      x <- as.numeric(x)
+    }
     as.Date(as.POSIXct(x / 1000, origin = "1970-01-01", tz = "UTC"))
   }
   fix_date_cols <- function(s) {
@@ -149,7 +165,9 @@ TADA_UpdateTribalLayers <- function() {
     )]
     to_fix <- Filter(function(nm) is_epoch_ms(s[[nm]]), numeric_cols)
     if (length(to_fix)) {
-      for (n in to_fix) s[[n]] <- to_date_from_ms(s[[n]])
+      for (n in to_fix) {
+        s[[n]] <- to_date_from_ms(s[[n]])
+      }
     }
     s
   }
@@ -194,7 +212,9 @@ TADA_UpdateTribalLayers <- function() {
       return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
     }
 
-    stop("Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type.")
+    stop(
+      "Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type."
+    )
   }
 
   # ---- Prefer arcgislayers; fallback to GeoJSON; last-resort temp shapefile ----
@@ -205,20 +225,24 @@ TADA_UpdateTribalLayers <- function() {
       return(s)
     }
 
-    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    is_arcgis <- is.character(url) &&
+      grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
 
     # Preferred: arcgislayers (handles paging, out_sr)
     if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
-      s <- tryCatch({
-        lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
-        q <- arcgislayers::arc_select(
-          lyr,
-          where = "1=1",
-          out_fields = "*",
-          out_sr = 4326
-        )
-        arcgislayers::arc_collect(q, as_sf = TRUE)
-      }, error = function(e) NULL)
+      s <- tryCatch(
+        {
+          lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
+          q <- arcgislayers::arc_select(
+            lyr,
+            where = "1=1",
+            out_fields = "*",
+            out_sr = 4326
+          )
+          arcgislayers::arc_collect(q, as_sf = TRUE)
+        },
+        error = function(e) NULL
+      )
       if (!is.null(s)) {
         return(s)
       }
@@ -234,20 +258,31 @@ TADA_UpdateTribalLayers <- function() {
         gj <- paste0(
           base,
           "/query?where=1%3D1&outFields=*&outSR=4326&f=geojson",
-          "&resultOffset=", offset,
-          "&resultRecordCount=", chunk
+          "&resultOffset=",
+          offset,
+          "&resultRecordCount=",
+          chunk
         )
         p <- tryCatch(sf::read_sf(gj, quiet = TRUE), error = function(e) NULL)
-        if (is.null(p)) break
+        if (is.null(p)) {
+          break
+        }
         n <- nrow(p)
-        if (n == 0L) break
+        if (n == 0L) {
+          break
+        }
         parts[[length(parts) + 1L]] <- p
         offset <- offset + n
-        if (n < chunk) break
+        if (n < chunk) {
+          break
+        }
         if (length(parts) > 10000L) break
       }
       if (length(parts)) {
-        s2 <- tryCatch(suppressWarnings(do.call(rbind, parts)), error = function(e) NULL)
+        s2 <- tryCatch(
+          suppressWarnings(do.call(rbind, parts)),
+          error = function(e) NULL
+        )
         if (!is.null(s2)) {
           return(s2)
         }
@@ -271,7 +306,11 @@ TADA_UpdateTribalLayers <- function() {
 
   update_one <- function(url, dest_shp) {
     if (!has_sf) {
-      message("sf not available; writing ", basename(dest_shp), " unconditionally.")
+      message(
+        "sf not available; writing ",
+        basename(dest_shp),
+        " unconditionally."
+      )
       ns_get("writeLayer")(url, dest_shp)
       return(invisible(TRUE))
     }
@@ -279,11 +318,13 @@ TADA_UpdateTribalLayers <- function() {
     # Preflight (ArcGIS): skip fast if lastEditDate unchanged and files exist
     last_edit_remote <- get_arcgis_last_edit(url)
     meta <- read_meta(dest_shp)
-    if (!is.null(last_edit_remote) &&
-      !is.null(meta) &&
-      !is.null(meta$last_edit) &&
-      isTRUE(file.exists(dest_shp)) &&
-      identical(meta$last_edit, last_edit_remote)) {
+    if (
+      !is.null(last_edit_remote) &&
+        !is.null(meta) &&
+        !is.null(meta$last_edit) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$last_edit, last_edit_remote)
+    ) {
       message(basename(dest_shp), " unchanged (preflight) - skipping download.")
       return(invisible(FALSE))
     }
@@ -299,10 +340,12 @@ TADA_UpdateTribalLayers <- function() {
     sig_new <- canonical_signature(s_out)
 
     # Compare with cached signature
-    if (!is.null(meta) &&
-      !is.null(meta$sig) &&
-      isTRUE(file.exists(dest_shp)) &&
-      identical(meta$sig, sig_new)) {
+    if (
+      !is.null(meta) &&
+        !is.null(meta$sig) &&
+        isTRUE(file.exists(dest_shp)) &&
+        identical(meta$sig, sig_new)
+    ) {
       write_meta(dest_shp, list(sig = sig_new, last_edit = last_edit_remote))
       message(basename(dest_shp), " unchanged - skipping write.")
       return(invisible(FALSE))
@@ -329,13 +372,15 @@ TADA_UpdateTribalLayers <- function() {
 
   # Helper to run each update and continue on error
   run_update <- function(url, dest) {
-    tryCatch(
-      update_one(url, dest),
-      error = function(e) {
-        message("Creating or updating layer ", basename(dest), " failed.\nError: ", conditionMessage(e))
-        invisible(FALSE)
-      }
-    )
+    tryCatch(update_one(url, dest), error = function(e) {
+      message(
+        "Creating or updating layer ",
+        basename(dest),
+        " failed.\nError: ",
+        conditionMessage(e)
+      )
+      invisible(FALSE)
+    })
   }
 
   # ---- Run updates (sequential; parallelize outside if desired) ----

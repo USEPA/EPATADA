@@ -1406,7 +1406,8 @@ TADA_FlagCoordinates <- function(
           TADA.LongitudeMeasure < 144.956712 &
           TADA.LongitudeMeasure > 144.618068 ~ NA_character_, # Guam
         TADA.LatitudeMeasure < 0 ~ "LAT_OutsideUSA",
-        TADA.LongitudeMeasure > 0 & TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
+        TADA.LongitudeMeasure > 0 &
+          TADA.LongitudeMeasure < 145 ~ "LONG_OutsideUSA",
         # Imprecise if fewer than 3 decimal digits in either coordinate
         dec_lat < 3L | dec_lon < 3L ~ "Imprecise_lessthan3decimaldigits",
         TRUE ~ NA_character_
@@ -1414,7 +1415,9 @@ TADA_FlagCoordinates <- function(
     )
 
   # Fill in flag for coordinates that appear OK/PASS tests
-  .data$TADA.SuspectCoordinates.Flag[is.na(.data$TADA.SuspectCoordinates.Flag)] <- "Pass"
+  .data$TADA.SuspectCoordinates.Flag[is.na(
+    .data$TADA.SuspectCoordinates.Flag
+  )] <- "Pass"
 
   # if clean_imprecise is TRUE, remove imprecise station metadata
   if (isTRUE(clean_imprecise)) {
@@ -1442,11 +1445,13 @@ TADA_FlagCoordinates <- function(
     .data <- .data |>
       dplyr::mutate(
         TADA.LatitudeMeasure = dplyr::case_when(
-          TADA.SuspectCoordinates.Flag == "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag ==
+            "LAT_OutsideUSA" ~ TADA.LatitudeMeasure * (-1),
           TRUE ~ TADA.LatitudeMeasure
         ),
         TADA.LongitudeMeasure = dplyr::case_when(
-          TADA.SuspectCoordinates.Flag == "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
+          TADA.SuspectCoordinates.Flag ==
+            "LONG_OutsideUSA" ~ TADA.LongitudeMeasure * (-1),
           TRUE ~ TADA.LongitudeMeasure
         )
       )
