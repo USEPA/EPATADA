@@ -162,6 +162,7 @@ TADA_UpdateATTAINSParamToWQPCharRef <- function() {
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' review <- TADA_AdditionalCharAliasForReview()
 #' review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
 #'
@@ -176,6 +177,7 @@ TADA_UpdateATTAINSParamToWQPCharRef <- function() {
 #'   ATTAINS.WQX.tolerance = 0.5,
 #'   WQX.ATTAINS.tolerance = 0.5
 #' )
+#' }
 #'
 TADA_AdditionalCharAliasForReview <- function(
   includeCST = FALSE,
