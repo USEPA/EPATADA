@@ -477,6 +477,8 @@ test_that("TADA_JoinWQPProfiles_works", {
 
 
 test_that("TADA_JoinWQPProfiles_columns", {
+  testthat::skip_on_cran()
+  testthat::skip_if_offline("www.waterqualitydata.us")
   stationProfile <- TADA_ReadWQPWebServices(
     "https://www.waterqualitydata.us/data/Station/search?statecode=US%3A09&characteristicType=Nutrient&startDateLo=04-01-2023&startDateHi=11-01-2023&mimeType=csv&zip=yes&providers=NWIS&providers=STEWARDS&providers=STORET"
   )
