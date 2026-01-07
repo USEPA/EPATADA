@@ -18,10 +18,10 @@ Allowable values are "points", "lines", and "polygons". If no geo_type (geo_type
 function will stop with an error.}
 
 \item{color_ref}{Data frame. A data frame containing the colors that should be
-applied to a feature based on its overallstatus in ATTAAINS. Must contain the
+applied to a feature based on its overallstatus in ATTAINS. Must contain the
 columns overallstatus, col, dark_col, and priority. Can be created with the
-internal function getATTAINSColorRef. If color_ref = NULL, the function will
-run getATTAINSColorRef to create a color ref data frame.}
+internal function getATTAINSColorsRef. If color_ref = NULL, the function will
+run getATTAINSColorsRef to create a color ref data frame.}
 }
 \value{
 A data frame with the columns overallstatus, col, dark_col, and priority.

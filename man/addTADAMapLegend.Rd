@@ -47,7 +47,7 @@ attains_au = TRUE.}
 
 \item{attains_missing}{Boolean argument. Determines whether the dashed circle
 indicating whether WQP sites with assessment units assigned by the user are
-missing correspodning geometry in ATTAINS is shown in the legend. The dashed
+missing corresponding geometry in ATTAINS is shown in the legend. The dashed
 circle icon is show when attains_missing = TRUE. The default is attains_missing
 = TRUE.}
 

@@ -18,7 +18,7 @@ showMissingATTAINSAUs(
 }
 \arguments{
 \item{map}{A leaflet map of TADA data to apply the symbology for missing ATTAINS
-AUs to.}
+assessment units to.}
 
 \item{overlay_groups}{Initialized vector to add names of groups added to map. If
 it is NULL, the function will fail with an error message. Default is overlay_list

@@ -300,7 +300,7 @@ addATTAINSAUs <- function(.data,
 
 #' getATTAINSColorsRef
 #'
-#' Internal function to return a data frames pecifying the color the feature should be
+#' Internal function to return a data frames specifying the color the feature should be
 #' displayed in for a leaflet map based on the value in the "overallstatus" column
 #' in the ATTAINS_points, ATTAINS_polygons, or ATTAINS_lines data frames created
 #' with TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
@@ -339,7 +339,7 @@ getATTAINSColorsRef <- function() {
 #' applied to a feature based on its overallstatus in ATTAINS. Must contain the
 #' columns overallstatus, col, dark_col, and priority. Can be created with the
 #' internal function getATTAINSColorsRef. If color_ref = NULL, the function will
-#' run getATTAINSColorRef to create a color ref data frame.
+#' run getATTAINSColorsRef to create a color ref data frame.
 #'
 #' @param geo_type Character string. Type of geometry to be prepared for mapping.
 #' Allowable values are "points", "lines", and "polygons". If no geo_type (geo_type

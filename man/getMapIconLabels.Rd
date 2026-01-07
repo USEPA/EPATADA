@@ -2,7 +2,7 @@
 % Please edit documentation in R/GeospatialUtilities.R
 \name{getMapIconLabels}
 \alias{getMapIconLabels}
-\title{getMapIconsLabels}
+\title{getMapIconLabels}
 \usage{
 getMapIconLabels(icons = TRUE, labels = TRUE)
 }

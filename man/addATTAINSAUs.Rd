@@ -20,7 +20,7 @@ it is NULL, the function will fail with an error message. Default is overlay_lis
 function getMapIconLabels. If already called in a larger mapping function, it can
 be referenced here (for efficiency). If icons = NULL, getMapIconLabels will run
 and fetch the list. Default is icons = NULL. This argument is only applied to
-for point AUs.}
+for point assessment units.}
 }
 \value{
 ATTAINS geometry correctly formatted for display in a TADA leaflet map.
