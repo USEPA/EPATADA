@@ -399,7 +399,6 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
       MLSummaryRef <- correctColType(MLSummaryRef)
-      
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
       MLSummaryRef <- TADA_param |>
         dplyr::full_join(MLSummaryRef, by = names(TADA_param))
