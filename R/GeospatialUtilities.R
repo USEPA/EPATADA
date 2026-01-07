@@ -134,9 +134,9 @@ getMapIconLabels <- function(icons = TRUE,
   }
 }
 
-#' addATTAINSAUs
-#' Internal function to add ATTAINS assessment unit lines, points, or polygons to
-#' TADA maps.
+#' addATTAINS
+#' Internal function to add ATTAINS assessment units (lines, points, or polygons) or
+#' ATTAINS catchments (polygons) to TADA maps.
 #'
 #' @param .data A data frame created using prepATTAINSMapper (must contain a geometry
 #' column).
@@ -151,13 +151,18 @@ getMapIconLabels <- function(icons = TRUE,
 #' and fetch the list. Default is icons = NULL. This argument is only applied to
 #' for point assessment units.
 #'
+#' @param catchment Boolean argument. Specifies whether the geometries being
+#' mapped are catchments or assessment units to determine color and other attributes.
+#' Default is catchment = FALSE, meaning that assessment units are being mapped.
+#'
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add ATTAINS geometry to existing leaflet map
-addATTAINSAUs <- function(.data,
+addATTAINS <- function(.data,
                           map = NULL,
                           overlay_groups = NULL,
-                          icons = NULL) {
+                          icons = NULL,
+                          catchment = FALSE) {
   # stop function if map is not provided
   if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
@@ -168,22 +173,30 @@ addATTAINSAUs <- function(.data,
     stop("addATTAINS: overlay_groups must be supplied to run this function.")
   }
 
+
+  if(catchment == FALSE) {
   # get geometry type
   geo.type <- .data$type[1]
 
   # set group name
   group.name <- switch(geo.type,
-    "Point Feature" = "ATTAINS point features",
-    "Line Feature" = "ATTAINS line features",
-    "Polygon Feature" = "ATTAINS polygon features"
+                       "Point Feature" = "ATTAINS point features",
+                       "Line Feature" = "ATTAINS line features",
+                       "Polygon Feature" = "ATTAINS polygon features"
   )
+  } else {
+    group.name <- "ATTAINS catchments"
+  }
+
+
 
   # remove intermediate object
   rm(geo.type)
 
-  # Add ATTAINS assessment units
-  # polygon assessment units
+  # Add ATTAINS to map
+  # ATTAINS assessment unit polygons
   if (group.name == "ATTAINS polygon features") {
+    # add ATTAINS assessment unit polygons
     map <- map |>
       leaflet::addPolygons(
         data = .data,
@@ -208,6 +221,26 @@ addATTAINSAUs <- function(.data,
       )
     overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
   }
+
+# ATTAINS catchments
+  if(group.name == "ATTAINS catchments") {
+
+      # add catchments with ATTAINS features
+      map <- map |>
+            leaflet::addPolygons(
+              data = .data,
+              group = "ATTAINS catchments",
+              color = "black",
+              fillColor = "grey",
+              weight = 1,
+              fillOpacity = 0.3,
+              popup = paste0(
+                "NHDPlus HR Catchment ID: ",
+                .data$nhdplusid
+              )
+            )
+          overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+        }
 
   # polygon assessment units
   if (group.name == "ATTAINS line features") {
@@ -467,8 +500,7 @@ getWQPSiteStats <- function(.data,
     "TADA.MonitoringLocationName",
     "OrganizationFormalName",
     "TADA.LatitudeMeasure",
-    "TADA.LongitudeMeasure",
-    "TADA.AURefSource"
+    "TADA.LongitudeMeasure"
   )
 
 
@@ -1248,3 +1280,151 @@ addFlaggedSitesMarkers <- function(.data,
   # return map
   return(map)
 }
+
+#' findATTAINSMissingRawFeatures
+#'
+#' Check ATTAINS_catchment data to identify assessment unit data missing from
+#' ATTAINS assessment units points, polygons, and lines layers that is still
+#' preserved in the catchment layer.
+#'
+#' @param .data
+#'
+#' @param points_layer
+#'
+#' @param lines_layer
+#'
+#' @param polygons_layer
+#'
+#' @return A data frame of assessment data that is missing from assessment units
+#' points, lines, and polygons layers but still preserved in the catchment layer.
+#'
+findATTAINSMissingRawFeatures <- function(.data,
+                                          points_layer = NULL,
+                                          lines_layer = NULL,
+                                          polygons_layer = NULL) {
+# set missing raw features to null
+  missing_raw_features <- NULL
+
+
+# find missing raw features
+missing_raw_features <- ATTAINS_catchments |>
+    dplyr::filter(
+      !assessmentunitidentifier %in%
+        c(
+          points_layer$assessmentunitidentifier,
+          lines_layer$assessmentunitidentifier,
+          polygons_layer$assessmentunitidentifier
+        ))
+
+# remove intermediate objects
+rm(points_layer, lines_layer, polygons_layer)
+
+# return missing raw features
+return(missing_raw_features)
+}
+
+#' checkForWQPData
+#'
+#' Check the results of TADA_CreateATTAINSAUMLCrosswalk and
+#' TADA_CreateAUMLCrosswalk to verify the WQP data frame contains observations.
+#' For use in TADA leaflet mapping functions that utilize ATTAINS data.
+#'
+#' @param tada_attains The "TADA_with_ATTAINS" data frame that is part of the
+#' output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
+#'
+#' @param tada_no_attains The "TADA_without_ATTAINS" data frame that is part of the
+#' output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
+#'
+#' @return The function will stop and provide an error message if no WQP
+#' observations are present.
+# check for WQP data
+
+checkForWQPData <- function(tada_attains = NULL,
+                            tada_no_attains = NULL) {
+if (is.null(tada_no_attains)) {
+  if (nrow(tada_attains) == 0) {
+    stop("Your WQP dataframe has no observations.")
+  }
+}
+
+if (!is.null(tada_no_attains)) {
+
+  if (nrow(tada_attains) == 0 & nrow(tada_no_attains) == 0) {
+    stop("Your WQP dataframe has no observations.")
+  }
+}
+}
+
+#' checkTADAColsForMap
+#'
+#' Check to see if data frame selected for mapping contains the related TADA and
+#' WQP columns. If param attains = TRUE, additional columns required to include
+#' ATTAINS assessment unit identifier and source ref for assessment unit will also
+#' be included in the check.
+#'
+#' @param .data A TADA data frame or the "TADA_with_ATTAINS" data frame that is
+#' part of the output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
+#'
+#' @param attains Boolean argument. When attains = TRUE, the columns
+#' "ATTAINS.AssessmentUnitIdentifier" and "TADA.AURefSource" will be added to the
+#' check. Default is ATTAINS = FALSE.
+#'
+#' @return The function will stop and provide an error message if any required cols
+#' are missing.
+#'
+# check for required columns
+checkTADAColsForMap <- function(.data,
+                                attains = FALSE) {
+
+req.cols <- c(
+  "TADA.LongitudeMeasure",
+  "TADA.LatitudeMeasure",
+  "HorizontalCoordinateReferenceSystemDatumName",
+  "TADA.CharacteristicName",
+  "TADA.MonitoringLocationIdentifier",
+  "TADA.MonitoringLocationName",
+  "ResultIdentifier",
+  "ActivityStartDate",
+  "TADA.OrganizationIdentifier"
+)
+
+if(attains == TRUE){
+
+  required_columns <- append(req.cols,
+                             c("ATTAINS.AssessmentUnitIdentifier",
+                               "TADA.AURefSource"))
+}
+
+if (!any(required_columns %in% colnames(.data))) {
+  stop(
+    "Your dataframe does not contain the necessary WQP-style column names."
+  )
+}
+}
+
+#' checkForATTAINSGeo
+#'
+#' Check to see if any ATTAINS assessment unit geometry was return as a result
+#' of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk. Will stop and
+#' return an error message if no ATTAINS assessment unit geometry is present. For
+#' use in TADA leaflet mapping functions that rely on ATTAINS geometry.
+#'
+#' @param @param points_layer
+#'
+#' @param lines_layer
+#'
+#' @param polygons_layer
+#'
+#' @return The function print a message if there is no ATTAINS assessment unit
+#' geometry.
+# check for ATTAINS geometry
+checkForATTAINSGeo <- function(points_layer = NULL,
+                               lines_layer = NULL,
+                               polygons_layer = NULL) {
+if (
+  is.null(lines_layer) & is.null(points_layer) & is.null(polygons_later)
+) {
+  message("No ATTAINS data associated with this Water Quality Portal data.")
+}
+}
+

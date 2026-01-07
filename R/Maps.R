@@ -321,18 +321,13 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_FindNearbySites has not been previously run, it will be as part of this
 #' function.
 #' @param dist_buffer Distance in m to show a radius around each site marker.
-#' @param AU Boolean. If AU = TRUE and assessment unit geometry is available
+#' @param attains Boolean. If attains = TRUE and assessment unit geometry is available
 #' in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
 #' TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
-#' If AU = FALSE, no assessment units will be shown. Default is AU = TRUE.
+#' If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.
 #' @param catchment Boolean. If catchment = TRUE, any catchment data available in
 #' .data are added to the review map. If catchment = FALSE, catchments are not
 #' added to the review map. Default is catchment = FALSE.
-#' @param resolution Whether to download the NHDPlus HiRes resolution ("Hi") or
-#' medium NHDPlus V2 resolution ("Med") version of the National Hydrography Dataset
-#' (NHD). Default is "Hi".
-
-#'
 #'
 #' @return A leaflet map that shows all sites in the dataframe that contain
 #' flagged data in the form of near other sites - groups of sites that are spatially located within
@@ -351,160 +346,411 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-TADA_NearbySitesMap <- function(.data,
-                                dist_buffer = 100,
-                                AU = TRUE,
-                                catchment = FALSE,
-                                resolution = "Hi",
-                                fetchNHD = FALSE) {
-  # check to see if input is a single df
-  if (inherits(.data, "data.frame")) {}
-
-  # check to see if input is a list of dfs containing the output from
-  # TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk to faciliate
-  # mapping of AUs and catchments
-
-  if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
-    .data <- TADA_FindNearbySites(.data)
-  }
-  .data <- .data |>
-    dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
-    dplyr::mutate(
-      LatitudeMeasure = as.numeric(LatitudeMeasure),
-      LongitudeMeasure = as.numeric(LongitudeMeasure)
-    ) |>
-    dplyr::select(
-      LongitudeMeasure,
-      LatitudeMeasure,
-      TADA.MonitoringLocationIdentifier,
-      MonitoringLocationIdentifier,
-      MonitoringLocationName,
-      TADA.LatitudeMeasure,
-      TADA.LongitudeMeasure,
-      OrganizationIdentifier,
-      OrganizationFormalName,
-      TADA.NearbySiteGroup
-    ) |>
-    dplyr::distinct()
-
-  # find number of colors needed for nearby site groups
-  n.colors <- length(unique(.data$TADA.NearbySiteGroup))
-
-  # get TADA color palette
-  tada.pal <- TADA_ColorPalette()
-
-  # create nearby site groups color palette
-  # if needed can incorporate functions from package "farver" to force pal colors
-  # away from tada.pal colors (HRM 12/23/25)
-  nearby.pal <- Polychrome::createPalette(n.colors,
-    seedcolors = c(
-      tada.pal[1],
-      tada.pal[3],
-      tada.pal[4],
-      tada.pal[7],
-      tada.pal[15]
-    ),
-    M = 5000
-  )
-
-
-  # assign colors to nearby groups
-  pal <- leaflet::colorFactor(
-    palette = nearby.pal,
-    domain = .data$TADA.NearbySiteGroup
-  )
-
-  # create nearby sites map
-  map <- createTADABasemap(.data)
-
-  # if AU = TRUE and assessment unit geometry is inclueded in TADA df add AUs to map
-  if (AU == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-    # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
-    try(
-      {
-        # extract coordinates and convert to a tibble (to handle point or multipoint)
-        coords <- sf::st_coordinates(ATTAINS_points) |>
-          tibble::as_tibble() |>
-          tibble::rowid_to_column(var = "index")
-
-        # points mapper setup
-        points_mapper <- ATTAINS_points |>
-          dplyr::left_join(colors, by = "overallstatus") |>
-          dplyr::mutate(type = "Point Feature") |>
-          tibble::rowid_to_column(var = "index") |>
-          dplyr::right_join(coords, by = "index")
-
-        # remove intermediate object
-        rm(coords)
-      },
-      silent = TRUE
-    )
-
-    # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
-    try(
-      lines_mapper <- ATTAINS_lines |>
-        dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Line Feature"),
-      silent = TRUE
-    )
-
-    # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
-    try(
-      polygons_mapper <- ATTAINS_polygons |>
-        dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Polygon Feature") |>
-        # sort df so smaller AUs will map on top of larger AUs if they overlap
-        dplyr::arrange(dplyr::desc(Shape_Area)),
-      silent = TRUE
-    )
-  }
-
-
-  # add nearby sites to map
-  if (nrow(.data) > 0) {
-    map <- map |>
-      leaflet::addCircleMarkers(
-        ~LongitudeMeasure,
-        ~LatitudeMeasure,
-        color = ~ pal(TADA.NearbySiteGroup),
-        opacity = 1,
-        fillColor = ~ pal(TADA.NearbySiteGroup),
-        fillOpacity = 1,
-        radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
-        weight = 1,
-        # label = ~as.character(TADA.MonitoringLocationIdentifier),
-        popup = paste0(
-          "Nearby Group Name: ",
-          .data$TADA.MonitoringLocationIdentifier,
-          "<br> Nearby Site Group: ",
-          .data$TADA.NearbySiteGroup,
-          "<br> Site ID: ",
-          .data$MonitoringLocationIdentifier,
-          "<br> Site Name: ",
-          .data$MonitoringLocationName,
-          "<br> Organization Name: ",
-          .data$OrganizationFormalName,
-          "<br> Latitude: ",
-          .data$LatitudeMeasure,
-          "<br> Longitude: ",
-          .data$LongitudeMeasure
-        ),
-        data = .data,
-        clusterOptions = leaflet::markerClusterOptions(),
-      ) |>
-      leaflet::addCircles(
-        ~LongitudeMeasure,
-        ~LatitudeMeasure,
-        color = ~ pal(TADA.NearbySiteGroup),
-        opacity = 0.1,
-        fillColor = ~ pal(TADA.NearbySiteGroup),
-        fillOpacity = 0.1,
-        radius = dist_buffer,
-        weight = 1
-      )
-  }
-  return(map)
-}
+# TADA_NearbySitesMap <- function(.data,
+#                                 dist_buffer = 100,
+#                                 AU = TRUE,
+#                                 catchment = FALSE) {
+#
+#   # columns to select for nearby site
+#   nearby.cols <- c("LongitudeMeasure",
+#                    "LatitudeMeasure",
+#                    "TADA.MonitoringLocationIdentifier",
+#                    "MonitoringLocationIdentifier",
+#                    "MonitoringLocationName",
+#                    "TADA.LatitudeMeasure",
+#                    "TADA.LongitudeMeasure",
+#                    "OrganizationIdentifier",
+#                    "OrganizationFormalName",
+#                    "TADA.NearbySiteGroup")
+#
+#   # check to see if input is a single df
+#   if(inherits(.data, "data.frame")) {
+#
+#     TADA_table <- .data
+#   }
+#
+#   # check to see if input is a list
+#   if(inherits(.data, "list")) {
+#
+#     # name dfs for use in function
+#     TADA_table <- .data[["TADA_with_ATTAINS"]]
+#     ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
+#     ATTAINS_points <- .data[["ATTAINS_points"]]
+#     ATTAINS_lines <- .data[["ATTAINS_lines"]]
+#     ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
+#
+#     # add assessment unit columns to nearby.cols
+#     nearby.cols <- append(nearby.cols, c("ATTAINS.AssessmentUnitIdentifier",
+#                                           "TADA.AURefSource"))
+#
+#   }
+#
+# # if not previously run, run TADA_FindNearbySites
+#   if (c("TADA.NearbySiteGroup") %in% colnames(ATTAINS_table) == FALSE) {
+#     TADA_table <- TADA_FindNearbySites(TADA_table)
+#   }
+#   TADA_table <- TADA_table |>
+#     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
+#     dplyr::mutate(
+#       LatitudeMeasure = as.numeric(LatitudeMeasure),
+#       LongitudeMeasure = as.numeric(LongitudeMeasure)
+#     ) |>
+#     dplyr::select(
+#       dplyr::all_of(nearby.cols)
+#     ) |>
+#     dplyr::distinct()
+#
+#   # find number of colors needed for nearby site groups
+#   n.colors <- length(unique(TADA_table$TADA.NearbySiteGroup))
+#
+#   # get TADA color palette
+#   tada.pal <- TADA_ColorPalette()
+#
+#   # create nearby site groups color palette
+#   # if needed can incorporate functions from package "farver" to force pal colors
+#   # away from tada.pal colors (HRM 12/23/25)
+#   nearby.pal <- Polychrome::createPalette(n.colors,
+#     seedcolors = c(
+#       tada.pal[1],
+#       tada.pal[3],
+#       tada.pal[4],
+#       tada.pal[7],
+#       tada.pal[15]
+#     ),
+#     M = 5000
+#   )
+#
+#
+#   # assign colors to nearby groups
+#   pal <- leaflet::colorFactor(
+#     palette = nearby.pal,
+#     domain = TADA_table$TADA.NearbySiteGroup
+#   )
+#
+#   # create nearby sites map
+#   map <- createTADABasemap(TADA_table)
+#
+#   # if AU = TRUE and assessment unit geometry is inclueded in TADA df add AUs to map
+#   if (attains == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(TADA_table)) {
+#
+#     # use internal function to get paths to images and labels
+#     list.images <- getMapIconLabels()
+#
+#     # define the paths to the images
+#     images <- unlist(list.images[1])
+#
+#     # define the labels
+#     img.labels <- unlist(list.images[2])
+#
+#     # remove intermediate objects
+#     rm(list.images)
+#
+#     # Check if all image paths exist
+#     for (path in images) {
+#       if (!file.exists(path)) {
+#         stop(sprintf("Image file not found: %s", path))
+#       }
+#     }
+#
+#     # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
+#     # Use catchments for those instances for mapping purposes:
+#     missing_raw_features <- NULL
+#
+#     try(
+#       missing_raw_features <- ATTAINS_catchments |>
+#         dplyr::filter(
+#           !assessmentunitidentifier %in%
+#             c(
+#               ATTAINS_points$assessmentunitidentifier,
+#               ATTAINS_lines$assessmentunitidentifier,
+#               ATTAINS_polygons$assessmentunitidentifier
+#             )
+#         ),
+#       silent = TRUE
+#     )
+#
+#     if (!"without_ATTAINS_catchments" %in% names(.data)) {
+#       if (nrow(TADA_table) == 0) {
+#         stop("Your WQP dataframe has no observations.")
+#       }
+#     }
+#
+#     if ("without_ATTAINS_catchments" %in% names(.data)) {
+#       without_ATTAINS_table <- .data[["TADA_without_ATTAINS"]]
+#
+#       if (nrow(ATTAINS_table) == 0 & nrow(without_ATTAINS_table) == 0) {
+#         stop("Your WQP dataframe has no observations.")
+#       }
+#     }
+#
+#     required_columns <- c(
+#       "TADA.LongitudeMeasure",
+#       "TADA.LatitudeMeasure",
+#       "HorizontalCoordinateReferenceSystemDatumName",
+#       "TADA.CharacteristicName",
+#       "TADA.MonitoringLocationIdentifier",
+#       "TADA.MonitoringLocationName",
+#       "ResultIdentifier",
+#       "ActivityStartDate",
+#       "TADA.OrganizationIdentifier"
+#     )
+#
+#     if (!any(required_columns %in% colnames(ATTAINS_table))) {
+#       stop(
+#         "Your dataframe does not contain the necessary WQP-style column names."
+#       )
+#     }
+#
+#     suppressMessages(suppressWarnings({
+#       # if data was spatial, remove for downstream leaflet dev:
+#       try(ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(), silent = TRUE)
+#
+#       # create df to assign color based on ATTAINS overall status
+#       colors <- getATTAINSColorsRef()
+#
+#       # POINT FEATURES - try to pull point AU data if it exists. Otherwise, move on...
+#       try(
+#         points_mapper <- prepATTAINSMapper(ATTAINS_points,
+#                                            geo_type = "points",
+#                                            color_ref = colors
+#         ),
+#         silent = TRUE
+#       )
+#
+#       # LINE FEATURES - try to pull line AU data if it exists. Otherwise, move on...
+#       try(
+#         lines_mapper <- prepATTAINSMapper(ATTAINS_lines,
+#                                           geo_type = "lines",
+#                                           color_ref = colors
+#         ),
+#         silent = TRUE
+#       )
+#
+#       # POLYGON FEATURES - try to pull polygon AU data if it exists. Otherwise, move on...
+#       try(
+#         polygons_mapper <- prepATTAINSMapper(ATTAINS_polygons,
+#                                              geo_type = "polygons",
+#                                              color_ref = colors
+#         ),
+#         silent = TRUE
+#       )
+#
+#       # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
+#       try(
+#         missing_raw_mapper <- missing_raw_features |>
+#           dplyr::left_join(colors, by = "overallstatus") |>
+#           dplyr::mutate(type = "Raw Feature Unavailable"),
+#         silent = TRUE
+#       )
+#
+#       # Develop WQP site stats (e.g. count of observations, parameters, per site)
+#       sumdat <- getWQPSiteStats(ATTAINS_table, attains = TRUE)
+#
+#       # Basemap for AOI:
+#       map <- createTADABasemap(sumdat)
+#
+#       # Initialize vectors to hold the names of groups we actually add
+#       overlay_groups <- character(0)
+#       # Add ATTAINS catchment outlines (if they exist):
+#       try(
+#         {
+#           map <- map |>
+#             leaflet::addPolygons(
+#               data = ATTAINS_catchments,
+#               group = "ATTAINS catchments",
+#               color = "black",
+#               fillColor = "grey",
+#               weight = 1,
+#               fillOpacity = 0.3,
+#               popup = paste0(
+#                 "NHDPlus HR Catchment ID: ",
+#                 ATTAINS_catchments$nhdplusid
+#               )
+#             )
+#           overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+#         },
+#         silent = TRUE
+#       )
+#
+#       # Add ATTAINS catchment outlines as AUs:
+#       try(
+#         {
+#           map <- map |>
+#             leaflet::addPolygons(
+#               data = missing_raw_mapper,
+#               group = "ATTAINS outlines",
+#               color = ~ missing_raw_mapper$col,
+#               fill = ~ missing_raw_mapper$col,
+#               weight = 3,
+#               fillOpacity = 0.25,
+#               popup = paste0(
+#                 "Assessment Unit Name: ",
+#                 missing_raw_mapper$assessmentunitname,
+#                 "<br> Assessment Unit ID: ",
+#                 missing_raw_mapper$assessmentunitidentifier,
+#                 "<br> Status: ",
+#                 missing_raw_mapper$overallstatus,
+#                 "<br> Assessment Unit Type: ",
+#                 missing_raw_mapper$type,
+#                 "<br> <a href=",
+#                 missing_raw_mapper$waterbodyreportlink,
+#                 " target='_blank'>ATTAINS Link</a>",
+#                 "<br> NHDPlus HR Catchment ID: ",
+#                 missing_raw_mapper$nhdplusid
+#               )
+#             )
+#           overlay_groups <- c(overlay_groups, "ATTAINS outlines")
+#         },
+#         silent = TRUE
+#       )
+#
+#       # add without ATTAINS catchments if available
+#       without_ATTAINS_catchments <- NULL
+#       try(
+#         without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+#           dplyr::rename(nhd = 1),
+#         silent = TRUE
+#       )
+#
+#       # Add missing catchment outlines (if they exist):
+#       try(
+#         {
+#           map <- map |>
+#             leaflet::addPolygons(
+#               data = without_ATTAINS_catchments,
+#               group = "missing ATTAINS catchment outlines",
+#               color = "black",
+#               weight = 1,
+#               fillOpacity = 0,
+#               popup = paste0(
+#                 without_ATTAINS_catchments$NHD.resolution,
+#                 " catchment ID: ",
+#                 without_ATTAINS_catchments$nhd
+#               )
+#             )
+#           overlay_groups <- c(
+#             overlay_groups,
+#             "missing ATTAINS catchment outlines"
+#           )
+#         },
+#         silent = TRUE
+#       )
+#
+#       # Add ATTAINS polygon features (if they exist):
+#       try(
+#         {
+#           polygons_aus <- addATTAINS(polygons_mapper,
+#                                         map = map,
+#                                         overlay_groups = overlay_groups
+#           )
+#
+#           map <- polygons_aus$map
+#
+#           overlay_groups <- polygons_aus$overlay_groups
+#
+#           # remove intermediate object
+#           rm(polygons_aus)
+#         },
+#         silent = TRUE
+#       )
+#
+#       # Add ATTAINS lines features (if they exist):
+#       try(
+#         {
+#           lines_aus <- addATTAINS(lines_mapper,
+#                                      map = map,
+#                                      overlay_groups = overlay_groups
+#           )
+#
+#           map <- lines_aus$map
+#
+#           overlay_groups <- lines_aus$overlay_groups
+#
+#           # remove intermediate object
+#           rm(lines_aus)
+#         },
+#         silent = TRUE
+#       )
+#
+#       # Add ATTAINS point features (if they exist):
+#       try(
+#         {
+#           points_aus <- addATTAINS(points_mapper,
+#                                       map = map,
+#                                       overlay_groups = overlay_groups
+#           )
+#
+#           map <- points_aus$map
+#
+#           overlay_groups <- points_aus$overlay_groups
+#         },
+#         silent = TRUE
+#       )
+#
+#       # add symbology for any assessment units missing geometry from ATTAINS
+#       try({
+#         missing_aus <- showMissingATTAINSAUs(
+#           ATTAINS_table = ATTAINS_table,
+#           ATTAINS_polygons = ATTAINS_polygons,
+#           ATTAINS_points = ATTAINS_points,
+#           ATTAINS_lines = ATTAINS_lines,
+#           map = map,
+#           overlay_groups = overlay_groups
+#         )
+#
+#         map <- missing_aus$map
+#
+#         overlay_groups <- missing_aus$overlay_groups
+#
+#         # remove intermediate objects
+#         rm(missing_aus)
+#       })
+#
+#   # add nearby sites to map
+#   if (nrow(.data) > 0) {
+#     map <- map |>
+#       leaflet::addCircleMarkers(
+#         ~LongitudeMeasure,
+#         ~LatitudeMeasure,
+#         color = ~ pal(TADA.NearbySiteGroup),
+#         opacity = 1,
+#         fillColor = ~ pal(TADA.NearbySiteGroup),
+#         fillOpacity = 1,
+#         radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
+#         weight = 1,
+#         # label = ~as.character(TADA.MonitoringLocationIdentifier),
+#         popup = paste0(
+#           "Nearby Group Name: ",
+#           .data$TADA.MonitoringLocationIdentifier,
+#           "<br> Nearby Site Group: ",
+#           .data$TADA.NearbySiteGroup,
+#           "<br> Site ID: ",
+#           .data$MonitoringLocationIdentifier,
+#           "<br> Site Name: ",
+#           .data$MonitoringLocationName,
+#           "<br> Organization Name: ",
+#           .data$OrganizationFormalName,
+#           "<br> Latitude: ",
+#           .data$LatitudeMeasure,
+#           "<br> Longitude: ",
+#           .data$LongitudeMeasure
+#         ),
+#         data = .data,
+#         clusterOptions = leaflet::markerClusterOptions(),
+#       ) |>
+#       leaflet::addCircles(
+#         ~LongitudeMeasure,
+#         ~LatitudeMeasure,
+#         color = ~ pal(TADA.NearbySiteGroup),
+#         opacity = 0.1,
+#         fillColor = ~ pal(TADA.NearbySiteGroup),
+#         fillOpacity = 0.1,
+#         radius = dist_buffer,
+#         weight = 1
+#       )
+#   }
+#   return(map)
+# }
 
 
 #' TADA_ViewATTAINS
@@ -567,7 +813,6 @@ TADA_NearbySitesMap <- function(.data,
 #'
 #' TADA_ViewATTAINS(attains_catchments)
 #' }
-#'
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   if (
     !any(
@@ -591,11 +836,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
-  if (
-    is.null(ATTAINS_lines) & is.null(ATTAINS_points) & is.null(ATTAINS_polygons)
-  ) {
-    message("No ATTAINS data associated with this Water Quality Portal data.")
-  }
+  # check for ATTAINS data
+  checkForATTAINSGeo(points_layer = ATTAINS_points,
+                     lines_layer = ATTAINS_lines,
+                     polygons_layer = ATTAINS_polygons)
+
+  # check for required columns in ATTAINS_table for mapping
+  checkTADAColsForMap(ATTAINS_table,
+                      attains = TRUE)
 
   # use internal function to get paths to images and labels
   list.images <- getMapIconLabels()
@@ -618,52 +866,25 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
-  missing_raw_features <- NULL
-
   try(
-    missing_raw_features <- ATTAINS_catchments |>
-      dplyr::filter(
-        !assessmentunitidentifier %in%
-          c(
-            ATTAINS_points$assessmentunitidentifier,
-            ATTAINS_lines$assessmentunitidentifier,
-            ATTAINS_polygons$assessmentunitidentifier
-          )
-      ),
+    missing_raw_features <- findATTAINSMissingRawFeatures(ATTAINS_catchments,
+                                                          points_layer = ATTAINS_points,
+                                                          polygons_layer = ATTAINS_polygons,
+                                                          lines_layer = ATTAINS_lines),
     silent = TRUE
   )
 
-  if (!"without_ATTAINS_catchments" %in% names(.data)) {
-    if (nrow(ATTAINS_table) == 0) {
-      stop("Your WQP dataframe has no observations.")
-    }
-  }
+  # set param tada_no_attains
+  set_no_attains <- ifelse("without_ATTAINS_catchments" %in% names(.data),
+                           .data$without_ATTAINS_catchments,
+                           NULL)
 
-  if ("without_ATTAINS_catchments" %in% names(.data)) {
-    without_ATTAINS_table <- .data[["TADA_without_ATTAINS"]]
+  # check to make sure WQP observations exist
+  checkForWQPData(tada_attains = ATTAINS_table,
+                  tada_no_attains = set_no_attains)
 
-    if (nrow(ATTAINS_table) == 0 & nrow(without_ATTAINS_table) == 0) {
-      stop("Your WQP dataframe has no observations.")
-    }
-  }
-
-  required_columns <- c(
-    "TADA.LongitudeMeasure",
-    "TADA.LatitudeMeasure",
-    "HorizontalCoordinateReferenceSystemDatumName",
-    "TADA.CharacteristicName",
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.MonitoringLocationName",
-    "ResultIdentifier",
-    "ActivityStartDate",
-    "TADA.OrganizationIdentifier"
-  )
-
-  if (!any(required_columns %in% colnames(ATTAINS_table))) {
-    stop(
-      "Your dataframe does not contain the necessary WQP-style column names."
-    )
-  }
+  # remove intermediate objects
+  rm(set_no_attains)
 
   suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
@@ -718,20 +939,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS catchment outlines (if they exist):
     try(
       {
-        map <- map |>
-          leaflet::addPolygons(
-            data = ATTAINS_catchments,
-            group = "ATTAINS catchments",
-            color = "black",
-            fillColor = "grey",
-            weight = 1,
-            fillOpacity = 0.3,
-            popup = paste0(
-              "NHDPlus HR Catchment ID: ",
-              ATTAINS_catchments$nhdplusid
-            )
-          )
-        overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+        polygon_catch <- addATTAINS(ATTAINS_catchments,
+                                    map = map,
+                                    overlay_groups = overlay_groups,
+                                    catchment = TRUE)
+
+        map <- polygon_catch$map
+
+        overlay_groups <- polygon_catch$overlay_groups
       },
       silent = TRUE
     )
@@ -803,7 +1018,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS polygon features (if they exist):
     try(
       {
-        polygons_aus <- addATTAINSAUs(polygons_mapper,
+        polygons_aus <- addATTAINS(polygons_mapper,
           map = map,
           overlay_groups = overlay_groups
         )
@@ -821,7 +1036,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS lines features (if they exist):
     try(
       {
-        lines_aus <- addATTAINSAUs(lines_mapper,
+        lines_aus <- addATTAINS(lines_mapper,
           map = map,
           overlay_groups = overlay_groups
         )
@@ -839,7 +1054,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS point features (if they exist):
     try(
       {
-        points_aus <- addATTAINSAUs(points_mapper,
+        points_aus <- addATTAINS(points_mapper,
           map = map,
           overlay_groups = overlay_groups
         )
