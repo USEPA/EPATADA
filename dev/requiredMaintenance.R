@@ -16,11 +16,12 @@ spelling::get_wordlist()
 library(styler)
 
 # Recommended styler setup to approximate air.toml
+
 style_pkg(
   transformers = tidyverse_style(
-    scope = I(c("tokens", "spaces", "indention")), # no "line_breaks" let air handle that
+    scope = I(c("tokens", "indention")), # let air handle the rest
     indent_by = 2,
-    strict = TRUE
+    strict = FALSE # turn off aggressive alignment
   )
 )
 
@@ -29,5 +30,6 @@ style_pkg(
 # Run devtools check and test
 devtools::test()
 # devtools::check()
+
 # more robust test for releases (includes broken link check)
 devtools::check(manual = FALSE, remote = TRUE, incoming = TRUE)
