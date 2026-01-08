@@ -12,9 +12,9 @@ output:
     fig_width: 8
 vignette: >
   %\VignetteIndexEntry{TADA R8 Demo}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{EPATADA}
+  %\VignetteEngine{knitr::rmarkdown}
 description: An introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data. This recommended work flow focuses on A) Retrieving data from the WQP. B) Create, review and define up to date assessment unit/WQP monitoring location. C) Assigning uses to assessment units. D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
 editor_options:
   chunk_output_type: console
