@@ -394,7 +394,7 @@ addATTAINS <- function(.data,
   return(au.list)
 }
 
-#' addALLATTAINS
+#' addAllATTAINS
 #' Internal function to add all ATTAINS assessment units (lines, points, or polygons) or
 #' ATTAINS catchments (polygons) to TADA maps.
 #'
@@ -424,21 +424,124 @@ addATTAINS <- function(.data,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add all ATTAINS geometries to map
-addAllATTAINS <- function(points_layer = NULL,
+addAllATTAINS <- function(map = map,
+                          points_layer = NULL,
                           polygons_layer = NULL,
                           lines_layer = NULL,
                           catchment_layer = NULL,
                           outline_layer = NULL,
-                          icons = NULL)
-  # order for adding layers - catchment_layer, outline_layer,
+                          missing_raw_layer = NULL,
+                          overlay_groups = NULL,
+                          icons = NULL) {
 
-  if (group.name == "ATTAINS point features") {
-    if (is.null(icons)) {
-      get.icons <- getMapIconLabels()
-    }}
+  # Add ATTAINS catchment outlines (if they exist):
+  try(
+    {
+      polygon_catch <- addATTAINS(catchment_layer,
+                                  map = map,
+                                  overlay_groups = overlay_groups,
+                                  catchment = TRUE)
 
+      map <- polygon_catch$map
 
+      overlay_groups <- polygon_catch$overlay_groups
 
+      rm(polygon_catch)
+    },
+    silent = TRUE
+  )
+
+# Add ATTAINS catchment outlines as AUs:
+try(
+  {
+    missing_outlines <- addATTAINS(missing_raw_mapper,
+                      map = map,
+                      overlay_groups = overlay_groups,
+                      catchment = TRUE,
+                      catchment_type = "missing_raw")
+
+    map <- missing_outlines$map
+
+    overlay_groups <- missing_outlines$overlay_groups
+
+    rm(missing_outlines)
+  },
+  silent = TRUE
+)
+
+# Add missing catchment outlines (if they exist):
+try(
+  {
+    wo_attains <- addATTAINS(without_ATTAINS_catchments,
+                      map = map,
+                      overlay_groups = overlay_groups,
+                      catchment = TRUE,
+                      catchment_type = "wo_attains")
+
+    map <- wo_attains$map
+
+    overlay_groups <- wo_attains$overlay_map
+
+    rm(wo.attains)
+  },
+  silent = TRUE
+)
+
+# Add ATTAINS polygon features (if they exist):
+try(
+  {
+    polygons_aus <- addATTAINS(au_mapper$polygons_mapper,
+                               map = map,
+                               overlay_groups = overlay_groups
+    )
+
+    map <- polygons_aus$map
+
+    overlay_groups <- polygons_aus$overlay_groups
+
+    # remove intermediate object
+    rm(polygons_aus)
+  },
+  silent = TRUE
+)
+
+# Add ATTAINS lines features (if they exist):
+try(
+  {
+    lines_aus <- addATTAINS(au_mapper$lines_mapper,
+                            map = map,
+                            overlay_groups = overlay_groups
+    )
+
+    map <- lines_aus$map
+
+    overlay_groups <- lines_aus$overlay_groups
+
+    # remove intermediate object
+    rm(lines_aus)
+  },
+  silent = TRUE
+)
+
+# Add ATTAINS point features (if they exist):
+try(
+  {
+    points_aus <- addATTAINS(au_mapper$points_mapper,
+                             map = map,
+                             overlay_groups = overlay_groups
+    )
+
+    map <- points_aus$map
+
+    overlay_groups <- points_aus$overlay_groups
+  },
+  silent = TRUE
+)
+
+all_attains <- list(map, overlay_groups)
+
+names(all_attains) <- c("map", "overlay_groups")
+}
 
 #' getATTAINSColorsRef
 #'

@@ -836,6 +836,14 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
+  # check to see if without ATTAINS catchments is available
+  without_ATTAINS_catchments <- NULL
+  try(
+    without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+      dplyr::rename(nhd = 1),
+    silent = TRUE
+  )
+
   # check for ATTAINS data
   checkForATTAINSGeo(points_layer = ATTAINS_points,
                      lines_layer = ATTAINS_lines,
@@ -864,16 +872,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     }
   }
 
-  # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
-  # Use catchments for those instances for mapping purposes:
-  try(
-    missing_raw_features <- findATTAINSMissingRawFeatures(ATTAINS_catchments,
-                                                          points_layer = ATTAINS_points,
-                                                          polygons_layer = ATTAINS_polygons,
-                                                          lines_layer = ATTAINS_lines),
-    silent = TRUE
-  )
-
   # set param tada_no_attains for checkForWQPData
   if("without_ATTAINS_catchments" %in% names(.data)) {
     set_no_attains <- .data$without_ATTAINS_catchments
@@ -888,6 +886,16 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # remove intermediate objects
   rm(set_no_attains)
 
+  # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
+  # Use catchments for those instances for mapping purposes:
+  try(
+    missing_raw_features <- findATTAINSMissingRawFeatures(ATTAINS_catchments,
+                                                          points_layer = ATTAINS_points,
+                                                          polygons_layer = ATTAINS_polygons,
+                                                          lines_layer = ATTAINS_lines),
+    silent = TRUE
+  )
+
   suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
     try(ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(), silent = TRUE)
@@ -895,19 +903,12 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
 
+
     # prep ATTAINS assessment unit features
     au_mapper <- prepAllATTAINSMapper(color_ref = colors,
                                       lines_layer = ATTAINS_lines,
                                       points_layer = ATTAINS_points,
                                       polygons_layer = ATTAINS_polygons)
-
-    # check to see if without ATTAINS catchments if available
-    without_ATTAINS_catchments <- NULL
-    try(
-      without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-        dplyr::rename(nhd = 1),
-      silent = TRUE
-    )
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -925,103 +926,23 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # Initialize vectors to hold the names of groups we actually add
     overlay_groups <- character(0)
-    # Add ATTAINS catchment outlines (if they exist):
-    try(
-      {
-        polygon_catch <- addATTAINS(ATTAINS_catchments,
-                                    map = map,
-                                    overlay_groups = overlay_groups,
-                                    catchment = TRUE)
 
-        map <- polygon_catch$map
+    # add all ATTAINS geometry to map
+    all_attains <- addAllATTAINS <- function(map = map,
+                              points_layer = au_mapper$points_mapper,
+                              polygons_layer = au_mapper$polygons_mapper,
+                              lines_layer = au_mapper$lines_layer,
+                              catchment_layer = ATTAINS_catchments,
+                              outline_layer = without_ATTAINS_catchments,
+                              missing_raw_layer = missing_raw_mapper,
+                              overlay_groups = overlay_groups,
+                              icons = images)
 
-        overlay_groups <- polygon_catch$overlay_groups
-      },
-      silent = TRUE
-    )
+      map <- all_attains$map
 
-    # Add ATTAINS catchment outlines as AUs:
-    try(
-      {
-        map <- addATTAINS(missing_raw_mapper,
-                          map = map,
-                          overlay_groups = overlay_groups,
-                          catchment = TRUE,
-                          catchment_type = "missing_raw")
+      overlay_groups <- all_attains$overlay_groups
 
-
-        overlay_groups <- c(overlay_groups, "ATTAINS outlines")
-      },
-      silent = TRUE
-    )
-
-    # Add missing catchment outlines (if they exist):
-    try(
-      {
-        map <- addATTAINS(without_ATTAINS_catchments,
-                          map = map,
-                          overlay_groups = overlay_groups,
-                          catchment = TRUE,
-                          catchment_type = "wo_attains")
-
-        overlay_groups <- c(
-          overlay_groups,
-          "missing ATTAINS catchment outlines"
-        )
-      },
-      silent = TRUE
-    )
-
-    # Add ATTAINS polygon features (if they exist):
-    try(
-      {
-        polygons_aus <- addATTAINS(au_mapper$polygons_mapper,
-          map = map,
-          overlay_groups = overlay_groups
-        )
-
-        map <- polygons_aus$map
-
-        overlay_groups <- polygons_aus$overlay_groups
-
-        # remove intermediate object
-        rm(polygons_aus)
-      },
-      silent = TRUE
-    )
-
-    # Add ATTAINS lines features (if they exist):
-    try(
-      {
-        lines_aus <- addATTAINS(au_mapper$lines_mapper,
-          map = map,
-          overlay_groups = overlay_groups
-        )
-
-        map <- lines_aus$map
-
-        overlay_groups <- lines_aus$overlay_groups
-
-        # remove intermediate object
-        rm(lines_aus)
-      },
-      silent = TRUE
-    )
-
-    # Add ATTAINS point features (if they exist):
-    try(
-      {
-        points_aus <- addATTAINS(au_mapper$points_mapper,
-          map = map,
-          overlay_groups = overlay_groups
-        )
-
-        map <- points_aus$map
-
-        overlay_groups <- points_aus$overlay_groups
-      },
-      silent = TRUE
-    )
+      rm(all_attains)
 
     # add symbology for any assessment units missing geometry from ATTAINS
     try({
