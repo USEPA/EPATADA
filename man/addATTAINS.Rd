@@ -11,7 +11,8 @@ addATTAINS(
   map = NULL,
   overlay_groups = NULL,
   icons = NULL,
-  catchment = FALSE
+  catchment = FALSE,
+  catchment_type = "attains_au"
 )
 }
 \arguments{
@@ -31,6 +32,14 @@ for point assessment units.}
 \item{catchment}{Boolean argument. Specifies whether the geometries being
 mapped are catchments or assessment units to determine color and other attributes.
 Default is catchment = FALSE, meaning that assessment units are being mapped.}
+
+\item{catchment_type}{Character argument. Evaluted when catchment = TRUE to
+determine if the catchments being mapped are (1) those corresponding to
+assessment units that are missing point/line/polygon data but still preserved
+in the catchment layer (catchment_type = "missing_raw"), (2) catchments containing
+assessment unit features (catchment_type = "attains_au") or (3) NHD catchments
+missing from ATTAINS (catchment_type = "wo_attains). Default is catchment_type =
+"attains_au".}
 }
 \value{
 ATTAINS geometry correctly formatted for display in a TADA leaflet map.

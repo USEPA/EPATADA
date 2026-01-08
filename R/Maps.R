@@ -901,6 +901,13 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
                                       points_layer = ATTAINS_points,
                                       polygons_layer = ATTAINS_polygons)
 
+    # check to see if without ATTAINS catchments if available
+    without_ATTAINS_catchments <- NULL
+    try(
+      without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+        dplyr::rename(nhd = 1),
+      silent = TRUE
+    )
 
     # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
     try(
@@ -936,59 +943,27 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # Add ATTAINS catchment outlines as AUs:
     try(
       {
-        map <- map |>
-          leaflet::addPolygons(
-            data = missing_raw_mapper,
-            group = "ATTAINS outlines",
-            color = ~ missing_raw_mapper$col,
-            fill = ~ missing_raw_mapper$col,
-            weight = 3,
-            fillOpacity = 0.25,
-            popup = paste0(
-              "Assessment Unit Name: ",
-              missing_raw_mapper$assessmentunitname,
-              "<br> Assessment Unit ID: ",
-              missing_raw_mapper$assessmentunitidentifier,
-              "<br> Status: ",
-              missing_raw_mapper$overallstatus,
-              "<br> Assessment Unit Type: ",
-              missing_raw_mapper$type,
-              "<br> <a href=",
-              missing_raw_mapper$waterbodyreportlink,
-              " target='_blank'>ATTAINS Link</a>",
-              "<br> NHDPlus HR Catchment ID: ",
-              missing_raw_mapper$nhdplusid
-            )
-          )
+        map <- addATTAINS(missing_raw_mapper,
+                          map = map,
+                          overlay_groups = overlay_groups,
+                          catchment = TRUE,
+                          catchment_type = "missing_raw")
+
+
         overlay_groups <- c(overlay_groups, "ATTAINS outlines")
       },
-      silent = TRUE
-    )
-
-    # add without ATTAINS catchments if available
-    without_ATTAINS_catchments <- NULL
-    try(
-      without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-        dplyr::rename(nhd = 1),
       silent = TRUE
     )
 
     # Add missing catchment outlines (if they exist):
     try(
       {
-        map <- map |>
-          leaflet::addPolygons(
-            data = without_ATTAINS_catchments,
-            group = "missing ATTAINS catchment outlines",
-            color = "black",
-            weight = 1,
-            fillOpacity = 0,
-            popup = paste0(
-              without_ATTAINS_catchments$NHD.resolution,
-              " catchment ID: ",
-              without_ATTAINS_catchments$nhd
-            )
-          )
+        map <- addATTAINS(without_ATTAINS_catchments,
+                          map = map,
+                          overlay_groups = overlay_groups,
+                          catchment = TRUE,
+                          catchment_type = "wo_attains")
+
         overlay_groups <- c(
           overlay_groups,
           "missing ATTAINS catchment outlines"
