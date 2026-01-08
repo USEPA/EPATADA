@@ -339,9 +339,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-                                             points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
