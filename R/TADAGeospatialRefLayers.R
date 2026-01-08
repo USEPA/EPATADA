@@ -289,13 +289,13 @@ TADA_UpdateTribalLayers <- function() {
       }
     }
 
-    # Last resort: use writeLayer -> read from temp shapefile; suppress spurious GDAL warnings
+    # Last resort: use TADA_WriteLayer -> read from temp shapefile; suppress spurious GDAL warnings
     tmp_dir <- tempfile("layer_tmp_")
     dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
     on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
     tmp_shp <- file.path(tmp_dir, "layer.shp")
 
-    suppressWarnings(ns_get("writeLayer")(url, tmp_shp))
+    suppressWarnings(ns_get("TADA_WriteLayer")(url, tmp_shp))
     tryCatch(sf::st_read(tmp_shp, quiet = TRUE), error = function(e) {
       stop("Failed to read temp shapefile: ", e$message)
     })
@@ -311,7 +311,7 @@ TADA_UpdateTribalLayers <- function() {
         basename(dest_shp),
         " unconditionally."
       )
-      ns_get("writeLayer")(url, dest_shp)
+      ns_get("TADA_WriteLayer")(url, dest_shp)
       return(invisible(TRUE))
     }
 

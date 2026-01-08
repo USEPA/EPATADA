@@ -496,7 +496,7 @@ test_that("TADA_CorrectColType warns when coercion introduces additional NAs", {
   )
 })
 
-# tests for  writeLayer
+# tests for TADA_WriteLayer
 
 # Helper to create a minimal sf layer with fields that exercise renaming and sanitization
 sample_layer <- function() {
@@ -513,7 +513,7 @@ sample_layer <- function() {
   sf::st_as_sf(df, coords = c("x", "y"), crs = 4326)
 }
 
-test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, and returns normalized path", {
+test_that("TADA_WriteLayer sanitizes names, renames TOTALAREA_* fields, creates dir, and returns normalized path", {
   layer <- sample_layer()
   capture_env <- new.env(parent = emptyenv())
   capture_env$calls <- 0L
@@ -531,7 +531,7 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
         },
         {
           out_path <- file.path(tempdir(), "nested1", "nested2", "ok.shp")
-          ret <- writeLayer(
+          ret <- TADA_WriteLayer(
             "http://fake/query",
             out_path,
             sanitize_names = TRUE
@@ -562,7 +562,7 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
   )
 })
 
-test_that("writeLayer can skip sanitization but still renames TOTALAREA_*", {
+test_that("TADA_WriteLayer can skip sanitization but still renames TOTALAREA_*", {
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) sample_layer(),
@@ -576,7 +576,7 @@ test_that("writeLayer can skip sanitization but still renames TOTALAREA_*", {
         },
         {
           out_path <- file.path(tempdir(), "nosanitize.shp")
-          writeLayer(
+          TADA_WriteLayer(
             "http://fake/query",
             out_path,
             sanitize_names = FALSE
@@ -600,7 +600,7 @@ test_that("writeLayer can skip sanitization but still renames TOTALAREA_*", {
   )
 })
 
-test_that("writeLayer warns when layerfilepath does not end with .shp", {
+test_that("TADA_WriteLayer warns when layerfilepath does not end with .shp", {
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) sample_layer(),
@@ -608,7 +608,7 @@ test_that("writeLayer warns when layerfilepath does not end with .shp", {
       with_mocked_bindings(.package = "sf", st_write = function(...) TRUE, {
         out_path <- file.path(tempdir(), "layer.gpkg")
         expect_warning(
-          writeLayer("http://fake/query", out_path),
+          TADA_WriteLayer("http://fake/query", out_path),
           "does not end with .shp"
         )
       })
@@ -616,13 +616,13 @@ test_that("writeLayer warns when layerfilepath does not end with .shp", {
   )
 })
 
-test_that("writeLayer reports getFeatureLayer errors clearly", {
+test_that("TADA_WriteLayer reports getFeatureLayer errors clearly", {
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) stop("network fail"),
     {
       expect_error(
-        writeLayer(
+        TADA_WriteLayer(
           "http://fake/query",
           file.path(tempdir(), "a.shp")
         ),
@@ -632,7 +632,7 @@ test_that("writeLayer reports getFeatureLayer errors clearly", {
   )
 })
 
-test_that("writeLayer reports st_write errors clearly", {
+test_that("TADA_WriteLayer reports st_write errors clearly", {
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) sample_layer(),
@@ -642,7 +642,7 @@ test_that("writeLayer reports st_write errors clearly", {
         st_write = function(...) stop("GDAL write failure"),
         {
           expect_error(
-            writeLayer(
+            TADA_WriteLayer(
               "http://fake/query",
               file.path(tempdir(), "b.shp")
             ),
@@ -654,12 +654,12 @@ test_that("writeLayer reports st_write errors clearly", {
   )
 })
 
-test_that("writeLayer validates inputs", {
-  expect_error(writeLayer(123, file.path(tempdir(), "x.shp")))
-  expect_error(writeLayer(character(), file.path(tempdir(), "x.shp")))
-  expect_error(writeLayer("", file.path(tempdir(), "x.shp")))
+test_that("TADA_WriteLayer validates inputs", {
+  expect_error(TADA_WriteLayer(123, file.path(tempdir(), "x.shp")))
+  expect_error(TADA_WriteLayer(character(), file.path(tempdir(), "x.shp")))
+  expect_error(TADA_WriteLayer("", file.path(tempdir(), "x.shp")))
 
-  expect_error(writeLayer("http://fake/query", 1))
-  expect_error(writeLayer("http://fake/query", character()))
-  expect_error(writeLayer("http://fake/query", ""))
+  expect_error(TADA_WriteLayer("http://fake/query", 1))
+  expect_error(TADA_WriteLayer("http://fake/query", character()))
+  expect_error(TADA_WriteLayer("http://fake/query", ""))
 })
