@@ -122,7 +122,7 @@ After retrieving the WQX 3.0 full physical chemical profile, we can use
 applicable.
 
 ```{r rename}
-wqx3_legacynames <- EPATADA::TADA_RenametoLegacy(wqx3_fullPhysChem)
+wqx3_legacynames <- TADA_RenametoLegacy(wqx3_fullPhysChem)
 ```
 
 Now, we can test other EPATADA package functions as usual, for example,

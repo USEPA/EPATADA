@@ -2307,7 +2307,7 @@ TADA_GetATTAINSByAUID <- function(
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
-      EPATADA::TADA_CorrectColType() |>
+      TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     if (return_sf == TRUE) {
@@ -2565,7 +2565,7 @@ TADA_GetATTAINSByAUID <- function(
 
   attains.geo <- attains.geo |>
     dplyr::select(-assessmentunitidentifier) |>
-    EPATADA::TADA_CorrectColType()
+    TADA_CorrectColType()
 
   rm(tada.cols, attains.cols, comb.cols)
 
@@ -2679,7 +2679,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
-    EPATADA::TADA_CorrectColType() |>
+    TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
     renameATTAINSCols() |>
@@ -4022,7 +4022,7 @@ TADA_CreateAUMLCrosswalk <- function(
       if (!is.data.frame(x)) {
         return(NULL)
       }
-      EPATADA::TADA_CorrectColType(x)
+      TADA_CorrectColType(x)
     }
     u <- safe_correct(user[[df.name]])
     a <- safe_correct(attains[[df.name]])

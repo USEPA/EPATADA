@@ -33,6 +33,6 @@ DeWitt_wqx3 <- dataRetrieval::readWQPdata(
   ignore_attributes = TRUE
 )
 
-DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+DeWitt_wqx3_withlegacynames <- TADA_RenametoLegacy(DeWitt_wqx3)
 
 }

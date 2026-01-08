@@ -2359,7 +2359,7 @@ TADA_CreateCSV <- function(.data) {
 #'   ignore_attributes = TRUE
 #' )
 #'
-#' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
+#' DeWitt_wqx3_withlegacynames <- TADA_RenametoLegacy(DeWitt_wqx3)
 #'
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide

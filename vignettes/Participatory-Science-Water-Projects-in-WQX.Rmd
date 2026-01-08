@@ -110,7 +110,7 @@ selected_orgs <-
     "CT_NERR"
   )
 
-volunteer_data <- EPATADA::TADA_DataRetrieval(
+volunteer_data <- TADA_DataRetrieval(
   # startDate = "2022-01-01",
   organization = selected_orgs,
   ask = FALSE,
@@ -129,13 +129,13 @@ unique(volunteer_data$ProjectName)
 Generate pie chart:
 
 ```{r}
-EPATADA::TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
+TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationTypeName")
 ```
 
 Review and remove sites if coordinates are imprecise or outside US:
 
 ```{r, results=F}
-volunteer_data <- EPATADA::TADA_FlagCoordinates(volunteer_data,
+volunteer_data <- TADA_FlagCoordinates(volunteer_data,
   clean_outsideUSA = "remove",
   clean_imprecise = TRUE,
   flaggedonly = FALSE
@@ -145,20 +145,20 @@ volunteer_data <- EPATADA::TADA_FlagCoordinates(volunteer_data,
 Use `TADA_OverviewMap` to generate a map:
 
 ```{r}
-EPATADA::TADA_OverviewMap(volunteer_data)
+TADA_OverviewMap(volunteer_data)
 ```
 
 Review and remove duplicate results if present:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
+volunteer_data <- TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
 volunteer_data <- dplyr::filter(volunteer_data, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
 Prepare censored (nondetects and overdetects) results for analysis:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_SimpleCensoredMethods(
+volunteer_data <- TADA_SimpleCensoredMethods(
   volunteer_data,
   nd_method = "multiplier",
   nd_multiplier = 0.5,
@@ -171,7 +171,7 @@ Run key TADA quality control flagging functions and remove suspect
 results:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_RunKeyFlagFunctions(
+volunteer_data <- TADA_RunKeyFlagFunctions(
   volunteer_data,
   clean = TRUE
 )
@@ -181,12 +181,12 @@ Flag results above and below thresholds. Review carefully and consider
 removing.
 
 ```{r}
-volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
+volunteer_data <- TADA_FlagAboveThreshold(volunteer_data,
   clean = FALSE,
   flaggedonly = FALSE
 )
 
-volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
+volunteer_data <- TADA_FlagBelowThreshold(volunteer_data,
   clean = FALSE,
   flaggedonly = FALSE
 )
@@ -195,31 +195,31 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 Harmonize synonyms if found:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_HarmonizeSynonyms(volunteer_data)
+volunteer_data <- TADA_HarmonizeSynonyms(volunteer_data)
 ```
 
 Generate table:
 
 ```{r}
-EPATADA::TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
+TADA_FieldValuesTable(volunteer_data, field = "ActivityTypeCode")
 ```
 
 Generate pie chart:
 
 ```{r}
-EPATADA::TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
+TADA_FieldValuesPie(volunteer_data, field = "OrganizationFormalName")
 ```
 
 Generate pie chart:
 
 ```{r}
-EPATADA::TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
+TADA_FieldValuesPie(volunteer_data, field = "MonitoringLocationName")
 ```
 
 Remove non-numeric results:
 
 ```{r}
-volunteer_data <- EPATADA::TADA_ConvertSpecialChars(
+volunteer_data <- TADA_ConvertSpecialChars(
   volunteer_data,
   col = "TADA.ResultMeasureValue",
   clean = TRUE
@@ -229,7 +229,7 @@ volunteer_data <- EPATADA::TADA_ConvertSpecialChars(
 Review the number of sites and records for each characteristic:
 
 ```{r}
-EPATADA::TADA_SummarizeColumn(volunteer_data)
+TADA_SummarizeColumn(volunteer_data)
 ```
 
 Filter data to review a single characteristic:
@@ -246,7 +246,7 @@ ecoli <- dplyr::filter(
 Generate scatter plot for E. coli:
 
 ```{r}
-EPATADA::TADA_GroupedScatterplot(ecoli)
+TADA_GroupedScatterplot(ecoli)
 ```
 
 Filter to a single site and continue exploring E. coli:
@@ -298,20 +298,20 @@ ecoli_subset_review <- ecoli |>
     meets_criteria_mag
   )
 
-EPATADA::TADA_TableExport(ecoli_subset_review)
+TADA_TableExport(ecoli_subset_review)
 ```
 
 Generate stats table. Review percentiles. Less than 5% of results fall
 above \~19 CFU/100mL and over 98% of results fall below \~2185 CFU/100m
 
 ```{r stats}
-EPATADA::TADA_TableExport(EPATADA::TADA_Stats(ecoli))
+TADA_TableExport(TADA_Stats(ecoli))
 ```
 
 Generate a scatterplot. One result value is above the threshold.
 
 ```{r}
-EPATADA::TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") |>
+TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = 320,
     x = c(min(ecoli$ActivityStartDate), max(ecoli$ActivityStartDate)),
@@ -325,13 +325,13 @@ EPATADA::TADA_Scatterplot(ecoli, id_cols = "TADA.ComparableDataIdentifier") |>
 Generate a histogram.
 
 ```{r boxplot and histogram}
-EPATADA::TADA_Histogram(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Histogram(ecoli, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 `TADA_Boxplot` can be useful for identifying skewness and percentiles.
 
 ```{r boxplot, fig.width=8, fig.height=6, fig.fullwidth=TRUE}
-EPATADA::TADA_Boxplot(ecoli, id_cols = "TADA.ComparableDataIdentifier")
+TADA_Boxplot(ecoli, id_cols = "TADA.ComparableDataIdentifier")
 ```
 
 Check out other example R workflows designed to work with WQP data under
