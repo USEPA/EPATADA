@@ -43,7 +43,7 @@
 #' @examples
 #' \dontrun{
 #' # Example 1: Query by area of interest
-#' navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
+#' navajo_sf <- sf::st_read("inst/extdata/AmericanIndian.gpkg") |>
 #'   dplyr::filter(NAME == "Navajo Nation")
 #' sites_aoi_sf <- TADA_listNWIS(aoi_sf = navajo_sf)
 #'
@@ -527,7 +527,7 @@ TADA_listNWIS <- function(
 #' @examples
 #' \dontrun{
 #' # Example 1: Query by area of interest
-#' locs_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
+#' locs_sf <- sf::st_read("inst/extdata/AmericanIndian.gpkg") |>
 #'   dplyr::filter(NAME %in% c("Spokane", "Navajo Nation"))
 #' sites_aoi_sf <- TADA_getNWIS(
 #'   aoi_sf = locs_sf,

@@ -207,7 +207,7 @@ tada6 <- TADA_DataRetrieval(
 
 # query by shapefile for Navajo Nation
 
-navajo_sf <- sf::read_sf("inst/extdata/AmericanIndian.shp") |>
+navajo_sf <- sf::st_read("inst/extdata/AmericanIndian.gpkg") |>
   dplyr::filter(NAME == "Navajo Nation")
 
 tada7 <- TADA_DataRetrieval(

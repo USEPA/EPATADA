@@ -150,18 +150,18 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
   Sys.sleep(1.1)
 
   # Capture mtime before update to confirm change afterwards
-  prev_mtime <- file.info("inst/extdata/AKAllotments.shp")$mtime
+  prev_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
 
   msg3 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("AKAllotments.shp", msg3, fixed = TRUE))
   expect_true(grepl("updated", msg3, fixed = TRUE))
 
-  new_mtime <- file.info("inst/extdata/AKAllotments.shp")$mtime
+  new_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
   expect_true(new_mtime > prev_mtime)
 
   # Confirm that the dest now has 3 rows
   ak <- suppressWarnings(sf::st_read(
-    "inst/extdata/AKAllotments.shp",
+    "inst/extdata/AKAllotments.gpkg",
     quiet = TRUE
   ))
   expect_equal(nrow(ak), 3)

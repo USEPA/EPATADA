@@ -170,7 +170,7 @@ sites_info <- TADA_listNWIS(siteid = site_nums)
 Lastly, we can query NWIS sites by a user-supplied sf object:
 
 ```{r}
-cherokee_sf <- sf::st_read("inst/extdata/OKTribe.shp") |>
+cherokee_sf <- sf::st_read("inst/extdata/OKTribe.gpkg") |>
   dplyr::filter(NAME == "Cherokee")
 
 cherokee_nwis <- TADA_listNWIS(aoi_sf = cherokee_sf)
