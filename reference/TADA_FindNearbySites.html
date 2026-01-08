@@ -205,33 +205,36 @@ or by the site with the greatest number of overall results in the TADA df.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># use MT example data set</span></span></span>
 <span class="r-in"><span><span class="va">testdat</span> <span class="op">&lt;-</span> <span class="va">Data_MT_AUMLRef</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example grouping nearby sites by distance only</span></span></span>
 <span class="r-in"><span><span class="va">test.dist</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
-<span class="r-in"><span>                                  catchment <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                                  by_AU <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                                  dist_buffer <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example grouping nearby sites by distance and catchment</span></span></span>
 <span class="r-in"><span><span class="va">test.catch</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
-<span class="r-in"><span>                                   catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                                   by_AU <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                                   dist_buffer <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example grouping nearby sites by distance and assessment unit</span></span></span>
 <span class="r-in"><span><span class="va">test.au.only</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
-<span class="r-in"><span>                                     catchment <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>                                     by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                                     dist_buffer <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
+<span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># example grouping nearby sites by distance, catchment, and assessment unit</span></span></span>
 <span class="r-in"><span><span class="va">test.all</span> <span class="op">&lt;-</span> <span class="fu">TADA_FindNearbySites</span><span class="op">(</span><span class="va">testdat</span>,</span></span>
-<span class="r-in"><span>                                catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                                by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>                               dist_buffer <span class="op">=</span> <span class="fl">250</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  catchment <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  by_AU <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  dist_buffer <span class="op">=</span> <span class="fl">250</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

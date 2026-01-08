@@ -36,9 +36,6 @@
 - [`TADA_AggregateMeasurements()`](usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
   : Aggregate multiple result values to a min, max, or mean
 
-- [`TADA_AnalysisDataFilter()`](usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.md)
-  : TADA_AnalysisDataFilter
-
 - [`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
   : ATTAINS Assessment Unit and Use Name Crosswalk
 
@@ -278,6 +275,9 @@
 
 - [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
   : TADA_MakeSpatial
+
+- [`TADA_MediaFilter()`](usepa.github.io/EPATADA/reference/TADA_MediaFilter.md)
+  : TADA_MediaFilter
 
 - [`TADA_NearbySitesMap()`](usepa.github.io/EPATADA/reference/TADA_NearbySitesMap.md)
   : Create Nearby Sites Map

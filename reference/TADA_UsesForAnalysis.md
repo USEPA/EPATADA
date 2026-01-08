@@ -162,10 +162,9 @@ Expert Query.
 Otherwise, users can still proceed by overriding the data validation by
 value pasting in Excel. Users will be warned in the ATTAINS.FlagUseName
 column if they choose to include an ATTAINS use name that was not listed
-in prior ATTAINS assessment cycles as: 'Use name is not listed as a
-prior cause in ATTAINS for this organization' or 'Use name is listed as
-a prior cause in ATTAINS for this organization, but not for this
-parameter name'.
+in prior ATTAINS assessment cycles as: 'Use name has not been assessed
+in prior cycles by this organization' or 'Use name has been assessed in
+prior cycles by this organization, but not for this parameter name'.
 
 ## See also
 

@@ -148,7 +148,7 @@ ATTAINS Water Type
 
 ``` r
 if (FALSE) { # \dontrun{
-# Pull a sample WQP data query
+# Pull a sample TADA data frame
 TADA_AK_Example <- TADA_DataRetrieval(
   startDate = "2022-01-01", endDate = "2022-12-31",
   organization = "AKDECWQ", statecode = "AK",

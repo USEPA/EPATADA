@@ -262,7 +262,7 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-in"><span>  usesRef <span class="op">=</span> <span class="va">usesRef_UT</span>,</span></span>
 <span class="r-in"><span>  excel <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = FALSE: This MLSummaryRef table will only display parameters and uses for a ML if it contains data collected for that TADA.CharacteristicName in your TADA data frame."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">DefineCriteriaMethodology_UT</span> <span class="op">&lt;-</span> <span class="fu">TADA_DefineCriteriaMethodology</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">Data_Nutrients_UT</span>,</span></span>
@@ -282,7 +282,7 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."</span>
 <span class="r-in"><span></span></span>
@@ -296,7 +296,7 @@ ATTAINS.organizations &lt;- rExpertQuery::EQ_DomainValues("org_id")</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."</span>
 <span class="r-in"><span></span></span>

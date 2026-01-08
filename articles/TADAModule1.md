@@ -363,7 +363,7 @@ query inputs.
 ## Filter data based on media type
 
 Some TADA users are interested in using WQP data for surface water only
-or for analysis of some non-water data. The **TADA_AnalysisDataFilter**
+or for analysis of some non-water data. The **TADA_MediaFilter**
 function can assist in identifying results of interest. Multiple columns
 are used to identify groundwater results as different organizations may
 populate different combinations of fields in order to identify a result
@@ -371,43 +371,34 @@ as groundwater.
 
 This function identifies surface water, groundwater, and sediment
 results. Users can specify whether all results should be returned with a
-new column, *TADA.UseForAnalysis.Flag*, identifying if the result should
-be included in further analysis or if only results that should be in
+new column, *TADA.Media.Flag*, identifying if the result should be
+included in further analysis or if only results that should be in
 included are returned.
 
 The defaults are to include surface water, exclude groundwater and
 sediment, and to return only the results that should be used for
 analysis (clean = TRUE). This is shown in the active example below. If
-you would like to see all results with the *TADA.UseForAnalysis.Flag*
-column, you can uncomment the example where clean = FALSE.
+you would like to see all results with the *TADA.Media.Flag* column, you
+can uncomment the example where clean = FALSE.
 
-If you are not interested in using **TADA_AnalysisDataFilter**, but
-would like to filter by activity media, uncomment the example to filter
-for water data only by using dplyr::filter() with
-TADA.ActivityMediaName.
+If you are not interested in using **TADA_MediaFilter**, but would like
+to filter by activity media, uncomment the example to filter for water
+data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ``` r
 # Filter to retain only results for use in analysis
-TADAProfile <- TADA_AnalysisDataFilter(TADAProfile,
+TADAProfile <- TADA_MediaFilter(TADAProfile,
   clean = TRUE,
-  surface_water = TRUE,
-  ground_water = FALSE,
-  sediment = FALSE
+  surface_water = FALSE,
+  ground_water = TRUE,
+  sediment = TRUE,
+  other = TRUE
 )
-```
 
-    ## [1] "TADA_AnalysisDataFilter: Identifying groundwater results."
-    ## [1] "TADA_AnalysisDataFilter: Flagging surface water results to include in assessments."
-    ## [1] "TADA_AnalysisDataFilter: Flagging groundwater results to exclude from assessments."
-    ## [1] "TADA_AnalysisDataFilter: Flagging sediment results to exclude from assessments."
-    ## [1] "TADA_AnalysisDataFilter: Flagging other results to include in assessments."
-    ## [1] "TADA_AnalysisDataFilter: Removing results flagged for exclusion from assessments."
+# Add TADA.Media.Flag column to identify which results should be used for analysis
+# TADAProfile <- TADA_MediaFilter(TADAProfile, clean = FALSE)
 
-``` r
-# Add TADA.UseForAnalysis.Flag column to identify which results should be used for analysis
-# TADAProfile <- TADA_AnalysisDataFilter(TADAProfile, clean = FALSE)
-
-# Remove data for non-water media types, alternate workflow without using TADA_AnalysisDataFilter()
+# Remove data for non-water media types, alternate workflow without using TADA_MediaFilter()
 # TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
 
@@ -1093,14 +1084,13 @@ TADA_FieldCounts(TADAProfileClean3)
     ## 2          TADA.CharacteristicName    99
     ## 3             SubjectTaxonomicName    13
     ## 4           OrganizationFormalName     6
-    ## 5                 ActivityTypeCode     4
-    ## 6           TADA.ActivityType.Flag     3
-    ## 7  TADA.MonitoringLocationTypeName     3
-    ## 8        ActivityRelativeDepthName     3
-    ## 9     ActivityMediaSubdivisionName     2
-    ## 10          ResultStatusIdentifier     2
-    ## 11             ResultValueTypeName     2
-    ## 12          TADA.ActivityMediaName     1
+    ## 5           TADA.ActivityType.Flag     3
+    ## 6  TADA.MonitoringLocationTypeName     3
+    ## 7        ActivityRelativeDepthName     3
+    ## 8     ActivityMediaSubdivisionName     2
+    ## 9           ResultStatusIdentifier     2
+    ## 10             ResultValueTypeName     2
+    ## 11          TADA.ActivityMediaName     1
 
 ``` r
 # create object of table
@@ -1872,13 +1862,13 @@ TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTA
     ## 26                         QAPPApprovalAgencyName     3
     ## 27                TADA.MonitoringLocationTypeName     3
     ## 28                               ActivityTypeCode     2
-    ## 29                   ActivityMediaSubdivisionName     2
-    ## 30                   ResultDetectionConditionText     2
-    ## 31                            ResultValueTypeName     2
-    ## 32                                   ProviderName     2
-    ## 33             TADA.CharacteristicNameAssumptions     2
-    ## 34                  TADA.MeasureQualifierCode.Def     2
-    ## 35                         TADA.ActivityType.Flag     2
+    ## 29                         TADA.ActivityType.Flag     2
+    ## 30                   ActivityMediaSubdivisionName     2
+    ## 31                   ResultDetectionConditionText     2
+    ## 32                            ResultValueTypeName     2
+    ## 33                                   ProviderName     2
+    ## 34             TADA.CharacteristicNameAssumptions     2
+    ## 35                  TADA.MeasureQualifierCode.Def     2
     ## 36                         TADA.ActivityMediaName     1
     ## 37                        TADA.CharacteristicName     1
     ## 38                      TADA.MethodSpeciationName     1

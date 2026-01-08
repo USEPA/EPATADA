@@ -307,14 +307,13 @@ key_counts
     ## 1             SubjectTaxonomicName   278
     ## 2    TADA.ComparableDataIdentifier   226
     ## 3          TADA.CharacteristicName   147
-    ## 4                 ActivityTypeCode     6
-    ## 5           OrganizationFormalName     6
-    ## 6  TADA.MonitoringLocationTypeName     5
-    ## 7           TADA.ActivityMediaName     3
-    ## 8     ActivityMediaSubdivisionName     3
-    ## 9        ActivityRelativeDepthName     3
-    ## 10             ResultValueTypeName     3
-    ## 11          ResultStatusIdentifier     2
+    ## 4           OrganizationFormalName     6
+    ## 5  TADA.MonitoringLocationTypeName     5
+    ## 6           TADA.ActivityMediaName     3
+    ## 7     ActivityMediaSubdivisionName     3
+    ## 8        ActivityRelativeDepthName     3
+    ## 9              ResultValueTypeName     3
+    ## 10          ResultStatusIdentifier     2
 
 ``` r
 all_counts <- TADA_FieldCounts(dataset_0, display = "all")

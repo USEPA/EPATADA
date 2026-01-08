@@ -78,7 +78,7 @@ Specifically, this vignette provides an overview of three functions that
 can assist users with:
 
 - Creating a crosswalk (reference table) between ATTAINS parameter names
-  and WQP/TADA characteristic names.
+  and WQP/TADA characteristic names/TADA comparable data identifier.
 
 - Creating a crosswalk (reference table) of all unique combinations of
   ATTAINS uses and parameters applicable to your analysis needs.
@@ -92,13 +92,12 @@ tribes, or territories can input organization-specific information and
 link it information from ATTAINS. While TADA functions can help generate
 these crosswalks and fill in some values, users must review and modify
 the tables generated in each step to ensure accuracy. The TADA team has
-also incorporated national recommended Clean Water Act (CWA) 304(a)
-numeric criteria for optional use in Module 3 functions by leveraging
-data from EPA’s [Criteria Search Tool
-(CST)](https://www.epa.gov/wqs-tech/state-specific-water-quality-standards-effective-under-clean-water-act-cwa).
-This allows users to analyze their data against the 304(a) criteria; and
-to easily compare results when when using 304(a) criteria vs. their own
-criteria.
+also incorporated national recommended Clean Water Act (CWA) EPA 304(a)
+numeric criteria for optional use in Module 3 functions that has been
+filled out and reviewed by the TADA team. This allows users to analyze
+their data against the EPA 304(a) criteria; and to easily compare
+results when when using EPA 304(a) criteria vs. their own state or
+tribe’s criteria.
 
 ## Getting Started
 
@@ -259,11 +258,10 @@ blank column, “ATTAINS.ParameterName” for users to input the
 corresponding ATTAINS parameter name.
 
 TADA_ParametersForAnalysis() includes an argument input ‘auto_assign’ to
-assist users in finding exact matches between TADA Characteristic Names
-to ATTAINS Parameter Name. There are roughly 598 unique ATTAINS
-Parameter Names that have an exact match. \*\*It is important to note
-that even with these exact matches, there are additional complexities
-related to fraction, speciation and units that may be unique to your
+assist users in finding an alias name between TADA Characteristic Names
+to ATTAINS Parameter Name, if one is found. It is important to note that
+even with these exact matches, there are additional complexities related
+to fraction, speciation and units that may be unique to your
 organization. For example, some organizations may consider Total
 Nitrogen, Nitrate/Nitrite, and Ammonia all to match the ATTAINS
 parameter “Nitrogen”, while others may consider only some
@@ -543,8 +541,13 @@ add.data <- data.frame(
     "Agriculture"
   )
 )
+```
 
-# The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
+The output of this will not reflect changes to the ATTAINS.FlagUseName
+column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef
+= add_data as an argument input.
+
+``` r
 usesRef <- MT.usesRef.Manual |>
   dplyr::left_join(add.data, by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName"), keep = FALSE) |>
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
@@ -755,7 +758,7 @@ MT.MLSummaryRef.ML <- TADA_MLSummary(
 )
 ```
 
-    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your WQP data query."
+    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
 
 ``` r
 TADA_TableExport(MT.MLSummaryRef.ML)

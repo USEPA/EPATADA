@@ -31,7 +31,6 @@
 <url><loc>usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AdditionalCharAliasForReview.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/TADA_AnalysisDataFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_AutoClean.html</loc></url>
@@ -109,6 +108,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_MLSummary.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_MakeSpatial.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_MediaFilter.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_NearbySitesMap.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_OrderCols.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_OverviewMap.html</loc></url>

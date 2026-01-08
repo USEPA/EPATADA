@@ -223,22 +223,20 @@ n_not_water <- FieldValues_ActMedia |>
 ## Filter for Surface Water Data
 
 Some TADA users are interested in using WQP data for surface water only
-or including some non-water data. The **TADA_AnalysisDataFilter**
-identifies surface water, groundwater, and sediment results. Multiple
-columns are used to identify groundwater results as organizations may
-populate different combinations of fields in order to identify
-groundwater results.
+or including some non-water data. The **TADA_MediaFilter** identifies
+surface water, groundwater, and sediment results. Multiple columns are
+used to identify groundwater results as organizations may populate
+different combinations of fields in order to identify groundwater
+results.
 
 Users can specify whether all results should be returned with a new
-column, *TADA.UseForAnalysis.Flag*, providing information about the
-result’s media type and identifying if the result should be included in
-further analysis, or if only results that should be included are
-returned.
+column, *TADA.Media.Flag*, providing information about the result’s
+media type and identifying if the result should be included in further
+analysis, or if only results that should be included are returned.
 
 The defaults are to include surface water, exclude groundwater and
-sediment, and to return all results with the added
-*TADA.UseForAnalysis.Flag* column (clean = FALSE). This is shown in the
-example below.
+sediment, and to return all results with the added *TADA.Media.Flag*
+column (clean = FALSE). This is shown in the example below.
 
 We can use **TADA_FieldValuesTable** and **TADA_FieldValuesPie** again
 to review this more specific breakdown of results by media type.
@@ -248,14 +246,14 @@ updated to include fish tissue a filter option.
 
 ``` r
 # Filter to flag only surface water results for use in analysis
-R5Profile <- TADA_AnalysisDataFilter(R5Profile, clean = FALSE)
+R5Profile <- TADA_MediaFilter(R5Profile, clean = FALSE)
 
-# Create pie chart for TADA.UseForAnalysis.Flag
-FieldVal_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.UseForAnalysis.Flag")
+# Create pie chart for TADA.Media.Flag
+FieldVal_Pie <- TADA_FieldValuesPie(R5Profile, field = "TADA.Media.Flag")
 
 FieldVal_Pie
 
-FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.UseForAnalysis.Flag")
+FieldValues_AnalysisFlag <- TADA_FieldValuesTable(R5Profile, field = "TADA.Media.Flag")
 ```
 
 **Question 3: How many SURFACE WATER results can we retain for further
@@ -272,7 +270,7 @@ n_sur_water <- FieldValues_AnalysisFlag |>
 ``` r
 # Filter to retain only surface water results for use in analysis
 R5Profile <- R5Profile |>
-  dplyr::filter(TADA.UseForAnalysis.Flag == "Yes - SURFACE WATER")
+  dplyr::filter(TADA.Media.Flag == "SURFACE WATER")
 ```
 
 ## AutoClean

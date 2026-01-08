@@ -159,24 +159,22 @@ be matched (false positives). Default for now is to be more strict.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">review</span> <span class="op">&lt;-</span> <span class="fu">TADA_AdditionalCharAliasForReview</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">review</span> <span class="op">&lt;-</span> <span class="fu">TADA_AdditionalCharAliasForReview</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">review2</span> <span class="op">&lt;-</span> <span class="fu">TADA_AdditionalCharAliasForReview</span><span class="op">(</span>includeCST <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">review_more_strict</span> <span class="op">&lt;-</span> <span class="fu">TADA_AdditionalCharAliasForReview</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  displayPercent <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  ATTAINS.WQX.tolerance <span class="op">=</span> <span class="fl">1.0</span>,</span></span>
 <span class="r-in"><span>  WQX.ATTAINS.tolerance <span class="op">=</span> <span class="fl">1.0</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">review_less_strict</span> <span class="op">&lt;-</span> <span class="fu">TADA_AdditionalCharAliasForReview</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  displayPercent <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  ATTAINS.WQX.tolerance <span class="op">=</span> <span class="fl">0.5</span>,</span></span>
 <span class="r-in"><span>  WQX.ATTAINS.tolerance <span class="op">=</span> <span class="fl">0.5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

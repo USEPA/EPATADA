@@ -84,7 +84,7 @@
       <h1>TADA Module 1: Training for Beginner R Users</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2025-12-31</h4>
+            <h4 data-toc-skip class="date">2026-01-08</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule1_BeginnerTraining.Rmd" class="external-link"><code>vignettes/TADAModule1_BeginnerTraining.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule1_BeginnerTraining.Rmd</code></div>
@@ -283,19 +283,19 @@ water?</strong></p>
 </h2>
 <p>Some TADA users are interested in using WQP data for surface water
 only or including some non-water data. The
-<strong>TADA_AnalysisDataFilter</strong> identifies surface water,
-groundwater, and sediment results. Multiple columns are used to identify
-groundwater results as organizations may populate different combinations
-of fields in order to identify groundwater results.</p>
+<strong>TADA_MediaFilter</strong> identifies surface water, groundwater,
+and sediment results. Multiple columns are used to identify groundwater
+results as organizations may populate different combinations of fields
+in order to identify groundwater results.</p>
 <p>Users can specify whether all results should be returned with a new
-column, <em>TADA.UseForAnalysis.Flag</em>, providing information about
-the result’s media type and identifying if the result should be included
-in further analysis, or if only results that should be included are
+column, <em>TADA.Media.Flag</em>, providing information about the
+result’s media type and identifying if the result should be included in
+further analysis, or if only results that should be included are
 returned.</p>
 <p>The defaults are to include surface water, exclude groundwater and
 sediment, and to return all results with the added
-<em>TADA.UseForAnalysis.Flag</em> column (clean = FALSE). This is shown
-in the example below.</p>
+<em>TADA.Media.Flag</em> column (clean = FALSE). This is shown in the
+example below.</p>
 <p>We can use <strong>TADA_FieldValuesTable</strong> and
 <strong>TADA_FieldValuesPie</strong> again to review this more specific
 breakdown of results by media type.</p>
@@ -303,14 +303,14 @@ breakdown of results by media type.</p>
 function will be updated to include fish tissue a filter option.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Filter to flag only surface water results for use in analysis</span></span>
-<span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_AnalysisDataFilter.html">TADA_AnalysisDataFilter</a></span><span class="op">(</span><span class="va">R5Profile</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_MediaFilter.html">TADA_MediaFilter</a></span><span class="op">(</span><span class="va">R5Profile</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Create pie chart for TADA.UseForAnalysis.Flag</span></span>
-<span><span class="va">FieldVal_Pie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span><span class="va">R5Profile</span>, field <span class="op">=</span> <span class="st">"TADA.UseForAnalysis.Flag"</span><span class="op">)</span></span>
+<span><span class="co"># Create pie chart for TADA.Media.Flag</span></span>
+<span><span class="va">FieldVal_Pie</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesPie.html">TADA_FieldValuesPie</a></span><span class="op">(</span><span class="va">R5Profile</span>, field <span class="op">=</span> <span class="st">"TADA.Media.Flag"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">FieldVal_Pie</span></span>
 <span></span>
-<span><span class="va">FieldValues_AnalysisFlag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span><span class="va">R5Profile</span>, field <span class="op">=</span> <span class="st">"TADA.UseForAnalysis.Flag"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">FieldValues_AnalysisFlag</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_FieldValuesTable.html">TADA_FieldValuesTable</a></span><span class="op">(</span><span class="va">R5Profile</span>, field <span class="op">=</span> <span class="st">"TADA.Media.Flag"</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Question 3: How many SURFACE WATER results can we retain for
 further analysis</strong></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
@@ -322,7 +322,7 @@ further analysis</strong></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Filter to retain only surface water results for use in analysis</span></span>
 <span><span class="va">R5Profile</span> <span class="op">&lt;-</span> <span class="va">R5Profile</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.UseForAnalysis.Flag</span> <span class="op">==</span> <span class="st">"Yes - SURFACE WATER"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">TADA.Media.Flag</span> <span class="op">==</span> <span class="st">"SURFACE WATER"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="autoclean">AutoClean<a class="anchor" aria-label="anchor" href="#autoclean"></a>
