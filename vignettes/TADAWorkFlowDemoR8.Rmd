@@ -1,0 +1,98 @@
+---
+title: "TADA R8 Demo January 2026"
+always_all_html: yes
+author: "TADA Team"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    self_contained: false
+    toc: true
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 8
+vignette: >
+  %\VignetteIndexEntry{TADA R8 Demo}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{EPATADA}
+description: An introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data. This recommended work flow focuses on A) Retrieving data from the WQP. B) Create, review and define up to date assessment unit/WQP monitoring location. C) Assigning uses to assessment units. D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
+editor_options:
+  chunk_output_type: console
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include = F}
+library(knitr)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  eval = T,
+  dev.args = list(bg = "transparent")
+)
+```
+
+# Overview and Setup
+
+**Welcome!**
+
+Thank you for your interest in Tools for Automated Data Analysis (TADA).
+TADA is an open-source tool set built in the R programming language.
+This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+users through how to download the TADA R package from GitHub, access and
+parameterize several important functions, and create basic
+visualizations with a sample data set.
+
+**Note:** TADA is still under development. New functionality is added
+weekly, and sometimes we need to make bug fixes in response to tester
+and user feedback. We appreciate your feedback, patience, and interest
+in these helpful tools.
+
+If you are interested in contributing to TADA development, more
+information is available at:
+
+[Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
+
+We welcome collaboration with external partners.
+
+Install and load packages
+
+First, install and load the remotes package specifying the repo. This is needed before installing TADA because it is only available on GitHub.
+
+{r install_remotes, results = 'hide'}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
+library(remotes)
+
+Next, install and load TADA using the remotes package. TADA R Package dependencies will also be downloaded automatically from CRAN with the TADA install. You may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console).
+
+{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
+
+{r dev_install, eval = F, results = 'hide', include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+
+Finally, use the library() function to load the TADA R Package into your R session.
+
+{r library, results = 'hide'}
+library(EPATADA)
+
+Help pages
+
+All TADA R package functions have their own individual help pages, listed on the Function reference page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): ?[name of TADA function]
+
+{r help_pages, eval = F}
+# Access help page for TADA_DataRetrieval
+?TADA_DataRetrieval
+
+Retrieve WQP data

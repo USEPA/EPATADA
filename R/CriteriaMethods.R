@@ -868,6 +868,21 @@ TADA_DefineCriteriaMethodology <- function(
       plyr::rbind.fill(epa304a) |>
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "USEPA")
   }
+  
+  # Final formatting of criteria table for consistent output
+  if( !all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))){
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      tidyr::complete(ATTAINS.OrganizationIdentifier, TADA.CharacteristicName) |>
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))|>
+      dplyr::arrange(
+        ATTAINS.OrganizationIdentifier != "USEPA",
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.UseName
+      ) |>
+      # tidyr::drop_na(ATTAINS.ParameterName) |>
+      dplyr::distinct()
+  }
+
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
