@@ -398,10 +398,19 @@ TADA_MediaFilter <- function(
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
+        # If subdivision is missing and media name is WATER (and not groundwater), treat as SURFACE WATER
+        (is.na(ActivityMediaSubdivisionName) |
+          !nzchar(trimws(ActivityMediaSubdivisionName))) &
+          !is.na(ActivityMediaName) &
+          nzchar(trimws(ActivityMediaName)) &
+          tolower(trimws(ActivityMediaName)) == "water" &
+          !gw_has_fields ~ "SURFACE WATER",
         ActivityMediaSubdivisionName == "Groundwater" |
           gw_has_fields ~ "GROUNDWATER",
         ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
         ActivityMediaSubdivisionName == "Sediment" ~ "SEDIMENT",
+
+        # Keep any non-"water" ActivityMediaName as-is (uppercased)
         !is.na(ActivityMediaName) &
           nzchar(trimws(ActivityMediaName)) &
           tolower(trimws(ActivityMediaName)) != "water" ~ toupper(trimws(
@@ -454,12 +463,16 @@ TADA_MediaFilter <- function(
   )
 
   if (clean) {
-    # Warn if all media toggles are TRUE (would remove all media types)
-    if (setequal(remove_media, core_flags)) {
-      warning(
-        "TADA_MediaFilter: All media types are selected for removal (surface_water, ground_water, sediment, other are all TRUE). Output may be empty."
-      )
+    # Pre-flight guard: warn when all media toggles are TRUE
+    all_selected <- isTRUE(surface_water) &&
+      isTRUE(ground_water) &&
+      isTRUE(sediment) &&
+      isTRUE(other)
+
+    if (all_selected) {
+      warning("All media types are selected for removal", call. = FALSE)
     }
+
     # Inform if no toggles are set (clean requested but nothing to remove)
     if (length(remove_media) == 0) {
       message(
@@ -470,9 +483,12 @@ TADA_MediaFilter <- function(
     # Remove requested media and drop flag/helper columns
     .data <- .data |> dplyr::filter(!(TADA.Media.Flag %in% remove_media))
 
-    # Warn if all rows were removed
-    if (nrow(.data) == 0) {
-      warning("TADA_MediaFilter: All rows were removed by the media filter.")
+    # Warn if all rows were removed, except when all toggles were TRUE (pre-flight warning already emitted)
+    if (nrow(.data) == 0 && !all_selected) {
+      warning(
+        "TADA_MediaFilter: All rows were removed by the media filter.",
+        call. = FALSE
+      )
     }
 
     # Build a readable list of which media types were set to TRUE

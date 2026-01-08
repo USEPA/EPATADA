@@ -2012,7 +2012,7 @@ TADA_GetATTAINSByAUID <- function(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
   )
 
-  # get water type info using EQ
+  # get water type info using ATTAINS Expert Query
   get_wb_type <- function(au_list) {
     au_list <- unique(au_list)
 
