@@ -228,7 +228,7 @@ This example includes monitoring data collected from Jan 2018 to Jan
 du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation.
 
 ```{r TADA_DataRetrieval}
-TADAProfile_raW <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
+TADAProfile_raw <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
 ```
 
 We will move forward with this example in the remainder of the vignette.
@@ -414,7 +414,7 @@ sediment results.
 
 ```{r AnalysisDataFilter}
 # Retain only surface water results
-TADAProfile <- TADA_MediaFilter(TADAProfile_raW,
+TADAProfile <- TADA_MediaFilter(TADAProfile_raw,
   clean = TRUE,
   surface_water = FALSE,
   ground_water = TRUE,
