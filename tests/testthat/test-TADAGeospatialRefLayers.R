@@ -20,7 +20,7 @@ setup_test_dir <- function() {
   }
 }
 
-test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skips when unchanged", {
+test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and skips when unchanged", {
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
   if (inherits(ns, "try-error")) {
     skip("EPATADA namespace not available.")
@@ -38,14 +38,14 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
       skip(paste0("Internal symbol ", sym, " not found in EPATADA namespace."))
     }
   }
-
+  
   # Base-R local temp project (no withr)
   cleanup <- setup_test_dir()
   on.exit(cleanup(), add = TRUE)
-
+  
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
-
-  # Use proper geometry: points and extra epoch-ms fields (<=10 chars to avoid shapefile name warning)
+  
+  # Use proper geometry: points and extra epoch-ms fields
   make_points_sf <- function(n = 2, offset = 0L) {
     pts <- sf::st_sfc(
       lapply(seq_len(n), function(i) {
@@ -59,39 +59,37 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
       id = seq_len(n),
       DATE_MO = base1 + offset + (seq_len(n) - 1) * 86400000,
       CURRENT = base2 + offset,
-      cur_to = base2 + offset + (seq_len(n) - 1) * 86400000, # <=10 chars
-      cur_from = base1 + offset + (seq_len(n) - 1) * 86400000, # <=10 chars
+      cur_to = base2 + offset + (seq_len(n) - 1) * 86400000,
+      cur_from = base1 + offset + (seq_len(n) - 1) * 86400000,
       name = sprintf("feat_%d", seq_len(n))
     )
     sf::st_sf(df, geom = pts)
   }
-
+  
   # Prepare a local source dataset (GeoJSON) for all URLs
   s1 <- make_points_sf(n = 2, offset = 0L)
   src1 <- file.path(getwd(), "src1.geojson")
   sf::write_sf(s1, src1, quiet = TRUE)
-
+  
   # Assign all internal URL symbols to this local source
   for (sym in url_syms) {
-    if (bindingIsLocked(sym, ns)) {
-      unlockBinding(sym, ns)
-    }
+    if (bindingIsLocked(sym, ns)) unlockBinding(sym, ns)
     assignInNamespace(sym, src1, ns = "EPATADA")
   }
-
-  # 1) First run: write all shapefiles and create meta sidecars
+  
+  # 1) First run: write all GeoPackages and create meta sidecars
   msg1 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("updated", msg1, fixed = TRUE))
-
+  
   dests <- file.path(
     "inst/extdata",
     c(
-      "AKAllotments.shp",
-      "AKVillages.shp",
-      "AmericanIndian.shp",
-      "OffReservation.shp",
-      "OKTribe.shp",
-      "VATribe.shp"
+      "AKAllotments.gpkg",
+      "AKVillages.gpkg",
+      "AmericanIndian.gpkg",
+      "OffReservation.gpkg",
+      "OKTribe.gpkg",
+      "VATribe.gpkg"
     )
   )
   for (d in dests) {
@@ -104,7 +102,7 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
       file.exists(meta_file),
       info = paste("meta sidecar missing:", meta_file)
     )
-
+    
     # meta signature should exist and date-like epoch-ms fields be Date class after conversion
     meta <- readRDS(meta_file)
     expect_true(is.list(meta))
@@ -114,58 +112,56 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
     for (col in c("DATE_MO", "CURRENT", "cur_to", "cur_from")) {
       if (col %in% names(sig)) expect_s3_class(sig[[col]], "Date")
     }
-
-    # Shapefile read-back should also reflect Date columns
+    
+    # GeoPackage read-back should also reflect Date columns
     layer_back <- suppressWarnings(sf::st_read(d, quiet = TRUE))
     x <- sf::st_set_geometry(layer_back, NULL)
     for (col in c("DATE_MO", "CURRENT", "cur_to", "cur_from")) {
       if (col %in% names(x)) expect_s3_class(x[[col]], "Date")
     }
   }
-
+  
   # Capture mtimes after first run
   mtimes_after_first <- file.info(dests)$mtime
-
+  
   # 2) Second run unchanged: should skip write based on canonical signature
   msg2 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("unchanged", msg2, fixed = TRUE))
   expect_true(grepl("skipping write", msg2, fixed = TRUE))
-
-  # Verify none of the shapefiles were touched on unchanged run
+  
+  # Verify none of the GeoPackages were touched on unchanged run
   mtimes_after_second <- file.info(dests)$mtime
   expect_true(all(mtimes_after_second == mtimes_after_first))
-
-  # 3) Change content for one URL and verify update occurs and replaces shapefile
+  
+  # 3) Change content for one URL and verify update occurs and replaces GeoPackage
   s2 <- make_points_sf(n = 3, offset = 0L) # add a row -> content change
   src2 <- file.path(getwd(), "src2.geojson")
   sf::write_sf(s2, src2, quiet = TRUE)
-
+  
   # Change only AKAllotmentsUrl to src2
-  if (bindingIsLocked("AKAllotmentsUrl", ns)) {
-    unlockBinding("AKAllotmentsUrl", ns)
-  }
+  if (bindingIsLocked("AKAllotmentsUrl", ns)) unlockBinding("AKAllotmentsUrl", ns)
   assignInNamespace("AKAllotmentsUrl", src2, ns = "EPATADA")
-
+  
   # Ensure filesystem mtime resolution will capture the change reliably
   Sys.sleep(1.1)
-
+  
   # Capture mtime before update to confirm change afterwards
   prev_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
-
+  
   msg3 <- capture_msgs(TADA_UpdateTribalLayers())
-  expect_true(grepl("AKAllotments.shp", msg3, fixed = TRUE))
+  expect_true(grepl("AKAllotments.gpkg", msg3, fixed = TRUE))
   expect_true(grepl("updated", msg3, fixed = TRUE))
-
+  
   new_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
   expect_true(new_mtime > prev_mtime)
-
+  
   # Confirm that the dest now has 3 rows
   ak <- suppressWarnings(sf::st_read(
     "inst/extdata/AKAllotments.gpkg",
     quiet = TRUE
   ))
   expect_equal(nrow(ak), 3)
-
+  
   # Confirm auto-detected columns remain Date after the update
   x <- sf::st_set_geometry(ak, NULL)
   for (col in c("DATE_MO", "CURRENT", "cur_to", "cur_from")) {
@@ -175,7 +171,7 @@ test_that("TADA_UpdateTribalLayers writes shapefiles, caches signature, and skip
 
 test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when unchanged", {
   skip_if_not_installed("jsonlite")
-
+  
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
   if (inherits(ns, "try-error")) {
     skip("EPATADA namespace not available.")
@@ -193,14 +189,14 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
       skip(paste0("Internal symbol ", sym, " not found in EPATADA namespace."))
     }
   }
-
+  
   # Base-R local temp project (no withr)
   cleanup <- setup_test_dir()
   on.exit(cleanup(), add = TRUE)
-
+  
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
-
-  # Create trivial shapefile at each destination so file.exists(dest_shp) is TRUE
+  
+  # Create trivial GeoPackage at each destination so file.exists(dest) is TRUE
   trivial <- sf::st_sf(
     data.frame(x = 1L),
     geom = sf::st_sfc(sf::st_point(c(-120, 38)), crs = 4326)
@@ -208,19 +204,18 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
   dests <- file.path(
     "inst/extdata",
     c(
-      "AKAllotments.shp",
-      "AKVillages.shp",
-      "AmericanIndian.shp",
-      "OffReservation.shp",
-      "OKTribe.shp",
-      "VATribe.shp"
+      "AKAllotments.gpkg",
+      "AKVillages.gpkg",
+      "AmericanIndian.gpkg",
+      "OffReservation.gpkg",
+      "OKTribe.gpkg",
+      "VATribe.gpkg"
     )
   )
   for (d in dests) {
-    # Avoid delete_dsn on initial creation to prevent GDAL warnings
     sf::st_write(trivial, d, quiet = TRUE)
   }
-
+  
   # Provide sidecar meta with matching last_edit dates for all
   matching_last_edit <- 1234567890000 # epoch-ms
   dir.create(
@@ -238,16 +233,14 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
       meta_file
     )
   }
-
+  
   # Set all URLs to look like ArcGIS FeatureServer (to trigger preflight)
   fake_arcgis_url <- "https://example.com/FeatureServer/0"
   for (sym in url_syms) {
-    if (bindingIsLocked(sym, ns)) {
-      unlockBinding(sym, ns)
-    }
+    if (bindingIsLocked(sym, ns)) unlockBinding(sym, ns)
     assignInNamespace(sym, fake_arcgis_url, ns = "EPATADA")
   }
-
+  
   # Mock jsonlite::fromJSON from within jsonlite's namespace
   testthat::with_mocked_bindings(
     fromJSON = function(...) {
@@ -257,12 +250,12 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
     {
       # Capture mtimes to verify they don't change after preflight skip
       old_mtimes <- file.info(dests)$mtime
-
+      
       msg4 <- capture_msgs(TADA_UpdateTribalLayers())
       expect_true(grepl("unchanged", msg4, fixed = TRUE))
       expect_true(grepl("preflight", msg4, fixed = TRUE))
       expect_true(grepl("skipping download", msg4, fixed = TRUE))
-
+      
       new_mtimes <- file.info(dests)$mtime
       expect_true(all(new_mtimes == old_mtimes))
     }

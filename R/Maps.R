@@ -226,50 +226,49 @@ TADA_OverviewMap <- function(.data) {
       # TADA_addPolys and TADA_addPoints are in Utilities.R
       map <- TADA_addPolys(
         map,
-        "extdata/AKAllotments.shp",
+        system.file("extdata", "AKAllotments.gpkg", package = "EPATADA"),
         "Tribes",
         "Alaska Allotments",
         bbox
       )
       map <- TADA_addPolys(
         map,
-        "extdata/AmericanIndian.shp",
+        system.file("extdata", "AmericanIndian.gpkg", package = "EPATADA"),
         "Tribes",
         "American Indian",
         bbox
       )
+      
       map <- TADA_addPolys(
         map,
-        "extdata/OffReservation.shp",
+        system.file("extdata", "OffReservation.gpkg", package = "EPATADA"),
         "Tribes",
         "Off Reservation",
         bbox
       )
+      
       map <- TADA_addPolys(
         map,
-        "extdata/OKTribe.shp",
+        system.file("extdata", "OKTribe.gpkg", package = "EPATADA"),
         "Tribes",
         "Oklahoma Tribe",
         bbox
       )
+      
       map <- TADA_addPoints(
         map,
-        "extdata/AKVillages.shp",
+        system.file("extdata", "AKVillages.gpkg", package = "EPATADA"),
         "Tribes",
         "Alaska Native Villages",
         bbox
       )
+      
       map <- TADA_addPoints(
         map,
-        "extdata/VATribe.shp",
+        system.file("extdata", "VATribe.gpkg", package = "EPATADA"),
         "Tribes",
         "Virginia Tribe",
         bbox
-      )
-      map <- leaflet::addLayersControl(
-        map,
-        overlayGroups = c("Tribes"),
-        options = leaflet::layersControlOptions(collapsed = FALSE)
       )
       return(map)
     })
