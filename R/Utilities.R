@@ -446,7 +446,8 @@ utils::globalVariables(c(
   "percent_match_ATTAINS_WQX",
   "percent_match_CST",
   "UserRef.AssessmentUnitIdentifier",
-  "Group.n"
+  "Group.n",
+  "Ref.TADA.Media.Flag"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
