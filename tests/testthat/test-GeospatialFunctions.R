@@ -195,7 +195,7 @@ testthat::test_that("TADA_MakeSpatial errors on random data when coordinates are
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
   # Test with NULL data
   testthat::expect_error(
-    EPATADA:::fetchATTAINS(.data = NULL),
+    fetchATTAINS(.data = NULL),
     "The dataframe does not"
   )
 })
@@ -207,7 +207,7 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
 
   # Test with catchments_only = TRUE
   testthat::expect_no_error(
-    result_catchments_only <- EPATADA:::fetchATTAINS(
+    result_catchments_only <- fetchATTAINS(
       .data = valid_data,
       catchments_only = TRUE
     )
@@ -215,7 +215,7 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
 
   # Test with catchments_only = FALSE
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(
+    result_all_features <- fetchATTAINS(
       .data = valid_data,
       catchments_only = FALSE
     )

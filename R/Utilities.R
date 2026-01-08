@@ -1364,6 +1364,7 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' @param layerfilepath Character(1). Local path for the output .shp.
 #' @param sanitize_names Logical. If TRUE, ensure DBF field names are unique and ≤ 10 chars.
 #'
+#' @export
 #' @return Invisibly returns the normalized path to the .shp file.
 writeLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   stopifnot(is.character(url), length(url) == 1L, nchar(url) > 0L)

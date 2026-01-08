@@ -531,7 +531,7 @@ test_that("writeLayer sanitizes names, renames TOTALAREA_* fields, creates dir, 
         },
         {
           out_path <- file.path(tempdir(), "nested1", "nested2", "ok.shp")
-          ret <- EPATADA:::writeLayer(
+          ret <- writeLayer(
             "http://fake/query",
             out_path,
             sanitize_names = TRUE
@@ -576,7 +576,7 @@ test_that("writeLayer can skip sanitization but still renames TOTALAREA_*", {
         },
         {
           out_path <- file.path(tempdir(), "nosanitize.shp")
-          EPATADA:::writeLayer(
+          writeLayer(
             "http://fake/query",
             out_path,
             sanitize_names = FALSE
@@ -608,7 +608,7 @@ test_that("writeLayer warns when layerfilepath does not end with .shp", {
       with_mocked_bindings(.package = "sf", st_write = function(...) TRUE, {
         out_path <- file.path(tempdir(), "layer.gpkg")
         expect_warning(
-          EPATADA:::writeLayer("http://fake/query", out_path),
+          writeLayer("http://fake/query", out_path),
           "does not end with .shp"
         )
       })
@@ -622,7 +622,7 @@ test_that("writeLayer reports getFeatureLayer errors clearly", {
     getFeatureLayer = function(url) stop("network fail"),
     {
       expect_error(
-        EPATADA:::writeLayer(
+        writeLayer(
           "http://fake/query",
           file.path(tempdir(), "a.shp")
         ),
@@ -642,7 +642,7 @@ test_that("writeLayer reports st_write errors clearly", {
         st_write = function(...) stop("GDAL write failure"),
         {
           expect_error(
-            EPATADA:::writeLayer(
+            writeLayer(
               "http://fake/query",
               file.path(tempdir(), "b.shp")
             ),
@@ -655,11 +655,11 @@ test_that("writeLayer reports st_write errors clearly", {
 })
 
 test_that("writeLayer validates inputs", {
-  expect_error(EPATADA:::writeLayer(123, file.path(tempdir(), "x.shp")))
-  expect_error(EPATADA:::writeLayer(character(), file.path(tempdir(), "x.shp")))
-  expect_error(EPATADA:::writeLayer("", file.path(tempdir(), "x.shp")))
+  expect_error(writeLayer(123, file.path(tempdir(), "x.shp")))
+  expect_error(writeLayer(character(), file.path(tempdir(), "x.shp")))
+  expect_error(writeLayer("", file.path(tempdir(), "x.shp")))
 
-  expect_error(EPATADA:::writeLayer("http://fake/query", 1))
-  expect_error(EPATADA:::writeLayer("http://fake/query", character()))
-  expect_error(EPATADA:::writeLayer("http://fake/query", ""))
+  expect_error(writeLayer("http://fake/query", 1))
+  expect_error(writeLayer("http://fake/query", character()))
+  expect_error(writeLayer("http://fake/query", ""))
 })

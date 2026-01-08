@@ -206,7 +206,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'   ask = FALSE
 #' )
 #'
-#' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
+#' nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   # Dependencies
