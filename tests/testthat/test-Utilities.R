@@ -576,11 +576,7 @@ test_that("TADA_WriteLayer can skip sanitization but still renames TOTALAREA_*",
         },
         {
           out_path <- file.path(tempdir(), "nosanitize.shp")
-          TADA_WriteLayer(
-            "http://fake/query",
-            out_path,
-            sanitize_names = FALSE
-          )
+          TADA_WriteLayer("http://fake/query", out_path, sanitize_names = FALSE)
 
           layer_passed <- capture_env$last
           expect_identical(
@@ -622,10 +618,7 @@ test_that("TADA_WriteLayer reports getFeatureLayer errors clearly", {
     getFeatureLayer = function(url) stop("network fail"),
     {
       expect_error(
-        TADA_WriteLayer(
-          "http://fake/query",
-          file.path(tempdir(), "a.shp")
-        ),
+        TADA_WriteLayer("http://fake/query", file.path(tempdir(), "a.shp")),
         "getFeatureLayer\\(\\) failed for URL: .* — network fail"
       )
     }
@@ -642,10 +635,7 @@ test_that("TADA_WriteLayer reports st_write errors clearly", {
         st_write = function(...) stop("GDAL write failure"),
         {
           expect_error(
-            TADA_WriteLayer(
-              "http://fake/query",
-              file.path(tempdir(), "b.shp")
-            ),
+            TADA_WriteLayer("http://fake/query", file.path(tempdir(), "b.shp")),
             "st_write\\(\\) failed for path: .* — GDAL write failure"
           )
         }

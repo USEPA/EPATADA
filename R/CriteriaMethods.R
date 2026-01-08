@@ -235,9 +235,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     names(DefineCriteriaMethodology) <- desired_cols
 
-    DefineCriteriaMethodology <- TADA_CorrectColType(
-      DefineCriteriaMethodology
-    )
+    DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
   } else {
     # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {

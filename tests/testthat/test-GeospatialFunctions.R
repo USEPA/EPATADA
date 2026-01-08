@@ -194,10 +194,7 @@ testthat::test_that("TADA_MakeSpatial errors on random data when coordinates are
 # fetchATTAINS tests remain unchanged
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
   # Test with NULL data
-  testthat::expect_error(
-    fetchATTAINS(.data = NULL),
-    "The dataframe does not"
-  )
+  testthat::expect_error(fetchATTAINS(.data = NULL), "The dataframe does not")
 })
 
 testthat::test_that("fetchATTAINS handles catchments_only parameter", {
