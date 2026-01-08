@@ -904,7 +904,7 @@ createTADABasemap <- function(.data) {
 # Create bounding box
 createBBox <- function(.data, as_vector = TRUE, attains_geo = FALSE) {
 
-  if(attains_geo == FALSE) {
+  if(isFALSE(attains_geo)) {
   # create bounding box
   bbox <- sf::st_bbox(
     c(
@@ -917,8 +917,16 @@ createBBox <- function(.data, as_vector = TRUE, attains_geo = FALSE) {
   )
   }
 
-  if(attains_geo == TRUE) {
-    bbox <- sf:st_bbox(.data, crs = sf::st_crs(.data))
+  if (isTRUE(attains_geo)) {
+    # should a buffer distance be added around lines/points?
+    # build a new col from per-row bbox polygons
+    bbox_sfc <- sf::st_sfc(
+      purrr::map(sf::st_geometry(.data), ~ sf::st_as_sfc(sf::st_bbox(.x))[[1]]),
+      crs = sf::st_crs(.data)
+    )
+
+    # either add it as an additional column
+    .data$bbox_geom <- bbox_sfc
   }
 
   # return as bounding box
