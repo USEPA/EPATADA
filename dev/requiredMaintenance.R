@@ -13,12 +13,17 @@ spelling::get_wordlist()
 
 ###########################################################
 
-# Run styler to style code
-# https://style.tidyverse.org/
-# See: https://styler.r-lib.org/reference/style_pkg.html
-# Run the following with defaults
 library(styler)
-style_pkg()
+
+# Recommended styler setup to approximate air.toml
+
+style_pkg(
+  transformers = tidyverse_style(
+    scope = I(c("tokens", "indention")), # let air handle the rest
+    indent_by = 2,
+    strict = FALSE # turn off aggressive alignment
+  )
+)
 
 ###########################################################
 

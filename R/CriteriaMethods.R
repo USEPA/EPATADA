@@ -386,7 +386,7 @@ TADA_DefineCriteriaMethodology <- function(
       )
 
       unique_param <- unique(.data$TADA.CharacteristicName)
-      # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's dataframe.
+      # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's data frame.
       TADA_param <- dplyr::distinct(.data[,
         c("TADA.ComparableDataIdentifier"),
         drop = FALSE
@@ -398,6 +398,7 @@ TADA_DefineCriteriaMethodology <- function(
         ) |>
         dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
+      MLSummaryRef <- correctColType(MLSummaryRef)
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
       MLSummaryRef <- TADA_param |>
         dplyr::full_join(MLSummaryRef, by = names(TADA_param))

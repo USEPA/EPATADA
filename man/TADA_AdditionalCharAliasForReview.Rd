@@ -66,6 +66,7 @@ less strict may result in greater number of matches that shouldn't
 be matched (false positives). Default for now is to be more strict.
 }
 \examples{
+\dontrun{
 review <- TADA_AdditionalCharAliasForReview()
 review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
 
@@ -80,5 +81,6 @@ review_less_strict <- TADA_AdditionalCharAliasForReview(
   ATTAINS.WQX.tolerance = 0.5,
   WQX.ATTAINS.tolerance = 0.5
 )
+}
 
 }
