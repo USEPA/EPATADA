@@ -211,6 +211,18 @@ orgs <- TADA_FieldValuesTable(
 DT::datatable(orgs, fillContainer = TRUE)
 ```
 
+Or TADA.CharacteristicName?
+
+```{r TADA_FieldValuesTable2 }
+# use TADA_FieldValuesTable to create a table of the number of results per TADA.CharacteristicName
+chars <- TADA_FieldValuesTable(
+  tada.MT,
+  field = "TADA.CharacteristicName"
+)
+
+DT::datatable(chars, fillContainer = TRUE)
+```
+
 Let's filter our TADA data frame to only include data from the top 4
 OrganizationFormalName. The orgs data frame is sorted in descending
 order in which 1:4 will select the top 4 OrganizationFormalName values.
@@ -222,21 +234,6 @@ tada.MT.filter <- tada.MT |>
     )
 ```
 
-Are there sites located within 100 meters of each other?
-
-```{r TADA_FlagCoordinates}
-# tada.MT.nearby <- TADA_FindNearbySites(
-#   tada.MT.filter,
-#   dist_buffer = 100,
-#   nhd_res = "Hi",
-#   org_hierarchy = "none",
-#   meta_select = "random",
-#   by_AU = FALSE,
-#   catchment = FALSE
-# )
-# 
-# TADA_NearbySitesMap(tada.MT.nearby)
-```
 
 Next, let's check if the dataset contains potential duplicate results
 from within a single organization or from within multiple organizations
@@ -250,33 +247,28 @@ argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r duplicates}
 # # find duplicates from single org
-# tada.MT.nearby.flag.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.nearby)
+tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
 # 
 # # Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
-# unique(tada.MT.nearby.flag.dups$OrganizationIdentifier)
-# unique(tada.MT.nearby.flag.dups$OrganizationFormalName)
+ unique(tada.MT.singleorg.dups$OrganizationIdentifier)
+ unique(tada.MT.singleorg.dups$OrganizationFormalName)
 # 
 # # find duplicates across multiple orgs
-# tada.MT.nearby.flag.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
-#   tada.MT.nearby.flag.dups,
-#   org_hierarchy = c("MDEQ_WQ_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
-# )
+ tada.MT.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
+   tada.MT.singleorg.dups,
+   org_hierarchy = c("MDEQ_WQ_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
+ )
 ```
 
 We will select to keep only unique samples from
-`TADA_FindPotentialDuplicatesSingleOrg` by filtering for
-TADA.SingleOrgDup.Flag equals "Unique".
-
-There are no multiple org duplicates from
-`TADA_FindPotentialDuplicatesMultipleOrgs` in this example, but if there
-were, duplicates can by removed by filtering for
-TADA.ResultSelectedMultipleOrgs equals "Y".
+`TADA_FindPotentialDuplicatesSingleOrg` and `TADA_FindPotentialDuplicatesMultipleOrgs` by filtering for
+TADA.SingleOrgDup.Flag equals "Unique" and TADA.ResultSelectedMultipleOrgs equals "Y".
 
 ```{r filter}
-# tada.MT.clean <- tada.MT.nearby.flag.dups |>
-#   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
-#   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
-tada.MT.clean <- tada.MT.filter
+ tada.MT.clean <- tada.MT.dups |>
+   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
+   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+
 ```
 
 Remove intermediate variables in R by using 'rm()'. In the remainder of
@@ -318,22 +310,10 @@ tada.MT.clean <- TADA_SimpleCensoredMethods(
 )
 ```
 
-`TADA_FindQCActivities` removes results with QA/QC ActivityTypeCode's.
+`TADA_FindQCActivities` identifies results with QA/QC identifies results with QA/QC ActivityTypeCodes. When clean = TRUE, it removes QA/QC results.
 
 ```{r QCdata}
 tada.MT.clean <- TADA_FindQCActivities(tada.MT.clean, clean = TRUE)
-```
-
-`TADA_ConvertSpecialChars` removes rows where the result value is not
-numeric to prepare a dataframe for quantitative analyses. Specifically,
-this function removes rows with "Text" and "NA - Not Available" in the
-TADA.ResultMeasureValueDataTypes.Flag column, or NA in the
-TADA.ResultMeasureValue column. In addition, this function removes
-results with QA/QC ActivityTypeCode's. This function also removes any
-columns not required for TADA workflow where all values are equal to NA.
-
-```{r SpecialChars}
-tada.MT.clean <- TADA_ConvertSpecialChars(tada.MT.clean, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
 TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
@@ -379,8 +359,8 @@ Let's give it a try.
 tada.MT.clean <- TADA_HarmonizeSynonyms(tada.MT.clean)
 ```
 
-How many unique TADA.ComparableDataIdentifier's do we have now? In this
-example, PH has now been harmonized from to "PH_NONE_NONE_NONE". This is
+How many unique TADA.ComparableDataIdentifiers do we have now? In this
+example, PH has now been harmonized to "PH_NONE_NONE_NONE". This is
 the recommended consistent format for PH harmonization across all states
 and tribes. Dissolved Oxygen has also been harmonized.
 
@@ -395,6 +375,8 @@ Remove intermediate variables.
 rm(chars_before, chars_after)
 ```
 
+The functions TADA_FlagAboveThreshold and TADA_FlagBelowThreshold are used to flag results falling above and below the WQX national thresholds, respectively. When clean = TRUE, the flagged results are removed from the TADA data frame.
+
 ```{r thresholds}
 tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 
@@ -403,7 +385,7 @@ tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonl
 
 ## visualize data
 
-Create a pie chart.
+Create a pie chart to display the count of results for each TADA.CharacteristicName.
 
 ```{r}
 TADA_FieldValuesPie(
@@ -415,25 +397,13 @@ TADA_FieldValuesPie(
 
 ## B) Create, review and define up to date assessment unit/WQP monitoring location.
 
-Using `tada.MT.clean` we can pull in the ATTAINS catchment features that
-intersect our observations:
-
-```{r, eval = T}
-TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
-  .data = tada.MT.clean,
-  return_sf = FALSE,
-  return_nearest = TRUE
-)
-```
+### Run `TADA_CreateAUMLCrosswalk`
 
 For demonstration purposes, let's assume we know for sure this
 MonitoringLocationIdentifier, "MTWTRSHD_WQX-COMBITR02" should be
-associated with the AssessmentUnitIdentifier "MT76M001_020". We are
-however uncertain if there are other sites that we want to associate
-with this AssessmentUnitIdentifier. We will use the result from
-TADA_with_ATTAINS above and filter our TADA data frame to
-AssessmentUnitIdentifier "MT76M001_020" and also keep the\
-MonitoringLocationIdentifier, "MTWTRSHD_WQX-COMBITR02".
+associated with the AssessmentUnitIdentifier "MT76M001_020". Let's create a crosswalk to assign "MTWTRSHD_WQX-COMBITR02" to the assessment unit "MT76M001_020" and give it the WaterType "RIVER".
+
+Let's also focus the rest of our analysis on a single 
 
 ```{r demo.user, results = 'hide'}
 # create an example user supplied crosswalk (user would like to associate this MonitoringLocationIdentifier)
@@ -444,28 +414,7 @@ user.supplied.cw <- data.frame(
   )
 ```
 
-filter our cleaned data frame as specified. We will also filter our data
-frame to just DISSOLVED OXYGEN (DO)
-
-```{r filter single AU}
-# use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-unique(TADA_with_ATTAINS$assessmentunitidentifier)
-
-TADA_with_ATTAINS_filter <- TADA_with_ATTAINS |>
-  dplyr::filter(
-    assessmentunitidentifier == "MT76M001_020" | MonitoringLocationIdentifier == "MTWTRSHD_WQX-COMBITR02",
-    TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
-
-tada.MT.clean <- tada.MT.clean |>
-  dplyr::filter(
-    MonitoringLocationIdentifier %in% TADA_with_ATTAINS_filter$MonitoringLocationIdentifier,
-    TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
-```
-
-### Run `TADA_CreateAUMLCrosswalk`
-
-Make the AU assignments for the remaining unassigned MLs not defined
-from our user.supplied.cw using TADA_CreateATTAINSAUMLCrosswalk.
+We are uncertain about the other assignments of assessment units to monitoring locations. Let's match the monitoring locations from tada.MT.clean with assessment units from ATTAINS by using TADA_CreateATTAINSAUMLCrosswalk to identify which assessment units intersect with each monitoring location. 
 
 ```{r TADA_CreateAUMLCrosswalk}
 # make AU assignments for unassigned MLs
@@ -474,12 +423,22 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
-  return_nearest = TRUE,
-  batch_upload = TRUE
+  return_nearest = FALSE,
+  batch_upload = FALSE,
 )
 ```
 
-Let's view the data associated with MT.AUMLRef.
+The output of TADA_CreateAUMLCrosswalk is a list of data frames:
+1) "TADA_with_ATTAINS"   
+2) "ATTAINS_catchments"  
+3) "ATTAINS_points"     
+4) "ATTAINS_lines"
+5) "ATTAINS_polygons"    
+6) "ATTAINS_crosswalk"  
+
+The data frame, TADA_with_ATTAINS contains all of the clean TADA data as well as the added ATTAINS columns. The other ATTAINS_catchments, ATTAINS_points, ATTAINS_lines, and ATTAINS_polygons data frames contain geometry for mapping. The ATTAINS_crosswalk data frame contains a simple crosswalk of monitoring locations and assessment units.
+
+Now, let's view the assessment units and monitoring locations on a map to review the assessment unit/monitoring location assignments.
 
 ```{r view.map}
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
@@ -522,50 +481,76 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
 ```
 
 View scatterplots for all parameter and use criteria defined in your
-table compared to the results from your TADA data frame for DO. 
-
-Note that the scatterpoints are only individual result measurements. Future
-TADA development in the package is being made for handling of the full
-criteria (magnitude, duration and frequency), seasonal considerations and 
-other data sufficiency needs!
+table compared to the results from your TADA data frame for DO for a single assessment unit, "MT76M001_020". We'll create a subset of the clean data containing only DO to facilitate this.
 
 ```{r}
-TADA_Scatter_list <- list()
 
-n <- length(MT_criteria$MagnitudeValueLower)
+# get subset DO data for one AU
+tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
+  sf::st_drop_geometry() |>
+  dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
+                ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 
-for(i in 1:n){
+# filter for aquatic life use info to join to AUs
+aquatic.life <- AU_uses |>
+  dplyr::filter(ATTAINS.UseName == "Aquatic Life")
 
-fig <- TADA_Scatterplot(
-  tada.MT.clean,
-  id_cols = "TADA.ComparableDataIdentifier") |>
-  plotly::add_lines(
-    y = MT_criteria$MagnitudeValueLower[i],
-    x = c(min(tada.MT.clean$ActivityStartDate), max(tada.MT.clean$ActivityStartDate)),
-    inherit = FALSE,
-    showlegend = TRUE,
-    line = list(color = "red"),
-    #hoverinfo = "none",
-    name = paste(MT_criteria$ATTAINS.UseName[i], MT_criteria$MagnitudeValueLower[i],MT_criteria$MagnitudeUnit[i], "as a",  MT_criteria$DurationValue[i], MT_criteria$DurationUnit[i], MT_criteria$DurationMethod[i])
-  )
 
-fig <- fig |>
-  plotly::layout(
-    legend = list(
-      orientation = "h", # Horizontal legend
-      x = 0,             # X coordinate (0 is left, 1 is right)
-      y = -0.7           # Y coordinate (negative value places it outside and below the plot area)
-    ),
-    margin = list(b = 100) 
-  )
-TADA_Scatter_list[[i]] <- fig
-}
+# join use and criteria to tada df (many to many relationships may occur)
+tada.MT.clean.DO <- tada.MT.clean.DO |>
+  dplyr::left_join(aquatic.life, relationship = 'many-to-many',
+                   dplyr::join_by(ATTAINS.AssessmentUnitIdentifier,
+ATTAINS.OrganizationIdentifier, ATTAINS.WaterType)) |>
+ 
+  
+   dplyr::left_join(MT_criteria_test, relationship = 'many-to-many',
+                    dplyr::join_by(TADA.CharacteristicName, ATTAINS.UseName))
+
+
+
+# break into separate data frames for each unique combination of DurationValue, DurationMethod, DurationUnit, and UniqueSpatialCriteria for analysis and figures
+tada.MT.do.subsets <- tada.MT.clean.DO |>
+  dplyr::group_by(DurationValue, DurationMethod, DurationUnit,
+                  UniqueSpatialCriteria) |>
+  dplyr::group_split()
+```
+
+Note that the scatterpoints are only individual result measurements. FutureTADA development in the package is being made for handling of the full criteria (magnitude, duration and frequency), seasonal considerations and other data sufficiency needs!
+
+```{r}
+
+# need to set this up as function to plot multiple
+desc <- paste0(
+  "Lower bound for ",
+  test3[[4]]$ATTAINS.UseName[1],
+  " (",
+  test3[[4]]$DurationValue[1],
+  " ",
+  test3[[4]]$DurationUnit[1],
+  " ",
+  test3[[4]]$DurationMethod[1],
+  " for ",
+  test3[[4]]$UniqueSpatialCriteria[1],
+  ")"
+)
+
+
+TADA_Scatterplot(tada.MT.do.subsets[[4]]) |>
+   plotly::add_lines(
+      x = c(
+    min(test3[[4]]$ActivityStartDate, na.rm = TRUE),
+    max(test3[[4]]$ActivityStartDate, na.rm = TRUE)
+  ),
+   y = (test3[[4]]$MagnitudeValueLower[1]),
+  inherit = FALSE,
+  name = paste(strwrap(desc, width = 40), collapse = "<br>"),
+  line = list(color = "red", dash = "dash")
+) 
 ```
 
 View individual scatterplots with defined criteria for different
 combination of uses for DO.
 
 ```{r}
-TADA_Scatter_list[[1]]
-TADA_Scatter_list[[2]]
+# need to add this code
 ```
