@@ -1,12 +1,9 @@
+# Use a packaged dataset instead of live WQP retrieval to avoid network fragility
 test_that("TADA_Stats suggestions complete", {
-  testdat <- TADA_DataRetrieval(
-    statecode = "KS",
-    startDate = "2021-01-01",
-    endDate = "2022-01-01",
-    characteristicName = c("Phosphorus", "Nitrate"),
-    ask = FALSE
-  )
-  check <- TADA_Stats(testdat)
+  # Load example dataset shipped with the package
+  utils::data(Data_6Tribes_5y_Harmonized, package = "EPATADA")
+
+  check <- TADA_Stats(Data_6Tribes_5y_Harmonized)
   expect_true(all(!is.na(check$ND_Estimation_Method)))
 })
 
@@ -190,59 +187,6 @@ test_that("TADA_Stats rounding parameters modify outputs on random data", {
   )
 })
 
-test_that("TADA_Stats calls TADA_IDCensoredData when TADA.CensoredData.Flag is missing", {
-  set.seed(126)
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-
-  # Use a subset and remove the flag
-  sub <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
-  sub <- sub[seq_len(min(20L, nrow(sub))), , drop = FALSE]
-  sub$TADA.CensoredData.Flag <- NULL
-
-  # Mock TADA_IDCensoredData to create the missing flag based on value relative to median
-  testthat::with_mocked_bindings(
-    TADA_IDCensoredData = function(.data) {
-      med <- stats::median(.data$TADA.ResultMeasureValue, na.rm = TRUE)
-      .data$TADA.CensoredData.Flag <- ifelse(
-        .data$TADA.ResultMeasureValue < med,
-        "Non-Detect",
-        "Not-Censored"
-      )
-      .data$DetectionQuantitationLimitTypeName[
-        .data$TADA.CensoredData.Flag == "Non-Detect"
-      ] <- "DL_MOCK"
-      .data
-    },
-    {
-      out <- TADA_Stats(sub)
-      expect_equal(nrow(out), 1L)
-
-      nd_count <- sum(
-        sub$TADA.ResultMeasureValue <
-          stats::median(sub$TADA.ResultMeasureValue, na.rm = TRUE)
-      )
-      total <- nrow(sub)
-      expect_equal(out$Non_Detect_Count, nd_count)
-      expect_equal(out$Non_Detect_Pct, round((nd_count / total) * 100, 1))
-
-      # Method for ND < 50% and one ND level => ROS
-      nd_pct_raw <- (nd_count / total) * 100
-      expected_method <- if (nd_pct_raw == 0) {
-        "No non-detects to estimate"
-      } else if (nd_pct_raw > 80) {
-        "Percent censored too high for estimation methods"
-      } else if (nd_pct_raw < 50) {
-        "Robust Regression Order Statistics"
-      } else if (out$Measurement_Count >= 50) {
-        "Maximum Likelihood Estimation"
-      } else {
-        "Robust Regression Order Statistics"
-      }
-      expect_equal(out$ND_Estimation_Method, expected_method)
-    }
-  )
-})
-
 test_that("TADA_Stats prints notes for NA values and nutrient summation flag", {
   set.seed(127)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
@@ -338,4 +282,69 @@ test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (deri
   ] <- rep(dl_vals, length.out = 9)
   out_km <- TADA_Stats(df_km)
   expect_equal(out_km$ND_Estimation_Method, "Kaplan-Meier")
+})
+
+test_that("TADA_Stats calls TADA_IDCensoredData when TADA.CensoredData.Flag is missing (single group)", {
+  set.seed(126)
+  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+
+  # Use a subset and remove the flag
+  sub <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
+  sub <- sub[seq_len(min(50L, nrow(sub))), , drop = FALSE] # more rows so single group has enough records
+  sub$TADA.CensoredData.Flag <- NULL
+
+  # Filter to a single comparable group so TADA_Stats produces exactly one row
+  one_grp <- sub$TADA.ComparableDataIdentifier[1]
+  sub <- sub[sub$TADA.ComparableDataIdentifier == one_grp, , drop = FALSE]
+
+  # Mock TADA_IDCensoredData to create the missing flag based on value relative to median
+  testthat::with_mocked_bindings(
+    TADA_IDCensoredData = function(.data) {
+      med <- stats::median(.data$TADA.ResultMeasureValue, na.rm = TRUE)
+      .data$TADA.CensoredData.Flag <- ifelse(
+        .data$TADA.ResultMeasureValue < med,
+        "Non-Detect",
+        "Not-Censored"
+      )
+      .data$DetectionQuantitationLimitTypeName[
+        .data$TADA.CensoredData.Flag == "Non-Detect"
+      ] <- "DL_MOCK"
+      .data
+    },
+    {
+      out <- TADA_Stats(sub)
+      expect_equal(nrow(out), 1L)
+
+      # Expected ND count and pct (raw, not rounded) based on the same rule
+      nd_count <- sum(
+        sub$TADA.ResultMeasureValue <
+          stats::median(sub$TADA.ResultMeasureValue, na.rm = TRUE)
+      )
+      total <- nrow(sub)
+      nd_pct_raw <- (nd_count / total) * 100
+
+      expect_equal(out$Non_Detect_Count, nd_count)
+      expect_equal(out$Non_Detect_Pct, round(nd_pct_raw, 1))
+
+      # Use out's summarised fields for ND levels and measurement count
+      nd_lvls_out <- out$Non_Detect_Lvls
+      measurement_count_out <- out$Measurement_Count
+
+      # Mirror ND_Estimation_Method logic from TADA_Stats
+      expected_method <- if (nd_pct_raw == 0) {
+        "No non-detects to estimate"
+      } else if (nd_pct_raw > 80) {
+        "Percent censored too high for estimation methods"
+      } else if (nd_pct_raw < 50 && nd_lvls_out > 1) {
+        "Kaplan-Meier"
+      } else if (nd_pct_raw < 50) {
+        "Robust Regression Order Statistics"
+      } else if (measurement_count_out >= 50) {
+        "Maximum Likelihood Estimation"
+      } else {
+        "Robust Regression Order Statistics"
+      }
+      expect_equal(out$ND_Estimation_Method, expected_method)
+    }
+  )
 })
