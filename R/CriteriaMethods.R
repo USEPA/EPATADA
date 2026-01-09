@@ -730,7 +730,7 @@ TADA_DefineCriteriaMethodology <- function(
         # CST pollutant name which TADA analysis function may not be able to handle currently.
         # NOTE FOR DEVELOPERS: We may wish to include these pollutants back eventually if we can
         # think of a way to handle these unique cases for analysis.
-        if (DefineCriteriaMethodology$CST.STD_POLLUTANT_NAME %in% c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")) {
+        if (any(DefineCriteriaMethodology2$CST.STD_POLLUTANT_NAME %in% c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT"))) {
           print(
             paste("removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'.",
                   "TADA functions cannot currently handle analysis for these instances.")
