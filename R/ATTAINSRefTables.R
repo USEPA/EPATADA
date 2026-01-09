@@ -520,20 +520,10 @@ TADA_AdditionalCharAliasForReview <- function(
 #' @export
 #'
 #' @examples
-#' review <- TADA_AdditionalCharAliasForReview()
-#' review2 <- TADA_AdditionalCharAliasForReview(includeCST = TRUE)
-#'
-#' review_more_strict <- TADA_AdditionalCharAliasForReview(
-#'   displayPercent = TRUE,
-#'   ATTAINS.WQX.tolerance = 1.0,
-#'   WQX.ATTAINS.tolerance = 1.0
-#' )
-#'
-#' review_less_strict <- TADA_AdditionalCharAliasForReview(
-#'   displayPercent = TRUE,
-#'   ATTAINS.WQX.tolerance = 0.5,
-#'   WQX.ATTAINS.tolerance = 0.5
-#' )
+#' uses <- TADA_UsesAliasForReview(
+#'   ATTAINS.CST.tolerance = 0.5,
+#'   CST.ATTAINS.tolerance = 0.15  # uses a lower value as CST uses can be very long string.
+#'   )
 #'
 TADA_UsesAliasForReview <- function(
     includeCST = FALSE,
