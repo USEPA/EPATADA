@@ -380,7 +380,7 @@ tada.MT.clean <- TADA_HarmonizeSynonyms(tada.MT.clean)
 ```
 
 How many unique TADA.ComparableDataIdentifier's do we have now? In this
-example, PH has now been harmonized from to "PH_NONE_NONE_NONE". This is
+example, PH has now been harmonized to "PH_NONE_NONE_NONE". This is
 the recommended consistent format for PH harmonization across all states
 and tribes. Dissolved Oxygen has also been harmonized.
 
@@ -448,7 +448,6 @@ filter our cleaned data frame as specified. We will also filter our data
 frame to just DISSOLVED OXYGEN (DO)
 
 ```{r filter single AU}
-# use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
 unique(TADA_with_ATTAINS$assessmentunitidentifier)
 
 TADA_with_ATTAINS_filter <- TADA_with_ATTAINS |>
