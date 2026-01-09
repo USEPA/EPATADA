@@ -59,7 +59,8 @@ We welcome collaboration with external partners.
 
 Install and load packages
 
-First, install and load the remotes package specifying the repo. This is needed before installing TADA because it is only available on GitHub.
+First, install and load the remotes package specifying the repo. This is
+needed before installing TADA because it is only available on GitHub.
 
 ```{r install_remotes, results = 'hide'}
 install.packages("remotes",
@@ -68,7 +69,12 @@ install.packages("remotes",
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. TADA R Package dependencies will also be downloaded automatically from CRAN with the TADA install. You may be prompted in the console to update dependency packages that have more recent versions available. If you see this prompt, it is recommended to update all of them (enter 1 into the console).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -77,6 +83,7 @@ remotes::install_github("USEPA/EPATADA",
 )
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
+
 ```{r dev_install, eval = F, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
@@ -84,19 +91,25 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-Finally, use the library() function to load the TADA R Package into your R session.
+Finally, use the library() function to load the TADA R Package into your
+R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
 ```
+
 Help pages
 
-All TADA R package functions have their own individual help pages, listed on the Function reference page on the GitHub site. Users can also access the help page for a given function in R or RStudio using the following format (example below): ?[name of TADA function]
+All TADA R package functions have their own individual help pages,
+listed on the Function reference page on the GitHub site. Users can also
+access the help page for a given function in R or RStudio using the
+following format (example below): ?[name of TADA function]
 
 ```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
 ?TADA_DataRetrieval
 ```
+
 ## A) Retrieving, filtering and cleaning data from the WQP
 
 Query the WQP using TADA_DataRetrieval. TADA_AutoClean is a powerful
@@ -122,7 +135,8 @@ TRUE. It performs a variety of tasks, for example:
     characteristic name, result sample fraction, method speciation, and
     result measure unit.
 
-In this example, we will get bacteria and pH data from Missoula County, Montana. 
+In this example, we will get bacteria and pH data from Missoula County,
+Montana.
 
 ```{r load WQP data}
 # get MT data
@@ -142,7 +156,7 @@ tada.MT <- TADA_DataRetrieval(
 )
 ```
 
-## Flag, clean, and visualize
+### Flag, clean, and visualize
 
 Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
@@ -161,8 +175,9 @@ TADA_FieldValuesTable(
 )
 ```
 
-Create an overview map. For each site, we can view the measurement count, visit
-count and characteristic counts along with the site ID, site name, and organization name.
+Create an overview map. For each site, we can view the measurement
+count, visit count and characteristic counts along with the site ID,
+site name, and organization name.
 
 ```{r TADA_OverviewMap}
 TADA_OverviewMap(tada.MT)
@@ -183,9 +198,9 @@ sites <- TADA_FieldValuesTable(
 DT::datatable(sites, fillContainer = TRUE)
 ```
 
-What about OrganizationFormalName? 
+What about OrganizationFormalName?
 
-```{r TADA_FieldValuesTable }
+```{r TADA_FieldValuesTable2 }
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 orgs <- TADA_FieldValuesTable(
   tada.MT,
@@ -196,8 +211,9 @@ orgs <- TADA_FieldValuesTable(
 DT::datatable(orgs, fillContainer = TRUE)
 ```
 
-Let's filter our TADA data frame to only include data from the top 4 OrganizationFormalName.
-The orgs data frame is sorted in descending order in which 1:4 will select the top 4 OrganizationFormalName values.
+Let's filter our TADA data frame to only include data from the top 4
+OrganizationFormalName. The orgs data frame is sorted in descending
+order in which 1:4 will select the top 4 OrganizationFormalName values.
 
 ```{r}
 tada.MT.filter <- tada.MT |>
@@ -227,10 +243,10 @@ from within a single organization or from within multiple organizations
 (such as when two or more organizations monitor the same location and
 may submit duplicate results).
 
-For the case in which there exists potential duplicates from multiple 
-organizations, if you would like to prioritize results from one organization 
-over another, this can be done using the org_hierarchy argument in
-`TADA_FindPotentialDuplicatesMultipleOrgs`.
+For the case in which there exists potential duplicates from multiple
+organizations, if you would like to prioritize results from one
+organization over another, this can be done using the org_hierarchy
+argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r duplicates}
 # # find duplicates from single org
@@ -289,8 +305,8 @@ dataset: we keep over-detects as is (no conversion made) and convert
 non-detect values to 0.5 times the detection limit (half the detection
 limit).
 
-In this example, no censored data results were found. The input tada.MT.clean 
-data is returned.
+In this example, no censored data results were found. The input
+tada.MT.clean data is returned.
 
 ```{r censored}
 tada.MT.clean <- TADA_SimpleCensoredMethods(
@@ -351,11 +367,11 @@ chars_before
 DT::datatable(chars, fillContainer = TRUE)
 ```
 
-Scroll through the table and check to see if there any synonyms. 
-Are there any TADA.ResultSampleFractionText,
-TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode
-that may need to be harmonized for consistency? Let's check using
-`TADA_HarmonizeSynonyms` so their results can be directly compared.
+Scroll through the table and check to see if there any synonyms. Are
+there any TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+TADA.ResultMeasure.MeasureUnitCode that may need to be harmonized for
+consistency? Let's check using `TADA_HarmonizeSynonyms` so their results
+can be directly compared.
 
 Let's give it a try.
 
@@ -364,10 +380,9 @@ tada.MT.clean <- TADA_HarmonizeSynonyms(tada.MT.clean)
 ```
 
 How many unique TADA.ComparableDataIdentifier's do we have now? In this
-example, there were only three TADA.ComparableDataIdentifier and we still have three,
-however PH has now been harmonized from "PH_NA_NA_NONE" to "PH_NONE_NONE_NONE".
-This is the recommended consistent format for PH harmonization across all
-states and tribes.
+example, PH has now been harmonized from to "PH_NONE_NONE_NONE". This is
+the recommended consistent format for PH harmonization across all states
+and tribes. Dissolved Oxygen has also been harmonized.
 
 ```{r}
 chars_after <- unique(tada.MT.clean$TADA.ComparableDataIdentifier)
@@ -411,14 +426,16 @@ TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
 )
 ```
 
-For demonstration purposes, let's assume we know for sure this MonitoringLocationIdentifier,
-"MTWTRSHD_WQX-COMBITR02" should be associated with the AssessmentUnitIdentifier "MT76M001_020".
-We are however uncertain if there are other sites that we want to associate with this 
-AssessmentUnitIdentifier. We will use the result from TADA_with_ATTAINS above and filter
-our TADA data frame to AssessmentUnitIdentifier "MT76M001_020" and also keep the  
+For demonstration purposes, let's assume we know for sure this
+MonitoringLocationIdentifier, "MTWTRSHD_WQX-COMBITR02" should be
+associated with the AssessmentUnitIdentifier "MT76M001_020". We are
+however uncertain if there are other sites that we want to associate
+with this AssessmentUnitIdentifier. We will use the result from
+TADA_with_ATTAINS above and filter our TADA data frame to
+AssessmentUnitIdentifier "MT76M001_020" and also keep the\
 MonitoringLocationIdentifier, "MTWTRSHD_WQX-COMBITR02".
 
-```{r demo.user, results = 'hide', eval = F}
+```{r demo.user, results = 'hide'}
 # create an example user supplied crosswalk (user would like to associate this MonitoringLocationIdentifier)
 user.supplied.cw <- data.frame(
     AssessmentUnitIdentifier = "MT76M001_020",
@@ -427,8 +444,8 @@ user.supplied.cw <- data.frame(
   )
 ```
 
-filter our cleaned data frame as specified. We will also filter our data frame
-to just DISSOLVED OXYGEN (DO)
+filter our cleaned data frame as specified. We will also filter our data
+frame to just DISSOLVED OXYGEN (DO)
 
 ```{r filter single AU}
 # use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
@@ -445,12 +462,12 @@ tada.MT.clean <- tada.MT.clean |>
     TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 ```
 
-## Run `TADA_CreateAUMLCrosswalk`
+### Run `TADA_CreateAUMLCrosswalk`
 
-Make the AU assignments for the remaining unassigned MLs not defined from our
-user.supplied.cw using TADA_CreateATTAINSAUMLCrosswalk.
+Make the AU assignments for the remaining unassigned MLs not defined
+from our user.supplied.cw using TADA_CreateATTAINSAUMLCrosswalk.
 
-```{r TADA_CreateAUMLCrosswalk, eval = F}
+```{r TADA_CreateAUMLCrosswalk}
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
@@ -468,9 +485,27 @@ Let's view the data associated with MT.AUMLRef.
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
+## C) Assigning uses to assessment units.
+
+We will use the ATTAINS.UseNames that were used in prior
+ATTAINS assessment cycles from MTDEQ for this assessment unit.
+Users can append additional rows as needed or remove not applicable
+use names if a use is no longer applicable for the assessment unit.
+See TADA_Module2 vignette for more information.
+
 ```{r}
-AU_uses <- TADA_AssignUsesToAU(tada.MT.clean, org_id = "MTDEQ", AUMLRef = MT.AUMLRef$ATTAINS_crosswalk)
+AU_uses <- TADA_AssignUsesToAU(
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  AUMLRef = MT.AUMLRef$ATTAINS_crosswalk
+  )
 ```
+
+## D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
+
+We will load in a pre-filled criteria template completed by MTDEQ.
+(R8 partners have also contributed to the TADA_CommunityHub repository
+which contains pre-filled templates as well for R8 states and tribes!)
 
 ```{r}
 # Load the example R8 criteria table
@@ -486,9 +521,13 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
   )
 ```
 
-View scatterplots for all parameter and use criteria defined in your table. 
-Note that the scatterpoints are individual result measure. Future development
-is being made in the package for handling of the full criteria (magnitude, duration and frequency)!
+View scatterplots for all parameter and use criteria defined in your
+table compared to the results from your TADA data frame for DO. 
+
+Note that the scatterpoints are only individual result measurements. Future
+TADA development in the package is being made for handling of the full
+criteria (magnitude, duration and frequency), seasonal considerations and 
+other data sufficiency needs!
 
 ```{r}
 TADA_Scatter_list <- list()
@@ -497,7 +536,9 @@ n <- length(MT_criteria$MagnitudeValueLower)
 
 for(i in 1:n){
 
-fig <- TADA_Scatterplot(tada.MT.clean, id_cols = "TADA.ComparableDataIdentifier") |>
+fig <- TADA_Scatterplot(
+  tada.MT.clean,
+  id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
     y = MT_criteria$MagnitudeValueLower[i],
     x = c(min(tada.MT.clean$ActivityStartDate), max(tada.MT.clean$ActivityStartDate)),
@@ -521,8 +562,10 @@ TADA_Scatter_list[[i]] <- fig
 }
 ```
 
-View individual scatterplots with defined criteria for different combination of uses for DO.
-```{r}
+View individual scatterplots with defined criteria for different
+combination of uses for DO.
 
+```{r}
 TADA_Scatter_list[[1]]
+TADA_Scatter_list[[2]]
 ```
