@@ -520,6 +520,29 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
   )
 ```
 
+MT criteria table contains multiple rows for DO. Let's review this table for
+the uniqueSpatialCriteria and seasonal columns to determine which is appropriate 
+for our assessment unit and analysis.
+
+```{r}
+unique(MT_criteria$UniqueSpatialCriteria)
+unique(MT_criteria$Season)
+unique(MT_criteria$DurationMethod)
+```
+
+Let's filter our MT_criteria table and select "Warm water, other life stages present",
+no seasonal consideration, and focus on the duration method for "arithmetic mean" 
+for demonstration purposes.
+
+```{r}
+MT_criteria_filter <- MT_criteria |>
+  dplyr::filter(
+    UniqueSpatialCriteria == "Cold water, other life stages present",
+    DurationMethod == "arithmetic mean",
+    is.na(Season)
+    )
+```
+
 View scatterplots for all parameter and use criteria defined in your
 table compared to the results from your TADA data frame for DO. 
 
@@ -531,7 +554,7 @@ other data sufficiency needs!
 ```{r}
 TADA_Scatter_list <- list()
 
-n <- length(MT_criteria$MagnitudeValueLower)
+n <- length(MT_criteria_filter$MagnitudeValueLower)
 
 for(i in 1:n){
 
@@ -539,13 +562,22 @@ fig <- TADA_Scatterplot(
   tada.MT.clean,
   id_cols = "TADA.ComparableDataIdentifier") |>
   plotly::add_lines(
-    y = MT_criteria$MagnitudeValueLower[i],
+    y = MT_criteria_filter$MagnitudeValueLower[i],
     x = c(min(tada.MT.clean$ActivityStartDate), max(tada.MT.clean$ActivityStartDate)),
     inherit = FALSE,
     showlegend = TRUE,
     line = list(color = "red"),
     #hoverinfo = "none",
-    name = paste(MT_criteria$ATTAINS.UseName[i], MT_criteria$MagnitudeValueLower[i],MT_criteria$MagnitudeUnit[i], "as a",  MT_criteria$DurationValue[i], MT_criteria$DurationUnit[i], MT_criteria$DurationMethod[i])
+    name = paste(
+      MT_criteria_filter$ATTAINS.UseName[i],
+      "for",
+      MT_criteria_filter$UniqueSpatialCriteria[i],
+      MT_criteria_filter$MagnitudeValueLower[i],
+      MT_criteria_filter$MagnitudeUnit[i],
+      "as a",  MT_criteria_filter$DurationValue[i],
+      MT_criteria_filter$DurationUnit[i],
+      MT_criteria_filter$DurationMethod[i]
+      )
   )
 
 fig <- fig |>
@@ -565,6 +597,5 @@ View individual scatterplots with defined criteria for different
 combination of uses for DO.
 
 ```{r}
-TADA_Scatter_list[[1]]
-TADA_Scatter_list[[2]]
+TADA_Scatter_list
 ```
