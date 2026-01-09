@@ -520,3 +520,9 @@ fig <- fig |>
 TADA_Scatter_list[[i]] <- fig
 }
 ```
+
+View individual scatterplots with defined criteria for different combination of uses for DO.
+```{r}
+
+TADA_Scatter_list[[1]]
+```
