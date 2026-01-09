@@ -472,6 +472,282 @@ TADA_AdditionalCharAliasForReview <- function(
 }
 
 
+
+#' TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review
+#'
+#' This function first prioritize use name matches between ATTAINS.UseName 
+#' and the CST uses application by matching the context2 from ATTAINS UseName
+#' domain with the Human Health and Aquatic Life column indicators in the CST.
+#' Please see the crosswalk done within the function. 
+#'
+#' Next, this function compares the ATTAINS.UseName and CST uses to the logic
+#' in this function, which looks at the percentage of words that are
+#' a match between each ATTAINS parameters and WQX Characteristics (and
+#' within ATTAINS and CST, and CST and WQX by CAS) as an alternative
+#' way of finding additional aliases. It is recommended for the TADA
+#' team to review this table and decide whether these aliases are
+#' accurate.
+#' 
+#' Users should be aware that a CST magnitude value may get duplicated
+#' for each ATTAINS.UseName. It is up to the user to decide which magnitude
+#' values for a CST use should be appropriately matched to an ATTAINS.UseName.
+#'
+#' Note for Development: We should keep a reference file to indicate
+#' which rows have already been reviewed during this process.In addition,
+#' we can modify the 'strictness' of percent matches. Being more strict
+#' can result in less potential match (false negatives) findings while
+#' less strict may result in greater number of matches that shouldn't
+#' be matched (false positives). Default for now is to be more strict.
+#'
+#' @param displayPercent a Boolean value. If True, this will display the percent
+#' match in number of words between the WQX characteristic, ATTAINS parameter
+#' and CST pollutant names.
+#'
+#' @param ATTAINS.CST.tolerance a numeric value ranging from 0 to 1 (0% to 100%).
+#' Default is 100%. This value is an OR condition with CST.ATTAINS.tolerance which
+#' defines the minimum percentage of the number of words that must be found in an
+#' ATTAINS parameter to a CST pollutant name for it to be considered an alias match.
+#'
+#' @param CST.ATTAINS.tolerance a numeric value ranging from 0 to 1 (0% to 100%).
+#' Default is 100%. This value is an OR condition with ATTAINS.CST.tolerance which
+#' defines the minimum percentage of the number of words that must be found in a
+#' CST pollutant name to an ATTAINS parameter to for it to be considered an alias match.
+#'
+#' @return a data frame consisting of potential additional ATTAINS.ParameterName
+#' to WQX.CharacteristicName alias for review. TADA team will review and
+#' decide if these are appropriate aliases.
+#'
+#' @export
+#'
+#' @examples
+#' uses <- TADA_UsesAliasForReview(
+#'   ATTAINS.CST.tolerance = 0.5,
+#'   CST.ATTAINS.tolerance = 0.15  # uses a lower value as CST uses can be very long string.
+#'   )
+#'
+TADA_UsesAliasForReview <- function(
+    includeCST = FALSE,
+    displayPercent = FALSE,
+    ATTAINS.CST.tolerance = 1.00,
+    CST.ATTAINS.tolerance = 1.00,
+    ATTAINS.WQX.tolerance = 1.00,
+    WQX.ATTAINS.tolerance = 1.00
+) {
+  if (
+    ATTAINS.CST.tolerance > 1.00 |
+    CST.ATTAINS.tolerance > 1.00 |
+    ATTAINS.WQX.tolerance > 1.00 |
+    WQX.ATTAINS.tolerance > 1.00
+  ) {
+    stop(
+      "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
+    )
+  }
+  
+  # Extracts all words from each ATTAINS Parameter Name
+  # retrieve the ATTAINS domain value from rExpertQuery
+  ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name")
+  
+  ATTAINSUseRef <- ATTAINS.raw[, c("name", "context2"), drop = FALSE]
+  
+  # Will join ATTAINS Use with an Aquatic Life or Human Health indicator consistent with CST columns
+  UsesType <- data.frame(
+    context2 = c(
+      rep(NA,3),
+      "CULTURAL_USE",
+      "DRINKINGWATER_USE",
+      "ECOLOGICAL_USE",
+      "FISHCONSUMPTION_USE",
+      rep("OTHER_USE",3),
+      "RECREATION_USE"
+    ),
+    CRITERIATYPEAQUAHUMHLTH = c(
+      "A","H", NA_character_,
+      "H",
+      "H",
+      "A",
+      "H",
+      "A","H", NA_character_,
+      "H"
+    )
+  )
+  
+  # Find all ATTAINS.UseName used by ATTAINS organization in prior assessment cycles
+  ATTAINS_org_uses <- readr::read_csv("inst/extdata/ATTAINSParamUseEntityRef.csv") |>
+    dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
+    dplyr::distinct()
+  
+  # extract the context2 of ATTAINS.UseName for the use "category type" and applies
+  # logic to match them to a Human Health or Aquatic Life indicator.
+  ATTAINSUseRef <- ATTAINSUseRef |>
+    dplyr::left_join(
+      UsesType,
+      by = dplyr::join_by(context2),
+      relationship = "many-to-many"
+    ) |> 
+    dplyr::distinct()
+  
+  # ATTAINS.UseName, ATTAINS.OrganizationIdentifier and ATTAINS context2 table
+  # with the CST CRITERIATYPEAQUAHUMHLTH
+  ATTAINSUseRef <- ATTAINSUseRef |>
+    dplyr::left_join(
+      ATTAINS_org_uses,
+      by = c("name" = "ATTAINS.UseName"),
+      relationship = "many-to-many"
+    ) |> 
+    dplyr::filter(!is.na(context2)) |>
+    dplyr::distinct()
+  
+  # extract each individual ATTAINS.UseName word
+  ATTAINSUseRef2 <- ATTAINSUseRef |>
+    dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
+    tidyr::unnest(cols = c(name_words)) |>
+    dplyr::filter(!name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")) |>
+    dplyr::distinct(name, name_words, .keep_all = TRUE)
+  
+  # uppercase for consistency
+  ATTAINSUseRef2$name_words <- toupper(gsub(
+    "[^[:alnum:] ]",
+    "",
+    ATTAINSUseRef2$name_words
+  ))
+  
+  # remove intermediate variables
+  rm(ATTAINS.raw)
+  
+  # pulls in CST and extract relevant columns
+  CriteriaSearchToolRef <- system.file(
+    "extdata",
+    "CriteriaSearchToolRef.rda",
+    package = "EPATADA"
+  )
+
+  load(CriteriaSearchToolRef)
+
+  CST <- CriteriaSearchToolRef
+  CST <- CST |>
+    dplyr::select(
+      ENTITY_ABBR,
+      ENTITY_NAME,
+      CRITERIATYPEAQUAHUMHLTH,
+      CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC,
+      USE_CLASS_NAME_LOCATION_ETC
+    ) |>
+    dplyr::distinct()
+  
+  # Extracts all words from each CST Pollutant Name
+  CST2 <- CST |>
+    dplyr::mutate(
+      name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, pattern = " ")
+    ) |>
+    tidyr::unnest(cols = c(name_words)) |>
+    dplyr::filter(!name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")) |>
+    dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
+
+  # uppercase for consistency
+  CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
+  
+  # match CST Entity with ATTAINS org (best guess using state/tribe name)
+  ATTAINSOrgIDsRef <- readr::read_csv("inst/extdata/ATTAINSOrgIDsRef.csv")
+  ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
+  ATTAINS_CST.org <- data.frame(unique(CriteriaSearchToolRef[,c("ENTITY_NAME", "ENTITY_ABBR")])) |>
+    dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
+    dplyr::left_join(ATTAINSOrgIDsRef, by = c("ENTITY_NAME"= "name")) |>
+    dplyr::rename(ATTAINS.OrganizationIdentifier = code) |>
+    dplyr::select(ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
+
+  # joins the ATTAINS.OrganizationIdentifier in the CST table
+  CST2 <- CST2 |>
+    dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
+    dplyr::left_join(ATTAINS_CST.org)
+
+  CST <- CST |>
+    dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
+    dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
+  
+  # matches by org id and CRITERIATYPEAQUAHUMHLTH
+  temp_ATTAINS_CST <- dplyr::right_join(
+    CST,
+    ATTAINSUseRef,
+    by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH"),
+    relationship = "many-to-many"
+  )
+  
+  # Look for percent word matches between ATTAINS and CST as additional matches
+  temp_ATTAINS_CST2 <- dplyr::right_join(
+    CST2,
+    ATTAINSUseRef2,
+    by = c("name_words"),
+    relationship = "many-to-many"
+  ) |>
+    dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name, name_words, .keep_all = TRUE) |>
+    dplyr::group_by(USE_CLASS_NAME_LOCATION_ETC, name, context2) |>
+    dplyr::count() |>
+    dplyr::ungroup() |>
+    dplyr::group_by(name) |>
+    dplyr::mutate(
+      percent_match_CST = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
+    ) |>
+    # dplyr::slice_max(
+    #   order_by = percent_match_CST + percent_match_ATTAINS_CST
+    # ) |>
+    dplyr::right_join(
+      CST,
+      by = c("USE_CLASS_NAME_LOCATION_ETC"),
+      relationship = "many-to-many"
+    ) 
+  #dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 0)
+  
+  # now combine the two tables
+  temp_ATTAINS_CST_final <- temp_ATTAINS_CST |>
+    dplyr::full_join(temp_ATTAINS_CST2) |>
+    dplyr::distinct()
+  
+  # remove intermediate variables
+  rm(CST, ATTAINSUseRef)
+  
+  # less aggressive (prone to more mistake) but identifies more matches
+  temp_ATTAINS_CST_final <- temp_ATTAINS_CST_final |>
+    dplyr::group_by(USE_CLASS_NAME_LOCATION_ETC) |>
+    dplyr::mutate(
+      percent_match_CST = n / stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
+      percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
+    )
+  # dplyr::slice_max(order_by = percent_match_CST + percent_match_ATTAINS_CST)
+  
+  # more aggressive (too strict, can lead to missed matches)
+  ATTAINS_CST_Final <- temp_ATTAINS_CST_final |>
+    dplyr::filter(
+      percent_match_CST >= CST.ATTAINS.tolerance |
+        percent_match_ATTAINS_CST >= ATTAINS.CST.tolerance |
+        (is.na(percent_match_CST) & is.na(percent_match_ATTAINS_CST))
+    )
+  
+  # remove intermediate variables
+  # rm(
+  #   temp_ATTAINS_CST, temp_ATTAINS_CST2, temp_ATTAINS_CST_final
+  # )
+  
+  if (displayPercent == FALSE) {
+    ATTAINS_CST_Final <- ATTAINS_CST_Final |>
+      dplyr::select(
+        -dplyr::any_of(c(
+          "percent_match_ATTAINS_CST",
+          "percent_match_CST"
+        ))
+      )
+  }
+  
+  # remove intermediate variable
+  rm(CST2)
+
+  return(ATTAINS_CST_Final)
+}
+
+
+
 # Used to store cached ATTAINSOrgIDsRef Reference Table
 ATTAINSOrgIDsRef_Cached <- NULL
 
