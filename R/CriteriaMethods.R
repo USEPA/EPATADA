@@ -403,6 +403,16 @@ TADA_DefineCriteriaMethodology <- function(
       MLSummaryRef <- TADA_param |>
         dplyr::full_join(MLSummaryRef, by = names(TADA_param))
 
+      CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
+        displayPercent = TRUE,
+        ATTAINS.WQX.tolerance = 0.75,
+        WQX.ATTAINS.tolerance = 0.75,
+        ATTAINS.CST.tolerance = 0.75,
+        CST.ATTAINS.tolerance = 0.75,
+        includeCST = TRUE
+      ) |> 
+        dplyr::mutate(STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME))
+
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
       # if (updateRef == "paramRef") {
@@ -620,6 +630,93 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
+      if (auto_assign == TRUE){
+        # all lines below will focus on joining CST magnitude values to the auto_assign table
+        # pulls in crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
+        CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
+          displayPercent = TRUE,
+          ATTAINS.WQX.tolerance = 0.75,
+          WQX.ATTAINS.tolerance = 0.75,
+          ATTAINS.CST.tolerance = 0.75, # can change as desired for tolerance on matches
+          CST.ATTAINS.tolerance = 0.75, # can change as desired for tolerance on matches
+          includeCST = TRUE
+        ) |> 
+          dplyr::mutate(STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME))
+
+        uses <- TADA_UsesAliasForReview(
+          ATTAINS.CST.tolerance = 0.15, # uses a lower value as CST uses can be very long.
+          CST.ATTAINS.tolerance = 0.15  # uses a lower value as CST uses can be very long.
+          ) 
+
+        # filters uses crosswalk by the org_id
+        uses <- uses |>
+          dplyr::mutate(ATTAINS.UseName = toupper(name)) |>
+          dplyr::filter(
+            !is.na(ATTAINS.OrganizationIdentifier),
+            ATTAINS.OrganizationIdentifier %in% unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))
+
+        DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+          dplyr::left_join(
+            CST_ATTAINS_Param,
+            by = "ATTAINS.ParameterName",
+            relationship = "many-to-many"
+          ) |>
+          dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+          dplyr::left_join(
+            uses,
+            c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"),
+            relationship = "many-to-many"
+          )|>
+          dplyr::mutate(across(where(is.character), toupper)) |>
+          dplyr::left_join(
+            CriteriaSearchToolRef <- CriteriaSearchToolRef |>
+              dplyr::mutate(dplyr::across(where(is.character), toupper)),
+            relationship = "many-to-many"
+          ) |>
+          dplyr::filter(!is.na(CRITERION_VALUE)) |>
+          tidyr::separate(
+            col = CRITERION_VALUE,
+            into = c("MagnitudeValueLower", "MagnitudeValueUpper"),
+            sep = "-", # Split by " - "
+            fill = "left",
+            convert = TRUE, # Automatically convert to the appropriate type (numeric)
+            extra = "drop"
+          ) |>
+          dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) |>
+          dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) |>
+          dplyr::mutate(MagnitudeUnit = UNIT_NAME) |>
+          dplyr::select(
+            names(suppressMessages(TADA_DefineCriteriaMethodology())),
+            CST.STD_POLLUTANT_NAME = STD_POLLUTANT_NAME,
+            CST.USE = USE_CLASS_NAME_LOCATION_ETC
+          ) |>
+          dplyr::distinct() |>
+          dplyr::right_join(
+            dplyr::select(
+              example_criteria,
+              ATTAINS.OrganizationIdentifier,
+              ATTAINS.ParameterName,
+              ATTAINS.UseName,
+              TADA.ComparableDataIdentifier,
+              TADA.CharacteristicName,
+              TADA.ResultSampleFractionText,
+              TADA.MethodSpeciationName
+            ),
+            by = dplyr::join_by(
+              ATTAINS.OrganizationIdentifier,
+              ATTAINS.ParameterName,
+              ATTAINS.UseName,
+              TADA.ComparableDataIdentifier,
+              TADA.CharacteristicName,
+              TADA.ResultSampleFractionText,
+              TADA.MethodSpeciationName
+            )
+          )
+        # dplyr::relocate(
+        #   STD_POLLUTANT_NAME, 
+        #   .after = ATTAINS.ParameterName
+        #   )|>
+      }
       DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
     }
 
@@ -813,6 +910,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
     }
   }
+
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
   if ("USEPA" %in% org_id) {
