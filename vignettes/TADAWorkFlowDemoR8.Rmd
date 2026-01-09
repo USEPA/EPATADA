@@ -480,6 +480,29 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
   )
 ```
 
+MT criteria table contains multiple rows for DO. Let's review this table for
+the uniqueSpatialCriteria and seasonal columns to determine which is appropriate 
+for our assessment unit and analysis.
+
+```{r}
+unique(MT_criteria$UniqueSpatialCriteria)
+unique(MT_criteria$Season)
+unique(MT_criteria$DurationMethod)
+```
+
+Let's filter our MT_criteria table and select "Warm water, other life stages present",
+no seasonal consideration, and focus on the duration method for "arithmetic mean" 
+for demonstration purposes.
+
+```{r}
+MT_criteria_filter <- MT_criteria |>
+  dplyr::filter(
+    UniqueSpatialCriteria == "Cold water, other life stages present",
+    DurationMethod == "arithmetic mean",
+    is.na(Season)
+    )
+```
+
 View scatterplots for all parameter and use criteria defined in your
 table compared to the results from your TADA data frame for DO for a single assessment unit, "MT76M001_020". We'll create a subset of the clean data containing only DO to facilitate this.
 
@@ -495,6 +518,27 @@ tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
 aquatic.life <- AU_uses |>
   dplyr::filter(ATTAINS.UseName == "Aquatic Life")
 
+
+fig <- TADA_Scatterplot(
+  tada.MT.clean,
+  id_cols = "TADA.ComparableDataIdentifier") |>
+  plotly::add_lines(
+    y = MT_criteria_filter$MagnitudeValueLower[i],
+    x = c(min(tada.MT.clean$ActivityStartDate), max(tada.MT.clean$ActivityStartDate)),
+    inherit = FALSE,
+    showlegend = TRUE,
+    line = list(color = "red"),
+    #hoverinfo = "none",
+    name = paste(
+      MT_criteria_filter$ATTAINS.UseName[i],
+      "for",
+      MT_criteria_filter$UniqueSpatialCriteria[i],
+      MT_criteria_filter$MagnitudeValueLower[i],
+      MT_criteria_filter$MagnitudeUnit[i],
+      "as a",  MT_criteria_filter$DurationValue[i],
+      MT_criteria_filter$DurationUnit[i],
+      MT_criteria_filter$DurationMethod[i]
+      )
 
 # join use and criteria to tada df (many to many relationships may occur)
 tada.MT.clean.DO <- tada.MT.clean.DO |>
@@ -552,5 +596,7 @@ View individual scatterplots with defined criteria for different
 combination of uses for DO.
 
 ```{r}
+
 # need to add this code
+
 ```
