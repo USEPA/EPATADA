@@ -396,9 +396,9 @@ rm(chars_before, chars_after)
 ```
 
 ```{r thresholds}
-tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, flaggedonly = FALSE)
+tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 
-tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, flaggedonly = FALSE)
+tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 ```
 
 ## visualize data
