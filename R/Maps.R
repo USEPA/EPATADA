@@ -132,7 +132,7 @@ TADA_OverviewMap <- function(.data) {
       }
       # create custom fill color function so that data sets with one value for parameter count are displayed correctly
       customFillColor <- function(category, pal) {
-        if (length(param_diff > 0)) {
+        if (length(param_diff) > 0) {
           return(pal(category))
         } else {
           return(tada.pal[5])
@@ -141,14 +141,15 @@ TADA_OverviewMap <- function(.data) {
       # Tribal layers will load by default in the overview map, restricted by the bounding box of the current dataset
       # They can be toggled on and off using a button (all layers work together and can't be turned on/off individually).
       # Colors and icons are as discussed previously (orange/tan colors and open triangle icons for points) but can be changed to match HMW if desired.
+      # Set the bbox CRS explicitly to WGS84 (EPSG:4326) and use na.rm to avoid NA issues
       bbox <- sf::st_bbox(
         c(
-          xmin = min(sumdat$TADA.LongitudeMeasure),
-          ymin = min(sumdat$TADA.LatitudeMeasure),
-          xmax = max(sumdat$TADA.LongitudeMeasure),
-          ymax = max(sumdat$TADA.LatitudeMeasure)
+          xmin = min(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+          ymin = min(sumdat$TADA.LatitudeMeasure, na.rm = TRUE),
+          xmax = max(sumdat$TADA.LongitudeMeasure, na.rm = TRUE),
+          ymax = max(sumdat$TADA.LatitudeMeasure, na.rm = TRUE)
         ),
-        crs = sf::st_crs(sumdat)
+        crs = sf::st_crs(4326)
       )
       vbbox <- bbox |> as.vector()
       map <- leaflet::leaflet() |>
@@ -487,8 +488,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
   return(map)
 }
 
-
-#' TADA_ViewATTAINS
+#' Create TADA_ViewATTAINS Map
 #'
 #' This function is designed to visualize the data included in the list returned
 #' from TADA_CreateAUMLCrosswalk. The map can be used to review different

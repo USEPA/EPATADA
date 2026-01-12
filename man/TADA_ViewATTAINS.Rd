@@ -2,7 +2,7 @@
 % Please edit documentation in R/Maps.R
 \name{TADA_ViewATTAINS}
 \alias{TADA_ViewATTAINS}
-\title{TADA_ViewATTAINS}
+\title{Create TADA_ViewATTAINS Map}
 \usage{
 TADA_ViewATTAINS(.data, ref_icons = TRUE)
 }
