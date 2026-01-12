@@ -196,7 +196,7 @@ TADA_DataRetrieval <- function(
 ) {
   # Require one tribal area type:
   if (length(tribal_area_type) > 1) {
-    stop("tribal_area_type must be of length 1.")
+    stop("TADA_DataRetrieval: tribal_area_type must be of length 1.")
   }
 
   # Check for incomplete or inconsistent inputs:
@@ -208,7 +208,7 @@ TADA_DataRetrieval <- function(
       any((tribal_area_type != "null") | (tribe_name_parcel != "null"))
   ) {
     stop(paste0(
-      "Both sf data and tribal information have been provided. ",
+      "TADA_DataRetrieval: Both sf data and tribal information have been provided. ",
       "Please use only one of these query options."
     ))
   }
@@ -228,7 +228,7 @@ TADA_DataRetrieval <- function(
       )
   ) {
     warning(paste0(
-      "Location information has been provided in addition to an sf object. ",
+      "TADA_DataRetrieval: Location information has been provided in addition to an sf object. ",
       "Only the sf object will be used in the query."
     ))
   } else if (
@@ -244,7 +244,7 @@ TADA_DataRetrieval <- function(
       )
   ) {
     warning(paste0(
-      "Location information has been provided in addition to tribal information. ",
+      "TADA_DataRetrieval: Location information has been provided in addition to tribal information. ",
       "Only the tribal information will be used in the query."
     ))
   }
@@ -252,11 +252,11 @@ TADA_DataRetrieval <- function(
   # Insufficient tribal info provided:
   # Type but no name or parcel
   if ((tribal_area_type != "null") & all(tribe_name_parcel == "null")) {
-    stop("A tribe_name_parcel is required if tribal_area_type is provided.")
+    stop("TADA_DataRetrieval: A tribe_name_parcel is required if tribal_area_type is provided.")
   }
   # Parcel but no type
   if ((tribal_area_type == "null") & all(tribe_name_parcel != "null")) {
-    stop("A tribal_area_type is required if tribe_name_parcel is provided.")
+    stop("TADA_DataRetrieval: A tribal_area_type is required if tribe_name_parcel is provided.")
   }
 
   # Before proceeding make quiet wrappers for dataRetrieval functions for later
@@ -283,7 +283,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = list(startDate))
     } else if (startDate != "null") {
@@ -293,7 +293,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = startDate)
     }
@@ -355,7 +355,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = list(endDate))
     } else if (endDate != "null") {
@@ -365,7 +365,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = endDate)
     }
@@ -389,11 +389,11 @@ TADA_DataRetrieval <- function(
       # These two layers will not return any data when used for bboxes
       if (tribal_area_type == "Alaska Native Villages") {
         stop(
-          "Alaska Native Villages data are centroid points, not spatial boundaries."
+          "TADA_DataRetrieval: Alaska Native Villages data are centroid points, not spatial boundaries."
         )
       } else if (tribal_area_type == "Virginia Federally Recognized Tribes") {
         stop(
-          "Federally recognized tribal entities in Virginia do not have any available spatial boundaries."
+          "TADA_DataRetrieval: Federally recognized tribal entities in Virginia do not have any available spatial boundaries."
         )
       }
 
@@ -437,7 +437,7 @@ TADA_DataRetrieval <- function(
           filter_by_tribe_or_parcel("PARCEL_NO")
       } else {
         stop(
-          "Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options."
+          "TADA_DataRetrieval: Tribal area type or tribal name parcel not recognized. Refer to TADA_TribalOptions() for query options."
         )
       }
     }
@@ -480,7 +480,7 @@ TADA_DataRetrieval <- function(
         (\(hits) {
           paste(
             c(
-              "The WQP request returned a NULL with the following message(s):",
+              "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s):",
               hits,
               "The bounding box may be too large for this process. Reduce your area of interest and try again."
             ),
@@ -497,7 +497,7 @@ TADA_DataRetrieval <- function(
     # Check if any sites are within the aoi
     if ((nrow(bbox_avail) > 0) == FALSE) {
       stop(
-        "No monitoring sites were returned within your area of interest (no data available)."
+        "TADA_DataRetrieval: No monitoring sites were returned within your area of interest (no data available)."
       )
     }
 
@@ -518,7 +518,7 @@ TADA_DataRetrieval <- function(
         (\(hits) {
           paste(
             c(
-              "The WQP request returned a NULL with the following message(s):",
+              "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s):",
               hits,
               "The bounding box may be too large for this process. Reduce your area of interest and try again."
             ),
@@ -549,7 +549,7 @@ TADA_DataRetrieval <- function(
     # Check if any sites are within the clip
     if ((length(clipped_site_ids) > 0) == FALSE) {
       stop(
-        "No monitoring sites were returned within your area of interest (no data available)."
+        "TADA_DataRetrieval: No monitoring sites were returned within your area of interest (no data available)."
       )
     }
 
@@ -577,7 +577,7 @@ TADA_DataRetrieval <- function(
     # If either is true then we'll approach the pull as a "big data" pull
     if (site_count > 300 | record_count > maxrecs) {
       message(paste0(
-        "The number of sites and/or records matched by the AOI and query terms is large, so the download may take some time. ",
+        "TADA_DataRetrieval: The number of sites and/or records matched by the AOI and query terms is large, so the download may take some time. ",
         "If your AOI is a county, state, country, or HUC boundary it would be more efficient to provide a code instead of an sf object."
       ))
 
@@ -634,7 +634,7 @@ TADA_DataRetrieval <- function(
             (\(hits) paste("\n", hits, collapse = ""))() |>
             (\(txt) {
               paste(
-                "The WQP request returned a NULL with the following message(s): \n",
+                "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s): \n",
                 txt,
                 collapse = "\n"
               )
@@ -686,7 +686,7 @@ TADA_DataRetrieval <- function(
       # Check if any results were returned
       if ((nrow(results.DR) > 0) == FALSE) {
         paste0(
-          "Returning empty results dataframe: ",
+          "TADA_DataRetrieval: Returning empty results dataframe: ",
           "Your WQP query returned no results (no data available). ",
           "Try a different query. ",
           "Removing some of your query filters OR broadening your search area may help."
@@ -719,7 +719,7 @@ TADA_DataRetrieval <- function(
             (\(hits) paste("\n", hits, collapse = ""))() |>
             (\(txt) {
               paste(
-                "The WQP request returned a NULL with the following message(s): \n",
+                "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s): \n",
                 txt,
                 collapse = "\n"
               )
@@ -765,7 +765,7 @@ TADA_DataRetrieval <- function(
       statecd <- paste0("US:", statecodes_sub$STATE)
       if (nrow(statecodes_sub) == 0) {
         stop(
-          "State code is not valid. Check FIPS state/territory abbreviations."
+          "TADA_DataRetrieval: State code is not valid. Check FIPS state/territory abbreviations."
         )
       }
       if (length(statecode) >= 1) {
@@ -786,7 +786,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = list(startDate))
     } else if (startDate != "null") {
@@ -796,7 +796,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, startDate = startDate)
     }
@@ -875,7 +875,7 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = list(endDate))
     } else if (endDate != "null") {
@@ -885,13 +885,13 @@ TADA_DataRetrieval <- function(
           orders = "ymd"
         )))
       ) {
-        stop("Incorrect date format. Please use the format YYYY-MM-DD.")
+        stop("TADA_DataRetrieval: Incorrect date format. Please use the format YYYY-MM-DD.")
       }
       WQPquery <- c(WQPquery, endDate = endDate)
     }
 
     # Query info on available data
-    message("Checking what data is available. This may take a moment.")
+    message("TADA_DataRetrieval: Checking what data is available. This may take a moment.")
 
     # Don't want to print every message that's returned by WQP
     quiet_query_avail <- quiet_whatWQPdata(WQPquery)
@@ -909,7 +909,7 @@ TADA_DataRetrieval <- function(
         (\(hits) paste("\n", hits, collapse = ""))() |>
         (\(txt) {
           paste(
-            "The WQP request returned a NULL with the following message(s): \n",
+            "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s): \n",
             txt,
             collapse = "\n"
           )
@@ -973,7 +973,7 @@ TADA_DataRetrieval <- function(
           (\(hits) paste("\n", hits, collapse = ""))() |>
           (\(txt) {
             paste(
-              "The WQP request returned a NULL with the following message(s): \n",
+              "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s): \n",
               txt,
               collapse = "\n"
             )
@@ -1005,7 +1005,7 @@ TADA_DataRetrieval <- function(
           (\(hits) paste("\n", hits, collapse = ""))() |>
           (\(txt) {
             paste(
-              "The WQP request returned a NULL with the following message(s): \n",
+              "TADA_DataRetrieval: The WQP request returned a NULL with the following message(s): \n",
               txt,
               collapse = "\n"
             )
@@ -1142,7 +1142,7 @@ TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Confirm usable string provided
   if (!(tribal_area_type %in% map_service_urls$tribal_area)) {
     stop(
-      "tribal_area_type must match one of the six tribal spatial layer names."
+      "TADA_TribalOptions: tribal_area_type must match one of the six tribal spatial layer names."
     )
   }
 
