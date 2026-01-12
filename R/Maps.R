@@ -181,6 +181,7 @@ TADA_OverviewMap <- function(.data) {
           stroke = TRUE,
           weight = 1.5,
           radius = sumdat$radius,
+          options = leaflet::pathOptions(pane = "featurelayers"),
           popup = paste0(
             "Site ID: ",
             sumdat$MonitoringLocationIdentifier,
@@ -406,6 +407,13 @@ TADA_FlaggedSitesMap <- function(.data) {
 TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
   if (c("TADA.NearbySiteGroup") %in% colnames(.data) == FALSE) {
     .data <- TADA_FindNearbySites(.data)
+  }
+  # Shim to ensure non-TADA lat/long columns exist for downstream select/map code
+  if (!"LatitudeMeasure" %in% names(.data) && "TADA.LatitudeMeasure" %in% names(.data)) {
+    .data$LatitudeMeasure <- suppressWarnings(as.numeric(.data$TADA.LatitudeMeasure))
+  }
+  if (!"LongitudeMeasure" %in% names(.data) && "TADA.LongitudeMeasure" %in% names(.data)) {
+    .data$LongitudeMeasure <- suppressWarnings(as.numeric(.data$TADA.LongitudeMeasure))
   }
   .data <- .data |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
@@ -721,13 +729,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "TADA.MonitoringLocationName",
     "ResultIdentifier",
     "ActivityStartDate",
-    "TADA.OrganizationIdentifier"
+    "OrganizationIdentifier" # align with summarize below
   )
-
-  if (!any(required_columns %in% colnames(ATTAINS_table))) {
-    stop(
-      "Your dataframe does not contain the necessary WQP-style column names."
-    )
+  if (!all(required_columns %in% colnames(ATTAINS_table))) {
+    stop("Your dataframe does not contain the necessary WQP-style column names.")
   }
 
   suppressMessages(suppressWarnings({

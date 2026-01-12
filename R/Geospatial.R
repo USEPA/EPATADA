@@ -1628,11 +1628,14 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     stop("Package 'data.table' is required.")
   }
 
-  # Valid resolutions
-  valid_resolutions <- c("Hi", "Med")
+  # Valid resolutions (case-insensitive)
+  resolution <- tolower(resolution)
+  valid_resolutions <- c("hi", "med")
   if (!resolution %in% valid_resolutions) {
     stop("User-supplied resolution unavailable")
   }
+  # ...and when you pass resolution downstream, use the canonical (e.g., "Hi" if you prefer Title case)
+  resolution_title <- if (resolution == "hi") "Hi" else "Med"
 
   # Store original settings for s2 geometry and timeout for restoration after execution
   original_s2 <- sf::sf_use_s2()
@@ -1917,6 +1920,16 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       find_distances
     )
 
+    # Add distance data to TADA dataframe
+    if (is.null(distances_table) ||
+        !all(c("ResultIdentifier", "assessmentunitidentifier") %in% names(distances_table))) {
+      distances_table <- tibble::tibble(
+        ResultIdentifier = character(0),
+        assessmentunitidentifier = character(0),
+        TADA.DistanceAway.Meters = numeric(0)
+      )
+    }
+    
     # Add distance data to TADA dataframe
     TADA_with_ATTAINS <- TADA_with_ATTAINS |>
       data.table::data.table() |>

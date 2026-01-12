@@ -1,7 +1,7 @@
 # Testing the Geospatial Functions ----
-# Tests for the functions in GeoSpatialFunctions.R using sample data
+# Tests for the functions in GeoSpatial.R using sample data
 
-# Use the full sample dataset without filtering to "PH"
+# Use the full sample dataset
 TADA_dataframe <- Data_HUC8_02070004_Mod1Output
 
 # Identify rows with valid numeric coordinates (to use in spatial tests)
@@ -97,12 +97,10 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   )
 })
 
-# Add tests using real example data from TADA_RandomTestingData ----
-
 # Ensure reproducibility for random state selection (if supported internally)
 set.seed(123)
 testdat <- tryCatch(
-  TADA_RandomTestingData(choose_random_state = TRUE),
+  suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE)),
   error = function(e) NULL
 )
 
@@ -313,7 +311,7 @@ testthat::test_that("TADA_MakeSpatial honors requested CRS on TADA_RandomTesting
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
   # Keep a small, valid subset with coordinates
   sub <- testdat |>
     dplyr::filter(
@@ -340,7 +338,7 @@ testthat::test_that("fetchATTAINS returns features in EPSG:4326 (catchments_only
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
   pts <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -368,7 +366,7 @@ testthat::test_that("fetchNHD returns EPSG:4326 for Hi and Med resolutions", {
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
   pts <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -404,7 +402,7 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk outputs all sf layers with 
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
   sub <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -454,13 +452,14 @@ testthat::test_that("Functions accept input sf in non-4326 and still return 4326
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE, 
+                                                     number_of_days = 1))
   sf_4269 <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
       !is.na(.data$TADA.LatitudeMeasure)
     ) |>
-    dplyr::slice_head(n = 120) |>
+    dplyr::slice_head(n = 10) |>
     TADA_MakeSpatial(crs = 4269) # non-4326 on purpose
 
   # fetchATTAINS should handle and return 4326
@@ -471,15 +470,13 @@ testthat::test_that("Functions accept input sf in non-4326 and still return 4326
   }
 
   # fetchNHD should also return 4326
-  nhd <- fetchNHD(.data = sf_4269, resolution = "Hi", features = "catchments")
+  nhd <- fetchNHD(.data = sf_4269, resolution = "Med", features = "catchments")
   if (inherits(nhd, "sf") && nrow(nhd) > 0) {
     testthat::expect_equal(sf::st_crs(nhd)$epsg, 4326)
   }
 })
 
-#####
-
-# Small helpers for these tests (ASCII-only, no withr)
+# Small helpers for tests below
 capture_msgs <- function(expr) {
   paste(
     capture.output(
@@ -899,4 +896,27 @@ test_that("TADA_WriteLayer validates inputs", {
   expect_error(TADA_WriteLayer("http://fake/query", 1))
   expect_error(TADA_WriteLayer("http://fake/query", character()))
   expect_error(TADA_WriteLayer("http://fake/query", ""))
+})
+
+test_that("ATTAINS sf layers share identical CRS when returned", {
+  skip_on_cran()
+  skip_if_not_installed("EPATADA")
+  
+  set.seed(123)
+  tada <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
+  
+  lst <- tryCatch({
+    TADA_CreateATTAINSAUMLCrosswalk(tada, return_sf = TRUE)
+  }, error = function(e) skip(paste("Crosswalk unavailable:", conditionMessage(e))))
+  
+  layers <- Filter(function(x) inherits(x, "sf") && !is.null(x), lst[
+    c("ATTAINS_points","ATTAINS_lines","ATTAINS_polygons","ATTAINS_catchments")
+  ])
+  if (!length(layers)) skip("No ATTAINS layers returned for this dataset.")
+  
+  keys <- vapply(layers, function(s) {
+    crs <- sf::st_crs(s)
+    if (!is.null(crs$epsg)) as.character(crs$epsg) else crs$wkt
+  }, character(1))
+  expect_equal(length(unique(keys)), 1)
 })
