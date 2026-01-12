@@ -12,42 +12,15 @@
 #'
 #' Transforms a Water Quality Portal dataframe into a geospatial `sf` object.
 #'
-#' This function adds a new column, 'geometry', to the input dataframe, enabling mapping and additional
-#' geospatial capabilities. For an example workflow, refer to the TADAModule2.Rmd file.
-#'
-#' @param .data A dataframe that has been processed using `TADA_DataRetrieval()` and `TADA_AutoClean()`.
-#' @param crs The coordinate reference system (CRS) for the returned point features. The default is CRS 4326 (WGS84).
-#'
-#' @return An `sf` object, which is the original TADA Water Quality Portal dataframe transformed into geospatial point objects.
-#'
-#' @seealso [TADA_DataRetrieval()]
-#'
+#' @param .data A dataframe processed by `TADA_DataRetrieval()` and `TADA_AutoClean()`.
+#' @param crs The target CRS as EPSG (e.g., 4326) or an `st_crs` interpretable value.
+#' @return An `sf` object of point geometries.
 #' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Retrieve water quality data
-#' tada_not_spatial <- TADA_DataRetrieval(
-#'   characteristicName = "pH",
-#'   statecode = "SC",
-#'   countycode = "Abbeville",
-#'   applyautoclean = TRUE,
-#'   ask = FALSE
-#' )
-#'
-#' # Convert `tada_not_spatial` into an `sf` object, projected in CRS 4269 (NAD83)
-#' tada_spatial <- TADA_MakeSpatial(tada_not_spatial, crs = 4269)
-#' }
-#'
 TADA_MakeSpatial <- function(.data, crs = 4326) {
   # Early validations
-  if (is.null(.data)) {
-    stop("Input `.data` is NULL.")
-  }
-  if (inherits(.data, "sf")) {
-    stop("Your data is already a spatial object.")
-  }
-
+  if (is.null(.data)) stop("Input `.data` is NULL.")
+  if (inherits(.data, "sf")) stop("Your data is already a spatial object.")
+  
   required_cols <- c(
     "TADA.LongitudeMeasure",
     "TADA.LatitudeMeasure",
@@ -55,72 +28,58 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   )
   if (!all(required_cols %in% names(.data))) {
     stop(
-      "The dataframe does not contain TADA-style latitude and longitude data ",
-      "(column names `HorizontalCoordinateReferenceSystemDatumName`, ",
+      "The dataframe does not contain TADA-style latitude/longitude (",
+      "columns `HorizontalCoordinateReferenceSystemDatumName`, ",
       "`TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
-
+  
   # Resolve target CRS (as EPSG and crs object)
   target_epsg <- suppressWarnings(as.numeric(crs))
   if (is.na(target_epsg)) {
-    # allow st_crs inputs like "EPSG:4326" or list crs objects
     target_crs_obj <- sf::st_crs(crs)
     target_epsg <- target_crs_obj$epsg
     if (is.na(target_epsg)) {
-      stop(
-        "Could not interpret `crs`. Provide an EPSG code (e.g., 4326) or a valid `st_crs` value."
-      )
+      stop("Could not interpret `crs`. Provide an EPSG code (e.g., 4326) or a valid `st_crs` value.")
     }
   }
   target_crs_obj <- sf::st_crs(target_epsg)
   
   message("TADA_MakeSpatial: Transforming your data into a spatial object.")
   
-  # # Reference table for CRS/EPSG codes
-  # epsg_codes <- tibble::tribble(
-  #   ~HorizontalCoordinateReferenceSystemDatumName , ~epsg       ,
-  #   "NAD83"                                       ,        4269 ,
-  #   "WGS84"                                       ,        4326 ,
-  #   "NAD27"                                       ,        4267 ,
-  #   "UNKWN"                                       , target_epsg ,
-  #   "Unknown"                                     , target_epsg ,
-  #   "OTHER"                                       , target_epsg ,
-  #   "OLDHI"                                       ,        4135 ,
-  #   "AMSMA"                                       ,        4169 ,
-  #   "ASTRO"                                       ,        4727 ,
-  #   "GUAM"                                        ,        4675 ,
-  #   "JHNSN"                                       ,        4725 ,
-  #   "PR"                                          ,        6139 ,
-  #   "SGEOR"                                       ,        4138 ,
-  #   "SLAWR"                                       ,        4136 ,
-  #   "SPAUL"                                       ,        4137 ,
-  #   "WAKE"                                        ,        6732 ,
-  #   "WGS72"                                       ,        6322 ,
-  #   "HARN"                                        ,        4152
-  # )
-
-  # Handle missing/unknown CRS labels
+  # Normalize datum labels in the input for detection and joining
   unknown_labels <- c("UNKWN", "Unknown", "OTHER")
-  if (any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-      any(.data$HorizontalCoordinateReferenceSystemDatumName %in% unknown_labels)) {
+  unknown_labels_norm <- toupper(unknown_labels)
+  
+  has_unknown <- any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
+    any(toupper(trimws(.data$HorizontalCoordinateReferenceSystemDatumName)) %in% unknown_labels_norm)
+  if (has_unknown) {
     message(sprintf(
       "Your WQP dataframe contains observations without a listed CRS. Assigning CRS %s to those rows.",
       target_epsg
     ))
   }
-
-  # Prepare data: attach EPSG and numeric lon/lat
+  
+  # Prepare normalized mapping
+  epsg_map_norm <- .epsg_map |>
+    dplyr::transmute(
+      CRS_datum_norm = toupper(trimws(HorizontalCoordinateReferenceSystemDatumName)),
+      epsg
+    )
+  
+  # Prepare data: normalize labels, attach EPSG, and numeric lon/lat
   df <- .data |>
     dplyr::mutate(
-      HorizontalCoordinateReferenceReferenceSystemDatumName =
-        dplyr::coalesce(HorizontalCoordinateReferenceSystemDatumName, "Unknown")
+      # Coalesce NA to "Unknown" first, then normalize
+      HorizontalCoordinateReferenceSystemDatumName =
+        dplyr::coalesce(HorizontalCoordinateReferenceSystemDatumName, "Unknown"),
+      CRS_datum_norm = toupper(trimws(HorizontalCoordinateReferenceSystemDatumName))
     ) |>
-    dplyr::left_join(epsg_map, by = "HorizontalCoordinateReferenceSystemDatumName") |>
+    dplyr::left_join(epsg_map_norm, by = "CRS_datum_norm") |>
     dplyr::mutate(
       # For unknowns and anything not found in the static map, use target_epsg
       epsg = dplyr::if_else(
-        is.na(epsg) | HorizontalCoordinateReferenceSystemDatumName %in% unknown_labels,
+        is.na(epsg) | CRS_datum_norm %in% unknown_labels_norm,
         target_epsg,
         epsg
       ),
@@ -128,9 +87,20 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       lon = suppressWarnings(as.numeric(TADA.LongitudeMeasure))
     )
   
-  # Convert each CRS subset to sf, then transform to target CRS (unchanged)...
+  # Drop rows with missing coordinates
+  n_before <- nrow(df)
+  df <- df[!is.na(df$lon) & !is.na(df$lat), ]
+  n_dropped <- n_before - nrow(df)
+  if (n_dropped > 0) {
+    message(sprintf("Dropped %d rows with missing longitude/latitude.", n_dropped))
+  }
+  if (nrow(df) == 0) {
+    stop("No valid rows with latitude/longitude found.")
+  }
+  
+  # Convert each CRS subset to sf, then transform to target CRS
   sflist <- lapply(
-    split(df, df$HorizontalCoordinateReferenceSystemDatumName),
+    split(df, df$CRS_datum_norm),
     function(subset_data) {
       if (nrow(subset_data) == 0) return(NULL)
       epsg_val <- unique(subset_data$epsg)
