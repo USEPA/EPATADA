@@ -551,6 +551,7 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
 #' }
 #'
 TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
+
   if (
     !any(
       c(

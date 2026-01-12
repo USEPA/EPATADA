@@ -2502,6 +2502,7 @@ TADA_FindNearbySites <- function(
   unique.mls <- .data |>
     dplyr::select(
       "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationName",
       "TADA.LongitudeMeasure",
       "TADA.LatitudeMeasure",
       "HorizontalCoordinateReferenceSystemDatumName"
@@ -2704,6 +2705,7 @@ TADA_FindNearbySites <- function(
       .data,
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
     ) |>
+    dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
     dplyr::select(
       TADA.MonitoringLocationName,
       TADA.MonitoringLocationIdentifier.New,
@@ -2819,9 +2821,9 @@ TADA_FindNearbySites <- function(
   # filter to retain metadata for TADA.MonitoringLocation.New where there is only one set of
   # metadata from the highest ranked org
   org.meta.filter <- org.ranks.added |>
-    dplyr::group_by(TADA.NearbySiteGroup, OrgRank) |>
-    dplyr::mutate(CountSites = length(OrgRank)) |>
-    dplyr::filter(CountSites == 1) |>
+    dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
+    dplyr::mutate(CountSites = length(TADA.MonitoringLocationName)) |>
+    dplyr::filter(CountSites > 1) |>
     dplyr::ungroup() |>
     dplyr::select(-OrgRank, -CountSites) |>
     dplyr::mutate(
@@ -2840,9 +2842,7 @@ TADA_FindNearbySites <- function(
     # TADA.MonitoringLocationIdentifier.New)
     random.meta <- org.ranks.added |>
       dplyr::ungroup() |>
-      dplyr::filter(
-        !TADA.NearbySiteGroup %in% org.meta.filter$TADA.NearbySiteGroup
-      ) |>
+      dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
       dplyr::group_by(TADA.NearbySiteGroup) |>
       dplyr::slice_min(OrgRank) |>
       dplyr::select(
@@ -2857,7 +2857,7 @@ TADA_FindNearbySites <- function(
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup()
 
-    # join the metadata filtering results to create a df with all metadat to apply to TADA df by
+    # join the metadata filtering results to create a df with all metadata to apply to TADA df by
     # TADA.MonitoringLocationIdentifier.New
     select.meta <- random.meta |>
       dplyr::full_join(org.meta.filter, by = names(random.meta)) |>
@@ -3056,7 +3056,8 @@ TADA_FindNearbySites <- function(
         "No nearby sites detected using input buffer distance.",
         TADA.NearbySites.Flag
       )
-    )
+    ) |>
+    correctColType()
 
   # return TADA df with added columns for tracking
   return(.data)
