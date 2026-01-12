@@ -970,13 +970,14 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
     chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
     chars <- paste0(chars, collapse = "; ")
     print(paste0(
+      "TADA_SubstituteDeprecatedChars: ", 
       howmany,
       " results in your dataset have one of the following deprecated characteristic names: ",
       chars,
       ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
     ))
   } else {
-    print("No deprecated characteristic names found in dataset.")
+    message("TADA_SubstituteDeprecatedChars: No deprecated characteristic names found in dataset.")
   }
 
   .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)

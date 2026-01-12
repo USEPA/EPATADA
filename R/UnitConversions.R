@@ -19,12 +19,6 @@
 #'
 #' @param .data TADA dataframe
 #'
-#' @param print.message Boolean argument with two possible arguments, TRUE and
-#' FALSE. When print.message = TRUE, a message is printed that lists any
-#' characteristics (TADA.CharacteristicName) that have been assigned more than
-#' one target unit. When print.message = FALSE, no message is printed. The default
-#' is print.message = TRUE.
-#
 #' @return A dataframe with seven columns: TADA.CharacteristicName,
 #' TADA.ResultMeasure.MeasureUnitCode, ResultMeasure.MeasureUnitCode,
 #' TADA.Target.ResultMeasureUnit, TADA.MethodSpeciationName,
@@ -42,7 +36,7 @@
 #' # Create a unit reference dataframe
 #' UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
 #'
-TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
+TADA_CreateUnitRef <- function(.data) {
   # create dataframe of unique combinations
   data.units <- TADA_UniqueCharUnitSpeciation(.data)
 
@@ -140,9 +134,6 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       ),
       show_col_types = FALSE # Suppress the column specification message
     )
-
-    # # Print column names to verify
-    # print(colnames(tada.unit.ref))
   } else {
     stop("File not found: TADAPriorityCharConvertRef.csv")
   }
@@ -302,9 +293,8 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
       dplyr::distinct() |>
       stringi::stri_replace_last(replacement = " and ", fixed = "; ")
 
-    # print message listing characteristics/target units
-    if (print.message == TRUE) {
-      print(paste(
+    # message listing characteristics/target units
+    message(paste(
         "TADA.CreateUnitRef: The following characteristics have more than one listed target unit: ",
         mult.target.list,
         ". This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.",
@@ -313,7 +303,7 @@ TADA_CreateUnitRef <- function(.data, print.message = TRUE) {
 
       # remove intermediate object
       rm(mult.target.list)
-    }
+    
   }
 
   # remove intermediate object
@@ -641,12 +631,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
     if (all(expected_ref_cols %in% colnames(ref)) == FALSE) {
       stop(
-        "The reference dataframe does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA dataframe to create an editable unit reference table with all required columns."
+        "TADA_ConvertResultUnits: The reference dataframe does not contain all fields required for TADA_ConvertResultUnits. Use TADA_CreateUnitRef with the TADA dataframe to create an editable unit reference table with all required columns."
       )
 
       if (all(expected_ref_cols %in% colnames(ref)) == TRUE) {
-        print(
-          "The reference dataframe contains all fields required for TADA_ConvertResultUnits."
+        message(
+          "TADA_ConvertResultUnits: The reference dataframe contains all fields required for TADA_ConvertResultUnits."
         )
       }
     }
@@ -687,12 +677,12 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         by = c("TADA.CharacteristicName", "TADA.ResultMeasure.MeasureUnitCode")
       )
 
-    # if no difference between the two, print message that all combinations are present in unit ref
+    # if no difference between the two, message that all combinations are present in unit ref
     if (nrow(compare.ref) == 0) {
-      print(
-        "All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference."
+      message(
+        "TADA_ConvertResultUnits: All CharacteristicName/Unit combinations in the TADA dataframe are represented in user-supplied unit reference."
       )
-      # if there are characteristic/unit combinations in the data that are not in the unit ref, print a warning message listing them
+      # if there are characteristic/unit combinations in the data that are not in the unit ref, include message listing them
     } else {
       compare.list <- compare.ref |>
         dplyr::mutate(
@@ -703,7 +693,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
         dplyr::distinct() |>
         stringi::stri_replace_last(fixed = ",", " and")
 
-      print(paste(
+      message(paste(
         "TADA_ConvertResultUnits: The following CharacteristicName and ResultMeasure.MeasureUnitCode combinations are not included in the user-supplied unit reference dataframe: ",
         compare.list,
         ". Consider revising the user-supplied unit reference dataframe and running TADA_ConvertResultUnits again.",
@@ -720,7 +710,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   if (!is.data.frame(ref)) {
     # if no unit reference df was provided by user or user input was "tada"
     if (ref == "tada") {
-      unit.ref <- TADA_CreateUnitRef(.data, print.message = FALSE)
+      unit.ref <- TADA_CreateUnitRef(.data)
 
       unit.ref <- unit.ref |> dplyr::distinct()
 
@@ -865,7 +855,7 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   }
 
   if (transform == FALSE) {
-    print(
+    message(
       "TADA_ConvertResultUnits: When Transform = FALSE, result values and units are NOT converted. Conversions are required for many other TADA functions to work properly (such as result value range checks)."
     )
 
@@ -884,8 +874,8 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 
   if (transform == TRUE) {
     if (!is.null(usgs.data)) {
-      print(paste0(
-        "NOTE: Dataset contains ",
+      message(paste0(
+        "TADA_ConvertResultUnits: Dataset contains ",
         dim(usgs.data)[1],
         " USGS results with speciation information in both the result unit and method speciation columns. This function overwrites the TADA method speciation column with the speciation provided in the result unit column."
       ))
@@ -1192,11 +1182,8 @@ TADA_ConvertDepthUnits <- function(
       ),
       show_col_types = FALSE # Suppress the column specification message
     )
-
-    # # Print column names to verify
-    # print(colnames(tada.unit.ref))
   } else {
-    stop("File not found: TADAPriorityCharConvertRef.csv")
+    stop("TADA_ConvertDepthUnits: TADAPriorityCharConvertRef.csv file not found.")
   }
 
   # subset to include only "Length Distance" units; filter by target unit defined in 'unit' argument
@@ -1260,15 +1247,6 @@ TADA_ConvertDepthUnits <- function(
     # }
     # }
   }
-
-  # function should always run all code above
-
-  # check if any Conversion Factor columns were appended. CM removed 9/1. Buggy now, not needed?
-  # if (all(is.na(match(appCols, colnames(check.data)))) == TRUE) {
-  #  print("Note: the dataframe does not have any depth data in ActivityTop/BottomDepthHeight or ResultDepthHeight columns.")
-  #  check.data <- TADA_OrderCols(check.data)
-  #  return(check.data)
-  # }
 
   # if transform = FALSE, output data
   if (transform == FALSE) {
