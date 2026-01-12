@@ -63,7 +63,6 @@ Imports:
     leaflet,
     leaflet.extras,
     plotly,
-    urltools,
     geojsonsf,
     tibble,
     rlang,

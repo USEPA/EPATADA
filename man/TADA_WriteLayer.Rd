@@ -7,7 +7,8 @@
 TADA_WriteLayer(url, layerfilepath, sanitize_names = TRUE)
 }
 \arguments{
-\item{url}{Character(1). URL of the layer REST service, typically ending with “/query”.}
+\item{url}{Character(1). URL of the layer REST service. Can be a layer endpoint
+(e.g., .../MapServer/3) or the layer's query endpoint (e.g., .../MapServer/3/query).}
 
 \item{layerfilepath}{Character(1). Local path for the output file (e.g., .shp or .gpkg).}
 

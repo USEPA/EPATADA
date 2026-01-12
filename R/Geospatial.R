@@ -208,43 +208,40 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #' nv_attains_features <- fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
 fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
-  # Dependencies
-  if (!requireNamespace("arcgislayers", quietly = TRUE)) {
-    stop(
-      "The 'arcgislayers' package is required. Install with install.packages('arcgislayers')."
-    )
-  }
-
+  # Runtime options (restore on exit)
   original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
+  original_timeout <- getOption("timeout")
+  options(timeout = 30000)
+  on.exit(options(timeout = original_timeout), add = TRUE)
   on.exit(
     suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
     add = TRUE
   )
-
+  
   message(
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
-
+  
   our_epsg <- 4326
-
+  
   # Normalize input sf/data.frame
   if (!is.null(.data) && inherits(.data, "sf")) {
     .data <- .data |>
       sf::st_transform(crs = our_epsg) |>
       dplyr::distinct(geometry, .keep_all = TRUE)
   }
-
+  
   if (
     !"TADA.LongitudeMeasure" %in% colnames(.data) ||
-      !"TADA.LatitudeMeasure" %in% colnames(.data) ||
-      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
+    !"TADA.LatitudeMeasure" %in% colnames(.data) ||
+    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
   ) {
     stop(
       "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
-
+  
   if (!is.null(.data) && !inherits(.data, "sf")) {
     distinct_data <- .data |>
       data.table::data.table() |>
@@ -255,72 +252,62 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
   }
-
+  
   if (is.null(.data) || nrow(.data) == 0) {
     stop(
       "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
     )
   }
-
-  # ATTAINS MapServer layer URLs
-  layer_urls <- list(
-    catchments = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
-    points = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
-    lines = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
-    polygons = "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+  
+  # ATTAINS MapServer query endpoints
+  baseurls <- c(
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?", # catchments
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?", # points
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?", # lines
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"  # polygons
   )
-
-  # Helper: arcgislayers query by bbox (tries arcgis_features, then arcgis_read)
-  agl_query_bbox <- function(
-    layer_url,
-    sf_bbox_obj,
-    where = "1=1",
-    out_fields = "*"
-  ) {
-    bb <- sf::st_bbox(sf_bbox_obj)
-    bbox_vec <- c(
-      as.numeric(bb["xmin"]),
-      as.numeric(bb["ymin"]),
-      as.numeric(bb["xmax"]),
-      as.numeric(bb["ymax"])
-    )
-
-    # Try arcgis_features first
-    res <- try(
-      arcgislayers::arcgis_features(
-        url = layer_url,
-        where = where,
-        outFields = out_fields,
-        bbox = bbox_vec,
-        spatialRel = "esriSpatialRelIntersects",
-        outSR = our_epsg,
-        returnGeometry = TRUE
-      ),
-      silent = TRUE
-    )
-
-    # Fallback to arcgis_read if needed
-    if (inherits(res, "try-error") || is.null(res)) {
-      res <- try(
-        arcgislayers::arcgis_read(
-          url = layer_url,
-          where = where,
-          outFields = out_fields,
-          bbox = bbox_vec
-        ),
-        silent = TRUE
-      )
+  
+  # Direct REST bbox query with pagination
+  fetch_bbox <- function(baseurl, sf_bbox_vec) {
+    offset <- 0
+    all_features <- list()
+    
+    repeat {
+      query <- baseurl |>
+        urltools::param_set(key = "geometry", value = paste(sf_bbox_vec, collapse = ",")) |>
+        urltools::param_set(key = "inSR", value = our_epsg) |>
+        urltools::param_set(key = "outSR", value = our_epsg) |>
+        urltools::param_set(key = "resultRecordCount", value = 100) |>
+        urltools::param_set(key = "resultOffset", value = offset) |>
+        urltools::param_set(key = "spatialRel", value = "esriSpatialRelIntersects") |>
+        urltools::param_set(key = "f", value = "geojson") |>
+        urltools::param_set(key = "outFields", value = "*") |>
+        urltools::param_set(key = "geometryType", value = "esriGeometryEnvelope") |>
+        urltools::param_set(key = "returnGeometry", value = "true") |>
+        urltools::param_set(key = "returnTrueCurves", value = "false") |>
+        urltools::param_set(key = "returnIdsOnly", value = "false") |>
+        urltools::param_set(key = "returnCountOnly", value = "false") |>
+        urltools::param_set(key = "returnZ", value = "false") |>
+        urltools::param_set(key = "returnM", value = "false") |>
+        urltools::param_set(key = "returnDistinctValues", value = "false") |>
+        urltools::param_set(key = "returnExtentOnly", value = "false") |>
+        urltools::param_set(key = "featureEncoding", value = "esriDefault")
+      
+      features <- suppressMessages(suppressWarnings({
+        tryCatch(geojsonsf::geojson_sf(query), error = function(e) NULL)
+      }))
+      
+      if (is.null(features) || nrow(features) == 0) break
+      
+      all_features <- c(all_features, list(features))
+      offset <- offset + 100
     }
-
-    if (inherits(res, "try-error") || is.null(res)) {
-      return(NULL)
-    }
-    if (inherits(res, "sf")) {
-      suppressWarnings(res <- sf::st_transform(res, our_epsg))
-    }
-    res
+    
+    if (!length(all_features)) return(NULL)
+    suppressWarnings(do.call(rbind, all_features)) |>
+      dplyr::distinct(.keep_all = TRUE)
   }
-
+  
   # org filter
   if (org_id == "all") {
     org_filter <- "1=1"
@@ -331,17 +318,16 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       "')"
     )
   }
-
-  # Fetch AU features by assessmentunitidentifier using arcgislayers (chunked)
-  fetch_au <- function(layer_url, assessment_unit_ids, org_filter) {
-    if (length(assessment_unit_ids) == 0) {
-      return(NULL)
-    }
+  
+  # Direct REST query by AU identifiers (chunked)
+  fetch_au <- function(baseurl, assessment_unit_ids) {
+    if (length(assessment_unit_ids) == 0) return(NULL)
+    
     id_chunks <- split(
       assessment_unit_ids,
       ceiling(seq_along(assessment_unit_ids) / 100)
     )
-
+    
     fetch_chunk <- function(id_chunk) {
       where_clause <- paste0(
         "assessmentunitidentifier IN ('",
@@ -349,49 +335,33 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         "') AND ",
         org_filter
       )
-
-      # Try arcgis_features first
-      res <- try(
-        arcgislayers::arcgis_features(
-          url = layer_url,
-          where = where_clause,
-          outFields = "*",
-          returnGeometry = TRUE,
-          outSR = our_epsg
-        ),
-        silent = TRUE
-      )
-
-      # Fallback to arcgis_read if needed
-      if (inherits(res, "try-error") || is.null(res)) {
-        res <- try(
-          arcgislayers::arcgis_read(
-            url = layer_url,
-            where = where_clause,
-            outFields = "*"
-          ),
-          silent = TRUE
-        )
-      }
-
-      if (inherits(res, "try-error") || is.null(res)) {
-        return(NULL)
-      }
-      if (inherits(res, "sf")) {
-        suppressWarnings(res <- sf::st_transform(res, our_epsg))
-      }
-      res
+      
+      query <- baseurl |>
+        urltools::param_set(key = "where", value = where_clause) |>
+        urltools::param_set(key = "outFields", value = "*") |>
+        urltools::param_set(key = "outSR", value = our_epsg) |>
+        urltools::param_set(key = "returnGeometry", value = "true") |>
+        urltools::param_set(key = "f", value = "geojson")
+      
+      features <- suppressMessages(suppressWarnings({
+        tryCatch(geojsonsf::geojson_sf(query), error = function(e) NULL)
+      }))
+      
+      features
     }
-
-    purrr::map_dfr(id_chunks, fetch_chunk)
+    
+    chunks <- lapply(id_chunks, fetch_chunk)
+    chunks <- purrr::keep(chunks, ~ inherits(., "sf") && nrow(.) > 0)
+    if (!length(chunks)) return(NULL)
+    suppressWarnings(do.call(rbind, chunks))
   }
-
-  # Grab waterbody type codes from ATTAINS API (unchanged)
+  
+  # Grab waterbody type codes from ATTAINS API
   grab_waterbody_type <- function(au_list, chunk_size = 50) {
     num_chunks <- ceiling(length(au_list) / chunk_size)
     chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
     water_types <- vector("list", length = length(chunks))
-
+    
     for (i in seq_along(chunks)) {
       dat <- httr::GET(utils::URLencode(paste0(
         "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
@@ -399,7 +369,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       ))) |>
         httr::content(as = "text", encoding = "UTF-8") |>
         jsonlite::fromJSON()
-
+      
       water_types[[i]] <- dat[["items"]] |>
         tidyr::unnest("assessmentUnits") |>
         tidyr::unnest("waterTypes") |>
@@ -407,20 +377,23 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
     dplyr::bind_rows(water_types)
   }
-
-  # Iterative clustering for large areas (unchanged logic)
+  
+  # Large area: iterative clustering
   if (as.numeric(sf::st_area(sf::st_as_sfc(sf::st_bbox(.data)))) >= 6e+9) {
     perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
+    points_sf,
+    min_area = 6e+9,
+    max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         sf::st_area(
-          sf::st_transform(sf::st_as_sfc(sf::st_bbox(df |> dplyr::filter(cluster == clust))), 3857)
+          sf::st_transform(
+            sf::st_as_sfc(sf::st_bbox(df |> dplyr::filter(cluster == clust))),
+            3857
+          )
         )
       }
-
+      
       cluster_iteration <- function(points, eps, min_pts, iteration) {
         coords <- sf::st_coordinates(points)
         fr <- dbscan::frNN(coords, eps = eps)
@@ -432,18 +405,17 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         )
         points |> dplyr::mutate(cluster = cluster_ids, iteration = iteration)
       }
-
+      
       split_clusters_by_area <- function(points, min_area) {
-        cluster_areas <- unique(points$cluster) |>
-          purrr::map_dfr(~ bbox_area(df = points, clust = .))
-        large_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) > min_area)
-        small_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) <= min_area)
-        large_points <- points |>
-          dplyr::filter(cluster %in% large_clusters$cluster)
-        small_points <- points |>
-          dplyr::filter(cluster %in% small_clusters$cluster)
+        cluster_ids <- unique(points$cluster)
+        cluster_areas <- purrr::map_dfr(cluster_ids, function(cl_id) {
+          a <- bbox_area(df = points, clust = cl_id)
+          tibble::tibble(cluster = cl_id, value = as.numeric(a))
+        })
+        large_clusters <- cluster_areas |> dplyr::filter(value > min_area)
+        small_clusters <- cluster_areas |> dplyr::filter(value <= min_area)
+        large_points <- points |> dplyr::filter(cluster %in% large_clusters$cluster)
+        small_points <- points |> dplyr::filter(cluster %in% small_clusters$cluster)
         list(
           large = large_points,
           small = small_points,
@@ -451,17 +423,17 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           small_areas = small_clusters
         )
       }
-
+      
       all_small_clusters <- list()
       current_points <- points_sf |> dplyr::distinct(geometry)
       iteration <- 1
       eps_sequence <- c(0.25, 0.05, 1, 0.1)
       eps_index <- 1
-
+      
       while (nrow(current_points) > 0 && iteration <= max_iterations) {
         current_eps <- eps_sequence[eps_index]
         eps_index <- (eps_index %% length(eps_sequence)) + 1
-
+        
         clustered_points <- cluster_iteration(
           current_points,
           eps = current_eps,
@@ -469,110 +441,115 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           iteration = iteration
         )
         split_results <- split_clusters_by_area(clustered_points, min_area)
-
+        
         if (nrow(split_results$small) > 0) {
-          all_small_clusters[[paste0(
-            "iteration_",
-            iteration
-          )]] <- split_results$small
+          all_small_clusters[[paste0("iteration_", iteration)]] <- split_results$small
         }
-
-        if (nrow(split_results$large) == 0) {
-          break
-        }
-
+        
+        if (nrow(split_results$large) == 0) break
+        
         current_points <- split_results$large
         iteration <- iteration + 1
       }
-
-      final_clusters <- dplyr::bind_rows(all_small_clusters) |>
-        dplyr::arrange(iteration)
-
-      if (iteration == max_iterations) {
-        warning(
-          "Maximum iterations reached. Some clusters may still exceed the area threshold."
-        )
+      
+      # Bind sf via rbind, preserving geometry
+      if (length(all_small_clusters) > 0) {
+        final_clusters <- suppressWarnings(do.call(rbind, all_small_clusters)) |>
+          dplyr::arrange(iteration)
+      } else {
+        final_clusters <- points_sf[0, ]
       }
-
+      
+      if (iteration == max_iterations) {
+        warning("Maximum iterations reached. Some clusters may still exceed the area threshold.")
+      }
+      
       list(
         clusters = final_clusters,
         clusters_by_iteration = all_small_clusters,
-        total_iterations = iteration,
-        final_eps = current_eps
+        total_iterations = iteration
       )
     }
-
+    
     points_sf <- dplyr::distinct(.data, geometry)
     init <- perform_iterative_clustering(points_sf = points_sf)
-
+    
     # Build cluster list and query catchments per cluster bbox
-    clustered_points <- dplyr::bind_rows(init[["clusters_by_iteration"]])
-    # Points not clustered as "small" become individual clusters
-    remaining_points <- dplyr::anti_join(
-      points_sf,
-      clustered_points,
-      by = "geometry"
-    )
+    clustered_points <- if (length(init[["clusters_by_iteration"]]) > 0) {
+      suppressWarnings(do.call(rbind, init[["clusters_by_iteration"]]))
+    } else {
+      points_sf[0, ]
+    }
+    
+    # Exclude points whose geometry appears in clustered_points via sf topology
+    if (!is.null(clustered_points) && nrow(clustered_points) > 0) {
+      eq <- sf::st_equals(points_sf, clustered_points)  # list of integer vectors
+      keep_idx <- lengths(eq) == 0L                     # TRUE for points not in clustered set
+      remaining_points <- points_sf[keep_idx, , drop = FALSE]
+    } else {
+      remaining_points <- points_sf
+    }
     remaining_points <- remaining_points |>
       tibble::rowid_to_column(var = "cluster") |>
       dplyr::mutate(cluster = as.character(cluster))
-
-    final_cluster_list <- dplyr::bind_rows(
-      if (!is.null(clustered_points) && nrow(clustered_points) > 0) {
-        clustered_points
-      } else {
-        NULL
-      },
-      remaining_points
-    )
-
+    
+    # Bind sf via rbind
+    final_cluster_list <- suppressWarnings(do.call(
+      rbind,
+      Filter(
+        Negate(is.null),
+        list(
+          if (!is.null(clustered_points) && nrow(clustered_points) > 0) clustered_points else NULL,
+          remaining_points
+        )
+      )
+    ))
+    
     catchment_features <- vector(
       "list",
       length = length(unique(final_cluster_list$cluster))
     )
     uniq_clusters <- unique(final_cluster_list$cluster)
-
+    
     for (i in seq_along(uniq_clusters)) {
       this_cluster <- uniq_clusters[i]
       cluster_sf <- final_cluster_list |> dplyr::filter(cluster == this_cluster)
-      # Query with arcgislayers using cluster bbox
-      catchment_features[[i]] <- try(
-        agl_query_bbox(
-          layer_urls$catchments,
-          cluster_sf,
-          where = "1=1",
-          out_fields = "*"
-        ),
-        silent = TRUE
+      
+      bb <- sf::st_bbox(cluster_sf)
+      bbox_vec <- c(
+        as.numeric(bb["xmin"]),
+        as.numeric(bb["ymin"]),
+        as.numeric(bb["xmax"]),
+        as.numeric(bb["ymax"])
       )
-      if (inherits(catchment_features[[i]], "try-error")) {
-        catchment_features[[i]] <- NULL
-      }
+      
+      catchment_features[[i]] <- fetch_bbox(
+        baseurl = baseurls[1],
+        sf_bbox_vec = bbox_vec
+      )
     }
-
-    catchment_features <- catchment_features |>
-      purrr::keep(~ !is.null(.)) |>
-      purrr::keep(~ inherits(., "sf") && nrow(.) > 0) |>
-      dplyr::bind_rows() |>
-      dplyr::distinct(.keep_all = TRUE)
-
+    
+    # Bind sf via rbind, preserve geometry
+    catchment_features <- purrr::keep(catchment_features, ~ inherits(., "sf") && nrow(.) > 0)
+    catchment_features <- if (length(catchment_features)) {
+      suppressWarnings(do.call(rbind, catchment_features)) |>
+        dplyr::distinct(.keep_all = TRUE)
+    } else {
+      points_sf[0, ]
+    }
+    
     # Clip to input points if possible
     try(
-      catchment_features <- try(
-        (\(x) x[points_sf, ])(catchment_features),
-        silent = TRUE
-      ),
+      catchment_features <- try((\(x) x[points_sf, ])(catchment_features), silent = TRUE),
       silent = TRUE
     )
-
+    
     if (
       length(catchment_features) == 0 ||
-        is.null(catchment_features) ||
-        nrow(catchment_features) == 0
+      is.null(catchment_features) ||
+      nrow(catchment_features) == 0
     ) {
-      message(
-        "There are no ATTAINS features associated with your WQP observations."
-      )
+      message("There are no ATTAINS features associated with your WQP observations.")
       water_types <- NULL
     } else {
       all_units <- unique(catchment_features$assessmentunitidentifier)
@@ -586,28 +563,25 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         silent = TRUE
       )
     }
-
+    
     if (isTRUE(catchments_only)) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
-
-    # Fetch raw AU features (points/lines/polygons) by AU IDs using arcgislayers
+    
+    # Fetch raw AU features (points/lines/polygons) by AU IDs
     points <- fetch_au(
-      layer_urls$points,
-      unique(catchment_features$assessmentunitidentifier),
-      org_filter
+      baseurl = baseurls[2],
+      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
     )
     lines <- fetch_au(
-      layer_urls$lines,
-      unique(catchment_features$assessmentunitidentifier),
-      org_filter
+      baseurl = baseurls[3],
+      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
     )
     polygons <- fetch_au(
-      layer_urls$polygons,
-      unique(catchment_features$assessmentunitidentifier),
-      org_filter
+      baseurl = baseurls[4],
+      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
     )
-
+    
     try(
       points <- dplyr::left_join(
         points,
@@ -632,7 +606,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       ),
       silent = TRUE
     )
-
+    
     final_features <- list(
       "ATTAINS_catchments" = catchment_features,
       "ATTAINS_points" = points,
@@ -643,29 +617,28 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     # Moderate-small area: single bbox query
     points_sf <- .data
-    catchment_features <- agl_query_bbox(
-      layer_urls$catchments,
-      points_sf,
-      where = "1=1",
-      out_fields = "*"
+    
+    bb <- sf::st_bbox(points_sf)
+    bbox_vec <- c(
+      as.numeric(bb["xmin"]),
+      as.numeric(bb["ymin"]),
+      as.numeric(bb["xmax"]),
+      as.numeric(bb["ymax"])
     )
-
+    
+    catchment_features <- fetch_bbox(baseurl = baseurls[1], sf_bbox_vec = bbox_vec)
+    
     try(
-      catchment_features <- try(
-        (\(x) x[points_sf, ])(catchment_features),
-        silent = TRUE
-      ),
+      catchment_features <- try((\(x) x[points_sf, ])(catchment_features), silent = TRUE),
       silent = TRUE
     )
-
+    
     if (
       length(catchment_features) == 0 ||
-        is.null(catchment_features) ||
-        nrow(catchment_features) == 0
+      is.null(catchment_features) ||
+      nrow(catchment_features) == 0
     ) {
-      message(
-        "There are no ATTAINS features associated with your WQP observations."
-      )
+      message("There are no ATTAINS features associated with your WQP observations.")
       water_types <- NULL
     } else {
       all_units <- unique(catchment_features$assessmentunitidentifier)
@@ -679,39 +652,36 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         silent = TRUE
       )
     }
-
+    
     if (isTRUE(catchments_only)) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
-
-    # Fetch raw AU features (points/lines/polygons) by AU IDs using arcgislayers
+    
+    # Fetch raw AU features (points/lines/polygons) by AU IDs
     points <- lines <- polygons <- NULL
-
+    
     try(
       points <- fetch_au(
-        layer_urls$points,
-        unique(catchment_features$assessmentunitidentifier),
-        org_filter
+        baseurl = baseurls[2],
+        assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
       ),
       silent = TRUE
     )
     try(
       lines <- fetch_au(
-        layer_urls$lines,
-        unique(catchment_features$assessmentunitidentifier),
-        org_filter
+        baseurl = baseurls[3],
+        assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
       ),
       silent = TRUE
     )
     try(
       polygons <- fetch_au(
-        layer_urls$polygons,
-        unique(catchment_features$assessmentunitidentifier),
-        org_filter
+        baseurl = baseurls[4],
+        assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
       ),
       silent = TRUE
     )
-
+    
     try(
       points <- dplyr::left_join(
         points,
@@ -736,7 +706,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       ),
       silent = TRUE
     )
-
+    
     final_features <- list(
       "ATTAINS_catchments" = catchment_features,
       "ATTAINS_points" = points,
@@ -4525,19 +4495,19 @@ TADA_addPoints <- function(
 
 #' Build popup text for tribal map features
 #'
-#' Creates HTML popup text for map features, resolving columns case‑insensitively
+#' Creates HTML popup text for map features, resolving columns case-insensitively
 #' and supporting alternative or sanitized DBF names for common fields
 #' (e.g., `TRIBE_N`/`TRIBE_NAME`, `ALAND_KM`/`TAREA_KM`, etc.).
 #'
 #' Notes:
-#' • Area fields are rounded to two decimal places.
-#' • The “EPA Region” field may be semicolon‑delimited in the data; this is
-#'   normalized to a comma‑separated list for display.
-#' • Area units are inferred from column suffixes: “_KM” → “(sq kilometers)”
-#'   and anything else defaults to “(sq miles)”.
+#' - Area fields are rounded to two decimal places.
+#' - The "EPA Region" field may be semicolon-delimited in the data; this is
+#'   normalized to a comma-separated list for display.
+#' - Area units are inferred from column suffixes: "_KM" -> "(sq kilometers)"
+#'   and anything else defaults to "(sq miles)".
 #'
 #' @param layer An `sf` object containing the features to display.
-#' @param layername Character(1). Human‑readable name of the layer (used as a header).
+#' @param layername Character(1). Human-readable name of the layer (used as a header).
 #'
 #' @return A character vector of HTML strings to use as popup content.
 #'
@@ -4547,6 +4517,7 @@ TADA_addPoints <- function(
 #' popups <- getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 #' head(popups)
 #' }
+#' 
 getTribalPopup <- function(layer, layername) {
   n <- nrow(layer)
   if (n == 0) {
@@ -4868,7 +4839,8 @@ getFeatureLayer <- function(url, bbox = NULL) {
 #' Downloads a feature layer as an `sf` object and saves it to a local file.
 #' The output format is inferred from the file extension (e.g., .shp or .gpkg).
 #'
-#' @param url Character(1). URL of the layer REST service, typically ending with “/query”.
+#' @param url Character(1). URL of the layer REST service. Can be a layer endpoint
+#' (e.g., .../MapServer/3) or the layer's query endpoint (e.g., .../MapServer/3/query).
 #' @param layerfilepath Character(1). Local path for the output file (e.g., .shp or .gpkg).
 #' @param sanitize_names Logical. If TRUE, ensure DBF field names are unique and ≤ 10 chars.
 #'
@@ -4904,29 +4876,85 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     )
   }
   
+  # ArcGIS URL normalizer: drop query string and trailing '/query'
+  normalize_arcgis_url <- function(x) {
+    x <- sub("[?].*$", "", x)
+    x <- sub("/query$", "", x, ignore.case = TRUE)
+    x
+  }
+  
+  # Build arg lists robustly across arcgislayers versions (outFields/fields, outSR/out_sr, etc.)
+  .build_select_args <- function() {
+    fn <- try(formals(arcgislayers::arc_select), silent = TRUE)
+    arg_names <- if (inherits(fn, "try-error")) character() else names(fn)
+    sel <- list(where = "1=1")
+    
+    if ("outFields" %in% arg_names)       sel$outFields       <- "*"
+    if ("fields" %in% arg_names)          sel$fields          <- "*"
+    if ("returnGeometry" %in% arg_names)  sel$returnGeometry  <- TRUE
+    if ("return_geometry" %in% arg_names) sel$return_geometry <- TRUE
+    if ("outSR" %in% arg_names)           sel$outSR           <- 4326
+    if ("out_sr" %in% arg_names)          sel$out_sr          <- 4326
+    
+    sel
+  }
+  .build_read_args <- function() {
+    fn <- try(formals(arcgislayers::arc_read), silent = TRUE)
+    arg_names <- if (inherits(fn, "try-error")) character() else names(fn)
+    rd <- list(where = "1=1")
+    
+    if ("outFields" %in% arg_names)       rd$outFields       <- "*"
+    if ("fields" %in% arg_names)          rd$fields          <- "*"
+    if ("returnGeometry" %in% arg_names)  rd$returnGeometry  <- TRUE
+    if ("return_geometry" %in% arg_names) rd$return_geometry <- TRUE
+    if ("outSR" %in% arg_names)           rd$outSR           <- 4326
+    if ("out_sr" %in% arg_names)          rd$out_sr          <- 4326
+    
+    rd
+  }
+  
   # Retrieve the feature layer as an sf object (prefer arcgislayers when available)
   layer <- tryCatch(
     {
       is_arcgis <- is.character(url) &&
         grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+      
       if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
-        lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
-        q <- arcgislayers::arc_select(
-          lyr,
-          where = "1=1",
-          fields = "*",
-          crs = 4326
-        )
-        arcgislayers::arc_collect(q, as_sf = TRUE)
+        layer_url <- normalize_arcgis_url(url)
+        
+        # Try arc_select via a layer handle
+        res <- try({
+          lyr <- arcgislayers::arc_open(layer_url)
+          do.call(arcgislayers::arc_select, c(list(lyr), .build_select_args()))
+        }, silent = TRUE)
+        
+        # Fallback: arc_select via URL (if supported)
+        if (inherits(res, "try-error") || is.null(res)) {
+          res <- try({
+            do.call(arcgislayers::arc_select, c(list(url = layer_url), .build_select_args()))
+          }, silent = TRUE)
+        }
+        
+        # Fallback: arc_read via URL
+        if (inherits(res, "try-error") || is.null(res)) {
+          res <- try({
+            do.call(arcgislayers::arc_read, c(list(url = layer_url), .build_read_args()))
+          }, silent = TRUE)
+        }
+        
+        if (inherits(res, "try-error") || is.null(res)) {
+          stop("arcgislayers query failed, falling back to getFeatureLayer().")
+        }
+        res
       } else {
         getFeatureLayer(url)
       }
     },
     error = function(e) {
-      # If arcgislayers path fails, fall back to original method
+      # Fallback: try getFeatureLayer explicitly and standardize the error message
       tryCatch(getFeatureLayer(url), error = function(e2) {
         stop(
-          "getFeatureLayer()/arcgislayers failed for URL: ",
+          "getFeatureLayer() failed for URL: ",
           url,
           " — ",
           conditionMessage(e2)
@@ -4935,22 +4963,16 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     }
   )
   
-  # Preemptively rename known problematic fields using base R
+  # Preemptively rename known problematic fields
   nm <- names(layer)
-  if ("TOTALAREA_MI" %in% nm) {
-    nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
-  }
-  if ("TOTALAREA_KM" %in% nm) {
-    nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
-  }
+  if ("TOTALAREA_MI" %in% nm) nm[nm == "TOTALAREA_MI"] <- "TAREA_MI"
+  if ("TOTALAREA_KM" %in% nm) nm[nm == "TOTALAREA_KM"] <- "TAREA_KM"
   names(layer) <- nm
   
   # Optionally sanitize all field names to ≤ 10 chars and unique, leaving geometry column untouched
   if (isTRUE(sanitize_names)) {
     geom_col <- attr(layer, "sf_column")
-    if (is.null(geom_col)) {
-      geom_col <- "geometry"
-    }
+    if (is.null(geom_col)) geom_col <- "geometry"
     nm <- names(layer)
     keep <- nm != geom_col
     nm[keep] <- .sanitize_dbf_names_unicode(nm[keep])
@@ -4960,34 +4982,51 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   # Convert epoch‑millisecond numeric fields to Date/POSIXct to avoid DBF width warnings
   layer <- .convert_epoch_ms_dates(layer)
   
-  # Coerce geometry to a shapefile-supported type (handles GeometryCollection/mixed)
+  # Robust coercion: ensure Shapefile-friendly uniform geometry
   coerce_for_shapefile <- function(s) {
     s <- sf::st_zm(s, drop = TRUE, what = "ZM")
+    g <- sf::st_geometry(s)
+    sfc_class <- class(g)[1]
     
-    if (all(sf::st_is(s, c("POLYGON", "MULTIPOLYGON")) | sf::st_is_empty(s))) {
-      return(suppressWarnings(sf::st_cast(s, "MULTIPOLYGON")))
-    }
-    s_poly <- suppressWarnings(sf::st_collection_extract(s, "POLYGON"))
-    s_poly <- s_poly[!sf::st_is_empty(s_poly), , drop = FALSE]
-    if (nrow(s_poly)) {
-      return(suppressWarnings(sf::st_cast(s_poly, "MULTIPOLYGON")))
+    is_poly  <- sf::st_is(s, c("POLYGON", "MULTIPOLYGON"))
+    is_line  <- sf::st_is(s, c("LINESTRING", "MULTILINESTRING"))
+    is_point <- sf::st_is(s, c("POINT", "MULTIPOINT"))
+    is_empty <- sf::st_is_empty(s)
+    
+    if (identical(sfc_class, "sfc_GEOMETRYCOLLECTION")) {
+      s_poly <- suppressWarnings(sf::st_collection_extract(s, "POLYGON"))
+      s_poly <- s_poly[!sf::st_is_empty(s_poly), , drop = FALSE]
+      if (nrow(s_poly)) return(suppressWarnings(sf::st_cast(s_poly, "MULTIPOLYGON")))
+      
+      s_line <- suppressWarnings(sf::st_collection_extract(s, "LINESTRING"))
+      s_line <- s_line[!sf::st_is_empty(s_line), , drop = FALSE]
+      if (nrow(s_line)) return(suppressWarnings(sf::st_cast(s_line, "MULTILINESTRING")))
+      
+      s_pt <- suppressWarnings(sf::st_collection_extract(s, "POINT"))
+      s_pt <- s_pt[!sf::st_is_empty(s_pt), , drop = FALSE]
+      if (nrow(s_pt)) return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
+      
+      stop("Unable to coerce GEOMETRYCOLLECTION contents to a shapefile-supported type.")
     }
     
-    s_line <- suppressWarnings(sf::st_collection_extract(s, "LINESTRING"))
-    s_line <- s_line[!sf::st_is_empty(s_line), , drop = FALSE]
-    if (nrow(s_line)) {
-      return(suppressWarnings(sf::st_cast(s_line, "MULTILINESTRING")))
+    if (all(is_poly | is_empty))  return(suppressWarnings(sf::st_cast(s, "MULTIPOLYGON")))
+    if (all(is_line | is_empty))  return(suppressWarnings(sf::st_cast(s, "MULTILINESTRING")))
+    if (all(is_point | is_empty)) return(suppressWarnings(sf::st_cast(s, "MULTIPOINT")))
+    
+    if (any(is_poly)) {
+      s_sel <- s[is_poly | is_empty, , drop = FALSE]
+      return(suppressWarnings(sf::st_cast(s_sel, "MULTIPOLYGON")))
+    }
+    if (any(is_line)) {
+      s_sel <- s[is_line | is_empty, , drop = FALSE]
+      return(suppressWarnings(sf::st_cast(s_sel, "MULTILINESTRING")))
+    }
+    if (any(is_point)) {
+      s_sel <- s[is_point | is_empty, , drop = FALSE]
+      return(suppressWarnings(sf::st_cast(s_sel, "MULTIPOINT")))
     }
     
-    s_pt <- suppressWarnings(sf::st_collection_extract(s, "POINT"))
-    s_pt <- s_pt[!sf::st_is_empty(s_pt), , drop = FALSE]
-    if (nrow(s_pt)) {
-      return(suppressWarnings(sf::st_cast(s_pt, "MULTIPOINT")))
-    }
-    
-    stop(
-      "Unable to coerce GeometryCollection/mixed geometries to a shapefile-supported type."
-    )
+    stop("Unable to coerce mixed geometries to a shapefile-supported type.")
   }
   layer <- coerce_for_shapefile(layer)
   
@@ -4995,11 +5034,7 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   dir.create(dirname(layerfilepath), recursive = TRUE, showWarnings = FALSE)
   
   # Normalize path (helps on Windows)
-  layerfilepath_norm <- normalizePath(
-    layerfilepath,
-    winslash = "/",
-    mustWork = FALSE
-  )
+  layerfilepath_norm <- normalizePath(layerfilepath, winslash = "/", mustWork = FALSE)
   
   # Decide overwrite behavior based on extension/driver
   is_shp <- grepl("\\.shp$", layerfilepath_norm, ignore.case = TRUE)
@@ -5023,7 +5058,7 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     },
     error = function(e) {
       stop(sprintf(
-        "st_write() failed for path: %s \u2014 %s",
+        "st_write() failed for path: %s — %s",
         layerfilepath_norm,
         conditionMessage(e)
       ))
@@ -5034,16 +5069,9 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
 }
 
 # Internal helper: enforce Shapefile field‑name rules without ASCII transliteration.
-# • Keep only Unicode letters/digits/underscore
-# • Must start with a letter (prefix ‘f’ if needed)
-# • ≤ 10 characters
-# • Unique, with numeric suffixes applied WITHOUT exceeding 10 chars
 .sanitize_dbf_names_unicode <- function(nm) {
-  # Remove characters outside Unicode letters/digits/underscore
   nm <- gsub("[^\\p{L}\\p{N}_]", "_", nm, perl = TRUE)
   nm <- tolower(nm)
-  
-  # Remove leading underscores; ensure names start with a letter
   nm <- gsub("^_+", "", nm, perl = TRUE)
   nm[nm == ""] <- "f"
   starts_with_letter <- grepl("^\\p{L}", nm, perl = TRUE)
@@ -5055,11 +5083,9 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
     candidate <- base
     n <- 1L
     while (candidate %in% out) {
-      suffix <- as.character(n) # no underscore to save space
-      allowed <- 10L -
-        nchar(suffix, type = "chars", allowNA = FALSE, keepNA = FALSE)
+      suffix <- as.character(n)
+      allowed <- 10L - nchar(suffix, type = "chars", allowNA = FALSE, keepNA = FALSE)
       if (allowed <= 0L) {
-        # Extremely many collisions; fall back to last 10 chars of suffix
         total <- nchar(suffix, type = "chars")
         start <- max(1L, total - 9L)
         candidate <- .substr_u(suffix, start, total)
@@ -5073,19 +5099,38 @@ TADA_WriteLayer <- function(url, layerfilepath, sanitize_names = TRUE) {
   out
 }
 
-# Unicode‑aware substring helper using character counts
+# Unicode‑aware substring helper
 .substr_u <- function(x, start, stop) {
-  # Convert to vector of characters (code points) and paste back
   ch <- strsplit(x, "", fixed = FALSE, useBytes = FALSE)[[1L]]
-  if (length(ch) == 0L) {
-    return("")
-  }
+  if (length(ch) == 0L) return("")
   start <- max(1L, start)
-  stop <- min(length(ch), stop)
-  if (start > stop) {
-    return("")
-  }
+  stop  <- min(length(ch), stop)
+  if (start > stop) return("")
   paste0(ch[start:stop], collapse = "")
+}
+
+# Convert epoch‑millisecond numeric fields to Date/POSIXct
+.convert_epoch_ms_dates <- function(x) {
+  if (!inherits(x, "sf")) return(x)
+  geom_col <- attr(x, "sf_column")
+  for (col in names(x)) {
+    if (!is.null(geom_col) && identical(col, geom_col)) next
+    v <- x[[col]]
+    if (!is.numeric(v)) next
+    v_ok <- is.finite(v) & !is.na(v)
+    if (!any(v_ok)) next
+    vv <- v[v_ok]
+    if (min(vv) >= 1e11 && max(vv) <= 1e14) {
+      dt <- as.POSIXct(v / 1000, origin = "1970-01-01", tz = "UTC")
+      hhmmss <- format(dt[v_ok], "%H%M%S")
+      if (all(hhmmss == "000000")) {
+        x[[col]] <- as.Date(dt)
+      } else {
+        x[[col]] <- dt
+      }
+    }
+  }
+  x
 }
 
 # Detect and convert epoch‑millisecond numeric fields to Date/POSIXct
@@ -5172,48 +5217,70 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
   
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   
+  # ---- ArcGIS URL normalizer ----
+  normalize_arcgis_url <- function(x) {
+    x <- sub("[?].*$", "", x)
+    x <- sub("/query$", "", x, ignore.case = TRUE)
+    x
+  }
+  
+  # ---- Build args robustly across arcgislayers versions ----
+  .build_select_args <- function(where = "1=1") {
+    fn <- try(formals(arcgislayers::arc_select), silent = TRUE)
+    arg_names <- if (inherits(fn, "try-error")) character() else names(fn)
+    sel <- list(where = where)
+    if ("outFields" %in% arg_names)       sel$outFields       <- "*"
+    if ("fields" %in% arg_names)          sel$fields          <- "*"
+    if ("returnGeometry" %in% arg_names)  sel$returnGeometry  <- TRUE
+    if ("return_geometry" %in% arg_names) sel$return_geometry <- TRUE
+    if ("outSR" %in% arg_names)           sel$outSR           <- 4326
+    if ("out_sr" %in% arg_names)          sel$out_sr          <- 4326
+    sel
+  }
+  .build_read_args <- function(where = "1=1") {
+    fn <- try(formals(arcgislayers::arc_read), silent = TRUE)
+    arg_names <- if (inherits(fn, "try-error")) character() else names(fn)
+    rd <- list(where = where)
+    if ("outFields" %in% arg_names)       rd$outFields       <- "*"
+    if ("fields" %in% arg_names)          rd$fields          <- "*"
+    if ("returnGeometry" %in% arg_names)  rd$returnGeometry  <- TRUE
+    if ("return_geometry" %in% arg_names) rd$return_geometry <- TRUE
+    if ("outSR" %in% arg_names)           rd$outSR           <- 4326
+    if ("out_sr" %in% arg_names)          rd$out_sr          <- 4326
+    rd
+  }
+  
   # ---- Preflight: ArcGIS lastEditDate (prefer arcgislayers; fallback jsonlite) ----
   get_arcgis_last_edit <- function(url) {
     is_arcgis <- is.character(url) &&
       grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
-    if (!is_arcgis) {
-      return(NULL)
-    }
+    if (!is_arcgis) return(NULL)
     
-    # Preferred: arcgislayers if available
+    layer_url <- normalize_arcgis_url(url)
+    
     if (requireNamespace("arcgislayers", quietly = TRUE)) {
       info <- tryCatch(
-        arcgislayers::arc_rest_query(
-          sub("[?].*$", "", url),
-          params = list(f = "json")
-        ),
+        arcgislayers::get_layer(layer_url),
         error = function(e) NULL
       )
       if (!is.null(info)) {
+        # Common places arcgis reports timestamps
         le <- info$editingInfo$lastEditDate %||%
-          (info$timeInfo$timeExtent %||% list(NULL, NULL))[[2]]
+          (info$timeInfo$timeExtent %||% list(NULL, NULL))[[2]] %||%
+          info$lastEditDate
         return(if (is.null(le)) NULL else as.numeric(le))
       }
     }
     
-    # Fallback: jsonlite
+    # Fallback: jsonlite (f=json)
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
       return(NULL)
     }
-    u <- paste0(
-      sub("[?].*$", "", url),
-      if (grepl("[?]", url)) "&" else "?",
-      "f=json"
-    )
-    out <- tryCatch(
-      jsonlite::fromJSON(u, simplifyVector = TRUE),
-      error = function(e) NULL
-    )
-    if (is.null(out)) {
-      return(NULL)
-    }
+    u <- paste0(layer_url, if (grepl("[?]", layer_url)) "&" else "?", "f=json")
+    out <- tryCatch(jsonlite::fromJSON(u, simplifyVector = TRUE), error = function(e) NULL)
+    if (is.null(out)) return(NULL)
     
-    le <- out$editingInfo$lastEditDate %||% out$timeInfo$timeExtent[2]
+    le <- out$editingInfo$lastEditDate %||% out$timeInfo$timeExtent[2] %||% out$lastEditDate
     if (is.null(le)) NULL else as.numeric(le)
   }
   
@@ -5228,37 +5295,25 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
     x[[".__CRS_WKT__"]] <- crs_wkt
     
     is_factor <- vapply(x, is.factor, logical(1))
-    if (any(is_factor)) {
-      x[is_factor] <- lapply(x[is_factor], as.character)
-    }
+    if (any(is_factor)) x[is_factor] <- lapply(x[is_factor], as.character)
     
-    is_num <- vapply(
-      x,
-      function(col) is.numeric(col) || inherits(col, "integer64"),
-      logical(1)
-    )
+    is_num <- vapply(x, function(col) is.numeric(col) || inherits(col, "integer64"), logical(1))
     if (any(is_num)) {
       x[is_num] <- lapply(x[is_num], function(col) {
-        if (inherits(col, "integer64")) {
-          col <- as.numeric(col)
-        }
+        if (inherits(col, "integer64")) col <- as.numeric(col)
         round(col, num_round)
       })
     }
     
     x <- x[, order(names(x)), drop = FALSE]
-    for (nm in names(x)) {
-      if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
-    }
+    for (nm in names(x)) if (!is.atomic(x[[nm]])) x[[nm]] <- as.character(x[[nm]])
     ord <- do.call(order, c(x, list(na.last = TRUE)))
     x[ord, , drop = FALSE]
   }
   
   # ---- Normalize epoch-ms -> Date by auto-detection ----
   is_epoch_ms <- function(x) {
-    if (inherits(x, "integer64")) {
-      x <- as.numeric(x)
-    }
+    if (inherits(x, "integer64")) x <- as.numeric(x)
     is.numeric(x) &&
       any(!is.na(x)) &&
       suppressWarnings({
@@ -5267,61 +5322,51 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
       })
   }
   to_date_from_ms <- function(x) {
-    if (inherits(x, "integer64")) {
-      x <- as.numeric(x)
-    }
+    if (inherits(x, "integer64")) x <- as.numeric(x)
     as.Date(as.POSIXct(x / 1000, origin = "1970-01-01", tz = "UTC"))
   }
   fix_date_cols <- function(s) {
     nm <- names(s)
-    numeric_cols <- nm[vapply(
-      s,
-      function(col) is.numeric(col) || inherits(col, "integer64"),
-      logical(1)
-    )]
+    numeric_cols <- nm[vapply(s, function(col) is.numeric(col) || inherits(col, "integer64"), logical(1))]
     to_fix <- Filter(function(nm) is_epoch_ms(s[[nm]]), numeric_cols)
-    if (length(to_fix)) {
-      for (n in to_fix) {
-        s[[n]] <- to_date_from_ms(s[[n]])
-      }
-    }
+    if (length(to_fix)) for (n in to_fix) s[[n]] <- to_date_from_ms(s[[n]])
     s
   }
   
-  # ---- Reader: prefer GDAL/arcgislayers; fallback GeoJSON; last-resort temp shapefile ----
+  # ---- Reader: prefer arcgislayers; fallbacks GeoJSON/GDAL/temp shapefile ----
   read_layer_as_sf <- function(url) {
-    # First attempt: let GDAL handle the service directly
+    # First attempt: GDAL can sometimes read REST endpoints
     s <- tryCatch(sf::read_sf(url, quiet = TRUE), error = function(e) NULL)
-    if (!is.null(s)) {
-      return(s)
-    }
+    if (!is.null(s)) return(s)
     
-    is_arcgis <- is.character(url) &&
-      grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    is_arcgis <- is.character(url) && grepl("FeatureServer|MapServer", url, ignore.case = TRUE)
+    layer_url <- normalize_arcgis_url(url)
     
-    # Preferred: arcgislayers (handles paging, out_sr)
+    # Preferred: arcgislayers (handle paging and SR conversion)
     if (is_arcgis && requireNamespace("arcgislayers", quietly = TRUE)) {
-      s <- tryCatch(
-        {
-          lyr <- arcgislayers::arcgislayer(sub("[?].*$", "", url))
-          q <- arcgislayers::arc_select(
-            lyr,
-            where = "1=1",
-            out_fields = "*",
-            out_sr = 4326
-          )
-          arcgislayers::arc_collect(q, as_sf = TRUE)
-        },
-        error = function(e) NULL
-      )
-      if (!is.null(s)) {
-        return(s)
-      }
+      sel_args <- .build_select_args(where = "1=1")
+      rd_args  <- .build_read_args(where = "1=1")
+      
+      s <- tryCatch({
+        lyr <- arcgislayers::arc_open(layer_url)
+        do.call(arcgislayers::arc_select, c(list(lyr), sel_args))
+      }, error = function(e) NULL)
+      if (!is.null(s)) return(s)
+      
+      s <- tryCatch({
+        do.call(arcgislayers::arc_select, c(list(url = layer_url), sel_args))
+      }, error = function(e) NULL)
+      if (!is.null(s)) return(s)
+      
+      s <- tryCatch({
+        do.call(arcgislayers::arc_read, c(list(url = layer_url), rd_args))
+      }, error = function(e) NULL)
+      if (!is.null(s)) return(s)
     }
     
     # Fallback: ArcGIS GeoJSON endpoint with simple pagination (outSR=4326)
     if (is_arcgis) {
-      base <- sub("[?].*$", "", url)
+      base <- layer_url
       chunk <- 2000L
       offset <- 0L
       parts <- list()
@@ -5347,7 +5392,7 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
       }
     }
     
-    # Last resort: write to temp shapefile then read
+    # Last resort: write to temp shapefile then read (using TADA_WriteLayer)
     tmp_dir <- tempfile("layer_tmp_")
     dir.create(tmp_dir, recursive = TRUE, showWarnings = FALSE)
     on.exit(unlink(tmp_dir, recursive = TRUE), add = TRUE)
@@ -5364,7 +5409,6 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
     if (!inherits(s, "sf")) return(s)
     crs <- sf::st_crs(s)
     
-    # Detect engineering/undefined CRS
     is_engineering <- function(crs) {
       if (is.null(crs) || is.na(crs)) return(TRUE)
       pj <- try(crs$projjson, silent = TRUE)
@@ -5381,7 +5425,6 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
       return(s)
     }
     
-    # If CRS is known and not 4326, transform; then canonicalize WKT
     if (!is.na(crs) && !identical(crs$epsg, 4326)) {
       s <- tryCatch(sf::st_transform(s, 4326), error = function(e) s)
     }
@@ -5418,7 +5461,7 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
     s_new <- fix_date_cols(s_new)
     s_new <- .ensure_wgs84(s_new, source_is_arcgis = TRUE)
     
-    # Drop Z/M and canonicalize CRS again (belt-and-suspenders)
+    # Drop Z/M and canonicalize CRS again
     s_out <- sf::st_zm(s_new, drop = TRUE, what = "ZM")
     s_out <- sf::st_set_crs(s_out, sf::st_crs(4326))
     
@@ -5465,12 +5508,12 @@ TADA_UpdateTribalLayers <- function(force_write = FALSE) {
   }
   
   # ---- Run updates: one .gpkg per layer in inst/extdata ----
-  run_update(ns_get("AKAllotmentsUrl"), "inst/extdata/AKAllotments.gpkg")
-  run_update(ns_get("AKVillagesUrl"), "inst/extdata/AKVillages.gpkg")
-  run_update(ns_get("AmericanIndianUrl"), "inst/extdata/AmericanIndian.gpkg")
-  run_update(ns_get("OffReservationUrl"), "inst/extdata/OffReservation.gpkg")
-  run_update(ns_get("OKTribeUrl"), "inst/extdata/OKTribe.gpkg")
-  run_update(ns_get("VATribeUrl"), "inst/extdata/VATribe.gpkg")
+  run_update(ns_get("AKAllotmentsUrl"),  "inst/extdata/AKAllotments.gpkg")
+  run_update(ns_get("AKVillagesUrl"),    "inst/extdata/AKVillages.gpkg")
+  run_update(ns_get("AmericanIndianUrl"),"inst/extdata/AmericanIndian.gpkg")
+  run_update(ns_get("OffReservationUrl"),"inst/extdata/OffReservation.gpkg")
+  run_update(ns_get("OKTribeUrl"),       "inst/extdata/OKTribe.gpkg")
+  run_update(ns_get("VATribeUrl"),       "inst/extdata/VATribe.gpkg")
   
   invisible(TRUE)
 }
