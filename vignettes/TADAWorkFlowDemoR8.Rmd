@@ -135,8 +135,8 @@ TRUE. It performs a variety of tasks, for example:
     characteristic name, result sample fraction, method speciation, and
     result measure unit.
 
-In this example, we will get bacteria and pH data from Missoula County,
-Montana.
+In this example, we will get dissolved oxygen, bacteria and pH data from 
+Missoula County, Montana.
 
 ```{r load WQP data}
 # get MT data
@@ -225,7 +225,7 @@ DT::datatable(chars, fillContainer = TRUE)
 
 Let's filter our TADA data frame to only include data from the top 4
 OrganizationFormalName. The orgs data frame is sorted in descending
-order in which 1:4 will select the top 4 OrganizationFormalName values.
+order in which [1:4] will select the top 4 OrganizationFormalName values.
 
 ```{r}
 tada.MT.filter <- tada.MT |>
@@ -234,43 +234,20 @@ tada.MT.filter <- tada.MT |>
     )
 ```
 
-
 Next, let's check if the dataset contains potential duplicate results
-from within a single organization or from within multiple organizations
-(such as when two or more organizations monitor the same location and
-may submit duplicate results).
-
-For the case in which there exists potential duplicates from multiple
-organizations, if you would like to prioritize results from one
-organization over another, this can be done using the org_hierarchy
-argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
+from within a single organization.
 
 ```{r duplicates}
-# # find duplicates from single org
+# find duplicates from single org
 tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
-# 
-# # Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
- unique(tada.MT.singleorg.dups$OrganizationIdentifier)
- unique(tada.MT.singleorg.dups$OrganizationFormalName)
-# 
-# # find duplicates across multiple orgs
- tada.MT.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
-   tada.MT.singleorg.dups,
-   org_hierarchy = c("MTVOLWQM_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
- )
 ```
 
 We will select to keep only unique samples from
-`TADA_FindPotentialDuplicatesSingleOrg` and `TADA_FindPotentialDuplicatesMultipleOrgs` by filtering for
-TADA.SingleOrgDup.Flag equals "Unique" and TADA.ResultSelectedMultipleOrgs equals "Y".
-
-NOTE TO TADA: UNCOMMENTING THIS RESULTS IN UNEXPECTED ERROR TO TADA_ViewATTAINS().
+`TADA_FindPotentialDuplicatesSingleOrg` where TADA.SingleOrgDup.Flag equals "Unique".
 
 ```{r filter}
- # tada.MT.clean <- tada.MT.dups |>
- #   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
- #   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
-tada.MT.clean <- tada.MT.filter
+tada.MT.clean <- tada.MT.singleorg.dups |>
+   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique")
 ```
 
 Remove intermediate variables in R by using 'rm()'. In the remainder of
@@ -325,7 +302,8 @@ TADA_FlagSpeciation for more information.
 
 ```{r TADA_RunKeyFlagFunctions}
 tada.MT.clean <- TADA_RunKeyFlagFunctions(
-  tada.MT.clean
+  tada.MT.clean,
+  clean = TRUE
 )
 ```
 
@@ -362,13 +340,10 @@ tada.MT.clean <- TADA_HarmonizeSynonyms(tada.MT.clean)
 ```
 
 How many unique TADA.ComparableDataIdentifiers do we have now? In this
-example, PH has now been harmonized to "PH_NONE_NONE_NONE". This is
-the recommended consistent format for PH harmonization across all states
-and tribes. Dissolved Oxygen has also been harmonized.
+example, PH has now been harmonized to "PH_NONE_NONE_NONE". Dissolved Oxygen has also been harmonized.
 
 ```{r}
 chars_after <- unique(tada.MT.clean$TADA.ComparableDataIdentifier)
-chars_after
 ```
 
 Remove intermediate variables.
@@ -399,24 +374,87 @@ TADA_FieldValuesPie(
 
 ## B) Create, review and define up to date assessment unit/WQP monitoring location.
 
-### Run `TADA_CreateAUMLCrosswalk`
+Module 2: Geospatial Functions in TADA and assignment of uses to Assessment Units.
+
+The **`TADA_CreateAUMLCrosswalk`** function efficiently creates a
+crosswalk between ATTAINS assessment units and WQP monitoring locations.
+It uses three prioritized data sources:
+
+1.  **User-Supplied Crosswalk:** An optional crosswalk provided by the
+    user (e.g., see example **`user.supplied.cw`** in next code chunk).
+
+2.  **ATTAINS Crosswalk:** Utilizes **`TADA_GetATTAINSAUMLCrosswalk`**
+    to incorporate crosswalk information stored by participating
+    organizations in ATTAINS. There may not be an ATTAINS crosswalk
+    available for all organizations as storing this information in
+    ATTAINS is optional for states and some tribes are still in the
+    process of developing their crosswalks.
+
+3.  **ATTAINS Catchments/Geospatial Join:** Employs
+    **`TADA_CreateATTAINSAUMLCrosswalk`** to connect monitoring
+    locations to assessment units using ATTAINS catchments through a
+    geospatial join. This function converts WQP monitoring locations
+    into a geospatial sf object and associates them with their
+    intersecting NHDPlus high resolution catchments containing
+    [entity-defined assessment units in
+    ATTAINS](https://www.epa.gov/waterdata/integrated-reporting-georeferencing-pilot-report).
+
+**Process**
+
+-   The function prioritizes these sources in the order listed. It
+    automatically attempts to assign unassigned monitoring locations
+    using the next available data source. For example, if any monitoring
+    locations remain unassigned after checking the user-supplied
+    crosswalk, the function will check the ATTAINS crosswalk, then the
+    geospatial join, as needed.
 
 For demonstration purposes, let's assume we know for sure this
 MonitoringLocationIdentifier, "MTWTRSHD_WQX-COMBITR02" should be
-associated with the AssessmentUnitIdentifier "MT76M001_020". Let's create a crosswalk to assign "MTWTRSHD_WQX-COMBITR02" to the assessment unit "MT76M001_020" and give it the WaterType "RIVER".
+associated with the AssessmentUnitIdentifier "MT76M001_020". 
+Let's create a crosswalk to assign "MTWTRSHD_WQX-COMBITR02" to the
+assessment unit "MT76M001_020" and give it the WaterType "RIVER".
 
-Let's also focus the rest of our analysis on a single 
+### Define a user supplied crosswalk of Assessment Units and Monitoring Location(s)
 
 ```{r demo.user, results = 'hide'}
-# create an example user supplied crosswalk (user would like to associate this MonitoringLocationIdentifier)
+# user would like to associate this MonitoringLocationIdentifier to this AU.
 user.supplied.cw <- data.frame(
     AssessmentUnitIdentifier = "MT76M001_020",
     MonitoringLocationIdentifier = "MTWTRSHD_WQX-COMBITR02",
     WaterType = "RIVER"
   )
+
+DT::datatable(user.supplied.cw, fillContainer = TRUE)
 ```
 
-We are uncertain about the other assignments of assessment units to monitoring locations. Let's match the monitoring locations from tada.MT.clean with assessment units from ATTAINS by using TADA_CreateATTAINSAUMLCrosswalk to identify which assessment units intersect with each monitoring location. 
+### Run `TADA_GetATTAINSCrosswalk`
+
+Now, let's check to see if MTDEQ has submitted a prior crosswalk to ATTAINS
+for the assessment unit identifier "MT76M001_020". 
+
+Does our TADA data frame contain any of these monitoring locations?
+
+```{r TADA_GetATTAINSCrosswalk}
+ATTAINS.cw <- TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "MTDEQ"
+) |>
+  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
+
+any(unique(tada.MT.clean$MonitoringLocationIdentifier) %in% ATTAINS.cw)
+```
+
+### Run `TADA_CreateAUMLCrosswalk`
+
+We are uncertain about any other assignments of assessment units
+to monitoring locations. Let's match the monitoring locations catchments overlay
+from tada.MT.clean with assessment units catchments with a geospatial join 
+from ATTAINS by using TADA_CreateATTAINSAUMLCrosswalk to identify which assessment units
+intersect with each monitoring location. 
+
+Recall, TADA_CreateATTAINSAUMLCrosswalk prioritizes the user supplied crosswalk,
+user.supplied.cw. If any monitoring locations remain unassigned after checking 
+the user-supplied crosswalk, the function will check the ATTAINS crosswalk 
+(see ATTAINS.cw above), then lastly, the geospatial join, as needed.
 
 ```{r TADA_CreateAUMLCrosswalk}
 # make AU assignments for unassigned MLs
@@ -448,42 +486,9 @@ TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 
 ## C) Assigning uses to assessment units.
 
-We will use the ATTAINS.UseNames that were used in prior
-ATTAINS assessment cycles from MTDEQ for this assessment unit.
-Users can append additional rows as needed or remove not applicable
-use names if a use is no longer applicable for the assessment unit.
-See TADA_Module2 vignette for more information.
-
-```{r}
-AU_uses <- TADA_AssignUsesToAU(
-  tada.MT.clean,
-  org_id = "MTDEQ",
-  AUMLRef = MT.AUMLRef$ATTAINS_crosswalk
-  )
-```
-
-## D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
-
-We will load in a pre-filled criteria template completed by MTDEQ.
-(R8 partners have also contributed to the TADA_CommunityHub repository
-which contains pre-filled templates as well for R8 states and tribes!)
-
-```{r}
-# Load the example R8 criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
-
-MT_criteria <- TADA_DefineCriteriaMethodology(
-  tada.MT.clean,
-  org_id = "MTDEQ",
-  criteriaMethods = criteria_table,
-  AUMLRef = MT.AUMLRef$ATTAINS_crosswalk,
-  AU_UsesRef = AU_uses
-  )
-```
-
-View scatterplots for all parameter and use criteria defined in your
-table compared to the results from your TADA data frame for DO for a single assessment unit, "MT76M001_020". We'll create a subset of the clean data containing only DO to facilitate this.
+Let's filter our TADA data frame to a single assessment unit "MT76M001_020",
+and for a single TADA.CharacteristicName, "DISSOLVED OXYGEN (DO)" for
+demonstration purposes for the remainder of this example.
 
 ```{r}
 # get subset DO data for one AU
@@ -492,29 +497,168 @@ tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
                 ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 
-# filter for aquatic life use info to join to AUs
-# aquatic.life <- AU_uses |>
-#   dplyr::filter(ATTAINS.UseName == "Aquatic Life")
+tada.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk |>
+  dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
+```
 
+### From Prior ATTAINS Assessment Cycles
+
+We will use the ATTAINS.UseNames that were used in prior
+ATTAINS assessment cycles from MTDEQ for this assessment unit.
+Users can append additional rows as needed or remove not applicable
+use names if a use is no longer applicable for the assessment unit.
+See TADA_Module2 vignette for more information.
+
+```{r}
+AU.uses <- TADA_AssignUsesToAU(
+  tada.MT.clean.DO,
+  org_id = "MTDEQ",
+  AUMLRef = tada.MT.AUMLRef
+  )
+
+DT::datatable(AU.uses, fillContainer = TRUE)
+```
+
+### From a User Supplied Crosswalk (Uses to AU)
+
+Users may also choose to supply their own list of use_names
+if desired rather than sourcing it from the prior ATTAINS assessment cycle.
+To ensure we use the correct column names, we can run TADA_AssignUsesToAU()
+with no arg inputs. Note: The TADA.AssessmentUnitStatus column is auto populated
+and does not need to be supplied from a user supplied crosswalk. For 
+ATTAINS.WaterType, please ensure this matches the ATTAINS.WaterType from 
+the output of MT.AUMLRef$ATTAINS_crosswalk for your assessment unit.
+
+```{r}
+names(TADA_AssignUsesToAU())
+
+AU.uses.user.supplied <- data.frame(
+  ATTAINS.OrganizationIdentifier = c("MTDEQ", "MTDEQ"),
+  ATTAINS.AssessmentUnitIdentifier = c("MT76M001_020", "MT76M001_020"),
+  ATTAINS.UseName = c("Example: Aquatic Life, cold waters", "Example: Human Health"),
+  ATTAINS.WaterType = c("RIVER", "RIVER"),
+  IncludeOrExclude = c("Include", "Include")
+)
+
+AU.uses2 <- TADA_AssignUsesToAU(
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  AUMLRef = tada.MT.AUMLRef,
+  AU_UsesRef = AU.uses.user.supplied
+)
+
+DT::datatable(AU.uses2, fillContainer = TRUE)
+```
+
+
+## D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your TADA data frame.
+
+The EPATADA Module 3 functions were designed to: 
+
+(1)   Assist users with associating Water Quality Portal monitoring locations with assessment units and designated uses       from ATTAINS and 
+(2)   Compare Water Quality Portal results with numeric water quality criteria from a TADA-Compatible criteria table.
+
+Users can choose to 
+
+1)    Fill in and populate their own criteria table **manually**, 
+2)    use an **auto_assign method** of creating a crosswalk of ATTAINS parameter names
+      to WQX Characteristic and to CST pollutant names along with a crosswalk between
+      ATTAINS use names and CST uses. This allows for populating the magnitude 
+      components from the Criteria Search Tool for each ATTAINS parameter and use,
+      if one is found for your organization (duration, frequency and other 
+      methodology components will still need user inputs and a through review 
+      of the crosswalk between the CST and ATTAINS parameter and uses will be required),
+3)    or pull in their organization's criteria table from a list of pre-filled 
+      template from the **TADACommunityHub*** if one exists (currently all R8 states                                          and tribes have participated in submitting their organization's criteria 
+      table to this repository!).
+
+\* The TADACommunityHub is a collaborative hub where TADA users share and maintain information for custom workflows (e.g., state, tribal, territory, EPA, or other entities). For example, it includes user-contributed criteria and methodologies templates to support reproducible and efficient analyses.
+
+### TADACommunityHub criteria table
+
+For this demo, We will load in a pre-filled criteria template completed by MTDEQ.
+
+```{r}
+# Load the example R8 criteria table
+criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
+load(criteria_table)
+
+MT_criteria <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean.DO,
+  org_id = "MTDEQ",
+  criteriaMethods = criteria_table,
+  AUMLRef = tada.MT.AUMLRef,
+  AU_UsesRef = AU.uses,
+  displayUniqueId = TRUE
+  )
+
+DT::datatable(MT_criteria, fillContainer = TRUE)
+```
+
+### Autoassign criteria table
+
+Alternatively, if your organization has not submitted a criteria table
+to the TADACommunityHub repository, TADA_DefineCriteriaMethodology has
+an auto_assign function input which allows populating the magnitude values
+from the Criteria Search Tool (CST) to past ATTAINS.ParameterName and
+ATTAINS.UseName for your organization from prior submission to ATTAINS
+assessment cycles. Filter it to just "DISSOLVED OXYGEN (DO)".
+
+Note that duration, frequency and other criteria components will still need
+to be filled out with auto_assign. However, if users are only interested in
+individual result measurement excursions, they can proceed to use this table as is.
+
+```{r}
+criteria_table_auto <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean,
+  org_id = "MTDEQ",
+  auto_assign = T,
+  criteriaMethods = NULL,
+  AUMLRef = tada.MT.AUMLRef,
+  AU_UsesRef = AU.uses,
+  displayUniqueId = TRUE
+  ) |>
+  dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
+
+DT::datatable(MT_criteria_auto, fillContainer = TRUE)
+```
+
+We will continue using the criteria table for MTDEQ that was submitted
+to the TADACommunityHub.
+
+### Editing the criteria table in excel
+
+If further edits are desired to the criteria table, users can export
+the criteria table into an excel spreadsheet and read it back into
+the R environment once any edits are made.
+
+```{r, eval = FALSE}
+MT_criteria_excel <- TADA_DefineCriteriaMethodology(
+  tada.MT.clean.DO,
+  org_id = "MTDEQ",
+  criteriaMethods = criteria_table,
+  AUMLRef = tada.MT.AUMLRef,
+  AU_UsesRef = AU.uses,
+  displayUniqueId = TRUE,
+  excel = T,
+  overwrite = T
+  )
+```
+
+### View and analyze scatter plot excursions for DO for your assessment unit
+
+Now, lets view some scatter plots for the criteria defined in your criteria table
+which will be compared to the results from your TADA data frame for DO for a 
+single assessment unit, "MT76M001_020". We will join your TADA data frame to the
+criteria table using the MTDEQ table sourced from the TADA_CommunityHub.
+
+```{r}
 # join use and criteria to tada df (many to many relationships may occur)
 tada.MT.clean.DO2 <- tada.MT.clean.DO |>
-  # dplyr::left_join(aquatic.life, relationship = 'many-to-many',
-  #                  dplyr::join_by(
-  #                    ATTAINS.AssessmentUnitIdentifier,
-  #                    ATTAINS.OrganizationIdentifier,
-  #                    ATTAINS.WaterType
-  #                    )
-  #                  ) |>
    dplyr::left_join(
-     # these columns were dropped to avoid the .x and .y prefixes that was occurring.
-     dplyr::select(
-       MT_criteria,
-       -TADA.ComparableDataIdentifier,
-       -TADA.ResultSampleFractionText,
-       -TADA.MethodSpeciationName
-       ), 
+     MT_criteria,
      relationship = 'many-to-many',
-     dplyr::join_by(TADA.CharacteristicName)
+     dplyr::join_by(TADA.ComparableDataIdentifier)
      )
 
 # break into separate data frames for each unique combination of DurationValue, DurationMethod, DurationUnit, and UniqueSpatialCriteria for analysis and figures
@@ -524,7 +668,10 @@ tada.MT.do.subsets <- tada.MT.clean.DO2 |>
   dplyr::group_split()
 ```
 
-Note that the scatterpoints are only individual result measurements. Future TADA development in the package is being made for handling of the full criteria (magnitude, duration and frequency), seasonal considerations and other data sufficiency needs!
+Note that the scatter points are only individual result measurements. 
+Future TADA development in the package is being made for handling of the 
+full criteria (magnitude, duration and frequency), seasonal considerations
+and other data sufficiency needs!
 
 ```{r}
 TADA_scatters <- list()
@@ -547,7 +694,6 @@ for (i in 1:n){
     ")"
   )
   
-  
   TADA_scatters[[i]] <- TADA_Scatterplot(tada.MT.do.subsets[[i]]) |>
      plotly::add_lines(
         x = c(
@@ -559,91 +705,21 @@ for (i in 1:n){
     name = paste(strwrap(desc, width = 20), collapse = "<br>"),
     line = list(color = "red", dash = "dash")
   ) 
+  
+  names(TADA_scatters)[i] <- desc
 }
 ```
 
-View individual scatterplots with defined criteria for different
-combination of uses for DO.
+Our criteria table for DO contained multiple rows. Let's view the different 
+criteria and determine which are appropriate for our assessment unit.
+Let's assume the scatter plots for 
+"Lower bound for Aquatic Life (1 n-day arithmetic min for Cold water, other life stages present)" and
+"Lower bound for Aquatic Life (7 n-day arithmetic mean for Cold water, other life stages present)" 
+are appropriate criteria to use for our assessment unit.
 
 ```{r}
-# uncomment to display all 11 scatterplots (note: should technically be 12, but there was a duplicate row in the criteria df for the combinations we chose)
+names(TADA_scatters)
 # TADA_scatters
 TADA_scatters[[1]]
-TADA_scatters[[2]]
-
-```
-
-## Alternative Analysis Output KW
-
-MT criteria table contains multiple rows for DO. Let's review this table for
-the uniqueSpatialCriteria and seasonal columns to determine which is appropriate 
-for our assessment unit and analysis.
-
-```{r}
-unique(MT_criteria$UniqueSpatialCriteria)
-unique(MT_criteria$Season)
-unique(MT_criteria$DurationMethod)
-```
-
-Let's filter our MT_criteria table and select "Cold water, other life stages present",
-no seasonal consideration, and focus on the duration method for "arithmetic mean" 
-for demonstration purposes.
-
-```{r}
-MT_criteria_filter <- MT_criteria |>
-  dplyr::filter(
-    UniqueSpatialCriteria == "Cold water, other life stages present",
-    DurationMethod == "arithmetic mean",
-    is.na(Season)
-    )
-```
-View scatterplots for all parameter and use criteria defined in your
-table compared to the results from your TADA data frame for DO for a single assessment unit, "MT76M001_020". We'll create a subset of the clean data containing only DO to facilitate this.
-
-```{r}
-# get subset DO data for one AU
-tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
-  sf::st_drop_geometry() |>
-  dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
-                ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
-```
-
-```{r}
-TADA_Scatter_list <- list()
-
-n <- length(MT_criteria_filter$MagnitudeValueLower)
-
-for(i in 1:n){
-  desc <- paste0(
-  "Lower bound for ",
-  MT_criteria_filter$ATTAINS.UseName[1],
-  " (",
-  MT_criteria_filter$DurationValue[1],
-  " ",
-  MT_criteria_filter$DurationUnit[1],
-  " ",
-  MT_criteria_filter$DurationMethod[1],
-  " for ",
-  MT_criteria_filter$UniqueSpatialCriteria[1],
-  ")"
-)
-  TADA_Scatter_list[[i]] <- TADA_Scatterplot(
-    tada.MT.clean.DO,
-    id_cols = "TADA.ComparableDataIdentifier") |>
-    plotly::add_lines(
-      y = MT_criteria_filter$MagnitudeValueLower[i],
-      x = c(min(tada.MT.clean.DO$ActivityStartDate), max(tada.MT.clean.DO$ActivityStartDate)),
-      inherit = FALSE,
-      name = paste(strwrap(desc, width = 20), collapse = "<br>"),
-      line = list(color = "red", dash = "dash")
-    ) 
-}
-```
-
-View individual scatterplots with defined criteria for different
-combination of uses for DO.
-
-```{r}
-TADA_Scatter_list[[1]]
-TADA_Scatter_list[[2]]
+TADA_scatters[[5]]
 ```
