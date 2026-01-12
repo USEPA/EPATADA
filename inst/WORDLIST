@@ -95,6 +95,7 @@ EASP
 EASP's
 ECHO's
 EMEF
+EPSG
 EQ
 ExampleMod
 ExpertQuery
@@ -123,7 +124,7 @@ FlagSpeciation
 FlagUseName
 FractionAssumptions
 FullPhysChem
-GDAL
+GeoPackage
 Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
@@ -217,7 +218,6 @@ NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
 OA
-OKTribe
 ORs
 Okabe
 OrgName
@@ -439,6 +439,7 @@ extdata
 fabec
 fetchATTAINS
 fetchNHD
+filesystem
 flaggedonly
 flowline
 flowlines
@@ -451,6 +452,7 @@ getenv
 ggplot
 github
 gitignore
+gpkg
 helpdesk
 https
 huc
@@ -462,7 +464,6 @@ hydroloom
 importWQP
 io
 lessthan
-lowercased
 mL
 manys
 mapviewer
@@ -505,6 +506,7 @@ sampleMedia
 sd
 secchi
 setnames
+sfc
 shp
 siteType
 siteid

@@ -14,7 +14,7 @@ spelling::get_wordlist()
 ###########################################################
 
 # library(styler)
-# Recommended styler setup to approximate air.toml, some edtis still contradict eachother. Do not run.
+# Recommended styler setup to approximate air.toml, some edits still contradict each other. Do not run.
 # style_pkg(
 #   transformers = tidyverse_style(
 #     scope = I(c("tokens", "indention")), # let air handle the rest
