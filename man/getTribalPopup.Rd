@@ -9,23 +9,25 @@ getTribalPopup(layer, layername)
 \arguments{
 \item{layer}{An \code{sf} object containing the features to display.}
 
-\item{layername}{Character(1). Human‑readable name of the layer (used as a header).}
+\item{layername}{Character(1). Human-readable name of the layer (used as a header).}
 }
 \value{
 A character vector of HTML strings to use as popup content.
 }
 \description{
-Creates HTML popup text for map features, resolving columns case‑insensitively
+Creates HTML popup text for map features, resolving columns case-insensitively
 and supporting alternative or sanitized DBF names for common fields
 (e.g., \code{TRIBE_N}/\code{TRIBE_NAME}, \code{ALAND_KM}/\code{TAREA_KM}, etc.).
 }
 \details{
 Notes:
-• Area fields are rounded to two decimal places.
-• The “EPA Region” field may be semicolon‑delimited in the data; this is
-normalized to a comma‑separated list for display.
-• Area units are inferred from column suffixes: “_KM” → “(sq kilometers)”
-and anything else defaults to “(sq miles)”.
+\itemize{
+\item Area fields are rounded to two decimal places.
+\item The "EPA Region" field may be semicolon-delimited in the data; this is
+normalized to a comma-separated list for display.
+\item Area units are inferred from column suffixes: "_KM" -> "(sq kilometers)"
+and anything else defaults to "(sq miles)".
+}
 }
 \examples{
 \dontrun{
@@ -33,4 +35,5 @@ layer <- getLayer("OKTribe.gpkg")
 popups <- getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
 head(popups)
 }
+
 }
