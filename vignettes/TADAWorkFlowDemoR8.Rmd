@@ -360,7 +360,7 @@ tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonl
 tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 ```
 
-## visualize data
+### visualize data
 
 Create a pie chart to display the count of results for each TADA.CharacteristicName.
 
@@ -620,7 +620,7 @@ criteria_table_auto <- TADA_DefineCriteriaMethodology(
   ) |>
   dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 
-DT::datatable(MT_criteria_auto, fillContainer = TRUE)
+DT::datatable(criteria_table_auto, fillContainer = TRUE)
 ```
 
 We will continue using the criteria table for MTDEQ that was submitted
