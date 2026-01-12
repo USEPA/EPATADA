@@ -311,7 +311,9 @@ testthat::test_that("TADA_MakeSpatial honors requested CRS on TADA_RandomTesting
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
   # Keep a small, valid subset with coordinates
   sub <- testdat |>
     dplyr::filter(
@@ -338,7 +340,9 @@ testthat::test_that("fetchATTAINS returns features in EPSG:4326 (catchments_only
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
   pts <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -366,7 +370,9 @@ testthat::test_that("fetchNHD returns EPSG:4326 for Hi and Med resolutions", {
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
   pts <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -402,7 +408,9 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk outputs all sf layers with 
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
   sub <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -452,8 +460,10 @@ testthat::test_that("Functions accept input sf in non-4326 and still return 4326
   testthat::skip_if_not_installed("sf")
   testthat::skip_if_not_installed("dplyr")
 
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE, 
-                                                     number_of_days = 1))
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE,
+    number_of_days = 1
+  ))
   sf_4269 <- testdat |>
     dplyr::filter(
       !is.na(.data$TADA.LongitudeMeasure),
@@ -516,13 +526,13 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
       skip(paste0("Internal symbol ", sym, " not found in EPATADA namespace."))
     }
   }
-  
+
   # Base-R local temp project (no withr)
   cleanup <- setup_test_dir()
   on.exit(cleanup(), add = TRUE)
-  
+
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
-  
+
   # Use proper geometry: points and extra epoch-ms fields
   make_points_sf <- function(n = 2, offset = 0L) {
     pts <- sf::st_sfc(
@@ -543,22 +553,24 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
     )
     sf::st_sf(df, geom = pts)
   }
-  
+
   # Prepare a local source dataset (GeoJSON) for all URLs
   s1 <- make_points_sf(n = 2, offset = 0L)
   src1 <- file.path(getwd(), "src1.geojson")
   sf::write_sf(s1, src1, quiet = TRUE)
-  
+
   # Assign all internal URL symbols to this local source
   for (sym in url_syms) {
-    if (bindingIsLocked(sym, ns)) unlockBinding(sym, ns)
+    if (bindingIsLocked(sym, ns)) {
+      unlockBinding(sym, ns)
+    }
     assignInNamespace(sym, src1, ns = "EPATADA")
   }
-  
+
   # 1) First run: write all GeoPackages and create meta sidecars
   msg1 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("updated", msg1, fixed = TRUE))
-  
+
   dests <- file.path(
     "inst/extdata",
     c(
@@ -580,7 +592,7 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
       file.exists(meta_file),
       info = paste("meta sidecar missing:", meta_file)
     )
-    
+
     # meta signature should exist and date-like epoch-ms fields be Date class after conversion
     meta <- readRDS(meta_file)
     expect_true(is.list(meta))
@@ -590,7 +602,7 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
     for (col in c("DATE_MO", "CURRENT", "cur_to", "cur_from")) {
       if (col %in% names(sig)) expect_s3_class(sig[[col]], "Date")
     }
-    
+
     # GeoPackage read-back should also reflect Date columns
     layer_back <- suppressWarnings(sf::st_read(d, quiet = TRUE))
     x <- sf::st_set_geometry(layer_back, NULL)
@@ -598,48 +610,50 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
       if (col %in% names(x)) expect_s3_class(x[[col]], "Date")
     }
   }
-  
+
   # Capture mtimes after first run
   mtimes_after_first <- file.info(dests)$mtime
-  
+
   # 2) Second run unchanged: should skip write based on canonical signature
   msg2 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("unchanged", msg2, fixed = TRUE))
   expect_true(grepl("skipping write", msg2, fixed = TRUE))
-  
+
   # Verify none of the GeoPackages were touched on unchanged run
   mtimes_after_second <- file.info(dests)$mtime
   expect_true(all(mtimes_after_second == mtimes_after_first))
-  
+
   # 3) Change content for one URL and verify update occurs and replaces GeoPackage
   s2 <- make_points_sf(n = 3, offset = 0L) # add a row -> content change
   src2 <- file.path(getwd(), "src2.geojson")
   sf::write_sf(s2, src2, quiet = TRUE)
-  
+
   # Change only AKAllotmentsUrl to src2
-  if (bindingIsLocked("AKAllotmentsUrl", ns)) unlockBinding("AKAllotmentsUrl", ns)
+  if (bindingIsLocked("AKAllotmentsUrl", ns)) {
+    unlockBinding("AKAllotmentsUrl", ns)
+  }
   assignInNamespace("AKAllotmentsUrl", src2, ns = "EPATADA")
-  
+
   # Ensure filesystem mtime resolution will capture the change reliably
   Sys.sleep(1.1)
-  
+
   # Capture mtime before update to confirm change afterwards
   prev_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
-  
+
   msg3 <- capture_msgs(TADA_UpdateTribalLayers())
   expect_true(grepl("AKAllotments.gpkg", msg3, fixed = TRUE))
   expect_true(grepl("updated", msg3, fixed = TRUE))
-  
+
   new_mtime <- file.info("inst/extdata/AKAllotments.gpkg")$mtime
   expect_true(new_mtime > prev_mtime)
-  
+
   # Confirm that the dest now has 3 rows
   ak <- suppressWarnings(sf::st_read(
     "inst/extdata/AKAllotments.gpkg",
     quiet = TRUE
   ))
   expect_equal(nrow(ak), 3)
-  
+
   # Confirm auto-detected columns remain Date after the update
   x <- sf::st_set_geometry(ak, NULL)
   for (col in c("DATE_MO", "CURRENT", "cur_to", "cur_from")) {
@@ -649,7 +663,7 @@ test_that("TADA_UpdateTribalLayers writes GeoPackages, caches signature, and ski
 
 test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when unchanged", {
   skip_if_not_installed("jsonlite")
-  
+
   ns <- try(asNamespace("EPATADA"), silent = TRUE)
   if (inherits(ns, "try-error")) {
     skip("EPATADA namespace not available.")
@@ -667,13 +681,13 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
       skip(paste0("Internal symbol ", sym, " not found in EPATADA namespace."))
     }
   }
-  
+
   # Base-R local temp project (no withr)
   cleanup <- setup_test_dir()
   on.exit(cleanup(), add = TRUE)
-  
+
   dir.create("inst/extdata", recursive = TRUE, showWarnings = FALSE)
-  
+
   # Create trivial GeoPackage at each destination so file.exists(dest) is TRUE
   trivial <- sf::st_sf(
     data.frame(x = 1L),
@@ -693,7 +707,7 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
   for (d in dests) {
     sf::st_write(trivial, d, quiet = TRUE)
   }
-  
+
   # Provide sidecar meta with matching last_edit dates for all
   matching_last_edit <- 1234567890000 # epoch-ms
   dir.create(
@@ -711,14 +725,16 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
       meta_file
     )
   }
-  
+
   # Set all URLs to look like ArcGIS FeatureServer (to trigger preflight)
   fake_arcgis_url <- "https://example.com/FeatureServer/0"
   for (sym in url_syms) {
-    if (bindingIsLocked(sym, ns)) unlockBinding(sym, ns)
+    if (bindingIsLocked(sym, ns)) {
+      unlockBinding(sym, ns)
+    }
     assignInNamespace(sym, fake_arcgis_url, ns = "EPATADA")
   }
-  
+
   # Mock jsonlite::fromJSON from within jsonlite's namespace
   testthat::with_mocked_bindings(
     fromJSON = function(...) {
@@ -728,12 +744,12 @@ test_that("TADA_UpdateTribalLayers preflight lastEditDate skips download when un
     {
       # Capture mtimes to verify they don't change after preflight skip
       old_mtimes <- file.info(dests)$mtime
-      
+
       msg4 <- capture_msgs(TADA_UpdateTribalLayers())
       expect_true(grepl("unchanged", msg4, fixed = TRUE))
       expect_true(grepl("preflight", msg4, fixed = TRUE))
       expect_true(grepl("skipping download", msg4, fixed = TRUE))
-      
+
       new_mtimes <- file.info(dests)$mtime
       expect_true(all(new_mtimes == old_mtimes))
     }
@@ -761,7 +777,7 @@ test_that("TADA_WriteLayer sanitizes names, renames TOTALAREA_* fields, creates 
   layer <- sample_layer()
   capture_env <- new.env(parent = emptyenv())
   capture_env$calls <- 0L
-  
+
   with_mocked_bindings(
     .package = "EPATADA",
     getFeatureLayer = function(url) layer,
@@ -780,15 +796,15 @@ test_that("TADA_WriteLayer sanitizes names, renames TOTALAREA_* fields, creates 
             out_path,
             sanitize_names = TRUE
           )
-          
+
           expect_equal(ret, normalizePath(out_path, mustWork = FALSE))
           expect_true(dir.exists(dirname(out_path)))
           expect_identical(capture_env$calls, 1L)
-          
+
           layer_passed <- capture_env$last_args$obj
           expect_s3_class(layer_passed, "sf")
           expect_identical(attr(layer_passed, "sf_column"), "geometry")
-          
+
           expect_identical(
             names(layer_passed),
             c(
@@ -821,7 +837,7 @@ test_that("TADA_WriteLayer can skip sanitization but still renames TOTALAREA_*",
         {
           out_path <- file.path(tempdir(), "nosanitize.shp")
           TADA_WriteLayer("http://fake/query", out_path, sanitize_names = FALSE)
-          
+
           layer_passed <- capture_env$last
           expect_identical(
             names(layer_passed),
@@ -892,7 +908,7 @@ test_that("TADA_WriteLayer validates inputs", {
   expect_error(TADA_WriteLayer(123, file.path(tempdir(), "x.shp")))
   expect_error(TADA_WriteLayer(character(), file.path(tempdir(), "x.shp")))
   expect_error(TADA_WriteLayer("", file.path(tempdir(), "x.shp")))
-  
+
   expect_error(TADA_WriteLayer("http://fake/query", 1))
   expect_error(TADA_WriteLayer("http://fake/query", character()))
   expect_error(TADA_WriteLayer("http://fake/query", ""))
@@ -901,22 +917,39 @@ test_that("TADA_WriteLayer validates inputs", {
 test_that("ATTAINS sf layers share identical CRS when returned", {
   skip_on_cran()
   skip_if_not_installed("EPATADA")
-  
+
   set.seed(123)
   tada <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
-  
-  lst <- tryCatch({
-    TADA_CreateATTAINSAUMLCrosswalk(tada, return_sf = TRUE)
-  }, error = function(e) skip(paste("Crosswalk unavailable:", conditionMessage(e))))
-  
-  layers <- Filter(function(x) inherits(x, "sf") && !is.null(x), lst[
-    c("ATTAINS_points","ATTAINS_lines","ATTAINS_polygons","ATTAINS_catchments")
-  ])
-  if (!length(layers)) skip("No ATTAINS layers returned for this dataset.")
-  
-  keys <- vapply(layers, function(s) {
-    crs <- sf::st_crs(s)
-    if (!is.null(crs$epsg)) as.character(crs$epsg) else crs$wkt
-  }, character(1))
+
+  lst <- tryCatch(
+    {
+      TADA_CreateATTAINSAUMLCrosswalk(tada, return_sf = TRUE)
+    },
+    error = function(e) {
+      skip(paste("Crosswalk unavailable:", conditionMessage(e)))
+    }
+  )
+
+  layers <- Filter(
+    function(x) inherits(x, "sf") && !is.null(x),
+    lst[c(
+      "ATTAINS_points",
+      "ATTAINS_lines",
+      "ATTAINS_polygons",
+      "ATTAINS_catchments"
+    )]
+  )
+  if (!length(layers)) {
+    skip("No ATTAINS layers returned for this dataset.")
+  }
+
+  keys <- vapply(
+    layers,
+    function(s) {
+      crs <- sf::st_crs(s)
+      if (!is.null(crs$epsg)) as.character(crs$epsg) else crs$wkt
+    },
+    character(1)
+  )
   expect_equal(length(unique(keys)), 1)
 })

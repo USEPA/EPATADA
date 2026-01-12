@@ -456,7 +456,9 @@ TADA_DataRetrieval <- function(
     # Query info on available data within the bbox
 
     # Try getting WQP info
-    message("TADA_DataRetrieval: Checking for available data. This may take a moment.")
+    message(
+      "TADA_DataRetrieval: Checking for available data. This may take a moment."
+    )
 
     # Don't want to print every message that's returned by WQP
     quiet_bbox_avail <- quiet_whatWQPdata(
@@ -1024,7 +1026,9 @@ TADA_DataRetrieval <- function(
 
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
-        message("TADA_DataRetrieval: Data successfully downloaded. Running TADA_AutoClean function.")
+        message(
+          "TADA_DataRetrieval: Data successfully downloaded. Running TADA_AutoClean function."
+        )
 
         TADAprofile.clean <- TADA_AutoClean(TADAprofile)
       } else {

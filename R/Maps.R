@@ -240,7 +240,7 @@ TADA_OverviewMap <- function(.data) {
         "American Indian",
         bbox
       )
-      
+
       map <- TADA_addPolys(
         map,
         system.file("extdata", "OffReservation.gpkg", package = "EPATADA"),
@@ -248,7 +248,7 @@ TADA_OverviewMap <- function(.data) {
         "Off Reservation",
         bbox
       )
-      
+
       map <- TADA_addPolys(
         map,
         system.file("extdata", "OKTribe.gpkg", package = "EPATADA"),
@@ -256,7 +256,7 @@ TADA_OverviewMap <- function(.data) {
         "Oklahoma Tribe",
         bbox
       )
-      
+
       map <- TADA_addPoints(
         map,
         system.file("extdata", "AKVillages.gpkg", package = "EPATADA"),
@@ -264,7 +264,7 @@ TADA_OverviewMap <- function(.data) {
         "Alaska Native Villages",
         bbox
       )
-      
+
       map <- TADA_addPoints(
         map,
         system.file("extdata", "VATribe.gpkg", package = "EPATADA"),
@@ -409,11 +409,21 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
     .data <- TADA_FindNearbySites(.data)
   }
   # Shim to ensure non-TADA lat/long columns exist for downstream select/map code
-  if (!"LatitudeMeasure" %in% names(.data) && "TADA.LatitudeMeasure" %in% names(.data)) {
-    .data$LatitudeMeasure <- suppressWarnings(as.numeric(.data$TADA.LatitudeMeasure))
+  if (
+    !"LatitudeMeasure" %in% names(.data) &&
+      "TADA.LatitudeMeasure" %in% names(.data)
+  ) {
+    .data$LatitudeMeasure <- suppressWarnings(as.numeric(
+      .data$TADA.LatitudeMeasure
+    ))
   }
-  if (!"LongitudeMeasure" %in% names(.data) && "TADA.LongitudeMeasure" %in% names(.data)) {
-    .data$LongitudeMeasure <- suppressWarnings(as.numeric(.data$TADA.LongitudeMeasure))
+  if (
+    !"LongitudeMeasure" %in% names(.data) &&
+      "TADA.LongitudeMeasure" %in% names(.data)
+  ) {
+    .data$LongitudeMeasure <- suppressWarnings(as.numeric(
+      .data$TADA.LongitudeMeasure
+    ))
   }
   .data <- .data |>
     dplyr::filter(!is.na(TADA.NearbySiteGroup)) |>
@@ -732,7 +742,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "OrganizationIdentifier" # align with summarize below
   )
   if (!all(required_columns %in% colnames(ATTAINS_table))) {
-    stop("Your dataframe does not contain the necessary WQP-style column names.")
+    stop(
+      "Your dataframe does not contain the necessary WQP-style column names."
+    )
   }
 
   suppressMessages(suppressWarnings({

@@ -6,7 +6,9 @@ get_leaflet_methods <- function(map) {
 # Helper to extract the first call object by method name
 extract_call_by_method <- function(map, method) {
   idx <- which(vapply(map$x$calls, function(x) x$method == method, logical(1)))
-  if (length(idx) == 0) return(NULL)
+  if (length(idx) == 0) {
+    return(NULL)
+  }
   map$x$calls[[idx[1]]]
 }
 
@@ -32,10 +34,12 @@ minimal_overview_df <- function() {
 test_that("TADA_OverviewMap runs on real random test data and adds key layers (integration)", {
   skip_on_cran()
   skip_if_not_installed("EPATADA")
-  
+
   set.seed(123)
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
-  
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
+
   map <- TADA_OverviewMap(testdat)
   expect_s3_class(map, "leaflet")
   methods <- vapply(map$x$calls, function(x) x$method, character(1))
@@ -56,7 +60,7 @@ no_flags_df <- function() {
     MonitoringLocationIdentifier = "ML3",
     MonitoringLocationName = "Site 3",
     OrganizationFormalName = "Org C",
-    TADA.LatitudeMeasure = 40.123,   # precise (>= 3 decimals)
+    TADA.LatitudeMeasure = 40.123, # precise (>= 3 decimals)
     TADA.LongitudeMeasure = -120.123,
     stringsAsFactors = FALSE
   )
@@ -64,13 +68,15 @@ no_flags_df <- function() {
 
 test_that("TADA_FlaggedSitesMap runs on real random test data (integration)", {
   skip_on_cran()
-  
+
   set.seed(123)
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
-  
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
+
   map <- TADA_FlaggedSitesMap(testdat)
   expect_s3_class(map, "leaflet")
-  
+
   methods <- get_leaflet_methods(map)
   expect_true("addProviderTiles" %in% methods)
   # Not asserting marker categories due to randomness
@@ -86,11 +92,13 @@ test_that("TADA_FlaggedSitesMap returns a leaflet map even with no flagged rows"
 test_that("TADA_NearbySitesMap runs on real random test data and adds circles (integration)", {
   skip_on_cran()
   set.seed(123)
-  testdat <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
-  
+  testdat <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
+
   nearby <- TADA_FindNearbySites(testdat)
   has_groups <- any(!is.na(nearby$TADA.NearbySiteGroup))
-  
+
   map <- TADA_NearbySitesMap(testdat, dist_buffer = 100)
   expect_s3_class(map, "leaflet")
   methods <- vapply(map$x$calls, function(x) x$method, character(1))
@@ -123,21 +131,26 @@ test_that("TADA_ViewATTAINS runs on real random test data (integration)", {
   skip_on_cran()
   skip_if_not_installed("leaflegend")
   skip_if_not_installed("EPATADA")
-  
+
   set.seed(123)
-  tada_data <- suppressMessages(TADA_RandomTestingData(choose_random_state = TRUE))
-  
-  attains_list <- tryCatch({
-    TADA_CreateATTAINSAUMLCrosswalk(
-      tada_data,
-      fill_USGS_catch = TRUE,   # optional; set FALSE to avoid USGS path
-      return_nearest = TRUE,
-      return_sf = TRUE
-    )
-  }, error = function(e) {
-    skip(paste("ATTAINS crosswalk unavailable:", conditionMessage(e)))
-  })
-  
+  tada_data <- suppressMessages(TADA_RandomTestingData(
+    choose_random_state = TRUE
+  ))
+
+  attains_list <- tryCatch(
+    {
+      TADA_CreateATTAINSAUMLCrosswalk(
+        tada_data,
+        fill_USGS_catch = TRUE, # optional; set FALSE to avoid USGS path
+        return_nearest = TRUE,
+        return_sf = TRUE
+      )
+    },
+    error = function(e) {
+      skip(paste("ATTAINS crosswalk unavailable:", conditionMessage(e)))
+    }
+  )
+
   map <- TADA_ViewATTAINS(attains_list, ref_icons = FALSE)
   expect_s3_class(map, "leaflet")
   methods <- vapply(map$x$calls, function(x) x$method, character(1))
@@ -154,7 +167,7 @@ test_that("TADA_ViewATTAINS errors on missing required list names", {
 test_that("TADA_ViewATTAINS errors when WQP-style required columns are missing", {
   attains_table <- minimal_attains_table()
   attains_table <- subset(attains_table, select = -TADA.LongitudeMeasure)
-  
+
   input_list <- list(
     TADA_with_ATTAINS = attains_table,
     ATTAINS_catchments = NULL,
@@ -162,13 +175,13 @@ test_that("TADA_ViewATTAINS errors when WQP-style required columns are missing",
     ATTAINS_lines = NULL,
     ATTAINS_polygons = NULL
   )
-  
+
   expect_error(TADA_ViewATTAINS(input_list))
 })
 
 test_that("TADA_ViewATTAINS errors if there are no WQP observations", {
   empty_attains_table <- minimal_attains_table()[0, ]
-  
+
   input_list <- list(
     TADA_with_ATTAINS = empty_attains_table,
     ATTAINS_catchments = NULL,
@@ -176,6 +189,6 @@ test_that("TADA_ViewATTAINS errors if there are no WQP observations", {
     ATTAINS_lines = NULL,
     ATTAINS_polygons = NULL
   )
-  
+
   expect_error(TADA_ViewATTAINS(input_list))
 })
