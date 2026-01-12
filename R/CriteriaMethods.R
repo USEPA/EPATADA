@@ -631,10 +631,10 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
 
       if (auto_assign == TRUE) {
-        if (org_id == "" ){
+        if (org_id == "") {
           DefineCriteriaMethodology
         }
-        if (!org_id == ""){
+        if (!org_id == "") {
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
@@ -646,12 +646,10 @@ TADA_DefineCriteriaMethodology <- function(
             includeCST = TRUE
           ) |>
             dplyr::mutate(STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME))
-  
           uses <- suppressMessages(TADA_UsesAliasForReview(
             ATTAINS.CST.tolerance = 0.15, # uses a lower value as CST uses can be very long.
             CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long.
           ))
-  
           # filters uses crosswalk by the org_id
           uses <- uses |>
             dplyr::mutate(ATTAINS.UseName = toupper(name)) |>
@@ -660,7 +658,6 @@ TADA_DefineCriteriaMethodology <- function(
               ATTAINS.OrganizationIdentifier %in%
                 unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier)
             )
-  
           CriteriaSearchToolRef <- system.file(
             "extdata",
             "CriteriaSearchToolRef.rda",
@@ -669,10 +666,8 @@ TADA_DefineCriteriaMethodology <- function(
           load(CriteriaSearchToolRef)
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
-  
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
-  
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::left_join(
               CST_ATTAINS_Param,
@@ -733,7 +728,6 @@ TADA_DefineCriteriaMethodology <- function(
           #   STD_POLLUTANT_NAME,
           #   .after = ATTAINS.ParameterName
           #   )|>
-  
           # We will filter out any instances of ph variation, temperature rise above ambient and any other
           # CST pollutant name which TADA analysis function may not be able to handle currently.
           # NOTE FOR DEVELOPERS: We may wish to include these pollutants back eventually if we can
@@ -749,7 +743,6 @@ TADA_DefineCriteriaMethodology <- function(
               "TADA functions cannot currently handle analysis for these instances."
             ))
           }
-  
           DefineCriteriaMethodology <- DefineCriteriaMethodology2 |>
             dplyr::filter(
               !CST.STD_POLLUTANT_NAME %in%
