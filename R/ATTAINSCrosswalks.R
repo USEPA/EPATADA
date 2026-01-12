@@ -3147,8 +3147,10 @@ TADA_AssignUsesToAU <- function(
 
     # User provides their own AU_UsesRef that has been filled out.
     if (!is.null(AU_UsesRef)) {
-      print("An AU_UsesRef was provided. Prioritizing this assignment of Uses to the assessment units defined in this AU_UsesRef data frame.")
-      
+      print(
+        "An AU_UsesRef was provided. Prioritizing this assignment of Uses to the assessment units defined in this AU_UsesRef data frame."
+      )
+
       AU_UsesRef_matches <- AU_UsesRef |>
         dplyr::filter(
           ATTAINS.AssessmentUnitIdentifier %in%
@@ -3160,8 +3162,8 @@ TADA_AssignUsesToAU <- function(
             is.na(IncludeOrExclude),
             "Include",
             IncludeOrExclude
-            )
           )
+        )
 
       CreateAU_UsesRef <- CreateAU_UsesRef |>
         dplyr::filter(
