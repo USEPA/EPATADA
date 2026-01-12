@@ -524,7 +524,7 @@ DT::datatable(AU.uses, fillContainer = TRUE)
 Users may also choose to supply their own list of use_names
 if desired rather than sourcing it from the prior ATTAINS assessment cycle.
 To ensure we use the correct column names, we can run TADA_AssignUsesToAU()
-with no arg inputs. Note: The TADA.AssessmentUnitStatus column is auto populated
+with no argument function inputs. Note: The TADA.AssessmentUnitStatus column is auto populated
 and does not need to be supplied from a user supplied crosswalk. For 
 ATTAINS.WaterType, please ensure this matches the ATTAINS.WaterType from 
 the output of MT.AUMLRef$ATTAINS_crosswalk for your assessment unit.
@@ -650,7 +650,7 @@ MT_criteria_excel <- TADA_DefineCriteriaMethodology(
 Now, lets view some scatter plots for the criteria defined in your criteria table
 which will be compared to the results from your TADA data frame for DO for a 
 single assessment unit, "MT76M001_020". We will join your TADA data frame to the
-criteria table using the MTDEQ table sourced from the TADA_CommunityHub.
+criteria table using the MTDEQ table sourced from the TADACommunityHub.
 
 ```{r}
 # join use and criteria to tada df (many to many relationships may occur)
