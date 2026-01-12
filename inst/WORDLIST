@@ -28,9 +28,11 @@ Animas
 ArcGIS
 AssemblageSampledName
 AssessmentUnitIdentifier
+AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
+Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -40,7 +42,9 @@ CCO
 CFU
 CNENVSER
 COLI
+COMBITR
 COMIDs
+CRS
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -54,6 +58,7 @@ CharacteristicNames
 CharacteristicsForDepthProfile
 Chilton
 Coli
+CommunityHub
 ComparableDataIdentifier
 ComparableDataIdentifier's
 ComparableDataIdentifiers
@@ -149,6 +154,7 @@ InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
 InvalidSpeciation
+JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -165,6 +171,7 @@ MLSummaryRef
 MLs
 MTDEQ
 MTDEQ's
+MTWTRSHD
 MakeSpatial
 MapServer
 MeasureQualifierCode
@@ -264,6 +271,7 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
+Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -320,6 +328,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADACommunityHub
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
@@ -355,6 +364,7 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
+WGS
 WQC
 WQP
 WQS
@@ -385,6 +395,7 @@ analytes
 aoi
 applyautoclean
 arcgis
+arg
 asNO
 autoassign
 autoclean
@@ -409,14 +420,13 @@ countrycode
 countycode
 cristinamullin
 criteriaMethods
-crosswalked
-crosswalking
 crs
 csv
 cwa
 dailyagg
 dataRetrieval
 dateTime
+datetimes
 decimaldigits
 depthcat
 devtools
@@ -497,6 +507,8 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
+repo
+reproducibility
 resultCount
 sampleMedia
 sd
