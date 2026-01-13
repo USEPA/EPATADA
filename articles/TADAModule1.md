@@ -984,10 +984,10 @@ This function has three default inputs: clean = TRUE, cleanNA = FALSE,
 and flaggedonly = FALSE. These defaults remove rows of data where the
 QAPPApprovedIndicator equals “N”.
 
-Users could alternatively remove both N’s and NA’s using the inputs
-clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
+Users could alternatively remove both Ns and NAs using the inputs clean
+= TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
 
-Additionally, users could filter to show only N’s and NA’s by using the
+Additionally, users could filter to show only Ns and NAs by using the
 inputs clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE.
 
 If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
@@ -1031,8 +1031,8 @@ number of unique values in each field using the **TADA_FieldCounts**
 function.
 
 This function returns counts for you entire dataframe for each of the
-following fields (if populated, columns that are populated only with
-NA’s are not included in the output):
+following fields (if populated, columns that are populated only with NAs
+are not included in the output):
 
 - *ActivityTypeCode*
 
@@ -1208,9 +1208,9 @@ limit, as even small absolute differences might show up as large
 relative percent differences that “fail” the 20% RPD test.
 
 For example, when nutrient concentrations are close to detection limit,
-it becomes impossible to have a low RPD. In this scenario, high RPD’s
-are acceptable because if you stand back and look at ALL the data, and
-not just the replicates, these data may be agreeing perfectly well that
+it becomes impossible to have a low RPD. In this scenario, high RPDs are
+acceptable because if you stand back and look at ALL the data, and not
+just the replicates, these data may be agreeing perfectly well that
 nutrients are very low. DO NOT throw out data if RPD is \>20%, unless
 you have good reason, or you will potentially bias your data toward high
 concentrations. QA procedures should not bias statistical analyses of
@@ -1275,7 +1275,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 ``` r
 # Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
 
-# Exclude NA's
+# Exclude NAs
 TADAProfileClean3b <- TADAProfileClean3b[!is.na(TADAProfileClean3b$TADA.ReplicateSampleID), ]
 # Exclude orphans
 TADAProfileClean3b <- dplyr::filter(TADAProfileClean3b, TADA.ReplicateSampleID != "Orphan")
@@ -1509,7 +1509,7 @@ unique(TADAProfileClean4$ResultDetectionConditionText)
     ## [3] "Present Below Quantification Limit" "Not Detected"
 
 Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
-NA’s or ND’s (non-detects) remain.
+NAs or NDs (non-detects) remain.
 
 ``` r
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
@@ -1521,7 +1521,7 @@ unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
     ## [4] "Text"                                                      
     ## [5] "NA - Not Available"
 
-Count how many NA’s remain in the TADA.ResultMeasureValue.
+Count how many NAs remain in the TADA.ResultMeasureValue.
 
 ``` r
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
@@ -1537,7 +1537,7 @@ TADA.ResultMeasureValueDataTypes.Flag = “Text” or “NA - Not Available”.
 TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
-Double check to make sure no NA’s or ND’s remain.
+Double check to make sure no NAs or NDs remain.
 
 ``` r
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)

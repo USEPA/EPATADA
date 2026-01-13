@@ -134,7 +134,7 @@ tada.MT.clean <- tada.MT |>
 
     ## [1] "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."
     ## [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."
-    ## [1] "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode."
+    ## [1] "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NAs) in MeasureQualifierCode."
     ## [1] "TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored"
     ## [1] "Cannot apply simple censored methods to dataframe with no censored data results. Returning input dataframe."
     ## [1] "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
@@ -352,7 +352,7 @@ In this first example, a user supplies their own criteria table.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
-Otherwises the uses will be pulled in from the prior ATTAINS assessment
+Otherwise the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ``` r

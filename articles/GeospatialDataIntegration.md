@@ -190,7 +190,7 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipl
 
 ##### **Quality and other issues**
 
-Filter out any remaining irrelevant data, NA’s and empty columns.
+Filter out any remaining irrelevant data, NAs and empty columns.
 
 ``` r
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -200,7 +200,7 @@ sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 GreenBay_FoxRiver <- TADA_ConvertSpecialChars(GreenBay_FoxRiver, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
-Check to make sure there are no more NA’s in TADA.ResultMeasureValue.
+Check to make sure there are no more NAs in TADA.ResultMeasureValue.
 
 ``` r
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)

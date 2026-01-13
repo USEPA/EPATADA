@@ -82,7 +82,7 @@ Input dataframe with several added TADA-specific columns, including:
 Note: The number of TADA-specific depth columns in the returned
 dataframe depends on the number of depth columns with one or more
 results populated with a numeric value. If all depth columns contain
-only NA's, no conversion is necessary and no TADA depth columns are
+only NAs, no conversion is necessary and no TADA depth columns are
 created.
 
 ## Details
