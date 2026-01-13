@@ -2884,7 +2884,7 @@ TADA_FindNearbySites <- function(
 
   if (meta_select == "oldest" | meta_select == "newest") {
     # prep site groups for metadata selection by date
-    date.meta <- grouped.sites |>
+    date.meta <- group.sites |>
       dplyr::left_join(
         org.ranks.added,
         by = dplyr::join_by(
@@ -2897,12 +2897,18 @@ TADA_FindNearbySites <- function(
           OrganizationIdentifier
         )
       ) |>
-      dplyr::filter(
-        !TADA.MonitoringLocationIdentifier.New %in%
-          org.meta.filter$TADA.MonitoringLocationIdentifier.New
-      ) |>
       dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier.New)
+      dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
+      dplyr::left_join(.data) |>
+      dplyr::select( TADA.MonitoringLocationIdentifier.New,
+                     TADA.NearbySiteGroup,
+                     TADA.MonitoringLocationName,
+                     TADA.LatitudeMeasure,
+                     TADA.LongitudeMeasure,
+                     TADA.MonitoringLocationTypeName,
+                     OrganizationIdentifier,
+                     ActivityStartDate) |>
+      dplyr::distinct()
 
     if (meta_select == "oldest") {
       # select oldest metadata for group
