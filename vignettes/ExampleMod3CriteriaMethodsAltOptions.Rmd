@@ -302,7 +302,7 @@ In this first example, a user supplies their own criteria table.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
-Otherwises the uses will be pulled in from the prior ATTAINS assessment
+Otherwise the uses will be pulled in from the prior ATTAINS assessment
 cycle.
 
 ```{r user.supplied.w.epa304a}
