@@ -2,7 +2,6 @@ ANDs
 AOI
 ATTAINSOrgIDsRef
 ATTAINSParamToWQPCharRef
-AU's
 AUML
 AUMLRef
 AUs
@@ -41,6 +40,7 @@ CFU
 CNENVSER
 COLI
 COMIDs
+CRS
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -129,7 +129,6 @@ GetLegendCSTRef
 GetNutrientSummationRef
 GetSourcesCSTRef
 GetSynonymRef
-Github
 HMW
 HUC
 HUCS
@@ -149,6 +148,7 @@ InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
 InvalidSpeciation
+JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -194,9 +194,8 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
-NA's
 NCTC
-ND's
+NDs
 NHD
 NHDPlus
 NHDPlusTools
@@ -210,6 +209,7 @@ NoTargetUnit
 NonStandardized
 Nondetects
 Nonpoint
+Ns
 NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
@@ -222,7 +222,6 @@ OrganizationFormalNames
 OrganizationIdentifier
 OrganizationIdentifiers
 OrganizationName
-Otherwises
 OutsideUSA
 OverviewMap
 POJOAQUE
@@ -256,7 +255,6 @@ REDLAKE
 RMarkdown
 ROS
 RPD
-RPD's
 RPDs
 RProj
 RStudio
@@ -264,6 +262,7 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
+Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -355,6 +354,7 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
+WGS
 WQC
 WQP
 WQS
@@ -385,6 +385,7 @@ analytes
 aoi
 applyautoclean
 arcgis
+asNO
 autoassign
 autoclean
 autocleaned
@@ -408,14 +409,13 @@ countrycode
 countycode
 cristinamullin
 criteriaMethods
-crosswalked
-crosswalking
 crs
 csv
 cwa
 dailyagg
 dataRetrieval
 dateTime
+datetimes
 decimaldigits
 depthcat
 devtools
@@ -496,6 +496,8 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
+repo
+reproducibility
 resultCount
 sampleMedia
 sd
