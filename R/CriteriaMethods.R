@@ -631,10 +631,10 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
 
       if (auto_assign == TRUE) {
-        if (org_id == "") {
-          DefineCriteriaMethodology
+        if ("" %in% org_id) {
+          DefineCriteriaMethodology <- DefineCriteriaMethodology
         }
-        if (!org_id == "") {
+        if (!"" %in% org_id) {
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
@@ -683,6 +683,9 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(across(where(is.character), toupper)) |>
             dplyr::left_join(
               CriteriaSearchToolRef,
+              by = dplyr::join_by(POLLUTANT_NAME, STD_POLLUTANT_NAME, ENTITY_ABBR, ENTITY_NAME,
+                           CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+                           USE_CLASS_NAME_LOCATION_ETC),
               relationship = "many-to-many"
             ) |>
             dplyr::filter(!is.na(CRITERION_VALUE)) |>
@@ -961,7 +964,7 @@ TADA_DefineCriteriaMethodology <- function(
       )])
       epa304a <- epa304a |>
         dplyr::select(-TADA.ComparableDataIdentifier) |>
-        dplyr::left_join(uniqueID)
+        dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
     }
     # read in ref csv
     coltype.ref <- utils::read.csv(system.file(
