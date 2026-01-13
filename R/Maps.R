@@ -585,6 +585,30 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }
 
   ATTAINS_table <- .data[["TADA_with_ATTAINS"]]
+  # Helper: create a TADA.* alias only if missing; prefer TADA.* when present
+  alias_if_missing <- function(df, target, fallback) {
+    if (!target %in% names(df) && fallback %in% names(df)) {
+      df[[target]] <- df[[fallback]]
+    }
+    df
+  }
+  
+  # Latitude/Longitude: prefer TADA.*, otherwise fall back to unprefixed
+  ATTAINS_table <- alias_if_missing(ATTAINS_table, "TADA.LatitudeMeasure",  "LatitudeMeasure")
+  ATTAINS_table <- alias_if_missing(ATTAINS_table, "TADA.LongitudeMeasure", "LongitudeMeasure")
+  
+  # Monitoring location identifier/name: prefer TADA.*, otherwise fall back
+  ATTAINS_table <- alias_if_missing(ATTAINS_table, "TADA.MonitoringLocationIdentifier", "MonitoringLocationIdentifier")
+  ATTAINS_table <- alias_if_missing(ATTAINS_table, "TADA.MonitoringLocationName",       "MonitoringLocationName")
+  
+  # Organization identifier: prefer TADA.*, otherwise fall back
+  ATTAINS_table <- alias_if_missing(ATTAINS_table, "TADA.OrganizationIdentifier", "OrganizationIdentifier")
+  
+  # Additionally ensure the unprefixed OrganizationIdentifier exists if only TADA.* is present
+  if (!"OrganizationIdentifier" %in% names(ATTAINS_table) &&
+      "TADA.OrganizationIdentifier" %in% names(ATTAINS_table)) {
+    ATTAINS_table[["OrganizationIdentifier"]] <- ATTAINS_table[["TADA.OrganizationIdentifier"]]
+  }
   ATTAINS_catchments <- .data[["ATTAINS_catchments"]]
   ATTAINS_points <- .data[["ATTAINS_points"]]
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
