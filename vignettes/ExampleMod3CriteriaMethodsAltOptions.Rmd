@@ -230,7 +230,7 @@ MT.Criteria.epa2 <- TADA_DefineCriteriaMethodology(
   org_id = "USEPA"
 )
 
-TADA_TableExport(MT.Criteria.epa)
+TADA_TableExport(MT.Criteria.epa2)
 ```
 
 ## Option C: Auto Fill option (Intermediate Tabs are Hidden)

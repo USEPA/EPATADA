@@ -576,8 +576,12 @@ TADA_UsesAliasForReview <- function(
   )
 
   # Find all ATTAINS.UseName used by ATTAINS organization in prior assessment cycles
-  ATTAINS_org_uses <- readr::read_csv(
-    "inst/extdata/ATTAINSParamUseEntityRef.csv"
+  ATTAINS_org_uses <- utils::read.csv(
+    system.file(
+      "extdata",
+      "ATTAINSParamUseEntityRef.csv",
+      package = "EPATADA"
+    )
   ) |>
     dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
     dplyr::distinct()
@@ -661,7 +665,13 @@ TADA_UsesAliasForReview <- function(
   CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
 
   # match CST Entity with ATTAINS org (best guess using state/tribe name)
-  ATTAINSOrgIDsRef <- readr::read_csv("inst/extdata/ATTAINSOrgIDsRef.csv")
+  ATTAINSOrgIDsRef <- 
+    utils::read.csv(system.file(
+      "extdata",
+      "ATTAINSOrgIDsRef.csv",
+      package = "EPATADA"
+      )
+    )
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
   ATTAINS_CST.org <- data.frame(unique(CriteriaSearchToolRef[, c(
     "ENTITY_NAME",

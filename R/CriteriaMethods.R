@@ -953,8 +953,9 @@ TADA_DefineCriteriaMethodology <- function(
     epa304a <- utils::read.csv(system.file(
       "extdata",
       "EPA304a_criteria_table.csv",
-      package = "EPATADA"
-    ))
+      package = "EPATADA"),
+      fileEncoding="UTF-8-BOM"
+    )
     if (displayUniqueId == TRUE) {
       uniqueID <- unique(.data[, c(
         "TADA.ComparableDataIdentifier",
