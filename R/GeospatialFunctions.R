@@ -339,9 +339,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-                                             points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
@@ -2856,26 +2856,33 @@ TADA_FindNearbySites <- function(
       dplyr::distinct() |>
       dplyr::slice_sample(n = 1) |>
       dplyr::ungroup() |>
-      dplyr::rename(TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
+      dplyr::rename(
+        TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
         TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
         TADA.NearbySiteGroup.New = TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName)
+        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName
+      )
 
     # join the metadata filtering results to create a df with all metadata to apply to TADA df by
     # TADA.MonitoringLocationIdentifier.New
     select.meta <- random.meta |>
-      dplyr::full_join(org.meta.filter, dplyr::join_by(TADA.MonitoringLocationIdentifier.New)) |>
+      dplyr::full_join(
+        org.meta.filter,
+        dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
+      ) |>
       dplyr::mutate(
         TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
       ) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier.New,
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier.New,
         TADA.LatitudeMeasure.New,
         TADA.LongitudeMeasure.New,
         TADA.MonitoringLocationTypeName.New,
         TADA.MonitoringLocationName.New,
         TADA.NearbySiteGroup.New,
-        TADA.NearbySites.Flag) |>
+        TADA.NearbySites.Flag
+      ) |>
       dplyr::distinct()
 
     # remove intermediate objects
@@ -2900,20 +2907,26 @@ TADA_FindNearbySites <- function(
       dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) |>
       dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
       dplyr::slice_min(OrgRank) |>
-      dplyr::left_join(.data,
-        dplyr::join_by(TADA.MonitoringLocationName,
+      dplyr::left_join(
+        .data,
+        dplyr::join_by(
+          TADA.MonitoringLocationName,
           TADA.LatitudeMeasure,
           TADA.LongitudeMeasure,
           TADA.MonitoringLocationTypeName,
-          OrganizationIdentifier)) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier.New,
+          OrganizationIdentifier
+        )
+      ) |>
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier.New,
         TADA.NearbySiteGroup,
         TADA.MonitoringLocationName,
         TADA.LatitudeMeasure,
         TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName,
         OrganizationIdentifier,
-        ActivityStartDate) |>
+        ActivityStartDate
+      ) |>
       dplyr::distinct()
 
     if (meta_select == "oldest") {
