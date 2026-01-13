@@ -950,11 +950,9 @@ TADA_DefineCriteriaMethodology <- function(
     print(paste0(
       "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
     ))
-    epa304a <- utils::read.csv(system.file(
-      "extdata",
-      "EPA304a_criteria_table.csv",
-      package = "EPATADA"),
-      fileEncoding="UTF-8-BOM"
+    epa304a <- utils::read.csv(
+      system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
+      fileEncoding = "UTF-8-BOM"
     )
     if (displayUniqueId == TRUE) {
       uniqueID <- unique(.data[, c(
