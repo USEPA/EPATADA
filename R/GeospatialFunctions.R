@@ -2701,7 +2701,7 @@ TADA_FindNearbySites <- function(
 
   # create a df of unique grouped sites
   group.sites <- new.ids |>
-    dplyr::full_join(
+    dplyr::left_join(
       .data,
       by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
     ) |>
@@ -2855,22 +2855,28 @@ TADA_FindNearbySites <- function(
       ) |>
       dplyr::distinct() |>
       dplyr::slice_sample(n = 1) |>
-      dplyr::ungroup()
+      dplyr::ungroup() |>
+      dplyr::rename(TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
+                    TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+                    TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
+                    TADA.NearbySiteGroup.New = TADA.NearbySiteGroup,
+                    TADA.MonitoringLocationName.New = TADA.MonitoringLocationName)
 
     # join the metadata filtering results to create a df with all metadata to apply to TADA df by
     # TADA.MonitoringLocationIdentifier.New
     select.meta <- random.meta |>
-      dplyr::full_join(org.meta.filter, by = names(random.meta)) |>
-      dplyr::select(-OrganizationIdentifier) |>
-      dplyr::rename(
-        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName
-      ) |>
+      dplyr::full_join(org.meta.filter, dplyr::join_by(TADA.MonitoringLocationIdentifier.New)) |>
       dplyr::mutate(
         TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
-      )
+      ) |>
+      dplyr::select(TADA.MonitoringLocationIdentifier.New,
+                    TADA.LatitudeMeasure.New,
+                    TADA.LongitudeMeasure.New,
+                    TADA.MonitoringLocationTypeName.New,
+                    TADA.MonitoringLocationName.New,
+                    TADA.NearbySiteGroup.New,
+                    TADA.NearbySites.Flag) |>
+      dplyr::distinct()
 
     # remove intermediate objects
     rm(random.meta, org.ranks.added)
@@ -3034,7 +3040,8 @@ TADA_FindNearbySites <- function(
         !is.na(TADA.MonitoringLocationIdentifier.New),
         TADA.MonitoringLocationIdentifier.New,
         TADA.MonitoringLocationIdentifier
-      )
+      ),
+      TADA.NearbySiteGroup = TADA.NearbySiteGroup.New
     ) |>
     dplyr::select(
       -TADA.MonitoringLocationIdentifier.New,

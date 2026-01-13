@@ -253,13 +253,17 @@ tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
  unique(tada.MT.singleorg.dups$OrganizationIdentifier)
  unique(tada.MT.singleorg.dups$OrganizationFormalName)
  
- unique(sort(tada.MT.singleorg.dups$OrganizationFormalName))
+ unique(sort(tada.MT.singleorg.dups$TADA.MonitoringLocationName))
+ 
+ test.nearby <- TADA_FindNearbySites(tada.MT.singleorg.dups)
 # 
 # # find duplicates across multiple orgs
  tada.MT.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
    tada.MT.singleorg.dups,
    org_hierarchy = c("MTVOLWQM_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
  )
+ 
+ unique(sort(tada.MT.dups$TADA.MonitoringLocationName))
 ```
 
 We will select to keep only unique samples from
@@ -271,8 +275,8 @@ NOTE TO TADA: UNCOMMENTING THIS RESULTS IN UNEXPECTED ERROR TO TADA_ViewATTAINS(
 ```{r filter}
   tada.MT.clean <- tada.MT.dups |>
     dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
-    dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y" |
-                    TADA.)
+    dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+
 tada.MT.clean <- tada.MT.filter
 ```
 
