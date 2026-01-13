@@ -255,7 +255,7 @@ tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
  
  unique(sort(tada.MT.singleorg.dups$TADA.MonitoringLocationName))
  
- test.nearby <- TADA_FindNearbySites(tada.MT.singleorg.dups)
+ test.nearby <- TADA_FindNearbySites(tada.MT)
 # 
 # # find duplicates across multiple orgs
  tada.MT.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
