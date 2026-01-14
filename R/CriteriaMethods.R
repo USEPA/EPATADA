@@ -530,7 +530,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
     }
 
-    # user has went through the recommended workflow or chose autoassign = T. 
+    # user has went through the recommended workflow or chose autoassign = T.
     # criteria table will be generated from the MLSummaryRef file. This file also contains unique spatial criteria
     # as an option and will include these values if they have been populated.
     if (!is.null(MLSummaryRef)) {
@@ -729,18 +729,17 @@ TADA_DefineCriteriaMethodology <- function(
               CST.USE = USE_CLASS_NAME_LOCATION_ETC
             ) |>
             dplyr::distinct()
-            
-            # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
-            if(nrow(DefineCriteriaMethodology2) == 0) {
-              message(paste(
-                "TADA_DefineCriteriaMethodology: auto_assign = TRUE.",
-                "No parameter(s) and/or use(s) were matched between ATTAINS and CST for your defined org_id(s). No magnitude values could be populated for your org(s)."
-              ))
-            }
-            
-            
-            # final join, make sure that any ATTAINS param/uses that we could not match to CST remains in the criteria table
-            DefineCriteriaMethodology2 <- DefineCriteriaMethodology2 |>
+
+          # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
+          if (nrow(DefineCriteriaMethodology2) == 0) {
+            message(paste(
+              "TADA_DefineCriteriaMethodology: auto_assign = TRUE.",
+              "No parameter(s) and/or use(s) were matched between ATTAINS and CST for your defined org_id(s). No magnitude values could be populated for your org(s)."
+            ))
+          }
+
+          # final join, make sure that any ATTAINS param/uses that we could not match to CST remains in the criteria table
+          DefineCriteriaMethodology2 <- DefineCriteriaMethodology2 |>
             dplyr::right_join(
               dplyr::select(
                 DefineCriteriaMethodology,
