@@ -530,19 +530,13 @@ TADA_UsesAliasForReview <- function(
   CST.ATTAINS.tolerance = 1.00
 ) {
   # stop if greater than 1, must be between 0 and 1
-  if (
-    ATTAINS.CST.tolerance > 1.00 |
-    CST.ATTAINS.tolerance > 1.00
-  ) {
+  if (ATTAINS.CST.tolerance > 1.00 | CST.ATTAINS.tolerance > 1.00) {
     stop(
       "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
     )
   }
   # stop if less than 0, must be between 0 and 1
-  if (
-    ATTAINS.CST.tolerance < 0.00 |
-    CST.ATTAINS.tolerance < 0.00
-  ) {
+  if (ATTAINS.CST.tolerance < 0.00 | CST.ATTAINS.tolerance < 0.00) {
     stop(
       "One or more tolerance defined is less than 0. Tolerance cannot be negative."
     )
@@ -604,7 +598,12 @@ TADA_UsesAliasForReview <- function(
       name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
     ) |>
     dplyr::filter(name_words != "") |>
-    dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
+    dplyr::distinct(
+      ATTAINS.OrganizationIdentifier,
+      name,
+      name_words,
+      .keep_all = TRUE
+    )
 
   # remove intermediate variables
   rm(ATTAINS.raw)
@@ -628,13 +627,18 @@ TADA_UsesAliasForReview <- function(
       CRITERIATYPE_ACUTECHRONIC,
       USE_CLASS_NAME_LOCATION_ETC
     ) |>
-    dplyr::mutate(USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)) |>
+    dplyr::mutate(
+      USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
+    ) |>
     dplyr::distinct()
 
   # Extracts all words from each CST Use
   CST2 <- CST |>
     dplyr::mutate(
-      name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, pattern = " ")
+      name_words = stringr::str_split(
+        USE_CLASS_NAME_LOCATION_ETC,
+        pattern = " "
+      )
     ) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(
@@ -693,7 +697,12 @@ TADA_UsesAliasForReview <- function(
       .keep_all = TRUE
     ) |>
     # drops individual words
-    dplyr::group_by(ATTAINS.OrganizationIdentifier, USE_CLASS_NAME_LOCATION_ETC, name, context2) |>
+    dplyr::group_by(
+      ATTAINS.OrganizationIdentifier,
+      USE_CLASS_NAME_LOCATION_ETC,
+      name,
+      context2
+    ) |>
     dplyr::count() |>
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
@@ -726,12 +735,19 @@ TADA_UsesAliasForReview <- function(
         ATTAINS.OrganizationIdentifier,
         name,
         context2
-        )
-      ) |>
+      )
+    ) |>
     dplyr::distinct()
 
   # remove intermediate variables
-  rm(CST, ATTAINSUseRef, CST2, ATTAINSUseRef2, temp_ATTAINS_CST, temp_ATTAINS_CST2)
+  rm(
+    CST,
+    ATTAINSUseRef,
+    CST2,
+    ATTAINSUseRef2,
+    temp_ATTAINS_CST,
+    temp_ATTAINS_CST2
+  )
 
   # filter by desired tolerance level defined in the arg inputs
   ATTAINS_CST_Final <- temp_ATTAINS_CST_final |>

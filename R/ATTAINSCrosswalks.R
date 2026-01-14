@@ -3147,12 +3147,10 @@ TADA_AssignUsesToAU <- function(
 
     # User provides their own AU_UsesRef that has been filled out.
     if (!is.null(AU_UsesRef)) {
-      message(
-        paste(
+      message(paste(
         "TADA_AssignUsesToAU: When AU_UsesRef (a user-provided mapping of Assessment Units to Uses) is supplied,",
         "the function assigns only the Uses listed in that mapping to the AUs it contains and does not append any additional Uses."
-        )
-      )
+      ))
 
       AU_UsesRef_matches <- AU_UsesRef |>
         dplyr::filter(
