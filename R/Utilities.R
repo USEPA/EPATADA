@@ -451,7 +451,10 @@ utils::globalVariables(c(
   "context2",
   "CST.STD_POLLUTANT_NAME",
   "ENTITY_NAME",
-  "TADA.NearbySiteGroup.New"
+  "TADA.NearbySiteGroup.New",
+  "code",
+  "context",
+  "CriteriaSearchToolRef"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R

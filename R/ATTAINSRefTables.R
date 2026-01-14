@@ -474,10 +474,10 @@ TADA_AdditionalCharAliasForReview <- function(
 
 #' TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review
 #'
-#' This function first prioritize use name matches between ATTAINS.UseName
-#' and the CST uses application by matching the context2 from ATTAINS UseName
-#' domain with the Human Health and Aquatic Life column indicators in the CST.
-#' Please see the crosswalk done within the function.
+#' This function prioritizes matching the use names between the ATTAINS use_name
+#' domain and the Criteria Search Tool (CST) uses. It achieves this by aligning the 
+#' context2 field from the ATTAINS use_name domain, which acts as a uses category,
+#' with the Human Health and Aquatic Life column indicators from the CST.
 #'
 #' Next, this function compares the ATTAINS.UseName and CST uses to the logic
 #' in this function, which looks at the percentage of words that are

@@ -687,7 +687,7 @@ TADA_DefineCriteriaMethodology <- function(
               c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"),
               relationship = "many-to-many"
             ) |>
-            dplyr::mutate(across(where(is.character), toupper)) |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
             # Now, pull in the magnitude value if the CST pollutant name and uses are matched
             dplyr::left_join(
               CriteriaSearchToolRef,
