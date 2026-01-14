@@ -2,7 +2,6 @@ ANDs
 AOI
 ATTAINSOrgIDsRef
 ATTAINSParamToWQPCharRef
-AU's
 AUML
 AUMLRef
 AURefSource
@@ -131,7 +130,6 @@ GetLegendCSTRef
 GetNutrientSummationRef
 GetSourcesCSTRef
 GetSynonymRef
-Github
 HMW
 HRM
 HUC
@@ -198,9 +196,8 @@ MonitoringLocationType
 MonitoringLocationTypeName
 MonitoringLocations
 Msr
-NA's
 NCTC
-ND's
+NDs
 NHD
 NHDPlus
 NHDPlusTools
@@ -214,6 +211,7 @@ NoTargetUnit
 NonStandardized
 Nondetects
 Nonpoint
+Ns
 NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
@@ -226,7 +224,6 @@ OrganizationFormalNames
 OrganizationIdentifier
 OrganizationIdentifiers
 OrganizationName
-Otherwises
 OutsideUSA
 OverviewMap
 POJOAQUE
@@ -260,7 +257,6 @@ REDLAKE
 RMarkdown
 ROS
 RPD
-RPD's
 RPDs
 RProj
 RStudio

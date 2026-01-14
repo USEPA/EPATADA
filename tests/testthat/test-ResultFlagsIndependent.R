@@ -96,7 +96,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   ))
 })
 
-test_that("No NA's in independent flag columns", {
+test_that("No NAs in independent flag columns", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
