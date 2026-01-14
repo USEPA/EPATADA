@@ -84,9 +84,9 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
+```{r dev_install, eval = T, results = 'hide', include = F}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "cst-criteria-and-R8-vignette",
   dependencies = TRUE
 )
 ```
@@ -534,7 +534,7 @@ AU.uses <- TADA_AssignUsesToAU(
   AUMLRef = tada.MT.AUMLRef
   )
 
-DT::datatable(AU.uses, fillContainer = TRUE)
+TADA_TableExport(AU.uses)
 ```
 
 ### From a User Supplied Crosswalk (Uses to AU)
@@ -565,7 +565,7 @@ AU.uses2 <- TADA_AssignUsesToAU(
   AU_UsesRef = AU.uses.user.supplied
 )
 
-DT::datatable(AU.uses2, fillContainer = TRUE)
+TADA_TableExport(AU.uses2)
 ```
 
 
@@ -610,7 +610,7 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
   displayUniqueId = TRUE
   )
 
-DT::datatable(MT_criteria, fillContainer = TRUE)
+TADA_TableExport(MT_criteria)
 ```
 
 ### Autoassign criteria table
@@ -638,7 +638,7 @@ criteria_table_auto <- TADA_DefineCriteriaMethodology(
   ) |>
   dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 
-DT::datatable(criteria_table_auto, fillContainer = TRUE)
+TADA_TableExport(criteria_table_auto)
 ```
 
 We will continue using the criteria table for MTDEQ that was submitted
