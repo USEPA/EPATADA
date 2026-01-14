@@ -337,234 +337,234 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     dplyr::bind_rows(water_types)
   }
 
-  if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
-    ) {
-      bbox_area <- function(df, clust) {
-        df |>
-          dplyr::filter(cluster == clust) |>
-          sf::st_bbox() |>
-          sf::st_as_sfc() |>
-          sf::st_area() |>
-          tidyr::as_tibble() |>
-          dplyr::mutate(cluster = clust)
-      }
-
-      cluster_iteration <- function(points, eps, min_pts, iteration) {
-        coords <- sf::st_coordinates(points)
-        fr <- dbscan::frNN(coords, eps = eps)
-        clusters <- dbscan::dbscan(fr, minPts = min_pts)$cluster
-
-        cluster_ids <- ifelse(
-          clusters == -1,
-          paste0("noise_", iteration),
-          paste0("cluster_", iteration, "_", clusters)
-        )
-
-        points |> dplyr::mutate(cluster = cluster_ids, iteration = iteration)
-      }
-
-      has_large_clusters <- function(points) {
-        if (nrow(points) == 0) {
-          return(FALSE)
-        }
-
-        areas <- unique(points$cluster) |>
-          purrr::map_dfr(~ bbox_area(df = points, clust = .))
-        any(as.numeric(areas$value) > min_area)
-      }
-
-      split_clusters_by_area <- function(points, min_area) {
-        cluster_areas <- unique(points$cluster) |>
-          purrr::map_dfr(~ bbox_area(df = points, clust = .))
-
-        large_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) > min_area)
-
-        small_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) <= min_area)
-
-        large_points <- points |>
-          dplyr::filter(cluster %in% large_clusters$cluster)
-
-        small_points <- points |>
-          dplyr::filter(cluster %in% small_clusters$cluster)
-
-        list(
-          large = large_points,
-          small = small_points,
-          large_areas = large_clusters,
-          small_areas = small_clusters
-        )
-      }
-
-      all_small_clusters <- list()
-      current_points <- points_sf |> dplyr::distinct(geometry)
-      iteration <- 1
-
-      eps_sequence <- c(0.25, 0.05, 1, .1)
-      eps_index <- 1
-
-      while (nrow(current_points) > 0 && iteration <= max_iterations) {
-        current_eps <- eps_sequence[eps_index]
-        eps_index <- (eps_index %% length(eps_sequence)) + 1
-
-        clustered_points <- cluster_iteration(
-          current_points,
-          eps = current_eps,
-          min_pts = 1,
-          iteration = iteration
-        )
-
-        split_results <- split_clusters_by_area(clustered_points, min_area)
-
-        if (nrow(split_results$small) > 0) {
-          all_small_clusters[[paste0(
-            "iteration_",
-            iteration
-          )]] <- split_results$small
-        }
-
-        if (nrow(split_results$large) == 0) {
-          break
-        }
-
-        current_points <- split_results$large
-        iteration <- iteration + 1
-      }
-
-      final_clusters <- dplyr::bind_rows(all_small_clusters) |>
-        dplyr::arrange(iteration)
-
-      if (iteration == max_iterations) {
-        warning(
-          "Maximum iterations reached. Some clusters may still exceed the area threshold."
-        )
-      }
-
-      list(
-        clusters = final_clusters,
-        clusters_by_iteration = all_small_clusters,
-        total_iterations = iteration,
-        final_eps = current_eps
-      )
-    }
-
-    points_sf <- dplyr::distinct(.data, geometry)
-
-    init <- perform_iterative_clustering(points_sf = points_sf)
-    init_clusters <- init[["clusters_by_iteration"]] |> dplyr::bind_rows()
-
-    final_cluster_list <- points_sf |>
-      dplyr::filter(!geometry %in% init$geometry) |>
-      tibble::rowid_to_column(var = "cluster") |>
-      dplyr::mutate(cluster = as.character(cluster)) |>
-      dplyr::bind_rows(init)
-
-    catchment_features <- vector(
-      "list",
-      length = length(unique(final_cluster_list$cluster))
-    )
-
-    for (i in seq_along(unique(final_cluster_list$cluster))) {
-      suppressMessages(suppressWarnings({
-        bbox <- final_cluster_list |>
-          dplyr::filter(cluster == unique(final_cluster_list$cluster)[i]) |>
-          sf::st_bbox() |>
-          toString() |>
-          urltools::url_encode()
-      }))
-
-      catchment_features[[i]] <- fetch_bbox(
-        baseurls = baseurls[1],
-        sf_bbox = bbox
-      )
-    }
-
-    catchment_features <- catchment_features |>
-      purrr::keep(~ !is.null(.)) |>
-      purrr::keep(~ nrow(.) > 0) |>
-      dplyr::bind_rows()
-
-    try(
-      {
-        catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
-      },
-      silent = TRUE
-    )
-
-    if (length(catchment_features) == 0 || is.null(catchment_features)) {
-      message(
-        "There are no ATTAINS features associated with your WQP observations."
-      )
-    } else {
-      all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
-      try(
-        catchment_features <- dplyr::left_join(
-          catchment_features,
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        )
-      )
-    }
-
-    if (catchments_only == TRUE) {
-      return(list("ATTAINS_catchments" = catchment_features))
-    }
-
-    points <- fetch_au(
-      baseurls = baseurls[2],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
-    )
-    lines <- fetch_au(
-      baseurls = baseurls[3],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
-    )
-    polygons <- fetch_au(
-      baseurls = baseurls[4],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
-    )
-
-    try(
-      points <- points |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-
-    try(
-      lines <- lines |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-
-    try(
-      polygons <- polygons |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-
-    final_features <- list(
-      "ATTAINS_catchments" = catchment_features,
-      "ATTAINS_points" = points,
-      "ATTAINS_lines" = lines,
-      "ATTAINS_polygons" = polygons
-    )
-
-    return(final_features)
-  } else {
+  # if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
+  #   perform_iterative_clustering <- function(
+  #     points_sf,
+  #     min_area = 6e+9,
+  #     max_iterations = 100
+  #   ) {
+  #     bbox_area <- function(df, clust) {
+  #       df |>
+  #         dplyr::filter(cluster == clust) |>
+  #         sf::st_bbox() |>
+  #         sf::st_as_sfc() |>
+  #         sf::st_area() |>
+  #         tidyr::as_tibble() |>
+  #         dplyr::mutate(cluster = clust)
+  #     }
+  # 
+  #     cluster_iteration <- function(points, eps, min_pts, iteration) {
+  #       coords <- sf::st_coordinates(points)
+  #       fr <- dbscan::frNN(coords, eps = eps)
+  #       clusters <- dbscan::dbscan(fr, minPts = min_pts)$cluster
+  # 
+  #       cluster_ids <- ifelse(
+  #         clusters == -1,
+  #         paste0("noise_", iteration),
+  #         paste0("cluster_", iteration, "_", clusters)
+  #       )
+  # 
+  #       points |> dplyr::mutate(cluster = cluster_ids, iteration = iteration)
+  #     }
+  # 
+  #     has_large_clusters <- function(points) {
+  #       if (nrow(points) == 0) {
+  #         return(FALSE)
+  #       }
+  # 
+  #       areas <- unique(points$cluster) |>
+  #         purrr::map_dfr(~ bbox_area(df = points, clust = .))
+  #       any(as.numeric(areas$value) > min_area)
+  #     }
+  # 
+  #     split_clusters_by_area <- function(points, min_area) {
+  #       cluster_areas <- unique(points$cluster) |>
+  #         purrr::map_dfr(~ bbox_area(df = points, clust = .))
+  # 
+  #       large_clusters <- cluster_areas |>
+  #         dplyr::filter(as.numeric(value) > min_area)
+  # 
+  #       small_clusters <- cluster_areas |>
+  #         dplyr::filter(as.numeric(value) <= min_area)
+  # 
+  #       large_points <- points |>
+  #         dplyr::filter(cluster %in% large_clusters$cluster)
+  # 
+  #       small_points <- points |>
+  #         dplyr::filter(cluster %in% small_clusters$cluster)
+  # 
+  #       list(
+  #         large = large_points,
+  #         small = small_points,
+  #         large_areas = large_clusters,
+  #         small_areas = small_clusters
+  #       )
+  #     }
+  # 
+  #     all_small_clusters <- list()
+  #     current_points <- points_sf |> dplyr::distinct(geometry)
+  #     iteration <- 1
+  # 
+  #     eps_sequence <- c(0.25, 0.05, 1, .1)
+  #     eps_index <- 1
+  # 
+  #     while (nrow(current_points) > 0 && iteration <= max_iterations) {
+  #       current_eps <- eps_sequence[eps_index]
+  #       eps_index <- (eps_index %% length(eps_sequence)) + 1
+  # 
+  #       clustered_points <- cluster_iteration(
+  #         current_points,
+  #         eps = current_eps,
+  #         min_pts = 1,
+  #         iteration = iteration
+  #       )
+  # 
+  #       split_results <- split_clusters_by_area(clustered_points, min_area)
+  # 
+  #       if (nrow(split_results$small) > 0) {
+  #         all_small_clusters[[paste0(
+  #           "iteration_",
+  #           iteration
+  #         )]] <- split_results$small
+  #       }
+  # 
+  #       if (nrow(split_results$large) == 0) {
+  #         break
+  #       }
+  # 
+  #       current_points <- split_results$large
+  #       iteration <- iteration + 1
+  #     }
+  # 
+  #     final_clusters <- dplyr::bind_rows(all_small_clusters) |>
+  #       dplyr::arrange(iteration)
+  # 
+  #     if (iteration == max_iterations) {
+  #       warning(
+  #         "Maximum iterations reached. Some clusters may still exceed the area threshold."
+  #       )
+  #     }
+  # 
+  #     list(
+  #       clusters = final_clusters,
+  #       clusters_by_iteration = all_small_clusters,
+  #       total_iterations = iteration,
+  #       final_eps = current_eps
+  #     )
+  #   }
+  # 
+  #   points_sf <- dplyr::distinct(.data, geometry)
+  # 
+  #   init <- perform_iterative_clustering(points_sf = points_sf)
+  #   init_clusters <- init[["clusters_by_iteration"]] |> dplyr::bind_rows()
+  # 
+  #   final_cluster_list <- points_sf |>
+  #     dplyr::filter(!geometry %in% init$geometry) |>
+  #     tibble::rowid_to_column(var = "cluster") |>
+  #     dplyr::mutate(cluster = as.character(cluster)) |>
+  #     dplyr::bind_rows(init)
+  # 
+  #   catchment_features <- vector(
+  #     "list",
+  #     length = length(unique(final_cluster_list$cluster))
+  #   )
+  # 
+  #   for (i in seq_along(unique(final_cluster_list$cluster))) {
+  #     suppressMessages(suppressWarnings({
+  #       bbox <- final_cluster_list |>
+  #         dplyr::filter(cluster == unique(final_cluster_list$cluster)[i]) |>
+  #         sf::st_bbox() |>
+  #         toString() |>
+  #         urltools::url_encode()
+  #     }))
+  # 
+  #     catchment_features[[i]] <- fetch_bbox(
+  #       baseurls = baseurls[1],
+  #       sf_bbox = bbox
+  #     )
+  #   }
+  # 
+  #   catchment_features <- catchment_features |>
+  #     purrr::keep(~ !is.null(.)) |>
+  #     purrr::keep(~ nrow(.) > 0) |>
+  #     dplyr::bind_rows()
+  # 
+  #   try(
+  #     {
+  #       catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
+  #     },
+  #     silent = TRUE
+  #   )
+  # 
+  #   if (length(catchment_features) == 0 || is.null(catchment_features)) {
+  #     message(
+  #       "There are no ATTAINS features associated with your WQP observations."
+  #     )
+  #   } else {
+  #     all_units <- unique(catchment_features$assessmentunitidentifier)
+  #     water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+  #     try(
+  #       catchment_features <- dplyr::left_join(
+  #         catchment_features,
+  #         water_types,
+  #         by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+  #       )
+  #     )
+  #   }
+  # 
+  #   if (catchments_only == TRUE) {
+  #     return(list("ATTAINS_catchments" = catchment_features))
+  #   }
+  # 
+  #   points <- fetch_au(
+  #     baseurls = baseurls[2],
+  #     assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+  #   )
+  #   lines <- fetch_au(
+  #     baseurls = baseurls[3],
+  #     assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+  #   )
+  #   polygons <- fetch_au(
+  #     baseurls = baseurls[4],
+  #     assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+  #   )
+  # 
+  #   try(
+  #     points <- points |>
+  #       dplyr::left_join(
+  #         water_types,
+  #         by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+  #       ),
+  #     silent = TRUE
+  #   )
+  # 
+  #   try(
+  #     lines <- lines |>
+  #       dplyr::left_join(
+  #         water_types,
+  #         by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+  #       ),
+  #     silent = TRUE
+  #   )
+  # 
+  #   try(
+  #     polygons <- polygons |>
+  #       dplyr::left_join(
+  #         water_types,
+  #         by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+  #       ),
+  #     silent = TRUE
+  #   )
+  # 
+  #   final_features <- list(
+  #     "ATTAINS_catchments" = catchment_features,
+  #     "ATTAINS_points" = points,
+  #     "ATTAINS_lines" = lines,
+  #     "ATTAINS_polygons" = polygons
+  #   )
+  # 
+  #   return(final_features)
+  # } else {
     points_sf <- .data
 
     bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
@@ -593,7 +593,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         ),
         silent = TRUE
       )
-    }
+    #}
 
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
