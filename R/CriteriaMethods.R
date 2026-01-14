@@ -933,9 +933,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      # should not be a problem if we control what column names are allowed,
-      # but including this for the case if edits are made to the function to ensure
-      # excel allowable values are still in the correct order.
+      # ensure the first n columns are in TADA criteria table format. Additional columns are allowed for notes etc.
       DefineCriteriaMethodology <- dplyr::relocate(
         DefineCriteriaMethodology,
         desired_cols # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
