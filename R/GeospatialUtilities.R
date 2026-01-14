@@ -733,6 +733,8 @@ prepATTAINSMapper <- function(.data,
 #'
 #' @param points_layer
 #'
+#' @param catchment_layer
+#'
 #' @param color_ref
 #'
 #' @param auid_list
