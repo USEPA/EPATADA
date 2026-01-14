@@ -616,7 +616,7 @@ TADA_UsesAliasForReview <- function(
   CST <- CriteriaSearchToolRef
 
   # remove intermediate variables
-  rm(file_path, CriteriaSearchToolRef)
+  rm(file_path)
 
   # select appropriate columns from the CST
   CST <- CST |>
