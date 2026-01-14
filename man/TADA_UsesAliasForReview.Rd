@@ -5,12 +5,9 @@
 \title{TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review}
 \usage{
 TADA_UsesAliasForReview(
-  includeCST = FALSE,
   displayPercent = FALSE,
   ATTAINS.CST.tolerance = 1,
-  CST.ATTAINS.tolerance = 1,
-  ATTAINS.WQX.tolerance = 1,
-  WQX.ATTAINS.tolerance = 1
+  CST.ATTAINS.tolerance = 1
 )
 }
 \arguments{
@@ -61,8 +58,8 @@ be matched (false positives). Default for now is to be more strict.
 }
 \examples{
 uses <- TADA_UsesAliasForReview(
-  ATTAINS.CST.tolerance = 0.5,
-  CST.ATTAINS.tolerance = 0.15  # uses a lower value as CST uses can be very long string.
+  ATTAINS.CST.tolerance = 0.50,
+  CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
   )
 
 }

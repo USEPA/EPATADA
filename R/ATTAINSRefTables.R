@@ -520,34 +520,37 @@ TADA_AdditionalCharAliasForReview <- function(
 #'
 #' @examples
 #' uses <- TADA_UsesAliasForReview(
-#'   ATTAINS.CST.tolerance = 0.5,
-#'   CST.ATTAINS.tolerance = 0.15  # uses a lower value as CST uses can be very long string.
+#'   ATTAINS.CST.tolerance = 0.50,
+#'   CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
 #'   )
 #'
 TADA_UsesAliasForReview <- function(
-  includeCST = FALSE,
   displayPercent = FALSE,
   ATTAINS.CST.tolerance = 1.00,
-  CST.ATTAINS.tolerance = 1.00,
-  ATTAINS.WQX.tolerance = 1.00,
-  WQX.ATTAINS.tolerance = 1.00
+  CST.ATTAINS.tolerance = 1.00
 ) {
+  # stop if greater than 1, must be between 0 and 1
   if (
     ATTAINS.CST.tolerance > 1.00 |
-      CST.ATTAINS.tolerance > 1.00 |
-      ATTAINS.WQX.tolerance > 1.00 |
-      WQX.ATTAINS.tolerance > 1.00
+    CST.ATTAINS.tolerance > 1.00
   ) {
     stop(
       "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
     )
   }
+  # stop if less than 0, must be between 0 and 1
+  if (
+    ATTAINS.CST.tolerance < 0.00 |
+    CST.ATTAINS.tolerance < 0.00
+  ) {
+    stop(
+      "One or more tolerance defined is less than 0. Tolerance cannot be negative."
+    )
+  }
 
-  # Extracts all words from each ATTAINS Parameter Name
-  # retrieve the ATTAINS domain value from rExpertQuery
-  ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name")
-
-  ATTAINSUseRef <- ATTAINS.raw[, c("name", "context2"), drop = FALSE]
+  # retrieve the ATTAINS use_name domain value from rExpertQuery
+  ATTAINS.raw <- rExpertQuery::EQ_DomainValues("use_name") |>
+    dplyr::select(name, context, context2)
 
   # Will join ATTAINS Use with an Aquatic Life or Human Health indicator consistent with CST columns
   UsesType <- data.frame(
@@ -575,34 +578,19 @@ TADA_UsesAliasForReview <- function(
     )
   )
 
-  # Find all ATTAINS.UseName used by ATTAINS organization in prior assessment cycles
-  ATTAINS_org_uses <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSParamUseEntityRef.csv",
-    package = "EPATADA"
-  )) |>
-    dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
-    dplyr::distinct()
-
   # extract the context2 of ATTAINS.UseName for the use "category type" and applies
   # logic to match them to a Human Health or Aquatic Life indicator.
-  ATTAINSUseRef <- ATTAINSUseRef |>
+  ATTAINSUseRef <- ATTAINS.raw |>
     dplyr::left_join(
       UsesType,
       by = dplyr::join_by(context2),
       relationship = "many-to-many"
     ) |>
-    dplyr::distinct()
-
-  # ATTAINS.UseName, ATTAINS.OrganizationIdentifier and ATTAINS context2 table
-  # with the CST CRITERIATYPEAQUAHUMHLTH
-  ATTAINSUseRef <- ATTAINSUseRef |>
-    dplyr::left_join(
-      ATTAINS_org_uses,
-      by = c("name" = "ATTAINS.UseName"),
-      relationship = "many-to-many"
+    dplyr::mutate(
+      name = toupper(name),
+      ATTAINS.OrganizationIdentifier = context
     ) |>
-    dplyr::filter(!is.na(context2)) |>
+    dplyr::select(-context) |>
     dplyr::distinct()
 
   # extract each individual ATTAINS.UseName word
@@ -612,26 +600,23 @@ TADA_UsesAliasForReview <- function(
     dplyr::filter(
       !name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")
     ) |>
-    dplyr::distinct(name, name_words, .keep_all = TRUE)
-
-  # uppercase for consistency
-  ATTAINSUseRef2$name_words <- toupper(gsub(
-    "[^[:alnum:] ]",
-    "",
-    ATTAINSUseRef2$name_words
-  ))
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
+    dplyr::filter(name_words != "") |>
+    dplyr::distinct(ATTAINS.OrganizationIdentifier, name, name_words, .keep_all = TRUE)
 
   # remove intermediate variables
   rm(ATTAINS.raw)
 
   # pulls in CST and extract relevant columns
-  CriteriaSearchToolRef <- system.file(
+  file_path <- system.file(
     "extdata",
     "CriteriaSearchToolRef.rda",
     package = "EPATADA"
   )
-
-  load(CriteriaSearchToolRef)
+  load(file_path)
+  rm(file_path)
 
   CST <- CriteriaSearchToolRef
   CST <- CST |>
@@ -643,24 +628,23 @@ TADA_UsesAliasForReview <- function(
       CRITERIATYPE_ACUTECHRONIC,
       USE_CLASS_NAME_LOCATION_ETC
     ) |>
+    dplyr::mutate(USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)) |>
     dplyr::distinct()
 
-  # Extracts all words from each CST Pollutant Name
+  # Extracts all words from each CST Use
   CST2 <- CST |>
     dplyr::mutate(
-      name_words = stringr::str_split(
-        USE_CLASS_NAME_LOCATION_ETC,
-        pattern = " "
-      )
+      name_words = stringr::str_split(USE_CLASS_NAME_LOCATION_ETC, pattern = " ")
     ) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(
       !name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")
     ) |>
+    dplyr::mutate(
+      name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
+    ) |>
+    dplyr::filter(name_words != "") |>
     dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
-
-  # uppercase for consistency
-  CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
 
   # match CST Entity with ATTAINS org (best guess using state/tribe name)
   ATTAINSOrgIDsRef <- utils::read.csv(system.file(
@@ -681,14 +665,14 @@ TADA_UsesAliasForReview <- function(
   # joins the ATTAINS.OrganizationIdentifier in the CST table
   CST2 <- CST2 |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
-    dplyr::left_join(ATTAINS_CST.org)
+    dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
 
   CST <- CST |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
 
   # matches by org id and CRITERIATYPEAQUAHUMHLTH
-  temp_ATTAINS_CST <- dplyr::right_join(
+  temp_ATTAINS_CST <- dplyr::full_join(
     CST,
     ATTAINSUseRef,
     by = c("ATTAINS.OrganizationIdentifier", "CRITERIATYPEAQUAHUMHLTH"),
@@ -696,10 +680,10 @@ TADA_UsesAliasForReview <- function(
   )
 
   # Look for percent word matches between ATTAINS and CST as additional matches
-  temp_ATTAINS_CST2 <- dplyr::right_join(
+  temp_ATTAINS_CST2 <- dplyr::full_join(
     CST2,
     ATTAINSUseRef2,
-    by = c("name_words"),
+    by = c("name_words", "ATTAINS.OrganizationIdentifier"),
     relationship = "many-to-many"
   ) |>
     dplyr::distinct(
@@ -708,7 +692,8 @@ TADA_UsesAliasForReview <- function(
       name_words,
       .keep_all = TRUE
     ) |>
-    dplyr::group_by(USE_CLASS_NAME_LOCATION_ETC, name, context2) |>
+    # drops individual words
+    dplyr::group_by(ATTAINS.OrganizationIdentifier, USE_CLASS_NAME_LOCATION_ETC, name, context2) |>
     dplyr::count() |>
     dplyr::ungroup() |>
     dplyr::group_by(name) |>
@@ -721,31 +706,34 @@ TADA_UsesAliasForReview <- function(
     #   order_by = percent_match_CST + percent_match_ATTAINS_CST
     # ) |>
     dplyr::right_join(
-      CST,
-      by = c("USE_CLASS_NAME_LOCATION_ETC"),
+      CST, # Join to table without separated words in each string
+      by = c("ATTAINS.OrganizationIdentifier", "USE_CLASS_NAME_LOCATION_ETC"),
       relationship = "many-to-many"
     )
   #dplyr::filter(percent_match_CST + percent_match_ATTAINS_CST > 0)
 
   # now combine the two tables
   temp_ATTAINS_CST_final <- temp_ATTAINS_CST |>
-    dplyr::full_join(temp_ATTAINS_CST2) |>
+    dplyr::full_join(
+      temp_ATTAINS_CST2,
+      by = dplyr::join_by(
+        ENTITY_ABBR,
+        ENTITY_NAME,
+        CRITERIATYPEAQUAHUMHLTH,
+        CRITERIATYPEFRESHSALTWATER,
+        CRITERIATYPE_ACUTECHRONIC,
+        USE_CLASS_NAME_LOCATION_ETC,
+        ATTAINS.OrganizationIdentifier,
+        name,
+        context2
+        )
+      ) |>
     dplyr::distinct()
 
   # remove intermediate variables
-  rm(CST, ATTAINSUseRef)
+  rm(CST, ATTAINSUseRef, CST2, ATTAINSUseRef2, temp_ATTAINS_CST, temp_ATTAINS_CST2)
 
-  # less aggressive (prone to more mistake) but identifies more matches
-  temp_ATTAINS_CST_final <- temp_ATTAINS_CST_final |>
-    dplyr::group_by(USE_CLASS_NAME_LOCATION_ETC) |>
-    dplyr::mutate(
-      percent_match_CST = n /
-        stringr::str_count(USE_CLASS_NAME_LOCATION_ETC, "\\S+"),
-      percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
-    )
-  # dplyr::slice_max(order_by = percent_match_CST + percent_match_ATTAINS_CST)
-
-  # more aggressive (too strict, can lead to missed matches)
+  # filter by desired tolerance level defined in the arg inputs
   ATTAINS_CST_Final <- temp_ATTAINS_CST_final |>
     dplyr::filter(
       percent_match_CST >= CST.ATTAINS.tolerance |
@@ -753,20 +741,12 @@ TADA_UsesAliasForReview <- function(
         (is.na(percent_match_CST) & is.na(percent_match_ATTAINS_CST))
     )
 
-  # remove intermediate variables
-  # rm(
-  #   temp_ATTAINS_CST, temp_ATTAINS_CST2, temp_ATTAINS_CST_final
-  # )
-
   if (displayPercent == FALSE) {
     ATTAINS_CST_Final <- ATTAINS_CST_Final |>
       dplyr::select(
         -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
       )
   }
-
-  # remove intermediate variable
-  rm(CST2)
 
   return(ATTAINS_CST_Final)
 }

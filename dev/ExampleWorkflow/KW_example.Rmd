@@ -472,7 +472,7 @@ AU_uses <- TADA_AssignUsesToAU(
 ## D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
 
 We will load in a pre-filled criteria template completed by MTDEQ.
-(R8 partners have also contributed to the TADA_CommunityHub repository
+(R8 partners have also contributed to the TADACommunityHub repository
 which contains pre-filled templates as well for R8 states and tribes!)
 
 ```{r}

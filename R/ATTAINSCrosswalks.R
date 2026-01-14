@@ -3147,8 +3147,11 @@ TADA_AssignUsesToAU <- function(
 
     # User provides their own AU_UsesRef that has been filled out.
     if (!is.null(AU_UsesRef)) {
-      print(
-        "An AU_UsesRef was provided. Prioritizing this assignment of Uses to the assessment units defined in this AU_UsesRef data frame."
+      message(
+        paste(
+        "TADA_AssignUsesToAU: When AU_UsesRef (a user-provided mapping of Assessment Units to Uses) is supplied,",
+        "the function assigns only the Uses listed in that mapping to the AUs it contains and does not append any additional Uses."
+        )
       )
 
       AU_UsesRef_matches <- AU_UsesRef |>

@@ -647,7 +647,7 @@ TADA_DefineCriteriaMethodology <- function(
           ) |>
             dplyr::mutate(STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME))
           uses <- suppressMessages(TADA_UsesAliasForReview(
-            ATTAINS.CST.tolerance = 0.15, # uses a lower value as CST uses can be very long.
+            ATTAINS.CST.tolerance = 0.15, # lower tolerance for more matches to ensure user reviews the uses crosswalks.
             CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long.
           ))
           # filters uses crosswalk by the org_id
@@ -658,16 +658,22 @@ TADA_DefineCriteriaMethodology <- function(
               ATTAINS.OrganizationIdentifier %in%
                 unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier)
             )
-          CriteriaSearchToolRef <- system.file(
+          # pulls in CriteriaSearchToolRef.rda
+          file_path <- system.file(
             "extdata",
             "CriteriaSearchToolRef.rda",
             package = "EPATADA"
           )
-          load(CriteriaSearchToolRef)
+          load(file_path)
+          # remove intermediate variable
+          rm(file_path)
+          # upper case all character columns for consistency
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
+          # upper case all character columns for consistency
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
+          # join the parameter and pollutant names from ATTAINS and CST
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::left_join(
               CST_ATTAINS_Param,
@@ -675,12 +681,14 @@ TADA_DefineCriteriaMethodology <- function(
               relationship = "many-to-many"
             ) |>
             dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+            # Now join by ATTAINS uses and CST uses
             dplyr::left_join(
               uses,
               c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"),
               relationship = "many-to-many"
             ) |>
             dplyr::mutate(across(where(is.character), toupper)) |>
+            # Now, pull in the magnitude value if the CST pollutant name and uses are matched
             dplyr::left_join(
               CriteriaSearchToolRef,
               by = dplyr::join_by(POLLUTANT_NAME, STD_POLLUTANT_NAME, ENTITY_ABBR, ENTITY_NAME,
@@ -689,6 +697,7 @@ TADA_DefineCriteriaMethodology <- function(
               relationship = "many-to-many"
             ) |>
             dplyr::filter(!is.na(CRITERION_VALUE)) |>
+            # format the criterion values to the TADA magnitude format, for cases when there's a range.
             tidyr::separate(
               col = CRITERION_VALUE,
               into = c("MagnitudeValueLower", "MagnitudeValueUpper"),
@@ -697,15 +706,18 @@ TADA_DefineCriteriaMethodology <- function(
               convert = TRUE, # Automatically convert to the appropriate type (numeric)
               extra = "drop"
             ) |>
+            # convert CST columns to TADA criteria column name
             dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) |>
             dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) |>
             dplyr::mutate(MagnitudeUnit = UNIT_NAME) |>
+            # selct relevant columns found in the TADA criteria table, append CST pollutant name and use at the end
             dplyr::select(
               names(suppressMessages(TADA_DefineCriteriaMethodology())),
               CST.STD_POLLUTANT_NAME = STD_POLLUTANT_NAME,
               CST.USE = USE_CLASS_NAME_LOCATION_ETC
             ) |>
             dplyr::distinct() |>
+            # final join, make sure that any values that we could not match to CST remains in the criteria table
             dplyr::left_join(
               dplyr::select(
                 DefineCriteriaMethodology,
@@ -727,10 +739,7 @@ TADA_DefineCriteriaMethodology <- function(
                 TADA.MethodSpeciationName
               )
             )
-          # dplyr::relocate(
-          #   STD_POLLUTANT_NAME,
-          #   .after = ATTAINS.ParameterName
-          #   )|>
+
           # We will filter out any instances of ph variation, temperature rise above ambient and any other
           # CST pollutant name which TADA analysis function may not be able to handle currently.
           # NOTE FOR DEVELOPERS: We may wish to include these pollutants back eventually if we can
@@ -753,6 +762,7 @@ TADA_DefineCriteriaMethodology <- function(
             )
         }
       }
+      # final formatting to ensure all column types are correct
       DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
     }
 

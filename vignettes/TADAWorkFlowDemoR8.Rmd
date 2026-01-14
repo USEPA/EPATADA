@@ -235,19 +235,37 @@ tada.MT.filter <- tada.MT |>
 ```
 
 Next, let's check if the dataset contains potential duplicate results
-from within a single organization.
+from within a single organization or from within multiple organizations
+(such as when two or more organizations monitor the same location and
+may submit duplicate results).
+
+For the case in which there exists potential duplicates from multiple
+organizations, if you would like to prioritize results from one
+organization over another, this can be done using the org_hierarchy
+argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r duplicates}
 # find duplicates from single org
 tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
+
+# Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
+unique(tada.MT.singleorg.dups$OrganizationIdentifier)
+unique(tada.MT.singleorg.dups$OrganizationFormalName)
+
+# find duplicates across multiple orgs
+tada.MT.multipleorgs.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
+  tada.MT.singleorg.dups,
+  org_hierarchy = c("MDEQ_WQ_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
+)
 ```
 
 We will select to keep only unique samples from
 `TADA_FindPotentialDuplicatesSingleOrg` where TADA.SingleOrgDup.Flag equals "Unique".
 
 ```{r filter}
-tada.MT.clean <- tada.MT.singleorg.dups |>
-   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique")
+tada.MT.clean <- tada.MT.multipleorgs.dups |>
+   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
+   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
 Remove intermediate variables in R by using 'rm()'. In the remainder of
