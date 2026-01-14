@@ -424,7 +424,7 @@ addATTAINS <- function(.data,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add all ATTAINS geometries to map
-addAllATTAINS <- function(map = map,
+addAllATTAINS <- function(map,
                           points_layer = NULL,
                           polygons_layer = NULL,
                           lines_layer = NULL,
@@ -434,113 +434,120 @@ addAllATTAINS <- function(map = map,
                           overlay_groups = NULL,
                           icons = NULL) {
 
-  # Add ATTAINS catchment outlines (if they exist):
-  try(
-    {
-      polygon_catch <- addATTAINS(catchment_layer,
-                                  map = map,
-                                  overlay_groups = overlay_groups,
-                                  catchment = TRUE)
+  # ensure map is provided
+  if (missing(map)) {
+    stop("addAllATTAINS: Argument 'map' is required.")
+  }
+
+  # helper to silence errors while preserving readability
+  safe_add <- function(expr) {
+    try(expr, silent = TRUE)
+    invisible(NULL)
+  }
+
+  # Add ATTAINS catchment outlines (if they exist)
+  safe_add({
+    if (!is.null(catchment_layer) && nrow(catchment_layer) > 0) {
+      polygon_catch <- addATTAINS(
+        catchment_layer,
+        map = map,
+        overlay_groups = overlay_groups,
+        catchment = TRUE
+      )
 
       map <- polygon_catch$map
-
       overlay_groups <- polygon_catch$overlay_groups
 
       rm(polygon_catch)
-    },
-    silent = TRUE
-  )
+    }
+  })
 
-# Add ATTAINS catchment outlines as AUs:
-try(
-  {
-    missing_outlines <- addATTAINS(missing_raw_mapper,
-                      map = map,
-                      overlay_groups = overlay_groups,
-                      catchment = TRUE,
-                      catchment_type = "missing_raw")
+  # Add ATTAINS catchment outlines as AUs for missing_raw (if they exist)
+  safe_add({
+    if (!is.null(missing_raw_layer) && nrow(missing_raw_layer) > 0) {
+      missing_outlines <- addATTAINS(
+        missing_raw_layer,
+        map = map,
+        overlay_groups = overlay_groups,
+        catchment = TRUE,
+        catchment_type = "missing_raw"
+      )
 
-    map <- missing_outlines$map
+      map <- missing_outlines$map
+      overlay_groups <- missing_outlines$overlay_groups
 
-    overlay_groups <- missing_outlines$overlay_groups
+      rm(missing_outlines)
+    }
+  })
 
-    rm(missing_outlines)
-  },
-  silent = TRUE
-)
+  # Add outlines that have no ATTAINS (if they exist)
+  safe_add({
+    if (!is.null(outline_layer) && nrow(outline_layer) > 0) {
+      wo_attains <- addATTAINS(
+        outline_layer,
+        map = map,
+        overlay_groups = overlay_groups,
+        catchment = TRUE,
+        catchment_type = "wo_attains"
+      )
 
-# Add missing catchment outlines (if they exist):
-try(
-  {
-    wo_attains <- addATTAINS(without_ATTAINS_catchments,
-                      map = map,
-                      overlay_groups = overlay_groups,
-                      catchment = TRUE,
-                      catchment_type = "wo_attains")
+      map <- wo_attains$map
+      overlay_groups <- wo_attains$overlay_groups
 
-    map <- wo_attains$map
+      rm(wo_attains)
+    }
+  })
 
-    overlay_groups <- wo_attains$overlay_map
+  # Add ATTAINS polygon features (if they exist)
+  safe_add({
+    if (!is.null(polygons_layer) && nrow(polygons_layer) > 0) {
+      polygons_aus <- addATTAINS(
+        polygons_layer,
+        map = map,
+        overlay_groups = overlay_groups
+      )
 
-    rm(wo.attains)
-  },
-  silent = TRUE
-)
+      map <- polygons_aus$map
+      overlay_groups <- polygons_aus$overlay_groups
 
-# Add ATTAINS polygon features (if they exist):
-try(
-  {
-    polygons_aus <- addATTAINS(au_mapper$polygons_mapper,
-                               map = map,
-                               overlay_groups = overlay_groups
-    )
+      rm(polygons_aus)
+    }
+  })
 
-    map <- polygons_aus$map
+  # Add ATTAINS line features (if they exist)
+  safe_add({
+    if (!is.null(lines_layer) && nrow(lines_layer) > 0) {
+      lines_aus <- addATTAINS(
+        lines_layer,
+        map = map,
+        overlay_groups = overlay_groups
+      )
 
-    overlay_groups <- polygons_aus$overlay_groups
+      map <- lines_aus$map
+      overlay_groups <- lines_aus$overlay_groups
 
-    # remove intermediate object
-    rm(polygons_aus)
-  },
-  silent = TRUE
-)
+      rm(lines_aus)
+    }
+  })
 
-# Add ATTAINS lines features (if they exist):
-try(
-  {
-    lines_aus <- addATTAINS(au_mapper$lines_mapper,
-                            map = map,
-                            overlay_groups = overlay_groups
-    )
+  # Add ATTAINS point features (if they exist)
+  safe_add({
+    if (!is.null(points_layer) && nrow(points_layer) > 0) {
+      points_aus <- addATTAINS(
+        points_layer,
+        map = map,
+        overlay_groups = overlay_groups,
+        icons = icons
+      )
 
-    map <- lines_aus$map
+      map <- points_aus$map
+      overlay_groups <- points_aus$overlay_groups
 
-    overlay_groups <- lines_aus$overlay_groups
+      rm(points_aus)
+    }
+  })
 
-    # remove intermediate object
-    rm(lines_aus)
-  },
-  silent = TRUE
-)
-
-# Add ATTAINS point features (if they exist):
-try(
-  {
-    points_aus <- addATTAINS(au_mapper$points_mapper,
-                             map = map,
-                             overlay_groups = overlay_groups
-    )
-
-    map <- points_aus$map
-
-    overlay_groups <- points_aus$overlay_groups
-  },
-  silent = TRUE
-)
-
-all_attains <- list(map, overlay_groups)
-
-names(all_attains) <- c("map", "overlay_groups")
+  list(map = map, overlay_groups = overlay_groups)
 }
 
 #' getATTAINSColorsRef
@@ -592,12 +599,27 @@ getATTAINSColorsRef <- function() {
 #' "geometry" column. If geo_type is not supplied and cannot be determined, the
 #' function will stop with an error.
 #'
+#' @param auid_list Character string. List of assessment unit identifiers to filter
+#' the data frame before returning. When a list is provided, only assessment unit
+#' identifiers included in the list will be shown on the map. When auid_list = NULL
+#' all assesment units in the source data set are show on the map. Default = NULL.
+#'
 #' @return A data frame with the columns overallstatus, col, dark_col, and priority.
 #'
 # prep data for mapping with ATTAINS
 prepATTAINSMapper <- function(.data,
                               geo_type = NULL,
-                              color_ref = NULL) {
+                              color_ref = NULL,
+                              auid_list = NULL) {
+
+  # check to see if any data contained in .data
+  if(dim(.data)[1] == 0) {
+    mapper <- NULL
+
+    # return NULL mapper if no data present in .data
+    return(mapper)
+  }
+
   # if geo_type is not provided, determine it from .data
   if (is.null(geo_type)) {
     # get geometry type
@@ -666,9 +688,6 @@ prepATTAINSMapper <- function(.data,
     } else {
       mapper <- NULL
     }
-
-    # return mapper df
-    return(mapper)
   }
 
   # prep line data
@@ -677,8 +696,6 @@ prepATTAINSMapper <- function(.data,
     mapper <- .data |>
       dplyr::left_join(color_ref, by = "overallstatus") |>
       dplyr::mutate(type = "Line Feature")
-
-    return(mapper)
   }
 
   # prep polygon data
@@ -689,9 +706,18 @@ prepATTAINSMapper <- function(.data,
       dplyr::mutate(type = "Polygon Feature") |>
       # sort df so smaller assessment units will map on top of larger ones if they overlap
       dplyr::arrange(dplyr::desc(Shape_Area))
-
-    return(mapper)
   }
+
+  if(!is.null(auid_list) & dim(mapper)[1] > 0) {
+
+    mapper <- mapper |>
+      dplyr::filter(assessmentunitidentifier %in% auid_list)
+
+    if( dim(mapper)[1] == 0) {
+      mapper <- NULL
+    }
+  }
+  return(mapper)
 }
 
 #' prepAllATTAINSMapper
@@ -709,13 +735,16 @@ prepATTAINSMapper <- function(.data,
 #'
 #' @param color_ref
 #'
+#' @param auid_list
+#'
 #' @return A list of data frames ready for use in a TADA leaflet map.
 # prep all ATTAINS layers for use in leaflet map
 prepAllATTAINSMapper <- function(lines_layer = NULL,
                                  polygons_layer = NULL,
                                  points_layer = NULL,
                                  # catch_layer = NULL,
-                                 color_ref = NULL) {
+                                 color_ref = NULL,
+                                 auid_list = NULL) {
 
   # get color ref for ATTAINS overall status if not provided
   if(is.null(color_ref)) {
@@ -725,17 +754,20 @@ prepAllATTAINSMapper <- function(lines_layer = NULL,
 # point assessment units
   points_mapper <- prepATTAINSMapper(points_layer,
                                      geo_type = "points",
-                                     color_ref = color_ref)
+                                     color_ref = color_ref,
+                                     auid_list = auid_list)
 
 # line assessment units
   lines_mapper <- prepATTAINSMapper(lines_layer,
                                     geo_type = "lines",
-                                    color_ref = color_ref)
+                                    color_ref = color_ref,
+                                    auid_list = auid_list)
 
 # polygon assessment units
   polygons_mapper <- prepATTAINSMapper(polygons_layer,
                                        geo_type = "polygons",
-                                       color_ref = color_ref)
+                                       color_ref = color_ref,
+                                       auid_list = auid_list)
 # create list of mapper dfs
   au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
 
@@ -1589,13 +1621,16 @@ addFlaggedSitesMarkers <- function(.data,
 #'
 #' @param polygons_layer
 #'
+#' @param auid_list
+#'
 #' @return A data frame of assessment data that is missing from assessment units
 #' points, lines, and polygons layers but still preserved in the catchment layer.
 #'
 findATTAINSMissingRawFeatures <- function(.data,
                                           points_layer = NULL,
                                           lines_layer = NULL,
-                                          polygons_layer = NULL) {
+                                          polygons_layer = NULL,
+                                          auid_list = NULL) {
 # set missing raw features to null
   missing_raw_features <- NULL
 
@@ -1609,6 +1644,13 @@ missing_raw_features <- ATTAINS_catchments |>
           lines_layer$assessmentunitidentifier,
           polygons_layer$assessmentunitidentifier
         ))
+
+# filter for listed assessment units if required
+if(!is.null(auid_list)) {
+
+  missing_raw_features <- missing_raw_features |>
+    dplyr::filter(assessmentunitidentifier %in% auid_list)
+}
 
 # remove intermediate objects
 rm(points_layer, lines_layer, polygons_layer)
