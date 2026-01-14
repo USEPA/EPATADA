@@ -691,9 +691,16 @@ TADA_DefineCriteriaMethodology <- function(
             # Now, pull in the magnitude value if the CST pollutant name and uses are matched
             dplyr::left_join(
               CriteriaSearchToolRef,
-              by = dplyr::join_by(POLLUTANT_NAME, STD_POLLUTANT_NAME, ENTITY_ABBR, ENTITY_NAME,
-                           CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
-                           USE_CLASS_NAME_LOCATION_ETC),
+              by = dplyr::join_by(
+                POLLUTANT_NAME,
+                STD_POLLUTANT_NAME,
+                ENTITY_ABBR,
+                ENTITY_NAME,
+                CRITERIATYPEAQUAHUMHLTH,
+                CRITERIATYPEFRESHSALTWATER,
+                CRITERIATYPE_ACUTECHRONIC,
+                USE_CLASS_NAME_LOCATION_ETC
+              ),
               relationship = "many-to-many"
             ) |>
             dplyr::filter(!is.na(CRITERION_VALUE)) |>
