@@ -593,7 +593,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         ),
         silent = TRUE
       )
-    #}
+    }
 
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
@@ -673,7 +673,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
     return(final_features)
   }
-}
+#}
 
 #' fetchNHD
 #'
