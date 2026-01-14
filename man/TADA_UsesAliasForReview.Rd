@@ -37,17 +37,14 @@ context2 field from the ATTAINS use_name domain, which acts as a uses category,
 with the Human Health and Aquatic Life column indicators from the CST.
 }
 \details{
-Next, this function compares the ATTAINS.UseName and CST uses to the logic
-in this function, which looks at the percentage of words that are
-a match between each ATTAINS parameters and WQX Characteristics (and
-within ATTAINS and CST, and CST and WQX by CAS) as an alternative
-way of finding additional aliases. It is recommended for the TADA
-team to review this table and decide whether these aliases are
-accurate.
-
-Users should be aware that a CST magnitude value may get duplicated
-for each ATTAINS.UseName. It is up to the user to decide which magnitude
-values for a CST use should be appropriately matched to an ATTAINS.UseName.
+Next, this function then compares ATTAINS.UseName and CST uses by extracting
+individual words from each use domain string and calculating the percentage
+of words that match between each ATTAINS use and CST use. Users are advised
+to review this uses alias table and adjust their tolerance levels as desired
+to determine the accuracy of the crosswalk. Many-to-many matches may occur
+and will require thorough review. Users should be aware that a CST use may
+be duplicated for each ATTAINS.UseName. It is the user's responsibility
+to ensure that CST uses are appropriately matched to ATTAINS.UseName.
 
 Note for Development: We should keep a reference file to indicate
 which rows have already been reviewed during this process.In addition,

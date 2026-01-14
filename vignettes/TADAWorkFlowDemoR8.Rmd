@@ -584,7 +584,7 @@ Users can choose to
       ATTAINS use names and CST uses. This allows for populating the magnitude 
       components from the Criteria Search Tool for each ATTAINS parameter and use,
       if one is found for your organization (duration, frequency and other 
-      methodology components will still need user inputs and a through review 
+      methodology components will still need user inputs and a thorough review 
       of the crosswalk between the CST and ATTAINS parameter and uses will be required),
 3)    or pull in their organization's criteria table from a list of pre-filled 
       template from the **TADACommunityHub*** if one exists (currently all R8 states                                          and tribes have participated in submitting their organization's criteria 
