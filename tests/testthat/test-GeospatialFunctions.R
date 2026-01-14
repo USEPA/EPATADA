@@ -6,6 +6,15 @@ TADA_dataframe <- Data_HUC8_02070004_Mod1Output |>
 
 TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 
+# Test fixtures
+# Hill_MT_pH <- EPATADA::TADA_DataRetrieval(
+#   characteristicName = "pH",
+#   statecode = "MT",
+#   countycode = "041",
+#   applyautoclean = TRUE
+# )
+large_bbox_data <- load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
@@ -61,6 +70,13 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
   testthat::expect_error(
     EPATADA:::fetchATTAINS(.data = NULL),
     "The dataframe does not"
+  )
+})
+
+testthat::test_that("fetchATTAINS handles large areas", {
+  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
   )
 })
 
