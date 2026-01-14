@@ -79,6 +79,10 @@ testthat::test_that("fetchATTAINS handles large areas", {
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
   )
+  expect_equal(nrow(result_all_features$ATTAINS_points), 0)
+  expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
+  expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
+  expect_equal(nrow(result_all_features$ATTAINS_catchments), 59)
 })
 
 testthat::test_that("fetchATTAINS handles catchments_only parameter", {
