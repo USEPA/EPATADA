@@ -1112,7 +1112,7 @@ TADA_ParametersForAnalysis <- function(
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
         print(paste0(
-          "org_id == 'All' was selected, ",
+          "TADA_ParametersForAnalysis: org_id == 'All' was selected. ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
         ))
         org_id <- c(
@@ -1127,7 +1127,7 @@ TADA_ParametersForAnalysis <- function(
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
       if (!is.null(AUMLRef)) {
         print(paste0(
-          "org_id == 'All' was selected, ",
+          "TADA_ParametersForAnalysis: org_id == 'All' was selected. ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
         org_id <- unique(stats::na.omit(AUMLRef$ATTAINS.OrganizationIdentifier))
@@ -1137,7 +1137,7 @@ TADA_ParametersForAnalysis <- function(
     # If more than 1 org, it will create n duplicate rows for each TADA.ComparableDataIdentifier.
     if (length(org_id) > 1) {
       print(paste0(
-        "TADA.CreateParamRef: More than one org_name was defined in your dataframe. ",
+        "TADA_ParametersForAnalysis: More than one org_name was defined in your dataframe. ",
         "Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
       ))
     }
@@ -1272,7 +1272,7 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       print(paste0(
-        "auto_assign == 'All' was selected, ",
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
         "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
@@ -1341,7 +1341,7 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("Org")) {
       print(paste0(
-        "auto_assign == 'Org' was selected, ",
+        "TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, ",
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
@@ -1509,13 +1509,13 @@ TADA_ParametersForAnalysis <- function(
     # Print message if there are many combinations of TADA Characteristic as it may slow run time.
     n <- nrow(CreateParamRef)
     if (n > 100 & excel == TRUE) {
-      message(paste0(
-        "There are ",
+      message(paste(
+        "There are",
         n,
-        " unique TADA.ComparableDataIdentifier names in your TADA data frame.
-    This may result in slow runtime for TADA_ParametersForAnalysis() when generating the excel spreadsheet.
-    Excel formulas will only be generated for the first 100 rows. Please fill down on Cells D1 and Cells E1 in excel
-    to make all rows function dynamically (automatically updates the flag if a change was made to a crosswalk)."
+        "unique TADA.ComparableDataIdentifier names in your TADA data frame.",
+        "This may result in slow runtime for TADA_ParametersForAnalysis() when generating the excel spreadsheet.",
+        "Excel formulas will only be generated for the first 100 rows. Please fill cells down on Cells D1 and Cells E1",
+        "in the excel spreadsheet to make all flagging columns update dynamically (automatically updates the flag if a change was made to a crosswalk)."
       ))
     }
 
@@ -2170,7 +2170,7 @@ TADA_UsesForAnalysis <- function(
 
     if (auto_assign == TRUE) {
       print(paste0(
-        "auto_assign == TRUE was selected, ",
+        "TADA_UsesForAnalysis: auto_assign == TRUE was selected, ",
         "assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an ",
         "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
       ))
@@ -3719,7 +3719,7 @@ TADA_MLSummary <- function(
         length(org_id) > 20
     ) {
       warning(paste0(
-        "displayNA = TRUE: ",
+        "TADA_MLSummary: displayNA = TRUE was selected: ",
         "Too many sites or uses and parameters. Cannot assign all uses and parameters to each monitoring sites in the output. ",
         "Defaulting to displayNA = FALSE"
       ))
@@ -3729,7 +3729,7 @@ TADA_MLSummary <- function(
 
     if (displayNA == TRUE && nrow(usesRef) * length(unique_ML) < 1000) {
       print(paste0(
-        "displayNA = TRUE: ",
+        "TADA_MLSummary: displayNA = TRUE: ",
         "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
       ))
 
@@ -3963,7 +3963,7 @@ TADA_MLSummary <- function(
       # Only join the AU to the CreateMLSummaryRef
       if (displayNA == TRUE) {
         print(paste0(
-          "displayNA = TRUE:",
+          "TADA_MLSummary: displayNA = TRUE was selected:",
           "This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
@@ -4007,7 +4007,7 @@ TADA_MLSummary <- function(
       # Filters your MLSummaryRef based on your defined uses, param, sites and AU crosswalks.
       if (displayNA == FALSE) {
         print(paste0(
-          "displayNA = FALSE:",
+          "TADA_MLSummary: displayNA = FALSE was selected:",
           "This MLSummaryRef table will only display parameters and uses for a ML/AU if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
         ))
 
@@ -4053,7 +4053,7 @@ TADA_MLSummary <- function(
 
     if (!"ATTAINS.AssessmentUnitIdentifier" %in% colnames(CreateMLSummaryRef)) {
       print(paste0(
-        "No Monitoring Location to Assessment Unit crosswalk provided. ",
+        "TADA_MLSummary: No Monitoring Location to Assessment Unit crosswalk provided. ",
         "Consider providing this crosswalk if you would like to summarize WQP data on an Assessment Unit level."
       ))
     }

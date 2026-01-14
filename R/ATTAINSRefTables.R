@@ -612,9 +612,13 @@ TADA_UsesAliasForReview <- function(
     package = "EPATADA"
   )
   load(file_path)
-  rm(file_path)
 
   CST <- CriteriaSearchToolRef
+
+  # remove intermediate variables
+  rm(file_path, CriteriaSearchToolRef)
+
+  # select appropriate columns from the CST
   CST <- CST |>
     dplyr::select(
       ENTITY_ABBR,
@@ -663,7 +667,7 @@ TADA_UsesAliasForReview <- function(
     dplyr::rename(ATTAINS.OrganizationIdentifier = code) |>
     dplyr::select(ENTITY_ABBR, ATTAINS.OrganizationIdentifier)
 
-  # joins the ATTAINS.OrganizationIdentifier in the CST table
+  # joins the ATTAINS.OrganizationIdentifier in the CST tables
   CST2 <- CST2 |>
     dplyr::mutate(ENTITY_NAME = toupper(ENTITY_NAME)) |>
     dplyr::left_join(ATTAINS_CST.org, by = "ENTITY_ABBR")
@@ -693,7 +697,7 @@ TADA_UsesAliasForReview <- function(
       name_words,
       .keep_all = TRUE
     ) |>
-    # drops individual words
+    # drops individual words column and extract the word count
     dplyr::group_by(
       ATTAINS.OrganizationIdentifier,
       USE_CLASS_NAME_LOCATION_ETC,
