@@ -13,7 +13,8 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 #   countycode = "041",
 #   applyautoclean = TRUE
 # )
-large_bbox_data <- load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+# large_bbox_data
+load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
