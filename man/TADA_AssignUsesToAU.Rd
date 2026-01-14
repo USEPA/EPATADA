@@ -85,17 +85,17 @@ existing Uses that have been entered
 into ATTAINS in the prior ATTAINS cycle (most recent assessment).
 
 For any NEW AUs and/or NEW uses, users must modify
-the output of this function to manually add those uses and AU's to the crosswalk.
-Alternatively, we have developed a helper function, \code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}},
-to assist with assigning uses to NEW AUs. This can be leveraged to assign
-uses for any new AUs based on the water type of the AU. Users can either supply
-their own Water Type to Use crosswalk or utilize ATTAINS webservices to pull in
-the Water Type to Use reference file. This Water to Use reference file can be
-used to assign all unique Uses to a new/modified AU based on which uses have been
-assigned to that water type in the past by the specified ATTAINS organization.
-Any new or modified AU and use information that gets submitted to ATTAINS
-in the current assessment cycle will not be available via ATTAINS webservices
-until the assessment is approved and completed.
+the output of this function to manually add those uses and assessment units to
+the crosswalk. Alternatively, we have developed a helper function,
+\code{\link[=TADA_AssignUsesToWaterType]{TADA_AssignUsesToWaterType()}}, to assist with assigning uses to NEW AUs. This
+can be leveraged to assign uses for any new assessment units based on water type.
+Users can either supply their own Water Type to Use crosswalk or utilize ATTAINS
+webservices to pull in the Water Type to Use reference file. This Water to Use
+reference file can be used to assign all unique Uses to a new/modified AU based
+on which uses have been assigned to that water type in the past by the specified
+ATTAINS organization. Any new or modified AU and use information that gets
+submitted to ATTAINS in the current assessment cycle will not be available via
+ATTAINS webservices until the assessment is approved and completed.
 }
 \examples{
 \dontrun{

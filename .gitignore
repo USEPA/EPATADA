@@ -30,3 +30,4 @@ vignettes/*.R
 
 # development
 R/dev/mod2/
+R/dev/ExampleWorkflow/
