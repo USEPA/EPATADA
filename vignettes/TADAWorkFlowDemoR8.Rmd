@@ -652,7 +652,7 @@ for (i in 1:n){
 }
 ```
 
-The criteria and methodlogies table for DO contained multiple rows. 
+The criteria and methodologies table for DO contained multiple rows. 
 Let's view the different options and explore which might be appropriate for
 our assessment unit.
 
