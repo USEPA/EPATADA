@@ -353,6 +353,10 @@
   inst/extdata. Existing shapefiles with the same name will be deleted
   first if they exist.
 
+- [`TADA_UsesAliasForReview()`](usepa.github.io/EPATADA/reference/TADA_UsesAliasForReview.md)
+  : TADA Alias Methodology for ATTAINS and CST Uses Alias Table for
+  Review
+
 - [`TADA_UsesForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
   : Create or Update ATTAINS Parameter and Use crosswalk
 

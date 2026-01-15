@@ -336,7 +336,7 @@ MT.ParamRef.All <- TADA_ParametersForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == 'All' was selected, finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
 
 ``` r
 TADA_TableExport(MT.ParamRef.All)
@@ -358,7 +358,7 @@ MT.ParamRef.Org <- TADA_ParametersForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
 
 ``` r
 TADA_TableExport(MT.ParamRef.Org)
@@ -461,7 +461,7 @@ MT.ParamRef.Final <- TADA_ParametersForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == 'All' was selected, finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+    ## [1] "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
 
 ``` r
 # Test if the two data frames are same or not.
@@ -594,7 +594,7 @@ MT.usesRef.AutoAssign <- TADA_UsesForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
 
 ``` r
 TADA_TableExport(MT.usesRef.AutoAssign)
@@ -622,7 +622,7 @@ MT.usesRef.with.AU_UsesRef <- TADA_UsesForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
 
 #### Provide a User Supplied usesRef
 
@@ -669,7 +669,7 @@ MT.usesRef.user.supplied.edit <- TADA_UsesForAnalysis(
 )
 ```
 
-    ## [1] "auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
+    ## [1] "TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
     ## [1] "IncludeOrExclude was not found as a column name in your user supplied, assuming all parameter and uses are applicable for your analysis."
 
 ``` r
@@ -758,7 +758,7 @@ MT.MLSummaryRef.ML <- TADA_MLSummary(
 )
 ```
 
-    ## [1] "displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
+    ## [1] "TADA_MLSummary: displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
 
 ``` r
 TADA_TableExport(MT.MLSummaryRef.ML)
@@ -857,7 +857,7 @@ MT.CriteriaMethods <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+    ## [1] "TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
 TADA_TableExport(MT.CriteriaMethods)
@@ -886,7 +886,7 @@ MT.CriteriaMethods.user.supplied <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
+    ## [1] "TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
 
 ``` r
 TADA_TableExport(MT.CriteriaMethods.user.supplied)
@@ -907,7 +907,7 @@ MT.CriteriaMethods.user.supplied2 <- TADA_DefineCriteriaMethodology(
 )
 ```
 
-    ## [1] "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+    ## [1] "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
 
 ``` r
 TADA_TableExport(MT.CriteriaMethods.user.supplied2)

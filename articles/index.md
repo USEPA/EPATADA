@@ -87,3 +87,13 @@
   and Animas Rivers near Farmington, New Mexico. This example focuses on
   surface water quality with a focus on total dissolved solids and
   conductivity.
+
+- [TADA R8 Demo January
+  2026](usepa.github.io/EPATADA/articles/TADAWorkFlowDemoR8.md):
+
+  An introduction to using the EPATADA R package to retrieve, clean,
+  analyze, and visualize WQP data. This example workflow focuses on: A)
+  retrieving, filtering and cleaning data from the WQP, B) creating an
+  ATTAINS Assessment Unit/WQP Monitoring Location crosswalk, C) creating
+  an ATTAINS Uses to Assessment Units crosswalk, and D) creating a
+  TADA-compatible criteria and methodologies template for analysis.

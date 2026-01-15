@@ -529,6 +529,10 @@ mywaterway@epa.gov.
   inst/extdata. Existing shapefiles with the same name will be deleted
   first if they exist.
 
+- [`TADA_UsesAliasForReview()`](usepa.github.io/EPATADA/reference/TADA_UsesAliasForReview.md)
+  : TADA Alias Methodology for ATTAINS and CST Uses Alias Table for
+  Review
+
 - [`TADA_UsesForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
   : Create or Update ATTAINS Parameter and Use crosswalk
 
@@ -685,3 +689,13 @@ mywaterway@epa.gov.
   and Animas Rivers near Farmington, New Mexico. This example focuses on
   surface water quality with a focus on total dissolved solids and
   conductivity.
+
+- [TADA R8 Demo January
+  2026](usepa.github.io/EPATADA/articles/TADAWorkFlowDemoR8.md):
+
+  An introduction to using the EPATADA R package to retrieve, clean,
+  analyze, and visualize WQP data. This example workflow focuses on: A)
+  retrieving, filtering and cleaning data from the WQP, B) creating an
+  ATTAINS Assessment Unit/WQP Monitoring Location crosswalk, C) creating
+  an ATTAINS Uses to Assessment Units crosswalk, and D) creating a
+  TADA-compatible criteria and methodologies template for analysis.
