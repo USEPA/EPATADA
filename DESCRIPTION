@@ -48,7 +48,7 @@ RoxygenNote: 7.3.3
 Imports:
     plyr, 
     data.table, 
-    dplyr,
+    dplyr (>= 1.1.0),
     tidyr,
     tidyselect,
     purrr,
