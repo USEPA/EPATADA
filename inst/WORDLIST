@@ -27,9 +27,11 @@ Animas
 ArcGIS
 AssemblageSampledName
 AssessmentUnitIdentifier
+AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
+Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -39,6 +41,7 @@ CCO
 CFU
 CNENVSER
 COLI
+COMBITR
 COMIDs
 CRS
 CWA
@@ -165,6 +168,7 @@ MLSummaryRef
 MLs
 MTDEQ
 MTDEQ's
+MTWTRSHD
 MakeSpatial
 MapServer
 MeasureQualifierCode
@@ -319,6 +323,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADACommunityHub
 TADADataRetrieval
 TADAGeospatialRefLayers
 TADAModule
