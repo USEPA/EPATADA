@@ -1,6 +1,6 @@
 ---
 title: "TADA Module 2: Geospatial Functions"
-always_all_html: yes
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output:
