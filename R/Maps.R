@@ -405,7 +405,7 @@ TADA_NearbySitesMap <- function(.data,
   # if not previously run, run TADA_FindNearbySites
   if ("TADA.NearbySiteGroup" %in% colnames(TADA_table) == FALSE) {
     # find nearby sites in the TADA df
-    TADA_table <- TADA_FindNearbySites(TADA_table)
+    TADA_table <- TADA_FindNearbySites(TADA_table, dist_buffer = dist_buffer)
   }
 
   # create df of nearby sites
