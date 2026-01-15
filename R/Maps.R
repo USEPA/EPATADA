@@ -463,6 +463,9 @@ TADA_NearbySitesMap <- function(.data,
     "TADA.OrganizationIdentifier"
   )
 
+  # create nearby sites map
+  map <- createTADABasemap(TADA_nearby)
+
   # if attains = TRUE and assessment unit geometry is included in TADA df add AUs to map
   if (attains == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(TADA_table)) {
     # use internal function to get paths to images and labels
@@ -508,9 +511,6 @@ TADA_NearbySitesMap <- function(.data,
     suppressMessages(suppressWarnings({
       # create df to assign color based on ATTAINS overall status
       colors <- getATTAINSColorsRef()
-
-      # create nearby sites map
-      map <- createTADABasemap(TADA_nearby)
 
       # prep ATTAINS assessment unit features
       au_mapper <- prepAllATTAINSMapper(
