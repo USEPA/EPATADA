@@ -312,9 +312,7 @@ tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonl
 tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 ```
 
-## B) Create, review and define up to date assessment unit/WQP monitoring location.
-
-Module 2: Geospatial Functions in TADA and assignment of uses to Assessment Units.
+## B) Create an Assessment Unit/WQP Monitoring Location crosswalk.
 
 The **`TADA_CreateAUMLCrosswalk`** function efficiently creates a
 crosswalk between ATTAINS assessment units and WQP monitoring locations.
@@ -441,13 +439,12 @@ tada.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 ```
 
-### From Prior ATTAINS Assessment Cycles
+### Retrieve Uses from Prior ATTAINS Assessment Cycles
 
-We will use the ATTAINS.UseNames that were used in prior
-ATTAINS assessment cycles from MTDEQ for this assessment unit.
-Users can append additional rows as needed or remove not applicable
-use names if a use is no longer applicable for the assessment unit.
-See TADA_Module2 vignette for more information.
+Let's retrieve the use names assigned to this example assessment unit from a
+prior ATTAINS assessment cycle for MTDEQ. Users can append additional rows or
+remove use names as needed. See the TADA Module 2: Geospatial Functions 
+vignette for more information.
 
 ```{r assign_uses_ATTAINS}
 AU.uses <- TADA_AssignUsesToAU(
@@ -461,13 +458,16 @@ TADA_TableExport(AU.uses)
 
 ### From a User Supplied Crosswalk (Uses to AU)
 
-Users may also choose to supply their own list of use_names
+Users may also choose to supply their own list of use names
 if desired rather than sourcing it from the prior ATTAINS assessment cycle.
 To ensure we use the correct column names, we can run TADA_AssignUsesToAU()
-with no argument function inputs. Note: The TADA.AssessmentUnitStatus column is auto populated
-and does not need to be supplied from a user supplied crosswalk. For 
-ATTAINS.WaterType, please ensure this matches the ATTAINS.WaterType from 
-the output of MT.AUMLRef$ATTAINS_crosswalk for your assessment unit.
+with no argument function inputs. Note: The TADA.AssessmentUnitStatus column 
+is auto populated and does not need to be supplied from a user supplied 
+crosswalk. 
+
+For ATTAINS.WaterType, please ensure this matches the 
+ATTAINS.WaterType from the output of MT.AUMLRef$ATTAINS_crosswalk for your 
+assessment unit.
 
 ```{r assign_uses_manual}
 names(TADA_AssignUsesToAU())
@@ -491,35 +491,37 @@ TADA_TableExport(AU.uses2)
 ```
 
 
-## D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your TADA data frame.
+## D) Create a TADA-compatible Criteria and Methodologies Table
 
-The EPATADA Module 3 functions were designed to: 
+The EPATADA Module 3 functions are being designed to: 
 
-(1)   Assist users with associating Water Quality Portal monitoring locations with assessment units and designated uses       from ATTAINS and 
-(2)   Compare Water Quality Portal results with numeric water quality criteria from a TADA-Compatible criteria table.
+(1)   Assist users with creating a Criteria and Methodologies table,
+(2)   Analyze Water Quality Portal results using the user supplied Criteria and Methodologies table.
 
-Users can choose to 
+Users can choose to:
 
 1)    Fill in and populate their own criteria table **manually**, 
 2)    use an **auto_assign method** of creating a crosswalk of ATTAINS parameter names
       to WQX Characteristic and to CST pollutant names along with a crosswalk between
-      ATTAINS use names and CST uses. This allows for populating the magnitude 
-      components from the Criteria Search Tool for each ATTAINS parameter and use,
+      ATTAINS use names and EPA Criteria Search Tool (CST) uses. This allows for populating the magnitude 
+      components from the CST for each ATTAINS parameter and use,
       if one is found for your organization (duration, frequency and other 
       methodology components will still need user inputs and a thorough review 
       of the crosswalk between the CST and ATTAINS parameter and uses will be required),
 3)    or pull in their organization's criteria table from a list of pre-filled 
-      template from the **TADACommunityHub*** if one exists (currently all R8 states                                          and tribes have participated in submitting their organization's criteria 
+      templates from the **TADACommunityHub*** if one exists (currently all R8 states                                          and tribes have participated in submitting their organization's criteria 
       table to this repository!).
 
 \* The TADACommunityHub is a collaborative hub where TADA users share and maintain information for custom workflows (e.g., state, tribal, territory, EPA, or other entities). For example, it includes user-contributed criteria and methodologies templates to support reproducible and efficient analyses.
 
-### TADACommunityHub criteria table
+The EPA 304A criteria and methodologies are also available for use.
 
-For this demo, We will load in a pre-filled criteria template completed by MTDEQ.
+### TADA Community Hub Criteria and Methodologies Templates
+
+For this demo, We will load in a pre-filled criteria template for MTDEQ (draft). The reference tables may need additional review by the region and states/tribes.
 
 ```{r TADA_DefineCriteriaMethodology}
-# Load the example R8 criteria table
+# Load the example R8 criteria table for MTDEQ
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 load(criteria_table)
 
@@ -535,7 +537,7 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
 TADA_TableExport(MT_criteria)
 ```
 
-### Autoassign criteria table
+### Assistance with Generating a Criteria and Methodologies Template from Scratch
 
 Alternatively, if your organization has not submitted a criteria table
 to the TADACommunityHub repository, TADA_DefineCriteriaMethodology has
@@ -585,7 +587,7 @@ MT_criteria_excel <- TADA_DefineCriteriaMethodology(
   )
 ```
 
-### View and analyze scatter plot excursions for DO for your assessment unit
+### View and analyze scatter plot excursions for DO for assessment unit
 
 Now, lets view some scatter plots for the criteria defined in your criteria table
 which will be compared to the results from your TADA data frame for DO for a 
@@ -608,9 +610,10 @@ tada.MT.do.subsets <- tada.MT.clean.DO2 |>
 ```
 
 Note that the scatter points are only individual result measurements. 
-Future TADA development in the package is being made for handling of the 
-full criteria (magnitude, duration and frequency), seasonal considerations
-and other data sufficiency needs!
+The TADA Team is working on developing functions for handling the 
+criteria (magnitude, duration and frequency) and methodologies information
+(e.g. seasonality and data sufficiency) entered into the Criteria and
+Methodologies Template.
 
 ```{r scatterplot}
 TADA_scatters <- list()
@@ -649,12 +652,17 @@ for (i in 1:n){
 }
 ```
 
-Our criteria table for DO contained multiple rows. Let's view the different 
-criteria and determine which are appropriate for our assessment unit.
-Let's assume the scatter plots for 
-"Lower bound for Aquatic Life (1 n-day arithmetic min for Cold water, other life stages present)" and
-"Lower bound for Aquatic Life (7 n-day arithmetic mean for Cold water, other life stages present)" 
-are appropriate criteria to use for our assessment unit.
+The criteria and methodlogies table for DO contained multiple rows. 
+Let's view the different options and explore which might be appropriate for
+our assessment unit.
+
+Here is what the scatter plots might look like if the 
+"Lower bound for Aquatic Life 
+(1 n-day arithmetic min for Cold water, other life stages present)" and
+"Lower bound for Aquatic Life 
+(7 n-day arithmetic mean for Cold water, other life stages present)" criteria
+and methodologies information was determined to be the appropriate criteria 
+for this assessment unit and applied.
 
 ```{r scatterplots}
 names(TADA_scatters)
