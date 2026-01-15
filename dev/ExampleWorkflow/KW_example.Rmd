@@ -1,6 +1,6 @@
 ---
 title: "TADA R8 Demo January 2026"
-always_all_html: yes
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output:

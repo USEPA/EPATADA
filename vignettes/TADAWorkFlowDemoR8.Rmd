@@ -1,6 +1,5 @@
 ---
 title: "TADA R8 Demo January 2026"
-always_all_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
 output:
@@ -10,12 +9,14 @@ output:
     fig_caption: yes
     fig_height: 8
     fig_width: 8
+always_allow_html: yes
 vignette: >
   %\VignetteIndexEntry{TADA R8 Demo January 2026}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{EPATADA}
   %\VignetteEngine{knitr::rmarkdown}
-description: An introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data. This recommended work flow focuses on A) Retrieving, filtering and cleaning data from the WQP. B) Create, review and define up to date assessment unit/WQP monitoring location. C) Assigning uses to assessment units. D) Create a TADA-Compatible criteria table which defines the relevant parameters and uses applicable for analysis of your WQP data.
+description: >
+  An introduction to using the EPATADA R package to retrieve, clean, analyze, and visualize WQP data. This example workflow focuses on: A) retrieving, filtering and cleaning data from the WQP, B) creating an ATTAINS Assessment Unit/WQP Monitoring Location crosswalk, C) creating an ATTAINS Uses to Assessment Units crosswalk, and D) creating a TADA-compatible criteria and methodologies template for analysis.
 editor_options:
   chunk_output_type: console
   markdown:
@@ -62,7 +63,7 @@ Install and load packages
 First, install and load the remotes package specifying the repo. This is
 needed before installing TADA because it is only available on GitHub.
 
-```{r install_remotes, results = 'hide'}
+```{r install_remotes, results = 'hide', eval = F}
 install.packages("remotes",
   repos = "http://cran.us.r-project.org"
 )
@@ -81,14 +82,6 @@ remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
-```
-
-```{r dev_install, eval = T, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "cst-criteria-and-R8-vignette",
-  dependencies = TRUE
-)
 ```
 
 Finally, use the library() function to load the TADA R Package into your
@@ -101,9 +94,9 @@ library(EPATADA)
 Help pages
 
 All TADA R package functions have their own individual help pages,
-listed on the Function reference page on the GitHub site. Users can also
+listed on the Function reference page on the TADA GitHub site. Users can also
 access the help page for a given function in R or RStudio using the
-following format (example below): ?[name of TADA function]
+following format (example below): ?[name of TADA function].
 
 ```{r help_pages, eval = F}
 # Access help page for TADA_DataRetrieval
@@ -129,27 +122,26 @@ TRUE. It performs a variety of tasks, for example:
 
 6.  harmonizes result and detection limit units,
 
-7.  converts depths to meters, and
+7.  harmonizes depth units to meters, and
 
 8.  creates the column TADA.ComparableDataIdentifier by concatenating
     characteristic name, result sample fraction, method speciation, and
     result measure unit.
 
-In this example, we will get dissolved oxygen, bacteria and pH data from 
+In this example, we will get dissolved oxygen concentration, Escherichia coli, 
+and pH data from January 2020 to December 2022 (two years) from 
 Missoula County, Montana.
 
-```{r load WQP data}
-# get MT data
+```{r load_wqp_data}
 tada.MT <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2022-12-31",
   statecode = "MT",
   characteristicName = c(
     "Dissolved oxygen (DO)",
-    "Escherichia",
     "Escherichia coli",
     "pH"
-  ),
+    ),
   countycode = "Missoula County",
   applyautoclean = TRUE,
   ask = FALSE
@@ -162,24 +154,36 @@ Now, let's use EPATADA functions to review, visualize, and whittle the
 returned WQP data down to include only results that are applicable to
 our water quality analysis and area of interest.
 
-TADA is primarily designed to accommodate water data from the WQP. Let’s
-see what activity media types are represented in the data set. Are there
-any media type that are not water in our data frame?
+Create a pie chart to display the count of results for each TADA.CharacteristicName.
 
-```{r Review and Filter By Media Type}
-# Create table with count for each ActivityMediaName
-TADA_FieldValuesTable(
+```{r review_chars}
+TADA_FieldValuesPie(
   tada.MT,
-  field = "ActivityMediaName",
+  field = "TADA.CharacteristicName",
   characteristicName = "null"
 )
+```
+
+TADA is primarily designed to accommodate water data from the WQP. Let’s
+see what activity media types are represented in the data set. 
+
+Are there any media types that are not water?
+
+```{r filter_media}
+# Create table with count for each ActivityMediaName
+media <- TADA_FieldValuesTable(
+  tada.MT,
+  field = "ActivityMediaName"
+)
+
+DT::datatable(media, fillContainer = TRUE)
 ```
 
 Create an overview map. For each site, we can view the measurement
 count, visit count and characteristic counts along with the site ID,
 site name, and organization name.
 
-```{r TADA_OverviewMap}
+```{r overview_map}
 TADA_OverviewMap(tada.MT)
 ```
 
@@ -187,12 +191,11 @@ Let's take a quick look at all unique values in the
 MonitoringLocationIdentifier column and see how how many results are
 associated with each.
 
-```{r TADA_FieldValuesTable}
+```{r review_locations}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
   tada.MT,
-  field = "MonitoringLocationIdentifier",
-  characteristicName = "null"
+  field = "MonitoringLocationIdentifier"
 )
 
 DT::datatable(sites, fillContainer = TRUE)
@@ -200,38 +203,14 @@ DT::datatable(sites, fillContainer = TRUE)
 
 What about OrganizationFormalName?
 
-```{r TADA_FieldValuesTable2 }
+```{r review_orgs}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 orgs <- TADA_FieldValuesTable(
   tada.MT,
   field = "OrganizationFormalName",
-  characteristicName = "null"
 )
 
 DT::datatable(orgs, fillContainer = TRUE)
-```
-
-Or TADA.CharacteristicName?
-
-```{r TADA_FieldValuesTable3 }
-# use TADA_FieldValuesTable to create a table of the number of results per TADA.CharacteristicName
-chars <- TADA_FieldValuesTable(
-  tada.MT,
-  field = "TADA.CharacteristicName"
-)
-
-DT::datatable(chars, fillContainer = TRUE)
-```
-
-Let's filter our TADA data frame to only include data from the top 4
-OrganizationFormalName. The orgs data frame is sorted in descending
-order in which [1:4] will select the top 4 OrganizationFormalName values.
-
-```{r}
-tada.MT.filter <- tada.MT |>
-  dplyr::filter(
-    OrganizationFormalName %in% orgs$Value[1:4]
-    )
 ```
 
 Next, let's check if the dataset contains potential duplicate results
@@ -239,14 +218,14 @@ from within a single organization or from within multiple organizations
 (such as when two or more organizations monitor the same location and
 may submit duplicate results).
 
-For the case in which there exists potential duplicates from multiple
-organizations, if you would like to prioritize results from one
-organization over another, this can be done using the org_hierarchy
+If potential duplicates from multiple organizations are found, you can choose
+to prioritize results from one organization over another, this can be done 
+using the org_hierarchy
 argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
 
 ```{r duplicates}
 # find duplicates from single org
-tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT.filter)
+tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT)
 
 # Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
 unique(tada.MT.singleorg.dups$OrganizationIdentifier)
@@ -254,15 +233,14 @@ unique(tada.MT.singleorg.dups$OrganizationFormalName)
 
 # find duplicates across multiple orgs
 tada.MT.multipleorgs.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
-  tada.MT.singleorg.dups,
-  org_hierarchy = c("MDEQ_WQ_WQX", "TSWQC_WQX", "MTWTRSHD_WQX", "USGS-MT")
+  tada.MT.singleorg.dups
 )
 ```
 
 We will select to keep only unique samples from
 `TADA_FindPotentialDuplicatesSingleOrg` where TADA.SingleOrgDup.Flag equals "Unique".
 
-```{r filter}
+```{r duplicate_filter}
 tada.MT.clean <- tada.MT.multipleorgs.dups |>
    dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
    dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
@@ -271,8 +249,9 @@ tada.MT.clean <- tada.MT.multipleorgs.dups |>
 Remove intermediate variables in R by using 'rm()'. In the remainder of
 this workshop, we will work with the clean data set.
 
-```{r}
-rm(tada.MT.nearby.flag.dups, tada.MT.nearby, tada.MT.filter)
+```{r remove_intermediate_variables}
+to_rm <- c("tada.MT.nearby.flag.dups","tada.MT.nearby","tada.MT.filter")
+rm(list = to_rm[to_rm %in% ls()])
 ```
 
 Censored data are measurements for which the true value is not known,
@@ -297,7 +276,7 @@ limit).
 In this example, no censored data results were found. The input
 tada.MT.clean data is returned.
 
-```{r censored}
+```{r address_nondetects}
 tada.MT.clean <- TADA_SimpleCensoredMethods(
   tada.MT.clean,
   nd_method = "multiplier",
@@ -309,7 +288,7 @@ tada.MT.clean <- TADA_SimpleCensoredMethods(
 
 `TADA_FindQCActivities` identifies results with QA/QC identifies results with QA/QC ActivityTypeCodes. When clean = TRUE, it removes QA/QC results.
 
-```{r QCdata}
+```{r find_QC_activities}
 tada.MT.clean <- TADA_FindQCActivities(tada.MT.clean, clean = TRUE)
 ```
 
@@ -325,69 +304,12 @@ tada.MT.clean <- TADA_RunKeyFlagFunctions(
 )
 ```
 
-Let's take another look at all unique values in the
-TADA.ComparableDataIdentifier column and see how how many results are
-associated with each. TADA.ComparableDataIdentifier concatenates
-TADA.CharacteristicName, TADA.ResultSampleFractionText,
-TADA.MethodSpeciationName, and TADA.ResultMeasure.MeasureUnitCode.
-
-```{r TADA_FieldValuesTable4}
-# use TADA_FieldValuesTable to create a table of the number of results per TADA.ComparableDataIdentifier
-chars <- TADA_FieldValuesTable(
-  tada.MT.clean,
-  field = "TADA.ComparableDataIdentifier",
-  characteristicName = "null"
-)
-
-chars_before <- unique(tada.MT.clean$TADA.ComparableDataIdentifier)
-chars_before
-
-DT::datatable(chars, fillContainer = TRUE)
-```
-
-Scroll through the table and check to see if there any synonyms. Are
-there any TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
-TADA.ResultMeasure.MeasureUnitCode that may need to be harmonized for
-consistency? Let's check using `TADA_HarmonizeSynonyms` so their results
-can be directly compared.
-
-Let's give it a try.
-
-```{r}
-tada.MT.clean <- TADA_HarmonizeSynonyms(tada.MT.clean)
-```
-
-How many unique TADA.ComparableDataIdentifiers do we have now? In this
-example, PH has now been harmonized to "PH_NONE_NONE_NONE". Dissolved Oxygen has also been harmonized.
-
-```{r}
-chars_after <- unique(tada.MT.clean$TADA.ComparableDataIdentifier)
-```
-
-Remove intermediate variables.
-
-```{r}
-rm(chars_before, chars_after)
-```
-
 The functions TADA_FlagAboveThreshold and TADA_FlagBelowThreshold are used to flag results falling above and below the WQX national thresholds, respectively. When clean = TRUE, the flagged results are removed from the TADA data frame.
 
 ```{r thresholds}
 tada.MT.clean <- TADA_FlagAboveThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
 
 tada.MT.clean <- TADA_FlagBelowThreshold(tada.MT.clean, clean = TRUE, flaggedonly = FALSE)
-```
-
-### visualize data
-
-Create a pie chart to display the count of results for each TADA.CharacteristicName.
-
-```{r}
-TADA_FieldValuesPie(
-  tada.MT.clean,
-  field = "TADA.CharacteristicName",
-  characteristicName = "null"
-)
 ```
 
 ## B) Create, review and define up to date assessment unit/WQP monitoring location.
@@ -434,7 +356,7 @@ assessment unit "MT76M001_020" and give it the WaterType "RIVER".
 
 ### Define a user supplied crosswalk of Assessment Units and Monitoring Location(s)
 
-```{r demo.user, results = 'hide'}
+```{r demo_user_cw, results = 'hide'}
 # user would like to associate this MonitoringLocationIdentifier to this AU.
 user.supplied.cw <- data.frame(
     AssessmentUnitIdentifier = "MT76M001_020",
@@ -458,7 +380,7 @@ ATTAINS.cw <- TADA_GetATTAINSAUMLCrosswalk(
 ) |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 
-any(unique(tada.MT.clean$MonitoringLocationIdentifier) %in% ATTAINS.cw)
+any(unique(tada.MT.clean$MonitoringLocationIdentifier) %in% ATTAINS.cw$ATTAINS.MonitoringLocationIdentifier)
 ```
 
 ### Run `TADA_CreateAUMLCrosswalk`
@@ -498,7 +420,7 @@ The data frame, TADA_with_ATTAINS contains all of the clean TADA data as well as
 
 Now, let's view the assessment units and monitoring locations on a map to review the assessment unit/monitoring location assignments.
 
-```{r view.map}
+```{r TADA_ViewATTAINS}
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
@@ -508,7 +430,7 @@ Let's filter our TADA data frame to a single assessment unit "MT76M001_020",
 and for a single TADA.CharacteristicName, "DISSOLVED OXYGEN (DO)" for
 demonstration purposes for the remainder of this example.
 
-```{r}
+```{r TADA_with_ATTAINS}
 # get subset DO data for one AU
 tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry() |>
@@ -527,7 +449,7 @@ Users can append additional rows as needed or remove not applicable
 use names if a use is no longer applicable for the assessment unit.
 See TADA_Module2 vignette for more information.
 
-```{r}
+```{r assign_uses_ATTAINS}
 AU.uses <- TADA_AssignUsesToAU(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
@@ -547,7 +469,7 @@ and does not need to be supplied from a user supplied crosswalk. For
 ATTAINS.WaterType, please ensure this matches the ATTAINS.WaterType from 
 the output of MT.AUMLRef$ATTAINS_crosswalk for your assessment unit.
 
-```{r}
+```{r assign_uses_manual}
 names(TADA_AssignUsesToAU())
 
 AU.uses.user.supplied <- data.frame(
@@ -596,7 +518,7 @@ Users can choose to
 
 For this demo, We will load in a pre-filled criteria template completed by MTDEQ.
 
-```{r}
+```{r TADA_DefineCriteriaMethodology}
 # Load the example R8 criteria table
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 load(criteria_table)
@@ -626,7 +548,7 @@ Note that duration, frequency and other criteria components will still need
 to be filled out with auto_assign. However, if users are only interested in
 individual result measurement excursions, they can proceed to use this table as is.
 
-```{r}
+```{r demo_table}
 criteria_table_auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
@@ -650,7 +572,7 @@ If further edits are desired to the criteria table, users can export
 the criteria table into an excel spreadsheet and read it back into
 the R environment once any edits are made.
 
-```{r, eval = FALSE}
+```{r demo_excel_option, eval = FALSE}
 MT_criteria_excel <- TADA_DefineCriteriaMethodology(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
@@ -670,14 +592,13 @@ which will be compared to the results from your TADA data frame for DO for a
 single assessment unit, "MT76M001_020". We will join your TADA data frame to the
 criteria table using the MTDEQ table sourced from the TADACommunityHub.
 
-```{r}
+```{r table_review}
 # join use and criteria to tada df (many to many relationships may occur)
-tada.MT.clean.DO2 <- tada.MT.clean.DO |>
-   dplyr::left_join(
-     MT_criteria,
-     relationship = 'many-to-many',
-     dplyr::join_by(TADA.ComparableDataIdentifier)
-     )
+tada.MT.clean.DO2 <- dplyr::left_join(
+  tada.MT.clean.DO,
+  MT_criteria,
+  by = "TADA.ComparableDataIdentifier"
+  )
 
 # break into separate data frames for each unique combination of DurationValue, DurationMethod, DurationUnit, and UniqueSpatialCriteria for analysis and figures
 tada.MT.do.subsets <- tada.MT.clean.DO2 |>
@@ -691,7 +612,7 @@ Future TADA development in the package is being made for handling of the
 full criteria (magnitude, duration and frequency), seasonal considerations
 and other data sufficiency needs!
 
-```{r}
+```{r scatterplot}
 TADA_scatters <- list()
 
 n <- length(tada.MT.do.subsets)
@@ -735,7 +656,7 @@ Let's assume the scatter plots for
 "Lower bound for Aquatic Life (7 n-day arithmetic mean for Cold water, other life stages present)" 
 are appropriate criteria to use for our assessment unit.
 
-```{r}
+```{r scatterplots}
 names(TADA_scatters)
 # TADA_scatters
 TADA_scatters[[1]]
