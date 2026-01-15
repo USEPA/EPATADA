@@ -420,6 +420,11 @@ TADA_NearbySitesMap <- function(.data,
     ) |>
     dplyr::distinct()
 
+  # check to see if any nearby site groups were found
+  if(nrow(TADA_nearby) == 0){
+    stop("TADA_NearbySitesMap: There are no grouped nearby sites in the data frame.")
+  }
+
   # find number of colors needed for nearby site groups
   n.colors <- length(unique(TADA_nearby$TADA.NearbySiteGroup))
 
@@ -602,21 +607,21 @@ TADA_NearbySitesMap <- function(.data,
         radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
         weight = 1,
         # label = ~as.character(TADA.MonitoringLocationIdentifier),
-        popup = paste0(
+        popup = ~paste0(
           "Nearby Group Name: ",
-          TADA_nearby$TADA.MonitoringLocationIdentifier,
+          TADA.MonitoringLocationIdentifier,
           "<br> Nearby Site Group: ",
-          TADA_nearby$TADA.NearbySiteGroup,
+          TADA.NearbySiteGroup,
           "<br> Site ID: ",
-          .data$MonitoringLocationIdentifier,
+          MonitoringLocationIdentifier,
           "<br> Site Name: ",
-          TADA_nearby$MonitoringLocationName,
+          MonitoringLocationName,
           "<br> Organization Name: ",
-          TADA_nearby$OrganizationFormalName,
+          OrganizationFormalName,
           "<br> Latitude: ",
-          TADA_nearby$LatitudeMeasure,
+          LatitudeMeasure,
           "<br> Longitude: ",
-          TADA_nearby$LongitudeMeasure
+          LongitudeMeasure
         ),
         data = TADA_nearby,
         clusterOptions = leaflet::markerClusterOptions(),
