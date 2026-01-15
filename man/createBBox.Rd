@@ -4,7 +4,7 @@
 \alias{createBBox}
 \title{createBBox}
 \usage{
-createBBox(.data, as_vector = TRUE)
+createBBox(.data, as_vector = TRUE, attains_geo = FALSE)
 }
 \arguments{
 \item{.data}{Data frame. Must contain the columns TADA.LatitudeMeasure and
@@ -19,5 +19,5 @@ A bounding box for use in leaflet mapping functions.
 }
 \description{
 Internal function to create bounding box for maps based on TADA.LatitudeMeasure
-and TADA.LongitudeMeasure columns.
+and TADA.LongitudeMeasure columns from a TADA df or ATTAINS geometry.
 }

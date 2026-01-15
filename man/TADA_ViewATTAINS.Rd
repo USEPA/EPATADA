@@ -2,7 +2,7 @@
 % Please edit documentation in R/Maps.R
 \name{TADA_ViewATTAINS}
 \alias{TADA_ViewATTAINS}
-\title{Create Nearby Sites Map}
+\title{TADA_ViewATTAINS}
 \usage{
 TADA_ViewATTAINS(.data, ref_icons = TRUE)
 }
@@ -28,46 +28,17 @@ data to Water Quality Portal observations.
 When ref_icons = FALSE or the source is not provided in .data, all
 Monitoring Locations are show with a plain circle.
 }}
-
-\item{dist_buffer}{Distance in m to show a radius around each site marker.}
-
-\item{attains}{Boolean. If attains = TRUE and assessment unit geometry is available
-in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
-TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
-If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.}
-
-\item{catchment}{Boolean. If catchment = TRUE, any catchment data available in
-.data are added to the review map. If catchment = FALSE, catchments are not
-added to the review map. Default is catchment = FALSE.}
 }
 \value{
-A leaflet map that shows all sites in the dataframe that contain
-flagged data in the form of near other sites - groups of sites that are spatially located within
-a threshold distance (defaulting to 100 m) from each other and within the same catchment.
-
 A leaflet map visualizing Monitoring Locations and linked ATTAINS assessment units. All maps are in WGS84.
 }
 \description{
-Create Nearby Sites Map
-}
-\examples{
-\dontrun{
-# Load example dataframe:
-utils::data(Data_Nutrients_UT)
-
-
-# Create maps:
-TADA_FlaggedSitesMap(Data_Nutrients_UT)
-TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
-}
-
-TADA_ViewATTAINS
-
 This function is designed to visualize the data included in the list returned
 from TADA_CreateAUMLCrosswalk. The map can be used to review different
 crosswalk sources used for the assignment of WQP Monitoring Locations to
 ATTAINS Assessment Units. Please check out the TADAModule2.Rmd for an example workflow.
-
+}
+\examples{
 \dontrun{
 # Get WQP Monitoring Locations
 tada_data <- TADA_DataRetrieval(
@@ -92,6 +63,7 @@ attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 
 TADA_ViewATTAINS(attains_catchments)
 }
+
 }
 \seealso{
 \code{\link[=TADA_DataRetrieval]{TADA_DataRetrieval()}} must be run first to get WQP monitoring locations and results.

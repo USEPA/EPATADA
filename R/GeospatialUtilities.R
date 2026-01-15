@@ -727,17 +727,31 @@ prepATTAINSMapper <- function(.data,
 #' leaflet map by running prepATTAINSMapper for all available assessment unit
 #' layers.
 #'
-#' @param lines_layer
+#' @param lines_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit line geometry. When lines_layer = NULL, no line
+#' assessment units are prepared for mapping. Default = NULL.
 #'
-#' @param polygons_layer
+#' @param polygons_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, no polygon
+#' assessment units are prepared for mapping. Default = NULL.
 #'
-#' @param points_layer
+#' @param points_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit point geometry. When points_layer = NULL, no point
+#' assessment units are prepared for mapping. Default = NULL.
 #'
-#' @param catchment_layer
+#' @param catchment_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS catchment polygon geometry. When catchment_layer = NULL, no ATTAINS
+#' catchments are prepared for mapping. Default = NULL.
 #'
-#' @param color_ref
+#' @param color_ref Optional data frame argument. Contains the columns "overall
+#' status" (ATTAINS overall status), "col" (light fill color), "dark_col" (darker
+#' color for points or outlines), and "priority" (for displaying on map). When
+#' color_ref = NULL, the function getATTAINSColorRef is used to set the standardized
+#' colors used for ATTAINS assessment units throughout EPATADA. The default is
+#' color_ref = NULL.
 #'
-#' @param auid_list
+#' @param auid_list A list of any ATTAINS assessment unit identifiers that should
+#' be excluded from the output (not included in map).
 #'
 #' @return A list of data frames ready for use in a TADA leaflet map.
 # prep all ATTAINS layers for use in leaflet map
@@ -1617,13 +1631,23 @@ addFlaggedSitesMarkers <- function(.data,
 #'
 #' @param .data
 #'
-#' @param points_layer
+#' @param lines_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
 #'
-#' @param lines_layer
+#' @param polygons_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
 #'
-#' @param polygons_layer
+#' @param points_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit point geometry. When points_layer = NULL, the point
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
 #'
-#' @param auid_list
+#' @param auid_list A list of any ATTAINS assessment unit identifiers that should
+#' be excluded from the output.
 #'
 #' @return A data frame of assessment data that is missing from assessment units
 #' points, lines, and polygons layers but still preserved in the catchment layer.
@@ -1676,7 +1700,6 @@ return(missing_raw_features)
 #' @return The function will stop and provide an error message if no WQP
 #' observations are present.
 # check for WQP data
-
 checkForWQPData <- function(tada_attains = NULL,
                             tada_no_attains = NULL) {
 if (is.null(tada_no_attains)) {

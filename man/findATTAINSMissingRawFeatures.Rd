@@ -8,17 +8,30 @@ findATTAINSMissingRawFeatures(
   .data,
   points_layer = NULL,
   lines_layer = NULL,
-  polygons_layer = NULL
+  polygons_layer = NULL,
+  auid_list = NULL
 )
 }
 \arguments{
 \item{.data}{}
 
-\item{points_layer}{}
+\item{points_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit point geometry. When points_layer = NULL, the point
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
 
-\item{lines_layer}{}
+\item{lines_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
 
-\item{polygons_layer}{}
+\item{polygons_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
+
+\item{auid_list}{A list of any ATTAINS assessment unit identifiers that should
+be excluded from the output.}
 }
 \value{
 A data frame of assessment data that is missing from assessment units

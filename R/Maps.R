@@ -322,11 +322,14 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' function. In order for ATTAINS assesment units to be displayed on the nearby
 #' sites map, .data must be the list of data frames created by
 #' TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
+#'
 #' @param dist_buffer Distance in m to show a radius around each site marker.
+#'
 #' @param attains Boolean. If attains = TRUE and assessment unit geometry is available
 #' in the list of data frames created by TADA_CreateATTAINSAUMLCrosswalk or
 #' TADA_CreateAUMLCrosswalk, assessment units will be added to the review map.
 #' If attains = FALSE, no assessment units will be shown. Default is attains = TRUE.
+#'
 #' @param catchment Boolean. If catchment = TRUE, any catchment data available in
 #' .data are added to the review map. If catchment = FALSE, catchments are not
 #' added to the review map. Default is catchment = FALSE.

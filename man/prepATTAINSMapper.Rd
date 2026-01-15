@@ -4,7 +4,7 @@
 \alias{prepATTAINSMapper}
 \title{prepATTAINSMapper}
 \usage{
-prepATTAINSMapper(.data, geo_type = NULL, color_ref = NULL)
+prepATTAINSMapper(.data, geo_type = NULL, color_ref = NULL, auid_list = NULL)
 }
 \arguments{
 \item{.data}{Data frame. One of the data frames containing geometry from the
@@ -22,6 +22,11 @@ applied to a feature based on its overallstatus in ATTAINS. Must contain the
 columns overallstatus, col, dark_col, and priority. Can be created with the
 internal function getATTAINSColorsRef. If color_ref = NULL, the function will
 run getATTAINSColorsRef to create a color ref data frame.}
+
+\item{auid_list}{Character string. List of assessment unit identifiers to filter
+the data frame before returning. When a list is provided, only assessment unit
+identifiers included in the list will be shown on the map. When auid_list = NULL
+all assesment units in the source data set are show on the map. Default = NULL.}
 }
 \value{
 A data frame with the columns overallstatus, col, dark_col, and priority.

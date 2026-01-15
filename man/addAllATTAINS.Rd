@@ -7,12 +7,13 @@ Internal function to add all ATTAINS assessment units (lines, points, or polygon
 ATTAINS catchments (polygons) to TADA maps.}
 \usage{
 addAllATTAINS(
-  map = map,
+  map,
   points_layer = NULL,
   polygons_layer = NULL,
   lines_layer = NULL,
   catchment_layer = NULL,
   outline_layer = NULL,
+  missing_raw_layer = NULL,
   overlay_groups = NULL,
   icons = NULL
 )
