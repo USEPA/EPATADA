@@ -148,7 +148,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- Data_R5_TADAPackageDemo
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
   testdat1 <- testdat |>
@@ -171,8 +171,8 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
   expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- Data_R5_TADAPackageDemo
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
