@@ -945,7 +945,7 @@ createTADABasemap <- function(.data) {
 #' @param .data Data frame. Must contain the columns TADA.LatitudeMeasure and
 #' TADA.Longitude measure to set the extent of the map.
 #'
-#' @attains_geo Boolean argument. When attains_geo = TRUE, the function must reference
+#' @param attains_geo Boolean argument. When attains_geo = TRUE, the function must reference
 #' the geometry column of .data. When attains_geo = FALSE, the function references
 #' the TADA.LatitudeMeasure and TADA.LongitudeMeasure to find the bounding box.
 #' Default is attains_geo = FALSE.

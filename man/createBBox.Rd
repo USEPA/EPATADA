@@ -13,6 +13,11 @@ TADA.Longitude measure to set the extent of the map.}
 \item{as_vector}{Boolean argument. When as_vector = TRUE, the bounding box values
 are returned as vector. When as_vector = FALSE, values are returned as a bounding
 box. Default is as_vector = TRUE.}
+
+\item{attains_geo}{Boolean argument. When attains_geo = TRUE, the function must reference
+the geometry column of .data. When attains_geo = FALSE, the function references
+the TADA.LatitudeMeasure and TADA.LongitudeMeasure to find the bounding box.
+Default is attains_geo = FALSE.}
 }
 \value{
 A bounding box for use in leaflet mapping functions.
