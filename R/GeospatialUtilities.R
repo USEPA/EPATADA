@@ -1679,14 +1679,14 @@ findATTAINSMissingRawFeatures <- function(
           points_layer$assessmentunitidentifier,
           lines_layer$assessmentunitidentifier,
           polygons_layer$assessmentunitidentifier
-        ))
+        )
+    )
 
-# filter for listed assessment units if required
-if(!is.null(auid_list)) {
-
-  missing_raw_features <- missing_raw_features |>
-    dplyr::filter(assessmentunitidentifier %in% auid_list)
-}
+  # filter for listed assessment units if required
+  if (!is.null(auid_list)) {
+    missing_raw_features <- missing_raw_features |>
+      dplyr::filter(assessmentunitidentifier %in% auid_list)
+  }
 
   # remove intermediate objects
   rm(points_layer, lines_layer, polygons_layer)
@@ -1710,18 +1710,17 @@ if(!is.null(auid_list)) {
 #' @return The function will stop and provide an error message if no WQP
 #' observations are present.
 # check for WQP data
-checkForWQPData <- function(tada_attains = NULL,
-                            tada_no_attains = NULL) {
-if (is.null(tada_no_attains)) {
-  if (nrow(tada_attains) == 0) {
-    stop("Your WQP dataframe has no observations.")
+checkForWQPData <- function(tada_attains = NULL, tada_no_attains = NULL) {
+  if (is.null(tada_no_attains)) {
+    if (nrow(tada_attains) == 0) {
+      stop("Your WQP dataframe has no observations.")
+    }
   }
-}
 
-if (!is.null(tada_no_attains)) {
-
-  if (nrow(tada_attains) == 0 & nrow(tada_no_attains) == 0) {
-    stop("Your WQP dataframe has no observations.")
+  if (!is.null(tada_no_attains)) {
+    if (nrow(tada_attains) == 0 & nrow(tada_no_attains) == 0) {
+      stop("Your WQP dataframe has no observations.")
+    }
   }
 }
 }
@@ -1744,33 +1743,31 @@ if (!is.null(tada_no_attains)) {
 #' are missing.
 #'
 # check for required columns
-checkTADAColsForMap <- function(.data,
-                                attains = FALSE) {
-
-req.cols <- c(
-  "TADA.LongitudeMeasure",
-  "TADA.LatitudeMeasure",
-  "HorizontalCoordinateReferenceSystemDatumName",
-  "TADA.CharacteristicName",
-  "TADA.MonitoringLocationIdentifier",
-  "TADA.MonitoringLocationName",
-  "ResultIdentifier",
-  "ActivityStartDate",
-  "TADA.OrganizationIdentifier"
-)
-
-if(attains == TRUE){
-
-  required_columns <- append(req.cols,
-                             c("ATTAINS.AssessmentUnitIdentifier",
-                               "TADA.AURefSource"))
-}
-
-if (!any(required_columns %in% colnames(.data))) {
-  stop(
-    "Your dataframe does not contain the necessary WQP-style column names."
+checkTADAColsForMap <- function(.data, attains = FALSE) {
+  req.cols <- c(
+    "TADA.LongitudeMeasure",
+    "TADA.LatitudeMeasure",
+    "HorizontalCoordinateReferenceSystemDatumName",
+    "TADA.CharacteristicName",
+    "TADA.MonitoringLocationIdentifier",
+    "TADA.MonitoringLocationName",
+    "ResultIdentifier",
+    "ActivityStartDate",
+    "TADA.OrganizationIdentifier"
   )
-}
+
+  if (attains == TRUE) {
+    required_columns <- append(
+      req.cols,
+      c("ATTAINS.AssessmentUnitIdentifier", "TADA.AURefSource")
+    )
+  }
+
+  if (!any(required_columns %in% colnames(.data))) {
+    stop(
+      "Your dataframe does not contain the necessary WQP-style column names."
+    )
+  }
 }
 
 #' checkForATTAINSGeo
@@ -1789,13 +1786,12 @@ if (!any(required_columns %in% colnames(.data))) {
 #' @return The function print a message if there is no ATTAINS assessment unit
 #' geometry.
 # check for ATTAINS geometry
-checkForATTAINSGeo <- function(points_layer = NULL,
-                               lines_layer = NULL,
-                               polygons_layer = NULL) {
-if (
-  is.null(lines_layer) & is.null(points_layer) & is.null(polygons_layer)
+checkForATTAINSGeo <- function(
+  points_layer = NULL,
+  lines_layer = NULL,
+  polygons_layer = NULL
 ) {
-  message("No ATTAINS data associated with this Water Quality Portal data.")
+  if (is.null(lines_layer) & is.null(points_layer) & is.null(polygons_layer)) {
+    message("No ATTAINS data associated with this Water Quality Portal data.")
+  }
 }
-}
-
