@@ -377,12 +377,12 @@ TADA_DataRetrieval <- function(
       # Make a reference table for tribal area type + url matching
       # (options that don't return results are commented out)
       map_service_urls <- tibble::tribble(
-        ~tribal_area, ~url,
-        "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
+        ~tribal_area                        , ~url                                                                  ,
+        "Alaska Native Allotments"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
         # "Alaska Native Villages",                "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-        "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-        "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-        "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
+        "American Indian Reservations"      , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+        "Off-reservation Trust Lands"       , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+        "Oklahoma Tribal Statistical Areas" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" # ,
         # "Virginia Federally Recognized Tribes",  "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
       )
 
@@ -920,9 +920,7 @@ TADA_DataRetrieval <- function(
 
     site_count <- length(query_avail$MonitoringLocationIdentifier)
 
-    record_count <- query_avail |>
-      dplyr::pull(resultCount) |>
-      sum()
+    record_count <- query_avail |> dplyr::pull(resultCount) |> sum()
 
     # Should we proceed with downloads? If ask == TRUE then ask the user.
     if (ask == TRUE) {
@@ -1128,13 +1126,13 @@ TADA_DataRetrieval <- function(
 TADA_TribalOptions <- function(tribal_area_type, return_sf = FALSE) {
   # Make a reference table for tribal area type + url matching
   map_service_urls <- tibble::tribble(
-    ~tribal_area, ~url,
-    "Alaska Native Allotments", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0",
-    "Alaska Native Villages", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1",
-    "American Indian Reservations", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2",
-    "Off-reservation Trust Lands", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3",
-    "Oklahoma Tribal Statistical Areas", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4",
-    "Virginia Federally Recognized Tribes", "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
+    ~tribal_area                           , ~url                                                                  ,
+    "Alaska Native Allotments"             , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0" ,
+    "Alaska Native Villages"               , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1" ,
+    "American Indian Reservations"         , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2" ,
+    "Off-reservation Trust Lands"          , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3" ,
+    "Oklahoma Tribal Statistical Areas"    , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4" ,
+    "Virginia Federally Recognized Tribes" , "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5"
   )
 
   # Confirm usable string provided

@@ -15,8 +15,7 @@
 #' list containing both the labels list and the icons list.
 #'
 # create icon and label lists
-getMapIconLabels <- function(icons = TRUE,
-                             labels = TRUE) {
+getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
   # the commented out code creates the legend images using the TADA color palette
   # if the color palette is ever edited, this section needs to be uncommented and run again
   # set palette
@@ -83,8 +82,16 @@ getMapIconLabels <- function(icons = TRUE,
         "circle-check-solid-full.png",
         package = "EPATADA"
       ), # 6
-      system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 7
-      system.file("extdata/icons", "circle-solid-full.png", package = "EPATADA"), # 8
+      system.file(
+        "extdata/icons",
+        "circle-solid-full.png",
+        package = "EPATADA"
+      ), # 7
+      system.file(
+        "extdata/icons",
+        "circle-solid-full.png",
+        package = "EPATADA"
+      ), # 8
       system.file(
         "extdata/icons",
         "square-catchment-gray.png",
@@ -166,12 +173,14 @@ getMapIconLabels <- function(icons = TRUE,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add ATTAINS geometry to existing leaflet map
-addATTAINS <- function(.data,
-                          map = NULL,
-                          overlay_groups = NULL,
-                          icons = NULL,
-                          catchment = FALSE,
-                          catchment_type = "attains_au") {
+addATTAINS <- function(
+  .data,
+  map = NULL,
+  overlay_groups = NULL,
+  icons = NULL,
+  catchment = FALSE,
+  catchment_type = "attains_au"
+) {
   # stop function if map is not provided
   if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
@@ -182,25 +191,25 @@ addATTAINS <- function(.data,
     stop("addATTAINS: overlay_groups must be supplied to run this function.")
   }
 
+  if (catchment == FALSE) {
+    # get geometry type
+    geo.type <- .data$type[1]
 
-  if(catchment == FALSE) {
-  # get geometry type
-  geo.type <- .data$type[1]
-
-  # set group name
-  group.name <- switch(geo.type,
-                       "Point Feature" = "ATTAINS point features",
-                       "Line Feature" = "ATTAINS line features",
-                       "Polygon Feature" = "ATTAINS polygon features"
-  )
+    # set group name
+    group.name <- switch(
+      geo.type,
+      "Point Feature" = "ATTAINS point features",
+      "Line Feature" = "ATTAINS line features",
+      "Polygon Feature" = "ATTAINS polygon features"
+    )
   } else {
-    group.name <- switch(catchment_type,
-                         "attains_au" = "ATTAINS catchments",
-                         "missing_raw" = "ATTAINS outlines",
-                         "wo_attains" = "missing ATTAINS catchment outlines")
+    group.name <- switch(
+      catchment_type,
+      "attains_au" = "ATTAINS catchments",
+      "missing_raw" = "ATTAINS outlines",
+      "wo_attains" = "missing ATTAINS catchment outlines"
+    )
   }
-
-
 
   # remove intermediate object
   rm(geo.type)
@@ -234,25 +243,21 @@ addATTAINS <- function(.data,
     overlay_groups <- c(overlay_groups, "ATTAINS polygon features")
   }
 
-# ATTAINS catchments
-  if(group.name == "ATTAINS catchments") {
-
-      # add catchments with ATTAINS features
-      map <- map |>
-            leaflet::addPolygons(
-              data = .data,
-              group = "ATTAINS catchments",
-              color = "black",
-              fillColor = "grey",
-              weight = 1,
-              fillOpacity = 0.3,
-              popup = paste0(
-                "NHDPlus HR Catchment ID: ",
-                .data$nhdplusid
-              )
-            )
-          overlay_groups <- c(overlay_groups, "ATTAINS catchments")
-        }
+  # ATTAINS catchments
+  if (group.name == "ATTAINS catchments") {
+    # add catchments with ATTAINS features
+    map <- map |>
+      leaflet::addPolygons(
+        data = .data,
+        group = "ATTAINS catchments",
+        color = "black",
+        fillColor = "grey",
+        weight = 1,
+        fillOpacity = 0.3,
+        popup = paste0("NHDPlus HR Catchment ID: ", .data$nhdplusid)
+      )
+    overlay_groups <- c(overlay_groups, "ATTAINS catchments")
+  }
 
   # polygon assessment units
   if (group.name == "ATTAINS line features") {
@@ -281,8 +286,7 @@ addATTAINS <- function(.data,
   }
 
   # without ATTAINS catchments
-  if(group.name == "missing ATTAINS catchment outlines") {
-
+  if (group.name == "missing ATTAINS catchment outlines") {
     map <- map |>
       leaflet::addPolygons(
         data = .data,
@@ -290,16 +294,9 @@ addATTAINS <- function(.data,
         color = "black",
         weight = 1,
         fillOpacity = 0,
-        popup = paste0(
-          .data$NHD.resolution,
-          " catchment ID: ",
-          .data$nhd
-        )
+        popup = paste0(.data$NHD.resolution, " catchment ID: ", .data$nhd)
       )
-    overlay_groups <- c(
-      overlay_groups,
-      "missing ATTAINS catchment outlines"
-    )
+    overlay_groups <- c(overlay_groups, "missing ATTAINS catchment outlines")
   }
 
   # point assessment units
@@ -356,8 +353,7 @@ addATTAINS <- function(.data,
   }
 
   # ATTAINS missing raw features
-  if(group.name == "ATTAINS outlines") {
-
+  if (group.name == "ATTAINS outlines") {
     map <- map |>
       leaflet::addPolygons(
         data = .data,
@@ -424,16 +420,17 @@ addATTAINS <- function(.data,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add all ATTAINS geometries to map
-addAllATTAINS <- function(map,
-                          points_layer = NULL,
-                          polygons_layer = NULL,
-                          lines_layer = NULL,
-                          catchment_layer = NULL,
-                          outline_layer = NULL,
-                          missing_raw_layer = NULL,
-                          overlay_groups = NULL,
-                          icons = NULL) {
-
+addAllATTAINS <- function(
+  map,
+  points_layer = NULL,
+  polygons_layer = NULL,
+  lines_layer = NULL,
+  catchment_layer = NULL,
+  outline_layer = NULL,
+  missing_raw_layer = NULL,
+  overlay_groups = NULL,
+  icons = NULL
+) {
   # ensure map is provided
   if (missing(map)) {
     stop("addAllATTAINS: Argument 'map' is required.")
@@ -607,13 +604,14 @@ getATTAINSColorsRef <- function() {
 #' @return A data frame with the columns overallstatus, col, dark_col, and priority.
 #'
 # prep data for mapping with ATTAINS
-prepATTAINSMapper <- function(.data,
-                              geo_type = NULL,
-                              color_ref = NULL,
-                              auid_list = NULL) {
-
+prepATTAINSMapper <- function(
+  .data,
+  geo_type = NULL,
+  color_ref = NULL,
+  auid_list = NULL
+) {
   # check to see if any data contained in .data
-  if(dim(.data)[1] == 0) {
+  if (dim(.data)[1] == 0) {
     mapper <- NULL
 
     # return NULL mapper if no data present in .data
@@ -623,7 +621,10 @@ prepATTAINSMapper <- function(.data,
   # if geo_type is not provided, determine it from .data
   if (is.null(geo_type)) {
     # get geometry type
-    check.type <- unique(as.character(sf::st_geometry_type(.data, by_geometry = TRUE)))
+    check.type <- unique(as.character(sf::st_geometry_type(
+      .data,
+      by_geometry = TRUE
+    )))
 
     # check length of check.type
     if (length(check.type) > 1) {
@@ -635,7 +636,9 @@ prepATTAINSMapper <- function(.data,
 
       # stop function with error message if multiple geometry base types are found
       if (length(check.type) > 2) {
-        stop("prepATTAINSMapper: geometry column in .data must contain only one base geometry type.")
+        stop(
+          "prepATTAINSMapper: geometry column in .data must contain only one base geometry type."
+        )
       }
     }
 
@@ -661,7 +664,9 @@ prepATTAINSMapper <- function(.data,
 
     # stop function if any required columns are missing
     if (!all(req.cols %in% names(color_ref))) {
-      stop("prepATTAINSMapper: color_ref must contain the following columns: overallstatus, col, dark_col, priority.")
+      stop(
+        "prepATTAINSMapper: color_ref must contain the following columns: overallstatus, col, dark_col, priority."
+      )
     }
   }
 
@@ -670,20 +675,17 @@ prepATTAINSMapper <- function(.data,
     # extract coordinates and convert to a tibble (to handle point or multipoint)
     coords <- sf::st_coordinates(.data)
 
-    if(dim(coords)[1] > 1) {
+    if (dim(coords)[1] > 1) {
       coords <- coords |>
-      tibble::as_tibble() |>
-      tibble::rowid_to_column(var = "index")
+        tibble::as_tibble() |>
+        tibble::rowid_to_column(var = "index")
 
-    # points mapper setup
-    mapper <- .data |>
-      dplyr::left_join(color_ref, by = "overallstatus") |>
-      dplyr::mutate(type = "Point Feature") |>
-      tibble::rowid_to_column(var = "index") |>
-      dplyr::right_join(coords, by = "index")
-
-    # remove intermediate objects
-    rm(coords, color_ref)
+      # points mapper setup
+      mapper <- .data |>
+        dplyr::left_join(color_ref, by = "overallstatus") |>
+        dplyr::mutate(type = "Point Feature") |>
+        tibble::rowid_to_column(var = "index") |>
+        dplyr::right_join(coords, by = "index")
 
     } else {
       mapper <- NULL
