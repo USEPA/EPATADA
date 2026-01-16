@@ -1928,7 +1928,7 @@ TADA_GetATTAINSByAUID <- function(
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
-      correctColType() |>
+      TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # In this case we'll need to return empty ATTAINS objects
@@ -2172,7 +2172,7 @@ TADA_GetATTAINSByAUID <- function(
   # remove unnecessary column from attains.geo
   attains.geo <- attains.geo |>
     dplyr::select(-assessmentunitidentifier) |>
-    correctColType()
+    TADA_CorrectColType()
 
   # remove intermediate objects
   rm(tada.cols, attains.cols, comb.cols)
@@ -2277,7 +2277,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
-    correctColType() |>
+    TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
     renameATTAINSCols() |>
@@ -3091,7 +3091,7 @@ TADA_FindNearbySites <- function(
         TADA.NearbySites.Flag
       )
     ) |>
-    correctColType()
+    TADA_CorrectColType()
 
   # return TADA df with added columns for tracking
   return(.data)
@@ -3693,7 +3693,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
     # correct column types and filter out invalid geometries for each dataframe
-    user <- correctColType(user[[df.name]])
+    user <- TADA_CorrectColType(user[[df.name]])
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
       user <- sf::st_make_valid(user)
@@ -3715,7 +3715,7 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    attains <- correctColType(attains[[df.name]])
+    attains <- TADA_CorrectColType(attains[[df.name]])
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
       attains <- sf::st_make_valid(attains)
@@ -3736,7 +3736,7 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    get.attains <- correctColType(get.attains[[df.name]])
+    get.attains <- TADA_CorrectColType(get.attains[[df.name]])
 
     if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
       get.attains <- sf::st_make_valid(get.attains)

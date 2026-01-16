@@ -234,7 +234,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     names(DefineCriteriaMethodology) <- desired_cols
 
-    DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
+    DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
   } else {
     # Check if auto_assign is boolean
     if (!is.logical(auto_assign)) {
@@ -398,7 +398,7 @@ TADA_DefineCriteriaMethodology <- function(
         ) |>
         dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
 
-      MLSummaryRef <- correctColType(MLSummaryRef)
+      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
       # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
       MLSummaryRef <- TADA_param |>
         dplyr::full_join(MLSummaryRef, by = names(TADA_param))
@@ -535,7 +535,7 @@ TADA_DefineCriteriaMethodology <- function(
     # as an option and will include these values if they have been populated.
     if (!is.null(MLSummaryRef)) {
       # corrects for data types
-      MLSummaryRef <- correctColType(MLSummaryRef)
+      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
       # Extracts the characteristic, speciation and fraction columns to join
       MLSummaryRef <- MLSummaryRef |>
         dplyr::right_join(
@@ -785,7 +785,7 @@ TADA_DefineCriteriaMethodology <- function(
         }
       }
       # final formatting to ensure all column types are correct
-      DefineCriteriaMethodology <- correctColType(DefineCriteriaMethodology)
+      DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
     }
 
     # User wants to populate the criteria table using a user supplied table.
@@ -909,7 +909,7 @@ TADA_DefineCriteriaMethodology <- function(
         DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
       )
 
-      # Must now match the data types. Developer note: can this be modified with TADA correctColType function?
+      # Must now match the data types. Developer note: can this be modified with TADA TADA_CorrectColType function?
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
       suppressWarnings(
@@ -1003,14 +1003,14 @@ TADA_DefineCriteriaMethodology <- function(
       package = "EPATADA"
     ))
     if (missing(.data)) {
-      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>
         dplyr::mutate(ATTAINS.ParameterName = toupper(ATTAINS.ParameterName))
     }
     if (!missing(.data)) {
-      epa304a <- suppressWarnings(correctColType(epa304a)) |>
+      epa304a <- suppressWarnings(TADA_CorrectColType(epa304a)) |>
         dplyr::select(names(epa304a)[
           names(epa304a) %in% coltype.ref$column_name
         ]) |>
