@@ -76,6 +76,17 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
   )
 })
 
+testthat::test_that("fetchATTAINS handles small areas", {
+  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
+  )
+  expect_equal(nrow(result_all_features$ATTAINS_points), 0)
+  expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
+  expect_equal(nrow(result_all_features$ATTAINS_polygons), 0)
+  expect_equal(nrow(result_all_features$ATTAINS_catchments), 2)
+})
+
 testthat::test_that("fetchATTAINS handles large areas", {
   # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
