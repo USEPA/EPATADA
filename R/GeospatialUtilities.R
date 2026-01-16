@@ -686,7 +686,6 @@ prepATTAINSMapper <- function(
         dplyr::mutate(type = "Point Feature") |>
         tibble::rowid_to_column(var = "index") |>
         dplyr::right_join(coords, by = "index")
-
     } else {
       mapper <- NULL
     }
@@ -710,12 +709,10 @@ prepATTAINSMapper <- function(
       dplyr::arrange(dplyr::desc(Shape_Area))
   }
 
-  if(!is.null(auid_list) & dim(mapper)[1] > 0) {
+  if (!is.null(auid_list) & dim(mapper)[1] > 0) {
+    mapper <- mapper |> dplyr::filter(assessmentunitidentifier %in% auid_list)
 
-    mapper <- mapper |>
-      dplyr::filter(assessmentunitidentifier %in% auid_list)
-
-    if( dim(mapper)[1] == 0) {
+    if (dim(mapper)[1] == 0) {
       mapper <- NULL
     }
   }
@@ -757,36 +754,43 @@ prepATTAINSMapper <- function(
 #'
 #' @return A list of data frames ready for use in a TADA leaflet map.
 # prep all ATTAINS layers for use in leaflet map
-prepAllATTAINSMapper <- function(lines_layer = NULL,
-                                 polygons_layer = NULL,
-                                 points_layer = NULL,
-                                 # catch_layer = NULL,
-                                 color_ref = NULL,
-                                 auid_list = NULL) {
-
+prepAllATTAINSMapper <- function(
+  lines_layer = NULL,
+  polygons_layer = NULL,
+  points_layer = NULL,
+  # catch_layer = NULL,
+  color_ref = NULL,
+  auid_list = NULL
+) {
   # get color ref for ATTAINS overall status if not provided
-  if(is.null(color_ref)) {
+  if (is.null(color_ref)) {
     color_ref <- getATTAINSColorsRef()
   }
 
-# point assessment units
-  points_mapper <- prepATTAINSMapper(points_layer,
-                                     geo_type = "points",
-                                     color_ref = color_ref,
-                                     auid_list = auid_list)
+  # point assessment units
+  points_mapper <- prepATTAINSMapper(
+    points_layer,
+    geo_type = "points",
+    color_ref = color_ref,
+    auid_list = auid_list
+  )
 
-# line assessment units
-  lines_mapper <- prepATTAINSMapper(lines_layer,
-                                    geo_type = "lines",
-                                    color_ref = color_ref,
-                                    auid_list = auid_list)
+  # line assessment units
+  lines_mapper <- prepATTAINSMapper(
+    lines_layer,
+    geo_type = "lines",
+    color_ref = color_ref,
+    auid_list = auid_list
+  )
 
-# polygon assessment units
-  polygons_mapper <- prepATTAINSMapper(polygons_layer,
-                                       geo_type = "polygons",
-                                       color_ref = color_ref,
-                                       auid_list = auid_list)
-# create list of mapper dfs
+  # polygon assessment units
+  polygons_mapper <- prepATTAINSMapper(
+    polygons_layer,
+    geo_type = "polygons",
+    color_ref = color_ref,
+    auid_list = auid_list
+  )
+  # create list of mapper dfs
   au_mapper <- list(points_mapper, lines_mapper, polygons_mapper)
 
   names(au_mapper) <- c("points_mapper", "lines_mapper", "polygons_mapper")
@@ -812,8 +816,7 @@ prepAllATTAINSMapper <- function(lines_layer = NULL,
 #' WQP site data.
 #'
 # Develop WQP site stats (e.g. count of observations, parameters, per site)
-getWQPSiteStats <- function(.data,
-                            attains = TRUE) {
+getWQPSiteStats <- function(.data, attains = TRUE) {
   # set base list of columns to group .data for summarizing
   group.cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -822,7 +825,6 @@ getWQPSiteStats <- function(.data,
     "TADA.LatitudeMeasure",
     "TADA.LongitudeMeasure"
   )
-
 
   if (attains == TRUE) {
     # if assessment unit data are not available, set attains param to FALSE
@@ -836,13 +838,11 @@ getWQPSiteStats <- function(.data,
       ))
     }
 
-
     # if assessment unit data are available
     if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
       # check for ref source, add if missing
       if (!"TADA.AURefSource" %in% names(.data)) {
-        .data <- .data |>
-          dplyr::mutate(TADA.AURefSource = "not provided")
+        .data <- .data |> dplyr::mutate(TADA.AURefSource = "not provided")
       }
 
       # add TADA.AURefSource to grouping
@@ -900,8 +900,12 @@ getWQPSiteStats <- function(.data,
 #'
 # Create base map
 createTADABasemap <- function(.data) {
-  if (!all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))) {
-    stop("createTADABasemap: .data must contain TADA.LongitudeMeasure and TADA.LatitudeMeasure columns.")
+  if (
+    !all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))
+  ) {
+    stop(
+      "createTADABasemap: .data must contain TADA.LongitudeMeasure and TADA.LatitudeMeasure columns."
+    )
   }
 
   # create bounding box for map using internal function
@@ -953,18 +957,17 @@ createTADABasemap <- function(.data) {
 #' @return A bounding box for use in leaflet mapping functions.
 # Create bounding box
 createBBox <- function(.data, as_vector = TRUE, attains_geo = FALSE) {
-
-  if(isFALSE(attains_geo)) {
-  # create bounding box
-  bbox <- sf::st_bbox(
-    c(
-      xmin = min(.data$TADA.LongitudeMeasure),
-      ymin = min(.data$TADA.LatitudeMeasure),
-      xmax = max(.data$TADA.LongitudeMeasure),
-      ymax = max(.data$TADA.LatitudeMeasure)
-    ),
-    crs = sf::st_crs(.data)
-  )
+  if (isFALSE(attains_geo)) {
+    # create bounding box
+    bbox <- sf::st_bbox(
+      c(
+        xmin = min(.data$TADA.LongitudeMeasure),
+        ymin = min(.data$TADA.LatitudeMeasure),
+        xmax = max(.data$TADA.LongitudeMeasure),
+        ymax = max(.data$TADA.LatitudeMeasure)
+      ),
+      crs = sf::st_crs(.data)
+    )
   }
 
   if (isTRUE(attains_geo)) {
@@ -1024,12 +1027,14 @@ createBBox <- function(.data, as_vector = TRUE, attains_geo = FALSE) {
 #' ATTAINS by circling them with a black dashed line.
 #'
 # add ATTAINS geometry to existing leaflet map
-showMissingATTAINSAUs <- function(map = NULL,
-                                  overlay_groups = NULL,
-                                  ATTAINS_table = NULL,
-                                  ATTAINS_points = NULL,
-                                  ATTAINS_lines = NULL,
-                                  ATTAINS_polygons = NULL) {
+showMissingATTAINSAUs <- function(
+  map = NULL,
+  overlay_groups = NULL,
+  ATTAINS_table = NULL,
+  ATTAINS_points = NULL,
+  ATTAINS_lines = NULL,
+  ATTAINS_polygons = NULL
+) {
   # stop function if map is not provided
   if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
@@ -1073,7 +1078,10 @@ showMissingATTAINSAUs <- function(map = NULL,
       polygon.aus <- listAUIDs(ATTAINS_polygons)
 
       # combine lists and retain unique values
-      all.attains.aus <- unique(Reduce(c, list(point.aus, line.aus, polygon.aus)))
+      all.attains.aus <- unique(Reduce(
+        c,
+        list(point.aus, line.aus, polygon.aus)
+      ))
 
       # find if any assigned aus are missing geometry
       missing.geo <- user.refs |>
@@ -1094,7 +1102,6 @@ showMissingATTAINSAUs <- function(map = NULL,
           iconWidth = 48,
           iconHeight = 48
         )
-
 
         # add missing assessment unit symbology to map
         map <- map |>
@@ -1185,19 +1192,16 @@ showMissingATTAINSAUs <- function(map = NULL,
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add ATTAINS geometry to existing leaflet map
-addWQPSites <- function(.data,
-                        map = NULL,
-                        icons = NULL,
-                        icon_labels = NULL,
-                        ref_icons = TRUE,
-                        overlay_groups = NULL) {
+addWQPSites <- function(
+  .data,
+  map = NULL,
+  icons = NULL,
+  icon_labels = NULL,
+  ref_icons = TRUE,
+  overlay_groups = NULL
+) {
   # data summary columns
-  sum.cols <- c(
-    "Sample_Count",
-    "Visit_Count",
-    "Parameter_Count",
-    "ATTAINS_AUs"
-  )
+  sum.cols <- c("Sample_Count", "Visit_Count", "Parameter_Count", "ATTAINS_AUs")
 
   # check to see if data summary columns are present in .data
   if (!all(sum.cols %in% names(.data))) {
@@ -1267,9 +1271,7 @@ addWQPSites <- function(.data,
 
     wqp.urls <- dplyr::case_when(
       .data$TADA.AURefSource == "ATTAINS Crosswalk" ~ images[6],
-      .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[
-        7
-      ],
+      .data$TADA.AURefSource == "TADA_CreateATTAINSAUMLCrosswalk" ~ images[7],
       .data$TADA.AURefSource == "User-supplied Ref" ~ images[5]
     )
   }
@@ -1367,18 +1369,22 @@ addWQPSites <- function(.data,
 #' @return Custom leaflet legend for TADA maps.
 #'
 # add ATTAINS geometry to existing leaflet map
-addTADAMapLegend <- function(map = NULL,
-                             icons = NULL,
-                             icon_labels = NULL,
-                             wqp = TRUE,
-                             ref_icons = TRUE,
-                             attains_au = TRUE,
-                             attains_missing = TRUE,
-                             nhd_attains = TRUE,
-                             nhd_no_attains = FALSE) {
+addTADAMapLegend <- function(
+  map = NULL,
+  icons = NULL,
+  icon_labels = NULL,
+  wqp = TRUE,
+  ref_icons = TRUE,
+  attains_au = TRUE,
+  attains_missing = TRUE,
+  nhd_attains = TRUE,
+  nhd_no_attains = FALSE
+) {
   # stop function if no map is provided
   if (is.null(map)) {
-    stop("addTADAMapLegend: Param map is missing. A leaflet map is required to add the legend.")
+    stop(
+      "addTADAMapLegend: Param map is missing. A leaflet map is required to add the legend."
+    )
   }
 
   # if icons or icon labels are not provided, fetch them with internal function getMapIconLabels
@@ -1484,7 +1490,9 @@ addTADAMapLegend <- function(map = NULL,
 #'
 addLegendToggle <- function(map = NULL) {
   if (is.null(map)) {
-    stop("addLegendToggle: a TADA leaflet map must be specified in order to add the legend.")
+    stop(
+      "addLegendToggle: a TADA leaflet map must be specified in order to add the legend."
+    )
   }
 
   # add legend toggle to map
@@ -1532,10 +1540,11 @@ addLegendToggle <- function(map = NULL) {
 #' @return A TADA map with the layer control added.
 #'
 # add layer control
-addLayerControl <- function(map = NULL,
-                            overlay_groups = NULL) {
+addLayerControl <- function(map = NULL, overlay_groups = NULL) {
   if (is.null(map)) {
-    stop("addLayerControl: a TADA leaflet map must be specified in order to add the legend.")
+    stop(
+      "addLayerControl: a TADA leaflet map must be specified in order to add the legend."
+    )
   }
 
   # add layer control to map
@@ -1571,9 +1580,7 @@ addLayerControl <- function(map = NULL,
 #' @return A TADA leaflet map with flagged site markers added.
 #'
 # add ATTAINS geometry to existing leaflet map
-addFlaggedSitesMarkers <- function(.data,
-                                   map = NULL,
-                                   flag_type = NULL) {
+addFlaggedSitesMarkers <- function(.data, map = NULL, flag_type = NULL) {
   # add line for null map
 
   # set markers based on flag type
@@ -1654,17 +1661,18 @@ addFlaggedSitesMarkers <- function(.data,
 #' @return A data frame of assessment data that is missing from assessment units
 #' points, lines, and polygons layers but still preserved in the catchment layer.
 #'
-findATTAINSMissingRawFeatures <- function(.data,
-                                          points_layer = NULL,
-                                          lines_layer = NULL,
-                                          polygons_layer = NULL,
-                                          auid_list = NULL) {
-# set missing raw features to null
+findATTAINSMissingRawFeatures <- function(
+  .data,
+  points_layer = NULL,
+  lines_layer = NULL,
+  polygons_layer = NULL,
+  auid_list = NULL
+) {
+  # set missing raw features to null
   missing_raw_features <- NULL
 
-
-# find missing raw features
-missing_raw_features <- ATTAINS_catchments |>
+  # find missing raw features
+  missing_raw_features <- ATTAINS_catchments |>
     dplyr::filter(
       !assessmentunitidentifier %in%
         c(
@@ -1680,11 +1688,11 @@ if(!is.null(auid_list)) {
     dplyr::filter(assessmentunitidentifier %in% auid_list)
 }
 
-# remove intermediate objects
-rm(points_layer, lines_layer, polygons_layer)
+  # remove intermediate objects
+  rm(points_layer, lines_layer, polygons_layer)
 
-# return missing raw features
-return(missing_raw_features)
+  # return missing raw features
+  return(missing_raw_features)
 }
 
 #' checkForWQPData
