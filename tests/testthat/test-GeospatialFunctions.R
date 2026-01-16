@@ -15,6 +15,8 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 # )
 # large_bbox_data
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+# small area test as subset of large area
+small_bbox_data <- large_bbox_data[125:140,]
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
