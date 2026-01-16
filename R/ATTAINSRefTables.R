@@ -547,25 +547,30 @@ TADA_UsesAliasForReview <- function(
   UsesType <- data.frame(
     context2 = c(
       rep(NA, 3),
-      "CULTURAL_USE",
-      "DRINKINGWATER_USE",
-      "ECOLOGICAL_USE",
-      "FISHCONSUMPTION_USE",
+      rep("CULTURAL_USE",2),
+      rep("DRINKINGWATER_USE",2),
+      rep("ECOLOGICAL_USE", 2),
+      rep("FISHCONSUMPTION_USE", 2),
       rep("OTHER_USE", 3),
-      "RECREATION_USE"
+      rep("RECREATION_USE", 2)
     ),
     CRITERIATYPEAQUAHUMHLTH = c(
       "A",
       "H",
       NA_character_,
       "H",
+      NA_character_,
       "H",
+      NA_character_,
       "A",
+      NA_character_,
       "H",
+      NA_character_,
       "A",
       "H",
       NA_character_,
-      "H"
+      "H",
+      NA_character_
     )
   )
 
