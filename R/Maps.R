@@ -913,9 +913,11 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         overlay_groups = overlay_groups
       )
 
+      if (!is.null(missing_aus)) {
       map <- missing_aus$map
 
       overlay_groups <- missing_aus$overlay_groups
+      }
 
       # remove intermediate objects
       rm(missing_aus)
