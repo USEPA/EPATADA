@@ -319,7 +319,7 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' @param .data Either(1) a TADA dataframe or (2) the list of data frames created
 #' by TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk. If
 #' TADA_FindNearbySites has not been previously run, it will be as part of this
-#' function. In order for ATTAINS assesment units to be displayed on the nearby
+#' function. In order for ATTAINS assessment units to be displayed on the nearby
 #' sites map, .data must be the list of data frames created by
 #' TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
 #'

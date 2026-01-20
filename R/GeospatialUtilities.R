@@ -162,7 +162,7 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
 #' mapped are catchments or assessment units to determine color and other attributes.
 #' Default is catchment = FALSE, meaning that assessment units are being mapped.
 #'
-#' @param catchment_type Character argument. Evaluted when catchment = TRUE to
+#' @param catchment_type Character argument. Evaluated when catchment = TRUE to
 #' determine if the catchments being mapped are (1) those corresponding to
 #' assessment units that are missing point/line/polygon data but still preserved
 #' in the catchment layer (catchment_type = "missing_raw"), (2) catchments containing
@@ -411,7 +411,7 @@ addATTAINS <- function(
 #' mapped are catchments or assessment units to determine color and other attributes.
 #' Default is catchment = FALSE, meaning that assessment units are being mapped.
 #'
-#' @param missing_raw Boolean argument. Evaluted when catchment = TRUE to determine
+#' @param missing_raw Boolean argument. Evaluated when catchment = TRUE to determine
 #' if the catchments being mapped are those corresponding to assessment units that
 #' are missing point/line/polygon data but still preserved in the catchment layer
 #' (missing_raw = TRUE) or catchments containing assessment unit features
@@ -599,7 +599,7 @@ getATTAINSColorsRef <- function() {
 #' @param auid_list Character string. List of assessment unit identifiers to filter
 #' the data frame before returning. When a list is provided, only assessment unit
 #' identifiers included in the list will be shown on the map. When auid_list = NULL
-#' all assesment units in the source data set are show on the map. Default = NULL.
+#' all assessment units in the source data set are show on the map. Default = NULL.
 #'
 #' @return A data frame with the columns overallstatus, col, dark_col, and priority.
 #'
@@ -1090,7 +1090,7 @@ showMissingATTAINSAUs <- function(
       # remove intermediate objects
       rm(point.aus, line.aus, polygon.aus, all.attains.aus, user.refs)
 
-      # if there are any user-assigned assesment unit identifiers without geometry in ATTAINS add to map
+      # if there are any user-assigned assessment unit identifiers without geometry in ATTAINS add to map
       if (dim(missing.geo)[1] > 0) {
         # set up icons for missing geometry
         missingIcon <- leaflet::icons(

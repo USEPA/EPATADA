@@ -33,7 +33,7 @@ for point assessment units.}
 mapped are catchments or assessment units to determine color and other attributes.
 Default is catchment = FALSE, meaning that assessment units are being mapped.}
 
-\item{catchment_type}{Character argument. Evaluted when catchment = TRUE to
+\item{catchment_type}{Character argument. Evaluated when catchment = TRUE to
 determine if the catchments being mapped are (1) those corresponding to
 assessment units that are missing point/line/polygon data but still preserved
 in the catchment layer (catchment_type = "missing_raw"), (2) catchments containing

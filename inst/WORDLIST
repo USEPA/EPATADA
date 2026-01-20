@@ -32,7 +32,6 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
-Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -384,7 +383,8 @@ Waterbody
 WaterbodyReport
 Wikimedia
 YYYY
-addATTAINSAUs
+addATTAINS
+addAllATTAINS
 addFlaggedSitesMarkers
 addLayerControl
 addLegendToggle
@@ -400,6 +400,7 @@ applyautoclean
 arcgis
 asNO
 au
+auid
 aus
 autoassign
 autoclean
@@ -417,6 +418,9 @@ cdx
 characteristicName
 characteristicType
 checkColNames
+checkForATTAINSGeo
+checkForWQPData
+checkTADAColsForMap
 cleanNA
 coli
 comid
@@ -453,6 +457,7 @@ extdata
 fabec
 fetchATTAINS
 fetchNHD
+findATTAINSMissingRawFeatures
 flaggedonly
 flowline
 flowlines
@@ -461,6 +466,7 @@ geo
 geopub
 geospatial
 geospatially
+getATTAINSColorRef
 getATTAINSColorsRef
 getFeatureLayer
 getLayer
@@ -519,6 +525,7 @@ pkgdown
 plotly
 pre
 prepATTAINSMapper
+prepAllATTAINSMapper
 rExpertQuery
 randombelowlimit
 rda
@@ -567,6 +574,7 @@ waterdata
 waterqualitydata
 webservices
 webserviceurl
+wo
 wqp
 wqs
 wqx

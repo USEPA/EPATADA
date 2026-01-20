@@ -26,7 +26,7 @@ run getATTAINSColorsRef to create a color ref data frame.}
 \item{auid_list}{Character string. List of assessment unit identifiers to filter
 the data frame before returning. When a list is provided, only assessment unit
 identifiers included in the list will be shown on the map. When auid_list = NULL
-all assesment units in the source data set are show on the map. Default = NULL.}
+all assessment units in the source data set are show on the map. Default = NULL.}
 }
 \value{
 A data frame with the columns overallstatus, col, dark_col, and priority.
