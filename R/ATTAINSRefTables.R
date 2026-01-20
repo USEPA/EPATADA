@@ -483,17 +483,17 @@ TADA_AdditionalCharAliasForReview <- function(
 #' individual words from each use domain string and calculating the percentage
 #' of words that match between each ATTAINS use and CST use. Users are advised
 #' to review this uses alias table and adjust their tolerance levels as desired
-#' to determine the accuracy of the crosswalk. 
-#' 
+#' to determine the accuracy of the crosswalk.
+#'
 #' Lastly, if no use matches are found between ATTAINS and the CST, but an ATTAINS
-#' parameter matches a CST standard pollutant name for the organization, return 
-#' all CST uses for each distinct ATTAINS use name. Users must then select the 
+#' parameter matches a CST standard pollutant name for the organization, return
+#' all CST uses for each distinct ATTAINS use name. Users must then select the
 #' appropriate CST magnitude value(s) to populate for each ATTAINS parameter–use
-#' combination. 
-#' 
+#' combination.
+#'
 #' Many-to-many matches are likely and will require thorough review. Users should
 #' be aware that a CST use may be duplicated for each ATTAINS.UseName. It is the
-#' user's responsibility to ensure that CST uses are appropriately matched to 
+#' user's responsibility to ensure that CST uses are appropriately matched to
 #' ATTAINS.UseName.
 #'
 #' Note for Development: We should keep a reference file to indicate
