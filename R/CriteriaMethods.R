@@ -925,18 +925,35 @@ TADA_DefineCriteriaMethodology <- function(
             non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
             definedCriteria[, i] <- as.character(definedCriteria[, i])
           } else if (desired_types[[i]] == "Date") {
-            non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i], format = "%b %d")
-            definedCriteria[, i] <- as.Date(definedCriteria[, i], format = "%b %d")
+            non_definedCriteria[, i] <- as.Date(
+              non_definedCriteria[, i],
+              format = "%b %d"
+            )
+            definedCriteria[, i] <- as.Date(
+              definedCriteria[, i],
+              format = "%b %d"
+            )
           }
         }
       )
-      
       # format season dates to only contain MM-DD
-      non_definedCriteria$SeasonStartDate <- format(non_definedCriteria$SeasonStartDate, format = "%b %d")
-      non_definedCriteria$SeasonEndDate <- format(non_definedCriteria$SeasonEndDate, format = "%b %d")
-      definedCriteria$SeasonStartDate <- format(definedCriteria$SeasonStartDate, format = "%b %d")
-      definedCriteria$SeasonEndDate <- format(definedCriteria$SeasonEndDate, format = "%b %d")
-      
+      non_definedCriteria$SeasonStartDate <- format(
+        non_definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      non_definedCriteria$SeasonEndDate <- format(
+        non_definedCriteria$SeasonEndDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonStartDate <- format(
+        definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonEndDate <- format(
+        definedCriteria$SeasonEndDate,
+        format = "%b %d"
+      )
+
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::select(
           ATTAINS.OrganizationIdentifier,
