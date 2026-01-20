@@ -555,8 +555,8 @@ TADA_UsesAliasForReview <- function(
   UsesType <- data.frame(
     context2 = c(
       rep(NA, 3),
-      rep("CULTURAL_USE",2),
-      rep("DRINKINGWATER_USE",2),
+      rep("CULTURAL_USE", 2),
+      rep("DRINKINGWATER_USE", 2),
       rep("ECOLOGICAL_USE", 2),
       rep("FISHCONSUMPTION_USE", 2),
       rep("OTHER_USE", 3),
