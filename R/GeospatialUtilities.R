@@ -1723,7 +1723,6 @@ checkForWQPData <- function(tada_attains = NULL, tada_no_attains = NULL) {
     }
   }
 }
-}
 
 #' checkTADAColsForMap
 #'
