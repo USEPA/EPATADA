@@ -1313,7 +1313,9 @@ TADA_DefineCriteriaMethodology <- function(
           "arithmetic extremes",
           "geometric mean",
           "rolling geometric mean",
-          "rolling arithmetic mean"
+          "rolling arithmetic mean",
+          "(mean min) mean of daily minima", # common only for DO it seems.
+          "(mean max) mean of daily maxima"
         )
       )
     )
