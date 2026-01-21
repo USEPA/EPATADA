@@ -785,7 +785,9 @@ TADA_DefineCriteriaMethodology <- function(
         }
       }
       # final formatting to ensure all column types are correct
-      DefineCriteriaMethodology <- TADA_CorrectColType(DefineCriteriaMethodology)
+      DefineCriteriaMethodology <- TADA_CorrectColType(
+        DefineCriteriaMethodology
+      )
     }
 
     # User wants to populate the criteria table using a user supplied table.
