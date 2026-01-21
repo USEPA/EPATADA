@@ -2371,32 +2371,38 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 #' @export
 #' @importFrom utils read.csv
 TADA_CorrectColType <- function(.data) {
-  if (is.null(.data)) return(NULL)
-  if (inherits(.data, "sf")) return(.data)  # simplest safe behavior
-  if (!is.data.frame(.data)) {
-    warning("TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged")
+  if (is.null(.data)) {
+    return(NULL)
+  }
+  if (inherits(.data, "sf")) {
     return(.data)
-  }  
+  } # simplest safe behavior
+  if (!is.data.frame(.data)) {
+    warning(
+      "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
+    )
+    return(.data)
+  }
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   if (!nzchar(ref_path) || !file.exists(ref_path)) {
     stop("TADAColTypeRef.csv not found in EPATADA/extdata.")
   }
-  
+
   coltype.ref <- utils::read.csv(
     ref_path,
     stringsAsFactors = FALSE,
     strip.white = TRUE
   )
-  
+
   required_cols <- c("column_name", "column_type")
   if (!all(required_cols %in% names(coltype.ref))) {
     stop("TADAColTypeRef.csv must contain columns: column_name, column_type.")
   }
-  
+
   # Normalize entries
   coltype.ref$column_name <- trimws(coltype.ref$column_name)
   coltype.ref$column_type <- tolower(trimws(coltype.ref$column_type))
-  
+
   # Converter per type
   convert <- function(x, type) {
     switch(
@@ -2452,27 +2458,27 @@ TADA_CorrectColType <- function(.data) {
       x
     )
   }
-  
+
   # Columns present in both the CSV and the data
   present <- intersect(coltype.ref$column_name, names(.data))
-  
+
   # Also ensure we process any ATTAINS.*Use columns even if not listed in CSV
   use_cols <- grep("^ATTAINS\\..*Use$", names(.data), value = TRUE)
   extra_use_cols <- setdiff(use_cols, present)
-  
+
   # Union of CSV-present columns and ATTAINS.*Use columns
   process_cols <- union(present, extra_use_cols)
-  
+
   if (length(process_cols) == 0L) {
     return(.data)
   }
-  
+
   for (nm in process_cols) {
     # Skip geometry columns (sf objects)
     if (inherits(.data[[nm]], "sfc")) {
       next
     }
-    
+
     # Determine target type: from CSV if present, otherwise default for ATTAINS.*Use
     if (nm %in% present) {
       target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
@@ -2480,16 +2486,16 @@ TADA_CorrectColType <- function(.data) {
       # Any ATTAINS.*Use not in CSV gets coerced to character
       target_type <- "character"
     }
-    
+
     # Generic override: ensure any ATTAINS.*Use column ends up as character
     if (grepl("^ATTAINS\\..*Use$", nm)) {
       target_type <- "character"
     }
-    
+
     old <- .data[[nm]]
     before_na <- sum(is.na(old))
     new <- try(convert(old, target_type), silent = TRUE)
-    
+
     if (inherits(new, "try-error")) {
       warning(sprintf(
         "Failed to coerce column '%s' to type '%s'; leaving unchanged.",
@@ -2498,7 +2504,7 @@ TADA_CorrectColType <- function(.data) {
       ))
       next
     }
-    
+
     after_na <- sum(is.na(new))
     if (after_na > before_na) {
       warning(sprintf(
@@ -2508,9 +2514,9 @@ TADA_CorrectColType <- function(.data) {
         after_na - before_na
       ))
     }
-    
+
     .data[[nm]] <- new
   }
-  
+
   .data
 }
