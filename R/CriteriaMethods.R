@@ -1200,7 +1200,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 14,
       startRow = 1,
       # AcuteChronic
-      x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))
+      x = data.frame(AcuteChronic = c("A", "C", "NA"))
     )
 
     # get list of ATTAINS Water Types from ATTAINS
@@ -1230,7 +1230,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 11,
       startRow = 1,
       # SaltFresh
-      x = data.frame(SaltFresh = c("Salt", "Fresh", "NA"))
+      x = data.frame(SaltFresh = c("S", "F", "NA"))
     )
 
     openxlsx::writeData(
@@ -1314,8 +1314,8 @@ TADA_DefineCriteriaMethodology <- function(
           "geometric mean",
           "rolling geometric mean",
           "rolling arithmetic mean",
-          "(mean min) mean of daily minima", # common only for DO it seems.
-          "(mean max) mean of daily maxima"
+          "mean of daily minima", # added 1/21/26 common only for DO it seems.
+          "mean of daily maxima" # added 1/21/26 common only for DO it seems.
         )
       )
     )
@@ -1384,25 +1384,39 @@ TADA_DefineCriteriaMethodology <- function(
       )
     )
 
+    # allowable values for ATTAINS.ParameterName (entire domain, not org specific)
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 3,
+      rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index'!$E$2:$E$60000"),
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+
+    # allowable values for ATTAINS.UseName (org specific)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 4,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
+      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-
+    # allowable value for TADA.ComparableDataIdentifier
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 5,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
+      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
