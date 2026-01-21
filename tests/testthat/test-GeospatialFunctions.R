@@ -18,6 +18,21 @@ load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 # small area test as subset of large area
 small_bbox_data <- large_bbox_data[125:140, ]
 
+# Query specific to sites along state border
+# sites = c("NALMS-F1217605",
+#           "EMAP_CS_WQX-RI03-0338-B",
+#           "EMAP_CS_WQX-RI05-0016-A",
+#           "NARS_WQX-NCCA10-1634",
+#           "NARS_WQX-NCA_RI-10129"
+#           )
+# RI_CT_secchi <- EPATADA::TADA_DataRetrieval(
+#  characteristicName = "Depth, Secchi disk depth",
+#  siteid = sites,
+#  applyautoclean = TRUE
+#  )
+# RI_CT_secchi
+load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
+
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
@@ -113,15 +128,19 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 
 testthat::test_that("fetchATTAINS org_id parameter", {
   # Test when non-default (default is 'all')
-  org <- "MTDEQ"
-  testthat::expect_no_error(org_result <- EPATADA:::fetchATTAINS(.data = small_bbox_data,
-                                                                 org_id = org)
+  org <- "RIDEM"
+  testthat::expect_no_error(org_results <- EPATADA:::fetchATTAINS(.data = RI_CT_secchi,
+                                                                  catchments_only = TRUE,
+                                                                  org_id = org)
                             )
   # Test against normal result when filtered on org_id
-  all_orgs <- result_all_features$ATTAINS_catchments["organizationid"==org]
-  expect_equal(nrow(org_result$ATTAINS_catchments),
-               nrow(all_orgs))
-  result_all_features
+  all_org_results <- EPATADA:::fetchATTAINS(.data = RI_CT_secchi,
+                                            catchments_only = TRUE)
+  all_orgs_filtered <- all_org_results$ATTAINS_catchments["organizationid"==org]
+  # Compare the two sets of results (should be same)
+  expect_equal(nrow(org_results$ATTAINS_catchments),
+               nrow(all_orgs_filtered))
+})
 
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
