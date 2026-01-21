@@ -111,6 +111,18 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
                nrow(result_all_features$ATTAINS_catchments))
 })
 
+testthat::test_that("fetchATTAINS org_id parameter", {
+  # Test when non-default (default is 'all')
+  org <- "MTDEQ"
+  testthat::expect_no_error(org_result <- EPATADA:::fetchATTAINS(.data = small_bbox_data,
+                                                                 org_id = org)
+                            )
+  # Test against normal result when filtered on org_id
+  all_orgs <- result_all_features$ATTAINS_catchments["organizationid"==org]
+  expect_equal(nrow(org_result$ATTAINS_catchments),
+               nrow(all_orgs))
+  result_all_features
+
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
