@@ -2155,6 +2155,8 @@ TADA_GetATTAINSByAUID <- function(
   # create TADA_with_ATTAINS df for list output
   TADA_with_ATTAINS <- filt.data
 
+  # NEED to figure out what should happen here when no geometry is found (HRM note: 1/21/26)
+
   # create list of tada prefix columns
   tada.cols <- colnames(TADA_with_ATTAINS)
 
