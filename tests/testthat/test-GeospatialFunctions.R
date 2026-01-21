@@ -98,35 +98,19 @@ testthat::test_that("fetchATTAINS handles large areas", {
   expect_equal(nrow(result_all_features$ATTAINS_catchments), 46)
 })
 
-testthat::test_that("fetchATTAINS handles catchments_only parameter", {
-  # Create a small valid dataset
-  valid_data <- Data_6Tribes_5y_Harmonized |>
-    dplyr::filter(OrganizationIdentifier %in% "PUEBLOOFTESUQUE")
-
-  # Test with catchments_only = TRUE
+testthat::test_that("fetchATTAINS catchments_only parameter", {
   testthat::expect_no_error(
-    result_catchments_only <- EPATADA:::fetchATTAINS(
-      .data = valid_data,
-      catchments_only = TRUE
-    )
+    result_catchments_only <- EPATADA:::fetchATTAINS(.data = small_bbox_data,
+                                                    catchments_only = TRUE)
   )
-
-  # Test with catchments_only = FALSE
-  testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(
-      .data = valid_data,
-      catchments_only = FALSE
-    )
-  )
-
-  # If we got data back, check that catchments_only returns fewer elements
-  if (!is.null(result_catchments_only) && !is.null(result_all_features)) {
-    testthat::expect_lte(
-      length(result_catchments_only),
-      length(result_all_features)
-    )
-  }
+  expect_equal(nrow(result_catchments_only$ATTAINS_points), 0)
+  expect_equal(nrow(result_catchments_only$ATTAINS_lines), 0)
+  expect_equal(nrow(result_catchments_only$ATTAINS_polygons), 0)
+  # Compare against catchments_only = FALSE (default)
+  expect_equal(nrow(result_catchments_only$ATTAINS_catchments),
+               nrow(result_all_features$ATTAINS_catchments))
 })
+
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
