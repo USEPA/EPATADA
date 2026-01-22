@@ -11,11 +11,20 @@ checkForATTAINSGeo(
 )
 }
 \arguments{
-\item{lines_layer}{}
+\item{points_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit point geometry. When points_layer = NULL, the point
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
 
-\item{polygons_layer}{}
+\item{lines_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
 
-\item{@param}{points_layer}
+\item{polygons_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
 }
 \value{
 The function print a message if there is no ATTAINS assessment unit

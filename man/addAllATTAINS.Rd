@@ -22,6 +22,30 @@ addAllATTAINS(
 \item{map}{The TADA leaflet map to add the ATTAINS geometry to. Required, function
 will not run with map is missing or NULL. Default is map = NULL.}
 
+\item{points_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit point geometry. Default = NULL.}
+
+\item{polygons_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
+
+\item{lines_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+assessment units data are not used when searching for missing raw features.
+Default = NULL.}
+
+\item{catchment_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS catchment geometry. Default = NULL.}
+
+\item{outline_layer}{Optional data frame argument. Contains the data required to
+map catchments for monitoring locations not associated with an assessment unit.
+Default = NULL.}
+
+\item{missing_raw_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS catchments for ATTAINS assessment units that are missing geometry.
+Default = NULL.}
+
 \item{overlay_groups}{Initialized vector to add names of groups added to map. If
 it is NULL, the function will fail with an error message. Default is overlay_list
 = NULL.}
