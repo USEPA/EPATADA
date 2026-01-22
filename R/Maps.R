@@ -1030,7 +1030,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
     if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
       user.refs <- ATTAINS_table |>
-        dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
+        dplyr::filter(TADA.AURefSource %in% c("User-supplied Ref",
+                                              "ATTAINS Crosswalk")) |>
         dplyr::select(
           TADA.MonitoringLocationIdentifier,
           ATTAINS.AssessmentUnitIdentifier,
@@ -1040,7 +1041,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) |>
         dplyr::distinct()
 
-      # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+      # if any AUIDs were assigned by user or from ATTAINS cw check to see if they have matching geometry from ATTAINS
 
       if (dim(user.refs)[1] > 0) {
         # internal function to create list of auids

@@ -89,8 +89,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     }
 
     # Prepare the data for spatial transformation
-    sf <- dplyr::left_join(
-      .data,
+    sf <- .data |>
+      dplyr::select(-epsg) |>
+      dplyr::left_join(
       epsg_codes,
       by = "HorizontalCoordinateReferenceSystemDatumName"
     ) |>
@@ -1450,7 +1451,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
   suppressMessages(suppressWarnings({
     if (!is.null(.data) && inherits(.data, "sf")) {
       # Check CRS and transform if necessary
-      if (sf::st_crs(.data)$epsg != 4326) {
+      if (all(!is.na(.data$epsg) & .data$epsg != 4326)) {
         TADA_DataRetrieval_data <- .data |> sf::st_transform(4326)
       } else {
         TADA_DataRetrieval_data <- .data
@@ -2086,6 +2087,7 @@ TADA_GetATTAINSByAUID <- function(
   lines <- NULL
   polygons <- NULL
   catchments <- NULL
+  TADA_with_ATTAINS <- .data
 
   # Download associated point, line, polygon, and catchment features using list of auids
   try(
@@ -2120,6 +2122,19 @@ TADA_GetATTAINSByAUID <- function(
     ),
     silent = TRUE
   )
+
+  if (nrow(lines) == 0 & nrow(points) == 0 & nrow(polygons) == 0) {
+
+    final_features <- list(
+      "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+      "ATTAINS_catchments" = catchments,
+      "ATTAINS_points" = points,
+      "ATTAINS_lines" = lines,
+      "ATTAINS_polygons" = polygons
+    )
+
+    return(final_features)
+  }
 
   try(
     points <- points |>
@@ -3608,6 +3623,40 @@ TADA_CreateAUMLCrosswalk <- function(
         fill_ATTAINS_catch = fill_ATTAINS_catch
       ))
     }
+
+    # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
+    # set up user ref for join
+    attains.cw.aus <- attains.cw |>
+      dplyr::select(
+        ATTAINS.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier
+      ) |>
+      dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in%  attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier) |>
+      dplyr::rename(
+        TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+        Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+      ) |>
+      dplyr::distinct()
+
+    # replace NA AUIDs with AUID from ATTAINS ref where possible
+    attains.matches$TADA_with_ATTAINS
+
+    attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
+      dplyr::left_join(attains.cw.aus, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
+      dplyr::mutate(
+        ATTAINS.AssessmentUnitIdentifier = ifelse(
+            !is.na(Ref.AssessmentUnitIdentifier),
+          Ref.AssessmentUnitIdentifier,
+          NA
+        ),
+        TADA.AURefSource = ifelse(
+            !is.na(Ref.AssessmentUnitIdentifier),
+          "ATTAINS Crosswalk",
+          NA
+      )) |>
+      dplyr::select(-Ref.AssessmentUnitIdentifier) |>
+      dplyr::distinct() |>
+      correctColType()
 
     # remove intermediate objects
     rm(attains.cw)
