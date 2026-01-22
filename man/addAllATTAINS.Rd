@@ -7,7 +7,7 @@ Internal function to add all ATTAINS assessment units (lines, points, or polygon
 ATTAINS catchments (polygons) to TADA maps.}
 \usage{
 addAllATTAINS(
-  map,
+  map = NULL,
   points_layer = NULL,
   polygons_layer = NULL,
   lines_layer = NULL,
@@ -19,6 +19,9 @@ addAllATTAINS(
 )
 }
 \arguments{
+\item{map}{The TADA leaflet map to add the ATTAINS geometry to. Required, function
+will not run with map is missing or NULL. Default is map = NULL.}
+
 \item{overlay_groups}{Initialized vector to add names of groups added to map. If
 it is NULL, the function will fail with an error message. Default is overlay_list
 = NULL.}
@@ -30,7 +33,7 @@ and fetch the list. Default is icons = NULL. This argument is only applied to
 for point assessment units.}
 
 \item{.data}{A data frame created using prepATTAINSMapper (must contain a geometry
-column).}
+column)}
 
 \item{catchment}{Boolean argument. Specifies whether the geometries being
 mapped are catchments or assessment units to determine color and other attributes.

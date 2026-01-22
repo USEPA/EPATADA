@@ -395,7 +395,10 @@ addATTAINS <- function(
 #' ATTAINS catchments (polygons) to TADA maps.
 #'
 #' @param .data A data frame created using prepATTAINSMapper (must contain a geometry
-#' column).
+#' column)
+#'
+#' @param map The TADA leaflet map to add the ATTAINS geometry to. Required, function
+#' will not run with map is missing or NULL. Default is map = NULL.
 #'
 #' @param overlay_groups Initialized vector to add names of groups added to map. If
 #' it is NULL, the function will fail with an error message. Default is overlay_list
@@ -417,11 +420,35 @@ addATTAINS <- function(
 #' (missing_raw = TRUE) or catchments containing assessment unit features
 #' (missing_raw = FALSE). Default is missing_raw = FALSE.
 #'
+#' @param lines_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
+#'
+#' @param polygons_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
+#'
+#' @param points_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit point geometry. Default = NULL.
+#'
+#' @param catchment_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS catchment geometry. Default = NULL.
+#'
+#' @param outline_layer Optional data frame argument. Contains the data required to
+#' map catchments for monitoring locations not associated with an assessment unit.
+#' Default = NULL.
+#'
+#' @param missing_raw_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS catchments for ATTAINS assessment units that are missing geometry.
+#' Default = NULL.
+#'
 #' @return ATTAINS geometry correctly formatted for display in a TADA leaflet map.
 #'
 # add all ATTAINS geometries to map
 addAllATTAINS <- function(
-  map,
+  map = NULL,
   points_layer = NULL,
   polygons_layer = NULL,
   lines_layer = NULL,
@@ -432,7 +459,7 @@ addAllATTAINS <- function(
   icons = NULL
 ) {
   # ensure map is provided
-  if (missing(map)) {
+  if (missing(map) | is.null(map)) {
     stop("addAllATTAINS: Argument 'map' is required.")
   }
 
@@ -1776,11 +1803,21 @@ checkTADAColsForMap <- function(.data, attains = FALSE) {
 #' return an error message if no ATTAINS assessment unit geometry is present. For
 #' use in TADA leaflet mapping functions that rely on ATTAINS geometry.
 #'
-#' @param @param points_layer
 #'
-#' @param lines_layer
+#' @param lines_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit line geometry. When lines_layer = NULL, the line
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
 #'
-#' @param polygons_layer
+#' @param polygons_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit polygon geometry. When polygons_layer = NULL, the polygon
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
+#'
+#' @param points_layer Optional data frame argument. Contains the data required to
+#' map ATTAINS assessment unit point geometry. When points_layer = NULL, the point
+#' assessment units data are not used when searching for missing raw features.
+#' Default = NULL.
 #'
 #' @return The function print a message if there is no ATTAINS assessment unit
 #' geometry.
