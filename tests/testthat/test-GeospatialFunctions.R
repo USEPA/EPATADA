@@ -127,20 +127,26 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
 
 testthat::test_that("fetchNHD with valid non-default features params", {
   testthat::expect_no_error(
-    flines <- EPATADA:::fetchNHD(.data = small_bbox_data, features = "flowlines")
+    flines <- EPATADA:::fetchNHD(
+      .data = small_bbox_data,
+      features = "flowlines"
+    )
   )
-  expect_equal(nrow(flines), 6)  # Expected results
+  expect_equal(nrow(flines), 6) # Expected results
   testthat::expect_no_error(
-    waterbodies <- EPATADA:::fetchNHD(.data = small_bbox_data, features = "waterbodies")
+    waterbodies <- EPATADA:::fetchNHD(
+      .data = small_bbox_data,
+      features = "waterbodies"
+    )
   )
-  expect_equal(nrow(waterbodies), 0)   # Expected results
+  expect_equal(nrow(waterbodies), 0) # Expected results
 })
 
 testthat::test_that("fetchNHD with valid non-default resolution param Med", {
   testthat::expect_no_error(
     med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
   )
-  expect_equal(nrow(med_cat), 2)  # Expected results
+  expect_equal(nrow(med_cat), 2) # Expected results
 })
 
 testthat::test_that("fetchNHD error when invalid features param", {
@@ -154,7 +160,7 @@ testthat::test_that("fetchNHD error when invalid resolution param", {
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
     'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
-    )
+  )
 })
 
 
