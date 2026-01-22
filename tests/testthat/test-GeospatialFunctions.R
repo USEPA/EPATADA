@@ -115,8 +115,10 @@ testthat::test_that("fetchATTAINS handles large areas", {
 
 testthat::test_that("fetchATTAINS catchments_only parameter", {
   testthat::expect_no_error(
-    result_catchments_only <- EPATADA:::fetchATTAINS(.data = small_bbox_data,
-                                                    catchments_only = TRUE)
+    result_catchments_only <- EPATADA:::fetchATTAINS(
+      .data = small_bbox_data,
+      catchments_only = TRUE
+    )
   )
   expect_equal(nrow(result_catchments_only$ATTAINS_points), 0)
   expect_equal(nrow(result_catchments_only$ATTAINS_lines), 0)
