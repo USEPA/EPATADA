@@ -115,6 +115,17 @@ testthat::test_that("fetchATTAINS handles catchments_only parameter", {
   }
 })
 
+
+testthat::test_that("fetchNHD handles small areas with defaults", {
+  # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
+  )
+  # Expect 16 catchments to come back
+  expect_equal(nrow(small_bbox_data), 16)
+})
+
+
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
   mock_attains_data <- TADA_dataframe
