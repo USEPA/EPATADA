@@ -3559,7 +3559,7 @@ TADA_CreateAUMLCrosswalk <- function(
 
       # we could remove or make this step optional, but it is helpful for making sure
       # monitoring location identifiers are WQP compatible
-      TADA_UpdateATTAINSAUMLCrosswalk(
+      attains.cw <- TADA_UpdateATTAINSAUMLCrosswalk(
         org_id = org_id,
         crosswalk = attains.cw,
         attains_replace = TRUE
@@ -3625,6 +3625,9 @@ TADA_CreateAUMLCrosswalk <- function(
         ))
       }
 
+      # check to see if there are any relevant AU/ML pairs
+      if(nrow(attains.cw) > 0) {
+
       # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
       # set up user ref for join
       attains.cw.aus <- attains.cw |>
@@ -3640,7 +3643,6 @@ TADA_CreateAUMLCrosswalk <- function(
         dplyr::distinct()
 
       # replace NA AUIDs with AUID from ATTAINS ref where possible
-      attains.matches$TADA_with_ATTAINS
 
       attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
         dplyr::left_join(attains.cw.aus, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
@@ -3662,6 +3664,7 @@ TADA_CreateAUMLCrosswalk <- function(
       # remove intermediate objects
       if (exists("attains.cw", inherits = FALSE)) {
         rm("attains.cw")
+      }
       }
     }
   }
