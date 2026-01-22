@@ -125,6 +125,17 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
   expect_equal(nrow(small_bbox_data), 16)
 })
 
+testthat::test_that("fetchNHD with valid non-default features params", {
+  testthat::expect_no_error(
+    flines <- EPATADA:::fetchNHD(.data = small_bbox_data, features = "flowlines")
+  )
+  expect_equal(nrow(flines), 6)  # Expected results
+  testthat::expect_no_error(
+    waterbodies <- EPATADA:::fetchNHD(.data = small_bbox_data, features = "waterbodies")
+  )
+  expect_equal(nrow(waterbodies), 0)   # Expected results
+})
+    
 testthat::test_that("fetchNHD error when invalid features param", {
   testthat::expect_error(
     EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
