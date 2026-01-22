@@ -92,9 +92,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     sf <- .data |>
       dplyr::select(-dplyr::any_of("epsg")) |>
       dplyr::left_join(
-      epsg_codes,
-      by = "HorizontalCoordinateReferenceSystemDatumName"
-    ) |>
+        epsg_codes,
+        by = "HorizontalCoordinateReferenceSystemDatumName"
+      ) |>
       dplyr::mutate(
         lat = as.numeric(TADA.LatitudeMeasure),
         lon = as.numeric(TADA.LongitudeMeasure)
@@ -340,9 +340,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
+                                             points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
@@ -3554,116 +3554,116 @@ TADA_CreateAUMLCrosswalk <- function(
     rm(org.text, record.count, count.text)
 
 
-  if (dim(attains.cw)[1] > 0) {
-    print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
+    if (dim(attains.cw)[1] > 0) {
+      print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
 
-    # we could remove or make this step optional, but it is helpful for making sure
-    # monitoring location identifiers are WQP compatible
-    TADA_UpdateATTAINSAUMLCrosswalk(
-      org_id = org_id,
-      crosswalk = attains.cw,
-      attains_replace = TRUE
-    )
-
-    # create list of monitoring location identifiers from TADA df
-    tada.mls <- .data |>
-      dplyr::select(TADA.MonitoringLocationIdentifier) |>
-      dplyr::distinct() |>
-      dplyr::pull()
-
-    # filter attains.cw to remove any assessment units that don't have a monitoring location
-    # match in the TADA df
-    attains.cw <- attains.cw |>
-      dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
-
-    # remove intermediate object
-    rm(tada.mls)
-
-    # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
-    if (!is.null(au_ref)) {
-      attains.cw.mls <- .data |>
-        dplyr::filter(
-          !TADA.MonitoringLocationIdentifier %in%
-            au.ref.mls$TADA.MonitoringLocationIdentifier,
-          TADA.MonitoringLocationIdentifier %in%
-            attains.cw$ATTAINS.MonitoringLocationIdentifier
-        )
-    }
-
-    # if au_ref was not provided  by user, retain all records that match ATTAINS ref
-    if (is.null(au_ref)) {
-      attains.cw.mls <- .data |>
-        dplyr::filter(
-          TADA.MonitoringLocationIdentifier %in%
-            attains.cw$ATTAINS.MonitoringLocationIdentifier
-        )
-    }
-
-    # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
-    if (dim(attains.cw.mls)[1] == 0) {
-      attains.matches <- list(
-        "TADA_with_ATTAINS" = NULL,
-        "ATTAINS_catchments" = NULL,
-        "ATTAINS_points" = NULL,
-        "ATTAINS_lines" = NULL,
-        "ATTAINS_polygons" = NULL
+      # we could remove or make this step optional, but it is helpful for making sure
+      # monitoring location identifiers are WQP compatible
+      TADA_UpdateATTAINSAUMLCrosswalk(
+        org_id = org_id,
+        crosswalk = attains.cw,
+        attains_replace = TRUE
       )
-    } else {
-      # add source column for ATTAINS Crosswalk matched records
-      attains.cw.mls <- attains.cw.mls |>
-        dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
 
-      print(paste0(
-        "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-        "for assessment units from the ATTAINS crosswalk."
-      ))
-      # get geospatial data for attains cw monitoring locations
-      attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
-        attains.cw.mls,
-        au_ref = attains.cw,
-        fill_ATTAINS_catch = fill_ATTAINS_catch
-      ))
-    }
+      # create list of monitoring location identifiers from TADA df
+      tada.mls <- .data |>
+        dplyr::select(TADA.MonitoringLocationIdentifier) |>
+        dplyr::distinct() |>
+        dplyr::pull()
 
-    # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
-    # set up user ref for join
-    attains.cw.aus <- attains.cw |>
-      dplyr::select(
-        ATTAINS.MonitoringLocationIdentifier,
-        ATTAINS.AssessmentUnitIdentifier
-      ) |>
-      dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in%  attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier) |>
-      dplyr::rename(
-        TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-        Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
-      ) |>
-      dplyr::distinct()
+      # filter attains.cw to remove any assessment units that don't have a monitoring location
+      # match in the TADA df
+      attains.cw <- attains.cw |>
+        dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
 
-    # replace NA AUIDs with AUID from ATTAINS ref where possible
-    attains.matches$TADA_with_ATTAINS
+      # remove intermediate object
+      rm(tada.mls)
 
-    attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
-      dplyr::left_join(attains.cw.aus, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
-      dplyr::mutate(
-        ATTAINS.AssessmentUnitIdentifier = ifelse(
+      # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
+      if (!is.null(au_ref)) {
+        attains.cw.mls <- .data |>
+          dplyr::filter(
+            !TADA.MonitoringLocationIdentifier %in%
+              au.ref.mls$TADA.MonitoringLocationIdentifier,
+            TADA.MonitoringLocationIdentifier %in%
+              attains.cw$ATTAINS.MonitoringLocationIdentifier
+          )
+      }
+
+      # if au_ref was not provided  by user, retain all records that match ATTAINS ref
+      if (is.null(au_ref)) {
+        attains.cw.mls <- .data |>
+          dplyr::filter(
+            TADA.MonitoringLocationIdentifier %in%
+              attains.cw$ATTAINS.MonitoringLocationIdentifier
+          )
+      }
+
+      # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
+      if (dim(attains.cw.mls)[1] == 0) {
+        attains.matches <- list(
+          "TADA_with_ATTAINS" = NULL,
+          "ATTAINS_catchments" = NULL,
+          "ATTAINS_points" = NULL,
+          "ATTAINS_lines" = NULL,
+          "ATTAINS_polygons" = NULL
+        )
+      } else {
+        # add source column for ATTAINS Crosswalk matched records
+        attains.cw.mls <- attains.cw.mls |>
+          dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
+
+        print(paste0(
+          "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+          "for assessment units from the ATTAINS crosswalk."
+        ))
+        # get geospatial data for attains cw monitoring locations
+        attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
+          attains.cw.mls,
+          au_ref = attains.cw,
+          fill_ATTAINS_catch = fill_ATTAINS_catch
+        ))
+      }
+
+      # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
+      # set up user ref for join
+      attains.cw.aus <- attains.cw |>
+        dplyr::select(
+          ATTAINS.MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier
+        ) |>
+        dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in%  attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier) |>
+        dplyr::rename(
+          TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+          Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+        ) |>
+        dplyr::distinct()
+
+      # replace NA AUIDs with AUID from ATTAINS ref where possible
+      attains.matches$TADA_with_ATTAINS
+
+      attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
+        dplyr::left_join(attains.cw.aus, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
+        dplyr::mutate(
+          ATTAINS.AssessmentUnitIdentifier = ifelse(
             !is.na(Ref.AssessmentUnitIdentifier),
-          Ref.AssessmentUnitIdentifier,
-          NA
-        ),
-        TADA.AURefSource = ifelse(
+            Ref.AssessmentUnitIdentifier,
+            NA
+          ),
+          TADA.AURefSource = ifelse(
             !is.na(Ref.AssessmentUnitIdentifier),
-          "ATTAINS Crosswalk",
-          NA
-      )) |>
-      dplyr::select(-Ref.AssessmentUnitIdentifier) |>
-      dplyr::distinct() |>
-      correctColType()
+            "ATTAINS Crosswalk",
+            NA
+        )) |>
+        dplyr::select(-Ref.AssessmentUnitIdentifier) |>
+        dplyr::distinct() |>
+        correctColType()
 
-    # remove intermediate objects
-    if (exists("attains.cw", inherits = FALSE)) {
-      rm("attains.cw")
+      # remove intermediate objects
+      if (exists("attains.cw", inherits = FALSE)) {
+        rm("attains.cw")
+      }
     }
-  }
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section

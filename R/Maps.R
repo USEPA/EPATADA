@@ -1031,7 +1031,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
       user.refs <- ATTAINS_table |>
         dplyr::filter(TADA.AURefSource %in% c("User-supplied Ref",
-                                              "ATTAINS Crosswalk")) |>
+          "ATTAINS Crosswalk")) |>
         dplyr::select(
           TADA.MonitoringLocationIdentifier,
           ATTAINS.AssessmentUnitIdentifier,
