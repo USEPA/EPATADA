@@ -90,7 +90,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 
     # Prepare the data for spatial transformation
     sf <- .data |>
-      dplyr::select(-epsg) |>
+      dplyr::select(-dplyr::any_of("epsg")) |>
       dplyr::left_join(
       epsg_codes,
       by = "HorizontalCoordinateReferenceSystemDatumName"
@@ -3509,6 +3509,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (!is.null(org_id)) {
     if (org_id == "none" | is.null(org_id)) {
+
       print(paste0(
         "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
         "should not be checked for monitoring location and assessment unit matches."
@@ -3551,7 +3552,7 @@ TADA_CreateAUMLCrosswalk <- function(
     ))
 
     rm(org.text, record.count, count.text)
-  }
+
 
   if (dim(attains.cw)[1] > 0) {
     print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
@@ -3659,7 +3660,10 @@ TADA_CreateAUMLCrosswalk <- function(
       correctColType()
 
     # remove intermediate objects
-    rm(attains.cw)
+    if (exists("attains.cw", inherits = FALSE)) {
+      rm("attains.cw")
+    }
+  }
   }
 
   # TADA_CreateATTAINSAUMLCrosswalk section
@@ -3714,6 +3718,13 @@ TADA_CreateAUMLCrosswalk <- function(
     # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
     get.attains.mls <- get.attains.mls |>
       dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
+
+    # set org id for pulling cw from ATTAINS
+    org_id <- if(org_id == "none") {
+
+      # set org id to all so that geospatial data from all orgs are considered
+      org_id <- "all"
+    }
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
