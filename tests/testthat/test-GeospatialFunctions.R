@@ -141,12 +141,15 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     )
   )
   # Test against normal result when filtered on org_id
-  all_org_results <- EPATADA:::fetchATTAINS(.data = RI_CT_secchi,
-                                            catchments_only = TRUE)
-  all_orgs_filtered <- all_org_results$ATTAINS_catchments["organizationid"==org]
+  all_org_results <- EPATADA:::fetchATTAINS(
+    .data = RI_CT_secchi,
+    catchments_only = TRUE
+  )
+  all_orgs_filtered <- all_org_results$ATTAINS_catchments[
+    "organizationid" == org
+  ]
   # Compare the two sets of results (should be same)
-  expect_equal(nrow(org_results$ATTAINS_catchments),
-               nrow(all_orgs_filtered))
+  expect_equal(nrow(org_results$ATTAINS_catchments), nrow(all_orgs_filtered))
 })
 
 
