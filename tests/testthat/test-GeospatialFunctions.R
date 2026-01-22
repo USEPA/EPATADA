@@ -133,10 +133,13 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
 testthat::test_that("fetchATTAINS org_id parameter", {
   # Test when non-default (default is 'all')
   org <- "RIDEM"
-  testthat::expect_no_error(org_results <- EPATADA:::fetchATTAINS(.data = RI_CT_secchi,
-                                                                  catchments_only = TRUE,
-                                                                  org_id = org)
-                            )
+  testthat::expect_no_error(
+    org_results <- EPATADA:::fetchATTAINS(
+      .data = RI_CT_secchi,
+      catchments_only = TRUE,
+      org_id = org
+    )
+  )
   # Test against normal result when filtered on org_id
   all_org_results <- EPATADA:::fetchATTAINS(.data = RI_CT_secchi,
                                             catchments_only = TRUE)
