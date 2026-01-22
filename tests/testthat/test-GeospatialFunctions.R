@@ -124,8 +124,10 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
   expect_equal(nrow(result_catchments_only$ATTAINS_lines), 0)
   expect_equal(nrow(result_catchments_only$ATTAINS_polygons), 0)
   # Compare against catchments_only = FALSE (default)
-  expect_equal(nrow(result_catchments_only$ATTAINS_catchments),
-               nrow(result_all_features$ATTAINS_catchments))
+  expect_equal(
+    nrow(result_catchments_only$ATTAINS_catchments),
+    nrow(result_all_features$ATTAINS_catchments)
+  )
 })
 
 testthat::test_that("fetchATTAINS org_id parameter", {
