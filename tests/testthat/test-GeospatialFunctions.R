@@ -125,6 +125,13 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
   expect_equal(nrow(small_bbox_data), 16)
 })
 
+testthat::test_that("fetchNHD error when invalid features param", {
+  testthat::expect_error(
+    EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
+    "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+  )
+})
+
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
