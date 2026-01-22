@@ -122,9 +122,9 @@ testthat::test_that("fetchATTAINS catchments_only parameter", {
       catchments_only = TRUE
     )
   )
-  expect_equal(nrow(result_catchments_only$ATTAINS_points), 0)
-  expect_equal(nrow(result_catchments_only$ATTAINS_lines), 0)
-  expect_equal(nrow(result_catchments_only$ATTAINS_polygons), 0)
+  expect_null(nrow(result_catchments_only$ATTAINS_points))
+  expect_null(nrow(result_catchments_only$ATTAINS_lines))
+  expect_null(nrow(result_catchments_only$ATTAINS_polygons))
   # Compare against catchments_only = FALSE (default)
   expect_equal(
     nrow(result_catchments_only$ATTAINS_catchments), expect_cat_n_small)
