@@ -340,9 +340,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-                                             points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
@@ -2124,7 +2124,6 @@ TADA_GetATTAINSByAUID <- function(
   )
 
   if (nrow(lines) == 0 & nrow(points) == 0 & nrow(polygons) == 0) {
-
     final_features <- list(
       "TADA_with_ATTAINS" = TADA_with_ATTAINS,
       "ATTAINS_catchments" = catchments,
@@ -3509,7 +3508,6 @@ TADA_CreateAUMLCrosswalk <- function(
   # if no org id is provided, no crosswalk is imported from ATTAINS
   if (!is.null(org_id)) {
     if (org_id == "none" | is.null(org_id)) {
-
       print(paste0(
         "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
         "should not be checked for monitoring location and assessment unit matches."
@@ -3553,9 +3551,10 @@ TADA_CreateAUMLCrosswalk <- function(
 
     rm(org.text, record.count, count.text)
 
-
     if (dim(attains.cw)[1] > 0) {
-      print("TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported.")
+      print(
+        "TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported."
+      )
 
       # we could remove or make this step optional, but it is helpful for making sure
       # monitoring location identifiers are WQP compatible
@@ -3632,7 +3631,10 @@ TADA_CreateAUMLCrosswalk <- function(
           ATTAINS.MonitoringLocationIdentifier,
           ATTAINS.AssessmentUnitIdentifier
         ) |>
-        dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in%  attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier) |>
+        dplyr::filter(
+          ATTAINS.MonitoringLocationIdentifier %in%
+            attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier
+        ) |>
         dplyr::rename(
           TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
           Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
@@ -3643,7 +3645,10 @@ TADA_CreateAUMLCrosswalk <- function(
       attains.matches$TADA_with_ATTAINS
 
       attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
-        dplyr::left_join(attains.cw.aus, by = dplyr::join_by(TADA.MonitoringLocationIdentifier)) |>
+        dplyr::left_join(
+          attains.cw.aus,
+          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+        ) |>
         dplyr::mutate(
           ATTAINS.AssessmentUnitIdentifier = ifelse(
             !is.na(Ref.AssessmentUnitIdentifier),
@@ -3654,7 +3659,8 @@ TADA_CreateAUMLCrosswalk <- function(
             !is.na(Ref.AssessmentUnitIdentifier),
             "ATTAINS Crosswalk",
             NA
-        )) |>
+          )
+        ) |>
         dplyr::select(-Ref.AssessmentUnitIdentifier) |>
         dplyr::distinct() |>
         correctColType()
@@ -3720,8 +3726,7 @@ TADA_CreateAUMLCrosswalk <- function(
       dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
     # set org id for pulling cw from ATTAINS
-    org_id <- if(org_id == "none") {
-
+    org_id <- if (org_id == "none") {
       # set org id to all so that geospatial data from all orgs are considered
       org_id <- "all"
     }
