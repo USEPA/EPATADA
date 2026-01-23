@@ -3732,6 +3732,8 @@ TADA_CreateAUMLCrosswalk <- function(
     org_id <- if (org_id == "none") {
       # set org id to all so that geospatial data from all orgs are considered
       org_id <- "all"
+    } else {
+      org_id <- org_id
     }
 
     # use get attains for matching remaining monitoring locations
