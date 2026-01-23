@@ -31,7 +31,6 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
-Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -67,6 +66,7 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -323,6 +323,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADAColTypeRef
 TADACommunityHub
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -525,6 +526,7 @@ tada
 terra
 testthat
 th
+tibble
 tidyverse
 tigris
 tmap
