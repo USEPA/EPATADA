@@ -1,7 +1,7 @@
 # TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review
 
-This function prioritizes matching the use names between the ATTAINS
-use_name domain and the Criteria Search Tool (CST) uses. It achieves
+This function prioritizes matching the use name's type for the ATTAINS
+use_name domain with the Criteria Search Tool (CST) uses. It achieves
 this by aligning the context2 field from the ATTAINS use_name domain,
 which acts as a uses category, with the Human Health and Aquatic Life
 column indicators from the CST.
@@ -53,7 +53,14 @@ extracting individual words from each use domain string and calculating
 the percentage of words that match between each ATTAINS use and CST use.
 Users are advised to review this uses alias table and adjust their
 tolerance levels as desired to determine the accuracy of the crosswalk.
-Many-to-many matches may occur and will require thorough review. Users
+
+Lastly, if no use matches are found between ATTAINS and the CST, but an
+ATTAINS parameter matches a CST standard pollutant name for the
+organization, return all CST uses for each distinct ATTAINS use name.
+Users must then select the appropriate CST magnitude value(s) to
+populate for each ATTAINS parameter–use combination.
+
+Many-to-many matches are likely and will require thorough review. Users
 should be aware that a CST use may be duplicated for each
 ATTAINS.UseName. It is the user's responsibility to ensure that CST uses
 are appropriately matched to ATTAINS.UseName.
