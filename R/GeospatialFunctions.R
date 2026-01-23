@@ -3839,13 +3839,15 @@ TADA_CreateAUMLCrosswalk <- function(
 
     return(df)
   }
+
   # create TADA_with_ATTAINS for output list
   TADA_with_ATTAINS <- outputPrep(
     df.name = "TADA_with_ATTAINS",
     user = user.matches,
     attains = attains.matches,
     get.attains = get.attains.matches
-  )
+  ) |>
+    dplyr::full_join(.data)
 
   # create ATTAINS_catchments for output list
   ATTAINS_catchments <- outputPrep(
