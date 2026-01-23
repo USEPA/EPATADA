@@ -414,7 +414,7 @@ addATTAINS <- function(
 #' mapped are catchments or assessment units to determine color and other attributes.
 #' Default is catchment = FALSE, meaning that assessment units are being mapped.
 #'
-#' @param missing_raw Boolean argument. Evaluated when catchment = TRUE to determine
+#' @param missing_raw_layer Boolean argument. Evaluated when catchment = TRUE to determine
 #' if the catchments being mapped are those corresponding to assessment units that
 #' are missing point/line/polygon data but still preserved in the catchment layer
 #' (missing_raw = TRUE) or catchments containing assessment unit features
@@ -785,7 +785,7 @@ prepAllATTAINSMapper <- function(
   lines_layer = NULL,
   polygons_layer = NULL,
   points_layer = NULL,
-  # catch_layer = NULL,
+  catchment_layer = NULL,
   color_ref = NULL,
   auid_list = NULL
 ) {
@@ -1346,8 +1346,7 @@ addWQPSites <- function(
 #' @param .data A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 #' or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs)
 #' or a subsetted TADA data frame containing all columns required for building map
-#' and pop up (Note: Add list of required columns (HRM 1/5/26)). Needs to be in sumdat
-#' format or getWQPSiteStats will be run.
+#' and pop up (Note: Add list of required columns (HRM 1/5/26)).
 #'
 #' @param map A leaflet map of TADA data to add the legend to.
 #'
@@ -1397,6 +1396,7 @@ addWQPSites <- function(
 #'
 # add ATTAINS geometry to existing leaflet map
 addTADAMapLegend <- function(
+  .data,
   map = NULL,
   icons = NULL,
   icon_labels = NULL,
