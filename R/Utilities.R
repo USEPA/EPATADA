@@ -2379,7 +2379,7 @@ correctColType <- function(.data) {
         "integer" = as.integer(.data[[col.name]]),
         "logical" = as.logical(.data[[col.name]]),
         "factor" = as.factor(.data[[col.name]]),
-        "date" = as.Date(.data[[col.name]])
+        "date" = as.Date(.data[[col.name]], format = "%b %d")
       )
     }
   }
