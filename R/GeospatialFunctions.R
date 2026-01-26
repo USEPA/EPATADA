@@ -3621,56 +3621,51 @@ TADA_CreateAUMLCrosswalk <- function(
           attains.cw.mls,
           au_ref = attains.cw,
           fill_ATTAINS_catch = fill_ATTAINS_catch
-        ))
-      }
+      if (nrow(attains.cw) > 0) {
+        # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
+        # set up user ref for join
+        attains.cw.aus <- attains.cw |>
+          dplyr::select(
+            ATTAINS.MonitoringLocationIdentifier,
+            ATTAINS.AssessmentUnitIdentifier
+          ) |>
+          dplyr::filter(
+            ATTAINS.MonitoringLocationIdentifier %in%
+              attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier
+          ) |>
+          dplyr::rename(
+            TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+            Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+          ) |>
+          dplyr::distinct()
 
-      # check to see if there are any relevant AU/ML pairs
-      if(nrow(attains.cw) > 0) {
+        # replace NA AUIDs with AUID from ATTAINS ref where possible
 
-      # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
-      # set up user ref for join
-      attains.cw.aus <- attains.cw |>
-        dplyr::select(
-          ATTAINS.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier
-        ) |>
-        dplyr::filter(
-          ATTAINS.MonitoringLocationIdentifier %in%
-            attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier
-        ) |>
-        dplyr::rename(
-          TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-          Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
-        ) |>
-        dplyr::distinct()
+        attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
+          dplyr::left_join(
+            attains.cw.aus,
+            by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+          ) |>
+          dplyr::mutate(
+            ATTAINS.AssessmentUnitIdentifier = ifelse(
+              !is.na(Ref.AssessmentUnitIdentifier),
+              Ref.AssessmentUnitIdentifier,
+              NA
+            ),
+            TADA.AURefSource = ifelse(
+              !is.na(Ref.AssessmentUnitIdentifier),
+              "ATTAINS Crosswalk",
+              NA
+            )
+          ) |>
+          dplyr::select(-Ref.AssessmentUnitIdentifier) |>
+          dplyr::distinct() |>
+          correctColType()
 
-      # replace NA AUIDs with AUID from ATTAINS ref where possible
-
-      attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
-        dplyr::left_join(
-          attains.cw.aus,
-          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-        ) |>
-        dplyr::mutate(
-          ATTAINS.AssessmentUnitIdentifier = ifelse(
-            !is.na(Ref.AssessmentUnitIdentifier),
-            Ref.AssessmentUnitIdentifier,
-            NA
-          ),
-          TADA.AURefSource = ifelse(
-            !is.na(Ref.AssessmentUnitIdentifier),
-            "ATTAINS Crosswalk",
-            NA
-          )
-        ) |>
-        dplyr::select(-Ref.AssessmentUnitIdentifier) |>
-        dplyr::distinct() |>
-        correctColType()
-
-      # remove intermediate objects
-      if (exists("attains.cw", inherits = FALSE)) {
-        rm("attains.cw")
-      }
+        # remove intermediate objects
+        if (exists("attains.cw", inherits = FALSE)) {
+          rm("attains.cw")
+        }
       }
     }
   }
