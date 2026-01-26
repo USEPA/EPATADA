@@ -67,6 +67,7 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -324,6 +325,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADAColTypeRef
 TADACommunityHub
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -424,7 +426,6 @@ checkTADAColsForMap
 cleanNA
 coli
 comid
-correctColType
 countrycode
 countycode
 createBBox
@@ -524,8 +525,7 @@ ph
 pkgdown
 plotly
 pre
-prepATTAINSMapper
-prepAllATTAINSMapper
+qaqc
 rExpertQuery
 randombelowlimit
 rda
@@ -558,6 +558,7 @@ tada
 terra
 testthat
 th
+tibble
 tidyverse
 tigris
 tmap
