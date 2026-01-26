@@ -80,6 +80,9 @@
 - [`TADA_ConvertSpecialChars()`](usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.md)
   : TADA_ConvertSpecialChars
 
+- [`TADA_CorrectColType()`](usepa.github.io/EPATADA/reference/TADA_CorrectColType.md)
+  : TADA_CorrectColType
+
 - [`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
   : TADA_CreateATTAINSAUMLCrosswalk
 
@@ -377,9 +380,6 @@
 
 - [`checkColName()`](usepa.github.io/EPATADA/reference/checkColName.md)
   : checkColNames
-
-- [`correctColType()`](usepa.github.io/EPATADA/reference/correctColType.md)
-  : correctColType (UNDER ACTIVE DEVELOPMENT)
 
 - [`.TADA_UpdateExampleData()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
   : Update Example Data for EPATADA Package (Internal)

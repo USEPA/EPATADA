@@ -46,6 +46,7 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.html</loc></url>
+<url><loc>usepa.github.io/EPATADA/reference/TADA_CorrectColType.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/TADA_CreateCSV.html</loc></url>
@@ -140,7 +141,6 @@
 <url><loc>usepa.github.io/EPATADA/reference/TADA_addPolys.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/ask_user.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/checkColName.html</loc></url>
-<url><loc>usepa.github.io/EPATADA/reference/correctColType.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.html</loc></url>
 <url><loc>usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
