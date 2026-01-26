@@ -3662,7 +3662,7 @@ TADA_CreateAUMLCrosswalk <- function(
             ) |>
             dplyr::select(-Ref.AssessmentUnitIdentifier) |>
             dplyr::distinct() |>
-            correctColType()
+            TADA_CorrectColType()
         }
 
         # remove intermediate objects
