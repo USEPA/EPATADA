@@ -557,10 +557,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     )
 
     final_features <- list(
-      "ATTAINS_catchments" = catchment_features,
-      "ATTAINS_points" = points,
-      "ATTAINS_lines" = lines,
-      "ATTAINS_polygons" = polygons
+      "ATTAINS_catchments" = dplyr::distinct(catchment_features),
+      "ATTAINS_points" = dplyr::distinct(points),
+      "ATTAINS_lines" = dplyr::distinct(lines),
+      "ATTAINS_polygons" = dplyr::distinct(polygons)
     )
 
     return(final_features)
