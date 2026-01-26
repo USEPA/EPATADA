@@ -31,7 +31,6 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
-Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -67,6 +66,7 @@ ConversionFactor
 ConvertDepthUnits
 ConvertResultUnits
 ConvertSpecialChars
+CorrectColType
 CountyCode
 CreateATTAINSAUMLCrosswalk
 CreateAUMLCrosswalk
@@ -323,6 +323,7 @@ SummarizeColumn
 SuspectCoordinates
 Sys
 TADA
+TADAColTypeRef
 TADACommunityHub
 TADADataRetrieval
 TADAGeospatialRefLayers
@@ -409,7 +410,6 @@ checkColNames
 cleanNA
 coli
 comid
-correctColType
 countrycode
 countycode
 cristinamullin
@@ -496,6 +496,7 @@ ph
 pkgdown
 plotly
 pre
+qaqc
 rExpertQuery
 randombelowlimit
 rda
@@ -526,6 +527,7 @@ tada
 terra
 testthat
 th
+tibble
 tidyverse
 tigris
 tmap
