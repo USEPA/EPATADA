@@ -15,6 +15,8 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 # )
 # large_bbox_data
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
+# small area test as subset of large area
+small_bbox_data <- large_bbox_data[125:140, ]
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
@@ -74,6 +76,17 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
   )
 })
 
+testthat::test_that("fetchATTAINS handles small areas", {
+  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
+  )
+  expect_equal(nrow(result_all_features$ATTAINS_points), 0)
+  expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
+  expect_equal(nrow(result_all_features$ATTAINS_polygons), 0)
+  expect_equal(nrow(result_all_features$ATTAINS_catchments), 2)
+})
+
 testthat::test_that("fetchATTAINS handles large areas", {
   # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
@@ -82,7 +95,7 @@ testthat::test_that("fetchATTAINS handles large areas", {
   expect_equal(nrow(result_all_features$ATTAINS_points), 0)
   expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
   expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
-  expect_equal(nrow(result_all_features$ATTAINS_catchments), 59)
+  expect_equal(nrow(result_all_features$ATTAINS_catchments), 46)
 })
 
 testthat::test_that("fetchATTAINS handles catchments_only parameter", {

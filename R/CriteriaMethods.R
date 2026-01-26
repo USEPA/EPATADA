@@ -618,6 +618,10 @@ TADA_DefineCriteriaMethodology <- function(
           desired_cols # defined in beginning of code
         ) |>
         dplyr::arrange(ATTAINS.UseName) |>
+        tidyr::complete(
+          TADA.ComparableDataIdentifier,
+          ATTAINS.OrganizationIdentifier = org_id
+        ) |>
         dplyr::distinct()
 
       if (auto_assign == TRUE && !all(org_id == "USEPA")) {
@@ -629,14 +633,14 @@ TADA_DefineCriteriaMethodology <- function(
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
-            displayPercent = TRUE,
+            displayPercent = FALSE,
             ATTAINS.WQX.tolerance = 0.75,
             WQX.ATTAINS.tolerance = 0.75,
             ATTAINS.CST.tolerance = 0.75, # can change as desired for tolerance on matches
             CST.ATTAINS.tolerance = 0.75, # can change as desired for tolerance on matches
             includeCST = TRUE
           ) |>
-            dplyr::mutate(STD_POLLUTANT_NAME = toupper(STD_POLLUTANT_NAME))
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
           message(cat(paste(
@@ -678,14 +682,18 @@ TADA_DefineCriteriaMethodology <- function(
           # upper case all character columns for consistency
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
+
           # join the parameter and pollutant names from ATTAINS and CST
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::left_join(
               CST_ATTAINS_Param,
-              by = "ATTAINS.ParameterName",
+              by = c("TADA.CharacteristicName" = "CharacteristicName"),
               relationship = "many-to-many"
             ) |>
-            dplyr::mutate(ATTAINS.UseName = toupper(ATTAINS.UseName)) |>
+            dplyr::mutate(
+              ATTAINS.UseName = toupper(ATTAINS.UseName),
+              ATTAINS.ParameterName = ATTAINS.ParameterName.x
+            ) |>
             # Now join by ATTAINS uses and CST uses
             dplyr::left_join(
               uses,
@@ -847,15 +855,11 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
-        warning(paste(
+        warning(paste0(
           "Your user supplied criteriaMethods file is missing",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          "unique TADA.ComparableDataIdentifier(s)",
-          ": \n",
-          paste0(
-            unique(non_definedCriteria$TADA.ComparableDataIdentifier),
-            collapse = ", "
-          ),
+          "unique TADA.ComparableDataIdentifier(s):",
+          unique(non_definedCriteria$TADA.ComparableDataIdentifier),
           "without an ATTAINS.ParameterName crosswalk.",
           "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
@@ -921,10 +925,33 @@ TADA_DefineCriteriaMethodology <- function(
             non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
             definedCriteria[, i] <- as.character(definedCriteria[, i])
           } else if (desired_types[[i]] == "Date") {
-            non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i])
-            definedCriteria[, i] <- as.Date(definedCriteria[, i])
+            non_definedCriteria[, i] <- as.Date(
+              non_definedCriteria[, i],
+              format = "%b %d"
+            )
+            definedCriteria[, i] <- as.Date(
+              definedCriteria[, i],
+              format = "%b %d"
+            )
           }
         }
+      )
+      # format season dates to only contain MM-DD
+      non_definedCriteria$SeasonStartDate <- format(
+        non_definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      non_definedCriteria$SeasonEndDate <- format(
+        non_definedCriteria$SeasonEndDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonStartDate <- format(
+        definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonEndDate <- format(
+        definedCriteria$SeasonEndDate,
+        format = "%b %d"
       )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
@@ -1173,7 +1200,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 14,
       startRow = 1,
       # AcuteChronic
-      x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))
+      x = data.frame(AcuteChronic = c("A", "C", "NA"))
     )
 
     # get list of ATTAINS Water Types from ATTAINS
@@ -1203,7 +1230,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 11,
       startRow = 1,
       # SaltFresh
-      x = data.frame(SaltFresh = c("Salt", "Fresh", "NA"))
+      x = data.frame(SaltFresh = c("S", "F", "NA"))
     )
 
     openxlsx::writeData(
@@ -1286,7 +1313,9 @@ TADA_DefineCriteriaMethodology <- function(
           "arithmetic extremes",
           "geometric mean",
           "rolling geometric mean",
-          "rolling arithmetic mean"
+          "rolling arithmetic mean",
+          "mean of daily minima", # added 1/21/26 common only for DO it seems.
+          "mean of daily maxima" # added 1/21/26 common only for DO it seems.
         )
       )
     )
@@ -1355,25 +1384,39 @@ TADA_DefineCriteriaMethodology <- function(
       )
     )
 
+    # allowable values for ATTAINS.ParameterName (entire domain, not org specific)
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 3,
+      rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index'!$E$2:$E$60000"),
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+
+    # allowable values for ATTAINS.UseName (org specific)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 4,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
+      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-
+    # allowable value for TADA.ComparableDataIdentifier
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 5,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
+      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
