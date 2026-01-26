@@ -2043,8 +2043,6 @@ TADA_RenametoLegacy <- function(.data) {
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
 
-  rm(WqxV2.FieldName)
-
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
