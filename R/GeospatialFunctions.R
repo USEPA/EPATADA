@@ -3620,8 +3620,9 @@ TADA_CreateAUMLCrosswalk <- function(
         attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
           attains.cw.mls,
           au_ref = attains.cw,
-          fill_ATTAINS_catch = fill_ATTAINS_catch
-      if (nrow(attains.cw) > 0) {
+          fill_ATTAINS_catch = fill_ATTAINS_catch))
+
+        if (nrow(attains.cw) > 0) {
         # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
         # set up user ref for join
         attains.cw.aus <- attains.cw |>
@@ -3661,6 +3662,7 @@ TADA_CreateAUMLCrosswalk <- function(
           dplyr::select(-Ref.AssessmentUnitIdentifier) |>
           dplyr::distinct() |>
           correctColType()
+        }
 
         # remove intermediate objects
         if (exists("attains.cw", inherits = FALSE)) {
