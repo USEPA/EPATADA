@@ -2189,6 +2189,7 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
 
+    if(nrow(catchments) > 0) {
     # get one catchment per WQP location
     catchments.cw <- filt.data |>
       dplyr::select(
@@ -2221,17 +2222,20 @@ TADA_GetATTAINSByAUID <- function(
         ),
       silent = TRUE
     )
+    }
   }
 
   # internal function to combine attains.geo data
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
     geo.data <- geo.data |>
-      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
+      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) |>
+      correctColType()
 
     # join data from ATTAINS with TADA df
     df <- .data |>
-      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
+      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier")) |>
+      correctColType()
 
     # Bind with existing attains.geo data
     attains.geo <- plyr::rbind.fill(attains.geo, df)
