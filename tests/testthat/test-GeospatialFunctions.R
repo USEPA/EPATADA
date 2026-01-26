@@ -134,7 +134,7 @@ testthat::test_that("fetchNHD handles small areas with defaults", {
   testthat::expect_no_error(
     result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
   )
-  # Expect 16 catchments to come back
+  # Expect 16 catchments returned
   expect_equal(nrow(small_bbox_data), 16)
 })
 
