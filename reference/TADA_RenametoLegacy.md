@@ -50,5 +50,4 @@ DeWitt_wqx3 <- dataRetrieval::readWQPdata(
 #> WQX3 services are in-development, use with caution.
 
 DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
-#> Warning: object 'WqxV2.FieldName' not found
 ```
