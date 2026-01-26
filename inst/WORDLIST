@@ -31,7 +31,6 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
-Autoassign
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -496,6 +495,7 @@ ph
 pkgdown
 plotly
 pre
+qaqc
 rExpertQuery
 randombelowlimit
 rda
