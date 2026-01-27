@@ -527,7 +527,7 @@ TADA_AdditionalCharAliasForReview <- function(
 #' uses <- TADA_UsesAliasForReview(
 #'   ATTAINS.CST.tolerance = 0.50,
 #'   CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
-#'   )
+#' )
 #'
 TADA_UsesAliasForReview <- function(
   displayPercent = FALSE,

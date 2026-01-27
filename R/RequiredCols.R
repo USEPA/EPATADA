@@ -343,15 +343,15 @@ TADA_OrderCols <- function(.data) {
   required_cols <- require.cols[require.cols %in% names(.data)]
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
-  
+
   # Always force these four as the final columns in this exact order
   end_cols <- c("TADAShiny.tab", "TADA.Remove", "TADA.RemovalReason", "geometry")
   end_cols_present <- end_cols[end_cols %in% names(.data)]
-  
+
   # Other "last" columns (if any) should be near the end, but before the final four
   other_last_cols <- setdiff(last.cols, end_cols)
   other_last_cols_present <- other_last_cols[other_last_cols %in% names(.data)]
-  
+
   rearranged <- .data |>
     dplyr::relocate(tidyselect::any_of(required_cols)) |>
     dplyr::relocate(
@@ -373,12 +373,12 @@ TADA_OrderCols <- function(.data) {
       tidyselect::any_of(end_cols_present),
       .after = tidyselect::last_col()
     )
-  
+
   # Order rows if ResultIdentifier is available (sf-friendly)
   if ("ResultIdentifier" %in% names(rearranged)) {
     rearranged <- dplyr::arrange(rearranged, ResultIdentifier)
   }
-  
+
   return(rearranged)
 }
 
