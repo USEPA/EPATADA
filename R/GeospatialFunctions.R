@@ -2232,12 +2232,12 @@ TADA_GetATTAINSByAUID <- function(
       dplyr::rename(
         ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier
       ) |>
-      correctColType()
+      TADA_CorrectColType()
 
     # join data from ATTAINS with TADA df
     df <- .data |>
       dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier")) |>
-      correctColType()
+      TADA_CorrectColType()
 
     # Bind with existing attains.geo data
     attains.geo <- plyr::rbind.fill(attains.geo, df)
