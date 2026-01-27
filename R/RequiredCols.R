@@ -345,7 +345,12 @@ TADA_OrderCols <- function(.data) {
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
 
   # Always force these four as the final columns in this exact order
-  end_cols <- c("TADAShiny.tab", "TADA.Remove", "TADA.RemovalReason", "geometry")
+  end_cols <- c(
+    "TADAShiny.tab",
+    "TADA.Remove",
+    "TADA.RemovalReason",
+    "geometry"
+  )
   end_cols_present <- end_cols[end_cols %in% names(.data)]
 
   # Other "last" columns (if any) should be near the end, but before the final four
