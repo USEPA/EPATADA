@@ -3845,6 +3845,7 @@ TADA_CreateAUMLCrosswalk <- function(
     attains = attains.matches,
     get.attains = get.attains.matches
   ) |>
+    TADA_CorrectColType() |>
     suppressMessages(dplyr::full_join(.data))
 
   # create ATTAINS_catchments for output list
