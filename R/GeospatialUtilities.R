@@ -795,6 +795,8 @@ prepAllATTAINSMapper <- function(
   }
 
   # point assessment units
+  points_mapper <- NULL
+
   points_mapper <- prepATTAINSMapper(
     points_layer,
     geo_type = "points",
@@ -803,6 +805,8 @@ prepAllATTAINSMapper <- function(
   )
 
   # line assessment units
+  lines_mapper <- NULL
+
   lines_mapper <- prepATTAINSMapper(
     lines_layer,
     geo_type = "lines",
@@ -811,6 +815,8 @@ prepAllATTAINSMapper <- function(
   )
 
   # polygon assessment units
+  polygons_mapper <- NULL
+
   polygons_mapper <- prepATTAINSMapper(
     polygons_layer,
     geo_type = "polygons",

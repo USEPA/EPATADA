@@ -731,9 +731,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
   # check to see if without ATTAINS catchments is available
-  without_ATTAINS_catchments <- NULL
+  with_NHD_catchments <- NULL
   try(
-    without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
+    with_NHD_catchments <- .data[["with_NHD_catchments"]] |>
       dplyr::rename(nhd = 1),
     silent = TRUE
   )
@@ -772,7 +772,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # check to make sure WQP observations exist
   checkForWQPData(
     tada_attains = ATTAINS_table,
-    tada_no_attains = without_ATTAINS_catchments
+    tada_no_attains = with_NHD_catchments
   )
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
@@ -786,9 +786,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     silent = TRUE
   )
 
-  suppressMessages(suppressWarnings({
+  #suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
-    try(ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(), silent = TRUE)
+    #try(
+  ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry() #, silent = TRUE)
 
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
@@ -826,7 +827,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       polygons_layer = au_mapper$polygons_mapper,
       lines_layer = au_mapper$lines_mapper,
       catchment_layer = ATTAINS_catchments,
-      outline_layer = without_ATTAINS_catchments,
+      outline_layer = with_NHD_catchments,
       missing_raw_layer = missing_raw_mapper,
       overlay_groups = overlay_groups,
       icons = images
@@ -934,5 +935,5 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     rm(sumdat, overlay_groups)
     # Return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
-  }))
+  #}))
 }
