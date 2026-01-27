@@ -3836,9 +3836,7 @@ TADA_CreateAUMLCrosswalk <- function(
     # Check if any of the inputs are not NULL
     if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
       # Bind rows and remove duplicates
-      df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct() |>
-        # TADA_CorrectColType is not handling epsg here correctly - this is a temporary fix (HRM Note: 1/27/26)
-        dplyr::mutate(epsg = as.character(epsg))
+      df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct()
     } else {
       df <- NULL
     }

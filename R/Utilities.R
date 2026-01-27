@@ -2372,9 +2372,10 @@ TADA_CorrectColType <- function(.data) {
   if (is.null(.data)) {
     return(NULL)
   }
-  if (inherits(.data, "sf")) {
-    return(.data)
-  } # simplest safe behavior
+  # HRM - commented out because this was causing the function  not to run when used in geospatial functions
+  # if (inherits(.data, "sf")) {
+  #   return(.data)
+  #} # simplest safe behavior
   if (!is.data.frame(.data)) {
     warning(
       "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
