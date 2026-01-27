@@ -2229,7 +2229,9 @@ TADA_GetATTAINSByAUID <- function(
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
     geo.data <- geo.data |>
-      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier) |>
+      dplyr::rename(
+        ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier
+      ) |>
       correctColType()
 
     # join data from ATTAINS with TADA df
