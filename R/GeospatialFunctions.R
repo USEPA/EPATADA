@@ -3763,7 +3763,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # internal function to prep output by binding rows from different crosswalk sources
   outputPrep <- function(df.name, user, attains, get.attains) {
     # correct column types and filter out invalid geometries for each dataframe
-    user <- TADA_CorrectColType(user[[df.name]])
+    user <- user[[df.name]]
 
     if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
       user <- sf::st_make_valid(user)
@@ -3785,7 +3785,9 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    attains <- TADA_CorrectColType(attains[[df.name]])
+    user <- TADA_CorrectColType(user)
+
+    attains <- attains[[df.name]]
 
     if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
       attains <- sf::st_make_valid(attains)
@@ -3806,7 +3808,9 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
-    get.attains <- TADA_CorrectColType(get.attains[[df.name]])
+    attains <- TADA_CorrectColType(attains)
+
+    get.attains <- get.attains[[df.name]]
 
     if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
       get.attains <- sf::st_make_valid(get.attains)
@@ -3827,10 +3831,14 @@ TADA_CreateAUMLCrosswalk <- function(
       rm(geometry)
     }
 
+    get.attains <- TADA_CorrectColType(get.attains)
+
     # Check if any of the inputs are not NULL
     if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
       # Bind rows and remove duplicates
-      df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct()
+      df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct() |>
+        # TADA_CorrectColType is not handling epsg here correctly - this is a temporary fix (HRM Note: 1/27/26)
+        dplyr::mutate(epsg = as.character(epsg))
     } else {
       df <- NULL
     }
