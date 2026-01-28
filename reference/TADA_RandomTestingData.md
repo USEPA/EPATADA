@@ -1,11 +1,4 @@
-# Generate a random WQP dataset
-
-Retrieves data for a period of time in the past 20 years using
-TADA_DataRetrieval. This function can be used for testing functions on
-random datasets. Only random data sets with 10 or more results will be
-returned. If a random dataset has fewer than 10 results, the function
-will automatically create another random WQP query until a df with
-greater than 10 results is returned.
+# Generate a Random Water Quality Portal (WQP) Dataset
 
 This function retrieves water quality data for a randomly selected
 period within the past 20 years using `TADA_DataRetrieval`. It can be
@@ -17,13 +10,6 @@ queries another random dataset until the criteria are met.
 ## Usage
 
 ``` r
-TADA_RandomTestingData(
-  number_of_days = 1,
-  choose_random_state = FALSE,
-  autoclean = TRUE,
-  max_attempts = 3
-)
-
 TADA_RandomTestingData(
   number_of_days = 1,
   choose_random_state = FALSE,
@@ -61,8 +47,6 @@ TADA_RandomTestingData(
 
 ## Value
 
-Random WQP dataset.
-
 A data frame containing a random WQP dataset with at least 10 results,
 or an empty data frame if data retrieval fails after the specified
 number of attempts. If a 500 Internal Server Error or any other error
@@ -73,11 +57,6 @@ returned, and a message is logged indicating the failure.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-df <- TADA_RandomTestingData(number_of_days = 1, choose_random_state = FALSE)
-df <- TADA_RandomTestingData(number_of_days = 10, choose_random_state = TRUE)
-df <- TADA_RandomTestingData(number_of_days = 5, choose_random_state = TRUE, autoclean = FALSE)
-} # }
 if (FALSE) { # \dontrun{
 # Example 1: Retrieve a random dataset for random 2-day period
 # across the entire nation

@@ -303,7 +303,7 @@
   (CST) Parameter Name Crosswalk
 
 - [`TADA_RandomTestingData()`](usepa.github.io/EPATADA/reference/TADA_RandomTestingData.md)
-  : Generate a random WQP dataset
+  : Generate a Random Water Quality Portal (WQP) Dataset
 
 - [`TADA_ReadWQPWebServices()`](usepa.github.io/EPATADA/reference/TADA_ReadWQPWebServices.md)
   : Read in WQP data using the Water Quality Portal (WQP) web services
