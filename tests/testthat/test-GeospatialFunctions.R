@@ -285,13 +285,6 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
-  # load the large_bbox_data test data
-  load(system.file(
-    "tests/testthat/testdata",
-    "Hill_MT_pH.rda",
-    package = "EPATADA"
-  ))
-
   # find nearby sites tests
 
   # with defaults
@@ -336,12 +329,6 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-  # load the large_bbox_data test data
-  load(system.file(
-    "tests/testthat/testdata",
-    "Hill_MT_pH.rda",
-    package = "EPATADA"
-  ))
 
   # select by count
   test_count <- TADA_FindNearbySites(
