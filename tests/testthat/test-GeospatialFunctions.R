@@ -301,12 +301,16 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
+  testthat::expect_equal(n_defaults, 45)
+
   # at 50 m with catchment
   test_fifty <- TADA_FindNearbySites(large_bbox_data, dist_buffer = 50)
 
   n_fifty <- test_fifty |>
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
+
+  testthat::expect_equal(n_fifty, 48)
 
   # without catchment
   test_bufferonly <- TADA_FindNearbySites(
@@ -319,6 +323,8 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
+  testthat::expect_equal(n_bufferonly, 46)
+
   # with AU
   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
@@ -326,9 +332,6 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 
   n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
 
-  testthat::expect_equal(n_defaults, 45)
-  testthat::expect_equal(n_fifty, 48)
-  testthat::expect_equal(n_bufferonly, 46)
   testthat::expect_equal(n_au, 38)
 })
 
