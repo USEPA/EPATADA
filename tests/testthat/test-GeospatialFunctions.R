@@ -333,7 +333,6 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-
   # load the large_bbox_data test data
   load(system.file(
     "tests/testthat/testdata",
