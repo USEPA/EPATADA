@@ -1260,16 +1260,8 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' Check out the TADAModule2.Rmd for an example workflow. Note that
 #' approximately 80% of state submitted assessment units in ATTAINS were
 #' developed based on high res NHDPlus, so we are using that as the default.
-#'
 #' The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
-#' that do not have existing Assessment Units in ATTAINS. For these areas where
-#' there are WQP sites, but no existing ATTAINS assessment units, a user can
-#' choose to associate the WQP sites with NHDPlus catchments available from
-#' the USGS nhdplusTools package (please be aware that USGS and EPA ATTAINS
-#' snapshots of the NHDPlus catchments may vary) using the optional function
-#' param 'fill_USGS_catch'.  If desired by the user, the HR
-#' catchments could be created as new assessment unit polygons in ATTAINS
-#' (that process is outside of TADA).
+#' that do not have existing Assessment Units in ATTAINS.
 #'
 #' `ResultIdentifier' identifies rows that are the same observation but are
 #' linked to multiple ATTAINS assessment units. It is possible for a single
@@ -1305,12 +1297,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param return_nearest If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE).
-#' @param fill_USGS_catch Whether the user would like to return NHD catchments
-#' (USGS snapshot of NHDPlus V2) for WQP observations not associated with an
-#' ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
-#' the returned list splits observations into two dataframes: WQP observations
-#' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
-#' observations without ATTAINS catchment data. Defaults to FALSE.
 #' @param resolution If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med"
 #' catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
 #' ("Hi") because at approximately 80% of state submitted assessment units in
@@ -1357,26 +1343,22 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' # note: these example ATTAINS data retrieval queries below may take a long
 #' # time (10+ minutes) to run
 #' tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_USGS_catch = FALSE,
 #'   return_sf = FALSE,
 #'   return_nearest = FALSE
 #' )
 #'
 #' tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_USGS_catch = FALSE,
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
 #' )
 #'
 #' tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_USGS_catch = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = FALSE,
 #'   return_nearest = TRUE
 #' )
 #'
 #' tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_USGS_catch = TRUE,
 #'   resolution = "Hi",
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
@@ -1386,7 +1368,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
   .data,
   org_id = "all",
   return_nearest = TRUE,
-  fill_USGS_catch = FALSE,
   resolution = "Hi",
   return_sf = TRUE
 ) {
@@ -1499,7 +1480,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       "There are no ATTAINS catchments associated with these WQP observations."
     )
 
-    if (fill_USGS_catch == FALSE) {
       if (return_sf == TRUE) {
         return(list(
           "TADA_with_ATTAINS" = no_ATTAINS_data,
@@ -1511,32 +1491,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       } else {
         return(no_ATTAINS_data)
       }
-    } else {
-      fill_USGS_catchments <- fetchNHD(
-        .data = TADA_DataRetrieval_data,
-        resolution = resolution
-      )
-      TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
-        sf::st_join(fill_USGS_catchments, left = TRUE)
-
-      if (return_sf == TRUE) {
-        return(list(
-          "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_with_NHD" = TADA_without_ATTAINS,
-          "ATTAINS_catchments" = NULL,
-          "ATTAINS_points" = NULL,
-          "ATTAINS_lines" = NULL,
-          "ATTAINS_polygons" = NULL,
-          "with_NHD_catchments" = fill_USGS_catchments
-        ))
-      } else {
-        return(list(
-          "TADA_with_ATTAINS" = no_ATTAINS_data[0, ],
-          "TADA_with_NHD" = TADA_without_ATTAINS
-        ))
-      }
     }
-  }
 
   # If ATTAINS data is present, link WQP features to ATTAINS catchments
   if (!is.null(nearby_catchments)) {
@@ -1720,7 +1675,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
         ATTAINS_polygons <- NULL
       }
 
-      if (fill_USGS_catch == FALSE) {
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
           "ATTAINS_catchments" = ATTAINS_catchments,
@@ -1731,80 +1685,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 
         return(final_list)
       }
-
-      if (fill_USGS_catch == TRUE) {
-        TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
-          dplyr::filter(
-            ResultIdentifier %in%
-              c(
-                dplyr::filter(
-                  TADA_with_ATTAINS,
-                  is.na(assessmentunitidentifier)
-                ) |>
-                  dplyr::pull(ResultIdentifier)
-              )
-          )
-
-        fill_USGS_catchments <- fetchNHD(
-          .data = TADA_without_ATTAINS,
-          features = "catchments",
-          resolution = resolution
-        )
-
-        TADA_without_ATTAINS <- TADA_without_ATTAINS |>
-          sf::st_join(fill_USGS_catchments, left = TRUE) |>
-          st_drop_geometry()
-
-        final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS |>
-            dplyr::filter(!is.na(assessmentunitidentifier)) |>
-            renameATTAINSCols(),
-          "TADA_with_NHD" = TADA_without_ATTAINS,
-          "ATTAINS_catchments" = ATTAINS_catchments,
-          "ATTAINS_points" = ATTAINS_points,
-          "ATTAINS_lines" = ATTAINS_lines,
-          "ATTAINS_polygons" = ATTAINS_polygons,
-          "with_NHD_catchments" = fill_USGS_catchments
-        )
-
-        return(final_list)
-      }
-    } else {
-      if (fill_USGS_catch == TRUE) {
-        TADA_without_ATTAINS <- TADA_DataRetrieval_data |>
-          dplyr::filter(
-            ResultIdentifier %in%
-              c(
-                dplyr::filter(
-                  TADA_with_ATTAINS,
-                  is.na(assessmentunitidentifier)
-                ) |>
-                  dplyr::pull(ResultIdentifier)
-              )
-          )
-
-        fill_USGS_catchments <- fetchNHD(
-          .data = TADA_without_ATTAINS,
-          features = "catchments",
-          resolution = resolution
-        )
-
-        TADA_without_ATTAINS <- TADA_without_ATTAINS |>
-          sf::st_join(fill_USGS_catchments, left = TRUE) |>
-          st_drop_geometry()
-
-        final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS |>
-            dplyr::filter(!is.na(assessmentunitidentifier)) |>
-            renameATTAINSCols(),
-          "TADA_with_NHD" = TADA_without_ATTAINS
-        )
-
-        return(final_list)
-      } else {
-        return(TADA_with_ATTAINS)
-      }
-    }
   }
 }
 
@@ -3291,14 +3171,6 @@ TADA_RandomTestingData <- function(
 #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
-#' @param fill_USGS_catch Boolean argument. Whether the user would like to return
-#' NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
-#' with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
-#' the returned list splits observations into two dataframes: WQP observations
-#' with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
-#' observations without ATTAINS catchment data. Defaults to FALSE. This param
-#' applies only to WQP observations that do not have matches in the user-supplied ref
-#' or ATTAINS.
 #' @param return_nearest  If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE). This param applies only to WQP observations that do
@@ -3376,7 +3248,6 @@ TADA_CreateAUMLCrosswalk <- function(
   au_ref = NULL,
   org_id = "all",
   fill_ATTAINS_catch = FALSE,
-  fill_USGS_catch = FALSE,
   return_nearest = TRUE,
   batch_upload = FALSE
 ) {
@@ -3738,7 +3609,6 @@ TADA_CreateAUMLCrosswalk <- function(
     get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
       get.attains.mls,
       return_nearest = return_nearest,
-      fill_USGS_catch = fill_USGS_catch,
       return_sf = TRUE,
       org_id = org_id
     ))
@@ -3954,18 +3824,6 @@ TADA_CreateAUMLCrosswalk <- function(
     ATTAINS_polygons,
     ATTAINS_crosswalk
   )
-
-  # add nhd catchments without ATTAINS matches if user has selected this option
-  if (fill_USGS_catch == TRUE) {
-    # add nhd catchment related dfs to output if required
-    final_list <- c(
-      final_list,
-      list(
-        "with_NHD_catchments" = get.attains.matches$without_ATTAINS_catchment
-      ),
-      list("TADA_with_NHD" = get.attains.matches$TADA_without_ATTAINS)
-    )
-  }
 
   # remove intermediate objects
   rm(attains.matches, user.matches, get.attains.matches)
