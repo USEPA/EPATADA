@@ -17,7 +17,7 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 # small area test as subset of large area
 small_bbox_data <- large_bbox_data[125:140, ]
-expect_cat_n_small = 2
+expect_cat_n_small <- 2
 
 # Query specific to sites along state border
 # sites = c("NALMS-F1217605",
