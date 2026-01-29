@@ -283,7 +283,7 @@ attains.cols <- c(
   "ATTAINS.ShapeArea"
 )
 
-# Only used in TADA Shiny or should be at the end
+# Should be at the end
 last.cols <- c("TADA.Remove", "TADA.RemovalReason", "TADAShiny.tab", "geometry")
 
 
@@ -341,12 +341,21 @@ last.cols <- c("TADA.Remove", "TADA.RemovalReason", "TADAShiny.tab", "geometry")
 #'
 TADA_OrderCols <- function(.data) {
   required_cols <- require.cols[require.cols %in% names(.data)]
-
   extra_cols <- extra.cols[extra.cols %in% names(.data)]
-
-  last_cols <- last.cols[last.cols %in% names(.data)]
-
   attains_cols <- attains.cols[attains.cols %in% names(.data)]
+
+  # Always force these four as the final columns in this exact order
+  end_cols <- c(
+    "TADAShiny.tab",
+    "TADA.Remove",
+    "TADA.RemovalReason",
+    "geometry"
+  )
+  end_cols_present <- end_cols[end_cols %in% names(.data)]
+
+  # Other "last" columns (if any) should be near the end, but before the final four
+  other_last_cols <- setdiff(last.cols, end_cols)
+  other_last_cols_present <- other_last_cols[other_last_cols %in% names(.data)]
 
   rearranged <- .data |>
     dplyr::relocate(tidyselect::any_of(required_cols)) |>
@@ -354,16 +363,26 @@ TADA_OrderCols <- function(.data) {
       tidyselect::any_of(extra_cols),
       .after = tidyselect::any_of(required_cols)
     ) |>
+    # Move any "other last" columns near the end (they'll end up before the final four)
     dplyr::relocate(
-      tidyselect::any_of(last_cols),
-      .after = tidyselect::any_of(extra_cols)
+      tidyselect::any_of(other_last_cols_present),
+      .after = tidyselect::last_col()
     ) |>
+    # Place ATTAINS columns near the end, but before the final four columns
     dplyr::relocate(
       tidyselect::any_of(attains_cols),
-      .after = tidyselect::any_of(last_cols)
+      .after = tidyselect::last_col()
+    ) |>
+    # Finally, force the four columns to be last, in the specified order
+    dplyr::relocate(
+      tidyselect::any_of(end_cols_present),
+      .after = tidyselect::last_col()
     )
 
-  rearranged <- rearranged[order(rearranged$ResultIdentifier), ]
+  # Order rows if ResultIdentifier is available (sf-friendly)
+  if ("ResultIdentifier" %in% names(rearranged)) {
+    rearranged <- dplyr::arrange(rearranged, ResultIdentifier)
+  }
 
   return(rearranged)
 }
