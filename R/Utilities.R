@@ -1105,14 +1105,19 @@ TADA_RandomTestingData <- function(
   max_attempts = 3
 ) {
   # Retrieve random data
-  get_random_data <- function(ndays, state_choice, ac) {
+  get_random_data <- function(
+    ndays = number_of_days,
+    state_choice = choose_random_state,
+    ac = autoclean,
+    ask = FALSE
+  ) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
 
     # Determine if a random state should be selected
-    if (state_choice) {
+    if (state_choice == TRUE) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     } else {

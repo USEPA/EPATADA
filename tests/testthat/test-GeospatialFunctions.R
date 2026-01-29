@@ -17,6 +17,22 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 # small area test as subset of large area
 small_bbox_data <- large_bbox_data[125:140, ]
+expect_cat_n_small = 2
+
+# Query specific to sites along state border
+# sites = c("NALMS-F1217605",
+#           "EMAP_CS_WQX-RI03-0338-B",
+#           "EMAP_CS_WQX-RI05-0016-A",
+#           "NARS_WQX-NCCA10-1634",
+#           "NARS_WQX-NCA_RI-10129"
+#           )
+# RI_CT_secchi <- EPATADA::TADA_DataRetrieval(
+#  characteristicName = "Depth, Secchi disk depth",
+#  siteid = sites,
+#  applyautoclean = TRUE
+#  )
+# RI_CT_secchi
+load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
@@ -68,6 +84,7 @@ testthat::test_that("TADA_MakeSpatial fails with appropriate errors", {
   testthat::expect_error(TADA_MakeSpatial(.data = NULL))
 })
 
+
 testthat::test_that("fetchATTAINS fails with appropriate errors", {
   # Test with NULL data
   testthat::expect_error(
@@ -77,14 +94,14 @@ testthat::test_that("fetchATTAINS fails with appropriate errors", {
 })
 
 testthat::test_that("fetchATTAINS handles small areas", {
-  # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
+  # small_bbox_data is subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
   )
   expect_equal(nrow(result_all_features$ATTAINS_points), 0)
   expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
   expect_equal(nrow(result_all_features$ATTAINS_polygons), 0)
-  expect_equal(nrow(result_all_features$ATTAINS_catchments), 2)
+  expect_equal(nrow(result_all_features$ATTAINS_catchments), expect_cat_n_small)
 })
 
 testthat::test_that("fetchATTAINS handles large areas", {
@@ -98,35 +115,93 @@ testthat::test_that("fetchATTAINS handles large areas", {
   expect_equal(nrow(result_all_features$ATTAINS_catchments), 46)
 })
 
-testthat::test_that("fetchATTAINS handles catchments_only parameter", {
-  # Create a small valid dataset
-  valid_data <- Data_6Tribes_5y_Harmonized |>
-    dplyr::filter(OrganizationIdentifier %in% "PUEBLOOFTESUQUE")
-
-  # Test with catchments_only = TRUE
+testthat::test_that("fetchATTAINS catchments_only parameter", {
   testthat::expect_no_error(
     result_catchments_only <- EPATADA:::fetchATTAINS(
-      .data = valid_data,
+      .data = small_bbox_data,
       catchments_only = TRUE
     )
   )
+  expect_null(nrow(result_catchments_only$ATTAINS_points))
+  expect_null(nrow(result_catchments_only$ATTAINS_lines))
+  expect_null(nrow(result_catchments_only$ATTAINS_polygons))
+  # Compare against catchments_only = FALSE (default)
+  expect_equal(
+    nrow(result_catchments_only$ATTAINS_catchments),
+    expect_cat_n_small
+  )
+})
 
-  # Test with catchments_only = FALSE
+testthat::test_that("fetchATTAINS org_id parameter", {
+  # Test when non-default (default is 'all')
+  org <- "RIDEM"
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(
-      .data = valid_data,
-      catchments_only = FALSE
+    org_results <- EPATADA:::fetchATTAINS(
+      .data = RI_CT_secchi,
+      catchments_only = TRUE,
+      org_id = org
     )
   )
-
-  # If we got data back, check that catchments_only returns fewer elements
-  if (!is.null(result_catchments_only) && !is.null(result_all_features)) {
-    testthat::expect_lte(
-      length(result_catchments_only),
-      length(result_all_features)
-    )
-  }
+  # Test against normal result when filtered on org_id
+  all_org_results <- EPATADA:::fetchATTAINS(
+    .data = RI_CT_secchi,
+    catchments_only = TRUE
+  )
+  all_orgs_filtered <- all_org_results$ATTAINS_catchments[
+    "organizationid" == org
+  ]
+  # Compare the two sets of results (should be same)
+  expect_equal(nrow(org_results$ATTAINS_catchments), nrow(all_orgs_filtered))
 })
+
+
+testthat::test_that("fetchNHD handles small areas with defaults", {
+  # small_bbox_data subset of large_bbox_data fixture (testdata/Hill_MT_pH.Rd)
+  testthat::expect_no_error(
+    result_NHD_small <- EPATADA:::fetchNHD(.data = small_bbox_data)
+  )
+  # Expect 16 catchments returned
+  expect_equal(nrow(small_bbox_data), 16)
+})
+
+testthat::test_that("fetchNHD with valid non-default features params", {
+  testthat::expect_no_error(
+    flines <- EPATADA:::fetchNHD(
+      .data = small_bbox_data,
+      features = "flowlines"
+    )
+  )
+  expect_equal(nrow(flines), 6) # Expected results
+  testthat::expect_no_error(
+    waterbodies <- EPATADA:::fetchNHD(
+      .data = small_bbox_data,
+      features = "waterbodies"
+    )
+  )
+  expect_equal(nrow(waterbodies), 0) # Expected results
+})
+
+testthat::test_that("fetchNHD with valid non-default resolution param Med", {
+  testthat::expect_no_error(
+    med_cat <- EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Med")
+  )
+  expect_equal(nrow(med_cat), 2) # Expected results
+})
+
+testthat::test_that("fetchNHD error when invalid features param", {
+  testthat::expect_error(
+    EPATADA:::fetchNHD(.data = small_bbox_data, features = "Hi"),
+    "Please select between 'catchments', 'flowlines', 'waterbodies', or any combination for `feature` argument."
+  )
+})
+
+testthat::test_that("fetchNHD error when invalid resolution param", {
+  testthat::expect_error(
+    EPATADA:::fetchNHD(.data = small_bbox_data, resolution = "Lo"),
+    'User-supplied resolution unavailable. Please select between "Med" or "Hi".'
+  )
+})
+
 
 testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk correctly identifies already joined ATTAINS data", {
   # Create mock data with ATTAINS columns
