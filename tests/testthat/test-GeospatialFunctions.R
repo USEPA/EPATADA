@@ -403,4 +403,3 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
     "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
   )
 })
-
