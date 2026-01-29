@@ -106,7 +106,7 @@ tada.MT <- TADA_DataRetrieval(
     "Dissolved oxygen (DO)",
     "Escherichia coli",
     "pH"
-    ),
+  ),
   countycode = "Missoula County",
   applyautoclean = TRUE,
   ask = FALSE
@@ -504,8 +504,8 @@ equals “Unique”.
 
 ``` r
 tada.MT.clean <- tada.MT.multipleorgs.dups |>
-   dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
-   dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
+  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
+  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
 ```
 
 Remove intermediate variables in R by using ‘rm()’. In the remainder of
@@ -633,10 +633,10 @@ unit “MT76M001_020” and give it the WaterType “RIVER”.
 ``` r
 # user would like to associate this MonitoringLocationIdentifier to this AU.
 user.supplied.cw <- data.frame(
-    AssessmentUnitIdentifier = "MT76M001_020",
-    MonitoringLocationIdentifier = "MTWTRSHD_WQX-COMBITR02",
-    WaterType = "RIVER"
-  )
+  AssessmentUnitIdentifier = "MT76M001_020",
+  MonitoringLocationIdentifier = "MTWTRSHD_WQX-COMBITR02",
+  WaterType = "RIVER"
+)
 
 DT::datatable(user.supplied.cw, fillContainer = TRUE)
 ```
@@ -730,7 +730,7 @@ example.
 tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry() |>
   dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
-                ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
+    ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 
 tada.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
@@ -748,7 +748,7 @@ AU.uses <- TADA_AssignUsesToAU(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
   AUMLRef = tada.MT.AUMLRef
-  )
+)
 ```
 
     ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
@@ -852,7 +852,7 @@ MT_criteria <- TADA_DefineCriteriaMethodology(
   AUMLRef = tada.MT.AUMLRef,
   AU_UsesRef = AU.uses,
   displayUniqueId = TRUE
-  )
+)
 
 TADA_TableExport(MT_criteria)
 ```
@@ -880,7 +880,7 @@ criteria_table_auto <- TADA_DefineCriteriaMethodology(
   AUMLRef = tada.MT.AUMLRef,
   AU_UsesRef = AU.uses,
   displayUniqueId = TRUE
-  ) |>
+) |>
   dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)")
 ```
 
@@ -924,7 +924,7 @@ MT_criteria_excel <- TADA_DefineCriteriaMethodology(
   displayUniqueId = TRUE,
   excel = T,
   overwrite = T
-  )
+)
 ```
 
 #### View and analyze scatter plot excursions for DO for assessment unit
@@ -941,12 +941,12 @@ tada.MT.clean.DO2 <- dplyr::left_join(
   tada.MT.clean.DO,
   MT_criteria,
   by = "TADA.ComparableDataIdentifier"
-  )
+)
 
 # break into separate data frames for each unique combination of DurationValue, DurationMethod, DurationUnit, and UniqueSpatialCriteria for analysis and figures
 tada.MT.do.subsets <- tada.MT.clean.DO2 |>
   dplyr::group_by(DurationValue, DurationMethod, DurationUnit,
-                  UniqueSpatialCriteria) |>
+    UniqueSpatialCriteria) |>
   dplyr::group_split()
 ```
 
@@ -976,19 +976,19 @@ for (i in 1:n){
     tada.MT.do.subsets[[i]]$UniqueSpatialCriteria[1],
     ")"
   )
-  
+
   TADA_scatters[[i]] <- TADA_Scatterplot(tada.MT.do.subsets[[i]]) |>
-     plotly::add_lines(
-        x = c(
-      min(tada.MT.do.subsets[[i]]$ActivityStartDate, na.rm = TRUE),
-      max(tada.MT.do.subsets[[i]]$ActivityStartDate, na.rm = TRUE)
-    ),
-     y = (tada.MT.do.subsets[[i]]$MagnitudeValueLower[1]),
-    inherit = FALSE,
-    name = paste(strwrap(desc, width = 20), collapse = "<br>"),
-    line = list(color = "red", dash = "dash")
-  ) 
-  
+    plotly::add_lines(
+      x = c(
+        min(tada.MT.do.subsets[[i]]$ActivityStartDate, na.rm = TRUE),
+        max(tada.MT.do.subsets[[i]]$ActivityStartDate, na.rm = TRUE)
+      ),
+      y = (tada.MT.do.subsets[[i]]$MagnitudeValueLower[1]),
+      inherit = FALSE,
+      name = paste(strwrap(desc, width = 20), collapse = "<br>"),
+      line = list(color = "red", dash = "dash")
+    )
+
   names(TADA_scatters)[i] <- desc
 }
 ```
