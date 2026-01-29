@@ -349,10 +349,12 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' TADA_FlaggedSitesMap(Data_6Tribes_5y_Harmonized)
 #' }
 #'
-TADA_NearbySitesMap <- function(.data,
-                                dist_buffer = 100,
-                                attains = TRUE,
-                                catchment = FALSE) {
+TADA_NearbySitesMap <- function(
+  .data,
+  dist_buffer = 100,
+  attains = TRUE,
+  catchment = FALSE
+) {
   # columns to select for nearby site
   nearby.cols <- c(
     "LongitudeMeasure",
@@ -435,7 +437,8 @@ TADA_NearbySitesMap <- function(.data,
   # create nearby site groups color palette
   # if needed can incorporate functions from package "farver" to force pal colors
   # away from tada.pal colors (HRM 12/23/25)
-  nearby.pal <- Polychrome::createPalette(n.colors,
+  nearby.pal <- Polychrome::createPalette(
+    n.colors,
     seedcolors = c(
       tada.pal[1],
       tada.pal[3],
@@ -473,7 +476,9 @@ TADA_NearbySitesMap <- function(.data,
   map <- createTADABasemap(TADA_nearby)
 
   # if attains = TRUE and assessment unit geometry is included in TADA df add AUs to map
-  if (attains == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(TADA_table)) {
+  if (
+    attains == TRUE & "ATTAINS.AssessmentUnitIdentifier" %in% names(TADA_table)
+  ) {
     # use internal function to get paths to images and labels
     list.images <- getMapIconLabels()
 
@@ -498,7 +503,8 @@ TADA_NearbySitesMap <- function(.data,
     # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
     # Use catchments for those instances for mapping purposes:
     try(
-      missing_raw_features <- findATTAINSMissingRawFeatures(ATTAINS_catchments,
+      missing_raw_features <- findATTAINSMissingRawFeatures(
+        ATTAINS_catchments,
         points_layer = ATTAINS_points,
         polygons_layer = ATTAINS_polygons,
         lines_layer = ATTAINS_lines,
@@ -544,14 +550,18 @@ TADA_NearbySitesMap <- function(.data,
       # add these steps to prepATTAINS and prepAllATTAINS
       if (!is.null(ATTAINS_catchments)) {
         ATTAINS_catchments <- ATTAINS_catchments |>
-          dplyr::filter(assessmentunitidentifier %in%
-            unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier))
+          dplyr::filter(
+            assessmentunitidentifier %in%
+              unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier)
+          )
       }
 
       if (!is.null(without_ATTAINS_catchments)) {
         without_ATTAINS_catchments <- without_ATTAINS_catchments |>
-          dplyr::filter(assessmentunitidentifier %in%
-            unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier))
+          dplyr::filter(
+            assessmentunitidentifier %in%
+              unique(TADA_nearby$ATTAINS.AssessmentUnitIdentifier)
+          )
       }
 
       # add all ATTAINS geometry to map
@@ -608,7 +618,7 @@ TADA_NearbySitesMap <- function(.data,
         radius = ifelse(dist_buffer > 200, dist_buffer / 10, 20),
         weight = 1,
         # label = ~as.character(TADA.MonitoringLocationIdentifier),
-        popup = ~paste0(
+        popup = ~ paste0(
           "Nearby Group Name: ",
           TADA.MonitoringLocationIdentifier,
           "<br> Nearby Site Group: ",
