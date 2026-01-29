@@ -92,9 +92,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     sf <- .data |>
       dplyr::select(-epsg) |>
       dplyr::left_join(
-      epsg_codes,
-      by = "HorizontalCoordinateReferenceSystemDatumName"
-    ) |>
+        epsg_codes,
+        by = "HorizontalCoordinateReferenceSystemDatumName"
+      ) |>
       dplyr::mutate(
         lat = as.numeric(TADA.LatitudeMeasure),
         lon = as.numeric(TADA.LongitudeMeasure)

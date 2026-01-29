@@ -295,16 +295,14 @@ TADA_FlaggedSitesMap <- function(.data) {
   map <- createTADABasemap(.data)
 
   if (nrow(outsideusa) > 0) {
-    map <- addFlaggedSitesMarkers(outsideusa,
+    map <- addFlaggedSitesMarkers(
+      outsideusa,
       map = map,
       flag_type = "outsideusa"
     )
   }
   if (nrow(lowres) > 0) {
-    map <- addFlaggedSitesMarkers(lowres,
-      map = map,
-      flag_type = "lowres"
-    )
+    map <- addFlaggedSitesMarkers(lowres, map = map, flag_type = "lowres")
   }
 
   # remove intermediate objects
