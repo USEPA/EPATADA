@@ -65,6 +65,6 @@ be matched (false positives). Default for now is to be more strict.
 uses <- TADA_UsesAliasForReview(
   ATTAINS.CST.tolerance = 0.50,
   CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
-  )
+)
 
 }
