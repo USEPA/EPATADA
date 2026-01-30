@@ -17,7 +17,7 @@ TADA_spatial <- TADA_MakeSpatial(TADA_dataframe)
 load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 # small area test as subset of large area
 small_bbox_data <- large_bbox_data[125:140, ]
-expect_cat_n_small = 2
+expect_cat_n_small <- 2
 
 # Query specific to sites along state border
 # sites = c("NALMS-F1217605",
@@ -281,5 +281,112 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
   testthat::expect_error(
     TADA_ViewATTAINS(invalid_list),
     "Your WQP dataframe has no observations"
+  )
+})
+
+testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
+  # find nearby sites tests
+
+  # with defaults
+  test_defaults <- TADA_FindNearbySites(large_bbox_data)
+
+  n_defaults <- test_defaults |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_defaults, 45)
+
+  # at 50 m with catchment
+  test_fifty <- TADA_FindNearbySites(large_bbox_data, dist_buffer = 50)
+
+  n_fifty <- test_fifty |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_fifty, 48)
+
+  # without catchment
+  test_bufferonly <- TADA_FindNearbySites(
+    large_bbox_data,
+    catchment = FALSE,
+    dist_buffer = 100
+  )
+
+  n_bufferonly <- test_bufferonly |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
+
+  testthat::expect_equal(n_bufferonly, 46)
+
+  # with AU
+  # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
+  test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+    TADA_FindNearbySites(by_AU = TRUE)
+
+  n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
+
+  testthat::expect_equal(n_au, 38)
+})
+
+testthat::test_that("TADA_FindNearbySites returns expected metadata", {
+  # select by count
+  test_count <- TADA_FindNearbySites(
+    large_bbox_data,
+    org_hierarchy = "none",
+    meta_select = "count"
+  )
+
+  test_count_filt <- test_count |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_equal(
+    test_count_filt$TADA.MonitoringLocationIdentifier,
+    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+  )
+
+  testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
+
+  testthat::expect_equal(
+    test_count_filt$TADA.MonitoringLocationTypeName,
+    "STREAM"
+  )
+
+  testthat::expect_equal(
+    test_count_filt$TADA.NearbySites.Flag,
+    "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
+  )
+
+  # select by org hierarchy
+  test_org <- TADA_FindNearbySites(
+    large_bbox_data,
+    org_hierarchy = c(
+      "CHIPCREE",
+      "CHIPCREE_WQX",
+      "USGS-MT",
+      "MDEQ_WQ_WQX",
+      "MONT_DEQ_WQX",
+      "NARS",
+      "NARS_WQX"
+    )
+  )
+
+  test_org_filt <- test_org |>
+    dplyr::filter(ResultIdentifier == "NWIS-33738169")
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationIdentifier,
+    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+  )
+
+  testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
+
+  testthat::expect_equal(
+    test_org_filt$TADA.MonitoringLocationTypeName,
+    "RIVER/STREAM"
+  )
+
+  testthat::expect_equal(
+    test_org_filt$TADA.NearbySites.Flag,
+    "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
   )
 })
