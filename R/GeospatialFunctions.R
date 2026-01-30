@@ -1687,7 +1687,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       return(final_list)
     }
   }
-}
 
 #' TADA_GetATTAINSByAUID
 #'
