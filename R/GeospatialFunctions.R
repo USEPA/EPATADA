@@ -49,25 +49,25 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
-      ~HorizontalCoordinateReferenceSystemDatumName , ~epsg ,
-      "NAD83"                                       ,  4269 ,
-      "WGS84"                                       ,  4326 ,
-      "NAD27"                                       ,  4267 ,
-      "UNKWN"                                       , crs   ,
-      "Unknown"                                     , crs   ,
-      "OTHER"                                       , crs   ,
-      "OLDHI"                                       ,  4135 ,
-      "AMSMA"                                       ,  4169 ,
-      "ASTRO"                                       ,  4727 ,
-      "GUAM"                                        ,  4675 ,
-      "JHNSN"                                       ,  4725 ,
-      "PR"                                          ,  6139 ,
-      "SGEOR"                                       ,  4138 ,
-      "SLAWR"                                       ,  4136 ,
-      "SPAUL"                                       ,  4137 ,
-      "WAKE"                                        ,  6732 ,
-      "WGS72"                                       ,  6322 ,
-      "HARN"                                        ,  4152
+      ~HorizontalCoordinateReferenceSystemDatumName, ~epsg,
+      "NAD83", 4269,
+      "WGS84", 4326,
+      "NAD27", 4267,
+      "UNKWN", crs,
+      "Unknown", crs,
+      "OTHER", crs,
+      "OLDHI", 4135,
+      "AMSMA", 4169,
+      "ASTRO", 4727,
+      "GUAM", 4675,
+      "JHNSN", 4725,
+      "PR", 6139,
+      "SGEOR", 4138,
+      "SLAWR", 4136,
+      "SPAUL", 4137,
+      "WAKE", 6732,
+      "WGS72", 6322,
+      "HARN", 4152
     )
 
     # Handle missing or unknown CRS values
@@ -339,11 +339,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
-    ) {
+    perform_iterative_clustering <- function(points_sf,
+                                             min_area = 6e+9,
+                                             max_iterations = 100) {
       bbox_area <- function(df, clust) {
         df |>
           dplyr::filter(cluster == clust) |>
@@ -568,7 +566,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
 
-    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
+    bbox <- points_sf |>
+      sf::st_bbox() |>
+      toString() |>
+      urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 
@@ -1480,17 +1481,16 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       "There are no ATTAINS catchments associated with these WQP observations."
     )
 
-      if (return_sf == TRUE) {
-        return(list(
-          "TADA_with_ATTAINS" = no_ATTAINS_data,
-          "ATTAINS_catchments" = NULL,
-          "ATTAINS_points" = NULL,
-          "ATTAINS_lines" = NULL,
-          "ATTAINS_polygons" = NULL
-        ))
-      } else {
-        return(no_ATTAINS_data)
-      }
+    if (return_sf == TRUE) {
+      return(list(
+        "TADA_with_ATTAINS" = no_ATTAINS_data,
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
+      ))
+    } else {
+      return(no_ATTAINS_data)
     }
   }
 
@@ -1676,334 +1676,584 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
         ATTAINS_polygons <- NULL
       }
 
-        final_list <- list(
-          "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
-          "ATTAINS_catchments" = ATTAINS_catchments,
-          "ATTAINS_points" = ATTAINS_points,
-          "ATTAINS_lines" = ATTAINS_lines,
-          "ATTAINS_polygons" = ATTAINS_polygons
-        )
-
-      return(final_list)
-    }
-  }
-
-#' TADA_GetATTAINSByAUID
-#'
-#' Returns ATTAINS data for assessment unit identifiers provided by the user.
-#'
-#' This function can be used to fetch information for known assessment unit
-#' identifier/monitoring location combinations in order to provide data compatible
-#' with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
-#' identifier/monitoring location combinations.
-#'
-#' @param .data A TADA data frame including including some results from monitoring
-#' locations already paired with assessment unit identifiers.
-#'
-#' @param au_ref Required. A df containing the existing crosswalk of known
-#' AU and monitoring location identifier combinations. Can be created using
-#' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
-#' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
-#' and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
-#' match those in the WQP, which may contain the organization and provider in
-#' the MonitoringLocationIdentifier.
-#'
-#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
-#' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
-#' with entity submitted assessment unit features - points, lines, and polygons)
-#' should be queried and downloaded for the assessment units included in the
-#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
-#' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
-#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
-#' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
-#'
-#' @param return_sf Whether to return the ATTAINS associated catchments, lines,
-#' points, and polygon shapefile objects along with the data frame(s).
-#' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326).
-#'
-#' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-#' columns associated with the ATTAINS assessment unit data, and, if
-#' fill_USGS_catch = TRUE, an additional dataframe of the observations without
-#' intersecting ATTAINS features.
-#' Moreover, if return_sf = TRUE, this function will additionally return the
-#' raw ATTAINS and catchment shapefile features associated with those
-#' observations.
-#'
-#' @seealso [TADA_DataRetrieval()]
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Example 1: Basic use with default settings
-#' # Assume my_data is a TADA data frame with some monitoring
-#' # location results
-#' # Assume my_au_ref is a data frame containing known AU and monitoring
-#' # location combinations
-#' result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
-#'
-#' # Example 2: Fetching ATTAINS data with catchment information
-#' # Set fill_ATTAINS_catch to TRUE to include catchment data in the output
-#' result_with_catch <- TADA_GetATTAINSByAUID(my_data,
-#'   au_ref = my_au_ref,
-#'   fill_ATTAINS_catch = TRUE
-#' )
-#'
-#' # Example 3: Handling empty data frames
-#' # If the input data frame has no observations, the function returns an
-#' # empty data frame with ATTAINS columns
-#' empty_data <- data.frame()
-#' empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
-#'
-#' # Example 4: Custom AU reference data from an external file
-#' # Load AU reference data from a CSV file and use it in the function
-#' au_ref_from_file <- read.csv("path/to/au_ref.csv")
-#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
-#'   au_ref = au_ref_from_file
-#' )
-#' }
-#'
-TADA_GetATTAINSByAUID <- function(
-  .data,
-  au_ref = NULL,
-  fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
-) {
-  # function settings that we ensure go back to their original settings
-  # after the function stops running:
-  original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
-  suppressMessages(sf::sf_use_s2(FALSE))
-  original_timeout <- getOption("timeout")
-  options(timeout = 30000)
-  on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(
-    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
-    add = TRUE
-  )
-
-  attains_names <- renameATTAINSCols(return_list = TRUE)
-
-  # should ATTAINS prefixed cols already present stop this function?
-  if (any(attains_names %in% colnames(.data))) {
-    # remove intermediate object
-    rm(attains_names)
-
-    # print message and stop function
-    stop("Your data has already been joined with ATTAINS data.")
-  }
-
-  if (nrow(.data) == 0) {
-    # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-    message(
-      "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
-    )
-
-    # Add ATTAINS columns with NA values
-    col_val_list <- stats::setNames(
-      object = rep(x = list(NA), times = length(attains_names)),
-      nm = attains_names
-    )
-
-    no_WQP_data <- .data |>
-      dplyr::mutate(ResultIdentifier = NA) |>
-      dplyr::bind_cols(col_val_list) |>
-      TADA_CorrectColType() |>
-      dplyr::select(ResultIdentifier, dplyr::everything())
-
-    # In this case we'll need to return empty ATTAINS objects
-    if (return_sf == TRUE) {
-      ATTAINS_catchments <- NULL
-      ATTAINS_lines <- NULL
-      ATTAINS_points <- NULL
-      ATTAINS_polygons <- NULL
-
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
+      final_list <- list(
+        "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
         "ATTAINS_catchments" = ATTAINS_catchments,
         "ATTAINS_points" = ATTAINS_points,
         "ATTAINS_lines" = ATTAINS_lines,
         "ATTAINS_polygons" = ATTAINS_polygons
-      ))
-
-      # If return_sf == FALSE, then just return the dataframe:
-    } else {
-      return(no_WQP_data)
-    }
-  }
-
-  req.cols <- c(
-    "AssessmentUnitIdentifier",
-    "MonitoringLocationIdentifier",
-    "WaterType"
-  )
-
-  # get column names by using internal function checkColName (in Utilities.R)
-  col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
-
-  # assign values to col.id variables - might be possible to rewrite with purrr function
-  assign(col.ids$col.id[1], col.ids$select.col[1])
-
-  assign(col.ids$col.id[2], col.ids$select.col[2])
-
-  assign(col.ids$col.id[3], col.ids$select.col[3])
-
-  # rename au_ref cols for next function
-  au_ref <- au_ref |>
-    dplyr::rename(
-      TADA.MonitoringLocationIdentifier = paste0(ml.col),
-      ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
-      Ref.WaterType = paste0(type.col)
-    ) |>
-    dplyr::select(
-      TADA.MonitoringLocationIdentifier,
-      ATTAINS.AssessmentUnitIdentifier,
-      Ref.WaterType
-    )
-
-  # filter detain to retain only results with known AUIDs
-  filt.data <- .data |>
-    dplyr::filter(
-      TADA.MonitoringLocationIdentifier %in%
-        au_ref$TADA.MonitoringLocationIdentifier
-    ) |>
-    dplyr::left_join(
-      au_ref,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-    )
-
-  # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
-  if (dim(.data)[1] < 1) {
-    stop(paste0(
-      "TADA_GetATTAINSByAUID: No records in the TADA data frame are associated with ",
-      "MonitoringLocationIdentifiers in the user-supplied ref."
-    ))
-  }
-
-  # REST for ATTAINS geospatial data:
-  baseurls <- c(
-    # ATTAINS catchments:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
-    # ATTAINS points:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
-    # ATTAINS lines:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
-    # ATTAINS polygons:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
-  )
-
-  # get water type info using ATTAINS Expert Query
-  get_wb_type <- function(au_list) {
-    au_list <- unique(au_list)
-
-    # split the au_list into chunks
-    chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
-
-    # get water type
-    # need to edit funciton to silent print outs from EQ_AUs
-
-    wat_type <- function(chunk) {
-      results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
-        auid = chunk
-      ))
-    }
-
-    results <- purrr::map_dfr(.x = chunks, .f = wat_type)
-
-    results <- results |>
-      dplyr::select(assessmentUnitId, waterType) |>
-      dplyr::distinct()
-
-    return(results)
-  }
-
-  # get water types
-  water_types <- try(
-    get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
-    silent = TRUE
-  )
-
-  # function to download ATTAINS features API based on their assessment unit id
-
-  fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
-    # Split the assessment_unit_ids into chunks of 1000
-    # API cannot handle more than 1000 features
-    id_chunks <- split(
-      assessment_unit_ids,
-      ceiling(seq_along(assessment_unit_ids) / chunk_n)
-    )
-
-    # Query API for a chunk of assessment unit IDs
-    fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0(
-        "assessmentunitidentifier IN ('",
-        paste(id_chunk, collapse = "','"),
-        "')"
       )
-      query_params <- list(where = where_clause, outFields = "*", f = "geojson")
 
-      response <- httr::GET(baseurls, query = query_params)
+      return(final_list)
+    }
+  }
+}
 
-      if (httr::status_code(response) != 200) {
-        stop("Failed to retrieve data from EPA ATTAINS API.")
+  #' TADA_GetATTAINSByAUID
+  #'
+  #' Returns ATTAINS data for assessment unit identifiers provided by the user.
+  #'
+  #' This function can be used to fetch information for known assessment unit
+  #' identifier/monitoring location combinations in order to provide data compatible
+  #' with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
+  #' identifier/monitoring location combinations.
+  #'
+  #' @param .data A TADA data frame including including some results from monitoring
+  #' locations already paired with assessment unit identifiers.
+  #'
+  #' @param au_ref Required. A df containing the existing crosswalk of known
+  #' AU and monitoring location identifier combinations. Can be created using
+  #' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
+  #' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
+  #' and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
+  #' match those in the WQP, which may contain the organization and provider in
+  #' the MonitoringLocationIdentifier.
+  #'
+  #' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
+  #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+  #' with entity submitted assessment unit features - points, lines, and polygons)
+  #' should be queried and downloaded for the assessment units included in the
+  #' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
+  #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+  #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+  #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
+  #'
+  #' @param return_sf Whether to return the ATTAINS associated catchments, lines,
+  #' points, and polygon shapefile objects along with the data frame(s).
+  #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
+  #' are in WGS84 (crs = 4326).
+  #'
+  #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
+  #' columns associated with the ATTAINS assessment unit data, and, if
+  #' fill_USGS_catch = TRUE, an additional dataframe of the observations without
+  #' intersecting ATTAINS features.
+  #' Moreover, if return_sf = TRUE, this function will additionally return the
+  #' raw ATTAINS and catchment shapefile features associated with those
+  #' observations.
+  #'
+  #' @seealso [TADA_DataRetrieval()]
+  #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
+  #'
+  #' @export
+  #'
+  #' @examples
+  #' \dontrun{
+  #' # Example 1: Basic use with default settings
+  #' # Assume my_data is a TADA data frame with some monitoring
+  #' # location results
+  #' # Assume my_au_ref is a data frame containing known AU and monitoring
+  #' # location combinations
+  #' result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
+  #'
+  #' # Example 2: Fetching ATTAINS data with catchment information
+  #' # Set fill_ATTAINS_catch to TRUE to include catchment data in the output
+  #' result_with_catch <- TADA_GetATTAINSByAUID(my_data,
+  #'   au_ref = my_au_ref,
+  #'   fill_ATTAINS_catch = TRUE
+  #' )
+  #'
+  #' # Example 3: Handling empty data frames
+  #' # If the input data frame has no observations, the function returns an
+  #' # empty data frame with ATTAINS columns
+  #' empty_data <- data.frame()
+  #' empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
+  #'
+  #' # Example 4: Custom AU reference data from an external file
+  #' # Load AU reference data from a CSV file and use it in the function
+  #' au_ref_from_file <- read.csv("path/to/au_ref.csv")
+  #' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
+  #'   au_ref = au_ref_from_file
+  #' )
+  #' }
+  #'
+  TADA_GetATTAINSByAUID <- function(
+    .data,
+    au_ref = NULL,
+    fill_ATTAINS_catch = FALSE,
+    return_sf = TRUE
+  ) {
+    # function settings that we ensure go back to their original settings
+    # after the function stops running:
+    original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
+    suppressMessages(sf::sf_use_s2(FALSE))
+    original_timeout <- getOption("timeout")
+    options(timeout = 30000)
+    on.exit(options(timeout = original_timeout), add = TRUE)
+    on.exit(
+      suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
+      add = TRUE
+    )
+
+    attains_names <- renameATTAINSCols(return_list = TRUE)
+
+    # should ATTAINS prefixed cols already present stop this function?
+    if (any(attains_names %in% colnames(.data))) {
+      # remove intermediate object
+      rm(attains_names)
+
+      # print message and stop function
+      stop("Your data has already been joined with ATTAINS data.")
+    }
+
+    if (nrow(.data) == 0) {
+      # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
+      message(
+        "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+      )
+
+      # Add ATTAINS columns with NA values
+      col_val_list <- stats::setNames(
+        object = rep(x = list(NA), times = length(attains_names)),
+        nm = attains_names
+      )
+
+      no_WQP_data <- .data |>
+        dplyr::mutate(ResultIdentifier = NA) |>
+        dplyr::bind_cols(col_val_list) |>
+        TADA_CorrectColType() |>
+        dplyr::select(ResultIdentifier, dplyr::everything())
+
+      # In this case we'll need to return empty ATTAINS objects
+      if (return_sf == TRUE) {
+        ATTAINS_catchments <- NULL
+        ATTAINS_lines <- NULL
+        ATTAINS_points <- NULL
+        ATTAINS_polygons <- NULL
+
+        return(list(
+          "TADA_with_ATTAINS" = no_WQP_data,
+          "ATTAINS_catchments" = ATTAINS_catchments,
+          "ATTAINS_points" = ATTAINS_points,
+          "ATTAINS_lines" = ATTAINS_lines,
+          "ATTAINS_polygons" = ATTAINS_polygons
+        ))
+
+        # If return_sf == FALSE, then just return the dataframe:
+      } else {
+        return(no_WQP_data)
+      }
+    }
+
+    req.cols <- c(
+      "AssessmentUnitIdentifier",
+      "MonitoringLocationIdentifier",
+      "WaterType"
+    )
+
+    # get column names by using internal function checkColName (in Utilities.R)
+    col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
+
+    # assign values to col.id variables - might be possible to rewrite with purrr function
+    assign(col.ids$col.id[1], col.ids$select.col[1])
+
+    assign(col.ids$col.id[2], col.ids$select.col[2])
+
+    assign(col.ids$col.id[3], col.ids$select.col[3])
+
+    # rename au_ref cols for next function
+    au_ref <- au_ref |>
+      dplyr::rename(
+        TADA.MonitoringLocationIdentifier = paste0(ml.col),
+        ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
+        Ref.WaterType = paste0(type.col)
+      ) |>
+      dplyr::select(
+        TADA.MonitoringLocationIdentifier,
+        ATTAINS.AssessmentUnitIdentifier,
+        Ref.WaterType
+      )
+
+    # filter detain to retain only results with known AUIDs
+    filt.data <- .data |>
+      dplyr::filter(
+        TADA.MonitoringLocationIdentifier %in%
+          au_ref$TADA.MonitoringLocationIdentifier
+      ) |>
+      dplyr::left_join(
+        au_ref,
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+      )
+
+    # check to see if any of the rows in the TADA df match MonitorignLocationIdentifiers in the user ref
+    if (dim(.data)[1] < 1) {
+      stop(paste0(
+        "TADA_GetATTAINSByAUID: No records in the TADA data frame are associated with ",
+        "MonitoringLocationIdentifiers in the user-supplied ref."
+      ))
+    }
+
+    # REST for ATTAINS geospatial data:
+    baseurls <- c(
+      # ATTAINS catchments:
+      "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
+      # ATTAINS points:
+      "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
+      # ATTAINS lines:
+      "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
+      # ATTAINS polygons:
+      "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+    )
+
+    # get water type info using ATTAINS Expert Query
+    get_wb_type <- function(au_list) {
+      au_list <- unique(au_list)
+
+      # split the au_list into chunks
+      chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
+
+      # get water type
+      # need to edit funciton to silent print outs from EQ_AUs
+
+      wat_type <- function(chunk) {
+        results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
+          api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
+          auid = chunk
+        ))
       }
 
-      geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
-      sf_object <- sf::st_read(geojson_data, quiet = TRUE)
+      results <- purrr::map_dfr(.x = chunks, .f = wat_type)
 
-      return(sf_object)
+      results <- results |>
+        dplyr::select(assessmentUnitId, waterType) |>
+        dplyr::distinct()
+
+      return(results)
     }
 
-    # fetch all chunks and combine results
-    au_results <- purrr::map_dfr(id_chunks, fetch_chunk)
+    # get water types
+    water_types <- try(
+      get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
+      silent = TRUE
+    )
 
-    return(au_results)
-  }
+    # function to download ATTAINS features API based on their assessment unit id
 
-  # start grabbing the raw ATTAINS features
-  points <- NULL
-  lines <- NULL
-  polygons <- NULL
-  catchments <- NULL
-  TADA_with_ATTAINS <- .data
+    fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
+      # Split the assessment_unit_ids into chunks of 1000
+      # API cannot handle more than 1000 features
+      id_chunks <- split(
+        assessment_unit_ids,
+        ceiling(seq_along(assessment_unit_ids) / chunk_n)
+      )
 
-  # Download associated point, line, polygon, and catchment features using list of auids
-  try(
-    points <- fetch_au(
-      baseurls = baseurls[2],
-      assessment_unit_ids = paste0(unique(
-        filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
-    silent = TRUE
-  )
+      # Query API for a chunk of assessment unit IDs
+      fetch_chunk <- function(id_chunk) {
+        where_clause <- paste0(
+          "assessmentunitidentifier IN ('",
+          paste(id_chunk, collapse = "','"),
+          "')"
+        )
+        query_params <- list(where = where_clause, outFields = "*", f = "geojson")
 
-  try(
-    lines <- fetch_au(
-      baseurls = baseurls[3],
-      assessment_unit_ids = paste0(unique(
-        filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
-    silent = TRUE
-  )
+        response <- httr::GET(baseurls, query = query_params)
 
-  try(
-    polygons <- fetch_au(
-      baseurls = baseurls[4],
-      assessment_unit_ids = paste0(unique(
-        filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
-    silent = TRUE
-  )
+        if (httr::status_code(response) != 200) {
+          stop("Failed to retrieve data from EPA ATTAINS API.")
+        }
 
-  if (nrow(lines) == 0 & nrow(points) == 0 & nrow(polygons) == 0) {
+        geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
+        sf_object <- sf::st_read(geojson_data, quiet = TRUE)
+
+        return(sf_object)
+      }
+
+      # fetch all chunks and combine results
+      au_results <- purrr::map_dfr(id_chunks, fetch_chunk)
+
+      return(au_results)
+    }
+
+    # start grabbing the raw ATTAINS features
+    points <- NULL
+    lines <- NULL
+    polygons <- NULL
+    catchments <- NULL
+    TADA_with_ATTAINS <- .data
+
+    # Download associated point, line, polygon, and catchment features using list of auids
+    try(
+      points <- fetch_au(
+        baseurls = baseurls[2],
+        assessment_unit_ids = paste0(unique(
+          filt.data$ATTAINS.AssessmentUnitIdentifier
+        )),
+        chunk_n = 100
+      ),
+      silent = TRUE
+    )
+
+    try(
+      lines <- fetch_au(
+        baseurls = baseurls[3],
+        assessment_unit_ids = paste0(unique(
+          filt.data$ATTAINS.AssessmentUnitIdentifier
+        )),
+        chunk_n = 100
+      ),
+      silent = TRUE
+    )
+
+    try(
+      polygons <- fetch_au(
+        baseurls = baseurls[4],
+        assessment_unit_ids = paste0(unique(
+          filt.data$ATTAINS.AssessmentUnitIdentifier
+        )),
+        chunk_n = 100
+      ),
+      silent = TRUE
+    )
+
+    if (nrow(lines) == 0 & nrow(points) == 0 & nrow(polygons) == 0) {
+      final_features <- list(
+        "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+        "ATTAINS_catchments" = catchments,
+        "ATTAINS_points" = points,
+        "ATTAINS_lines" = lines,
+        "ATTAINS_polygons" = polygons
+      )
+
+      return(final_features)
+    }
+
+    try(
+      points <- points |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitId")
+        ),
+      silent = TRUE
+    )
+
+    try(
+      lines <- lines |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitId")
+        ),
+      silent = TRUE
+    )
+
+    try(
+      polygons <- polygons |>
+        dplyr::left_join(
+          water_types,
+          by = c("assessmentunitidentifier" = "assessmentUnitId")
+        ),
+      silent = TRUE
+    )
+
+    if (fill_ATTAINS_catch == FALSE) {
+      catchments <- NULL
+    }
+
+    # create TADA_with_ATTAINS df for list output
+    TADA_with_ATTAINS <- filt.data
+
+    # NEED to figure out what should happen here when no geometry is found (HRM note: 1/21/26)
+
+    # create list of tada prefix columns
+    tada.cols <- colnames(TADA_with_ATTAINS)
+
+    # create list of attains prefix cols
+    attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
+
+    # create a combined list of tada and attains prefix cols
+    comb.cols <- append(tada.cols, attains.cols) |> unique()
+
+    attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
+
+    # change col names of attains.geo to match tada and attains prefix cols
+    colnames(attains.geo) <- comb.cols
+
+    # remove unnecessary column from attains.geo
+    attains.geo <- attains.geo |>
+      dplyr::select(-assessmentunitidentifier) |>
+      TADA_CorrectColType()
+
+    # remove intermediate objects
+    rm(tada.cols, attains.cols, comb.cols)
+
+    if (fill_ATTAINS_catch == TRUE) {
+      try(
+        catchments <- fetch_au(
+          baseurls = baseurls[1],
+          assessment_unit_ids = paste0(unique(
+            filt.data$ATTAINS.AssessmentUnitIdentifier
+          )),
+          chunk_n = 10
+        ),
+        silent = TRUE
+      )
+
+      # get one catchment per WQP location
+      catchments.cw <- filt.data |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          HorizontalCoordinateReferenceSystemDatumName
+        ) |>
+        dplyr::distinct() |>
+        TADA_MakeSpatial() |>
+        sf::st_join(catchments, join = sf::st_nearest_feature) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+        dplyr::mutate(catchCount = dplyr::n()) |>
+        dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
+        dplyr::distinct() |>
+        sf::st_drop_geometry()
+
+      catchments.filt <- catchments |>
+        dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+
+      catchments.no.geo <- catchments |>
+        sf::st_drop_geometry() |>
+        dplyr::distinct()
+
+      try(
+        catchments <- catchments.filt |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitId")
+          ),
+        silent = TRUE
+      )
+    }
+
+    # internal function to combine attains.geo data
+    combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
+      # rename AU column in geo.data
+      geo.data <- geo.data |>
+        dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
+
+      # join data from ATTAINS with TADA df
+      df <- .data |>
+        dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
+
+      # Bind with existing attains.geo data
+      attains.geo <- plyr::rbind.fill(attains.geo, df)
+      # Check if GLOBALID exists in the combined data frame
+      if ("GLOBALID" %in% names(attains.geo)) {
+        # Filter out rows with NA in GLOBALID
+        attains.geo <- attains.geo |> dplyr::filter(!is.na(GLOBALID))
+      }
+
+      # remove intermediate object
+      rm(df)
+
+      # return tada df with added attains data
+      return(attains.geo)
+    }
+
+    # add attains data returned from lines query if any exists
+    if (dim(lines)[1] > 0) {
+      attains.geo <- combineATTAINSGeo(
+        .data = TADA_with_ATTAINS,
+        geo.data = lines,
+        attains.geo = attains.geo
+      )
+    }
+
+    # add attains data returned from points query if any exists
+    if (dim(points)[1] > 0) {
+      attains.geo <- combineATTAINSGeo(
+        .data = TADA_with_ATTAINS,
+        geo.data = points,
+        attains.geo = attains.geo
+      )
+    }
+
+    # add attains data returned from polygons query if any exists
+    if (dim(polygons)[1] > 0) {
+      attains.geo <- combineATTAINSGeo(
+        .data = TADA_with_ATTAINS,
+        geo.data = polygons,
+        attains.geo = attains.geo
+      )
+    }
+
+    # remame cols and set up TADA_with_ATTAINS df
+    TADA_with_ATTAINS <- attains.geo |>
+      TADA_CorrectColType() |>
+      dplyr::filter(!is.na(ResultIdentifier)) |>
+      dplyr::full_join(.data, by = names(.data)) |>
+      renameATTAINSCols() |>
+      dplyr::mutate(
+        ATTAINS.WaterType = ifelse(
+          is.na(ATTAINS.WaterType),
+          Ref.WaterType,
+          ATTAINS.WaterType
+        )
+      ) |>
+      dplyr::group_by(ResultIdentifier)
+
+    # Check to see if any mismatches
+    mismatch_check <- TADA_with_ATTAINS |>
+      dplyr::select(
+        ATTAINS.AssessmentUnitIdentifier,
+        ATTAINS.WaterType,
+        Ref.WaterType
+      ) |>
+      dplyr::mutate(
+        ATTAINS.WaterType = ifelse(
+          is.na(ATTAINS.WaterType),
+          "NA",
+          ATTAINS.WaterType
+        ),
+        Ref.WaterType = ifelse(is.na(Ref.WaterType), "NA", Ref.WaterType),
+        Mismatch = ATTAINS.WaterType != Ref.WaterType
+      ) |>
+      dplyr::filter(Mismatch == TRUE)
+
+    # Remove mismatch test if none exist
+    if (nrow(mismatch_check) == 0) {
+      rm(mismatch_check)
+    }
+
+    # Print message if mismatches exist
+    if (exists("mismatch_check") && nrow(mismatch_check) > 0) {
+      mismatch.text <- mismatch_check |>
+        dplyr::mutate(
+          MatchMessage = paste0(
+            ATTAINS.AssessmentUnitIdentifier,
+            " (ATTAINS: ",
+            ATTAINS.WaterType,
+            ", User-ref: ",
+            Ref.WaterType,
+            ")"
+          )
+        ) |>
+        dplyr::select(MatchMessage) |>
+        dplyr::pull()
+
+      mismatch.text <- stringi::stri_replace_last(
+        paste(mismatch.text, collapse = "; "),
+        fixed = "; ",
+        " and "
+      )
+
+      print(paste0(
+        "TADA_GetATTAINSByAUID: There are mismatches between the ATTAINS and user-supplied ",
+        "ref water type for one or more assessment units. ",
+        "The ATTAINS water type has been retained for all mismatched records. ",
+        "If you would like to update the water type, that must be done through the ATTAINS ",
+        "user interface or batch upload. ",
+        "Mismatch details: ",
+        mismatch.text,
+        "."
+      ))
+
+      rm(mismatch.text, mismatch_check)
+    }
+
+    # remove Ref.WaterType col as it is no longer needed
+    TADA_with_ATTAINS <- TADA_with_ATTAINS |>
+      dplyr::select(-Ref.WaterType) |>
+      dplyr::distinct()
+
+    # remove intermediate object
+    rm(attains.geo, filt.data)
+
     final_features <- list(
       "TADA_with_ATTAINS" = TADA_with_ATTAINS,
       "ATTAINS_catchments" = catchments,
@@ -2015,502 +2265,196 @@ TADA_GetATTAINSByAUID <- function(
     return(final_features)
   }
 
-  try(
-    points <- points |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
-
-  try(
-    lines <- lines |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
-
-  try(
-    polygons <- polygons |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
-
-  if (fill_ATTAINS_catch == FALSE) {
-    catchments <- NULL
-  }
-
-  # create TADA_with_ATTAINS df for list output
-  TADA_with_ATTAINS <- filt.data
-
-  # NEED to figure out what should happen here when no geometry is found (HRM note: 1/21/26)
-
-  # create list of tada prefix columns
-  tada.cols <- colnames(TADA_with_ATTAINS)
-
-  # create list of attains prefix cols
-  attains.cols <- renameATTAINSCols(return_list = TRUE, format = "attains")
-
-  # create a combined list of tada and attains prefix cols
-  comb.cols <- append(tada.cols, attains.cols) |> unique()
-
-  attains.geo <- data.frame(matrix(nrow = 1, ncol = length(comb.cols)))
-
-  # change col names of attains.geo to match tada and attains prefix cols
-  colnames(attains.geo) <- comb.cols
-
-  # remove unnecessary column from attains.geo
-  attains.geo <- attains.geo |>
-    dplyr::select(-assessmentunitidentifier) |>
-    TADA_CorrectColType()
-
-  # remove intermediate objects
-  rm(tada.cols, attains.cols, comb.cols)
-
-  if (fill_ATTAINS_catch == TRUE) {
-    try(
-      catchments <- fetch_au(
-        baseurls = baseurls[1],
-        assessment_unit_ids = paste0(unique(
-          filt.data$ATTAINS.AssessmentUnitIdentifier
-        )),
-        chunk_n = 10
-      ),
-      silent = TRUE
+  #' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
+  #'
+  #' This function takes a TADA dataset and identifies the NHD catchments that
+  #' each MonitoringLocation is in. Within each group of MonitoringLocations in
+  #' the same catchment, a distance matrix is created and an adjacency matrix
+  #' is used to identify groups of nearby sites within the same catchment.
+  #' Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
+  #' which is created by concatenating the original
+  #' TADA.MonitoringLocationIdentifiers of all sites within the group. If the
+  #' ATTAINS.AssessmentUnitIdentifier column in present, the default is
+  #' only monitoring locations within the same assessment unit will be grouped together.
+  #' It is recommended to assign monitoring locations to assessment units before running
+  #' this function. If ATTAINS.AssessmentUnitIdentifier is present and the user does not
+  #' want it to be factored into to nearby site groupings, the by_AU param can be set to
+  #' FALSE. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
+  #' TADA.NearbySiteGroup contains a unique numeric value for each group of sites
+  #' within the same catchment. TADA.NearbySites.Flag identifies whether or not
+  #' a result is from a grouped site or not and for grouped sites identifies how
+  #' the TADA prefixed metadata columns (TADA.MonitoringLocationName,
+  #' TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and
+  #' TADA.LatitudeMeasure) were determined.
+  #'
+  #' @param .data TADA dataframe OR TADA sites dataframe.
+  #'
+  #' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
+  #' from one another to be considered "nearby" and grouped together.
+  #'
+  #' @param catchment Boolean. When catchment = TRUE, two sites will only be matched
+  #' if they are within the same NHD catchment. When catchment = FALSE catchment
+  #' is not considered when matching sites. Default is catchment = TRUE.
+  #'
+  #' @param by_AU Boolean. When by_AU = TRUE, two sites will only be matched
+  #' if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
+  #' assessment unit is not considered when matching nearby sites. In order to
+  #' consider assessment unit when matching, the TADA data frame must contain the
+  #' column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.
+  #'
+  #' @param nhd_res Character argument to determine whether the NHD catchments
+  #' used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
+  #' consistency with other TADA geospatial functions.
+  #'
+  #' @param org_hierarchy Vector of organization identifiers that acts as the
+  #' order in which the function should select representative metadata for
+  #' grouped sites based on the organization that collected the data. If left
+  #' blank, the function does not factor organization in to the metadata
+  #' selection process. When a vector is provided, the metadata will first be
+  #' selected by organization and the "meta_select" argument will only be
+  #' applied in cases where more than one set of metadata per site grouping are
+  #' available from the highest ranking organization available.
+  #'
+  #' @param meta_select Character argument to determine how metadata should be
+  #' selected if no org_hierarchy is specified or if multiple options for metadata
+  #' from the same organization exist. Options are "oldest", which selects the
+  #' metadata associated with the oldest result from the grouped nearby sites,
+  #' "newest", which selects the metadata associated with the newest result from
+  #' the grouped nearby sites, "count" which selects the metadata associated with
+  #' the greatest number of results, and "random" which selects random metadata
+  #' from the site group. The default is meta_select = "random".
+  #'
+  #' @return Input dataframe with a TADA.SiteGroup column that indicates the
+  #' nearby site group each monitoring location belongs to. Grouped sites are
+  #' concatenated in the TADA.MonitoringLocationIdentifier column
+  #' (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
+  #' This JSON array is the new TADA monitoring location ID for the grouped sites.
+  #' TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
+  #' nearby sites together (as the same general location). Related metadata,
+  #' including TADA.MonitoringLocationName, TADA.LatitudeMeasure,
+  #' TADA.LongitudeMeasure, and TADA.MonitoringLocationTypeName are added to the
+  #' input df. Meta data selection is determined by user inputs as users may
+  #' provide an organization hierarchy to determine which organization's
+  #' metadata should be preferentially selected and further specify whether
+  #' metadata should be selected: randomly, by the oldest or newest sampling date,
+  #' or by the site with the greatest number of overall results in the TADA df.
+  #'
+  #' @export
+  #'
+  #' @examples
+  #' \dontrun{
+  #' # use MT example data set
+  #' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
+  #'
+  #' # example grouping nearby sites by distance only
+  #' test.dist <- TADA_FindNearbySites(testdat,
+  #'   catchment = FALSE,
+  #'   by_AU = FALSE,
+  #'   dist_buffer = 250
+  #' )
+  #'
+  #' # example grouping nearby sites by distance and catchment
+  #' test.catch <- TADA_FindNearbySites(testdat,
+  #'   catchment = TRUE,
+  #'   by_AU = FALSE,
+  #'   dist_buffer = 250
+  #' )
+  #'
+  #' # example grouping nearby sites by distance and assessment unit
+  #' test.au.only <- TADA_FindNearbySites(testdat,
+  #'   catchment = FALSE,
+  #'   by_AU = TRUE,
+  #'   dist_buffer = 250
+  #' )
+  #'
+  #' # example grouping nearby sites by distance, catchment, and assessment unit
+  #' test.all <- TADA_FindNearbySites(testdat,
+  #'   catchment = TRUE,
+  #'   by_AU = TRUE,
+  #'   dist_buffer = 250
+  #' )
+  #' }
+  TADA_FindNearbySites <- function(
+    .data,
+    dist_buffer = 100,
+    nhd_res = "Hi",
+    org_hierarchy = "none",
+    meta_select = "random",
+    catchment = TRUE,
+    by_AU = TRUE
+  ) {
+    # check .data is data.frame and has required columns
+    expected_cols <- c(
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.LongitudeMeasure",
+      "TADA.LatitudeMeasure"
     )
 
-    # get one catchment per WQP location
-    catchments.cw <- filt.data |>
+    TADA_CheckColumns(.data, expected_cols)
+
+    # remove intermediate object
+    rm(expected_cols)
+
+    # retain only necessary columns unique Monitoring Locations
+    unique.mls <- .data |>
       dplyr::select(
-        TADA.MonitoringLocationIdentifier,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        HorizontalCoordinateReferenceSystemDatumName
+        "TADA.MonitoringLocationIdentifier",
+        "TADA.MonitoringLocationName",
+        "TADA.LongitudeMeasure",
+        "TADA.LatitudeMeasure",
+        "HorizontalCoordinateReferenceSystemDatumName"
       ) |>
-      dplyr::distinct() |>
-      TADA_MakeSpatial() |>
-      sf::st_join(catchments, join = sf::st_nearest_feature) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-      dplyr::mutate(catchCount = dplyr::n()) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
-      dplyr::distinct() |>
-      sf::st_drop_geometry()
-
-    catchments.filt <- catchments |>
-      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
-
-    catchments.no.geo <- catchments |>
-      sf::st_drop_geometry() |>
       dplyr::distinct()
 
-    try(
-      catchments <- catchments.filt |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitId")
-        ),
-      silent = TRUE
-    )
-  }
-
-  # internal function to combine attains.geo data
-  combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
-    # rename AU column in geo.data
-    geo.data <- geo.data |>
-      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
-
-    # join data from ATTAINS with TADA df
-    df <- .data |>
-      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
-
-    # Bind with existing attains.geo data
-    attains.geo <- plyr::rbind.fill(attains.geo, df)
-    # Check if GLOBALID exists in the combined data frame
-    if ("GLOBALID" %in% names(attains.geo)) {
-      # Filter out rows with NA in GLOBALID
-      attains.geo <- attains.geo |> dplyr::filter(!is.na(GLOBALID))
+    # convert to sf object if not already spatial
+    if (!inherits(.data, "sf")) {
+      unique.mls <- try(TADA_MakeSpatial(unique.mls), silent = TRUE)
     }
 
-    # remove intermediate object
-    rm(df)
+    # create a distance matrix in meters
+    dist.matrix <- as.matrix(sf::st_distance(unique.mls)) # Great Circle distance since in lat/lon
 
-    # return tada df with added attains data
-    return(attains.geo)
-  }
+    # remove units from distance matrix
+    dist.matrix <- dist.matrix |> units::drop_units()
 
-  # add attains data returned from lines query if any exists
-  if (dim(lines)[1] > 0) {
-    attains.geo <- combineATTAINSGeo(
-      .data = TADA_with_ATTAINS,
-      geo.data = lines,
-      attains.geo = attains.geo
+    rownames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
+    colnames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
+
+    # convert distances to those within buffer (1) and beyond buffer (0)
+    dist.matrix <- apply(dist.matrix, c(1, 2), function(x) {
+      if (x <= dist_buffer) {
+        x <- 1
+      } else {
+        x <- 0
+      }
+    })
+
+    # create adjacency graph
+    adj.graph <- igraph::graph_from_adjacency_matrix(
+      dist.matrix,
+      mode = "undirected",
+      diag = FALSE
     )
-  }
 
-  # add attains data returned from points query if any exists
-  if (dim(points)[1] > 0) {
-    attains.geo <- combineATTAINSGeo(
-      .data = TADA_with_ATTAINS,
-      geo.data = points,
-      attains.geo = attains.geo
-    )
-  }
+    # find connected sites
+    comp.results <- igraph::components(adj.graph)
 
-  # add attains data returned from polygons query if any exists
-  if (dim(polygons)[1] > 0) {
-    attains.geo <- combineATTAINSGeo(
-      .data = TADA_with_ATTAINS,
-      geo.data = polygons,
-      attains.geo = attains.geo
-    )
-  }
-
-  # remame cols and set up TADA_with_ATTAINS df
-  TADA_with_ATTAINS <- attains.geo |>
-    TADA_CorrectColType() |>
-    dplyr::filter(!is.na(ResultIdentifier)) |>
-    dplyr::full_join(.data, by = names(.data)) |>
-    renameATTAINSCols() |>
-    dplyr::mutate(
-      ATTAINS.WaterType = ifelse(
-        is.na(ATTAINS.WaterType),
-        Ref.WaterType,
-        ATTAINS.WaterType
-      )
+    # create site group dfs
+    group.sites <- data.frame(
+      TADA.MonitoringLocationIdentifier = names(comp.results$membership),
+      Group = comp.results$membership,
+      row.names = NULL
     ) |>
-    dplyr::group_by(ResultIdentifier)
-
-  # Check to see if any mismatches
-  mismatch_check <- TADA_with_ATTAINS |>
-    dplyr::select(
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.WaterType,
-      Ref.WaterType
-    ) |>
-    dplyr::mutate(
-      ATTAINS.WaterType = ifelse(
-        is.na(ATTAINS.WaterType),
-        "NA",
-        ATTAINS.WaterType
-      ),
-      Ref.WaterType = ifelse(is.na(Ref.WaterType), "NA", Ref.WaterType),
-      Mismatch = ATTAINS.WaterType != Ref.WaterType
-    ) |>
-    dplyr::filter(Mismatch == TRUE)
-
-  # Remove mismatch test if none exist
-  if (nrow(mismatch_check) == 0) {
-    rm(mismatch_check)
-  }
-
-  # Print message if mismatches exist
-  if (exists("mismatch_check") && nrow(mismatch_check) > 0) {
-    mismatch.text <- mismatch_check |>
-      dplyr::mutate(
-        MatchMessage = paste0(
-          ATTAINS.AssessmentUnitIdentifier,
-          " (ATTAINS: ",
-          ATTAINS.WaterType,
-          ", User-ref: ",
-          Ref.WaterType,
-          ")"
-        )
-      ) |>
-      dplyr::select(MatchMessage) |>
-      dplyr::pull()
-
-    mismatch.text <- stringi::stri_replace_last(
-      paste(mismatch.text, collapse = "; "),
-      fixed = "; ",
-      " and "
-    )
-
-    print(paste0(
-      "TADA_GetATTAINSByAUID: There are mismatches between the ATTAINS and user-supplied ",
-      "ref water type for one or more assessment units. ",
-      "The ATTAINS water type has been retained for all mismatched records. ",
-      "If you would like to update the water type, that must be done through the ATTAINS ",
-      "user interface or batch upload. ",
-      "Mismatch details: ",
-      mismatch.text,
-      "."
-    ))
-
-    rm(mismatch.text, mismatch_check)
-  }
-
-  # remove Ref.WaterType col as it is no longer needed
-  TADA_with_ATTAINS <- TADA_with_ATTAINS |>
-    dplyr::select(-Ref.WaterType) |>
-    dplyr::distinct()
-
-  # remove intermediate object
-  rm(attains.geo, filt.data)
-
-  final_features <- list(
-    "TADA_with_ATTAINS" = TADA_with_ATTAINS,
-    "ATTAINS_catchments" = catchments,
-    "ATTAINS_points" = points,
-    "ATTAINS_lines" = lines,
-    "ATTAINS_polygons" = polygons
-  )
-
-  return(final_features)
-}
-
-#' Identify and group nearby monitoring locations (UNDER ACTIVE DEVELOPMENT)
-#'
-#' This function takes a TADA dataset and identifies the NHD catchments that
-#' each MonitoringLocation is in. Within each group of MonitoringLocations in
-#' the same catchment, a distance matrix is created and an adjacency matrix
-#' is used to identify groups of nearby sites within the same catchment.
-#' Groups of nearby sites are given a new TADA.MonitoringLocationIdentifier
-#' which is created by concatenating the original
-#' TADA.MonitoringLocationIdentifiers of all sites within the group. If the
-#' ATTAINS.AssessmentUnitIdentifier column in present, the default is
-#' only monitoring locations within the same assessment unit will be grouped together.
-#' It is recommended to assign monitoring locations to assessment units before running
-#' this function. If ATTAINS.AssessmentUnitIdentifier is present and the user does not
-#' want it to be factored into to nearby site groupings, the by_AU param can be set to
-#' FALSE. Two additional columns, TADA.NearbySiteGroup and TADA.NearbySites.Flag are added.
-#' TADA.NearbySiteGroup contains a unique numeric value for each group of sites
-#' within the same catchment. TADA.NearbySites.Flag identifies whether or not
-#' a result is from a grouped site or not and for grouped sites identifies how
-#' the TADA prefixed metadata columns (TADA.MonitoringLocationName,
-#' TADA.MonitoringLocationTypeName, TADA.LongitudeMeasure, and
-#' TADA.LatitudeMeasure) were determined.
-#'
-#' @param .data TADA dataframe OR TADA sites dataframe.
-#'
-#' @param dist_buffer Numeric. The maximum distance (in meters) two sites can be
-#' from one another to be considered "nearby" and grouped together.
-#'
-#' @param catchment Boolean. When catchment = TRUE, two sites will only be matched
-#' if they are within the same NHD catchment. When catchment = FALSE catchment
-#' is not considered when matching sites. Default is catchment = TRUE.
-#'
-#' @param by_AU Boolean. When by_AU = TRUE, two sites will only be matched
-#' if they are within the same ATTAINS assessment unit. When by_AU = FALSE the
-#' assessment unit is not considered when matching nearby sites. In order to
-#' consider assessment unit when matching, the TADA data frame must contain the
-#' column ATTAINS.AssessmentUnitIdentifier. Default is by_AU = TRUE.
-#'
-#' @param nhd_res Character argument to determine whether the NHD catchments
-#' used should be high ("Hi") or medium ("Med") res. Default = "Hi" for
-#' consistency with other TADA geospatial functions.
-#'
-#' @param org_hierarchy Vector of organization identifiers that acts as the
-#' order in which the function should select representative metadata for
-#' grouped sites based on the organization that collected the data. If left
-#' blank, the function does not factor organization in to the metadata
-#' selection process. When a vector is provided, the metadata will first be
-#' selected by organization and the "meta_select" argument will only be
-#' applied in cases where more than one set of metadata per site grouping are
-#' available from the highest ranking organization available.
-#'
-#' @param meta_select Character argument to determine how metadata should be
-#' selected if no org_hierarchy is specified or if multiple options for metadata
-#' from the same organization exist. Options are "oldest", which selects the
-#' metadata associated with the oldest result from the grouped nearby sites,
-#' "newest", which selects the metadata associated with the newest result from
-#' the grouped nearby sites, "count" which selects the metadata associated with
-#' the greatest number of results, and "random" which selects random metadata
-#' from the site group. The default is meta_select = "random".
-#'
-#' @return Input dataframe with a TADA.SiteGroup column that indicates the
-#' nearby site group each monitoring location belongs to. Grouped sites are
-#' concatenated in the TADA.MonitoringLocationIdentifier column
-#' (e.g. "USGS-10010025","USGS-10010026" enclosed in square brackets []).
-#' This JSON array is the new TADA monitoring location ID for the grouped sites.
-#' TADA.MonitoringLocationIdentifier can be leveraged to analyze data from
-#' nearby sites together (as the same general location). Related metadata,
-#' including TADA.MonitoringLocationName, TADA.LatitudeMeasure,
-#' TADA.LongitudeMeasure, and TADA.MonitoringLocationTypeName are added to the
-#' input df. Meta data selection is determined by user inputs as users may
-#' provide an organization hierarchy to determine which organization's
-#' metadata should be preferentially selected and further specify whether
-#' metadata should be selected: randomly, by the oldest or newest sampling date,
-#' or by the site with the greatest number of overall results in the TADA df.
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # use MT example data set
-#' testdat <- Data_MT_AUMLRef$TADA_with_ATTAINS
-#'
-#' # example grouping nearby sites by distance only
-#' test.dist <- TADA_FindNearbySites(testdat,
-#'   catchment = FALSE,
-#'   by_AU = FALSE,
-#'   dist_buffer = 250
-#' )
-#'
-#' # example grouping nearby sites by distance and catchment
-#' test.catch <- TADA_FindNearbySites(testdat,
-#'   catchment = TRUE,
-#'   by_AU = FALSE,
-#'   dist_buffer = 250
-#' )
-#'
-#' # example grouping nearby sites by distance and assessment unit
-#' test.au.only <- TADA_FindNearbySites(testdat,
-#'   catchment = FALSE,
-#'   by_AU = TRUE,
-#'   dist_buffer = 250
-#' )
-#'
-#' # example grouping nearby sites by distance, catchment, and assessment unit
-#' test.all <- TADA_FindNearbySites(testdat,
-#'   catchment = TRUE,
-#'   by_AU = TRUE,
-#'   dist_buffer = 250
-#' )
-#' }
-TADA_FindNearbySites <- function(
-  .data,
-  dist_buffer = 100,
-  nhd_res = "Hi",
-  org_hierarchy = "none",
-  meta_select = "random",
-  catchment = TRUE,
-  by_AU = TRUE
-) {
-  # check .data is data.frame and has required columns
-  expected_cols <- c(
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.LongitudeMeasure",
-    "TADA.LatitudeMeasure"
-  )
-
-  TADA_CheckColumns(.data, expected_cols)
-
-  # remove intermediate object
-  rm(expected_cols)
-
-  # retain only necessary columns unique Monitoring Locations
-  unique.mls <- .data |>
-    dplyr::select(
-      "TADA.MonitoringLocationIdentifier",
-      "TADA.MonitoringLocationName",
-      "TADA.LongitudeMeasure",
-      "TADA.LatitudeMeasure",
-      "HorizontalCoordinateReferenceSystemDatumName"
-    ) |>
-    dplyr::distinct()
-
-  # convert to sf object if not already spatial
-  if (!inherits(.data, "sf")) {
-    unique.mls <- try(TADA_MakeSpatial(unique.mls), silent = TRUE)
-  }
-
-  # create a distance matrix in meters
-  dist.matrix <- as.matrix(sf::st_distance(unique.mls)) # Great Circle distance since in lat/lon
-
-  # remove units from distance matrix
-  dist.matrix <- dist.matrix |> units::drop_units()
-
-  rownames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
-  colnames(dist.matrix) <- unique.mls$TADA.MonitoringLocationIdentifier
-
-  # convert distances to those within buffer (1) and beyond buffer (0)
-  dist.matrix <- apply(dist.matrix, c(1, 2), function(x) {
-    if (x <= dist_buffer) {
-      x <- 1
-    } else {
-      x <- 0
-    }
-  })
-
-  # create adjacency graph
-  adj.graph <- igraph::graph_from_adjacency_matrix(
-    dist.matrix,
-    mode = "undirected",
-    diag = FALSE
-  )
-
-  # find connected sites
-  comp.results <- igraph::components(adj.graph)
-
-  # create site group dfs
-  group.sites <- data.frame(
-    TADA.MonitoringLocationIdentifier = names(comp.results$membership),
-    Group = comp.results$membership,
-    row.names = NULL
-  ) |>
-    dplyr::group_by(Group) |>
-    dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
-    dplyr::filter(n > 1) |>
-    dplyr::select(-n) |>
-    dplyr::ungroup()
-
-  # remove intermediate objects
-  rm(dist.matrix, adj.graph, comp.results)
-
-  # add flag column, stop function, and print message if no nearby sites found
-  if (nrow(group.sites) == 0) {
-    # #if no groups, give a TADA.NearbySiteGroup column filled with
-    # "No nearby sites"
-    print(
-      "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
-    )
-
-    .data <- .data |>
-      dplyr::mutate(
-        TADA.NearbySites.Flag = "No nearby sites detected.",
-        TADA.NearbySiteGroup = NA
-      )
-
-    return(.data)
-  }
-
-  # if catchment should be factored into site groupings
-  if (catchment == TRUE) {
-    # subset nearby sites
-    near.sites <- unique.mls |>
-      dplyr::filter(
-        TADA.MonitoringLocationIdentifier %in%
-          group.sites$TADA.MonitoringLocationIdentifier
-      ) |>
-      dplyr::left_join(
-        group.sites,
-        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-      )
-
-    # break into multiple dfs
-    near.dfs <- near.sites |> dplyr::group_split(Group, .keep = FALSE)
-
-    # fetch nhdplus catchment information
-    nhd.catch <- near.dfs |> purrr::map(~ .x |> fetchNHD(resolution = nhd_res))
-
-    # remove intermediate object
-    rm(near.dfs)
-
-    # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
-    nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
-
-    # create one df from all fetchNHD data
-    nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
-
-    # join nhd catchments with monitoring locations, filter to include group/catchment
-    group.sites <- near.sites |>
-      sf::st_join(nhd.catch.all, left = TRUE) |>
-      dplyr::distinct() |>
-      dplyr::group_by(Group, NHD.nhdplusid) |>
+      dplyr::group_by(Group) |>
       dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
       dplyr::filter(n > 1) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
-      sf::st_drop_geometry()
+      dplyr::select(-n) |>
+      dplyr::ungroup()
 
     # remove intermediate objects
-    rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
+    rm(dist.matrix, adj.graph, comp.results)
 
+    # add flag column, stop function, and print message if no nearby sites found
     if (nrow(group.sites) == 0) {
       # #if no groups, give a TADA.NearbySiteGroup column filled with
       # "No nearby sites"
@@ -2526,1208 +2470,1277 @@ TADA_FindNearbySites <- function(
 
       return(.data)
     }
-  }
-  # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
-  # and status of by_AU param
-  if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
-    if (by_AU == TRUE) {
-      print(
-        "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit."
-      )
 
-      # create crosswalk for monitoring locations and assessment units
-      au.ml.cw <- .data |>
-        dplyr::select(
-          TADA.MonitoringLocationIdentifier,
-          ATTAINS.AssessmentUnitIdentifier
-        ) |>
-        dplyr::distinct()
-
-      # group by ATTAINS.AssessmentUnitIdentifier (and catchment)
-      group.sites <- group.sites |>
-        sf::st_drop_geometry() |>
-        dplyr::left_join(
-          au.ml.cw,
-          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-        ) |>
-        dplyr::group_by(ATTAINS.AssessmentUnitIdentifier) |>
+    # if catchment should be factored into site groupings
+    if (catchment == TRUE) {
+      # subset nearby sites
+      near.sites <- unique.mls |>
         dplyr::filter(
-          !is.na(ATTAINS.AssessmentUnitIdentifier),
-          ATTAINS.AssessmentUnitIdentifier != ""
+          TADA.MonitoringLocationIdentifier %in%
+            group.sites$TADA.MonitoringLocationIdentifier
         ) |>
-        dplyr::mutate(Group.n = dplyr::n()) |>
-        dplyr::filter(Group.n > 1) |>
-        dplyr::select(-Group.n)
-    } else {
-      print(
-        "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites."
-      )
+        dplyr::left_join(
+          group.sites,
+          by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+        )
+
+      # break into multiple dfs
+      near.dfs <- near.sites |> dplyr::group_split(Group, .keep = FALSE)
+
+      # fetch nhdplus catchment information
+      nhd.catch <- near.dfs |> purrr::map(~ .x |> fetchNHD(resolution = nhd_res))
+
+      # remove intermediate object
+      rm(near.dfs)
+
+      # remove any fetchNHD dfs that do not contain any data (to prevent bind rows error)
+      nhd.catch.filt <- purrr::keep(nhd.catch, ~ nrow(.) > 0)
+
+      # create one df from all fetchNHD data
+      nhd.catch.all <- dplyr::bind_rows(nhd.catch.filt)
+
+      # join nhd catchments with monitoring locations, filter to include group/catchment
+      group.sites <- near.sites |>
+        sf::st_join(nhd.catch.all, left = TRUE) |>
+        dplyr::distinct() |>
+        dplyr::group_by(Group, NHD.nhdplusid) |>
+        dplyr::mutate(n = length(TADA.MonitoringLocationIdentifier)) |>
+        dplyr::filter(n > 1) |>
+        dplyr::select(TADA.MonitoringLocationIdentifier, Group) |>
+        sf::st_drop_geometry()
+
+      # remove intermediate objects
+      rm(near.sites, nhd.catch, nhd.catch.filt, nhd.catch.all)
+
+      if (nrow(group.sites) == 0) {
+        # #if no groups, give a TADA.NearbySiteGroup column filled with
+        # "No nearby sites"
+        print(
+          "TADA_FindNearbySites: No nearby sites detected. Columns for TADA.NearbySitesFlag and TADA.NearbySiteGroup added for tracking purposes."
+        )
+
+        .data <- .data |>
+          dplyr::mutate(
+            TADA.NearbySites.Flag = "No nearby sites detected.",
+            TADA.NearbySiteGroup = NA
+          )
+
+        return(.data)
+      }
     }
-  }
+    # check if .data contains the column "ATTAINS.AssessmentUnitIdentifier"
+    # and status of by_AU param
+    if ("ATTAINS.AssessmentUnitIdentifier" %in% names(.data)) {
+      if (by_AU == TRUE) {
+        print(
+          "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. Monitoring Locations will only be grouped if they fall within the same assessment unit."
+        )
 
-  # create df of all groups and create unique id for each group
-  new.ids <- group.sites |>
-    # remove any previous grouping
-    dplyr::ungroup() |>
-    # add new grouping
-    dplyr::group_by(Group) |>
-    # create new TADA.MonitoringLocationIdentifier
-    dplyr::mutate(
-      TADA.MonitoringLocationIdentifier.New = paste(
-        TADA.MonitoringLocationIdentifier,
-        collapse = ", "
-      ),
-      TADA.MonitoringLocationIdentifier.New = paste0(
-        "[",
-        TADA.MonitoringLocationIdentifier.New,
-        "]"
-      ),
-      TADA.NearbySiteGroup = dplyr::cur_group_id()
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::select(
-      TADA.MonitoringLocationIdentifier.New,
-      TADA.MonitoringLocationIdentifier,
-      TADA.NearbySiteGroup
-    ) |>
-    dplyr::distinct()
+        # create crosswalk for monitoring locations and assessment units
+        au.ml.cw <- .data |>
+          dplyr::select(
+            TADA.MonitoringLocationIdentifier,
+            ATTAINS.AssessmentUnitIdentifier
+          ) |>
+          dplyr::distinct()
 
-  # remove intermediate object
-  rm(unique.mls)
-
-  # create a df of unique grouped sites
-  group.sites <- new.ids |>
-    dplyr::left_join(
-      .data,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-    ) |>
-    dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
-    dplyr::select(
-      TADA.MonitoringLocationName,
-      TADA.MonitoringLocationIdentifier.New,
-      TADA.NearbySiteGroup,
-      TADA.MonitoringLocationName,
-      TADA.LatitudeMeasure,
-      TADA.LongitudeMeasure,
-      TADA.MonitoringLocationTypeName,
-      OrganizationIdentifier
-    ) |>
-    dplyr::distinct() |>
-    sf::st_drop_geometry()
-
-  # create list of orgs from TADA df
-  all.orgs <- unique(.data$OrganizationIdentifier)
-
-  # compare list of orgs from TADA df to user supplied org_hierachy to find missing orgs
-  missing.orgs <- setdiff(all.orgs, org_hierarchy)
-
-  # create string for flagging based on meta_select
-  if (meta_select == "random") {
-    meta.string <- "random selection"
-  }
-
-  if (meta_select == "oldest") {
-    meta.string <- "oldest sampling date"
-  }
-
-  if (meta_select == "newest") {
-    meta.string <- "most reccent sampling date"
-  }
-
-  if (meta_select == "count") {
-    meta.string <- "greatest number of results in TADA data frame"
-  }
-
-  # use org hierarchy for first round of metadata selection
-  if (isTRUE(org_hierarchy == "none")) {
-    # create string for flagging
-    org.string <- "Metadata were selected by "
-
-    # print message
-    print(
-      "TADA_FindNearbySites: No org_hierarchy supplied by user. Organization will not be taken into account during metadata selection."
-    )
-
-    # create consistent org rank to facilitate meta data selection (all orgs ranked equally)
-    org.ranks <- as.data.frame(all.orgs) |>
-      dplyr::mutate(OrgRank = 99) |>
-      dplyr::rename(OrganizationIdentifier = all.orgs)
-  }
-
-  # if org hierarchy is supplied by user
-  if (org_hierarchy[1] != "none") {
-    # create string for flagging
-    org.string <- "Metadata were selected by filtering based on the user supplied hierarchy, then by "
-
-    if (!is.vector(org_hierarchy)) {
-      stop(
-        "TADA_FindNearbySites: Organization hierarchy must be supplied as a vector."
-      )
+        # group by ATTAINS.AssessmentUnitIdentifier (and catchment)
+        group.sites <- group.sites |>
+          sf::st_drop_geometry() |>
+          dplyr::left_join(
+            au.ml.cw,
+            by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+          ) |>
+          dplyr::group_by(ATTAINS.AssessmentUnitIdentifier) |>
+          dplyr::filter(
+            !is.na(ATTAINS.AssessmentUnitIdentifier),
+            ATTAINS.AssessmentUnitIdentifier != ""
+          ) |>
+          dplyr::mutate(Group.n = dplyr::n()) |>
+          dplyr::filter(Group.n > 1) |>
+          dplyr::select(-Group.n)
+      } else {
+        print(
+          "TADA_FindNearbySites: ATTAINS.AssessmentUnitIdentifier is present. User has specified that assessment unit should not be considered when grouping nearby sites."
+        )
+      }
     }
 
-    if (length(org_hierarchy) == 0) {
-      stop("TADA_FindNearbySites: No organization identifiers were supplied.")
-    }
-
-    if (length(missing.orgs) > 0) {
-      print(paste0(
-        "TADA_FindNearbySites: ",
-        length(missing.orgs),
-        " organization identifiers are missing from org_hierarchy (",
-        stringi::stri_replace_last(
-          paste(missing.orgs, collapse = ", "),
-          fixed = ", ",
-          " and "
-        ),
-        ").",
-        " Function will continue to run using partial org_hierarchy."
-      ))
-
-      # create df for organization ranks from user-supplied hierarchy
-      org.ranks <- as.data.frame(org_hierarchy) |>
-        dplyr::mutate(OrgRank = dplyr::row_number()) |>
-        dplyr::rename(OrganizationIdentifier = org_hierarchy)
-
-      # create df for all organizations missing from user-supplied hierarchy
-      # all missing orgs will share the same rank and be ranked below any orgs supplied by user
-      missing.ranks <- as.data.frame(missing.orgs) |>
-        dplyr::mutate(OrgRank = (length(org_hierarchy) + 1)) |>
-        dplyr::rename(OrganizationIdentifier = missing.orgs)
-
-      # add missing orgs to org rank df
-      org.ranks <- org.ranks |> dplyr::bind_rows(missing.ranks)
-    }
-
-    if (length(missing.orgs) == 0) {
-      # create df for organization ranks from user-supplied hierarchy
-      org.ranks <- as.data.frame(org_hierarchy) |>
-        dplyr::mutate(OrgRank = dplyr::row_number()) |>
-        dplyr::rename(OrganizationIdentifier = org_hierarchy)
-    }
-
-    rm(all.orgs, missing.orgs)
-  }
-
-  # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
-  org.ranks.added <- group.sites |>
-    dplyr::left_join(org.ranks, by = dplyr::join_by(OrganizationIdentifier))
-
-  rm(org.ranks)
-
-  # filter to retain metadata for TADA.MonitoringLocation.New where there is only one set of
-  # metadata from the highest ranked org
-  org.meta.filter <- org.ranks.added |>
-    dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
-    dplyr::mutate(CountSites = length(TADA.MonitoringLocationName)) |>
-    dplyr::filter(CountSites > 1) |>
-    dplyr::slice_min(OrgRank) |>
-    dplyr::ungroup() |>
-    dplyr::select(-OrgRank, -CountSites) |>
-    dplyr::mutate(
-      TADA.NearbySites.Flag = paste0(
-        "This monitoring location was grouped with other nearby site(s). ",
-        org.string,
-        meta.string,
-        "."
-      )
-    )
-
-  # select and assign metadata randomly for grouped sites when meta_select equals "random"
-
-  if (meta_select == "random") {
-    # select random metadata where necessary (no org rank or more than one set of metdata for one
-    # TADA.MonitoringLocationIdentifier.New)
-    random.meta <- org.meta.filter |>
+    # create df of all groups and create unique id for each group
+    new.ids <- group.sites |>
+      # remove any previous grouping
       dplyr::ungroup() |>
-      dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
-      dplyr::group_by(TADA.NearbySiteGroup) |>
+      # add new grouping
+      dplyr::group_by(Group) |>
+      # create new TADA.MonitoringLocationIdentifier
+      dplyr::mutate(
+        TADA.MonitoringLocationIdentifier.New = paste(
+          TADA.MonitoringLocationIdentifier,
+          collapse = ", "
+        ),
+        TADA.MonitoringLocationIdentifier.New = paste0(
+          "[",
+          TADA.MonitoringLocationIdentifier.New,
+          "]"
+        ),
+        TADA.NearbySiteGroup = dplyr::cur_group_id()
+      ) |>
+      dplyr::ungroup() |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier.New,
+        TADA.MonitoringLocationIdentifier,
+        TADA.NearbySiteGroup
+      ) |>
+      dplyr::distinct()
+
+    # remove intermediate object
+    rm(unique.mls)
+
+    # create a df of unique grouped sites
+    group.sites <- new.ids |>
+      dplyr::left_join(
+        .data,
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+      ) |>
+      dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
+      dplyr::select(
+        TADA.MonitoringLocationName,
+        TADA.MonitoringLocationIdentifier.New,
+        TADA.NearbySiteGroup,
         TADA.MonitoringLocationName,
         TADA.LatitudeMeasure,
         TADA.LongitudeMeasure,
         TADA.MonitoringLocationTypeName,
-        TADA.NearbySiteGroup
+        OrganizationIdentifier
       ) |>
       dplyr::distinct() |>
-      dplyr::slice_sample(n = 1) |>
-      dplyr::ungroup() |>
-      dplyr::rename(
-        TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
-        TADA.NearbySiteGroup.New = TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName
+      sf::st_drop_geometry()
+
+    # create list of orgs from TADA df
+    all.orgs <- unique(.data$OrganizationIdentifier)
+
+    # compare list of orgs from TADA df to user supplied org_hierachy to find missing orgs
+    missing.orgs <- setdiff(all.orgs, org_hierarchy)
+
+    # create string for flagging based on meta_select
+    if (meta_select == "random") {
+      meta.string <- "random selection"
+    }
+
+    if (meta_select == "oldest") {
+      meta.string <- "oldest sampling date"
+    }
+
+    if (meta_select == "newest") {
+      meta.string <- "most reccent sampling date"
+    }
+
+    if (meta_select == "count") {
+      meta.string <- "greatest number of results in TADA data frame"
+    }
+
+    # use org hierarchy for first round of metadata selection
+    if (isTRUE(org_hierarchy == "none")) {
+      # create string for flagging
+      org.string <- "Metadata were selected by "
+
+      # print message
+      print(
+        "TADA_FindNearbySites: No org_hierarchy supplied by user. Organization will not be taken into account during metadata selection."
       )
 
-    # join the metadata filtering results to create a df with all metadata to apply to TADA df by
-    # TADA.MonitoringLocationIdentifier.New
-    select.meta <- random.meta |>
-      dplyr::full_join(
-        org.meta.filter,
-        dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
-      ) |>
+      # create consistent org rank to facilitate meta data selection (all orgs ranked equally)
+      org.ranks <- as.data.frame(all.orgs) |>
+        dplyr::mutate(OrgRank = 99) |>
+        dplyr::rename(OrganizationIdentifier = all.orgs)
+    }
+
+    # if org hierarchy is supplied by user
+    if (org_hierarchy[1] != "none") {
+      # create string for flagging
+      org.string <- "Metadata were selected by filtering based on the user supplied hierarchy, then by "
+
+      if (!is.vector(org_hierarchy)) {
+        stop(
+          "TADA_FindNearbySites: Organization hierarchy must be supplied as a vector."
+        )
+      }
+
+      if (length(org_hierarchy) == 0) {
+        stop("TADA_FindNearbySites: No organization identifiers were supplied.")
+      }
+
+      if (length(missing.orgs) > 0) {
+        print(paste0(
+          "TADA_FindNearbySites: ",
+          length(missing.orgs),
+          " organization identifiers are missing from org_hierarchy (",
+          stringi::stri_replace_last(
+            paste(missing.orgs, collapse = ", "),
+            fixed = ", ",
+            " and "
+          ),
+          ").",
+          " Function will continue to run using partial org_hierarchy."
+        ))
+
+        # create df for organization ranks from user-supplied hierarchy
+        org.ranks <- as.data.frame(org_hierarchy) |>
+          dplyr::mutate(OrgRank = dplyr::row_number()) |>
+          dplyr::rename(OrganizationIdentifier = org_hierarchy)
+
+        # create df for all organizations missing from user-supplied hierarchy
+        # all missing orgs will share the same rank and be ranked below any orgs supplied by user
+        missing.ranks <- as.data.frame(missing.orgs) |>
+          dplyr::mutate(OrgRank = (length(org_hierarchy) + 1)) |>
+          dplyr::rename(OrganizationIdentifier = missing.orgs)
+
+        # add missing orgs to org rank df
+        org.ranks <- org.ranks |> dplyr::bind_rows(missing.ranks)
+      }
+
+      if (length(missing.orgs) == 0) {
+        # create df for organization ranks from user-supplied hierarchy
+        org.ranks <- as.data.frame(org_hierarchy) |>
+          dplyr::mutate(OrgRank = dplyr::row_number()) |>
+          dplyr::rename(OrganizationIdentifier = org_hierarchy)
+      }
+
+      rm(all.orgs, missing.orgs)
+    }
+
+    # add org ranks to df of all TADA.MonitoringLocationIdentifier.New
+    org.ranks.added <- group.sites |>
+      dplyr::left_join(org.ranks, by = dplyr::join_by(OrganizationIdentifier))
+
+    rm(org.ranks)
+
+    # filter to retain metadata for TADA.MonitoringLocation.New where there is only one set of
+    # metadata from the highest ranked org
+    org.meta.filter <- org.ranks.added |>
+      dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
+      dplyr::mutate(CountSites = length(TADA.MonitoringLocationName)) |>
+      dplyr::filter(CountSites > 1) |>
+      dplyr::slice_min(OrgRank) |>
+      dplyr::ungroup() |>
+      dplyr::select(-OrgRank, -CountSites) |>
       dplyr::mutate(
-        TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
-      ) |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.LatitudeMeasure.New,
-        TADA.LongitudeMeasure.New,
-        TADA.MonitoringLocationTypeName.New,
-        TADA.MonitoringLocationName.New,
-        TADA.NearbySiteGroup.New,
-        TADA.NearbySites.Flag
-      ) |>
-      dplyr::distinct()
+        TADA.NearbySites.Flag = paste0(
+          "This monitoring location was grouped with other nearby site(s). ",
+          org.string,
+          meta.string,
+          "."
+        )
+      )
 
-    # remove intermediate objects
-    rm(random.meta, org.ranks.added)
-  }
+    # select and assign metadata randomly for grouped sites when meta_select equals "random"
 
-  if (meta_select == "oldest" | meta_select == "newest") {
-    # prep site groups for metadata selection by date
-    date.meta <- group.sites |>
-      dplyr::left_join(
-        org.ranks.added,
-        by = dplyr::join_by(
+    if (meta_select == "random") {
+      # select random metadata where necessary (no org rank or more than one set of metdata for one
+      # TADA.MonitoringLocationIdentifier.New)
+      random.meta <- org.meta.filter |>
+        dplyr::ungroup() |>
+        dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
+        dplyr::group_by(TADA.NearbySiteGroup) |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName,
+          TADA.NearbySiteGroup
+        ) |>
+        dplyr::distinct() |>
+        dplyr::slice_sample(n = 1) |>
+        dplyr::ungroup() |>
+        dplyr::rename(
+          TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
+          TADA.NearbySiteGroup.New = TADA.NearbySiteGroup,
+          TADA.MonitoringLocationName.New = TADA.MonitoringLocationName
+        )
+
+      # join the metadata filtering results to create a df with all metadata to apply to TADA df by
+      # TADA.MonitoringLocationIdentifier.New
+      select.meta <- random.meta |>
+        dplyr::full_join(
+          org.meta.filter,
+          dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
+        ) |>
+        dplyr::mutate(
+          TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected randomly."
+        ) |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.LatitudeMeasure.New,
+          TADA.LongitudeMeasure.New,
+          TADA.MonitoringLocationTypeName.New,
+          TADA.MonitoringLocationName.New,
+          TADA.NearbySiteGroup.New,
+          TADA.NearbySites.Flag
+        ) |>
+        dplyr::distinct()
+
+      # remove intermediate objects
+      rm(random.meta, org.ranks.added)
+    }
+
+    if (meta_select == "oldest" | meta_select == "newest") {
+      # prep site groups for metadata selection by date
+      date.meta <- group.sites |>
+        dplyr::left_join(
+          org.ranks.added,
+          by = dplyr::join_by(
+            TADA.MonitoringLocationIdentifier.New,
+            TADA.NearbySiteGroup,
+            TADA.MonitoringLocationName,
+            TADA.LatitudeMeasure,
+            TADA.LongitudeMeasure,
+            TADA.MonitoringLocationTypeName,
+            OrganizationIdentifier
+          )
+        ) |>
+        dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
+        dplyr::slice_min(OrgRank) |>
+        dplyr::left_join(
+          .data,
+          dplyr::join_by(
+            TADA.MonitoringLocationName,
+            TADA.LatitudeMeasure,
+            TADA.LongitudeMeasure,
+            TADA.MonitoringLocationTypeName,
+            OrganizationIdentifier
+          )
+        ) |>
+        dplyr::select(
           TADA.MonitoringLocationIdentifier.New,
           TADA.NearbySiteGroup,
           TADA.MonitoringLocationName,
           TADA.LatitudeMeasure,
           TADA.LongitudeMeasure,
           TADA.MonitoringLocationTypeName,
-          OrganizationIdentifier
-        )
-      ) |>
-      dplyr::mutate(OrgRank = ifelse(is.na(OrgRank), rank.default, OrgRank)) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
-      dplyr::slice_min(OrgRank) |>
-      dplyr::left_join(
-        .data,
-        dplyr::join_by(
-          TADA.MonitoringLocationName,
-          TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure,
-          TADA.MonitoringLocationTypeName,
-          OrganizationIdentifier
-        )
-      ) |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName,
-        OrganizationIdentifier,
-        ActivityStartDate
-      ) |>
-      dplyr::distinct()
-
-    if (meta_select == "oldest") {
-      # select oldest metadata for group
-      date.meta <- date.meta |> dplyr::slice_min(ActivityStartDate)
-
-      # specify oldest for flagging string
-      date.choice <- "oldest"
-    }
-
-    if (meta_select == "newest") {
-      # select newest metadata for group
-      date.meta <- date.meta |> dplyr::slice_max(ActivityStartDate)
-
-      # specify newest for flagging string
-      date.choice <- "newest"
-    }
-
-    # select metadata by date
-    select.meta <- date.meta |>
-      dplyr::full_join(
-        org.meta.filter,
-        by = dplyr::join_by(
-          TADA.MonitoringLocationIdentifier.New,
-          TADA.MonitoringLocationName,
-          TADA.LatitudeMeasure,
-          TADA.LongitudeMeasure,
-          TADA.MonitoringLocationTypeName,
           OrganizationIdentifier,
-          TADA.NearbySiteGroup
-        )
-      ) |>
-      dplyr::select(-OrganizationIdentifier, -ActivityStartDate) |>
-      dplyr::rename(
-        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
-        TADA.NearbySiteGroup.New = TADA.NearbySiteGroup
-      ) |>
-      dplyr::group_by(TADA.NearbySiteGroup.New) |>
-      dplyr::slice_sample(n = 1) |>
-      dplyr::mutate(
-        TADA.NearbySites.Flag = paste0(
-          "This monitoring location was grouped with other",
-          " nearby site(s). Metadata were selected from ",
-          "the ",
-          date.choice,
-          " result available."
-        )
-      )
+          ActivityStartDate
+        ) |>
+        dplyr::distinct()
 
-    rm(date.meta)
-  }
+      if (meta_select == "oldest") {
+        # select oldest metadata for group
+        date.meta <- date.meta |> dplyr::slice_min(ActivityStartDate)
 
-  if (meta_select == "count") {
-    # select metadata by finding site with greatest number of results in TADA df
-    select.meta <- org.ranks.added |>
-      dplyr::left_join(
-        .data,
-        by = dplyr::join_by(
+        # specify oldest for flagging string
+        date.choice <- "oldest"
+      }
+
+      if (meta_select == "newest") {
+        # select newest metadata for group
+        date.meta <- date.meta |> dplyr::slice_max(ActivityStartDate)
+
+        # specify newest for flagging string
+        date.choice <- "newest"
+      }
+
+      # select metadata by date
+      select.meta <- date.meta |>
+        dplyr::full_join(
+          org.meta.filter,
+          by = dplyr::join_by(
+            TADA.MonitoringLocationIdentifier.New,
+            TADA.MonitoringLocationName,
+            TADA.LatitudeMeasure,
+            TADA.LongitudeMeasure,
+            TADA.MonitoringLocationTypeName,
+            OrganizationIdentifier,
+            TADA.NearbySiteGroup
+          )
+        ) |>
+        dplyr::select(-OrganizationIdentifier, -ActivityStartDate) |>
+        dplyr::rename(
+          TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
+          TADA.NearbySiteGroup.New = TADA.NearbySiteGroup
+        ) |>
+        dplyr::group_by(TADA.NearbySiteGroup.New) |>
+        dplyr::slice_sample(n = 1) |>
+        dplyr::mutate(
+          TADA.NearbySites.Flag = paste0(
+            "This monitoring location was grouped with other",
+            " nearby site(s). Metadata were selected from ",
+            "the ",
+            date.choice,
+            " result available."
+          )
+        )
+
+      rm(date.meta)
+    }
+
+    if (meta_select == "count") {
+      # select metadata by finding site with greatest number of results in TADA df
+      select.meta <- org.ranks.added |>
+        dplyr::left_join(
+          .data,
+          by = dplyr::join_by(
+            TADA.MonitoringLocationName,
+            TADA.LatitudeMeasure,
+            TADA.LongitudeMeasure,
+            TADA.MonitoringLocationTypeName
+          )
+        ) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+        dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) |>
+        dplyr::ungroup() |>
+        dplyr::select(-TADA.MonitoringLocationIdentifier) |>
+        dplyr::distinct() |>
+        dplyr::group_by(TADA.NearbySiteGroup) |>
+        dplyr::slice_max(NCount) |>
+        dplyr::slice_sample(n = 1) |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.NearbySiteGroup,
           TADA.MonitoringLocationName,
           TADA.LatitudeMeasure,
           TADA.LongitudeMeasure,
           TADA.MonitoringLocationTypeName
-        )
-      ) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-      dplyr::mutate(NCount = length(TADA.ResultMeasureValue)) |>
-      dplyr::ungroup() |>
-      dplyr::select(-TADA.MonitoringLocationIdentifier) |>
-      dplyr::distinct() |>
-      dplyr::group_by(TADA.NearbySiteGroup) |>
-      dplyr::slice_max(NCount) |>
-      dplyr::slice_sample(n = 1) |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.NearbySiteGroup,
-        TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName
-      ) |>
-      dplyr::rename(
-        TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
-        TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
-        TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
-        TADA.NearbySiteGroup.New = TADA.NearbySiteGroup
-      ) |>
-      dplyr::mutate(
-        TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
-      )
-  }
-
-  # remove intermediate objects
-  rm(org.meta.filter, org.string, meta.string)
-
-  # remove site group from crosswalk
-  ml.crosswalk <- new.ids |>
-    sf::st_drop_geometry() |>
-    dplyr::select(-TADA.NearbySiteGroup) |>
-    dplyr::distinct()
-
-  # join selected metadata to TADA df
-  .data <- .data |>
-    dplyr::left_join(
-      ml.crosswalk,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-    ) |>
-    dplyr::left_join(
-      select.meta,
-      by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(
-      TADA.MonitoringLocationName = ifelse(
-        !is.na(TADA.MonitoringLocationName.New),
-        TADA.MonitoringLocationName.New,
-        TADA.MonitoringLocationName
-      ),
-      TADA.LatitudeMeasure = ifelse(
-        !is.na(TADA.LatitudeMeasure.New),
-        TADA.LatitudeMeasure.New,
-        TADA.LatitudeMeasure
-      ),
-      TADA.LongitudeMeasure = ifelse(
-        !is.na(TADA.LongitudeMeasure.New),
-        TADA.LongitudeMeasure.New,
-        TADA.LongitudeMeasure
-      ),
-      TADA.MonitoringLocationTypeName = ifelse(
-        !is.na(TADA.MonitoringLocationTypeName.New),
-        TADA.MonitoringLocationTypeName.New,
-        TADA.MonitoringLocationTypeName
-      ),
-      TADA.MonitoringLocationIdentifier = ifelse(
-        !is.na(TADA.MonitoringLocationIdentifier.New),
-        TADA.MonitoringLocationIdentifier.New,
-        TADA.MonitoringLocationIdentifier
-      ),
-      TADA.NearbySiteGroup = TADA.NearbySiteGroup.New
-    ) |>
-    dplyr::select(
-      -TADA.MonitoringLocationIdentifier.New,
-      -TADA.MonitoringLocationName.New,
-      -TADA.LatitudeMeasure.New,
-      -TADA.LongitudeMeasure.New,
-      -TADA.MonitoringLocationTypeName.New,
-      -TADA.NearbySiteGroup.New
-    ) |>
-    TADA_OrderCols()
-
-  # remove intermediate objects
-  rm(select.meta, ml.crosswalk, group.sites, new.ids)
-
-  # add flag for any ungrouped sites and order columns correctly
-  .data <- TADA_OrderCols(.data) |>
-    dplyr::mutate(
-      TADA.NearbySites.Flag = ifelse(
-        is.na(TADA.NearbySiteGroup),
-        "No nearby sites detected using input buffer distance.",
-        TADA.NearbySites.Flag
-      )
-    ) |>
-    TADA_CorrectColType()
-
-  # return TADA df with added columns for tracking
-  return(.data)
-}
-
-
-#' Get grouped monitoring stations that are near each other
-#'
-#' This function takes a TADA dataset that contains grouped nearby monitoring stations
-#' and returns a unique dataset of the original MonitoringLocationIdentifier, the grouped
-#' TADA.MonitoringLocationIdentifier, as well as the original and TADA-prefixed LongitudeMeasure,
-#' LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName, filtered for only those
-#' stations that have a nearby station.
-#'
-#' @param .data TADA dataframe
-#'
-#' @return New dataframe with unique combinations of original and TADA MonitoringLocationIdentifier,
-#' LongitudeMeasure, LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName.
-#'
-#' @export
-TADA_GetUniqueNearbySites <- function(.data) {
-  # check .data is data.frame and has required columns
-  expected_cols <- c(
-    "MonitoringLocationIdentifier",
-    "TADA.MonitoringLocationIdentifier",
-    "MonitoringLocationName",
-    "TADA.MonitoringLocationName",
-    "LongitudeMeasure",
-    "TADA.LongitudeMeasure",
-    "LatitudeMeasure",
-    "TADA.LatitudeMeasure",
-    "MonitoringLocationTypeName",
-    "TADA.MonitoringLocationTypeName",
-    "MonitoringLocationDescriptionText",
-    "TADA.NearbySites.Flag",
-    "TADA.NearbySiteGroup"
-  )
-  TADA_CheckColumns(.data, expected_cols)
-
-  # filter only for locations with nearby sites
-  .data <- .data |>
-    dplyr::filter(
-      !is.na(TADA.NearbySites.Flag),
-      TADA.NearbySites.Flag !=
-        "No nearby sites detected using input buffer distance."
-    ) |>
-    # retain only required columns
-    dplyr::select(dplyr::all_of(expected_cols)) |>
-    # retain only unique records
-    dplyr::distinct()
-
-  return(.data)
-}
-
-#' TADA_CreateAUMLCrosswalk
-#'
-#' Create the assessment unit and monitoring location ref by utilizing an optional
-#' user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
-#' and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
-#'
-#' @param .data A dataframe created by `TADA_DataRetrieval()`.
-#' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
-#' MonitoringLocationIdentifier and WaterType.
-#' @param org_id ATTAINS organization identifier(s) as a character string.
-#' If populated, Monitoring Locations will only be matched to Assessment Units from the
-#' specified organization(s). A list of organization
-#' identifiers can be found
-#' by downloading the ATTAINS Domains Excel file:
-#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-#' Organization identifiers are listed in the "OrgName" tab. The "code" column
-#' contains the organization identifiers that should be used for this param. When
-#' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
-#' from all organizations will be considered. When org_id = "none" or NULL, no
-#' crosswalk data from ATTAINS will be considered. The default is "all".
-#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
-#' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
-#' with entity submitted assessment unit features - points, lines, and polygons)
-#' should be queried and downloaded for the assessment units included in the
-#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
-#' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
-#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
-#' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
-#' @param return_nearest  If a WQP observation falls within more than one AU,
-#' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
-#' (return_nearest = FALSE). This param applies only to WQP observations that do
-#' not have matches in the user-supplied ref or ATTAINS.
-#' @param batch_upload Boolean argument. When batch_upload = TRUE, an additional data frame
-#' which matches the format required for batch upload to ATTAINS is included in the
-#' output. When batch_upload = FALSE, this df is not included in the output.
-#' Default is batch_upload = FALSE. If you would like to add new monitoring location
-#' data links or retain existing ones in ATTAINS, you will need to run
-#' TADA_UpdateATTAINSAUMLCrosswalk on the ATTAINS_batchupload data frame from this
-#' function's output.
-#'
-#' @return A list containing a modified TADA data frame with added ATTAINS columns and
-#' data frames for ATTAINS data and features for points, lines, polygons and catchments.
-#' When batch_upload = TRUE, the list will contain an additional data frame formatted
-#' for compatibility with ATTAINS batch upload for Monitoring_Stations.
-#'
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
-#'          [TADA_GetATTAINSAUMLCrosswalk()]
-#'          [TADA_UpdateATTAINSAUMLCrosswalk()]
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Load the example data
-#' utils::data(Data_MT_MissoulaCounty)
-#'
-#' # Example 1: Basic use with default settings
-#' result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
-#'
-#' # Example 2: Using a user-supplied crosswalk
-#' user_crosswalk <- data.frame(
-#'   AssessmentUnitIdentifier = c("AU1", "AU2"),
-#'   MonitoringLocationIdentifier = c("ML1", "ML2"),
-#'   WaterType = c("River", "Lake")
-#' )
-#' result <- TADA_CreateAUMLCrosswalk(
-#'   Data_MT_MissoulaCounty,
-#'   au_ref = user_crosswalk
-#' )
-#'
-#' # Example 3: Including ATTAINS catchment data
-#' result <- TADA_CreateAUMLCrosswalk(
-#'   Data_MT_MissoulaCounty,
-#'   fill_ATTAINS_catch = TRUE
-#' )
-#'
-#' # Example 4: Preparing for batch upload
-#' result <- TADA_CreateAUMLCrosswalk(
-#'   Data_MT_MissoulaCounty,
-#'   batch_upload = TRUE
-#' )
-#'
-#' # Example 5: Using multiple options together
-#' org_id <- "EPA"
-#' result <- TADA_CreateAUMLCrosswalk(
-#'   Data_MT_MissoulaCounty,
-#'   au_ref = user_crosswalk,
-#'   org_id = org_id,
-#'   fill_ATTAINS_catch = TRUE,
-#'   fill_USGS_catch = TRUE,
-#'   return_nearest = FALSE,
-#'   batch_upload = TRUE
-#' )
-#'
-#' # View the results
-#' print(result$TADA_with_ATTAINS)
-#' print(result$ATTAINS_catchments)
-#' print(result$ATTAINS_batchupload)
-#' }
-#'
-TADA_CreateAUMLCrosswalk <- function(
-  .data,
-  au_ref = NULL,
-  org_id = "all",
-  fill_ATTAINS_catch = FALSE,
-  return_nearest = TRUE,
-  batch_upload = FALSE
-) {
-  # create list where all user matches dfs are set to NULL
-  user.matches <- list(
-    "TADA_with_ATTAINS" = NULL,
-    "ATTAINS_catchments" = NULL,
-    "ATTAINS_points" = NULL,
-    "ATTAINS_lines" = NULL,
-    "ATTAINS_polygons" = NULL
-  )
-
-  # check to see if user supplied ref is NULL
-  if (is.null(au_ref)) {
-    print(paste0(
-      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
-      "was provided."
-    ))
-  }
-
-  # check to see if user supplied ref is not NULL
-  if (!is.null(au_ref)) {
-    # check to see if user supplied ref is not a data frame
-    if (!is.data.frame(au_ref)) {
-      # stop function with printed message if the user supplied ref is not a data frame
-      stop(paste0(
-        "TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
-        "containing the columns AssessmentUnitIdentifier, MonitoringLocationIdentifier, and ATTAINS.WaterType.",
-        "MonitoringLocationIdentifiers must be WQP compatible."
-      ))
-    }
-
-    # check to see if user supplied ref is a data frame
-    if (is.data.frame(au_ref)) {
-      print(paste0(
-        "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-        "for assessment units in the user-supplied crosswalk."
-      ))
-
-      # list of partial string matches for columns in au_ref
-      req.cols <- c(
-        "AssessmentUnitIdentifier",
-        "MonitoringLocationIdentifier",
-        "WaterType"
-      )
-
-      # get column names by using internal function checkColName (in Utilities.R)
-      col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
-
-      # assign values to col.id variables - might be possible to rewrite with purrr function (HRM 9/8/25)
-      # assign assessment unit id
-      assign(col.ids$col.id[1], col.ids$select.col[1])
-
-      # assign monitoring location identifier
-      assign(col.ids$col.id[2], col.ids$select.col[2])
-
-      # assign water type
-      assign(col.ids$col.id[3], col.ids$select.col[3])
-
-      # rename au_ref cols for next function
-      au_ref <- au_ref |>
-        dplyr::rename(
-          ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
-          ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
-          User.WaterType = paste0(type.col)
-        )
-
-      rm(col.ids, req.cols, auid.col, ml.col, type.col)
-
-      # subset data for au_ref
-      au.ref.mls <- .data |>
-        dplyr::filter(
-          TADA.MonitoringLocationIdentifier %in%
-            au_ref$ATTAINS.MonitoringLocationIdentifier
         ) |>
-        dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
-
-      if (dim(au.ref.mls)[1] > 0) {
-        # get geospatial data for au_ref monitoring locations
-        user.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
-          au.ref.mls,
-          au_ref = au_ref,
-          fill_ATTAINS_catch = fill_ATTAINS_catch
-        ))
-
-        # add AUIDs if user ref contained AUs not found in ATTAINS
-        # set up user ref for join
-        user.aus <- au_ref |>
-          dplyr::select(
-            ATTAINS.MonitoringLocationIdentifier,
-            ATTAINS.AssessmentUnitIdentifier
-          ) |>
-          dplyr::rename(
-            TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-            UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
-          )
-
-        # replace NA AUIDs with AUID from user ref where possible
-        user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
-          dplyr::left_join(user.aus) |>
-          dplyr::mutate(
-            ATTAINS.AssessmentUnitIdentifier = ifelse(
-              is.na(ATTAINS.AssessmentUnitIdentifier) &
-                !is.na(UserRef.AssessmentUnitIdentifier),
-              UserRef.AssessmentUnitIdentifier,
-              ATTAINS.AssessmentUnitIdentifier
-            )
-          ) |>
-          dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
-          dplyr::distinct()
-
-        # remove intermediate object
-        rm(user.aus)
-      }
-    }
-  }
-
-  # ATTAINS supplied ref section
-  # get attains crosswalk
-
-  attains.matches <- list(
-    "TADA_with_ATTAINS" = NULL,
-    "ATTAINS_catchments" = NULL,
-    "ATTAINS_points" = NULL,
-    "ATTAINS_lines" = NULL,
-    "ATTAINS_polygons" = NULL
-  )
-
-  # if no org id is provided, no crosswalk is imported from ATTAINS
-  if (!is.null(org_id)) {
-    if (org_id == "none" | is.null(org_id)) {
-      print(paste0(
-        "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
-        "should not be checked for monitoring location and assessment unit matches."
-      ))
-    }
-  }
-
-  # if an org id is provided, ATTAINS is checked for a crosswalk
-  if (format(org_id) != "none" & !is.null(org_id)) {
-    print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
-
-    # get crosswalk from ATTAINS
-    attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
-
-    # create string to describe ATTAINS orgs for print message
-    org.text <- ifelse(
-      is.null(org_id),
-      "all organizations",
-      stringi::stri_replace_last(
-        paste(org_id, collapse = ", "),
-        fixed = ", ",
-        replacement = " and "
-      )
-    )
-
-    # count number of records from ATTAINS crosswalk
-    record.count <- dim(attains.cw)[1]
-
-    # create text to describe number of records
-    count.text <- ifelse(record.count == 0, "no", record.count)
-
-    # print message summarizing the results of fetching crosswalk data from ATTAINS
-    print(paste0(
-      "TADA_CreateAUMLCrosswalk: There are ",
-      count.text,
-      " MonitoringLocation records ",
-      "in ATTAINS for ",
-      org.text,
-      "."
-    ))
-
-    rm(org.text, record.count, count.text)
-
-    if (dim(attains.cw)[1] > 0) {
-      print(
-        "TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported."
-      )
-
-      # we could remove or make this step optional, but it is helpful for making sure
-      # monitoring location identifiers are WQP compatible
-      attains.cw <- TADA_UpdateATTAINSAUMLCrosswalk(
-        org_id = org_id,
-        crosswalk = attains.cw,
-        attains_replace = TRUE
-      )
-
-      # create list of monitoring location identifiers from TADA df
-      tada.mls <- .data |>
-        dplyr::select(TADA.MonitoringLocationIdentifier) |>
-        dplyr::distinct() |>
-        dplyr::pull()
-
-      # filter attains.cw to remove any assessment units that don't have a monitoring location
-      # match in the TADA df
-      attains.cw <- attains.cw |>
-        dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
-
-      # remove intermediate object
-      rm(tada.mls)
-
-      # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
-      if (!is.null(au_ref)) {
-        attains.cw.mls <- .data |>
-          dplyr::filter(
-            !TADA.MonitoringLocationIdentifier %in%
-              au.ref.mls$TADA.MonitoringLocationIdentifier,
-            TADA.MonitoringLocationIdentifier %in%
-              attains.cw$ATTAINS.MonitoringLocationIdentifier
-          )
-      }
-
-      # if au_ref was not provided  by user, retain all records that match ATTAINS ref
-      if (is.null(au_ref)) {
-        attains.cw.mls <- .data |>
-          dplyr::filter(
-            TADA.MonitoringLocationIdentifier %in%
-              attains.cw$ATTAINS.MonitoringLocationIdentifier
-          )
-      }
-
-      # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
-      if (dim(attains.cw.mls)[1] == 0) {
-        attains.matches <- list(
-          "TADA_with_ATTAINS" = NULL,
-          "ATTAINS_catchments" = NULL,
-          "ATTAINS_points" = NULL,
-          "ATTAINS_lines" = NULL,
-          "ATTAINS_polygons" = NULL
+        dplyr::rename(
+          TADA.MonitoringLocationName.New = TADA.MonitoringLocationName,
+          TADA.LatitudeMeasure.New = TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure.New = TADA.LongitudeMeasure,
+          TADA.MonitoringLocationTypeName.New = TADA.MonitoringLocationTypeName,
+          TADA.NearbySiteGroup.New = TADA.NearbySiteGroup
+        ) |>
+        dplyr::mutate(
+          TADA.NearbySites.Flag = "This monitoring location was grouped with other nearby site(s). Metadata were selected from MonitoringLocation with the most results available across all characteristics."
         )
-      } else {
-        # add source column for ATTAINS Crosswalk matched records
-        attains.cw.mls <- attains.cw.mls |>
-          dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
-
-        print(paste0(
-          "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
-          "for assessment units from the ATTAINS crosswalk."
-        ))
-        # get geospatial data for attains cw monitoring locations
-        attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
-          attains.cw.mls,
-          au_ref = attains.cw,
-          fill_ATTAINS_catch = fill_ATTAINS_catch
-        ))
-
-        if (nrow(attains.cw) > 0) {
-          # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
-          # set up user ref for join
-          attains.cw.aus <- attains.cw |>
-            dplyr::select(
-              ATTAINS.MonitoringLocationIdentifier,
-              ATTAINS.AssessmentUnitIdentifier
-            ) |>
-            dplyr::filter(
-              ATTAINS.MonitoringLocationIdentifier %in%
-                attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier
-            ) |>
-            dplyr::rename(
-              TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
-              Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
-            ) |>
-            dplyr::distinct()
-
-          # replace NA AUIDs with AUID from ATTAINS ref where possible
-
-          attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
-            dplyr::left_join(
-              attains.cw.aus,
-              by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
-            ) |>
-            dplyr::mutate(
-              ATTAINS.AssessmentUnitIdentifier = ifelse(
-                !is.na(Ref.AssessmentUnitIdentifier),
-                Ref.AssessmentUnitIdentifier,
-                NA
-              ),
-              TADA.AURefSource = ifelse(
-                !is.na(Ref.AssessmentUnitIdentifier),
-                "ATTAINS Crosswalk",
-                NA
-              )
-            ) |>
-            dplyr::select(-Ref.AssessmentUnitIdentifier) |>
-            dplyr::distinct() |>
-            TADA_CorrectColType()
-        }
-
-        # remove intermediate objects
-        if (exists("attains.cw", inherits = FALSE)) {
-          rm("attains.cw")
-        }
-      }
     }
+
+    # remove intermediate objects
+    rm(org.meta.filter, org.string, meta.string)
+
+    # remove site group from crosswalk
+    ml.crosswalk <- new.ids |>
+      sf::st_drop_geometry() |>
+      dplyr::select(-TADA.NearbySiteGroup) |>
+      dplyr::distinct()
+
+    # join selected metadata to TADA df
+    .data <- .data |>
+      dplyr::left_join(
+        ml.crosswalk,
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+      ) |>
+      dplyr::left_join(
+        select.meta,
+        by = dplyr::join_by(TADA.MonitoringLocationIdentifier.New)
+      ) |>
+      dplyr::ungroup() |>
+      dplyr::mutate(
+        TADA.MonitoringLocationName = ifelse(
+          !is.na(TADA.MonitoringLocationName.New),
+          TADA.MonitoringLocationName.New,
+          TADA.MonitoringLocationName
+        ),
+        TADA.LatitudeMeasure = ifelse(
+          !is.na(TADA.LatitudeMeasure.New),
+          TADA.LatitudeMeasure.New,
+          TADA.LatitudeMeasure
+        ),
+        TADA.LongitudeMeasure = ifelse(
+          !is.na(TADA.LongitudeMeasure.New),
+          TADA.LongitudeMeasure.New,
+          TADA.LongitudeMeasure
+        ),
+        TADA.MonitoringLocationTypeName = ifelse(
+          !is.na(TADA.MonitoringLocationTypeName.New),
+          TADA.MonitoringLocationTypeName.New,
+          TADA.MonitoringLocationTypeName
+        ),
+        TADA.MonitoringLocationIdentifier = ifelse(
+          !is.na(TADA.MonitoringLocationIdentifier.New),
+          TADA.MonitoringLocationIdentifier.New,
+          TADA.MonitoringLocationIdentifier
+        ),
+        TADA.NearbySiteGroup = TADA.NearbySiteGroup.New
+      ) |>
+      dplyr::select(
+        -TADA.MonitoringLocationIdentifier.New,
+        -TADA.MonitoringLocationName.New,
+        -TADA.LatitudeMeasure.New,
+        -TADA.LongitudeMeasure.New,
+        -TADA.MonitoringLocationTypeName.New,
+        -TADA.NearbySiteGroup.New
+      ) |>
+      TADA_OrderCols()
+
+    # remove intermediate objects
+    rm(select.meta, ml.crosswalk, group.sites, new.ids)
+
+    # add flag for any ungrouped sites and order columns correctly
+    .data <- TADA_OrderCols(.data) |>
+      dplyr::mutate(
+        TADA.NearbySites.Flag = ifelse(
+          is.na(TADA.NearbySiteGroup),
+          "No nearby sites detected using input buffer distance.",
+          TADA.NearbySites.Flag
+        )
+      ) |>
+      TADA_CorrectColType()
+
+    # return TADA df with added columns for tracking
+    return(.data)
   }
 
-  # TADA_CreateATTAINSAUMLCrosswalk section
 
-  print(paste0(
-    "TADA_CreateAUMLCrosswalk: checking to see if any unmatched ",
-    "monitoring locations remain in the original TADA data frame."
-  ))
+  #' Get grouped monitoring stations that are near each other
+  #'
+  #' This function takes a TADA dataset that contains grouped nearby monitoring stations
+  #' and returns a unique dataset of the original MonitoringLocationIdentifier, the grouped
+  #' TADA.MonitoringLocationIdentifier, as well as the original and TADA-prefixed LongitudeMeasure,
+  #' LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName, filtered for only those
+  #' stations that have a nearby station.
+  #'
+  #' @param .data TADA dataframe
+  #'
+  #' @return New dataframe with unique combinations of original and TADA MonitoringLocationIdentifier,
+  #' LongitudeMeasure, LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName.
+  #'
+  #' @export
+  #'
+  #' @examples
+  #' \dontrun{
+  #' # use MT example data set
+  #' testdat <- Data_MT_MissoulaCounty
+  #'
+  #' # find unique nearby sites
+  #' testdat.unique <-testdat |>
+  #' TADA_FindNearbySites() |>
+  #' TADA_GetUniqueNearbySites()
+  #' )
+  #' }
+  #'
+  TADA_GetUniqueNearbySites <- function(.data) {
+    # check .data is data.frame and has required columns
+    expected_cols <- c(
+      "MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationIdentifier",
+      "MonitoringLocationName",
+      "TADA.MonitoringLocationName",
+      "LongitudeMeasure",
+      "TADA.LongitudeMeasure",
+      "LatitudeMeasure",
+      "TADA.LatitudeMeasure",
+      "MonitoringLocationTypeName",
+      "TADA.MonitoringLocationTypeName",
+      "MonitoringLocationDescriptionText",
+      "TADA.NearbySites.Flag",
+      "TADA.NearbySiteGroup"
+    )
+    TADA_CheckColumns(.data, expected_cols)
 
-  get.attains.mls <- .data
-
-  if (!is.null(attains.matches$TADA_with_ATTAINS)) {
-    get.attains.mls <- get.attains.mls |>
+    # filter only for locations with nearby sites
+    .data <- .data |>
       dplyr::filter(
-        !TADA.MonitoringLocationIdentifier %in%
-          attains.cw.mls$TADA.MonitoringLocationIdentifier
-      )
+        !is.na(TADA.NearbySites.Flag),
+        TADA.NearbySites.Flag !=
+          "No nearby sites detected using input buffer distance."
+      ) |>
+      # retain only required columns
+      dplyr::select(dplyr::all_of(expected_cols)) |>
+      # retain only unique records
+      dplyr::distinct()
+
+    return(.data)
   }
 
-  if (!is.null(user.matches$TADA_with_ATTAINS)) {
-    get.attains.mls <- get.attains.mls |>
-      dplyr::filter(
-        !TADA.MonitoringLocationIdentifier %in%
-          au.ref.mls$TADA.MonitoringLocationIdentifier
-      )
-
-    # remove intermediate object
-    rm(au.ref.mls)
-  }
-
-  # add code here for if there are no remaining mls to match
-  if (dim(get.attains.mls)[1] == 0) {
-    print(paste0(
-      "TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
-      "already been matched to an assessment unit by the user or ATTAINS."
-    ))
-
-    get.attains.matches <- list(
+  #' TADA_CreateAUMLCrosswalk
+  #'
+  #' Create the assessment unit and monitoring location ref by utilizing an optional
+  #' user-supplied crosswalk, AU/ML crosswalk from ATTAINS (if org has entered that data),
+  #' and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to assessment units.
+  #'
+  #' @param .data A dataframe created by `TADA_DataRetrieval()`.
+  #' @param au_ref Optional. A user-supplied df with the columns AssessmentUnitIdentifier,
+  #' MonitoringLocationIdentifier and WaterType.
+  #' @param org_id ATTAINS organization identifier(s) as a character string.
+  #' If populated, Monitoring Locations will only be matched to Assessment Units from the
+  #' specified organization(s). A list of organization
+  #' identifiers can be found
+  #' by downloading the ATTAINS Domains Excel file:
+  #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+  #' Organization identifiers are listed in the "OrgName" tab. The "code" column
+  #' contains the organization identifiers that should be used for this param. When
+  #' org_id = "all", the MonitoringLocationIdentifier/AssessmentUnitIdentifier matches
+  #' from all organizations will be considered. When org_id = "none" or NULL, no
+  #' crosswalk data from ATTAINS will be considered. The default is "all".
+  #' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
+  #' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
+  #' with entity submitted assessment unit features - points, lines, and polygons)
+  #' should be queried and downloaded for the assessment units included in the
+  #' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
+  #' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
+  #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
+  #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
+  #' @param return_nearest  If a WQP observation falls within more than one AU,
+  #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
+  #' (return_nearest = FALSE). This param applies only to WQP observations that do
+  #' not have matches in the user-supplied ref or ATTAINS.
+  #' @param batch_upload Boolean argument. When batch_upload = TRUE, an additional data frame
+  #' which matches the format required for batch upload to ATTAINS is included in the
+  #' output. When batch_upload = FALSE, this df is not included in the output.
+  #' Default is batch_upload = FALSE. If you would like to add new monitoring location
+  #' data links or retain existing ones in ATTAINS, you will need to run
+  #' TADA_UpdateATTAINSAUMLCrosswalk on the ATTAINS_batchupload data frame from this
+  #' function's output.
+  #'
+  #' @return A list containing a modified TADA data frame with added ATTAINS columns and
+  #' data frames for ATTAINS data and features for points, lines, polygons and catchments.
+  #' When batch_upload = TRUE, the list will contain an additional data frame formatted
+  #' for compatibility with ATTAINS batch upload for Monitoring_Stations.
+  #'
+  #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
+  #'          [TADA_GetATTAINSAUMLCrosswalk()]
+  #'          [TADA_UpdateATTAINSAUMLCrosswalk()]
+  #'
+  #' @export
+  #'
+  #' @examples
+  #' \dontrun{
+  #' # Load the example data
+  #' utils::data(Data_MT_MissoulaCounty)
+  #'
+  #' # Example 1: Basic use with default settings
+  #' result <- TADA_CreateAUMLCrosswalk(Data_MT_MissoulaCounty)
+  #'
+  #' # Example 2: Using a user-supplied crosswalk
+  #' user_crosswalk <- data.frame(
+  #'   AssessmentUnitIdentifier = c("AU1", "AU2"),
+  #'   MonitoringLocationIdentifier = c("ML1", "ML2"),
+  #'   WaterType = c("River", "Lake")
+  #' )
+  #' result <- TADA_CreateAUMLCrosswalk(
+  #'   Data_MT_MissoulaCounty,
+  #'   au_ref = user_crosswalk
+  #' )
+  #'
+  #' # Example 3: Including ATTAINS catchment data
+  #' result <- TADA_CreateAUMLCrosswalk(
+  #'   Data_MT_MissoulaCounty,
+  #'   fill_ATTAINS_catch = TRUE
+  #' )
+  #'
+  #' # Example 4: Preparing for batch upload
+  #' result <- TADA_CreateAUMLCrosswalk(
+  #'   Data_MT_MissoulaCounty,
+  #'   batch_upload = TRUE
+  #' )
+  #'
+  #' # Example 5: Using multiple options together
+  #' org_id <- "EPA"
+  #' result <- TADA_CreateAUMLCrosswalk(
+  #'   Data_MT_MissoulaCounty,
+  #'   au_ref = user_crosswalk,
+  #'   org_id = org_id,
+  #'   fill_ATTAINS_catch = TRUE,
+  #'   return_nearest = FALSE,
+  #'   batch_upload = TRUE
+  #' )
+  #'
+  #' # View the results
+  #' print(result$TADA_with_ATTAINS)
+  #' print(result$ATTAINS_catchments)
+  #' print(result$ATTAINS_batchupload)
+  #' }
+  #'
+  TADA_CreateAUMLCrosswalk <- function(
+    .data,
+    au_ref = NULL,
+    org_id = "all",
+    fill_ATTAINS_catch = FALSE,
+    return_nearest = TRUE,
+    batch_upload = FALSE
+  ) {
+    # create list where all user matches dfs are set to NULL
+    user.matches <- list(
       "TADA_with_ATTAINS" = NULL,
       "ATTAINS_catchments" = NULL,
       "ATTAINS_points" = NULL,
       "ATTAINS_lines" = NULL,
       "ATTAINS_polygons" = NULL
     )
-  }
 
-  if (dim(get.attains.mls)[1] > 0) {
-    print(
-      "TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit."
+    # check to see if user supplied ref is NULL
+    if (is.null(au_ref)) {
+      print(paste0(
+        "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
+        "was provided."
+      ))
+    }
+
+    # check to see if user supplied ref is not NULL
+    if (!is.null(au_ref)) {
+      # check to see if user supplied ref is not a data frame
+      if (!is.data.frame(au_ref)) {
+        # stop function with printed message if the user supplied ref is not a data frame
+        stop(paste0(
+          "TADA_CreateAUMLCrosswalk: The user supplied au_ref must be a data frame ",
+          "containing the columns AssessmentUnitIdentifier, MonitoringLocationIdentifier, and ATTAINS.WaterType.",
+          "MonitoringLocationIdentifiers must be WQP compatible."
+        ))
+      }
+
+      # check to see if user supplied ref is a data frame
+      if (is.data.frame(au_ref)) {
+        print(paste0(
+          "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+          "for assessment units in the user-supplied crosswalk."
+        ))
+
+        # list of partial string matches for columns in au_ref
+        req.cols <- c(
+          "AssessmentUnitIdentifier",
+          "MonitoringLocationIdentifier",
+          "WaterType"
+        )
+
+        # get column names by using internal function checkColName (in Utilities.R)
+        col.ids <- purrr::map_dfr(req.cols, ~ checkColName(au_ref, .x))
+
+        # assign values to col.id variables - might be possible to rewrite with purrr function (HRM 9/8/25)
+        # assign assessment unit id
+        assign(col.ids$col.id[1], col.ids$select.col[1])
+
+        # assign monitoring location identifier
+        assign(col.ids$col.id[2], col.ids$select.col[2])
+
+        # assign water type
+        assign(col.ids$col.id[3], col.ids$select.col[3])
+
+        # rename au_ref cols for next function
+        au_ref <- au_ref |>
+          dplyr::rename(
+            ATTAINS.MonitoringLocationIdentifier = paste0(ml.col),
+            ATTAINS.AssessmentUnitIdentifier = paste0(auid.col),
+            User.WaterType = paste0(type.col)
+          )
+
+        rm(col.ids, req.cols, auid.col, ml.col, type.col)
+
+        # subset data for au_ref
+        au.ref.mls <- .data |>
+          dplyr::filter(
+            TADA.MonitoringLocationIdentifier %in%
+              au_ref$ATTAINS.MonitoringLocationIdentifier
+          ) |>
+          dplyr::mutate(TADA.AURefSource = "User-supplied Ref")
+
+        if (dim(au.ref.mls)[1] > 0) {
+          # get geospatial data for au_ref monitoring locations
+          user.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
+            au.ref.mls,
+            au_ref = au_ref,
+            fill_ATTAINS_catch = fill_ATTAINS_catch
+          ))
+
+          # add AUIDs if user ref contained AUs not found in ATTAINS
+          # set up user ref for join
+          user.aus <- au_ref |>
+            dplyr::select(
+              ATTAINS.MonitoringLocationIdentifier,
+              ATTAINS.AssessmentUnitIdentifier
+            ) |>
+            dplyr::rename(
+              TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+              UserRef.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+            )
+
+          # replace NA AUIDs with AUID from user ref where possible
+          user.matches$TADA_with_ATTAINS <- user.matches$TADA_with_ATTAINS |>
+            dplyr::left_join(user.aus) |>
+            dplyr::mutate(
+              ATTAINS.AssessmentUnitIdentifier = ifelse(
+                is.na(ATTAINS.AssessmentUnitIdentifier) &
+                  !is.na(UserRef.AssessmentUnitIdentifier),
+                UserRef.AssessmentUnitIdentifier,
+                ATTAINS.AssessmentUnitIdentifier
+              )
+            ) |>
+            dplyr::select(-UserRef.AssessmentUnitIdentifier) |>
+            dplyr::distinct()
+
+          # remove intermediate object
+          rm(user.aus)
+        }
+      }
+    }
+
+    # ATTAINS supplied ref section
+    # get attains crosswalk
+
+    attains.matches <- list(
+      "TADA_with_ATTAINS" = NULL,
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
     )
 
-    # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
-    get.attains.mls <- get.attains.mls |>
-      dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
-
-    # set org id for pulling cw from ATTAINS
-    org_id <- if (org_id == "none") {
-      # set org id to all so that geospatial data from all orgs are considered
-      org_id <- "all"
-    } else {
-      org_id <- org_id
+    # if no org id is provided, no crosswalk is imported from ATTAINS
+    if (!is.null(org_id)) {
+      if (org_id == "none" | is.null(org_id)) {
+        print(paste0(
+          "TADA_CreateAUMLCrosswalk: User has specified that ATTAINS ",
+          "should not be checked for monitoring location and assessment unit matches."
+        ))
+      }
     }
 
-    # use get attains for matching remaining monitoring locations
-    get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
-      get.attains.mls,
-      return_nearest = return_nearest,
-      return_sf = TRUE,
-      org_id = org_id
+    # if an org id is provided, ATTAINS is checked for a crosswalk
+    if (format(org_id) != "none" & !is.null(org_id)) {
+      print("TADA_CreateAUMLCrosswalk: checking for crosswalk in ATTAINS.")
+
+      # get crosswalk from ATTAINS
+      attains.cw <- spsUtil::quiet(TADA_GetATTAINSAUMLCrosswalk(org_id = org_id))
+
+      # create string to describe ATTAINS orgs for print message
+      org.text <- ifelse(
+        is.null(org_id),
+        "all organizations",
+        stringi::stri_replace_last(
+          paste(org_id, collapse = ", "),
+          fixed = ", ",
+          replacement = " and "
+        )
+      )
+
+      # count number of records from ATTAINS crosswalk
+      record.count <- dim(attains.cw)[1]
+
+      # create text to describe number of records
+      count.text <- ifelse(record.count == 0, "no", record.count)
+
+      # print message summarizing the results of fetching crosswalk data from ATTAINS
+      print(paste0(
+        "TADA_CreateAUMLCrosswalk: There are ",
+        count.text,
+        " MonitoringLocation records ",
+        "in ATTAINS for ",
+        org.text,
+        "."
+      ))
+
+      rm(org.text, record.count, count.text)
+
+      if (dim(attains.cw)[1] > 0) {
+        print(
+          "TADA_CreateAUMLCrosswalk: crosswalk from ATTAINS has been imported."
+        )
+
+        # we could remove or make this step optional, but it is helpful for making sure
+        # monitoring location identifiers are WQP compatible
+        attains.cw <- TADA_UpdateATTAINSAUMLCrosswalk(
+          org_id = org_id,
+          crosswalk = attains.cw,
+          attains_replace = TRUE
+        )
+
+        # create list of monitoring location identifiers from TADA df
+        tada.mls <- .data |>
+          dplyr::select(TADA.MonitoringLocationIdentifier) |>
+          dplyr::distinct() |>
+          dplyr::pull()
+
+        # filter attains.cw to remove any assessment units that don't have a monitoring location
+        # match in the TADA df
+        attains.cw <- attains.cw |>
+          dplyr::filter(ATTAINS.MonitoringLocationIdentifier %in% tada.mls)
+
+        # remove intermediate object
+        rm(tada.mls)
+
+        # if au_ref was provided  by user, remove any records with monitoring locations matching user ref
+        if (!is.null(au_ref)) {
+          attains.cw.mls <- .data |>
+            dplyr::filter(
+              !TADA.MonitoringLocationIdentifier %in%
+                au.ref.mls$TADA.MonitoringLocationIdentifier,
+              TADA.MonitoringLocationIdentifier %in%
+                attains.cw$ATTAINS.MonitoringLocationIdentifier
+            )
+        }
+
+        # if au_ref was not provided  by user, retain all records that match ATTAINS ref
+        if (is.null(au_ref)) {
+          attains.cw.mls <- .data |>
+            dplyr::filter(
+              TADA.MonitoringLocationIdentifier %in%
+                attains.cw$ATTAINS.MonitoringLocationIdentifier
+            )
+        }
+
+        # set TADA_with_ATTAINS to null if no matches between monitoring location identifiers and ATTAINS crosswalk
+        if (dim(attains.cw.mls)[1] == 0) {
+          attains.matches <- list(
+            "TADA_with_ATTAINS" = NULL,
+            "ATTAINS_catchments" = NULL,
+            "ATTAINS_points" = NULL,
+            "ATTAINS_lines" = NULL,
+            "ATTAINS_polygons" = NULL
+          )
+        } else {
+          # add source column for ATTAINS Crosswalk matched records
+          attains.cw.mls <- attains.cw.mls |>
+            dplyr::mutate(TADA.AURefSource = "ATTAINS Crosswalk")
+
+          print(paste0(
+            "TADA_CreateAUMLCrosswalk: fetching ATTAINS geospatial data ",
+            "for assessment units from the ATTAINS crosswalk."
+          ))
+          # get geospatial data for attains cw monitoring locations
+          attains.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
+            attains.cw.mls,
+            au_ref = attains.cw,
+            fill_ATTAINS_catch = fill_ATTAINS_catch
+          ))
+
+          if (nrow(attains.cw) > 0) {
+            # add AUIDs if ATTAINS crosswalk contained AUs not found in ATTAINS geospatial services
+            # set up user ref for join
+            attains.cw.aus <- attains.cw |>
+              dplyr::select(
+                ATTAINS.MonitoringLocationIdentifier,
+                ATTAINS.AssessmentUnitIdentifier
+              ) |>
+              dplyr::filter(
+                ATTAINS.MonitoringLocationIdentifier %in%
+                  attains.matches$TADA_with_ATTAINS$TADA.MonitoringLocationIdentifier
+              ) |>
+              dplyr::rename(
+                TADA.MonitoringLocationIdentifier = ATTAINS.MonitoringLocationIdentifier,
+                Ref.AssessmentUnitIdentifier = ATTAINS.AssessmentUnitIdentifier
+              ) |>
+              dplyr::distinct()
+
+            # replace NA AUIDs with AUID from ATTAINS ref where possible
+
+            attains.matches$TADA_with_ATTAINS <- attains.matches$TADA_with_ATTAINS |>
+              dplyr::left_join(
+                attains.cw.aus,
+                by = dplyr::join_by(TADA.MonitoringLocationIdentifier)
+              ) |>
+              dplyr::mutate(
+                ATTAINS.AssessmentUnitIdentifier = ifelse(
+                  !is.na(Ref.AssessmentUnitIdentifier),
+                  Ref.AssessmentUnitIdentifier,
+                  NA
+                ),
+                TADA.AURefSource = ifelse(
+                  !is.na(Ref.AssessmentUnitIdentifier),
+                  "ATTAINS Crosswalk",
+                  NA
+                )
+              ) |>
+              dplyr::select(-Ref.AssessmentUnitIdentifier) |>
+              dplyr::distinct() |>
+              TADA_CorrectColType()
+          }
+
+          # remove intermediate objects
+          if (exists("attains.cw", inherits = FALSE)) {
+            rm("attains.cw")
+          }
+        }
+      }
+    }
+
+    # TADA_CreateATTAINSAUMLCrosswalk section
+
+    print(paste0(
+      "TADA_CreateAUMLCrosswalk: checking to see if any unmatched ",
+      "monitoring locations remain in the original TADA data frame."
     ))
-  }
 
-  # remove intermediate objects
-  if (exists("attains.cw.mls")) {
-    rm(attains.cw.mls)
-  }
+    get.attains.mls <- .data
 
-  if (exists("get.attains.mls")) {
-    rm(get.attains.mls)
-  }
-
-  # join all the resulting tables within each list to return as one large list
-  # TADA_with_ATTAINS
-
-  print(
-    "TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS."
-  )
-
-  # internal function to prep output by binding rows from different crosswalk sources
-  outputPrep <- function(df.name, user, attains, get.attains) {
-    # correct column types and filter out invalid geometries for each dataframe
-    user <- user[[df.name]]
-
-    if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
-      user <- sf::st_make_valid(user)
+    if (!is.null(attains.matches$TADA_with_ATTAINS)) {
+      get.attains.mls <- get.attains.mls |>
+        dplyr::filter(
+          !TADA.MonitoringLocationIdentifier %in%
+            attains.cw.mls$TADA.MonitoringLocationIdentifier
+        )
     }
 
-    if (!is.null(user) & df.name == "TADA_with_ATTAINS") {
-      user_geometry <- sf::st_as_sf(
-        user,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
+    if (!is.null(user.matches$TADA_with_ATTAINS)) {
+      get.attains.mls <- get.attains.mls |>
+        dplyr::filter(
+          !TADA.MonitoringLocationIdentifier %in%
+            au.ref.mls$TADA.MonitoringLocationIdentifier
+        )
+
+      # remove intermediate object
+      rm(au.ref.mls)
+    }
+
+    # add code here for if there are no remaining mls to match
+    if (dim(get.attains.mls)[1] == 0) {
+      print(paste0(
+        "TADA_CreateAUMLCrosswalk: all monitorintg locations have ",
+        "already been matched to an assessment unit by the user or ATTAINS."
+      ))
+
+      get.attains.matches <- list(
+        "TADA_with_ATTAINS" = NULL,
+        "ATTAINS_catchments" = NULL,
+        "ATTAINS_points" = NULL,
+        "ATTAINS_lines" = NULL,
+        "ATTAINS_polygons" = NULL
+      )
+    }
+
+    if (dim(get.attains.mls)[1] > 0) {
+      print(
+        "TADA_CreateAUMLCrosswalk: using TADA_CreateATTAINSAUMLCrosswalk to match remaining monitoring locations to ATTAINS assessment units using a spatial join (EPA snapshot of NHDPlus HR catchments associated with entity submitted assessment unit features). Also returning USGS snapshot of NHDPlus V2 HR for monitoring locations not near any ATTAINS assessment unit."
       )
 
-      geometry <- sf::st_geometry(user_geometry)
+      # add source ref column for TADA_CreateATTAINSAUMLCrosswalk matches
+      get.attains.mls <- get.attains.mls |>
+        dplyr::mutate(TADA.AURefSource = "TADA_CreateATTAINSAUMLCrosswalk")
 
-      user$geometry <- geometry
+      # set org id for pulling cw from ATTAINS
+      org_id <- if (org_id == "none") {
+        # set org id to all so that geospatial data from all orgs are considered
+        org_id <- "all"
+      } else {
+        org_id <- org_id
+      }
 
-      user <- sf::st_as_sf(user)
-
-      rm(geometry)
+      # use get attains for matching remaining monitoring locations
+      get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
+        get.attains.mls,
+        return_nearest = return_nearest,
+        return_sf = TRUE,
+        org_id = org_id
+      ))
     }
 
-    user <- TADA_CorrectColType(user)
-
-    attains <- attains[[df.name]]
-
-    if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
-      attains <- sf::st_make_valid(attains)
+    # remove intermediate objects
+    if (exists("attains.cw.mls")) {
+      rm(attains.cw.mls)
     }
 
-    if (!is.null(attains) & df.name == "TADA_with_ATTAINS") {
-      attains_geometry <- sf::st_as_sf(
-        attains,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
-      )
-      geometry <- sf::st_geometry(attains_geometry)
-
-      attains$geometry <- geometry
-
-      attains <- sf::st_as_sf(attains)
-
-      rm(geometry)
+    if (exists("get.attains.mls")) {
+      rm(get.attains.mls)
     }
 
-    attains <- TADA_CorrectColType(attains)
+    # join all the resulting tables within each list to return as one large list
+    # TADA_with_ATTAINS
 
-    get.attains <- get.attains[[df.name]]
+    print(
+      "TADA_CreateAUMLCrosswalk: joining results to return list of dataframes compatible with TADA_ViewATTAINS."
+    )
 
-    if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
-      get.attains <- sf::st_make_valid(get.attains)
+    # internal function to prep output by binding rows from different crosswalk sources
+    outputPrep <- function(df.name, user, attains, get.attains) {
+      # correct column types and filter out invalid geometries for each dataframe
+      user <- user[[df.name]]
+
+      if (!is.null(user) & df.name != "TADA_with_ATTAINS") {
+        user <- sf::st_make_valid(user)
+      }
+
+      if (!is.null(user) & df.name == "TADA_with_ATTAINS") {
+        user_geometry <- sf::st_as_sf(
+          user,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        )
+
+        geometry <- sf::st_geometry(user_geometry)
+
+        user$geometry <- geometry
+
+        user <- sf::st_as_sf(user)
+
+        rm(geometry)
+      }
+
+      user <- TADA_CorrectColType(user)
+
+      attains <- attains[[df.name]]
+
+      if (!is.null(attains) & df.name != "TADA_with_ATTAINS") {
+        attains <- sf::st_make_valid(attains)
+      }
+
+      if (!is.null(attains) & df.name == "TADA_with_ATTAINS") {
+        attains_geometry <- sf::st_as_sf(
+          attains,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        )
+        geometry <- sf::st_geometry(attains_geometry)
+
+        attains$geometry <- geometry
+
+        attains <- sf::st_as_sf(attains)
+
+        rm(geometry)
+      }
+
+      attains <- TADA_CorrectColType(attains)
+
+      get.attains <- get.attains[[df.name]]
+
+      if (!is.null(get.attains) & df.name != "TADA_with_ATTAINS") {
+        get.attains <- sf::st_make_valid(get.attains)
+      }
+
+      if (!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
+        get.attains_geometry <- sf::st_as_sf(
+          get.attains,
+          coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
+          crs = 4326
+        )
+        geometry <- sf::st_geometry(get.attains_geometry)
+
+        get.attains$geometry <- geometry
+
+        get.attains <- sf::st_as_sf(get.attains)
+
+        rm(geometry)
+      }
+
+      get.attains <- TADA_CorrectColType(get.attains)
+
+      # Check if any of the inputs are not NULL
+      if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
+        # Bind rows and remove duplicates
+        df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct()
+      } else {
+        df <- NULL
+      }
+
+      return(df)
     }
 
-    if (!is.null(get.attains) & df.name == "TADA_with_ATTAINS") {
-      get.attains_geometry <- sf::st_as_sf(
-        get.attains,
-        coords = c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure"),
-        crs = 4326
-      )
-      geometry <- sf::st_geometry(get.attains_geometry)
-
-      get.attains$geometry <- geometry
-
-      get.attains <- sf::st_as_sf(get.attains)
-
-      rm(geometry)
-    }
-
-    get.attains <- TADA_CorrectColType(get.attains)
-
-    # Check if any of the inputs are not NULL
-    if (!is.null(user) || !is.null(attains) || !is.null(get.attains)) {
-      # Bind rows and remove duplicates
-      df <- dplyr::bind_rows(user, attains, get.attains) |> dplyr::distinct()
-    } else {
-      df <- NULL
-    }
-
-    return(df)
-  }
-
-  # create TADA_with_ATTAINS for output list
-  TADA_with_ATTAINS <- outputPrep(
-    df.name = "TADA_with_ATTAINS",
-    user = user.matches,
-    attains = attains.matches,
-    get.attains = get.attains.matches
-  ) |>
-    TADA_CorrectColType() |>
-    suppressMessages(dplyr::full_join(.data))
-
-  # create ATTAINS_catchments for output list
-  ATTAINS_catchments <- outputPrep(
-    df.name = "ATTAINS_catchments",
-    user = user.matches,
-    attains = attains.matches,
-    get.attains = get.attains.matches
-  )
-
-  # create ATTAINS_lines for output list
-  ATTAINS_lines <- outputPrep(
-    df.name = "ATTAINS_lines",
-    user = user.matches,
-    attains = attains.matches,
-    get.attains = get.attains.matches
-  )
-
-  # create ATTAINS_points for output list
-  ATTAINS_points <- outputPrep(
-    df.name = "ATTAINS_points",
-    user = user.matches,
-    attains = attains.matches,
-    get.attains = get.attains.matches
-  )
-
-  # create ATTAINS_polygons for output list
-  ATTAINS_polygons <- outputPrep(
-    df.name = "ATTAINS_polygons",
-    user = user.matches,
-    attains = attains.matches,
-    get.attains = get.attains.matches
-  )
-
-  # create ATTAINS_crosswalk for output list
-  ATTAINS_crosswalk <- TADA_with_ATTAINS |>
-    sf::st_drop_geometry() |>
-    dplyr::select(
-      OrganizationIdentifier,
-      TADA.MonitoringLocationIdentifier,
-      ATTAINS.OrganizationIdentifier,
-      ATTAINS.AssessmentUnitIdentifier,
-      ATTAINS.WaterType,
-      TADA.AURefSource
+    # create TADA_with_ATTAINS for output list
+    TADA_with_ATTAINS <- outputPrep(
+      df.name = "TADA_with_ATTAINS",
+      user = user.matches,
+      attains = attains.matches,
+      get.attains = get.attains.matches
     ) |>
-    dplyr::distinct() |>
-    dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
+      TADA_CorrectColType() |>
+      suppressMessages(dplyr::full_join(.data))
 
-  # create final output list of all dfs
-  final_list <- list(
-    "TADA_with_ATTAINS" = TADA_with_ATTAINS,
-    "ATTAINS_catchments" = ATTAINS_catchments,
-    "ATTAINS_points" = ATTAINS_points,
-    "ATTAINS_lines" = ATTAINS_lines,
-    "ATTAINS_polygons" = ATTAINS_polygons,
-    "ATTAINS_crosswalk" = ATTAINS_crosswalk
-  )
+    # create ATTAINS_catchments for output list
+    ATTAINS_catchments <- outputPrep(
+      df.name = "ATTAINS_catchments",
+      user = user.matches,
+      attains = attains.matches,
+      get.attains = get.attains.matches
+    )
 
-  # add batch upload df to list for output if user has selected this option
-  if (batch_upload == TRUE) {
-    # create batch upload for ATTAINS df
-    ATTAINS_batchupload <- TADA_with_ATTAINS |>
+    # create ATTAINS_lines for output list
+    ATTAINS_lines <- outputPrep(
+      df.name = "ATTAINS_lines",
+      user = user.matches,
+      attains = attains.matches,
+      get.attains = get.attains.matches
+    )
+
+    # create ATTAINS_points for output list
+    ATTAINS_points <- outputPrep(
+      df.name = "ATTAINS_points",
+      user = user.matches,
+      attains = attains.matches,
+      get.attains = get.attains.matches
+    )
+
+    # create ATTAINS_polygons for output list
+    ATTAINS_polygons <- outputPrep(
+      df.name = "ATTAINS_polygons",
+      user = user.matches,
+      attains = attains.matches,
+      get.attains = get.attains.matches
+    )
+
+    # create ATTAINS_crosswalk for output list
+    ATTAINS_crosswalk <- TADA_with_ATTAINS |>
       sf::st_drop_geometry() |>
       dplyr::select(
+        OrganizationIdentifier,
         TADA.MonitoringLocationIdentifier,
+        ATTAINS.OrganizationIdentifier,
         ATTAINS.AssessmentUnitIdentifier,
-        OrganizationIdentifier
+        ATTAINS.WaterType,
+        TADA.AURefSource
       ) |>
       dplyr::distinct() |>
-      dplyr::rename(
-        MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
-        ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
-        MS_ORG_ID = OrganizationIdentifier
-      ) |>
-      dplyr::mutate(MS_DATA_LINK = NA) |>
-      dplyr::select(
-        ASSESSMENT_UNIT_ID,
-        MS_ORG_ID,
-        MS_LOCATION_ID,
-        MS_DATA_LINK
-      ) |>
-      dplyr::filter(!is.na(ASSESSMENT_UNIT_ID))
+      dplyr::filter(!is.na(ATTAINS.AssessmentUnitIdentifier))
 
-    # add batch upload df to list for output
-    final_list <- c(
-      final_list,
-      list("ATTAINS_batchupload" = ATTAINS_batchupload)
+    # create final output list of all dfs
+    final_list <- list(
+      "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+      "ATTAINS_catchments" = ATTAINS_catchments,
+      "ATTAINS_points" = ATTAINS_points,
+      "ATTAINS_lines" = ATTAINS_lines,
+      "ATTAINS_polygons" = ATTAINS_polygons,
+      "ATTAINS_crosswalk" = ATTAINS_crosswalk
+    )
+
+    # add batch upload df to list for output if user has selected this option
+    if (batch_upload == TRUE) {
+      # create batch upload for ATTAINS df
+      ATTAINS_batchupload <- TADA_with_ATTAINS |>
+        sf::st_drop_geometry() |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          ATTAINS.AssessmentUnitIdentifier,
+          OrganizationIdentifier
+        ) |>
+        dplyr::distinct() |>
+        dplyr::rename(
+          MS_LOCATION_ID = TADA.MonitoringLocationIdentifier,
+          ASSESSMENT_UNIT_ID = ATTAINS.AssessmentUnitIdentifier,
+          MS_ORG_ID = OrganizationIdentifier
+        ) |>
+        dplyr::mutate(MS_DATA_LINK = NA) |>
+        dplyr::select(
+          ASSESSMENT_UNIT_ID,
+          MS_ORG_ID,
+          MS_LOCATION_ID,
+          MS_DATA_LINK
+        ) |>
+        dplyr::filter(!is.na(ASSESSMENT_UNIT_ID))
+
+      # add batch upload df to list for output
+      final_list <- c(
+        final_list,
+        list("ATTAINS_batchupload" = ATTAINS_batchupload)
+      )
+
+      # remove intermediate objects
+      rm(ATTAINS_batchupload)
+    }
+
+    # remove intermediate objects
+    rm(
+      TADA_with_ATTAINS,
+      ATTAINS_catchments,
+      ATTAINS_points,
+      ATTAINS_lines,
+      ATTAINS_polygons,
+      ATTAINS_crosswalk
     )
 
     # remove intermediate objects
-    rm(ATTAINS_batchupload)
+    rm(attains.matches, user.matches, get.attains.matches)
+
+    # return final list of dfs based on user inputs
+    return(final_list)
   }
-
-  # remove intermediate objects
-  rm(
-    TADA_with_ATTAINS,
-    ATTAINS_catchments,
-    ATTAINS_points,
-    ATTAINS_lines,
-    ATTAINS_polygons,
-    ATTAINS_crosswalk
-  )
-
-  # remove intermediate objects
-  rm(attains.matches, user.matches, get.attains.matches)
-
-  # return final list of dfs based on user inputs
-  return(final_list)
-}
