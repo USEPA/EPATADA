@@ -2721,6 +2721,7 @@ TADA_FindNearbySites <- function(
     dplyr::group_by(TADA.MonitoringLocationIdentifier.New) |>
     dplyr::mutate(CountSites = length(TADA.MonitoringLocationName)) |>
     dplyr::filter(CountSites > 1) |>
+    dplyr::slice_min(OrgRank) |>
     dplyr::ungroup() |>
     dplyr::select(-OrgRank, -CountSites) |>
     dplyr::mutate(
@@ -2737,11 +2738,10 @@ TADA_FindNearbySites <- function(
   if (meta_select == "random") {
     # select random metadata where necessary (no org rank or more than one set of metdata for one
     # TADA.MonitoringLocationIdentifier.New)
-    random.meta <- org.ranks.added |>
+    random.meta <- org.meta.filter |>
       dplyr::ungroup() |>
       dplyr::filter(!is.na(TADA.MonitoringLocationIdentifier.New)) |>
       dplyr::group_by(TADA.NearbySiteGroup) |>
-      dplyr::slice_min(OrgRank) |>
       dplyr::select(
         TADA.MonitoringLocationIdentifier.New,
         TADA.MonitoringLocationName,
@@ -2972,7 +2972,8 @@ TADA_FindNearbySites <- function(
       -TADA.MonitoringLocationName.New,
       -TADA.LatitudeMeasure.New,
       -TADA.LongitudeMeasure.New,
-      -TADA.MonitoringLocationTypeName.New
+      -TADA.MonitoringLocationTypeName.New,
+      -TADA.NearbySiteGroup.New
     ) |>
     TADA_OrderCols()
 
