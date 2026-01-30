@@ -1492,6 +1492,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
         return(no_ATTAINS_data)
       }
     }
+  }
 
   # If ATTAINS data is present, link WQP features to ATTAINS catchments
   if (!is.null(nearby_catchments)) {
@@ -1683,8 +1684,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
           "ATTAINS_polygons" = ATTAINS_polygons
         )
 
-        return(final_list)
-      }
+      return(final_list)
+    }
   }
 }
 
