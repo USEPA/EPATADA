@@ -1493,9 +1493,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       return(no_ATTAINS_data)
     }
   }
-}
 
-# If ATTAINS data is present, link WQP features to ATTAINS catchments
+# If ATTAINS data are present, link WQP features to ATTAINS catchments
 if (!is.null(nearby_catchments)) {
   suppressMessages({
     suppressWarnings({
@@ -1506,18 +1505,6 @@ if (!is.null(nearby_catchments)) {
       )
     })
   })
-
-  # If ATTAINS data is present, link WQP features to ATTAINS catchments
-  if (!is.null(nearby_catchments)) {
-    suppressMessages({
-      suppressWarnings({
-        TADA_with_ATTAINS <- sf::st_join(
-          TADA_DataRetrieval_data,
-          nearby_catchments,
-          left = TRUE
-        )
-      })
-    })
 
     # Check for multiple ATTAINS features within the same catchment
     if (
@@ -1544,6 +1531,7 @@ if (!is.null(nearby_catchments)) {
         "If you would like to instead only return the nearest ATTAINS feature, use `return_nearest = TRUE."
       )
     }
+}
 
     # Function to calculate distances between WQP observations and ATTAINS features
     find_distances <- function(location) {
@@ -1688,6 +1676,7 @@ if (!is.null(nearby_catchments)) {
       if (is.null(ATTAINS_polygons) || nrow(ATTAINS_polygons) == 0) {
         ATTAINS_polygons <- NULL
       }
+    }
 
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
@@ -1698,7 +1687,6 @@ if (!is.null(nearby_catchments)) {
         )
 
     return(final_list)
-  }
 }
 
 #' TADA_GetATTAINSByAUID
@@ -1831,19 +1819,20 @@ TADA_GetATTAINSByAUID <- function(
       ATTAINS_lines <- NULL
       ATTAINS_points <- NULL
       ATTAINS_polygons <- NULL
-
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = ATTAINS_catchments,
-        "ATTAINS_points" = ATTAINS_points,
-        "ATTAINS_lines" = ATTAINS_lines,
-        "ATTAINS_polygons" = ATTAINS_polygons
-      )
-
-      return(final_list)
     }
   }
-}
+
+      final_features <- list(
+        "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+        "ATTAINS_catchments" = catchments,
+        "ATTAINS_points" = points,
+        "ATTAINS_lines" = lines,
+        "ATTAINS_polygons" = polygons
+      )
+
+      return(final_features)
+    }
+
 
   #' TADA_GetATTAINSByAUID
   #'
