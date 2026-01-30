@@ -1493,6 +1493,19 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
       }
     }
   }
+}
+
+# If ATTAINS data is present, link WQP features to ATTAINS catchments
+if (!is.null(nearby_catchments)) {
+  suppressMessages({
+    suppressWarnings({
+      TADA_with_ATTAINS <- sf::st_join(
+        TADA_DataRetrieval_data,
+        nearby_catchments,
+        left = TRUE
+      )
+    })
+  })
 
   # If ATTAINS data is present, link WQP features to ATTAINS catchments
   if (!is.null(nearby_catchments)) {
@@ -1684,9 +1697,9 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
           "ATTAINS_polygons" = ATTAINS_polygons
         )
 
-      return(final_list)
-    }
+    return(final_list)
   }
+}
 
 #' TADA_GetATTAINSByAUID
 #'
