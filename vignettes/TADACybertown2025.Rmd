@@ -465,8 +465,6 @@ monitoring locations within this assessment unit.
 WQP_clean_subset_spatial <- TADA_CreateATTAINSAUMLCrosswalk(
   WQP_clean_subset,
   return_nearest = TRUE,
-  fill_USGS_catch = FALSE,
-  resolution = "Hi",
   return_sf = TRUE
 )
 

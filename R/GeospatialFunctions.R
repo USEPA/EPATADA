@@ -1298,10 +1298,6 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param return_nearest If a WQP observation falls within more than one AU,
 #' return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 #' (return_nearest = FALSE).
-#' @param resolution If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med"
-#' catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
-#' ("Hi") because at approximately 80% of state submitted assessment units in
-#' ATTAINS were developed based on NHDPlus V2 HiRes.
 #' @param return_sf Whether to return the ATTAINS associated catchments, lines,
 #' points, and polygon shapefile objects along with the data frame(s).
 #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
@@ -1311,9 +1307,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' without_ATTAINS_catchments. Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-#' columns associated with the ATTAINS assessment unit data, and, if
-#' fill_USGS_catch = TRUE, an additional dataframe of the observations without
-#' intersecting ATTAINS features.
+#' columns associated with the ATTAINS assessment unit data.
 #' Moreover, if return_sf = TRUE, this function will additionally return the
 #' raw ATTAINS and catchment shapefile features associated with those
 #' observations.
@@ -1372,13 +1366,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
   resolution = "Hi",
   return_sf = TRUE
 ) {
-  # Valid resolutions
-  valid_resolutions <- c("Hi", "Med")
-
-  # Check if resolution is valid
-  if (!resolution %in% valid_resolutions) {
-    stop("User-supplied resolution unavailable")
-  }
 
   # Store original settings for s2 geometry and timeout for restoration after execution
   original_s2 <- sf::sf_use_s2()
@@ -1724,9 +1711,7 @@ if (!is.null(nearby_catchments)) {
 #' are in WGS84 (crs = 4326).
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-#' columns associated with the ATTAINS assessment unit data, and, if
-#' fill_USGS_catch = TRUE, an additional dataframe of the observations without
-#' intersecting ATTAINS features.
+#' columns associated with the ATTAINS assessment unit data.
 #' Moreover, if return_sf = TRUE, this function will additionally return the
 #' raw ATTAINS and catchment shapefile features associated with those
 #' observations.
@@ -1869,9 +1854,7 @@ TADA_GetATTAINSByAUID <- function(
   #' are in WGS84 (crs = 4326).
   #'
   #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-  #' columns associated with the ATTAINS assessment unit data, and, if
-  #' fill_USGS_catch = TRUE, an additional dataframe of the observations without
-  #' intersecting ATTAINS features.
+  #' columns associated with the ATTAINS assessment unit data.
   #' Moreover, if return_sf = TRUE, this function will additionally return the
   #' raw ATTAINS and catchment shapefile features associated with those
   #' observations.
