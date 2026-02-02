@@ -46,17 +46,13 @@ are in WGS84 (crs = 4326).}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
-columns associated with the ATTAINS assessment unit data, and, if
-fill_USGS_catch = TRUE, an additional dataframe of the observations without
-intersecting ATTAINS features.
+columns associated with the ATTAINS assessment unit data.
 Moreover, if return_sf = TRUE, this function will additionally return the
 raw ATTAINS and catchment shapefile features associated with those
 observations.
 
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
-columns associated with the ATTAINS assessment unit data, and, if
-fill_USGS_catch = TRUE, an additional dataframe of the observations without
-intersecting ATTAINS features.
+columns associated with the ATTAINS assessment unit data.
 Moreover, if return_sf = TRUE, this function will additionally return the
 raw ATTAINS and catchment shapefile features associated with those
 observations.

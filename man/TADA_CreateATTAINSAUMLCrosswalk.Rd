@@ -32,11 +32,6 @@ crosswalk data from ATTAINS will be considered. The default is "all".}
 return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 (return_nearest = FALSE).}
 
-\item{resolution}{If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med"
-catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
-("Hi") because at approximately 80\% of state submitted assessment units in
-ATTAINS were developed based on NHDPlus V2 HiRes.}
-
 \item{return_sf}{Whether to return the ATTAINS associated catchments, lines,
 points, and polygon shapefile objects along with the data frame(s).
 TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
@@ -47,9 +42,7 @@ without_ATTAINS_catchments. Defaults to TRUE.}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
-columns associated with the ATTAINS assessment unit data, and, if
-fill_USGS_catch = TRUE, an additional dataframe of the observations without
-intersecting ATTAINS features.
+columns associated with the ATTAINS assessment unit data.
 Moreover, if return_sf = TRUE, this function will additionally return the
 raw ATTAINS and catchment shapefile features associated with those
 observations.
