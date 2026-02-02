@@ -3654,12 +3654,13 @@ TADA_GetATTAINSByAUID <- function(
       }
 
       # use get attains for matching remaining monitoring locations
-      get.attains.matches <- spsUtil::quiet(TADA_CreateATTAINSAUMLCrosswalk(
+      get.attains.matches <- #spsUtil::quiet(
+        TADA_CreateATTAINSAUMLCrosswalk(
         get.attains.mls,
         return_nearest = return_nearest,
         return_sf = TRUE,
         org_id = org_id
-      ))
+      )#)
     }
 
     # remove intermediate objects
