@@ -1491,7 +1491,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
         )
       })
     })
-  })
 
     # Check for multiple ATTAINS features within the same catchment
     if (
