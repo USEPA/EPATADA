@@ -453,29 +453,6 @@ If we set `return_sf = TRUE` as done to create the
 intersecting ATTAINS features associated with these ATTAINS catchment
 observations stored in a list along with the TADA dataframe.
 
-**Assign NHD catchments to WQP observations that are missing ATTAINS
-assessment units**
-
-As you can see in the above examples, not all WQP observations have an
-intersecting ATTAINS catchment: see that in the returned dataframes,
-some WQP observations have NAs where there should be ATTAINS
-information. In these instances, the user can optionally fill in
-catchment information from the NHD by entering `fill_USGS_catch = TRUE`:
-
-```{r, eval = T}
-TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(
-  tada.MT.clean,
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-```
-
-
-Moreover, when `return_sf = TRUE` as above, the function will
-additionally return the raw catchment features associated with the
-observations in `TADA_without_ATTAINS` in a new shapefile called
-`without_ATTAINS_catchments`.
-
 **Arguments for `TADA_CreateATTAINSAUMLCrosswalk()`**
 
 -   `.data`: Your input TADA-style Water Quality Portal data.
