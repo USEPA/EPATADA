@@ -2190,39 +2190,39 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
 
-    if(nrow(catchments) > 0) {
-    # get one catchment per WQP location
-    catchments.cw <- filt.data |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        HorizontalCoordinateReferenceSystemDatumName
-      ) |>
-      dplyr::distinct() |>
-      TADA_MakeSpatial() |>
-      sf::st_join(catchments, join = sf::st_nearest_feature) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-      dplyr::mutate(catchCount = dplyr::n()) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
-      dplyr::distinct() |>
-      sf::st_drop_geometry()
+    if (nrow(catchments) > 0) {
+      # get one catchment per WQP location
+      catchments.cw <- filt.data |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          HorizontalCoordinateReferenceSystemDatumName
+        ) |>
+        dplyr::distinct() |>
+        TADA_MakeSpatial() |>
+        sf::st_join(catchments, join = sf::st_nearest_feature) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+        dplyr::mutate(catchCount = dplyr::n()) |>
+        dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
+        dplyr::distinct() |>
+        sf::st_drop_geometry()
 
-    catchments.filt <- catchments |>
-      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+      catchments.filt <- catchments |>
+        dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
 
-    catchments.no.geo <- catchments |>
-      sf::st_drop_geometry() |>
-      dplyr::distinct()
+      catchments.no.geo <- catchments |>
+        sf::st_drop_geometry() |>
+        dplyr::distinct()
 
-    try(
-      catchments <- catchments.filt |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitId")
-        ),
-      silent = TRUE
-    )
+      try(
+        catchments <- catchments.filt |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitId")
+          ),
+        silent = TRUE
+      )
     }
   }
 

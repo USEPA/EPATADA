@@ -386,10 +386,10 @@ TADA_NearbySitesMap <- function(
     ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
     # add assessment unit columns to nearby.cols
-    nearby.cols <- append(nearby.cols, c(
-      "ATTAINS.AssessmentUnitIdentifier",
-      "TADA.AURefSource"
-    ))
+    nearby.cols <- append(
+      nearby.cols,
+      c("ATTAINS.AssessmentUnitIdentifier", "TADA.AURefSource")
+    )
 
     # set param for checkForWQPData
     if ("without_ATTAINS_catchments" %in% names(.data)) {
@@ -418,14 +418,14 @@ TADA_NearbySitesMap <- function(
       LatitudeMeasure = as.numeric(LatitudeMeasure),
       LongitudeMeasure = as.numeric(LongitudeMeasure)
     ) |>
-    dplyr::select(
-      dplyr::all_of(nearby.cols)
-    ) |>
+    dplyr::select(dplyr::all_of(nearby.cols)) |>
     dplyr::distinct()
 
   # check to see if any nearby site groups were found
-  if(nrow(TADA_nearby) == 0){
-    stop("TADA_NearbySitesMap: There are no grouped nearby sites in the data frame.")
+  if (nrow(TADA_nearby) == 0) {
+    stop(
+      "TADA_NearbySitesMap: There are no grouped nearby sites in the data frame."
+    )
   }
 
   # find number of colors needed for nearby site groups
@@ -457,7 +457,6 @@ TADA_NearbySitesMap <- function(
 
   # if data was spatial, remove for downstream leaflet dev:
   try(TADA_table <- TADA_table |> sf::st_drop_geometry(), silent = TRUE)
-
 
   # required cols for map popup
   required_columns <- c(
@@ -512,7 +511,6 @@ TADA_NearbySitesMap <- function(
       ),
       silent = TRUE
     )
-
 
     if (!any(required_columns %in% colnames(TADA_table))) {
       stop(
@@ -576,7 +574,6 @@ TADA_NearbySitesMap <- function(
         overlay_groups = overlay_groups,
         icons = images
       )
-
 
       map <- all_attains$map
 
@@ -754,9 +751,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   )
 
   # check for required columns in ATTAINS_table for mapping
-  checkTADAColsForMap(ATTAINS_table,
-    attains = TRUE
-  )
+  checkTADAColsForMap(ATTAINS_table, attains = TRUE)
 
   # use internal function to get paths to images and labels
   list.images <- getMapIconLabels()
@@ -786,7 +781,8 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:
   try(
-    missing_raw_features <- findATTAINSMissingRawFeatures(ATTAINS_catchments,
+    missing_raw_features <- findATTAINSMissingRawFeatures(
+      ATTAINS_catchments,
       points_layer = ATTAINS_points,
       polygons_layer = ATTAINS_polygons,
       lines_layer = ATTAINS_lines
@@ -795,153 +791,148 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   )
 
   #suppressMessages(suppressWarnings({
-    # if data was spatial, remove for downstream leaflet dev:
-    #try(
+  # if data was spatial, remove for downstream leaflet dev:
+  #try(
   ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry() #, silent = TRUE)
 
-    # create df to assign color based on ATTAINS overall status
-    colors <- getATTAINSColorsRef()
+  # create df to assign color based on ATTAINS overall status
+  colors <- getATTAINSColorsRef()
 
+  # prep ATTAINS assessment unit features
+  au_mapper <- prepAllATTAINSMapper(
+    color_ref = colors,
+    lines_layer = ATTAINS_lines,
+    points_layer = ATTAINS_points,
+    polygons_layer = ATTAINS_polygons
+  )
 
-    # prep ATTAINS assessment unit features
-    au_mapper <- prepAllATTAINSMapper(
-      color_ref = colors,
-      lines_layer = ATTAINS_lines,
-      points_layer = ATTAINS_points,
-      polygons_layer = ATTAINS_polygons
-    )
+  # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
+  try(
+    missing_raw_mapper <- missing_raw_features |>
+      dplyr::left_join(colors, by = "overallstatus") |>
+      dplyr::mutate(type = "Raw Feature Unavailable"),
+    silent = TRUE
+  )
 
-    # CATCHMENT FEATURES - try to pull missing feature AU data if it exists. Otherwise, move on...
-    try(
-      missing_raw_mapper <- missing_raw_features |>
-        dplyr::left_join(colors, by = "overallstatus") |>
-        dplyr::mutate(type = "Raw Feature Unavailable"),
-      silent = TRUE
-    )
+  # Develop WQP site stats (e.g. count of observations, parameters, per site)
+  sumdat <- getWQPSiteStats(ATTAINS_table, attains = TRUE)
 
-    # Develop WQP site stats (e.g. count of observations, parameters, per site)
-    sumdat <- getWQPSiteStats(ATTAINS_table, attains = TRUE)
+  # Basemap for AOI:
+  map <- createTADABasemap(sumdat)
 
-    # Basemap for AOI:
-    map <- createTADABasemap(sumdat)
+  # Initialize vectors to hold the names of groups we actually add
+  overlay_groups <- character(0)
 
-    # Initialize vectors to hold the names of groups we actually add
-    overlay_groups <- character(0)
+  # add all ATTAINS geometry to map
+  all_attains <- addAllATTAINS(
+    map = map,
+    points_layer = au_mapper$points_mapper,
+    polygons_layer = au_mapper$polygons_mapper,
+    lines_layer = au_mapper$lines_mapper,
+    catchment_layer = ATTAINS_catchments,
+    outline_layer = with_NHD_catchments,
+    missing_raw_layer = missing_raw_mapper,
+    overlay_groups = overlay_groups,
+    icons = images
+  )
 
-    # add all ATTAINS geometry to map
-    all_attains <- addAllATTAINS(
-      map = map,
-      points_layer = au_mapper$points_mapper,
-      polygons_layer = au_mapper$polygons_mapper,
-      lines_layer = au_mapper$lines_mapper,
-      catchment_layer = ATTAINS_catchments,
-      outline_layer = with_NHD_catchments,
-      missing_raw_layer = missing_raw_mapper,
-      overlay_groups = overlay_groups,
-      icons = images
-    )
+  map <- all_attains$map
 
-    map <- all_attains$map
+  overlay_groups <- all_attains$overlay_groups
 
-    overlay_groups <- all_attains$overlay_groups
+  rm(all_attains)
 
-    rm(all_attains)
-
-    # add symbology for any assessment units missing geometry from ATTAINS
-    try({
-      missing_aus <- showMissingATTAINSAUs(
-        ATTAINS_table = ATTAINS_table,
-        ATTAINS_polygons = ATTAINS_polygons,
-        ATTAINS_points = ATTAINS_points,
-        ATTAINS_lines = ATTAINS_lines,
-        map = map,
-        overlay_groups = overlay_groups
-      )
-
-      if (!is.null(missing_aus)) {
-      map <- missing_aus$map
-
-      overlay_groups <- missing_aus$overlay_groups
-      }
-
-      # remove intermediate objects
-      rm(missing_aus)
-    })
-
-    # Add WQP observation features (should always exist):
-    try(
-      {
-        wqp_sites <- addWQPSites(sumdat,
-          map = map,
-          icons = images,
-          ref_icons = TRUE,
-          overlay_groups = overlay_groups
-        )
-
-        map <- wqp_sites$map
-
-        overlay_groups <- wqp_sites$overlay_groups
-      },
-      silent = TRUE
-    )
-
-    # set up params for adding custom legend
-    # ATTAINS assessment units
-    attains_au <- ifelse(any(c(
-      "ATTAINS line features",
-      "ATTAINS point features",
-      "ATTAINS polygon features"
-    ) %in% overlay_groups),
-    TRUE,
-    FALSE
-    )
-
-    # attains missing
-    attains_missing <- ifelse("not in ATTAINS" %in% overlay_groups,
-      TRUE,
-      FALSE
-    )
-
-    # NHD catchments containing ATTAINS features
-
-    nhd_attains <- ifelse("ATTAINS catchments" %in% overlay_groups,
-      TRUE,
-      FALSE
-    )
-
-    # NHD catchments without ATTAINS features
-
-    nhd_no_attains <- ifelse("missing ATTAINS catchment outlines" %in% overlay_groups,
-      TRUE,
-      FALSE
-    )
-
-
-    # add TADA custom legend to map
-    map <- addTADAMapLegend(
-      map = map,
-      icons = images,
-      icon_labels = img.labels,
-      wqp = TRUE,
-      ref_icons = ref_icons,
-      attains_au = attains_au,
-      attains_missing = attains_missing,
-      nhd_attains = nhd_attains,
-      nhd_no_attains = nhd_no_attains
-    )
-
-    # add button to toggle map legend on/off
-    map <- addLegendToggle(map = map)
-
-    # add layer control to map
-    map <- addLayerControl(
+  # add symbology for any assessment units missing geometry from ATTAINS
+  try({
+    missing_aus <- showMissingATTAINSAUs(
+      ATTAINS_table = ATTAINS_table,
+      ATTAINS_polygons = ATTAINS_polygons,
+      ATTAINS_points = ATTAINS_points,
+      ATTAINS_lines = ATTAINS_lines,
       map = map,
       overlay_groups = overlay_groups
     )
 
+    if (!is.null(missing_aus)) {
+      map <- missing_aus$map
+
+      overlay_groups <- missing_aus$overlay_groups
+    }
+
     # remove intermediate objects
-    rm(sumdat, overlay_groups)
-    # Return leaflet map of TADA WQ and its associated ATTAINS data
-    return(map)
+    rm(missing_aus)
+  })
+
+  # Add WQP observation features (should always exist):
+  try(
+    {
+      wqp_sites <- addWQPSites(
+        sumdat,
+        map = map,
+        icons = images,
+        ref_icons = TRUE,
+        overlay_groups = overlay_groups
+      )
+
+      map <- wqp_sites$map
+
+      overlay_groups <- wqp_sites$overlay_groups
+    },
+    silent = TRUE
+  )
+
+  # set up params for adding custom legend
+  # ATTAINS assessment units
+  attains_au <- ifelse(
+    any(
+      c(
+        "ATTAINS line features",
+        "ATTAINS point features",
+        "ATTAINS polygon features"
+      ) %in%
+        overlay_groups
+    ),
+    TRUE,
+    FALSE
+  )
+
+  # attains missing
+  attains_missing <- ifelse("not in ATTAINS" %in% overlay_groups, TRUE, FALSE)
+
+  # NHD catchments containing ATTAINS features
+
+  nhd_attains <- ifelse("ATTAINS catchments" %in% overlay_groups, TRUE, FALSE)
+
+  # NHD catchments without ATTAINS features
+
+  nhd_no_attains <- ifelse(
+    "missing ATTAINS catchment outlines" %in% overlay_groups,
+    TRUE,
+    FALSE
+  )
+
+  # add TADA custom legend to map
+  map <- addTADAMapLegend(
+    map = map,
+    icons = images,
+    icon_labels = img.labels,
+    wqp = TRUE,
+    ref_icons = ref_icons,
+    attains_au = attains_au,
+    attains_missing = attains_missing,
+    nhd_attains = nhd_attains,
+    nhd_no_attains = nhd_no_attains
+  )
+
+  # add button to toggle map legend on/off
+  map <- addLegendToggle(map = map)
+
+  # add layer control to map
+  map <- addLayerControl(map = map, overlay_groups = overlay_groups)
+
+  # remove intermediate objects
+  rm(sumdat, overlay_groups)
+  # Return leaflet map of TADA WQ and its associated ATTAINS data
+  return(map)
   #}))
 }
