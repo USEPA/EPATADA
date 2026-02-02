@@ -339,9 +339,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100) {
+    perform_iterative_clustering <- function(
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
+    ) {
       bbox_area <- function(df, clust) {
         df |>
           dplyr::filter(cluster == clust) |>
@@ -566,10 +568,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
 
-    bbox <- points_sf |>
-      sf::st_bbox() |>
-      toString() |>
-      urltools::url_encode()
+    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
 
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
 
@@ -1481,15 +1480,16 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     }
   }
 
-# If ATTAINS data are present, link WQP features to ATTAINS catchments
-if (!is.null(nearby_catchments)) {
-  suppressMessages({
-    suppressWarnings({
-      TADA_with_ATTAINS <- sf::st_join(
-        TADA_DataRetrieval_data,
-        nearby_catchments,
-        left = TRUE
-      )
+  # If ATTAINS data are present, link WQP features to ATTAINS catchments
+  if (!is.null(nearby_catchments)) {
+    suppressMessages({
+      suppressWarnings({
+        TADA_with_ATTAINS <- sf::st_join(
+          TADA_DataRetrieval_data,
+          nearby_catchments,
+          left = TRUE
+        )
+      })
     })
   })
 
@@ -1518,7 +1518,14 @@ if (!is.null(nearby_catchments)) {
         "If you would like to instead only return the nearest ATTAINS feature, use `return_nearest = TRUE."
       )
     }
-}
+  }
+
+  # Function to calculate distances between WQP observations and ATTAINS features
+  find_distances <- function(location) {
+    sub_tada <- TADA_with_ATTAINS |>
+      dplyr::filter(as.character(geometry) == location)
+
+    distance <- sub_tada[1, ]
 
     # Function to calculate distances between WQP observations and ATTAINS features
     find_distances <- function(location) {
@@ -1664,6 +1671,7 @@ if (!is.null(nearby_catchments)) {
         ATTAINS_polygons <- NULL
       }
     }
+  }
 
         final_list <- list(
           "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
@@ -1673,7 +1681,7 @@ if (!is.null(nearby_catchments)) {
           "ATTAINS_polygons" = ATTAINS_polygons
         )
 
-    return(final_list)
+  return(final_list)
 }
 
 #' TADA_GetATTAINSByAUID
@@ -1807,16 +1815,16 @@ TADA_GetATTAINSByAUID <- function(
     }
   }
 
-      final_features <- list(
-        "TADA_with_ATTAINS" = TADA_with_ATTAINS,
-        "ATTAINS_catchments" = catchments,
-        "ATTAINS_points" = points,
-        "ATTAINS_lines" = lines,
-        "ATTAINS_polygons" = polygons
-      )
+  final_features <- list(
+    "TADA_with_ATTAINS" = TADA_with_ATTAINS,
+    "ATTAINS_catchments" = catchments,
+    "ATTAINS_points" = points,
+    "ATTAINS_lines" = lines,
+    "ATTAINS_polygons" = polygons
+  )
 
-      return(final_features)
-    }
+  return(final_features)
+}
 
 
   #' TADA_GetATTAINSByAUID
