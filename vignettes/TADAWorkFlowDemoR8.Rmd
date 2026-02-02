@@ -400,6 +400,7 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   tada.MT.clean,
   au_ref = user.supplied.cw,
   org_id = "MTDEQ",
+  fill_ATTAINS_catch = TRUE,
   return_nearest = TRUE,
   batch_upload = FALSE,
 )
