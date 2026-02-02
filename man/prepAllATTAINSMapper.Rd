@@ -8,6 +8,7 @@ prepAllATTAINSMapper(
   lines_layer = NULL,
   polygons_layer = NULL,
   points_layer = NULL,
+  catchment_layer = NULL,
   color_ref = NULL,
   auid_list = NULL
 )
@@ -25,6 +26,10 @@ assessment units are prepared for mapping. Default = NULL.}
 map ATTAINS assessment unit point geometry. When points_layer = NULL, no point
 assessment units are prepared for mapping. Default = NULL.}
 
+\item{catchment_layer}{Optional data frame argument. Contains the data required to
+map ATTAINS catchment polygon geometry. When catchment_layer = NULL, no ATTAINS
+catchments are prepared for mapping. Default = NULL.}
+
 \item{color_ref}{Optional data frame argument. Contains the columns "overall
 status" (ATTAINS overall status), "col" (light fill color), "dark_col" (darker
 color for points or outlines), and "priority" (for displaying on map). When
@@ -34,10 +39,6 @@ color_ref = NULL.}
 
 \item{auid_list}{A list of any ATTAINS assessment unit identifiers that should
 be excluded from the output (not included in map).}
-
-\item{catchment_layer}{Optional data frame argument. Contains the data required to
-map ATTAINS catchment polygon geometry. When catchment_layer = NULL, no ATTAINS
-catchments are prepared for mapping. Default = NULL.}
 }
 \value{
 A list of data frames ready for use in a TADA leaflet map.

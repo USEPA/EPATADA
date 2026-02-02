@@ -62,12 +62,6 @@ column)}
 \item{catchment}{Boolean argument. Specifies whether the geometries being
 mapped are catchments or assessment units to determine color and other attributes.
 Default is catchment = FALSE, meaning that assessment units are being mapped.}
-
-\item{missing_raw}{Boolean argument. Evaluated when catchment = TRUE to determine
-if the catchments being mapped are those corresponding to assessment units that
-are missing point/line/polygon data but still preserved in the catchment layer
-(missing_raw = TRUE) or catchments containing assessment unit features
-(missing_raw = FALSE). Default is missing_raw = FALSE.}
 }
 \value{
 ATTAINS geometry correctly formatted for display in a TADA leaflet map.
