@@ -10,7 +10,7 @@
 #' tribal nations record this information in ATTAINS but only a few states.
 #'
 #' @param org_id Character string. The ATTAINS organization identifier must be
-#' supplied by the user. More than one org_id may be provided. 
+#' supplied by the user. More than one org_id may be provided.
 #' Enter `rExpertQuery::EQ_DomainValues("org_id")` into the console to
 #' get a list of valid organization identifiers. A list of organization identifiers
 #' can also be found by downloading the ATTAINS Domains Excel file:
@@ -18,7 +18,7 @@
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #' When org_id = "all", all assessment unit/monitoring locations matches recorded in
 #' ATTAINS from all organizations will be returned. The default is org_id = "all".
-#' 
+#'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
 #' batch_upload = FALSE, the output column names will be consistent with the TADA
