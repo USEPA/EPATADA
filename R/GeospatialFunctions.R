@@ -1855,6 +1855,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' @export
 #'
 #' @examples
+#' 
 #' \dontrun{
 #' # Example 1: Basic use with default settings
 #' # Assume my_data is a TADA data frame with some monitoring
