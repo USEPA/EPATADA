@@ -1345,24 +1345,11 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #'   return_sf = TRUE,
 #'   return_nearest = TRUE
 #' )
-#'
-#' tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   resolution = "Hi",
-#'   return_sf = FALSE,
-#'   return_nearest = TRUE
-#' )
-#'
-#' tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   resolution = "Hi",
-#'   return_sf = TRUE,
-#'   return_nearest = TRUE
-#' )
 #' }
 TADA_CreateATTAINSAUMLCrosswalk <- function(
   .data,
   org_id = "all",
   return_nearest = TRUE,
-  resolution = "Hi",
   return_sf = TRUE
 ) {
   # Store original settings for s2 geometry and timeout for restoration after execution
