@@ -109,7 +109,7 @@ TADA_GetLegendCSTRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file(
       "extdata",
-      "CriteriaSearchToolRef.csv",
+      "LegendCSTRef.csv",
       package = "EPATADA"
     )))
   }
@@ -174,7 +174,7 @@ TADA_GetSourcesCSTRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file(
       "extdata",
-      "CriteriaSearchToolRef.csv",
+      "SourcesCSTRef.csv",
       package = "EPATADA"
     )))
   }
