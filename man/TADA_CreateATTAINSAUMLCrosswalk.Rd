@@ -8,7 +8,6 @@ TADA_CreateATTAINSAUMLCrosswalk(
   .data,
   org_id = "all",
   return_nearest = TRUE,
-  resolution = "Hi",
   return_sf = TRUE
 )
 }
@@ -103,18 +102,6 @@ tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
 )
 
 tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  resolution = "Hi",
-  return_sf = FALSE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  resolution = "Hi",
   return_sf = TRUE,
   return_nearest = TRUE
 )
