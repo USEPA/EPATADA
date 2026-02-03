@@ -1671,6 +1671,13 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     }
   }
 
+  # ensure these exist in all code paths
+  if (!exists("ATTAINS_catchments", inherits = FALSE)) {ATTAINS_catchments <- NULL}
+  if (!exists("ATTAINS_points", inherits = FALSE))     {ATTAINS_points     <- NULL}
+  if (!exists("ATTAINS_lines", inherits = FALSE))      {ATTAINS_lines      <- NULL}
+  if (!exists("ATTAINS_polygons", inherits = FALSE))   {ATTAINS_polygons   <- NULL}
+
+  # create final list for output
   final_list <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
     "ATTAINS_catchments" = ATTAINS_catchments,
