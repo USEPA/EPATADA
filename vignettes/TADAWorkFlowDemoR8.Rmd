@@ -548,7 +548,7 @@ Note that duration, frequency and other criteria components will still need
 to be filled out with auto_assign. However, if users are only interested in
 individual result measurement excursions, they can proceed to use this table as is.
 
-```{r demo_table}
+```{r demo_table, eval = F}
 criteria_table_auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
