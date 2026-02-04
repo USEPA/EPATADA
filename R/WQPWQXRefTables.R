@@ -40,12 +40,14 @@ TADA_GetWQXCharValRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    file_path <- system.file(
-      "extdata",
-      "WQXcharValRef.rda",
-      package = "EPATADA"
-    )
-    return(readRDS(file_path))
+    file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+    ref_env <- new.env(parent = emptyenv())
+    nm <- load(file_path, envir = ref_env)
+    if (!"WQXcharValRef" %in% nm) {
+      stop("Internal file does not contain 'WQXcharValRef'")
+    }
+    WQXcharValRef <- ref_env[["WQXcharValRef"]]
+    return(WQXcharValRef)
     rm(file_path)
   }
 
