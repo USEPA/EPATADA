@@ -29,9 +29,15 @@ TADA_GetWQXCharValRef <- function() {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
 
-    file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
+    file_path <- system.file(
+      "extdata",
+      "WQXcharValRef.rda",
+      package = "EPATADA"
+    )
     if (!nzchar(file_path) || !file.exists(file_path)) {
-      stop("Internal file 'extdata/WQXcharValRef.rda' not found in installed package.")
+      stop(
+        "Internal file 'extdata/WQXcharValRef.rda' not found in installed package."
+      )
     }
 
     ref_env <- new.env(parent = emptyenv())
@@ -41,20 +47,26 @@ TADA_GetWQXCharValRef <- function() {
     }
     WQXcharValRef <- ref_env[["WQXcharValRef"]]
   } else {
-    valid       <- c("Accepted", "Y")
-    invalid     <- c("Rejected", "Rejected ", "N")
-    nonstandard <- c("NonStandardized", "Nonstandardized", "Non Standardized",
-                     "InvalidMediaUnit", "InvalidChar", "MethodNeeded")
+    valid <- c("Accepted", "Y")
+    invalid <- c("Rejected", "Rejected ", "N")
+    nonstandard <- c(
+      "NonStandardized",
+      "Nonstandardized",
+      "Non Standardized",
+      "InvalidMediaUnit",
+      "InvalidChar",
+      "MethodNeeded"
+    )
 
     WQXcharValRef <- raw.data |>
       dplyr::mutate(
         TADA.WQXVal.Flag = dplyr::case_when(
-          is.na(Status)               ~ "Not Reviewed",     # fixed NA test
-          Status %in% valid           ~ "Pass",
-          Status %in% invalid         ~ "Suspect",
-          Status %in% nonstandard     ~ "NonStandardized",
-          Status %in% "Not Reviewed"  ~ "Not Reviewed",
-          TRUE                        ~ "Not Reviewed"
+          is.na(Status) ~ "Not Reviewed", # fixed NA test
+          Status %in% valid ~ "Pass",
+          Status %in% invalid ~ "Suspect",
+          Status %in% nonstandard ~ "NonStandardized",
+          Status %in% "Not Reviewed" ~ "Not Reviewed",
+          TRUE ~ "Not Reviewed"
         )
       ) |>
       dplyr::distinct()
