@@ -56,7 +56,6 @@ with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified 
 identifier/monitoring location combinations.
 }
 \examples{
-
 \dontrun{
 # Example 1: Basic use with default settings
 # Assume my_data is a TADA data frame with some monitoring
