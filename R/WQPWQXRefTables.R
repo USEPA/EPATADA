@@ -45,7 +45,7 @@ TADA_GetWQXCharValRef <- function() {
       "WQXcharValRef.rda",
       package = "EPATADA"
     )
-    return(load(file_path))
+    return(readRDS(file_path))
     rm(file_path)
   }
 
