@@ -661,17 +661,25 @@ TADA_GetCharacteristicRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Measure Unit Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file(
+    file_path <- system.file(
       "extdata",
-      "WQXCharacteristicRef.csv",
+      "WQXcharValRef.rda",
       package = "EPATADA"
-    )))
+    )
+    ref_env <- new.env(parent = emptyenv())
+    nm <- load(file_path, envir = ref_env)
+    if (!"WQXcharValRef" %in% nm) {
+      stop("Internal file does not contain 'WQXcharValRef'")
+    }
+    WQXcharValRef <- ref_env[["WQXcharValRef"]]
+    return(WQXcharValRef)
+    rm(file_path)
   }
 
   # rename some columns
   WQXCharacteristicRef <- raw.data |>
     dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
-    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
 
   # Save updated table in cache
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
