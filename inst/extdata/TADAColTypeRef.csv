@@ -266,3 +266,4 @@ ATTAINS.EcologicalUse,character
 ATTAINS.FishConsumptionUse,character
 ATTAINS.RecreationUse,character
 ATTAINS.OtherUse,character
+epsg,character

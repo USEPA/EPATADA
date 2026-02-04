@@ -90,7 +90,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 
     # Prepare the data for spatial transformation
     sf <- .data |>
-      dplyr::select(-epsg) |>
+      dplyr::select(-dplyr::any_of("epsg")) |>
       dplyr::left_join(
         epsg_codes,
         by = "HorizontalCoordinateReferenceSystemDatumName"
