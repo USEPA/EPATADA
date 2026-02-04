@@ -661,15 +661,15 @@ TADA_GetCharacteristicRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     file_path <- system.file(
       "extdata",
-      "WQXcharValRef.rda",
+      "WQXCharacteristicRef.rda",
       package = "EPATADA"
     )
     ref_env <- new.env(parent = emptyenv())
     nm <- load(file_path, envir = ref_env)
-    if (!"WQXcharValRef" %in% nm) {
-      stop("Internal file does not contain 'WQXcharValRef'")
+    if (!"WQXCharacteristicRef" %in% nm) {
+      stop("Internal file does not contain 'WQXCharacteristicRef'")
     }
-    WQXcharValRef <- ref_env[["WQXcharValRef"]]
+    WQXcharValRef <- ref_env[["WQXCharacteristicRef"]]
     return(WQXcharValRef)
     rm(file_path)
   }
