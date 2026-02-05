@@ -172,6 +172,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
+#' 
 fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
@@ -226,12 +227,24 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   baseurls <- c(
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
-
+  
+  example <- AOI::aoi_get(state = "OR", county= "Benton")
+  
+  query_and_fetch <- function(url) {
+    lyr <- arcgislayers::arc_open(url)
+    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+    data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(example))
+    return(data)
+  }
+  
+  list_of_results <- purrr::map(baseurls, query_and_fetch)
+  
+  
   fetch_bbox <- function(baseurls, sf_bbox) {
     offset <- 0
     all_features <- list()
