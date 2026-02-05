@@ -233,60 +233,17 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
   
-  example <- AOI::aoi_get(state = "OR", county= "Benton")
-  
-  query_and_fetch <- function(url) {
-    lyr <- arcgislayers::arc_open(url)
-    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-    data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(example))
-    return(data)
-  }
-  
-  list_of_results <- purrr::map(baseurls, query_and_fetch)
-  
-  
-  fetch_bbox <- function(baseurls, sf_bbox) {
-    offset <- 0
-    all_features <- list()
-
-    repeat {
-      query <- baseurls |>
-        urltools::param_set(key = "geometry", value = sf_bbox) |>
-        urltools::param_set(key = "inSR", value = our_epsg) |>
-        urltools::param_set(key = "resultRecordCount", value = 100) |>
-        urltools::param_set(key = "resultOffset", value = offset) |>
-        urltools::param_set(
-          key = "spatialRel",
-          value = "esriSpatialRelIntersects"
-        ) |>
-        urltools::param_set(key = "f", value = "geojson") |>
-        urltools::param_set(key = "outFields", value = "*") |>
-        urltools::param_set(
-          key = "geometryType",
-          value = "esriGeometryEnvelope"
-        ) |>
-        urltools::param_set(key = "returnGeometry", value = "true") |>
-        urltools::param_set(key = "returnTrueCurves", value = "false") |>
-        urltools::param_set(key = "returnIdsOnly", value = "false") |>
-        urltools::param_set(key = "returnCountOnly", value = "false") |>
-        urltools::param_set(key = "returnZ", value = "false") |>
-        urltools::param_set(key = "returnM", value = "false") |>
-        urltools::param_set(key = "returnDistinctValues", value = "false") |>
-        urltools::param_set(key = "returnExtentOnly", value = "false") |>
-        urltools::param_set(key = "featureEncoding", value = "esriDefault")
-
-      features <- suppressMessages(suppressWarnings({
-        tryCatch(geojsonsf::geojson_sf(url(query)), error = function(e) NULL)
-      }))
-
-      if (is.null(features) || nrow(features) == 0) {
-        break
-      }
-
-      all_features <- c(all_features, list(features))
-      offset <- offset + 100
+  fetch_bbox <- function(baseurls, df) {
+    query_and_fetch <- function(url) {
+      lyr <- arcgislayers::arc_open(url)
+      # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+      data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(example))
+      return(data)
     }
 
+      all_features <- suppressMessages(suppressWarnings({
+        tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
+      }))
     dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
   }
 
