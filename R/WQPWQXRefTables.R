@@ -663,10 +663,7 @@ TADA_GetCharacteristicRef <- function() {
 
   # Normalize and return
   WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(
-      CharacteristicName = Name,
-      Char_Flag = Domain.Value.Status
-    ) |>
+    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
 
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
