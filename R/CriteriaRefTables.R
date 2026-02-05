@@ -39,14 +39,16 @@ TADA_GetCriteriaSearchToolRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file(
-      "extdata",
-      "CriteriaSearchToolRef.csv",
-      package = "EPATADA"
-    )))
+    # Load the dataset from the package into this function's environment
+    utils::data("CriteriaSearchToolRef", package = "EPATADA", envir = environment())
+    CriteriaSearchToolRef <- get("CriteriaSearchToolRef", envir = environment())
+    CriteriaSearchToolRef <- dplyr::distinct(CriteriaSearchToolRef)
+    # Cache and return
+    CriteriaSearchToolRef_Cached <<- CriteriaSearchToolRef
+    return(CriteriaSearchToolRef)
   }
-  CriteriaSearchToolRef <- raw.data |> dplyr::distinct()
-  # Save updated table in cache
+
+  CriteriaSearchToolRef <- dplyr::distinct(raw.data)
   CriteriaSearchToolRef_Cached <- CriteriaSearchToolRef
   CriteriaSearchToolRef
 }
