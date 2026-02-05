@@ -637,49 +637,38 @@ WQXCharacteristicRef_Cached <- NULL
 #'
 
 TADA_GetCharacteristicRef <- function() {
-  # If there is a cached table available return it
+  # Return cached copy if available (read-only)
   if (!is.null(WQXCharacteristicRef_Cached)) {
     return(WQXCharacteristicRef_Cached)
   }
 
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
-    {
-      # read raw csv from url
-      utils::read.csv(url(
-        "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"
-      ))
-    },
-    error = function(err) {
-      NULL
-    }
+    utils::read.csv(
+      "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV",
+      stringsAsFactors = FALSE
+    ),
+    error = function(err) NULL
   )
 
-  # If the download failed fall back to internal data (and report it)
+  # Fallback path if download failed
   if (is.null(raw.data)) {
-    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Downloading latest Characteristic Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    file_path <- system.file(
-      "extdata",
-      "WQXCharacteristicRef.rda",
-      package = "EPATADA"
-    )
-    ref_env <- new.env(parent = emptyenv())
-    nm <- load(file_path, envir = ref_env)
-    if (!"WQXCharacteristicRef" %in% nm) {
-      stop("Internal file does not contain 'WQXCharacteristicRef'")
-    }
-    WQXcharValRef <- ref_env[["WQXCharacteristicRef"]]
-    return(WQXcharValRef)
-    rm(file_path)
+    return(utils::read.csv(
+      system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
+    ))
   }
 
-  # rename some columns
+  # Normalize and return
   WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
+    dplyr::rename(
+      CharacteristicName = Name,
+      Char_Flag = Domain.Value.Status
+    ) |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
 
-  # Save updated table in cache
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
 
   WQXCharacteristicRef
@@ -690,7 +679,7 @@ TADA_GetCharacteristicRef <- function() {
 TADA_UpdateCharacteristicRef <- function() {
   utils::write.csv(
     TADA_GetCharacteristicRef(),
-    file = "inst/extdata/WQXCharacteristicRef.csv",
+    file = "inst/extdata/WQXCharacteristicRef.rda",
     row.names = FALSE
   )
 }
