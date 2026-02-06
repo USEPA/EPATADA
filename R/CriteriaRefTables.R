@@ -39,16 +39,20 @@ TADA_GetCriteriaSearchToolRef <- function() {
   if (is.null(raw.data)) {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    file_path <- system.file(
-      "extdata",
-      "CriteriaSearchToolRef.rda",
-      package = "EPATADA"
+    # Load the dataset from the package into this function's environment
+    utils::data(
+      "CriteriaSearchToolRef",
+      package = "EPATADA",
+      envir = environment()
     )
-    return(load(file_path))
-    rm(file_path)
+    CriteriaSearchToolRef <- get("CriteriaSearchToolRef", envir = environment())
+    CriteriaSearchToolRef <- dplyr::distinct(CriteriaSearchToolRef)
+    # Cache and return
+    CriteriaSearchToolRef_Cached <<- CriteriaSearchToolRef
+    return(CriteriaSearchToolRef)
   }
-  CriteriaSearchToolRef <- raw.data |> dplyr::distinct()
-  # Save updated table in cache
+
+  CriteriaSearchToolRef <- dplyr::distinct(raw.data)
   CriteriaSearchToolRef_Cached <- CriteriaSearchToolRef
   CriteriaSearchToolRef
 }
@@ -111,7 +115,7 @@ TADA_GetLegendCSTRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file(
       "extdata",
-      "LegendCSTRef.csv",
+      "CriteriaSearchToolRef.csv",
       package = "EPATADA"
     )))
   }
@@ -125,13 +129,10 @@ TADA_GetLegendCSTRef <- function() {
 # Update LegendCSTRef Reference Table internal file
 # (for internal use only)
 TADA_UpdateLegendCSTRef <- function() {
-  LegendCSTRef <- TADA_GetLegendCSTRef()
-  save(
-    LegendCSTRef,
-    file = "inst/extdata/LegendCSTRef.rda",
-    ascii = FALSE,
-    compress = "xz",
-    version = 3
+  utils::write.csv(
+    TADA_GetLegendCSTRef(),
+    file = "inst/extdata/LegendCSTRef.csv",
+    row.names = FALSE
   )
 }
 
@@ -179,7 +180,7 @@ TADA_GetSourcesCSTRef <- function() {
     message("Falling back to (possibly outdated) internal file.")
     return(utils::read.csv(system.file(
       "extdata",
-      "SourcesCSTRef.csv",
+      "CriteriaSearchToolRef.csv",
       package = "EPATADA"
     )))
   }
@@ -193,12 +194,9 @@ TADA_GetSourcesCSTRef <- function() {
 # Update SourcesCSTRef Reference Table internal file
 # (for internal use only)
 TADA_UpdateSourcesCSTRef <- function() {
-  SourcesCSTRef <- TADA_GetSourcesCSTRef()
-  save(
-    SourcesCSTRef,
-    file = "inst/extdata/SourcesCSTRef.rda",
-    ascii = FALSE,
-    compress = "xz",
-    version = 3
+  utils::write.csv(
+    TADA_GetSourcesCSTRef(),
+    file = "inst/extdata/SourcesCSTRef.csv",
+    row.names = FALSE
   )
 }

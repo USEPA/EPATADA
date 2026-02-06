@@ -206,14 +206,11 @@ TADA_AdditionalCharAliasForReview <- function(
   ))
 
   # Extracts all words from each WQX characteristic name
-  raw.data <- utils::read.csv(url(
-    "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"
-  ))
+  raw.data <- TADA_GetCharacteristicRef()
 
   WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
-    # select the columns of interest from the data frame.
-    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number) |>
+    dplyr::distinct()
 
   # WQX has dashes in the CAS number, remove them to match CST CAS number
   WQXCharacteristicRef$CAS.Number <- gsub(

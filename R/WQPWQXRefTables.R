@@ -17,69 +17,60 @@ WQXCharValRef_Cached <- NULL
 #' @export
 
 TADA_GetWQXCharValRef <- function() {
-  # If there is a cached table available return it
-  if (!is.null(WQXCharValRef_Cached)) {
-    return(WQXCharValRef_Cached)
-  }
-
-  # Try to download up-to-date raw data
-
+  # Try to download up-to-date data
   raw.data <- tryCatch(
-    {
-      # read raw csv from url
-      utils::read.csv(url(
-        "https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"
-      ))
-    },
-    error = function(err) {
-      NULL
-    }
+    utils::read.csv(
+      "https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV"
+    ),
+    error = function(err) NULL
   )
 
-  # If the download failed fall back to internal data (and report it)
   if (is.null(raw.data)) {
     message("Downloading latest Validation Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
+
     file_path <- system.file(
       "extdata",
       "WQXcharValRef.rda",
       package = "EPATADA"
     )
+    if (!nzchar(file_path) || !file.exists(file_path)) {
+      stop(
+        "Internal file 'extdata/WQXcharValRef.rda' not found in installed package."
+      )
+    }
+
     ref_env <- new.env(parent = emptyenv())
     nm <- load(file_path, envir = ref_env)
     if (!"WQXcharValRef" %in% nm) {
-      stop("Internal file does not contain 'WQXcharValRef'")
+      stop("Internal .rda does not contain object 'WQXcharValRef'.")
     }
     WQXcharValRef <- ref_env[["WQXcharValRef"]]
-    return(WQXcharValRef)
-    rm(file_path)
+  } else {
+    valid <- c("Accepted", "Y")
+    invalid <- c("Rejected", "Rejected ", "N")
+    nonstandard <- c(
+      "NonStandardized",
+      "Nonstandardized",
+      "Non Standardized",
+      "InvalidMediaUnit",
+      "InvalidChar",
+      "MethodNeeded"
+    )
+
+    WQXcharValRef <- raw.data |>
+      dplyr::mutate(
+        TADA.WQXVal.Flag = dplyr::case_when(
+          is.na(Status) ~ "Not Reviewed", # fixed NA test
+          Status %in% valid ~ "Pass",
+          Status %in% invalid ~ "Suspect",
+          Status %in% nonstandard ~ "NonStandardized",
+          Status %in% "Not Reviewed" ~ "Not Reviewed",
+          TRUE ~ "Not Reviewed"
+        )
+      ) |>
+      dplyr::distinct()
   }
-
-  # Categorize status values
-  notreviewed <- "Not Reviewed"
-  valid <- c("Accepted", "Y")
-  invalid <- c("Rejected", "Rejected ", "N")
-  nonstandard <- c(
-    "NonStandardized",
-    "Nonstandardized",
-    "Non Standardized",
-    "InvalidMediaUnit",
-    "InvalidChar",
-    "MethodNeeded"
-  )
-
-  WQXcharValRef <- raw.data |>
-    dplyr::mutate(
-      TADA.WQXVal.Flag = dplyr::case_when(
-        Status %in% notreviewed ~ "Not Reviewed",
-        Status %in% valid ~ "Pass",
-        Status %in% invalid ~ "Suspect",
-        Status %in% nonstandard ~ "NonStandardized",
-        Status %in% NA ~ "Not Reviewed",
-        TRUE ~ as.character("Not Reviewed")
-      )
-    ) |>
-    dplyr::distinct()
 
   # Save updated table in cache
   WQXCharValRef_Cached <- WQXcharValRef
@@ -92,6 +83,7 @@ TADA_GetWQXCharValRef <- function() {
 
 TADA_UpdateWQXCharValRef <- function() {
   WQXcharValRef <- TADA_GetWQXCharValRef()
+  stopifnot(is.data.frame(WQXcharValRef))
   save(
     WQXcharValRef,
     file = "inst/extdata/WQXcharValRef.rda",
@@ -645,41 +637,35 @@ WQXCharacteristicRef_Cached <- NULL
 #'
 
 TADA_GetCharacteristicRef <- function() {
-  # If there is a cached table available return it
+  # Return cached copy if available (read-only)
   if (!is.null(WQXCharacteristicRef_Cached)) {
     return(WQXCharacteristicRef_Cached)
   }
 
   # Try to download up-to-date raw data
   raw.data <- tryCatch(
-    {
-      # read raw csv from url
-      utils::read.csv(url(
-        "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"
-      ))
-    },
-    error = function(err) {
-      NULL
-    }
+    utils::read.csv(
+      "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV",
+      stringsAsFactors = FALSE
+    ),
+    error = function(err) NULL
   )
 
-  # If the download failed fall back to internal data (and report it)
+  # Fallback path if download failed
   if (is.null(raw.data)) {
-    message("Downloading latest Measure Unit Reference Table failed!")
+    message("Downloading latest Characteristic Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(system.file(
-      "extdata",
-      "WQXCharacteristicRef.csv",
-      package = "EPATADA"
-    )))
+    return(utils::read.csv(
+      system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE
+    ))
   }
 
-  # rename some columns
+  # Normalize and return
   WQXCharacteristicRef <- raw.data |>
     dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
-    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name)
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
 
-  # Save updated table in cache
   WQXCharacteristicRef_Cached <- WQXCharacteristicRef
 
   WQXCharacteristicRef
@@ -690,7 +676,7 @@ TADA_GetCharacteristicRef <- function() {
 TADA_UpdateCharacteristicRef <- function() {
   utils::write.csv(
     TADA_GetCharacteristicRef(),
-    file = "inst/extdata/WQXCharacteristicRef.csv",
+    file = "inst/extdata/WQXCharacteristicRef.rda",
     row.names = FALSE
   )
 }

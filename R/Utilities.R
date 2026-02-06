@@ -455,8 +455,7 @@ utils::globalVariables(c(
   "code",
   "context",
   "CriteriaSearchToolRef",
-  "ATTAINS.ParameterName.x",
-  "Ref.AssessmentUnitIdentifier"
+  "ATTAINS.ParameterName.x"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -2379,10 +2378,9 @@ TADA_CorrectColType <- function(.data) {
   if (is.null(.data)) {
     return(NULL)
   }
-  # HRM - commented out because this was causing the function  not to run when used in geospatial functions
-  # if (inherits(.data, "sf")) {
-  #   return(.data)
-  #} # simplest safe behavior
+  if (inherits(.data, "sf")) {
+    return(.data)
+  } # simplest safe behavior
   if (!is.data.frame(.data)) {
     warning(
       "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
