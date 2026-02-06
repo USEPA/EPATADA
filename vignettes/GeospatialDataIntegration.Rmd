@@ -420,9 +420,7 @@ subsets all of the NHDPlus.
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
-if (FALSE) { # don't run this one
-  nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
-}
+nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
 
 # or we could just get everything in the bbox to be sure we get non-network stuff too!
 nhdplus_data <- nhdplusTools::subset_nhdplus(
