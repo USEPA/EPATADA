@@ -892,6 +892,7 @@ criteria_table_auto <- TADA_DefineCriteriaMethodology(
     ## [1] "TADA_MLSummary: displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
     ## [1] "TADA_MLSummary: displayNA = TRUE was selected:This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
     ## [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
+
     ## TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
     ## Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.
     ## Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.

@@ -1151,7 +1151,7 @@ the following command:
 ``` r
 qaqc_ref <- TADA_GetWQXCharValRef()
 
-unique(qaqc_ref$Type)
+unique(qaqc_ref[["Type"]])
 ```
 
     ## [1] "CharacteristicFraction"   "CharacteristicMethod"    

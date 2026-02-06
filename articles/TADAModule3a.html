@@ -85,7 +85,7 @@
       <h1>TADA Module 3A: Associating WQP Characteristic Names with Applicable ATTAINS or EPA 304(a) Criteria Search Tool (CST) Parameter and Use Names</h1>
                         <h4 data-toc-skip class="author">TADA Team</h4>
             
-            <h4 data-toc-skip class="date">2026-02-02</h4>
+            <h4 data-toc-skip class="date">2026-02-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/TADAModule3a.Rmd" class="external-link"><code>vignettes/TADAModule3a.Rmd</code></a></small>
       <div class="d-none name"><code>TADAModule3a.Rmd</code></div>
@@ -353,7 +353,7 @@ name.</p>
 <span><span class="co">#   # excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="co">#   )</span></span>
 <span></span>
-<span><span class="va">ParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_None</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span><span class="va">ParamRef_Manual</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_None</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"PH"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"PH, HIGH"</span>,</span>
 <span>  <span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"ZINC_DISSOLVED_NA_UG/L"</span> <span class="op">~</span> <span class="st">"ZINC"</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITROGEN, TOTAL"</span></span>
@@ -395,7 +395,7 @@ was provided, so NCTC_ParamRef_Manual2 will crosswalk the TADA
 Characteristic name to ‘PH’ as the exact match for ATTAINS parameter
 name.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ParamRef2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_None</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">ParamRef2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_None</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>  <span class="co"># grepl("PH", TADA.ComparableDataIdentifier) ~ "PH",</span></span>
 <span>  <span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"ZINC_DISSOLVED_NA_UG/L"</span> <span class="op">~</span> <span class="st">"ZINC"</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITROGEN, TOTAL"</span></span>
@@ -523,7 +523,7 @@ organizations using autoassign = TRUE.</p>
 <span>  <span class="co"># excel = TRUE, overwrite = TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">ParamRef_MultipleOrgs</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_MultipleOrgs</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case_when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
+<span><span class="va">ParamRef_MultipleOrgs</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="va">NCTC_ParamRef_MultipleOrgs</span>, ATTAINS.ParameterName <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html" class="external-link">case_when</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"PH"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"PH"</span>,</span>
 <span>  <span class="va">TADA.ComparableDataIdentifier</span> <span class="op">==</span> <span class="st">"ZINC_DISSOLVED_NA_UG/L"</span> <span class="op">~</span> <span class="st">"ZINC"</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"NITRATE"</span>, <span class="va">TADA.ComparableDataIdentifier</span><span class="op">)</span> <span class="op">~</span> <span class="st">"NITROGEN, TOTAL"</span></span>

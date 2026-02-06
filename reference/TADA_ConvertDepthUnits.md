@@ -1,6 +1,6 @@
 # Convert Depth Units
 
-\#'The **TADA_ConvertDepthUnits** function converts depth units to a
+The **TADA_ConvertDepthUnits** function converts depth units to a
 consistent unit. Depth values and units are most commonly associated
 with lake data, and are populated in the *ActivityDepthHeightMeasure*,
 *ActivityTopDepthHeightMeasure*, *ActivityBottomDepthHeightMeasure*, and

@@ -82,7 +82,7 @@
 
       <h1>Geospatial Data Integration</h1>
             
-            <h4 data-toc-skip class="date">2026-02-02</h4>
+            <h4 data-toc-skip class="date">2026-02-06</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/GeospatialDataIntegration.Rmd" class="external-link"><code>vignettes/GeospatialDataIntegration.Rmd</code></a></small>
       <div class="d-none name"><code>GeospatialDataIntegration.Rmd</code></div>
@@ -418,9 +418,7 @@ network navigation only includes flowline geometry.
 <code class="sourceCode R"><span><span class="va">all_network</span> <span class="op">&lt;-</span> <span class="fu">dataRetrieval</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dataRetrieval/man/findNLDI.html" class="external-link">findNLDI</a></span><span class="op">(</span>comid <span class="op">=</span> <span class="va">outlet</span><span class="op">$</span><span class="va">comid</span>, nav <span class="op">=</span> <span class="st">"UT"</span>, distance_km <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># we could select only comids on network</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># don't run this one</span></span>
-<span>  <span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span>comids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">all_network</span><span class="op">$</span><span class="va">UT_flowlines</span><span class="op">$</span><span class="va">nhdplus_comid</span><span class="op">)</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span>, flowline_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
+<span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span>comids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">all_network</span><span class="op">$</span><span class="va">UT_flowlines</span><span class="op">$</span><span class="va">nhdplus_comid</span><span class="op">)</span>, nhdplus_data <span class="op">=</span> <span class="st">"download"</span>, flowline_only <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># or we could just get everything in the bbox to be sure we get non-network stuff too!</span></span>
 <span><span class="va">nhdplus_data</span> <span class="op">&lt;-</span> <span class="fu">nhdplusTools</span><span class="fu">::</span><span class="fu"><a href="https://doi-usgs.github.io/nhdplusTools/reference/subset_nhdplus.html" class="external-link">subset_nhdplus</a></span><span class="op">(</span></span>

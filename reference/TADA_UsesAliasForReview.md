@@ -80,4 +80,5 @@ uses <- TADA_UsesAliasForReview(
   CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
 )
 #> [1] "EQ_DomainValues: For use_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
+#> EQ_DomainValues: domain list retrieved from ATTAINS web services.
 ```

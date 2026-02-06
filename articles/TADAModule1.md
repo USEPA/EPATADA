@@ -627,7 +627,8 @@ colnames(TADAProfile)
     ## [149] "ContributingDrainageAreaMeasure.MeasureValue"                     
     ## [150] "ContributingDrainageAreaMeasure.MeasureUnitCode"                  
     ## [151] "ProviderName"                                                     
-    ## [152] "LastUpdated"
+    ## [152] "LastUpdated"                                                      
+    ## [153] "CAS.Number"
 
 ``` r
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
@@ -2264,7 +2265,7 @@ TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
     ## [1] "TADA_RetainRequired: checking required columns for non-NA values."
     ## [1] "TADA_RetainRequired: TADA Required column(s) SampleTissueAnatomyName, ResultDepthAltitudeReferencePointText, ResultTimeBasisText, StatisticalBaseCode, ResultFileUrl, ResultAnalyticalMethod.MethodUrl, HydrologicCondition, HydrologicEvent, DataQuality.PrecisionValue, DataQuality.BiasValue, DataQuality.ConfidenceIntervalValue, SamplingDesignTypeCode, ResultLaboratoryCommentText, ProjectFileUrl, AquiferName, AquiferTypeName, LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue and WellHoleDepthMeasure.MeasureUnitCode contain only NA values. This may impact other TADA functions."
     ## [1] "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."
-    ## [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityEndDateTime, ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, ActivityEndTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalCollectionMethodName, ProviderName and LastUpdated."
+    ## [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityEndDateTime, ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, ActivityEndTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalCollectionMethodName, ProviderName, LastUpdated and CAS.Number."
 
 ## TADA Shiny Application
 
