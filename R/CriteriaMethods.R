@@ -792,6 +792,20 @@ TADA_DefineCriteriaMethodology <- function(
             )
         }
       }
+      
+      # Now, make sure that the CST Magnitude unit matches TADA data frame unit
+      TADAPriorityCharConvertRef <- read_csv("inst/extdata/TADAPriorityCharConvertRef.csv") |>
+        dplyr::mutate(across(where(is.character), str_to_upper))
+      
+      DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+        dplyr::left_join(TADAPriorityCharConvertRef, by = c("MagnitudeUnit" = "Code"), keep = TRUE) |>
+        dplyr::mutate(
+          MagnitudeUnit = Target.Unit,
+          MagnitudeValueLower = Conversion.Factor * MagnitudeValueLower,
+          MagnitudeValueUpper = Conversion.Factor * MagnitudeValueUpper
+          ) |>
+        dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
+      
       # final formatting to ensure all column types are correct
       DefineCriteriaMethodology <- TADA_CorrectColType(
         DefineCriteriaMethodology
