@@ -251,11 +251,13 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk rejects invalid resolution 
 
 testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   #au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
-  
+
   # When run with defaults (no ExpertQuery fields)
   testthat::expect_no_error(
-    actual_default <- TADA_GetATTAINSByAUID(Data_MT_MissoulaCounty,
-                                            test_au_ref_MTDEQ)
+    actual_default <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ
+    )
   )
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
@@ -264,12 +266,13 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   expect_equal(nrow(actual_default$ATTAINS_polygons), expected_rows[3])
   # When default fill_ATTAINS_catch = FALSE, catchments are NULL
   expect_null(actual_default$ATTAINS_catchments)
-  
+
   # Run with catchments
   testthat::expect_no_error(
-    actual_catchments <- TADA_GetATTAINSByAUID(Data_MT_MissoulaCounty,
-                                               test_au_ref_MTDEQ,
-                                               fill_ATTAINS_catch = TRUE
+    actual_catchments <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ,
+      fill_ATTAINS_catch = TRUE
     )
   )
   # Check results based on number of rows (only catchments change from default)
