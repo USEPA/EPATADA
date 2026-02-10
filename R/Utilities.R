@@ -956,17 +956,33 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
   .data$TADA.CharacteristicName <- toupper(.data$TADA.CharacteristicName)
 
   # Reporting (respect quiet)
-  howmany <- sum(!is.na(.data$Char_Flag))
+  total_deprecated <- sum(!is.na(.data$Char_Flag))
+  changed_rows <- .data |>
+    dplyr::filter(
+      !is.na(Char_Flag),
+      !is.na(Comparable.Name),
+      nzchar(trimws(Comparable.Name))
+    )
+  changed_n <- nrow(changed_rows)
+
   if (!quiet) {
-    if (howmany > 0) {
-      chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
+    if (changed_n > 0) {
+      # Unique mapping of original -> substituted (uppercase) names
+      mapping_df <- changed_rows |>
+        dplyr::distinct(CharacteristicName, TADA.CharacteristicName)
+      mapping_pairs <- paste0(
+        mapping_df$CharacteristicName, " -> ", mapping_df$TADA.CharacteristicName
+      )
       msg <- paste0(
-        howmany,
-        " results in your dataset have deprecated characteristic names: ",
-        paste0(chars, collapse = "; "),
-        ". These names have been substituted with the updated preferred names in TADA.CharacteristicName."
+        changed_n,
+        " results in your dataset had deprecated characteristic names. ",
+        "These were substituted as follows: ",
+        paste(mapping_pairs, collapse = "; "),
+        "."
       )
       message(msg)
+    } else if (total_deprecated > 0) {
+      message("Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank.")
     } else {
       message("No deprecated characteristic names found in dataset.")
     }
