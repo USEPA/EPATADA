@@ -340,9 +340,8 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
     "QC_other" = other,
     "Non_QC" = nonQC
   )
-  # Prefer Name when available (WQX typically stores long labels in Name); fall back to Code
-  src_col <- if ("Name" %in% names(df)) "Name" else "Code"
-  df <- .tada_flag_by_groups(df, source_col = src_col, out_col = "TADA.ActivityType.Flag",
+  # Force classification by Code
+  df <- .tada_flag_by_groups(df, source_col = "Code", out_col = "TADA.ActivityType.Flag",
                              groups = groups, default = "Not Reviewed", na_default = "Not Reviewed")
   df <- unique(.tada_trim_char_cols(df))
   new.atcs <- data.frame(
@@ -684,7 +683,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
       df <- .tada_load_extdata_rda(
         pkg = "EPATADA",
         filename = "WQPOrganizationRef.rda",
-        object_name = "WQXProviderRef",
+        object_name = "WQPOrganizationRef",  # renamed here
         required_cols = c("OrganizationIdentifier", "OrganizationFormalName", "ProviderName"),
         trim = TRUE
       )
@@ -703,7 +702,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
   df <- TADA_GetWQPOrganizationRef(download_only = TRUE, refresh = TRUE)
   .tada_save_ext_rda(
     df,
-    obj_name = "WQXProviderRef",
+    obj_name = "WQPOrganizationRef",  # renamed here
     pkg = "EPATADA",
     filename = "WQPOrganizationRef.rda",
     compress = "xz",
