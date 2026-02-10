@@ -2,19 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetDetCondRef}
 \alias{TADA_GetDetCondRef}
-\title{Update Result Detection Condition Reference Table}
+\title{Get WQX Result Detection Condition Reference Table}
 \usage{
-TADA_GetDetCondRef()
+TADA_GetDetCondRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXResultDetectionConditionRef object (detection condition reference
-table for censored data)
+data.frame with TADA.Detection_Type added
 }
 \description{
-Function downloads and returns in the latest WQX ResultDetectionCondition Domain table,
-adds additional target unit information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Result Detection Condition Reference Table
 }

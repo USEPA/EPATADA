@@ -2,18 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetActivityTypeRef}
 \alias{TADA_GetActivityTypeRef}
-\title{Update Activity Type Reference Table}
+\title{Get WQX Activity Type Reference Table}
 \usage{
-TADA_GetActivityTypeRef()
+TADA_GetActivityTypeRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXActivityTypeRef object
+data.frame with TADA.ActivityType.Flag added
 }
 \description{
-Function downloads and returns in the latest WQX ActivityType Domain table,
-adds QC category information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Activity Type Reference Table
 }

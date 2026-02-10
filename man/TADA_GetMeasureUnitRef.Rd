@@ -2,19 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetMeasureUnitRef}
 \alias{TADA_GetMeasureUnitRef}
-\title{Update Measure Unit Reference Table}
+\title{Get WQX Measure Unit Reference Table}
 \usage{
-TADA_GetMeasureUnitRef()
+TADA_GetMeasureUnitRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXunitRef object (unit conversion reference
-table)
+data.frame of measure units
 }
 \description{
-Function downloads and returns in the latest WQX MeasureUnit Domain table,
-adds additional target unit information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Measure Unit Reference Table
 }

@@ -4,19 +4,11 @@
 \alias{TADA_GetCharacteristicRef}
 \title{Get WQX Characteristic Domain Table}
 \usage{
-TADA_GetCharacteristicRef()
+TADA_GetCharacteristicRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
 data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
 }
 \description{
-\itemize{
-\item Loads EPATADA/inst/extdata/WQXCharacteristicRef.rda (installed extdata) when available.
-\item If the extdata RDA is missing or invalid, downloads the latest table from EPA and returns it.
-\item Does not write to disk.
-}
-}
-\examples{
-WQXchars <- TADA_GetCharacteristicRef()
-
+Get WQX Characteristic Domain Table
 }

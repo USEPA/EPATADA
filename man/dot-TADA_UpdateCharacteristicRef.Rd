@@ -6,16 +6,7 @@
 \usage{
 .TADA_UpdateCharacteristicRef()
 }
-\value{
-Updates WQXCharacteristicRef.rda in EPATADA/inst/extdata
-}
 \description{
-Downloads the latest table and writes a proper binary .rda to:
-EPATADA/inst/extdata/WQXCharacteristicRef.rda
+Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
 }
-\examples{
-\dontrun{
-.TADA_UpdateCharacteristicRef()
-}
-
-}
+\keyword{internal}

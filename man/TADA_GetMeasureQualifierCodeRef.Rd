@@ -2,18 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetMeasureQualifierCodeRef}
 \alias{TADA_GetMeasureQualifierCodeRef}
-\title{Update result Measure Qualifier Code Reference Table}
+\title{Get WQX Result Measure Qualifier Code Reference Table}
 \usage{
-TADA_GetMeasureQualifierCodeRef()
+TADA_GetMeasureQualifierCodeRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXMeasureQualifierCodeRef object
+data.frame with TADA.MeasureQualifierCode.Flag added
 }
 \description{
-Function downloads and returns in the latest WQX ResultMeasureQualifier Domain table,
-adds category information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Result Measure Qualifier Code Reference Table
 }

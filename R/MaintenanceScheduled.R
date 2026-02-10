@@ -53,15 +53,15 @@
   # WQPWQXRefTables.R
   tryCatch(
     {
-      TADA_UpdateWQXCharValRef()
-      TADA_UpdateMeasureUnitRef()
-      TADA_UpdateDetCondRef()
-      TADA_UpdateDetLimitRef()
-      TADA_UpdateActivityTypeRef()
+      .TADA_UpdateWQXCharValRef()
+      .TADA_UpdateMeasureUnitRef()
+      .TADA_UpdateDetCondRef()
+      .TADA_UpdateDetLimitRef()
+      .TADA_UpdateActivityTypeRef()
       .TADA_UpdateCharacteristicRef()
-      TADA_UpdateMeasureQualifierCodeRef()
-      TADA_UpdateMonLocTypeRef()
-      TADA_UpdateWQPOrgProviderRef()
+      .TADA_UpdateMeasureQualifierCodeRef()
+      .TADA_UpdateMonLocTypeRef()
+      .TADA_UpdateWQPOrganizationRef()
     },
     error = function(e) {
       message("Error updating WQPWQX reference tables: ", e$message)

@@ -2,19 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetDetLimitRef}
 \alias{TADA_GetDetLimitRef}
-\title{Update Detection Quantitation Limit Type Reference Table}
+\title{Get WQX Detection/Quantitation Limit Type Reference Table}
 \usage{
-TADA_GetDetLimitRef()
+TADA_GetDetLimitRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXDetectionQuantitationLimitTypeRef object (detection limit type reference
-table for censored data)
+data.frame with TADA.Limit_Type added
 }
 \description{
-Function downloads and returns in the latest WQX DetectionQuantitationLimitType Domain table,
-adds additional target unit information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Detection/Quantitation Limit Type Reference Table
 }

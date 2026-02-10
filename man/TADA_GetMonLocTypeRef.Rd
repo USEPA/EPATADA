@@ -2,21 +2,13 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetMonLocTypeRef}
 \alias{TADA_GetMonLocTypeRef}
-\title{Update Monitoring Location Type Name Reference Table}
+\title{Get WQX Monitoring Location Type Name Reference Table}
 \usage{
-TADA_GetMonLocTypeRef()
+TADA_GetMonLocTypeRef(download_only = FALSE, refresh = FALSE)
 }
 \value{
-sysdata.rda with updated WQXMonitoringLocationTypeName object
-(reference table for identifying surface water samples by
-MonitoringLocationTypeName)
+data.frame with TADA.Media.Flag added
 }
 \description{
-Function downloads and returns in the latest WQX MonitoringLocationTypeName
-Domain table, adds additional information to assist in identifying groundwater
-and surface water samples, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Monitoring Location Type Name Reference Table
 }
