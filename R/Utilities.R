@@ -911,7 +911,11 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
   # Handle empty input
   if (nrow(.data) == 0) {
-    if (!quiet) message("The entered data frame is empty. Skipping deprecated-name substitution.")
+    if (!quiet) {
+      message(
+        "The entered data frame is empty. Skipping deprecated-name substitution."
+      )
+    }
     return(.data)
   }
 
@@ -930,14 +934,16 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
       grepl("retired", CharacteristicName, ignore.case = TRUE)
     ) |>
     dplyr::mutate(
-      CharacteristicName = trimws(
-        stringr::str_split(CharacteristicName, "\\*", simplify = TRUE)[, 1]
-      )
+      CharacteristicName = trimws(stringr::str_split(
+        CharacteristicName,
+        "\\*",
+        simplify = TRUE
+      )[, 1])
     )
 
   # Build reference table of deprecated names; select only needed columns and de-duplicate
   ref.table <- char.table |>
-    dplyr::filter(Char_Flag %in% c("Deprecated")) |>  # add "Suspect" here if desired
+    dplyr::filter(Char_Flag %in% c("Deprecated")) |> # add "Suspect" here if desired
     dplyr::bind_rows(nwis_table) |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name) |>
     dplyr::distinct(CharacteristicName, .keep_all = TRUE)
@@ -947,7 +953,9 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
   # Substitute deprecated names when Comparable.Name is present and non-empty
   .data$TADA.CharacteristicName <- ifelse(
-    !is.na(.data$Char_Flag) & !is.na(.data$Comparable.Name) & nzchar(trimws(.data$Comparable.Name)),
+    !is.na(.data$Char_Flag) &
+      !is.na(.data$Comparable.Name) &
+      nzchar(trimws(.data$Comparable.Name)),
     .data$Comparable.Name,
     .data$TADA.CharacteristicName
   )
@@ -971,7 +979,9 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
       mapping_df <- changed_rows |>
         dplyr::distinct(CharacteristicName, TADA.CharacteristicName)
       mapping_pairs <- paste0(
-        mapping_df$CharacteristicName, " -> ", mapping_df$TADA.CharacteristicName
+        mapping_df$CharacteristicName,
+        " -> ",
+        mapping_df$TADA.CharacteristicName
       )
       msg <- paste0(
         changed_n,
@@ -982,7 +992,9 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
       )
       message(msg)
     } else if (total_deprecated > 0) {
-      message("Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank.")
+      message(
+        "Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank."
+      )
     } else {
       message("No deprecated characteristic names found in dataset.")
     }

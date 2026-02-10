@@ -638,13 +638,23 @@ if (!exists(".WQXCharacteristicRef_cache", inherits = FALSE)) {
 TADA_GetCharacteristicRef <- function() {
   # Internal: load a data.frame from extdata RDA (installed path)
   load_from_extdata <- function() {
-    path <- system.file("extdata", "WQXCharacteristicRef.rda", package = "EPATADA")
-    if (!nzchar(path) || !file.exists(path)) return(NULL)
+    path <- system.file(
+      "extdata",
+      "WQXCharacteristicRef.rda",
+      package = "EPATADA"
+    )
+    if (!nzchar(path) || !file.exists(path)) {
+      return(NULL)
+    }
     e <- new.env(parent = emptyenv())
     objs <- try(load(path, envir = e), silent = TRUE)
-    if (inherits(objs, "try-error")) return(NULL)
+    if (inherits(objs, "try-error")) {
+      return(NULL)
+    }
     # Prefer canonical object
-    if ("WQXCharacteristicRef" %in% objs && is.data.frame(e$WQXCharacteristicRef)) {
+    if (
+      "WQXCharacteristicRef" %in% objs && is.data.frame(e$WQXCharacteristicRef)
+    ) {
       obj <- e$WQXCharacteristicRef
       # Trim character cols defensively
       obj[] <- lapply(obj, function(x) if (is.character(x)) trimws(x) else x)
@@ -653,8 +663,10 @@ TADA_GetCharacteristicRef <- function() {
     # Otherwise, pick any DF with expected columns
     for (nm in objs) {
       obj <- e[[nm]]
-      if (is.data.frame(obj) &&
-        all(c("CharacteristicName", "Char_Flag") %in% names(obj))) {
+      if (
+        is.data.frame(obj) &&
+          all(c("CharacteristicName", "Char_Flag") %in% names(obj))
+      ) {
         obj[] <- lapply(obj, function(x) if (is.character(x)) trimws(x) else x)
         return(obj)
       }
@@ -664,14 +676,20 @@ TADA_GetCharacteristicRef <- function() {
 
   # Internal: normalize downloaded CSV to expected columns (base R)
   normalize_ref <- function(df) {
-    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) return(NULL)
+    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) {
+      return(NULL)
+    }
     ref <- data.frame(
       CharacteristicName = df[["Name"]],
-      Char_Flag          = df[["Domain.Value.Status"]],
-      stringsAsFactors   = FALSE
+      Char_Flag = df[["Domain.Value.Status"]],
+      stringsAsFactors = FALSE
     )
-    if ("Comparable.Name" %in% names(df)) ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
-    if ("CAS.Number" %in% names(df))      ref[["CAS.Number"]]      <- df[["CAS.Number"]]
+    if ("Comparable.Name" %in% names(df)) {
+      ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
+    }
+    if ("CAS.Number" %in% names(df)) {
+      ref[["CAS.Number"]] <- df[["CAS.Number"]]
+    }
     # Trim and de-duplicate
     ref[] <- lapply(ref, function(x) if (is.character(x)) trimws(x) else x)
     unique(ref)
@@ -696,7 +714,9 @@ TADA_GetCharacteristicRef <- function() {
     error = function(e) NULL
   )
   if (is.null(raw.data)) {
-    stop("TADA_GetCharacteristicRef: extdata RDA not found and download failed. Cannot provide reference table.")
+    stop(
+      "TADA_GetCharacteristicRef: extdata RDA not found and download failed. Cannot provide reference table."
+    )
   }
 
   ref <- normalize_ref(raw.data)
@@ -725,10 +745,12 @@ TADA_GetCharacteristicRef <- function() {
   find_pkg_root <- function(start = getwd(), pkg = "EPATADA") {
     cur <- normalizePath(start, winslash = "/", mustWork = FALSE)
     while (nchar(cur) > 0 && cur != dirname(cur)) {
-      desc <- file.path(cur, "DESCRIPTION")  # <- fixed here
+      desc <- file.path(cur, "DESCRIPTION") # <- fixed here
       if (file.exists(desc)) {
         dcf <- tryCatch(read.dcf(desc, all = TRUE), error = function(e) NULL)
-        if (!is.null(dcf) && isTRUE(tolower(dcf[1, "Package"]) == tolower(pkg))) {
+        if (
+          !is.null(dcf) && isTRUE(tolower(dcf[1, "Package"]) == tolower(pkg))
+        ) {
           return(cur)
         }
       }
@@ -739,14 +761,20 @@ TADA_GetCharacteristicRef <- function() {
 
   # Internal: normalize downloaded CSV to expected columns (base R)
   normalize_ref <- function(df) {
-    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) return(NULL)
+    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) {
+      return(NULL)
+    }
     ref <- data.frame(
       CharacteristicName = df[["Name"]],
-      Char_Flag          = df[["Domain.Value.Status"]],
-      stringsAsFactors   = FALSE
+      Char_Flag = df[["Domain.Value.Status"]],
+      stringsAsFactors = FALSE
     )
-    if ("Comparable.Name" %in% names(df)) ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
-    if ("CAS.Number" %in% names(df))      ref[["CAS.Number"]]      <- df[["CAS.Number"]]
+    if ("Comparable.Name" %in% names(df)) {
+      ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
+    }
+    if ("CAS.Number" %in% names(df)) {
+      ref[["CAS.Number"]] <- df[["CAS.Number"]]
+    }
     # Trim and de-duplicate
     ref[] <- lapply(ref, function(x) if (is.character(x)) trimws(x) else x)
     unique(ref)
@@ -757,20 +785,27 @@ TADA_GetCharacteristicRef <- function() {
   raw.data <- tryCatch(
     utils::read.csv(url, stringsAsFactors = FALSE),
     error = function(e) {
-      stop(".TADA_UpdateCharacteristicRef: download failed: ", conditionMessage(e))
+      stop(
+        ".TADA_UpdateCharacteristicRef: download failed: ",
+        conditionMessage(e)
+      )
     }
   )
 
   ref <- normalize_ref(raw.data)
   if (is.null(ref)) {
-    stop(".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table.")
+    stop(
+      ".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table."
+    )
   }
 
   # Locate package source root and build inst/extdata path
   pkg_root <- find_pkg_root(pkg = "EPATADA")
   if (is.null(pkg_root)) {
-    stop(".TADA_UpdateCharacteristicRef: Could not locate EPATADA package source root. ",
-      "Run this from the package source directory (dev-time), not from an installed library.")
+    stop(
+      ".TADA_UpdateCharacteristicRef: Could not locate EPATADA package source root. ",
+      "Run this from the package source directory (dev-time), not from an installed library."
+    )
   }
 
   out_path <- file.path(pkg_root, "inst", "extdata", "WQXCharacteristicRef.rda")
@@ -778,12 +813,18 @@ TADA_GetCharacteristicRef <- function() {
 
   # Save a proper RDA (binary)
   WQXCharacteristicRef <- ref
-  tryCatch({
-    save(WQXCharacteristicRef, file = out_path, version = 2, compress = "xz")
-    message("WQXCharacteristicRef saved to: ", out_path)
-  }, error = function(e) {
-    stop(".TADA_UpdateCharacteristicRef: Failed to save RDA: ", conditionMessage(e))
-  })
+  tryCatch(
+    {
+      save(WQXCharacteristicRef, file = out_path, version = 2, compress = "xz")
+      message("WQXCharacteristicRef saved to: ", out_path)
+    },
+    error = function(e) {
+      stop(
+        ".TADA_UpdateCharacteristicRef: Failed to save RDA: ",
+        conditionMessage(e)
+      )
+    }
+  )
 
   # Update session cache as well
   .WQXCharacteristicRef_cache$ref <- ref
