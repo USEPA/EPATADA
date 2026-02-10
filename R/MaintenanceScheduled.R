@@ -379,7 +379,6 @@
         au_ref = user_supplied_cw,
         org_id = "MTDEQ",
         fill_ATTAINS_catch = TRUE,
-        fill_USGS_catch = TRUE,
         return_nearest = TRUE,
         batch_upload = TRUE
       )
