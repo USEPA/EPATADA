@@ -459,7 +459,7 @@ utils::globalVariables(c(
   "attains.imgs",
   "attains.labels",
   "icon.labels",
-  "ATTAINS.ParameterName.x"
+  "ATTAINS.ParameterName.x",
   "Ref.AssessmentUnitIdentifier"
 ))
 
