@@ -58,7 +58,7 @@
       TADA_UpdateDetCondRef()
       TADA_UpdateDetLimitRef()
       TADA_UpdateActivityTypeRef()
-      TADA_UpdateCharacteristicRef()
+      .TADA_UpdateCharacteristicRef()
       TADA_UpdateMeasureQualifierCodeRef()
       TADA_UpdateMonLocTypeRef()
       TADA_UpdateWQPOrgProviderRef()

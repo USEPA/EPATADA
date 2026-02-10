@@ -2,18 +2,21 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetCharacteristicRef}
 \alias{TADA_GetCharacteristicRef}
-\title{Update Characteristic Reference Table}
+\title{Get WQX Characteristic Domain Table}
 \usage{
 TADA_GetCharacteristicRef()
 }
 \value{
-sysdata.rda with updated WQXCharacteristicRef object (characteristic reference
-table)
+data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
 }
 \description{
-Function downloads and returns in the latest WQX Characteristic Domain table and writes the data to sysdata.rda.
+\itemize{
+\item Loads EPATADA/inst/extdata/WQXCharacteristicRef.rda (installed extdata) when available.
+\item If the extdata RDA is missing or invalid, downloads the latest table from EPA and returns it.
+\item Does not write to disk.
 }
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+}
+\examples{
+WQXchars <- TADA_GetCharacteristicRef()
+
 }

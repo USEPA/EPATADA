@@ -611,7 +611,6 @@ TADA_GetActivityTypeRef <- function() {
 }
 
 # Update Activity Type Reference Table internal file (for internal use only)
-
 TADA_UpdateActivityTypeRef <- function() {
   utils::write.csv(
     TADA_GetActivityTypeRef(),
@@ -620,71 +619,180 @@ TADA_UpdateActivityTypeRef <- function() {
   )
 }
 
-# Used to store cached Characteristic Reference Table
+# Ensure the private cache env exists (safe to call multiple times)
+if (!exists(".WQXCharacteristicRef_cache", inherits = FALSE)) {
+  .WQXCharacteristicRef_cache <- new.env(parent = emptyenv())
+}
 
-WQXCharacteristicRef_Cached <- NULL
-
-#' Update Characteristic Reference Table
+#' Get WQX Characteristic Domain Table
 #'
-#' Function downloads and returns in the latest WQX Characteristic Domain table and writes the data to sysdata.rda.
+#' - Loads EPATADA/inst/extdata/WQXCharacteristicRef.rda (installed extdata) when available.
+#' - If the extdata RDA is missing or invalid, downloads the latest table from EPA and returns it.
+#' - Does not write to disk.
 #'
-#' This function caches the table after it has been called once
-#' so subsequent calls will be faster.
-#'
-#' @return sysdata.rda with updated WQXCharacteristicRef object (characteristic reference
-#' table)
+#' @return data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
 #' @export
+#' @examples
+#' WQXchars <- TADA_GetCharacteristicRef()
 #'
-
 TADA_GetCharacteristicRef <- function() {
-  # Return cached copy if available (read-only)
-  if (!is.null(WQXCharacteristicRef_Cached)) {
-    return(WQXCharacteristicRef_Cached)
+  # Internal: load a data.frame from extdata RDA (installed path)
+  load_from_extdata <- function() {
+    path <- system.file("extdata", "WQXCharacteristicRef.rda", package = "EPATADA")
+    if (!nzchar(path) || !file.exists(path)) return(NULL)
+    e <- new.env(parent = emptyenv())
+    objs <- try(load(path, envir = e), silent = TRUE)
+    if (inherits(objs, "try-error")) return(NULL)
+    # Prefer canonical object
+    if ("WQXCharacteristicRef" %in% objs && is.data.frame(e$WQXCharacteristicRef)) {
+      obj <- e$WQXCharacteristicRef
+      # Trim character cols defensively
+      obj[] <- lapply(obj, function(x) if (is.character(x)) trimws(x) else x)
+      return(obj)
+    }
+    # Otherwise, pick any DF with expected columns
+    for (nm in objs) {
+      obj <- e[[nm]]
+      if (is.data.frame(obj) &&
+        all(c("CharacteristicName", "Char_Flag") %in% names(obj))) {
+        obj[] <- lapply(obj, function(x) if (is.character(x)) trimws(x) else x)
+        return(obj)
+      }
+    }
+    NULL
   }
 
-  # Try to download up-to-date raw data
+  # Internal: normalize downloaded CSV to expected columns (base R)
+  normalize_ref <- function(df) {
+    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) return(NULL)
+    ref <- data.frame(
+      CharacteristicName = df[["Name"]],
+      Char_Flag          = df[["Domain.Value.Status"]],
+      stringsAsFactors   = FALSE
+    )
+    if ("Comparable.Name" %in% names(df)) ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
+    if ("CAS.Number" %in% names(df))      ref[["CAS.Number"]]      <- df[["CAS.Number"]]
+    # Trim and de-duplicate
+    ref[] <- lapply(ref, function(x) if (is.character(x)) trimws(x) else x)
+    unique(ref)
+  }
+
+  # Return cached copy if available
+  if (!is.null(.WQXCharacteristicRef_cache$ref)) {
+    return(.WQXCharacteristicRef_cache$ref)
+  }
+
+  # 1) Try loading from EPATADA/inst/extdata RDA (installed path)
+  ref <- load_from_extdata()
+  if (!is.null(ref)) {
+    .WQXCharacteristicRef_cache$ref <- ref
+    return(ref)
+  }
+
+  # 2) Fallback: download authoritative CSV from EPA (read-only)
+  url <- "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"
   raw.data <- tryCatch(
-    utils::read.csv(
-      "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV",
-      stringsAsFactors = FALSE
-    ),
-    error = function(err) NULL
+    utils::read.csv(url, stringsAsFactors = FALSE),
+    error = function(e) NULL
   )
-
-  # Fallback path if download failed
   if (is.null(raw.data)) {
-    message("Downloading latest Characteristic Reference Table failed!")
-    message("Falling back to (possibly outdated) internal file.")
-    return(utils::read.csv(
-      system.file("extdata", "WQXCharacteristicRef.csv", package = "EPATADA"),
-      stringsAsFactors = FALSE
-    ))
+    stop("TADA_GetCharacteristicRef: extdata RDA not found and download failed. Cannot provide reference table.")
   }
 
-  # Normalize and return
-  WQXCharacteristicRef <- raw.data |>
-    dplyr::rename(CharacteristicName = Name, Char_Flag = Domain.Value.Status) |>
-    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number)
+  ref <- normalize_ref(raw.data)
+  if (is.null(ref)) {
+    stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
+  }
 
-  WQXCharacteristicRef_Cached <- WQXCharacteristicRef
-
-  WQXCharacteristicRef
+  # Cache and return
+  .WQXCharacteristicRef_cache$ref <- ref
+  ref
 }
 
-# Update Characteristic Reference Table internal file (for internal use only)
+#' Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
+#'
+#' Downloads the latest table and writes a proper binary .rda to:
+#'   EPATADA/inst/extdata/WQXCharacteristicRef.rda
+#'
+#' @return Updates WQXCharacteristicRef.rda in EPATADA/inst/extdata
+#' @examples
+#' \dontrun{
+#' .TADA_UpdateCharacteristicRef()
+#' }
+#'
+.TADA_UpdateCharacteristicRef <- function() {
+  # Internal: find the EPATADA package source root by locating DESCRIPTION
+  find_pkg_root <- function(start = getwd(), pkg = "EPATADA") {
+    cur <- normalizePath(start, winslash = "/", mustWork = FALSE)
+    while (nchar(cur) > 0 && cur != dirname(cur)) {
+      desc <- file.path(cur, "DESCRIPTION")  # <- fixed here
+      if (file.exists(desc)) {
+        dcf <- tryCatch(read.dcf(desc, all = TRUE), error = function(e) NULL)
+        if (!is.null(dcf) && isTRUE(tolower(dcf[1, "Package"]) == tolower(pkg))) {
+          return(cur)
+        }
+      }
+      cur <- dirname(cur)
+    }
+    NULL
+  }
 
-TADA_UpdateCharacteristicRef <- function() {
-  utils::write.csv(
-    TADA_GetCharacteristicRef(),
-    file = "inst/extdata/WQXCharacteristicRef.rda",
-    row.names = FALSE
+  # Internal: normalize downloaded CSV to expected columns (base R)
+  normalize_ref <- function(df) {
+    if (!all(c("Name", "Domain.Value.Status") %in% names(df))) return(NULL)
+    ref <- data.frame(
+      CharacteristicName = df[["Name"]],
+      Char_Flag          = df[["Domain.Value.Status"]],
+      stringsAsFactors   = FALSE
+    )
+    if ("Comparable.Name" %in% names(df)) ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
+    if ("CAS.Number" %in% names(df))      ref[["CAS.Number"]]      <- df[["CAS.Number"]]
+    # Trim and de-duplicate
+    ref[] <- lapply(ref, function(x) if (is.character(x)) trimws(x) else x)
+    unique(ref)
+  }
+
+  # Download the latest authoritative table
+  url <- "https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV"
+  raw.data <- tryCatch(
+    utils::read.csv(url, stringsAsFactors = FALSE),
+    error = function(e) {
+      stop(".TADA_UpdateCharacteristicRef: download failed: ", conditionMessage(e))
+    }
   )
-}
 
+  ref <- normalize_ref(raw.data)
+  if (is.null(ref)) {
+    stop(".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table.")
+  }
+
+  # Locate package source root and build inst/extdata path
+  pkg_root <- find_pkg_root(pkg = "EPATADA")
+  if (is.null(pkg_root)) {
+    stop(".TADA_UpdateCharacteristicRef: Could not locate EPATADA package source root. ",
+      "Run this from the package source directory (dev-time), not from an installed library.")
+  }
+
+  out_path <- file.path(pkg_root, "inst", "extdata", "WQXCharacteristicRef.rda")
+  dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
+
+  # Save a proper RDA (binary)
+  WQXCharacteristicRef <- ref
+  tryCatch({
+    save(WQXCharacteristicRef, file = out_path, version = 2, compress = "xz")
+    message("WQXCharacteristicRef saved to: ", out_path)
+  }, error = function(e) {
+    stop(".TADA_UpdateCharacteristicRef: Failed to save RDA: ", conditionMessage(e))
+  })
+
+  # Update session cache as well
+  .WQXCharacteristicRef_cache$ref <- ref
+
+  invisible(out_path)
+}
 
 # Used to store cached WQXMeasureQualifierCodeRef Ref Table
 WQXMeasureQualifierCodeRef_Cached <- NULL
-
 
 #' Update result Measure Qualifier Code Reference Table
 #'
