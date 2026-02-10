@@ -1886,7 +1886,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #'
 TADA_GetATTAINSByAUID <- function(
   .data,
-  au_ref = NULL,
+  au_ref,
   fill_ATTAINS_catch = FALSE,
   return_sf = TRUE
 ) {
