@@ -647,7 +647,7 @@ quality data is the WQP.
     applicable to their use case
 
 ```{r}
-WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_USGS_catch = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```

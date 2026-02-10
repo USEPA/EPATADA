@@ -247,20 +247,6 @@ It uses three prioritized data sources:
     catchments are always returned for `TADA_CreateATTAINSAUMLCrosswalk`
     assessed WQP monitoring locations.
 
-**Current Limitations**
-
--   Currently, the fill_USGS_catch argument applies only to monitoring
-    locations that are not included in the user-supplied or ATTAINS
-    crosswalks and that cannot be matched to existing ATTAINS assessment
-    units and catchments during `TADA_CreateATTAINSAUMLCrosswalk.`
-
-**Future Improvements**
-
--   Plans are underway to develop a separate process to more efficiently
-    return all ATTAINS catchments and NHD catchments associated with all
-    WQP monitoring locations in the future, to support mapping and
-    crosswalk review.
-
 ## Create An Example User-Supplied Crosswalk
 
 Get existing data from ATTAINS using `TADA_GetATTAINSAUMLCrosswalk` and
@@ -467,49 +453,9 @@ If we set `return_sf = TRUE` as done to create the
 intersecting ATTAINS features associated with these ATTAINS catchment
 observations stored in a list along with the TADA dataframe.
 
-**Assign NHD catchments to WQP observations that are missing ATTAINS
-assessment units**
-
-As you can see in the above examples, not all WQP observations have an
-intersecting ATTAINS catchment: see that in the returned dataframes,
-some WQP observations have NAs where there should be ATTAINS
-information. In these instances, the user can optionally fill in
-catchment information from the NHD by entering `fill_USGS_catch = TRUE`:
-
-```{r, eval = T}
-TADA_with_ATTAINS_filled <- TADA_CreateATTAINSAUMLCrosswalk(
-  tada.MT.clean,
-  fill_USGS_catch = TRUE,
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-```
-
-When `fill_USGS_catch = TRUE`, the returned list splits observations
-into two dataframes: WQP observations with ATTAINS catchment data, and
-WQP observations without ATTAINS catchment data. Instead of listing
-ATTAINS information in `TADA_without_ATTAINS`, it links basic
-information about the catchment including its unique identifier,
-catchment area, and the resolution of the NHD used. As a default,
-`TADA_CreateATTAINSAUMLCrosswalk()` will use the NHD HiRes
-(`resolution = "Hi"`) for filling in missing ATTAINS catchments.
-However, the user can choose to change the resolution to the NHDPlus V2
-by setting `resolution = "Med".`
-
-Moreover, when `return_sf = TRUE` as above, the function will
-additionally return the raw catchment features associated with the
-observations in `TADA_without_ATTAINS` in a new shapefile called
-`without_ATTAINS_catchments`.
-
 **Arguments for `TADA_CreateATTAINSAUMLCrosswalk()`**
 
 -   `.data`: Your input TADA-style Water Quality Portal data.
-
--   `fill_USGS_catch`: If TRUE, it will find intersecting NHD catchments
-    to fill in information for samples not covered by ATTAINS.
-
--   `resolution`: Specifies which version of the NHD to use if filling
-    catchments: the "Med", or "Hi". The default option is "Hi".
 
 -   `return_nearest`: If TRUE, returns only the nearest ATTAINS feature
     to each WQP observation.
@@ -549,10 +495,6 @@ Let's view the data associated with MT.AUMLRef!
 ```{r view.map}
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
-
-You may have noticed that because we set `fill_USGS_catch = TRUE`,
-`TADA_ViewATTAINS()` also mapped the `without_ATTAINS_catchments`. These
-are represented as clear polygons with black outlines.
 
 Enter `?TADA_ViewATTAINS` into the console to review another example of
 this function in use and additional information.
