@@ -333,3 +333,173 @@ test_that("Only numeric data remains after running TADA_ConvertSpecialChars clea
       )
   ))
 })
+
+# Mock characteristic reference table with a variety of cases
+char_ref <- tibble::tribble(
+  ~CharacteristicName, ~Char_Flag,     ~Comparable.Name,                                  ~ExtraCol,
+  "Inorganic nitrogen (nitrate and nitrite)", "Deprecated", "Total Nitrogen (nitrate + nitrite)", "X",
+  "Phosphate-phosphorus***retired***use Total Phosphorus, mixed forms", "Deprecated", "Total Phosphorus", "Y",
+  # Duplicate key to test de-duplication and no row multiplication
+  "Inorganic nitrogen (nitrate and nitrite)", "Deprecated", "Total Nitrogen (nitrate + nitrite)", "Z",
+  # Deprecated but blank Comparable.Name
+  "Old Thing", "Deprecated", "", "W",
+  # Active (non-deprecated)
+  "Nitrate", "Active", NA_character_, "A"
+)
+
+# Helper to run the function with mocked dependencies
+run_with_mocks <- function(df, quiet = FALSE) {
+  testthat::with_mocked_bindings(
+    TADA_SubstituteDeprecatedChars(df, quiet = quiet),
+    TADA_GetCharacteristicRef = function() char_ref,
+    TADA_OrderCols = function(x) x,              # no-op to preserve structure
+    TADA_CheckColumns = function(.data, cols) {} # no-op, our test data includes the required columns
+  )
+}
+
+test_that("preserves row count and order, and does not duplicate rows", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Nitrate", 2,
+    "Phosphate-phosphorus", 3,
+    "Old Thing", 4
+  )
+
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  expect_equal(nrow(result), nrow(df))
+  expect_equal(result$OtherCol, df$OtherCol) # order preserved
+})
+
+test_that("uppercases TADA.CharacteristicName for all rows", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Nitrate", 2,
+    "Phosphate-phosphorus", 3,
+    "Old Thing", 4
+  )
+
+  result <- run_with_mocks(df, quiet = TRUE)
+  expect_true(all(result$TADA.CharacteristicName == toupper(result$TADA.CharacteristicName)))
+})
+
+test_that("substitutions occur where Comparable.Name is present; blanks/NA do not produce NA", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Old Thing", 2
+  )
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  # Substitution for deprecated with valid comparable name
+  expect_equal(
+    result$TADA.CharacteristicName[1],
+    "TOTAL NITROGEN (NITRATE + NITRITE)"
+  )
+
+  # For deprecated with blank Comparable.Name, keep original name uppercase
+  expect_equal(
+    result$TADA.CharacteristicName[2],
+    "OLD THING"
+  )
+})
+
+test_that("NWIS retired trimming works for WQX names containing '***retired***'", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Phosphate-phosphorus", 1
+  )
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  expect_equal(result$TADA.CharacteristicName[1], "TOTAL PHOSPHORUS")
+})
+
+test_that("respects quiet = TRUE (no messages), and reports detailed mapping when quiet = FALSE", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Phosphate-phosphorus", 2,
+    "Old Thing", 3,
+    "Nitrate", 4
+  )
+
+  # No messages when quiet = TRUE
+  expect_no_message(run_with_mocks(df, quiet = TRUE))
+
+  # Expect detailed mapping when quiet = FALSE (only substituted ones)
+  expect_message(
+    run_with_mocks(df, quiet = FALSE),
+    regexp = "Inorganic nitrogen \\(nitrate and nitrite\\) -> TOTAL NITROGEN \\(NITRATE \\+ NITRITE\\)"
+  )
+  expect_message(
+    run_with_mocks(df, quiet = FALSE),
+    regexp = "Phosphate-phosphorus -> TOTAL PHOSPHORUS"
+  )
+})
+
+test_that("does not leak extra columns from ref and removes ref join columns", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Inorganic nitrogen (nitrate and nitrite)", 1,
+    "Phosphate-phosphorus", 2
+  )
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  # ExtraCol from ref should not appear
+  expect_false("ExtraCol" %in% names(result))
+  # Ref join columns should be removed
+  expect_false("Comparable.Name" %in% names(result))
+  expect_false("Char_Flag" %in% names(result))
+})
+
+test_that("when no deprecated names found, message indicates so", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Nitrate", 1
+  )
+  expect_message(
+    run_with_mocks(df, quiet = FALSE),
+    regexp = "No deprecated characteristic names found in dataset\\."
+  )
+})
+
+test_that("existing TADA.CharacteristicName is preserved (and uppercased) when no substitution applies", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol, ~TADA.CharacteristicName,
+    "Nitrate", 1, "bar"
+  )
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  # Should keep existing value and uppercase it
+  expect_equal(result$TADA.CharacteristicName[1], "BAR")
+})
+
+test_that("handles empty input gracefully and respects quiet", {
+  df <- tibble::tibble(CharacteristicName = character(), OtherCol = numeric())
+  # With quiet = FALSE, message about empty DF
+  expect_message(
+    run_with_mocks(df, quiet = FALSE),
+    regexp = "The entered data frame is empty\\. Skipping deprecated-name substitution\\."
+  )
+  # With quiet = TRUE, no message
+  expect_no_message(run_with_mocks(df, quiet = TRUE))
+
+  # Returned value is the same empty data frame
+  result <- run_with_mocks(df, quiet = TRUE)
+  expect_equal(nrow(result), 0)
+  expect_equal(names(result), names(df))
+})
+
+test_that("does not change non-deprecated names except for uppercasing", {
+  df <- tibble::tribble(
+    ~CharacteristicName, ~OtherCol,
+    "Nitrate", 1
+  )
+  result <- run_with_mocks(df, quiet = TRUE)
+
+  # Since TADA.CharacteristicName is initialized to uppercase of CharacteristicName,
+  # and Nitrate is not deprecated, it should simply be 'NITRATE'
+  expect_equal(result$TADA.CharacteristicName[1], "NITRATE")
+})
