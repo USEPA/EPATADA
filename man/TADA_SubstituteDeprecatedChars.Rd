@@ -4,10 +4,12 @@
 \alias{TADA_SubstituteDeprecatedChars}
 \title{Substitute Preferred Characteristic Name for Deprecated Names}
 \usage{
-TADA_SubstituteDeprecatedChars(.data)
+TADA_SubstituteDeprecatedChars(.data, quiet = FALSE)
 }
 \arguments{
 \item{.data}{TADA dataframe}
+
+\item{quiet}{logical; suppress messages if TRUE}
 }
 \value{
 Input TADA dataframe with substituted characteristic names in
