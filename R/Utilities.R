@@ -460,6 +460,7 @@ utils::globalVariables(c(
   "attains.labels",
   "icon.labels",
   "ATTAINS.ParameterName.x"
+  "Ref.AssessmentUnitIdentifier"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
