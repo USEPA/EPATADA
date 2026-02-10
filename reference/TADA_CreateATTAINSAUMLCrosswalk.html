@@ -6,14 +6,18 @@ Portal observations, often imported via TADA_DataRetrieval(). This
 function returns the objects that can be mapped in TADA_ViewATTAINS().
 Check out the TADAModule2.Rmd for an example workflow. Note that
 approximately 80% of state submitted assessment units in ATTAINS were
-developed based on high res NHDPlus, so we are using that as the default."><meta property="og:description" content="Link catchment-based ATTAINS assessment unit data
+developed based on high res NHDPlus, so we are using that as the default.
+The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
+that do not have existing Assessment Units in ATTAINS."><meta property="og:description" content="Link catchment-based ATTAINS assessment unit data
 (EPA snapshot of NHDPlus HR catchments associated with entity submitted
 assessment unit features - points, lines, and polygons) to Water Quality
 Portal observations, often imported via TADA_DataRetrieval(). This
 function returns the objects that can be mapped in TADA_ViewATTAINS().
 Check out the TADAModule2.Rmd for an example workflow. Note that
 approximately 80% of state submitted assessment units in ATTAINS were
-developed based on high res NHDPlus, so we are using that as the default."></head><body>
+developed based on high res NHDPlus, so we are using that as the default.
+The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
+that do not have existing Assessment Units in ATTAINS."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -81,7 +85,9 @@ Portal observations, often imported via <code><a href="TADA_DataRetrieval.html">
 function returns the objects that can be mapped in <code><a href="TADA_ViewATTAINS.html">TADA_ViewATTAINS()</a></code>.
 Check out the TADAModule2.Rmd for an example workflow. Note that
 approximately 80% of state submitted assessment units in ATTAINS were
-developed based on high res NHDPlus, so we are using that as the default.</p>
+developed based on high res NHDPlus, so we are using that as the default.
+The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
+that do not have existing Assessment Units in ATTAINS.</p>
     </div>
 
     <div class="section level2">
@@ -90,8 +96,6 @@ developed based on high res NHDPlus, so we are using that as the default.</p>
 <span>  <span class="va">.data</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  resolution <span class="op">=</span> <span class="st">"Hi"</span>,</span>
 <span>  return_sf <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -125,22 +129,6 @@ return ONLY the nearest AU (return_nearest = TRUE), or all AUs
 (return_nearest = FALSE).</p></dd>
 
 
-<dt id="arg-fill-usgs-catch">fill_USGS_catch<a class="anchor" aria-label="anchor" href="#arg-fill-usgs-catch"></a></dt>
-<dd><p>Whether the user would like to return NHD catchments
-(USGS snapshot of NHDPlus V2) for WQP observations not associated with an
-ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
-the returned list splits observations into two dataframes: WQP observations
-with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
-observations without ATTAINS catchment data. Defaults to FALSE.</p></dd>
-
-
-<dt id="arg-resolution">resolution<a class="anchor" aria-label="anchor" href="#arg-resolution"></a></dt>
-<dd><p>If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med"
-catchments or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
-("Hi") because at approximately 80% of state submitted assessment units in
-ATTAINS were developed based on NHDPlus V2 HiRes.</p></dd>
-
-
 <dt id="arg-return-sf">return_sf<a class="anchor" aria-label="anchor" href="#arg-return-sf"></a></dt>
 <dd><p>Whether to return the ATTAINS associated catchments, lines,
 points, and polygon shapefile objects along with the data frame(s).
@@ -154,9 +142,7 @@ without_ATTAINS_catchments. Defaults to TRUE.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A modified <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code> dataframe or list with additional
-columns associated with the ATTAINS assessment unit data, and, if
-fill_USGS_catch = TRUE, an additional dataframe of the observations without
-intersecting ATTAINS features.
+columns associated with the ATTAINS assessment unit data.
 Moreover, if return_sf = TRUE, this function will additionally return the
 raw ATTAINS and catchment shapefile features associated with those
 observations.</p>
@@ -168,16 +154,7 @@ or located inside the associated ATTAINS polygon.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
-that do not have existing Assessment Units in ATTAINS. For these areas where
-there are WQP sites, but no existing ATTAINS assessment units, a user can
-choose to associate the WQP sites with NHDPlus catchments available from
-the USGS nhdplusTools package (please be aware that USGS and EPA ATTAINS
-snapshots of the NHDPlus catchments may vary) using the optional function
-param 'fill_USGS_catch'.  If desired by the user, the HR
-catchments could be created as new assessment unit polygons in ATTAINS
-(that process is outside of TADA).</p>
-<p>`ResultIdentifier' identifies rows that are the same observation but are
+    <p>`ResultIdentifier' identifies rows that are the same observation but are
 linked to multiple ATTAINS assessment units. It is possible for a single
 TADA WQP observation to have multiple ATTAINS assessment units linked to
 it and subsequently more than one row of data.</p>
@@ -215,27 +192,11 @@ solely on the geospatial location (lat/long).</p>
 <span class="r-in"><span><span class="co"># note: these example ATTAINS data retrieval queries below may take a long</span></span></span>
 <span class="r-in"><span><span class="co"># time (10+ minutes) to run</span></span></span>
 <span class="r-in"><span><span class="va">tada_attains</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateATTAINSAUMLCrosswalk</span><span class="op">(</span><span class="va">tada_data</span>,</span></span>
-<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  return_sf <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tada_attains_sf</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateATTAINSAUMLCrosswalk</span><span class="op">(</span><span class="va">tada_data</span>,</span></span>
-<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  return_sf <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tada_attains_filled</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateATTAINSAUMLCrosswalk</span><span class="op">(</span><span class="va">tada_data</span>,</span></span>
-<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  resolution <span class="op">=</span> <span class="st">"Hi"</span>,</span></span>
-<span class="r-in"><span>  return_sf <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
-<span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tada_attains_filled_sf</span> <span class="op">&lt;-</span> <span class="fu">TADA_CreateATTAINSAUMLCrosswalk</span><span class="op">(</span><span class="va">tada_data</span>,</span></span>
-<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  resolution <span class="op">=</span> <span class="st">"Hi"</span>,</span></span>
 <span class="r-in"><span>  return_sf <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

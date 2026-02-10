@@ -10,7 +10,8 @@ This function returns the objects that can be mapped in
 Check out the TADAModule2.Rmd for an example workflow. Note that
 approximately 80% of state submitted assessment units in ATTAINS were
 developed based on high res NHDPlus, so we are using that as the
-default.
+default. The ATTAINS snapshot of NHDPlus HR catchments is not available
+for areas that do not have existing Assessment Units in ATTAINS.
 
 ## Usage
 
@@ -19,8 +20,6 @@ TADA_CreateATTAINSAUMLCrosswalk(
   .data,
   org_id = "all",
   return_nearest = TRUE,
-  fill_USGS_catch = FALSE,
-  resolution = "Hi",
   return_sf = TRUE
 )
 ```
@@ -55,23 +54,6 @@ TADA_CreateATTAINSAUMLCrosswalk(
   nearest AU (return_nearest = TRUE), or all AUs (return_nearest =
   FALSE).
 
-- fill_USGS_catch:
-
-  Whether the user would like to return NHD catchments (USGS snapshot of
-  NHDPlus V2) for WQP observations not associated with an ATTAINS
-  assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE, the
-  returned list splits observations into two dataframes: WQP
-  observations with ATTAINS catchment data (EPA snapshot of NHDPlus V2),
-  and WQP observations without ATTAINS catchment data. Defaults to
-  FALSE.
-
-- resolution:
-
-  If fill_USGS_catch = TRUE, whether to use NHDPlus V2 "Med" catchments
-  or NHDPlus V2 HiRes "Hi" catchments. Default is NHDPlus V2 HiRes
-  ("Hi") because at approximately 80% of state submitted assessment
-  units in ATTAINS were developed based on NHDPlus V2 HiRes.
-
 - return_sf:
 
   Whether to return the ATTAINS associated catchments, lines, points,
@@ -87,11 +69,9 @@ TADA_CreateATTAINSAUMLCrosswalk(
 A modified
 [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 dataframe or list with additional columns associated with the ATTAINS
-assessment unit data, and, if fill_USGS_catch = TRUE, an additional
-dataframe of the observations without intersecting ATTAINS features.
-Moreover, if return_sf = TRUE, this function will additionally return
-the raw ATTAINS and catchment shapefile features associated with those
-observations.
+assessment unit data. Moreover, if return_sf = TRUE, this function will
+additionally return the raw ATTAINS and catchment shapefile features
+associated with those observations.
 
 This function calculates and reports the distance,
 'TADA.DistanceAway.Meters', between each WQP observation and
@@ -101,16 +81,6 @@ is directly on the associated ATTAINS point or line feature, or located
 inside the associated ATTAINS polygon.
 
 ## Details
-
-The ATTAINS snapshot of NHDPlus HR catchments is not available for areas
-that do not have existing Assessment Units in ATTAINS. For these areas
-where there are WQP sites, but no existing ATTAINS assessment units, a
-user can choose to associate the WQP sites with NHDPlus catchments
-available from the USGS nhdplusTools package (please be aware that USGS
-and EPA ATTAINS snapshots of the NHDPlus catchments may vary) using the
-optional function param 'fill_USGS_catch'. If desired by the user, the
-HR catchments could be created as new assessment unit polygons in
-ATTAINS (that process is outside of TADA).
 
 \`ResultIdentifier' identifies rows that are the same observation but
 are linked to multiple ATTAINS assessment units. It is possible for a
@@ -155,27 +125,11 @@ tada_data <- TADA_DataRetrieval(
 # note: these example ATTAINS data retrieval queries below may take a long
 # time (10+ minutes) to run
 tada_attains <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = FALSE,
   return_sf = FALSE,
   return_nearest = FALSE
 )
 
 tada_attains_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = FALSE,
-  return_sf = TRUE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = TRUE,
-  resolution = "Hi",
-  return_sf = FALSE,
-  return_nearest = TRUE
-)
-
-tada_attains_filled_sf <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-  fill_USGS_catch = TRUE,
-  resolution = "Hi",
   return_sf = TRUE,
   return_nearest = TRUE
 )

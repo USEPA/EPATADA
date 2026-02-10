@@ -13,7 +13,6 @@ TADA_CreateAUMLCrosswalk(
   au_ref = NULL,
   org_id = "all",
   fill_ATTAINS_catch = FALSE,
-  fill_USGS_catch = FALSE,
   return_nearest = TRUE,
   batch_upload = FALSE
 )
@@ -57,17 +56,6 @@ TADA_CreateAUMLCrosswalk(
   fill_ATTAINS_catch = FALSE, catchment data are not included. Setting
   fill_ATTAINS_catch = TRUE, may increase the run time of the function
   significantly. Default is fill_ATTAINS_catch = FALSE.
-
-- fill_USGS_catch:
-
-  Boolean argument. Whether the user would like to return NHD catchments
-  (USGS snapshot of NHDPlus V2) for WQP observations not associated with
-  an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch =
-  TRUE, the returned list splits observations into two dataframes: WQP
-  observations with ATTAINS catchment data (EPA snapshot of NHDPlus V2),
-  and WQP observations without ATTAINS catchment data. Defaults to
-  FALSE. This param applies only to WQP observations that do not have
-  matches in the user-supplied ref or ATTAINS.
 
 - return_nearest:
 
@@ -140,7 +128,6 @@ result <- TADA_CreateAUMLCrosswalk(
   au_ref = user_crosswalk,
   org_id = org_id,
   fill_ATTAINS_catch = TRUE,
-  fill_USGS_catch = TRUE,
   return_nearest = FALSE,
   batch_upload = TRUE
 )

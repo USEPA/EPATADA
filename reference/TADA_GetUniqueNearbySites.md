@@ -25,3 +25,5 @@ TADA_GetUniqueNearbySites(.data)
 New dataframe with unique combinations of original and TADA
 MonitoringLocationIdentifier, LongitudeMeasure, LatitudeMeasure,
 MonitoringLocationName, and MonitoringLocationTypeName.
+
+## Examples

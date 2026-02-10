@@ -82,7 +82,7 @@
 
       <h1>Geospatial Data Integration</h1>
             
-            <h4 data-toc-skip class="date">2026-02-06</h4>
+            <h4 data-toc-skip class="date">2026-02-10</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/USEPA/EPATADA/blob/develop/vignettes/GeospatialDataIntegration.Rmd" class="external-link"><code>vignettes/GeospatialDataIntegration.Rmd</code></a></small>
       <div class="d-none name"><code>GeospatialDataIntegration.Rmd</code></div>
@@ -653,7 +653,7 @@ developed based on high res NHD; users can select med-res if applicable
 to their use case</li>
 </ul>
 <div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">WQP_with_ATTAINSonly</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_Subset</span>, fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">WQP_with_ATTAINSonly</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateATTAINSAUMLCrosswalk.html">TADA_CreateATTAINSAUMLCrosswalk</a></span><span class="op">(</span><span class="va">GreenBay_FoxRiver_Subset</span>, return_sf <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">WQP_with_ATTAINSonly</span><span class="op">)</span></span></code></pre></div>
 <p><strong>Challenges with Automated Approach</strong></p>

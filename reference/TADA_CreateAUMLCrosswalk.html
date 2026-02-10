@@ -76,7 +76,6 @@ and TADA_CreateATTAINSAUMLCrosswalk to match unassigned monitoring locations to 
 <span>  au_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"all"</span>,</span>
 <span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  fill_USGS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  batch_upload <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -118,17 +117,6 @@ USER-SUPPLIED <code>au_ref</code>. When fill_ATTAINS_catch = TRUE, the catchment
 are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.</p></dd>
-
-
-<dt id="arg-fill-usgs-catch">fill_USGS_catch<a class="anchor" aria-label="anchor" href="#arg-fill-usgs-catch"></a></dt>
-<dd><p>Boolean argument. Whether the user would like to return
-NHD catchments (USGS snapshot of NHDPlus V2) for WQP observations not associated
-with an ATTAINS assessment unit (TRUE or FALSE). When fill_USGS_catch = TRUE,
-the returned list splits observations into two dataframes: WQP observations
-with ATTAINS catchment data (EPA snapshot of NHDPlus V2), and WQP
-observations without ATTAINS catchment data. Defaults to FALSE. This param
-applies only to WQP observations that do not have matches in the user-supplied ref
-or ATTAINS.</p></dd>
 
 
 <dt id="arg-return-nearest">return_nearest<a class="anchor" aria-label="anchor" href="#arg-return-nearest"></a></dt>
@@ -201,7 +189,6 @@ for compatibility with ATTAINS batch upload for Monitoring_Stations.</p>
 <span class="r-in"><span>  au_ref <span class="op">=</span> <span class="va">user_crosswalk</span>,</span></span>
 <span class="r-in"><span>  org_id <span class="op">=</span> <span class="va">org_id</span>,</span></span>
 <span class="r-in"><span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
-<span class="r-in"><span>  fill_USGS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  return_nearest <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

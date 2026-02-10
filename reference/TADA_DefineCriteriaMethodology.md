@@ -237,9 +237,6 @@ epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
 #> [1] "TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
 #> [1] "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_MLSummary with default assignment."
 #> [1] "TADA_MLSummary: displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
-#> Warning: URL 'https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV': Timeout of 60 seconds was reached
-#> Downloading latest Characteristic Reference Table failed!
-#> Falling back to (possibly outdated) internal file.
 #> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 #> EQ_DomainValues: domain list retrieved from ATTAINS web services.
 #> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
