@@ -250,7 +250,7 @@ Remove intermediate variables in R by using 'rm()'. In the remainder of
 this workshop, we will work with the clean data set.
 
 ```{r remove_intermediate_variables}
-to_rm <- c("tada.MT.nearby.flag.dups","tada.MT.nearby","tada.MT.filter")
+to_rm <- c("tada.MT.nearby.flag.dups", "tada.MT.nearby", "tada.MT.filter")
 rm(list = to_rm[to_rm %in% ls()])
 ```
 
@@ -396,12 +396,13 @@ the user-supplied crosswalk, the function will check the ATTAINS crosswalk
 
 ```{r TADA_CreateAUMLCrosswalk}
 # make AU assignments for unassigned MLs
-MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean, 
-                         au_ref = user.supplied.cw, 
-                         org_id = "MTDEQ", 
-                         fill_ATTAINS_catch = TRUE, 
-                         return_nearest = TRUE, 
-                         batch_upload = FALSE)
+MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
+  au_ref = user.supplied.cw,
+  org_id = "MTDEQ",
+  fill_ATTAINS_catch = TRUE,
+  return_nearest = TRUE,
+  batch_upload = FALSE
+)
 ```
 
 The output of TADA_CreateAUMLCrosswalk is a list of data frames:
@@ -430,8 +431,10 @@ demonstration purposes for the remainder of this example.
 # get subset DO data for one AU
 tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry() |>
-  dplyr::filter(TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
-    ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
+  dplyr::filter(
+    TADA.CharacteristicName == "DISSOLVED OXYGEN (DO)",
+    ATTAINS.AssessmentUnitIdentifier == "MT76M001_020"
+  )
 
 tada.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
@@ -602,8 +605,10 @@ tada.MT.clean.DO2 <- dplyr::left_join(
 
 # break into separate data frames for each unique combination of DurationValue, DurationMethod, DurationUnit, and UniqueSpatialCriteria for analysis and figures
 tada.MT.do.subsets <- tada.MT.clean.DO2 |>
-  dplyr::group_by(DurationValue, DurationMethod, DurationUnit,
-    UniqueSpatialCriteria) |>
+  dplyr::group_by(
+    DurationValue, DurationMethod, DurationUnit,
+    UniqueSpatialCriteria
+  ) |>
   dplyr::group_split()
 ```
 
@@ -618,7 +623,7 @@ TADA_scatters <- list()
 
 n <- length(tada.MT.do.subsets)
 
-for (i in 1:n){
+for (i in 1:n) {
   # need to set this up as function to plot multiple
   desc <- paste0(
     "Lower bound for ",

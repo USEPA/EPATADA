@@ -2414,8 +2414,7 @@ TADA_CorrectColType <- function(.data) {
 
   # Converter per type
   convert <- function(x, type) {
-    switch(
-      type,
+    switch(type,
       character = as.character(x),
       numeric = suppressWarnings(as.numeric(x)),
       integer = suppressWarnings(as.integer(x)),
