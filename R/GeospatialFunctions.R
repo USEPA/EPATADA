@@ -1,3 +1,42 @@
+#' fetch_bbox
+#'
+#' This function gets ATTAINS data for the bounding box of a feature.
+#'
+#' @param baseurls A url or set of urls for ESRI REST service layers.
+#' @param .data An sf dataframe developed with `TADA_MakeSpatial()`.
+#' @return An sf data frame of features from the REST service within the
+#' bounding box of the spatial feature of interest.
+#'
+#' @keywords internal
+#'
+#' @examples
+#' baseurls <- c(
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+#' )
+#' 
+#' features <- fetch_bbox(baseurls, df)
+
+fetch_bbox <- function(baseurls, df) {
+  query_and_fetch <- function(url) {
+    lyr <- arcgislayers::arc_open(url)
+    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+    data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(df))
+    return(data)
+  }
+  
+  all_features <- suppressMessages(suppressWarnings({
+    tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
+  }))
+  dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
+}
+
+
+
+
+
 #' TADA_MakeSpatial
 #'
 #' Transforms a Water Quality Portal dataframe into a geospatial `sf` object.
