@@ -1749,9 +1749,9 @@ findATTAINSMissingRawFeatures <- function(
 # check for WQP data
 checkForWQPData <- function(.data = NULL) {
   if (is.null(.data) || nrow(.data == 0)) {
-      stop("Your WQP dataframe has no observations.")
-    }
+    stop("Your WQP dataframe has no observations.")
   }
+}
 
 #' checkTADAColsForMap
 #'
