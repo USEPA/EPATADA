@@ -768,10 +768,10 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     silent = TRUE
   )
 
-  #suppressMessages(suppressWarnings({
+  suppressMessages(suppressWarnings({
   # if data was spatial, remove for downstream leaflet dev:
-  #try(
-  ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry() #, silent = TRUE)
+  try(
+  ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry() , silent = TRUE)
 
   # create df to assign color based on ATTAINS overall status
   colors <- getATTAINSColorsRef()
@@ -848,6 +848,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         sumdat,
         map = map,
         icons = images,
+        icon_labels = img.labels,
         ref_icons = TRUE,
         overlay_groups = overlay_groups
       )
@@ -881,14 +882,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   nhd_attains <- ifelse("ATTAINS catchments" %in% overlay_groups, TRUE, FALSE)
 
-  # NHD catchments without ATTAINS features
-
-  nhd_no_attains <- ifelse(
-    "missing ATTAINS catchment outlines" %in% overlay_groups,
-    TRUE,
-    FALSE
-  )
-
   # add TADA custom legend to map
   map <- addTADAMapLegend(
     map = map,
@@ -898,8 +891,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     ref_icons = ref_icons,
     attains_au = attains_au,
     attains_missing = attains_missing,
-    nhd_attains = nhd_attains,
-    nhd_no_attains = nhd_no_attains
+    nhd_attains = nhd_attains
   )
 
   # add button to toggle map legend on/off
@@ -912,5 +904,5 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   rm(sumdat, overlay_groups)
   # Return leaflet map of TADA WQ and its associated ATTAINS data
   return(map)
-  #}))
+  }))
 }

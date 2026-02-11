@@ -214,9 +214,6 @@ addATTAINS <- function(
     )
   }
 
-  # remove intermediate object
-  rm(geo.type)
-
   # Add ATTAINS to map
   # ATTAINS assessment unit polygons
   if (group.name == "ATTAINS polygon features") {
@@ -388,6 +385,11 @@ addATTAINS <- function(
   au.list <- list(map, overlay_groups)
 
   names(au.list) <- c("map", "overlay_groups")
+
+  # remove intermediate object
+  if (exists("geo.type")) {
+    rm(geo.type)
+  }
 
   # return map and list of overlay groups
   return(au.list)
@@ -1295,7 +1297,7 @@ addWQPSites <- function(
     img.labels <- icon_labels
 
     # remove intermediate objects
-    rm(icons, icon.labels)
+    rm(icons, icon_labels)
   }
 
   # set image ref, image label, and icon url lists for WQP monitoring locations
@@ -1399,11 +1401,6 @@ addWQPSites <- function(
 #' is shown in the legend. When nhd_attains = TRUE, the icon is shown in the legend.
 #' Default is nhd_attains = TRUE.
 #'
-#' @param nhd_no_attains Boolean argument. Determines whether the icon for NHD
-#' catchments not containing ATTAINS features, a square with no fill color and
-#' a black outline, is shown in the legend. When nhd_no_attains = TRUE, the icon
-#' is shown in the legend. Default is nhd_attains = TRUE.
-#'
 #' @return Custom leaflet legend for TADA maps.
 #'
 # add ATTAINS geometry to existing leaflet map
@@ -1416,8 +1413,7 @@ addTADAMapLegend <- function(
   ref_icons = TRUE,
   attains_au = TRUE,
   attains_missing = TRUE,
-  nhd_attains = TRUE,
-  nhd_no_attains = FALSE
+  nhd_attains = TRUE
 ) {
   # stop function if no map is provided
   if (is.null(map)) {
@@ -1453,8 +1449,6 @@ addTADAMapLegend <- function(
     images.ref <- append(images.ref, images[1:3])
 
     leg.labels <- append(leg.labels, img.labels[1:3])
-
-    rm(attains.imgs, attains.labels)
   }
 
   # ATTAINS missing geometry
@@ -1486,13 +1480,6 @@ addTADAMapLegend <- function(
     images.ref <- append(images.ref, images[9])
 
     leg.labels <- append(leg.labels, img.labels[9])
-  }
-
-  # NHD catchments without ATTAINS features
-  if (nhd_no_attains == TRUE) {
-    images.ref <- append(images.ref, images[10])
-
-    leg.labels <- append(leg.labels, img.labels[10])
   }
 
   # add legend to map
@@ -1748,7 +1735,7 @@ findATTAINSMissingRawFeatures <- function(
 #' observations are present.
 # check for WQP data
 checkForWQPData <- function(.data = NULL) {
-  if (is.null(.data) || nrow(.data == 0)) {
+  if (is.null(.data) || dim(.data)[1] == 0) {
       stop("Your WQP dataframe has no observations.")
     }
   }
