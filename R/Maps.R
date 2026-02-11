@@ -391,18 +391,8 @@ TADA_NearbySitesMap <- function(
       c("ATTAINS.AssessmentUnitIdentifier", "TADA.AURefSource")
     )
 
-    # set param for checkForWQPData
-    if ("without_ATTAINS_catchments" %in% names(.data)) {
-      without_ATTAINS_catchments <- .data$without_ATTAINS_catchments
-    } else {
-      without_ATTAINS_catchments <- NULL
-    }
-
     # check to make sure WQP observations exist
-    checkForWQPData(
-      tada_attains = TADA_table,
-      tada_no_attains = without_ATTAINS_catchments
-    )
+    checkForWQPData(TADA_table)
   }
 
   # if not previously run, run TADA_FindNearbySites
@@ -734,14 +724,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   ATTAINS_lines <- .data[["ATTAINS_lines"]]
   ATTAINS_polygons <- .data[["ATTAINS_polygons"]]
 
-  # check to see if without ATTAINS catchments is available
-  with_NHD_catchments <- NULL
-  try(
-    with_NHD_catchments <- .data[["with_NHD_catchments"]] |>
-      dplyr::rename(nhd = 1),
-    silent = TRUE
-  )
-
   # check for ATTAINS data
   checkForATTAINSGeo(
     points_layer = ATTAINS_points,
@@ -772,10 +754,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
   }
 
   # check to make sure WQP observations exist
-  checkForWQPData(
-    tada_attains = ATTAINS_table,
-    tada_no_attains = with_NHD_catchments
-  )
+  checkForWQPData(ATTAINS_table)
 
   # ATTAINS API seems to be missing some AU data that is still preserved in the catchment layer.
   # Use catchments for those instances for mapping purposes:

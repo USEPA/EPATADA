@@ -1741,28 +1741,17 @@ findATTAINSMissingRawFeatures <- function(
 #' TADA_CreateAUMLCrosswalk to verify the WQP data frame contains observations.
 #' For use in TADA leaflet mapping functions that utilize ATTAINS data.
 #'
-#' @param tada_attains The "TADA_with_ATTAINS" data frame that is part of the
-#' output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
-#'
-#' @param tada_no_attains The "TADA_without_ATTAINS" data frame that is part of the
+#' @param .data The "TADA_with_ATTAINS" data frame that is part of the
 #' output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.
 #'
 #' @return The function will stop and provide an error message if no WQP
 #' observations are present.
 # check for WQP data
-checkForWQPData <- function(tada_attains = NULL, tada_no_attains = NULL) {
-  if (is.null(tada_no_attains)) {
-    if (nrow(tada_attains) == 0) {
+checkForWQPData <- function(.data = NULL) {
+  if (is.null(.data) || nrow(.data == 0)) {
       stop("Your WQP dataframe has no observations.")
     }
   }
-
-  if (!is.null(tada_no_attains)) {
-    if (nrow(tada_attains) == 0 & nrow(tada_no_attains) == 0) {
-      stop("Your WQP dataframe has no observations.")
-    }
-  }
-}
 
 #' checkTADAColsForMap
 #'
