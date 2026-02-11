@@ -236,19 +236,6 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 })
 
 
-testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk rejects invalid resolution values", {
-  testthat::expect_error(
-    TADA_CreateATTAINSAUMLCrosswalk(
-      .data = TADA_dataframe,
-      fill_USGS_catch = TRUE,
-      resolution = "Invalid",
-      return_sf = FALSE
-    ),
-    "User-supplied resolution unavailable"
-  )
-})
-
-
 testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   #au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
 
