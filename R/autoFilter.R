@@ -333,15 +333,7 @@ TADA_MediaFilter <- function(
   }
 
   # Read the monitoring location reference table
-  ref_path <- system.file(
-    "extdata",
-    "WQXMonitoringLocationTypeNameRef.csv",
-    package = "EPATADA"
-  )
-  has_ref <- nzchar(ref_path) && file.exists(ref_path)
-
-  if (has_ref) {
-    monitoring_location_types <- utils::read.csv(ref_path, check.names = FALSE)
+  monitoring_location_types <- TADA_GetMonLocTypeRef()
 
     # Standardize names for robust detection
     std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
@@ -363,7 +355,6 @@ TADA_MediaFilter <- function(
     } else {
       monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
     }
-  }
 
   # Uppercase ML type name in .data for reliable joining
   .data <- .data |>
