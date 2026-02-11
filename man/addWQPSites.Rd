@@ -61,8 +61,9 @@ When ref_icons = FALSE or the source is not provided in .data, all
 Monitoring Locations are show with a plain circle.
 }}
 
-\item{overlay_groups}{List of names of groups added to map. If it is NULL, the
-function will fail with an error message. Default is overlay_list = NULL.}
+\item{overlay_groups}{Initialized vector to add names of groups to map. This is
+to allow users to toggle specific layers on/off. If it is NULL, the function will
+fail with an error message. Default is overlay_list = NULL.}
 }
 \value{
 ATTAINS geometry correctly formatted for display in a TADA leaflet map.

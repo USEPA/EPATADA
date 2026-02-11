@@ -13,7 +13,8 @@ findATTAINSMissingRawFeatures(
 )
 }
 \arguments{
-\item{.data}{}
+\item{.data}{The ATTAINS_catchments data frame created as a result of
+TADA_CreateAUMLCrosswalk or TADA_CreateATTAINSAUMLCrosswalk.}
 
 \item{points_layer}{Optional data frame argument. Contains the data required to
 map ATTAINS assessment unit point geometry. When points_layer = NULL, the point

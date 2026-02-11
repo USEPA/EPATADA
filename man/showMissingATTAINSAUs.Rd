@@ -20,9 +20,9 @@ showMissingATTAINSAUs(
 \item{map}{A leaflet map of TADA data to apply the symbology for missing ATTAINS
 assessment units to.}
 
-\item{overlay_groups}{Initialized vector to add names of groups added to map. If
-it is NULL, the function will fail with an error message. Default is overlay_list
-= NULL.}
+\item{overlay_groups}{Initialized vector to add names of groups to map. This is
+to allow users to toggle specific layers on/off. If it is NULL, the function will
+fail with an error message. Default is overlay_list = NULL.}
 
 \item{ATTAINS_table}{A TADA data frame created with TADA_CreateATTAINSAUMLCrosswalk
 or TADA_CreateAUMLCrosswalk (called "TADA_with_ATTAINS" in the list of output dfs).}
