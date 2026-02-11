@@ -9,9 +9,9 @@ ATTAINS Water Type as a function input (AUMLRef). The output from the
 `TADA_CreateATTAINSAUMLCrosswalk(.data, return_sf = FALSE)` can be used
 directly as the AUMLRef argument input in this function. Alternatively,
 a user supplied crosswalk can be entered or
-[`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+[`TADA_GetATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
 and/or
-[`TADA_UpdateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
+[`TADA_UpdateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
 functions can be leveraged to generate the crosswalk.
 
 ## Usage
@@ -114,7 +114,7 @@ recent assessment).
 For any NEW AUs and/or NEW uses, users must modify the output of this
 function to manually add those uses and assessment units to the
 crosswalk. Alternatively, we have developed a helper function,
-[`TADA_AssignUsesToWaterType()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md),
+[`TADA_AssignUsesToWaterType()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md),
 to assist with assigning uses to NEW AUs. This can be leveraged to
 assign uses for any new assessment units based on water type. Users can
 either supply their own Water Type to Use crosswalk or utilize ATTAINS
@@ -128,19 +128,19 @@ until the assessment is approved and completed.
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 for the required format of .data
 
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 to help generate the required AUMLRef
 
-[`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+[`TADA_GetATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
 to help generate the required AUMLRef
 
-[`TADA_UpdateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
+[`TADA_UpdateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
 to help generate the required AUMLRef
 
-[`TADA_AssignUsesToWaterType()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
+[`TADA_AssignUsesToWaterType()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
 to help assign ATTAINS Uses to NEW ATTAINS Assessment Units based on
 ATTAINS Water Type
 

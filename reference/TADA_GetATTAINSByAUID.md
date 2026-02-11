@@ -63,14 +63,14 @@ TADA_GetATTAINSByAUID(
 ## Value
 
 A modified
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 dataframe or list with additional columns associated with the ATTAINS
 assessment unit data. Moreover, if return_sf = TRUE, this function will
 additionally return the raw ATTAINS and catchment shapefile features
 associated with those observations.
 
 A modified
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 dataframe or list with additional columns associated with the ATTAINS
 assessment unit data. Moreover, if return_sf = TRUE, this function will
 additionally return the raw ATTAINS and catchment shapefile features
@@ -92,13 +92,13 @@ combinations.
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 
 ## Examples
 

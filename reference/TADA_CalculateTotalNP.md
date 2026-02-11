@@ -103,25 +103,25 @@ value for that site/day/depth.
 
 ## See also
 
-[`TADA_AggregateMeasurements()`](usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
+[`TADA_AggregateMeasurements()`](https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
 
-[`TADA_FlagDepthCategory()`](usepa.github.io/EPATADA/reference/TADA_FlagDepthCategory.md)
+[`TADA_FlagDepthCategory()`](https://usepa.github.io/EPATADA/reference/TADA_FlagDepthCategory.md)
 
-[`TADA_SimpleCensoredMethods()`](usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
+[`TADA_SimpleCensoredMethods()`](https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
 
-[`TADA_HarmonizeSynonyms()`](usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.md)
+[`TADA_HarmonizeSynonyms()`](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.md)
 
-[`TADA_FindNearbySites()`](usepa.github.io/EPATADA/reference/TADA_FindNearbySites.md)
+[`TADA_FindNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_FindNearbySites.md)
 
-[`TADA_FindQCActivities()`](usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
+[`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
 
-[`TADA_FlagResultUnit()`](usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md)
+[`TADA_FlagResultUnit()`](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md)
 
-[`TADA_FlagFraction()`](usepa.github.io/EPATADA/reference/TADA_FlagFraction.md)
+[`TADA_FlagFraction()`](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.md)
 
-[`TADA_FlagSpeciation()`](usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md)
+[`TADA_FlagSpeciation()`](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md)
 
-[`TADA_AutoClean()`](usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
+[`TADA_AutoClean()`](https://usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
 
 ## Examples
 

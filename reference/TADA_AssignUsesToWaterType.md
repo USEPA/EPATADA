@@ -75,7 +75,7 @@ Users are expected to modify this ref file as needed.
 
 ## See also
 
-[`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
+[`TADA_AssignUsesToAU()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
 
 ## Examples
 

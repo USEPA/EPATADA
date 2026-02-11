@@ -23,7 +23,7 @@ TADA_CreateAUMLCrosswalk(
 - .data:
 
   A dataframe created by
-  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md).
+  [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md).
 
 - au_ref:
 
@@ -84,9 +84,9 @@ upload for Monitoring_Stations.
 
 ## See also
 
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
-[`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
-[`TADA_UpdateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_GetATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+[`TADA_UpdateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
 
 ## Examples
 

@@ -16,9 +16,9 @@ TADA_ViewATTAINS(.data, ref_icons = TRUE)
 
 - .data:
 
-  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+  [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   and
-  [`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
+  [`TADA_CreateAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
   can be run to get a list containing WQP monitoring locations and
   ATTAINS shapefile objects.
 
@@ -35,14 +35,14 @@ TADA_ViewATTAINS(.data, ref_icons = TRUE)
       TADA_CreateAUMLCrosswalk().
 
   2.  The circle with a check mark is for matches from
-      [`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+      [`TADA_GetATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
       which runs within TADA_CreateAUMLCrosswalk(). If an organization
       has recorded this information in ATTAINS, this gets the
       organizations crosswalk of known monitoring location identifiers
       and assessment unit associations.
 
   3.  The plain circle represents matches made with
-      [`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+      [`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
       which also runs within TADA_CreateAUMLCrosswalk() to link
       catchment-based ATTAINS assessment unit data to Water Quality
       Portal observations. When rec_icons = FALSE or the source is not
@@ -56,14 +56,14 @@ assessment units. All maps are in WGS84.
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 must be run first to get WQP monitoring locations and results.
 
-[`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
+[`TADA_CreateAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
 which runs
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 with return_sf argument set to TRUE and
-[`TADA_GetATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
+[`TADA_GetATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.md)
 by default.
 
 ## Examples

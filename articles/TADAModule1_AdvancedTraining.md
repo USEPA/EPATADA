@@ -159,9 +159,9 @@ the original dataframe:
 
 - Unifies result and depth units to common units to improve ease of data
   harmonization. See
-  [`?TADA_ConvertResultUnits`](usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.md)
+  [`?TADA_ConvertResultUnits`](https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.md)
   and
-  [`?TADA_ConvertDepthUnits`](usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.md)
+  [`?TADA_ConvertDepthUnits`](https://usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.md)
   for more information on these processes. These functions can also be
   run separately if the user wishes to convert result or depth values to
   different units.
@@ -169,14 +169,14 @@ the original dataframe:
 Let’s give it a try. Setting applyautoclean to TRUE in
 `TADA:TADA_DataRetrieval` means that the basic quality control steps
 described above are run. See
-[`?TADA_AutoClean`](usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
+[`?TADA_AutoClean`](https://usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
 for more details. `TADA_DataRetrieval` follows similar parameterization
 to the dataRetrieval package function
 [`dataRetrieval::readWQPdata`](https://rdrr.io/pkg/dataRetrieval/man/readWQPdata.html),
 but check out the [help
 page](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.html)
 or enter
-[`?TADA_DataRetrieval`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`?TADA_DataRetrieval`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 into the console for more information about input parameters and to see
 several examples.
 
@@ -287,7 +287,7 @@ all_result_num <- dim(dataset_0)[1]
 ```
 
 Next, we can use the
-[`TADA_FieldCounts()`](usepa.github.io/EPATADA/reference/TADA_FieldCounts.md)
+[`TADA_FieldCounts()`](https://usepa.github.io/EPATADA/reference/TADA_FieldCounts.md)
 function to see how many unique values are contained within each column
 of the dataframe. The function can either return all column counts,
 most, or just the key columns. We’ll try the input with
@@ -460,9 +460,9 @@ dimCheck(all_result_num, dataset, removed, checkName = "Activity Media")
 
 Two additional helper functions one can use at any step in the process
 are
-[`TADA_FieldValuesTable()`](usepa.github.io/EPATADA/reference/TADA_FieldValuesTable.md)
+[`TADA_FieldValuesTable()`](https://usepa.github.io/EPATADA/reference/TADA_FieldValuesTable.md)
 and
-[`TADA_FieldValuesPie()`](usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.md).
+[`TADA_FieldValuesPie()`](https://usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.md).
 These functions create a summary table and pie chart (respectively) of
 all the unique values in a given column. Let’s give it a try on
 OrganizationFormalName, which is a WQP column naming the organization
@@ -499,9 +499,9 @@ characters that cannot be converted to numeric. Note that TADA will fill
 in missing values with detection limit values and units with the
 `TADA_IDCensoredData` if the ResultDetectionConditionText and
 DetectionQuantitationLimitType fields are populated. See
-[`?TADA_ConvertSpecialChars`](usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.md)
+[`?TADA_ConvertSpecialChars`](https://usepa.github.io/EPATADA/reference/TADA_ConvertSpecialChars.md)
 for more details on result value types and handling and
-[`?TADA_IDCensoredData`](usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
+[`?TADA_IDCensoredData`](https://usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
 for details on censored data preparation.
 
 First, we can run `TADA_IDCensoredData` to fill in as many NA/missing
@@ -513,9 +513,9 @@ values in the ResultDetectionConditionText and
 DetectionQuantitationLimitTypeName columns.
 
 You can find the reference tables used to make these decisions in
-[`TADA_GetDetCondRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
+[`TADA_GetDetCondRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
 and
-[`TADA_GetDetLimitRef()`](usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.md)
+[`TADA_GetDetLimitRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.md)
 functions. In some cases, results are missing detection limit/condition
 info, or there is a conflict in the detection limit and condition. The
 user may want to remove problematic detection limit data before
@@ -1126,22 +1126,22 @@ We’ve taken a quick look at the raw dataframe and split off some data
 that are not compatible with TADA, now let’s run through some quality
 control checks. The most important ones to run to ensure your dataframe
 is ready for subsequent steps are
-[`TADA_FlagFraction()`](usepa.github.io/EPATADA/reference/TADA_FlagFraction.md),
-[`TADA_FlagSpeciation()`](usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md),
-[`TADA_FlagResultUnit()`](usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md),
+[`TADA_FlagFraction()`](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.md),
+[`TADA_FlagSpeciation()`](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md),
+[`TADA_FlagResultUnit()`](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md),
 and
-[`TADA_FindQCActivities()`](usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md).
+[`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md).
 With the exception of
-[`TADA_FindQCActivities()`](usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md),
+[`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md),
 these flagging functions leverage WQX’s [QAQC Validation
 Table](https://cdx.epa.gov/wqx/download/DomainValues/QAQCCharacteristicValidation.CSV).
 See the [WQX QAQC Service User
 Guide](https://usepa.github.io/EPATADA/articles/WQXValidationService.html)
 for more details on how TADA leverages the validation table to flag
 potentially suspect data.
-[`TADA_FindQCActivities()`](usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
+[`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
 uses a TADA-specific domain table users can review with
-[`TADA_GetActivityTypeRef()`](usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md).
+[`TADA_GetActivityTypeRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md).
 All QAQC tables are frequently updated in the package to ensure they
 match the latest version on the web.
 
@@ -1317,7 +1317,7 @@ Statistics) or similar must be performed outside of the current version
 of TADA (though future development is planned).
 
 **Question 8: How would you parameterize
-[`TADA_SimpleCensoredMethods()`](usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
+[`TADA_SimpleCensoredMethods()`](https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
 to make non-detect values equal to the provided detection limit? What
 would you need to change in the example below?**
 
@@ -1372,7 +1372,7 @@ tables?**
 
 If you’d like to start thinking about using statistical methods to
 estimate detection limit values, check out the
-[`?TADA_Stats`](usepa.github.io/EPATADA/reference/TADA_Stats.md)
+[`?TADA_Stats`](https://usepa.github.io/EPATADA/reference/TADA_Stats.md)
 function, which accepts user-defined data groupings (or defaults to
 TADA.ComparableDataIdentifier to determine measurement count, location
 count, censored data stats, min, max, and percentile stats, and suggests
@@ -1400,7 +1400,7 @@ dataset_cens_summary <- dataset_cens |>
 
 You may see a characteristic that you’d like to investigate further in
 isolation.
-[`TADA_FieldValuesPie()`](usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.md)
+[`TADA_FieldValuesPie()`](https://usepa.github.io/EPATADA/reference/TADA_FieldValuesPie.md)
 will also produce summary pie charts for a given column *within* a
 specific characteristic. Let’s take a look.
 
@@ -1441,9 +1441,9 @@ or
 [TADA_HarmonizeSynonyms()](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html)),
 but for now we can start looking at data distributions within a single
 characteristic-speciation-fraction-unit using the plotting functions
-[`TADA_Histogram()`](usepa.github.io/EPATADA/reference/TADA_Histogram.md)
+[`TADA_Histogram()`](https://usepa.github.io/EPATADA/reference/TADA_Histogram.md)
 and
-[`TADA_Boxplot()`](usepa.github.io/EPATADA/reference/TADA_Boxplot.md).
+[`TADA_Boxplot()`](https://usepa.github.io/EPATADA/reference/TADA_Boxplot.md).
 We can also view a stats table using `TADA_Stats`.
 
 Let’s first take a look at the column TADA.ComparableDataIdentifier,

@@ -15,9 +15,9 @@ fetchNHD(.data, resolution = "Hi", features = "catchments")
 - .data:
 
   A dataframe created by
-  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+  [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   or the geospatial equivalent made by
-  [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md).
+  [`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md).
 
 - resolution:
 
@@ -39,9 +39,9 @@ only.
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 
-[`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+[`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
 
 ## Examples
 

@@ -84,7 +84,7 @@ The output is formatted for readability:
   (`na.rm = TRUE`) when computing summary statistics.
 
 - If `TADA.CensoredData.Flag` is not present, the function calls
-  [`TADA_IDCensoredData()`](usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
+  [`TADA_IDCensoredData()`](https://usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
   to create it.
 
 - If `TADA.NutrientSummation.Flag` is present, an informational note is

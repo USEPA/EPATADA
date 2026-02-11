@@ -14,9 +14,9 @@ TADA_MakeSpatial(.data, crs = 4326)
 - .data:
 
   A dataframe that has been processed using
-  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+  [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   and
-  [`TADA_AutoClean()`](usepa.github.io/EPATADA/reference/TADA_AutoClean.md).
+  [`TADA_AutoClean()`](https://usepa.github.io/EPATADA/reference/TADA_AutoClean.md).
 
 - crs:
 
@@ -36,7 +36,7 @@ workflow, refer to the TADAModule2.Rmd file.
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 
 ## Examples
 

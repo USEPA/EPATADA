@@ -136,7 +136,7 @@ created.
 6.  **Result Unit Harmonization**: Runs `TADA_ConvertResultUnits` to
     harmonize result and detection limit units to WQX and TADA or
     user-supplied target units. For more details, see
-    [`?TADA_ConvertResultUnits`](usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.md)
+    [`?TADA_ConvertResultUnits`](https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.md)
     and `?TADA_CreateUnitRef()`.
 
 7.  **Depth Unit Conversion**: Runs `TADA_ConvertDepthUnits` to convert

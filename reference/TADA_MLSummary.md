@@ -145,11 +145,11 @@ filtering across columns to apply any site specific criteria as needed.
 
 ## See also
 
-[`TADA_UsesForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
+[`TADA_UsesForAnalysis()`](https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
 
-[`TADA_AssignUsesToAU()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
+[`TADA_AssignUsesToAU()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.md)
 
-[`TADA_AssignUsesToWaterType()`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
+[`TADA_AssignUsesToWaterType()`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)
 
 ## Examples
 

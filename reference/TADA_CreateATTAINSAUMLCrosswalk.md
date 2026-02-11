@@ -4,9 +4,9 @@ Link catchment-based ATTAINS assessment unit data (EPA snapshot of
 NHDPlus HR catchments associated with entity submitted assessment unit
 features - points, lines, and polygons) to Water Quality Portal
 observations, often imported via
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md).
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md).
 This function returns the objects that can be mapped in
-[`TADA_ViewATTAINS()`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md).
+[`TADA_ViewATTAINS()`](https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md).
 Check out the TADAModule2.Rmd for an example workflow. Note that
 approximately 80% of state submitted assessment units in ATTAINS were
 developed based on high res NHDPlus, so we are using that as the
@@ -29,9 +29,9 @@ TADA_CreateATTAINSAUMLCrosswalk(
 - .data:
 
   A dataframe created by
-  [`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+  [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
   or the sf equivalent made by
-  [`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md).
+  [`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md).
 
 - org_id:
 
@@ -67,7 +67,7 @@ TADA_CreateATTAINSAUMLCrosswalk(
 ## Value
 
 A modified
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 dataframe or list with additional columns associated with the ATTAINS
 assessment unit data. Moreover, if return_sf = TRUE, this function will
 additionally return the raw ATTAINS and catchment shapefile features
@@ -103,11 +103,11 @@ geospatial location (lat/long).
 
 ## See also
 
-[`TADA_DataRetrieval()`](usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
+[`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 
-[`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+[`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
 
-[`TADA_ViewATTAINS()`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
+[`TADA_ViewATTAINS()`](https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
 
 ## Examples
 

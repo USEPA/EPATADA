@@ -277,7 +277,7 @@ rm(Data_MT_AUMLRef)
 
 ##### **Advanced: Deep Dive into `TADA_CreateATTAINSAUMLCrosswalk()`**
 
-[`TADA_CreateAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
+[`TADA_CreateAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateAUMLCrosswalk.md)
 automatically runs `TADA_CreateATTAINSAUMLCrosswalk` (see \#3 under step
 A above). This function pulls in ATTAINS data from the EPA’s ATTAINS
 Assessment Geospatial Service and links it to TADA-pulled Water Quality
@@ -287,7 +287,7 @@ dataframe must have - at a minimum - WQP observation coordinates in
 “HorizontalCoordinateReferenceSystemDatumName” column.
 
 By default,
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 returns a dataframe with ATTAINS-linked Water Quality Portal entries.
 Users have the added option of returning the intersecting ATTAINS
 geospatial shapefile objects with their ATTAINS-linked Water Quality
@@ -300,7 +300,7 @@ intersecting any WQP-linked ATTAINS catchment.
 
 Regardless of the user’s decision on returning the ATTAINS shapefile
 objects,
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
 always returns a dataframe (or dataframes if `fill_USGS_catch = TRUE`,
 see section **Filling in missing ATTAINS assessment units**) containing
 the original TADA WQP dataframe, plus new columns representing the
@@ -321,7 +321,7 @@ contains more than one assessment unit. In this example workflow,
 `return_nearest = TRUE.`
 
 `TADA_CreateATTAINSAUMLCrosswalk` also runs
-[`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+[`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
 within it to convert any Water Quality Portal (WQP)-style dataframe with
 latitude/longitude data into a geospatial shapefile object. The user
 supplies a WQP dataframe and the coordinate reference system that they
@@ -332,7 +332,7 @@ minimum - WQP observation coordinates in “LongitudeMeasure” and
 column.
 
 Let’s run
-[`TADA_MakeSpatial()`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+[`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
 to make the water quality data spatial.
 
 ``` r
@@ -370,7 +370,7 @@ TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 This new spatial object is identical to the original TADA dataframe, but
 now includes a “geometry” column that allows for mapping and additional
 geospatial capabilities. Enter
-[`?TADA_MakeSpatial`](usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
+[`?TADA_MakeSpatial`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
 into the console to review another example of this function in use and
 additional information.
 
@@ -505,7 +505,7 @@ intersecting ATTAINS features associated with these ATTAINS catchment
 observations stored in a list along with the TADA dataframe.
 
 **Arguments for
-[`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)**
+[`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)**
 
 - `.data`: Your input TADA-style Water Quality Portal data.
 
@@ -518,7 +518,7 @@ observations stored in a list along with the TADA dataframe.
 ## Step B: Review MLs/AUs on a Map
 
 The
-**[`TADA_ViewATTAINS()`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)**
+**[`TADA_ViewATTAINS()`](https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)**
 function creates a map that visually represents the monitoring locations
 and assessment units. When the param ref_icons is equal to TRUE, the
 results from the three different crosswalk sources are shown using
@@ -533,7 +533,7 @@ distinct circle marker icons:
 
 - **ATTAINS Catchments/Geospatial Join**: Matches found by joining
   monitoring locations with ATTAINS catchments in
-  [`TADA_CreateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
+  [`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
   when `return_sf = TRUE` are shown as solid fill circle markers.
 
 Additionally, when a user clicks on any circle marker, a pop-up window
@@ -551,7 +551,7 @@ TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
 Enter
-[`?TADA_ViewATTAINS`](usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
+[`?TADA_ViewATTAINS`](https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.md)
 into the console to review another example of this function in use and
 additional information.
 
@@ -579,7 +579,7 @@ profiles.
 
 4.  **Choose Update Option**:  
     When running
-    **[`TADA_UpdateATTAINSAUMLCrosswalk()`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)**,
+    **[`TADA_UpdateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)**,
     with the `attains_replace` function input users have the option to:
 
     - **Overwrite**: Replace all existing records.
@@ -588,7 +588,7 @@ profiles.
       records.
 
 For more detailed instructions, enter
-[`?TADA_UpdateATTAINSAUMLCrosswalk`](usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
+[`?TADA_UpdateATTAINSAUMLCrosswalk`](https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.md)
 into the console.
 
 ``` r
@@ -649,7 +649,7 @@ new AUs into existing frameworks.
 
 For more information on how to customize this function to suit your
 needs, enter
-**[`?TADA_AssignUsesToWaterType`](usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)**
+**[`?TADA_AssignUsesToWaterType`](https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.md)**
 into the R console.
 
 ``` r

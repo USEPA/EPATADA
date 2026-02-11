@@ -77,4 +77,7 @@ HardnessRef <- TADA_CreatePairRef(Data_6Tribes_5y_Harmonized,
   ph = FALSE, hardness = TRUE,
   temp = FALSE, chloride = FALSE, salinity = FALSE, other_char = "null"
 )
+#> Warning: URL 'https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV': Timeout of 60 seconds was reached
+#> Downloading latest Characteristic Reference Table failed!
+#> Falling back to (possibly outdated) internal file.
 ```

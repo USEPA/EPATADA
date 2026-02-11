@@ -36,9 +36,9 @@ impacted functions accordingly
 If columns were added/updated, add/update them in `RequiredCols.R`
 
 Run
-[`.TADA_UpdateRefFiles()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
+[`.TADA_UpdateRefFiles()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
 and
-[`.TADA_UpdateExampleData()`](usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
+[`.TADA_UpdateExampleData()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
 locally via `MaintenanceScheduled.R` or trigger the [Component File
 Update](https://github.com/USEPA/EPATADA/actions/workflows/maintenance-update.yaml)
 GitHub Action

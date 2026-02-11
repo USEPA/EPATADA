@@ -8,10 +8,10 @@ out manually, auto-populated with uses and parameters from ATTAINS and
 the input WQP dataframe, or developed with TADA helper functions
 (recommended). It is recommended to run these three TADA helper
 functions,
-[`TADA_ParametersForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_ParametersForAnalysis.md),
-[TADA_UsesForAnalysis](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md),
+[`TADA_ParametersForAnalysis()`](https://usepa.github.io/EPATADA/reference/TADA_ParametersForAnalysis.md),
+[TADA_UsesForAnalysis](https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md),
 and
-[TADA_MLSummary](usepa.github.io/EPATADA/reference/TADA_MLSummary.md),
+[TADA_MLSummary](https://usepa.github.io/EPATADA/reference/TADA_MLSummary.md),
 in that order to generate the Criteria and Methodology table specific
 for your organization.
 
@@ -88,10 +88,10 @@ TADA_DefineCriteriaMethodology(
   Boolean argument with two possible values: TRUE and FALSE. The default
   value is FALSE. If TRUE, a draft criteria and methods table is
   generated using default function inputs for
-  [`TADA_ParametersForAnalysis()`](usepa.github.io/EPATADA/reference/TADA_ParametersForAnalysis.md),
-  [TADA_UsesForAnalysis](usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md),
+  [`TADA_ParametersForAnalysis()`](https://usepa.github.io/EPATADA/reference/TADA_ParametersForAnalysis.md),
+  [TADA_UsesForAnalysis](https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md),
   and
-  [TADA_MLSummary](usepa.github.io/EPATADA/reference/TADA_MLSummary.md).
+  [TADA_MLSummary](https://usepa.github.io/EPATADA/reference/TADA_MLSummary.md).
   .data and org_id are required inputs for this function if auto_assign
   = TRUE. It is also recommended to set excel = TRUE when auto_assign =
   TRUE. The criteria and methodology template should be reviewed
@@ -237,6 +237,9 @@ epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
 #> [1] "TADA_UsesForAnalysis: auto_assign == TRUE was selected, assigning all unique ATTAINS.UseName, by ATTAINS.OrganizationIdentifier, to any ATTAINS.ParameterName that an organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
 #> [1] "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_MLSummary with default assignment."
 #> [1] "TADA_MLSummary: displayNA = TRUE: This MLSummaryRef table will display ALL parameters and uses for a ML/AU regardless if it contains data collected for that TADA.CharacteristicName in your TADA data frame."
+#> Warning: URL 'https://cdx.epa.gov/wqx/download/DomainValues/Characteristic.CSV': Timeout of 60 seconds was reached
+#> Downloading latest Characteristic Reference Table failed!
+#> Falling back to (possibly outdated) internal file.
 #> [1] "EQ_DomainValues: For param_name the values in the 'name' column of the function output are the allowable values for rExpert Query functions."
 #> EQ_DomainValues: domain list retrieved from ATTAINS web services.
 #> TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.
