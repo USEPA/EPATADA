@@ -13,8 +13,7 @@ addTADAMapLegend(
   ref_icons = TRUE,
   attains_au = TRUE,
   attains_missing = TRUE,
-  nhd_attains = TRUE,
-  nhd_no_attains = FALSE
+  nhd_attains = TRUE
 )
 }
 \arguments{
@@ -61,11 +60,6 @@ circle icon is show when attains_missing = TRUE. The default is attains_missing
 catchments containing ATTAINS features, a gray square with a black outline,
 is shown in the legend. When nhd_attains = TRUE, the icon is shown in the legend.
 Default is nhd_attains = TRUE.}
-
-\item{nhd_no_attains}{Boolean argument. Determines whether the icon for NHD
-catchments not containing ATTAINS features, a square with no fill color and
-a black outline, is shown in the legend. When nhd_no_attains = TRUE, the icon
-is shown in the legend. Default is nhd_attains = TRUE.}
 }
 \value{
 Custom leaflet legend for TADA maps.

@@ -4,13 +4,10 @@
 \alias{checkForWQPData}
 \title{checkForWQPData}
 \usage{
-checkForWQPData(tada_attains = NULL, tada_no_attains = NULL)
+checkForWQPData(.data = NULL)
 }
 \arguments{
-\item{tada_attains}{The "TADA_with_ATTAINS" data frame that is part of the
-output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.}
-
-\item{tada_no_attains}{The "TADA_without_ATTAINS" data frame that is part of the
+\item{.data}{The "TADA_with_ATTAINS" data frame that is part of the
 output of TADA_CreateATTAINSAUMLCrosswalk or TADA_CreateAUMLCrosswalk.}
 }
 \value{
