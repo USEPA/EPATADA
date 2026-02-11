@@ -472,7 +472,7 @@ the following command:
 ```{r qaqc}
 qaqc_ref <- TADA_GetWQXCharValRef()
 
-unique(qaqc_ref$Type)
+unique(qaqc_ref[["Type"]])
 ```
 
 **Question 5: What do you think the Type column in the qaqc_ref data
@@ -810,4 +810,3 @@ TADAShiny::run_app()
 DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
-

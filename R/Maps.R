@@ -543,7 +543,6 @@ TADA_NearbySitesMap <- function(.data, dist_buffer = 100) {
 #'
 #' # Only use ATTAINS catchments to match AUs
 #' attains_catchments <- TADA_CreateATTAINSAUMLCrosswalk(tada_data,
-#'   fill_USGS_catch = TRUE,
 #'   return_nearest = TRUE, resolution = "hi", return_sf = TRUE
 #' )
 #'
@@ -653,10 +652,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       "square-catchment-gray.png",
       package = "EPATADA"
     ), # 9
-    system.file("extdata/icons", "square-catchment.png", package = "EPATADA"), # 10
-    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 11
-    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 12
-    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 13
+    system.file("extdata/icons", "ns.point.circle.png", package = "EPATADA"), # 10
+    system.file("extdata/icons", "s.point.circle.png", package = "EPATADA"), # 11
+    system.file("extdata/icons", "na.point.circle.png", package = "EPATADA") # 12
   )
 
   img.labels <- c(
@@ -669,10 +667,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     "WQP: TADA_CreateATTAINSAUMLCrosswalk", # 7
     "WQP: Monitoring Location", # 8
     "NHDPlus HR catchments containing water quality observations + ATTAINS feature are represented as gray polygons with black outlines.", # 9
-    "NHDPlus HR catchments containing water quality observations without ATTAINS features are represented as clear polygons with black outlines.", # 10
-    "ATTAINS: Not Supporting Point", # 11
-    "ATTAINS: Supporting Point", # 12
-    "ATTAINS: Not Assessed Point" # 13
+    "ATTAINS: Not Supporting Point", # 10
+    "ATTAINS: Supporting Point", # 11
+    "ATTAINS: Not Assessed Point" # 12
   )
 
   # Check if all image paths exist
@@ -894,38 +891,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       silent = TRUE
     )
 
-    # add without ATTAINS catchments if available
-    without_ATTAINS_catchments <- NULL
-    try(
-      without_ATTAINS_catchments <- .data[["without_ATTAINS_catchments"]] |>
-        dplyr::rename(nhd = 1),
-      silent = TRUE
-    )
-
-    # Add missing catchment outlines (if they exist):
-    try(
-      {
-        map <- map |>
-          leaflet::addPolygons(
-            data = without_ATTAINS_catchments,
-            group = "missing ATTAINS catchment outlines",
-            color = "black",
-            weight = 1,
-            fillOpacity = 0,
-            popup = paste0(
-              without_ATTAINS_catchments$NHD.resolution,
-              " catchment ID: ",
-              without_ATTAINS_catchments$nhd
-            )
-          )
-        overlay_groups <- c(
-          overlay_groups,
-          "missing ATTAINS catchment outlines"
-        )
-      },
-      silent = TRUE
-    )
-
     # Add ATTAINS polygon features (if they exist):
     try(
       {
@@ -988,9 +953,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     try(
       pointIcons <- leaflet::icons(
         iconUrl = dplyr::case_when(
-          points_mapper$overallstatus == "Fully Supporting" ~ images[12],
-          points_mapper$overallstatus == "Not Supporting" ~ images[11],
-          points_mapper$overallstatus == "Not Assessed" ~ images[13]
+          points_mapper$overallstatus == "Fully Supporting" ~ images[11],
+          points_mapper$overallstatus == "Not Supporting" ~ images[10],
+          points_mapper$overallstatus == "Not Assessed" ~ images[12]
         ),
         iconWidth = 48,
         iconHeight = 48
@@ -1030,7 +995,9 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # check for Monitoring Locations with assigned AUIDs that do not have geometry from ATTAINS
     if ("TADA.AURefSource" %in% names(ATTAINS_table)) {
       user.refs <- ATTAINS_table |>
-        dplyr::filter(TADA.AURefSource == "User-supplied Ref") |>
+        dplyr::filter(
+          TADA.AURefSource %in% c("User-supplied Ref", "ATTAINS Crosswalk")
+        ) |>
         dplyr::select(
           TADA.MonitoringLocationIdentifier,
           ATTAINS.AssessmentUnitIdentifier,
@@ -1040,7 +1007,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
         ) |>
         dplyr::distinct()
 
-      # if any AUIDs were assigned by user check to see if they have matching geometry from ATTAINS
+      # if any AUIDs were assigned by user or from ATTAINS cw check to see if they have matching geometry from ATTAINS
 
       if (dim(user.refs)[1] > 0) {
         # internal function to create list of auids
@@ -1187,11 +1154,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
     # set image ref for catchments
     catch.imgs <- images[9]
     catch.labels <- img.labels[9]
-
-    if ("without_ATTAINS_catchments" %in% names(.data)) {
-      catch.imgs <- append(catch.imgs, images[10])
-      catch.labels <- append(catch.labels, img.labels[10])
-    }
 
     # create overall legend labels and images
     images.ref <- c(attains.imgs, wqp.imgs, catch.imgs)

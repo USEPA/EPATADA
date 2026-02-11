@@ -454,7 +454,9 @@ utils::globalVariables(c(
   "TADA.NearbySiteGroup.New",
   "code",
   "context",
-  "CriteriaSearchToolRef"
+  "CriteriaSearchToolRef",
+  "ATTAINS.ParameterName.x",
+  "Ref.AssessmentUnitIdentifier"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
