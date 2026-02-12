@@ -40,7 +40,11 @@ TADA_GetCriteriaSearchToolRef <- function() {
     message("Downloading latest Criteria Search Tool Reference Table failed!")
     message("Falling back to (possibly outdated) internal file.")
     # Load the dataset from the package
-    file_path <- system.file("extdata", "CriteriaSearchToolRef.rda", package = "EPATADA")
+    file_path <- system.file(
+      "extdata",
+      "CriteriaSearchToolRef.rda",
+      package = "EPATADA"
+    )
     load(file_path)
     CriteriaSearchToolRef <- dplyr::distinct(CriteriaSearchToolRef)
     # Cache and return
