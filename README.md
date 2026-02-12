@@ -1,10 +1,10 @@
-[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/USEPA/EPATADA)
-
 ## EPATADA: Tools for Automated Data Analysis!
 
 [![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
 [![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
+
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/USEPA/EPATADA)
 
 Tools for Automated Data Analysis, or TADA, is being developed to help States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias, Communities, Colonies, Towns, Indians, Villages), federal partners, and other [Water Quality Portal (WQP)](https://www.waterqualitydata.us/) users (e.g. researchers) efficiently compile and evaluate WQP data collected from water quality monitoring sites. TADA is both a stand-alone R package, and a building block to support development of R Shiny applications such as [TADAShiny](https://github.com/USEPA/TADAShiny).
 
