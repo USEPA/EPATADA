@@ -42,15 +42,15 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 )
 
 # Cache keys
-.WQXCharacteristicRef_cache_key             <- "WQXCharacteristicRef"
-.WQXCharValRef_cache_key                    <- "WQXcharValRef"
-.WQXUnitRef_cache_key                       <- "WQXunitRef"
-.WQXDetCondRef_cache_key                    <- "WQXResultDetectionConditionRef"
-.WQXDetLimitRef_cache_key                   <- "WQXDetectionQuantitationLimitTypeRef"
-.WQXActivityTypeRef_cache_key               <- "WQXActivityTypeRef"
-.WQXMonLocTypeRef_cache_key                 <- "WQXMonitoringLocationTypeNameRef"
-.WQPProviderRef_cache_key                   <- "WQPProviderRef"
-.WQXMeasureQualifierCodeRef_cache_key       <- "WQXMeasureQualifierCodeRef"
+.WQXCharacteristicRef_cache_key <- "WQXCharacteristicRef"
+.WQXCharValRef_cache_key <- "WQXcharValRef"
+.WQXUnitRef_cache_key <- "WQXunitRef"
+.WQXDetCondRef_cache_key <- "WQXResultDetectionConditionRef"
+.WQXDetLimitRef_cache_key <- "WQXDetectionQuantitationLimitTypeRef"
+.WQXActivityTypeRef_cache_key <- "WQXActivityTypeRef"
+.WQXMonLocTypeRef_cache_key <- "WQXMonitoringLocationTypeNameRef"
+.WQPProviderRef_cache_key <- "WQPProviderRef"
+.WQXMeasureQualifierCodeRef_cache_key <- "WQXMeasureQualifierCodeRef"
 
 # =========================
 # Generic helper functions
@@ -64,7 +64,10 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 
 # Cache helpers
 .tada_cache_get <- function(key) .TADA_cache[[key]]
-.tada_cache_set <- function(key, value) { .TADA_cache[[key]] <- value; invisible(value) }
+.tada_cache_set <- function(key, value) {
+  .TADA_cache[[key]] <- value
+  invisible(value)
+}
 
 # Read CSV from URL; returns NULL on error (network/format)
 .tada_read_csv_url <- function(url, stringsAsFactors = FALSE) {
@@ -78,24 +81,44 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 # - object_name: preferred object name inside the .rda
 # - required_cols: optional structural check
 # - trim: trim character columns if TRUE
-.tada_load_extdata_rda <- function(pkg = "EPATADA", filename, object_name = NULL, required_cols = NULL, trim = TRUE) {
+.tada_load_extdata_rda <- function(
+  pkg = "EPATADA",
+  filename,
+  object_name = NULL,
+  required_cols = NULL,
+  trim = TRUE
+) {
   path <- system.file("extdata", filename, package = pkg)
-  if (!nzchar(path) || !file.exists(path)) return(NULL)
+  if (!nzchar(path) || !file.exists(path)) {
+    return(NULL)
+  }
   e <- new.env(parent = emptyenv())
   objs <- try(load(path, envir = e), silent = TRUE)
-  if (inherits(objs, "try-error")) return(NULL)
+  if (inherits(objs, "try-error")) {
+    return(NULL)
+  }
   # Prefer explicit object_name when provided
-  if (!is.null(object_name) && object_name %in% objs && is.data.frame(e[[object_name]])) {
+  if (
+    !is.null(object_name) &&
+      object_name %in% objs &&
+      is.data.frame(e[[object_name]])
+  ) {
     df <- e[[object_name]]
-    if (!is.null(required_cols) && !all(required_cols %in% names(df))) return(NULL)
-    if (trim) df <- .tada_trim_char_cols(df)
+    if (!is.null(required_cols) && !all(required_cols %in% names(df))) {
+      return(NULL)
+    }
+    if (trim) {
+      df <- .tada_trim_char_cols(df)
+    }
     return(df)
   }
   # Otherwise, pick the first data.frame that meets required_cols (if specified)
   for (nm in objs) {
     obj <- e[[nm]]
     if (is.data.frame(obj)) {
-      if (!is.null(required_cols) && !all(required_cols %in% names(obj))) next
+      if (!is.null(required_cols) && !all(required_cols %in% names(obj))) {
+        next
+      }
       df <- if (trim) .tada_trim_char_cols(obj) else obj
       return(df)
     }
@@ -105,30 +128,43 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 
 # Download authoritative CSV; if it fails, fallback to installed RDA
 .tada_download_or_extdata_rda <- function(
-    url,
-    fallback_filename,
-    object_name,
-    pkg = "EPATADA",
-    required_cols = NULL,
-    stringsAsFactors = FALSE,
-    trim = TRUE,
-    on_fail_message = NULL
+  url,
+  fallback_filename,
+  object_name,
+  pkg = "EPATADA",
+  required_cols = NULL,
+  stringsAsFactors = FALSE,
+  trim = TRUE,
+  on_fail_message = NULL
 ) {
   # Attempt online download (CSV)
   df <- .tada_read_csv_url(url, stringsAsFactors = stringsAsFactors)
   if (!is.null(df)) {
-    if (trim) df <- .tada_trim_char_cols(df)
+    if (trim) {
+      df <- .tada_trim_char_cols(df)
+    }
     return(df)
   }
   # Inform the user about fallback
-  if (!is.null(on_fail_message)) message(on_fail_message)
+  if (!is.null(on_fail_message)) {
+    message(on_fail_message)
+  }
   # Attempt installed extdata fallback (RDA)
   df <- .tada_load_extdata_rda(
-    pkg = pkg, filename = fallback_filename, object_name = object_name,
-    required_cols = required_cols, trim = trim
+    pkg = pkg,
+    filename = fallback_filename,
+    object_name = object_name,
+    required_cols = required_cols,
+    trim = trim
   )
   if (is.null(df)) {
-    stop("Fallback extdata '", fallback_filename, "' not found or invalid in installed package '", pkg, "'.")
+    stop(
+      "Fallback extdata '",
+      fallback_filename,
+      "' not found or invalid in installed package '",
+      pkg,
+      "'."
+    )
   }
   df
 }
@@ -160,7 +196,14 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 }
 
 # Assign labels based on vector membership (first match wins, NA optional)
-.tada_flag_by_groups <- function(df, source_col, out_col, groups, default = "Not Reviewed", na_default = NULL) {
+.tada_flag_by_groups <- function(
+  df,
+  source_col,
+  out_col,
+  groups,
+  default = "Not Reviewed",
+  na_default = NULL
+) {
   stopifnot(source_col %in% names(df))
   v <- df[[source_col]]
   flag <- rep(default, length(v))
@@ -168,20 +211,41 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
     idx <- (v %in% groups[[lab]]) & (flag == default)
     flag[idx] <- lab
   }
-  if (!is.null(na_default)) flag[is.na(v)] <- na_default
+  if (!is.null(na_default)) {
+    flag[is.na(v)] <- na_default
+  }
   df[[out_col]] <- as.character(flag)
   df
 }
 
 # Dev-only writer: save a data.frame as RDA into inst/extdata under obj_name
-.tada_save_ext_rda <- function(obj, obj_name, pkg = "EPATADA", filename, compress = "xz", version = 2) {
+.tada_save_ext_rda <- function(
+  obj,
+  obj_name,
+  pkg = "EPATADA",
+  filename,
+  compress = "xz",
+  version = 2
+) {
   pkg_root <- .tada_find_pkg_root(pkg = pkg)
-  if (is.null(pkg_root)) stop("Could not locate package source root for ", pkg, ". Run from the package source directory.")
+  if (is.null(pkg_root)) {
+    stop(
+      "Could not locate package source root for ",
+      pkg,
+      ". Run from the package source directory."
+    )
+  }
   out_path <- file.path(pkg_root, "inst", "extdata", filename)
   dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
   e <- new.env(parent = emptyenv())
   e[[obj_name]] <- obj
-  save(list = obj_name, file = out_path, envir = e, version = version, compress = compress)
+  save(
+    list = obj_name,
+    file = out_path,
+    envir = e,
+    version = version,
+    compress = compress
+  )
   message(obj_name, " saved to: ", out_path)
   invisible(out_path)
 }
@@ -200,8 +264,12 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
     Char_Flag = df[["Domain.Value.Status"]],
     stringsAsFactors = FALSE
   )
-  if ("Comparable.Name" %in% names(df)) ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
-  if ("CAS.Number" %in% names(df)) ref[["CAS.Number"]] <- df[["CAS.Number"]]
+  if ("Comparable.Name" %in% names(df)) {
+    ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
+  }
+  if ("CAS.Number" %in% names(df)) {
+    ref[["CAS.Number"]] <- df[["CAS.Number"]]
+  }
   ref <- .tada_trim_char_cols(ref)
   unique(ref)
 }
@@ -215,10 +283,23 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   groups <- list(
     "Pass" = c("Accepted", "Y"),
     "Suspect" = c("Rejected", "Rejected ", "N"),
-    "NonStandardized" = c("NonStandardized", "Nonstandardized", "Non Standardized", "InvalidMediaUnit", "InvalidChar", "MethodNeeded")
+    "NonStandardized" = c(
+      "NonStandardized",
+      "Nonstandardized",
+      "Non Standardized",
+      "InvalidMediaUnit",
+      "InvalidChar",
+      "MethodNeeded"
+    )
   )
-  df <- .tada_flag_by_groups(df, source_col = "Status", out_col = "TADA.WQXVal.Flag",
-                             groups = groups, default = "Not Reviewed", na_default = "Not Reviewed")
+  df <- .tada_flag_by_groups(
+    df,
+    source_col = "Status",
+    out_col = "TADA.WQXVal.Flag",
+    groups = groups,
+    default = "Not Reviewed",
+    na_default = "Not Reviewed"
+  )
   unique(.tada_trim_char_cols(df))
 }
 
@@ -231,24 +312,53 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 .TADA_flag_DetCondRef <- function(df) {
   groups <- list(
     "Non-Detect" = c(
-      "Below Daily Detection Limit","Below Detection Limit",
+      "Below Daily Detection Limit",
+      "Below Detection Limit",
       "Below Long-term Blank-basd Dt Limit",
-      "Below Method Detection Limit","Below Reporting Limit","Below Sample-specific Detect Limit",
-      "Below System Detection Limit","Between Inst Detect and Quant Limit","Detected Not Quantified",
-      "Not Detected","Not Detected at Detection Limit","Not Detected at Reporting Limit",
-      "Not Present","Not Reported","Present Below Quantification Limit","Trace"
+      "Below Method Detection Limit",
+      "Below Reporting Limit",
+      "Below Sample-specific Detect Limit",
+      "Below System Detection Limit",
+      "Between Inst Detect and Quant Limit",
+      "Detected Not Quantified",
+      "Not Detected",
+      "Not Detected at Detection Limit",
+      "Not Detected at Reporting Limit",
+      "Not Present",
+      "Not Reported",
+      "Present Below Quantification Limit",
+      "Trace"
     ),
-    "Over-Detect" = c("Above Operating Range", "Present Above Quantification Limit"),
-    "Other" = c("Value Decensored","Reported in Raw Data (attached)","High Moisture","Unable to Measure","Value affected by contamination")
+    "Over-Detect" = c(
+      "Above Operating Range",
+      "Present Above Quantification Limit"
+    ),
+    "Other" = c(
+      "Value Decensored",
+      "Reported in Raw Data (attached)",
+      "High Moisture",
+      "Unable to Measure",
+      "Value affected by contamination"
+    )
   )
-  df <- .tada_flag_by_groups(df, source_col = "Name", out_col = "TADA.Detection_Type",
-                             groups = groups, default = "Not Reviewed", na_default = "Not Reviewed")
+  df <- .tada_flag_by_groups(
+    df,
+    source_col = "Name",
+    out_col = "TADA.Detection_Type",
+    groups = groups,
+    default = "Not Reviewed",
+    na_default = "Not Reviewed"
+  )
   df <- unique(.tada_trim_char_cols(df))
   others <- data.frame(
     Name = c("*Non-detect", "*Present <QL", "*Present"),
     Description = rep("Hard-coded legacy detection condition", 3),
     TADA.Detection_Type = c("Non-Detect", "Non-Detect", "Non-Detect"),
-    Last.Change.Date = c("8/7/2023 12:00:00 PM","8/7/2023 12:00:00 PM","12/14/2023 05:00:00 PM"),
+    Last.Change.Date = c(
+      "8/7/2023 12:00:00 PM",
+      "8/7/2023 12:00:00 PM",
+      "12/14/2023 05:00:00 PM"
+    ),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, others)
@@ -260,29 +370,76 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 .TADA_flag_DetLimitRef <- function(df) {
   groups <- list(
     "Non-Detect" = c(
-      "Blank-adjusted method detect limit","Blank-adjusted reporting limit","Contract Detection Limit",
-      "Contract Quantitation Limit","Daily detection limit","Detection limit by DQCALC","Estimated Detection Level",
-      "Estimated Quantitation Limit","Instrument Detection Level","Interim Reporting Level","Laboratory Reporting Level",
-      "Long Term Method Detection Level","Lower Quantitation Limit","Lower Reporting Limit","Lower limit of detection",
-      "Method Detection Level","Minimum Reporting Level","Practical Quantitation Limit","Reporting limit",
-      "Reporting limit by DQCALC","Required detection limit","Sample Detection Limit","Sample-Specific Quantitation Limit",
-      "Sample-specific critical level","Sample-specific min detect conc"
+      "Blank-adjusted method detect limit",
+      "Blank-adjusted reporting limit",
+      "Contract Detection Limit",
+      "Contract Quantitation Limit",
+      "Daily detection limit",
+      "Detection limit by DQCALC",
+      "Estimated Detection Level",
+      "Estimated Quantitation Limit",
+      "Instrument Detection Level",
+      "Interim Reporting Level",
+      "Laboratory Reporting Level",
+      "Long Term Method Detection Level",
+      "Lower Quantitation Limit",
+      "Lower Reporting Limit",
+      "Lower limit of detection",
+      "Method Detection Level",
+      "Minimum Reporting Level",
+      "Practical Quantitation Limit",
+      "Reporting limit",
+      "Reporting limit by DQCALC",
+      "Required detection limit",
+      "Sample Detection Limit",
+      "Sample-Specific Quantitation Limit",
+      "Sample-specific critical level",
+      "Sample-specific min detect conc"
     ),
-    "Over-Detect" = c("Upper Quantitation Limit","Upper Reporting Limit","Upper Calibration Limit"),
+    "Over-Detect" = c(
+      "Upper Quantitation Limit",
+      "Upper Reporting Limit",
+      "Upper Calibration Limit"
+    ),
     "Other" = c(
-      "Measurement Uncertainty","Laboratory Holding Time Limit","Drinking Water Maximum","Field Holding Time Limit",
-      "Specified in workplan","Statistical Uncertainty","Systematic Uncertainty","Taxonomic Loss Threshold",
-      "Water Quality Standard or Criteria","Upper 95% Confidence Limit","Lower 95% Confidence Limit","Censoring level"
+      "Measurement Uncertainty",
+      "Laboratory Holding Time Limit",
+      "Drinking Water Maximum",
+      "Field Holding Time Limit",
+      "Specified in workplan",
+      "Statistical Uncertainty",
+      "Systematic Uncertainty",
+      "Taxonomic Loss Threshold",
+      "Water Quality Standard or Criteria",
+      "Upper 95% Confidence Limit",
+      "Lower 95% Confidence Limit",
+      "Censoring level"
     )
   )
-  df <- .tada_flag_by_groups(df, source_col = "Name", out_col = "TADA.Limit_Type",
-                             groups = groups, default = "Not Reviewed", na_default = "Not Reviewed")
+  df <- .tada_flag_by_groups(
+    df,
+    source_col = "Name",
+    out_col = "TADA.Limit_Type",
+    groups = groups,
+    default = "Not Reviewed",
+    na_default = "Not Reviewed"
+  )
   df <- unique(.tada_trim_char_cols(df))
   usgs <- data.frame(
-    Name = c("Elevated Detection Limit","Historical Lower Reporting Limit","Method Detection Limit (MDL)","Lab Reporting Limit, NA"),
+    Name = c(
+      "Elevated Detection Limit",
+      "Historical Lower Reporting Limit",
+      "Method Detection Limit (MDL)",
+      "Lab Reporting Limit, NA"
+    ),
     Description = rep("USGS hard-coded limit", 4),
     TADA.Limit_Type = rep("Non-Detect", 4),
-    Last.Change.Date = c("4/6/2023 12:00:00 PM","4/6/2023 12:00:00 PM","4/6/2023 12:00:00 PM","12/14/2023 05:00:00 PM"),
+    Last.Change.Date = c(
+      "4/6/2023 12:00:00 PM",
+      "4/6/2023 12:00:00 PM",
+      "4/6/2023 12:00:00 PM",
+      "12/14/2023 05:00:00 PM"
+    ),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, usgs)
@@ -293,44 +450,89 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 # Activity Type (+ hard-coded additions)
 .TADA_flag_ActivityTypeRef <- function(df) {
   rep <- c(
-    "Quality Control Field Replicate Habitat Assessment","Quality Control Field Replicate Msr/Obs",
-    "Quality Control Field Replicate Portable Data Logger","Quality Control Field Replicate Sample-Composite",
-    "Quality Control Sample-Field Replicate","Quality Control Field Replicate Sample-Field Subsample"
+    "Quality Control Field Replicate Habitat Assessment",
+    "Quality Control Field Replicate Msr/Obs",
+    "Quality Control Field Replicate Portable Data Logger",
+    "Quality Control Field Replicate Sample-Composite",
+    "Quality Control Sample-Field Replicate",
+    "Quality Control Field Replicate Sample-Field Subsample"
   )
   dup <- c(
-    "Quality Control Alternative Measurement Sensitivity","Quality Control Alternative Measurement Sensitivity Plus",
-    "Quality Control Sample-Blind Duplicate","Quality Control Sample-Inter-lab Split","Quality Control Sample-Lab Duplicate",
-    "Quality Control Sample-Lab Duplicate 2","Quality Control Sample-Lab Re-Analysis","Quality Control Sample-Lab Split",
-    "Quality Control-Meter Lab Duplicate","Quality Control-Meter Lab Duplicate 2","Sample-Routine Resample"
+    "Quality Control Alternative Measurement Sensitivity",
+    "Quality Control Alternative Measurement Sensitivity Plus",
+    "Quality Control Sample-Blind Duplicate",
+    "Quality Control Sample-Inter-lab Split",
+    "Quality Control Sample-Lab Duplicate",
+    "Quality Control Sample-Lab Duplicate 2",
+    "Quality Control Sample-Lab Re-Analysis",
+    "Quality Control Sample-Lab Split",
+    "Quality Control-Meter Lab Duplicate",
+    "Quality Control-Meter Lab Duplicate 2",
+    "Sample-Routine Resample"
   )
   blank <- c(
-    "Quality Control Field Sample Equipment Rinsate Blank","Quality Control Lab Sample Equipment Rinsate Blank",
-    "Quality Control Sample-Equipment Blank","Quality Control Sample-Field Ambient Conditions Blank",
-    "Quality Control Sample-Field Blank","Quality Control Sample-Lab Blank","Quality Control Sample-Post-preservative Blank",
-    "Quality Control Sample-Pre-preservative Blank","Quality Control Sample-Reagent Blank","Quality Control Sample-Trip Blank",
-    "Quality Control-Meter Lab Blank","Quality Control-Negative Control","Sample-Depletion Replicate","Sample-Negative Control"
+    "Quality Control Field Sample Equipment Rinsate Blank",
+    "Quality Control Lab Sample Equipment Rinsate Blank",
+    "Quality Control Sample-Equipment Blank",
+    "Quality Control Sample-Field Ambient Conditions Blank",
+    "Quality Control Sample-Field Blank",
+    "Quality Control Sample-Lab Blank",
+    "Quality Control Sample-Post-preservative Blank",
+    "Quality Control Sample-Pre-preservative Blank",
+    "Quality Control Sample-Reagent Blank",
+    "Quality Control Sample-Trip Blank",
+    "Quality Control-Meter Lab Blank",
+    "Quality Control-Negative Control",
+    "Sample-Depletion Replicate",
+    "Sample-Negative Control"
   )
   cal <- c(
-    "Quality Control Field Calibration Check","Quality Control Field Msr/Obs Post-Calibration",
-    "Quality Control Field Msr/Obs Pre-Calibration","Quality Control Sample-Field Spike","Quality Control Sample-Field Surrogate Spike",
-    "Quality Control Sample-Lab Continuing Calibration Verification","Quality Control Sample-Lab Control Sample/Blank Spike",
-    "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate","Quality Control Sample-Lab Control Standard",
-    "Quality Control Sample-Lab Control Standard Duplicate","Quality Control Sample-Lab Initial Calib Certified Reference Material",
-    "Quality Control Sample-Lab Initial Calibration Verification","Quality Control Sample-Lab Matrix Spike","Quality Control Sample-Lab Matrix Spike Duplicate",
-    "Quality Control Sample-Lab Spike","Quality Control Sample-Lab Spike Duplicate","Quality Control Sample-Lab Spike Target",
-    "Quality Control Sample-Lab Spike of a Lab Blank","Quality Control Sample-Lab Surrogate Control Standard",
-    "Quality Control Sample-Lab Surrogate Control Standard Duplicate","Quality Control Sample-Lab Surrogate Method Blank",
-    "Quality Control Sample-Measurement Precision Sample","Quality Control Sample-Reference Sample","Quality Control-Calibration Check",
-    "Quality Control-Calibration Check Buffer","Sample-Positive Control"
+    "Quality Control Field Calibration Check",
+    "Quality Control Field Msr/Obs Post-Calibration",
+    "Quality Control Field Msr/Obs Pre-Calibration",
+    "Quality Control Sample-Field Spike",
+    "Quality Control Sample-Field Surrogate Spike",
+    "Quality Control Sample-Lab Continuing Calibration Verification",
+    "Quality Control Sample-Lab Control Sample/Blank Spike",
+    "Quality Control Sample-Lab Control Sample/Blank Spike Duplicate",
+    "Quality Control Sample-Lab Control Standard",
+    "Quality Control Sample-Lab Control Standard Duplicate",
+    "Quality Control Sample-Lab Initial Calib Certified Reference Material",
+    "Quality Control Sample-Lab Initial Calibration Verification",
+    "Quality Control Sample-Lab Matrix Spike",
+    "Quality Control Sample-Lab Matrix Spike Duplicate",
+    "Quality Control Sample-Lab Spike",
+    "Quality Control Sample-Lab Spike Duplicate",
+    "Quality Control Sample-Lab Spike Target",
+    "Quality Control Sample-Lab Spike of a Lab Blank",
+    "Quality Control Sample-Lab Surrogate Control Standard",
+    "Quality Control Sample-Lab Surrogate Control Standard Duplicate",
+    "Quality Control Sample-Lab Surrogate Method Blank",
+    "Quality Control Sample-Measurement Precision Sample",
+    "Quality Control Sample-Reference Sample",
+    "Quality Control-Calibration Check",
+    "Quality Control-Calibration Check Buffer",
+    "Sample-Positive Control"
   )
   other <- c("Quality Control Sample-Other")
   nonQC <- c(
-    "Field Msr/Obs","Field Msr/Obs-Continuous Time Series","Field Msr/Obs-Habitat Assessment",
-    "Field Msr/Obs-Incidental","Field Msr/Obs-Portable Data Logger","Sample-Composite With Parents",
-    "Sample-Composite Without Parents","Sample-Field Split","Sample-Field Subsample","Sample-Integrated Cross-Sectional Profile",
-    "Sample-Integrated Flow Proportioned","Sample-Integrated Horizontal Profile",
-    "Sample-Integrated Horizontal and Vertical Composite Profile","Sample-Integrated Time Series","Sample-Integrated Vertical Profile",
-    "Sample-Other","Sample-Routine"
+    "Field Msr/Obs",
+    "Field Msr/Obs-Continuous Time Series",
+    "Field Msr/Obs-Habitat Assessment",
+    "Field Msr/Obs-Incidental",
+    "Field Msr/Obs-Portable Data Logger",
+    "Sample-Composite With Parents",
+    "Sample-Composite Without Parents",
+    "Sample-Field Split",
+    "Sample-Field Subsample",
+    "Sample-Integrated Cross-Sectional Profile",
+    "Sample-Integrated Flow Proportioned",
+    "Sample-Integrated Horizontal Profile",
+    "Sample-Integrated Horizontal and Vertical Composite Profile",
+    "Sample-Integrated Time Series",
+    "Sample-Integrated Vertical Profile",
+    "Sample-Other",
+    "Sample-Routine"
   )
   groups <- list(
     "QC_replicate" = rep,
@@ -341,14 +543,35 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
     "Non_QC" = nonQC
   )
   # Force classification by Code
-  df <- .tada_flag_by_groups(df, source_col = "Code", out_col = "TADA.ActivityType.Flag",
-                             groups = groups, default = "Not Reviewed", na_default = "Not Reviewed")
+  df <- .tada_flag_by_groups(
+    df,
+    source_col = "Code",
+    out_col = "TADA.ActivityType.Flag",
+    groups = groups,
+    default = "Not Reviewed",
+    na_default = "Not Reviewed"
+  )
   df <- unique(.tada_trim_char_cols(df))
   new.atcs <- data.frame(
-    Code = c("Quality Control Sample-Blind","Unknown","Not determined","Sample"),
+    Code = c(
+      "Quality Control Sample-Blind",
+      "Unknown",
+      "Not determined",
+      "Sample"
+    ),
     Description = rep("Hard-coded activity type not in WQX domain", 4),
-    TADA.ActivityType.Flag = c("QC_duplicate","Not Reviewed","Not Reviewed","Non_QC"),
-    Last.Change.Date = c("8/11/2023 12:00:00 PM","8/11/2023 12:00:00 PM","1/5/2024 12:00:00 PM","1/5/2024 12:00:00 PM"),
+    TADA.ActivityType.Flag = c(
+      "QC_duplicate",
+      "Not Reviewed",
+      "Not Reviewed",
+      "Non_QC"
+    ),
+    Last.Change.Date = c(
+      "8/11/2023 12:00:00 PM",
+      "8/11/2023 12:00:00 PM",
+      "1/5/2024 12:00:00 PM",
+      "1/5/2024 12:00:00 PM"
+    ),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, new.atcs)
@@ -359,32 +582,89 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 # Monitoring Location Type Name
 .TADA_flag_MonLocTypeRef <- function(df) {
   surface <- c(
-    "BEACH Program Site-Channelized stream","BEACH Program Site-Estuary","BEACH Program Site-Great Lake","BEACH Program Site-Lake",
-    "BEACH Program Site-River/Stream","Canal Drainage","Canal Irrigation","Canal Transport","Constructed Wetland","Estuary","Great Lake",
-    "Intertidal","Lake","Ocean","Other-Surface Water","Pipe, Unspecified Source","Mine/Mine Discharge","Pond","Pond-Anchialine","Pond-Stock",
-    "Pond-Wastewater","Reservoir","River/Stream","River/Stream Ephemeral","River/Stream Intermittent","River/Stream Perennial",
-    "Riverine Impoundment","Subtidal","Wetland Estuarine-Ditch","Wetland Estuarine-Emergent","BEACH Program Site-Ocean","Wetland Estuarine-Forested",
-    "Wetland Estuarine-Marsh","Wetland Estuarine-Pool","River/stream Effluent-Dominated","Wetland Estuarine-Scrub-Shrub","Wetland Estuarine-Tidal Creek",
-    "Wetland Lacustrine-Emergent","Wetland Palustrine-Emergent","Wetland Palustrine-Forested","Wetland Palustrine-Moss-Lichen",
-    "Wetland Palustrine-Shrub-Scrub","Wetland Riverine-Emergent","Wetland Undifferentiated","Wetland Palustrine Pond","Channelized Stream",
-    "Estuary-Freshwater","Pond-Sediment","Pond-Stormwater","Spring","Wetland Lacustrine-Aquatic Bed","Wetland Lacustrine-Unconsolidated Bottom",
-    "Wetland Riverine-Unconsolidated Bottom","Wetland Riverine-Aquatic Bed","Storm Sewer","Combined Sewer",
-    "Mine/Mine Discharge Adit (Mine Entrance)","Mine/Mine Discharge Tailings Pile","Mine/Mine Discharge Waste Rock Pile","Waste Sewer",
-    "Seep","Playa","BEACH Program Site-Land runoff","BEACH Program Site-Storm sewer","BEACH Program Site-Waste sewer",
-    "Floodwater Urban","Floodwater non-Urban"
+    "BEACH Program Site-Channelized stream",
+    "BEACH Program Site-Estuary",
+    "BEACH Program Site-Great Lake",
+    "BEACH Program Site-Lake",
+    "BEACH Program Site-River/Stream",
+    "Canal Drainage",
+    "Canal Irrigation",
+    "Canal Transport",
+    "Constructed Wetland",
+    "Estuary",
+    "Great Lake",
+    "Intertidal",
+    "Lake",
+    "Ocean",
+    "Other-Surface Water",
+    "Pipe, Unspecified Source",
+    "Mine/Mine Discharge",
+    "Pond",
+    "Pond-Anchialine",
+    "Pond-Stock",
+    "Pond-Wastewater",
+    "Reservoir",
+    "River/Stream",
+    "River/Stream Ephemeral",
+    "River/Stream Intermittent",
+    "River/Stream Perennial",
+    "Riverine Impoundment",
+    "Subtidal",
+    "Wetland Estuarine-Ditch",
+    "Wetland Estuarine-Emergent",
+    "BEACH Program Site-Ocean",
+    "Wetland Estuarine-Forested",
+    "Wetland Estuarine-Marsh",
+    "Wetland Estuarine-Pool",
+    "River/stream Effluent-Dominated",
+    "Wetland Estuarine-Scrub-Shrub",
+    "Wetland Estuarine-Tidal Creek",
+    "Wetland Lacustrine-Emergent",
+    "Wetland Palustrine-Emergent",
+    "Wetland Palustrine-Forested",
+    "Wetland Palustrine-Moss-Lichen",
+    "Wetland Palustrine-Shrub-Scrub",
+    "Wetland Riverine-Emergent",
+    "Wetland Undifferentiated",
+    "Wetland Palustrine Pond",
+    "Channelized Stream",
+    "Estuary-Freshwater",
+    "Pond-Sediment",
+    "Pond-Stormwater",
+    "Spring",
+    "Wetland Lacustrine-Aquatic Bed",
+    "Wetland Lacustrine-Unconsolidated Bottom",
+    "Wetland Riverine-Unconsolidated Bottom",
+    "Wetland Riverine-Aquatic Bed",
+    "Storm Sewer",
+    "Combined Sewer",
+    "Mine/Mine Discharge Adit (Mine Entrance)",
+    "Mine/Mine Discharge Tailings Pile",
+    "Mine/Mine Discharge Waste Rock Pile",
+    "Waste Sewer",
+    "Seep",
+    "Playa",
+    "BEACH Program Site-Land runoff",
+    "BEACH Program Site-Storm sewer",
+    "BEACH Program Site-Waste sewer",
+    "Floodwater Urban",
+    "Floodwater non-Urban"
   )
-  groundwater <- c("Cave","Well","Other-Ground Water")
+  groundwater <- c("Cave", "Well", "Other-Ground Water")
   df <- .tada_flag_by_groups(
-    df, source_col = "Name", out_col = "TADA.Media.Flag",
+    df,
+    source_col = "Name",
+    out_col = "TADA.Media.Flag",
     groups = list("Surface Water" = surface, "Groundwater" = groundwater),
-    default = "", na_default = ""
+    default = "",
+    na_default = ""
   )
   unique(.tada_trim_char_cols(df))
 }
 
 # WQP Organization/Provider (column selection)
 .TADA_prepare_WQPOrgProviderRef <- function(df) {
-  keep <- c("OrganizationIdentifier","OrganizationFormalName","ProviderName")
+  keep <- c("OrganizationIdentifier", "OrganizationFormalName", "ProviderName")
   keep <- keep[keep %in% names(df)]
   unique(.tada_trim_char_cols(df[, keep, drop = FALSE]))
 }
@@ -392,24 +672,247 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 # Measure Qualifier Code
 .TADA_flag_MeasureQualifierCodeRef <- function(df) {
   suspect <- c(
-    "(", "+","AR","BS","BSR","BT","BVER","C","CAN","CBC","TT","UDL","UDQ","CSR","DE","EER","EFAI","FDB","FDC","FDL","FFB","FFD",
-    "TMLF","UNC","TOC","FFS","FFT","FH","FIS","FL","FLD","FLS","FMD","ITNA","JCN","RLRS","FMS","FPC","FPR","FQC","FRS","FSD","FSL",
-    "FSP","FUB","NPNF","RPDX","H","H2","H3","HMSD","C25","HE","HIM","ICA","IS","ISAC","ITNM","OS3","QCI","INT","IQCOL","ISP","A","D",
-    "DT","EMPC","HH","HIB","ISR**","MDL","OUT","JCW","KCF","KCX","KK","LAC","LBF","CNT","GR4","HICC","J-R","NW","PB","LO","$",
-    ")","*","ESD","EST","EVA","EVAD","EVID","FPP","G","LLS","OA3","PK","MI","MSR","NAI","NLBL","NLRO","NN","NRO","F","FLA","I","MSD",
-    "NHS","NRP","NRR","NSQ","PNQ","Q","QC","R","RA","FEQ","FLC","GXB","NA","OTHER","RPO","S2","SCA","SCF","SCP","SCX","SD%EL","SDROL",
-    "SSR","PP","PPD","PRE","SUS","V","^","RNON","B","CBG","SSRV"
+    "(",
+    "+",
+    "AR",
+    "BS",
+    "BSR",
+    "BT",
+    "BVER",
+    "C",
+    "CAN",
+    "CBC",
+    "TT",
+    "UDL",
+    "UDQ",
+    "CSR",
+    "DE",
+    "EER",
+    "EFAI",
+    "FDB",
+    "FDC",
+    "FDL",
+    "FFB",
+    "FFD",
+    "TMLF",
+    "UNC",
+    "TOC",
+    "FFS",
+    "FFT",
+    "FH",
+    "FIS",
+    "FL",
+    "FLD",
+    "FLS",
+    "FMD",
+    "ITNA",
+    "JCN",
+    "RLRS",
+    "FMS",
+    "FPC",
+    "FPR",
+    "FQC",
+    "FRS",
+    "FSD",
+    "FSL",
+    "FSP",
+    "FUB",
+    "NPNF",
+    "RPDX",
+    "H",
+    "H2",
+    "H3",
+    "HMSD",
+    "C25",
+    "HE",
+    "HIM",
+    "ICA",
+    "IS",
+    "ISAC",
+    "ITNM",
+    "OS3",
+    "QCI",
+    "INT",
+    "IQCOL",
+    "ISP",
+    "A",
+    "D",
+    "DT",
+    "EMPC",
+    "HH",
+    "HIB",
+    "ISR**",
+    "MDL",
+    "OUT",
+    "JCW",
+    "KCF",
+    "KCX",
+    "KK",
+    "LAC",
+    "LBF",
+    "CNT",
+    "GR4",
+    "HICC",
+    "J-R",
+    "NW",
+    "PB",
+    "LO",
+    "$",
+    ")",
+    "*",
+    "ESD",
+    "EST",
+    "EVA",
+    "EVAD",
+    "EVID",
+    "FPP",
+    "G",
+    "LLS",
+    "OA3",
+    "PK",
+    "MI",
+    "MSR",
+    "NAI",
+    "NLBL",
+    "NLRO",
+    "NN",
+    "NRO",
+    "F",
+    "FLA",
+    "I",
+    "MSD",
+    "NHS",
+    "NRP",
+    "NRR",
+    "NSQ",
+    "PNQ",
+    "Q",
+    "QC",
+    "R",
+    "RA",
+    "FEQ",
+    "FLC",
+    "GXB",
+    "NA",
+    "OTHER",
+    "RPO",
+    "S2",
+    "SCA",
+    "SCF",
+    "SCP",
+    "SCX",
+    "SD%EL",
+    "SDROL",
+    "SSR",
+    "PP",
+    "PPD",
+    "PRE",
+    "SUS",
+    "V",
+    "^",
+    "RNON",
+    "B",
+    "CBG",
+    "SSRV"
   )
   pass <- c(
-    "P","NRS","NRB","&","=","M6F","LVER","LSSR","LQ","LOPR","LMSD","LICC","HTH","HNRO","HMSR","AC","AL","ALK","ALT","LOB","AP","BAC",
-    "CAJ","CBL","CC","CDI","CG","CKB","CKBJ","CKG","CKJ","CLC","CON","CUG","DEC","DI","DOM","ECI","HLBL","HQ","HVER","J","J+","J-",
-    "L","LCS","LF","LIS","LL","LLBL","LMSR","LNRO","LR","LT","N","NFNS","O","PQL","RC","REX","RIN","RMAX","RNAF","RP","RR","RV",
-    "RVB","SBB","SLB","SM","SS","T","VS","VVRR","VVRR2","ZZ","J-1","NA","TR"
+    "P",
+    "NRS",
+    "NRB",
+    "&",
+    "=",
+    "M6F",
+    "LVER",
+    "LSSR",
+    "LQ",
+    "LOPR",
+    "LMSD",
+    "LICC",
+    "HTH",
+    "HNRO",
+    "HMSR",
+    "AC",
+    "AL",
+    "ALK",
+    "ALT",
+    "LOB",
+    "AP",
+    "BAC",
+    "CAJ",
+    "CBL",
+    "CC",
+    "CDI",
+    "CG",
+    "CKB",
+    "CKBJ",
+    "CKG",
+    "CKJ",
+    "CLC",
+    "CON",
+    "CUG",
+    "DEC",
+    "DI",
+    "DOM",
+    "ECI",
+    "HLBL",
+    "HQ",
+    "HVER",
+    "J",
+    "J+",
+    "J-",
+    "L",
+    "LCS",
+    "LF",
+    "LIS",
+    "LL",
+    "LLBL",
+    "LMSR",
+    "LNRO",
+    "LR",
+    "LT",
+    "N",
+    "NFNS",
+    "O",
+    "PQL",
+    "RC",
+    "REX",
+    "RIN",
+    "RMAX",
+    "RNAF",
+    "RP",
+    "RR",
+    "RV",
+    "RVB",
+    "SBB",
+    "SLB",
+    "SM",
+    "SS",
+    "T",
+    "VS",
+    "VVRR",
+    "VVRR2",
+    "ZZ",
+    "J-1",
+    "NA",
+    "TR"
   )
-  nondetect <- c("BQL","2-5B","U","LTGTE","K","IDL","<2B","BRL","D>T","DL")
-  overdetect <- c("E","EE","GT")
+  nondetect <- c(
+    "BQL",
+    "2-5B",
+    "U",
+    "LTGTE",
+    "K",
+    "IDL",
+    "<2B",
+    "BRL",
+    "D>T",
+    "DL"
+  )
+  overdetect <- c("E", "EE", "GT")
   df <- .tada_flag_by_groups(
-    df, source_col = "Code", out_col = "TADA.MeasureQualifierCode.Flag",
+    df,
+    source_col = "Code",
+    out_col = "TADA.MeasureQualifierCode.Flag",
     groups = list(
       "Non-Detect" = nondetect,
       "Over-Detect" = overdetect,
@@ -445,10 +948,17 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(ref_cached) && !isTRUE(refresh)) return(ref_cached)
   }
   if (download_only) {
-    raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
-    if (is.null(raw.data)) stop("TADA_GetCharacteristicRef(download_only=TRUE): download failed.")
+    raw.data <- .tada_read_csv_url(
+      .WQX_URLS$Characteristic,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(raw.data)) {
+      stop("TADA_GetCharacteristicRef(download_only=TRUE): download failed.")
+    }
     ref <- .TADA_normalize_characteristic_ref(raw.data)
-    if (is.null(ref)) stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
+    if (is.null(ref)) {
+      stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
+    }
   } else {
     ref <- .tada_load_extdata_rda(
       pkg = "EPATADA",
@@ -458,13 +968,26 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
       trim = TRUE
     )
     if (is.null(ref)) {
-      raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
-      if (is.null(raw.data)) stop("TADA_GetCharacteristicRef: extdata RDA not found and download failed.")
+      raw.data <- .tada_read_csv_url(
+        .WQX_URLS$Characteristic,
+        stringsAsFactors = FALSE
+      )
+      if (is.null(raw.data)) {
+        stop(
+          "TADA_GetCharacteristicRef: extdata RDA not found and download failed."
+        )
+      }
       ref <- .TADA_normalize_characteristic_ref(raw.data)
-      if (is.null(ref)) stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
+      if (is.null(ref)) {
+        stop(
+          "TADA_GetCharacteristicRef: Unexpected columns in downloaded table."
+        )
+      }
     }
   }
-  if (!download_only) .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
+  if (!download_only) {
+    .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
+  }
   ref
 }
 
@@ -472,7 +995,14 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateCharacteristicRef <- function() {
   ref <- TADA_GetCharacteristicRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(ref, obj_name = "WQXCharacteristicRef", pkg = "EPATADA", filename = "WQXCharacteristicRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    ref,
+    obj_name = "WQXCharacteristicRef",
+    pkg = "EPATADA",
+    filename = "WQXCharacteristicRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(ref)
 }
 
@@ -495,8 +1025,13 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$QAQCCharacteristicValidation, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetWQXCharValRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$QAQCCharacteristicValidation,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop("TADA_GetWQXCharValRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$QAQCCharacteristicValidation,
@@ -507,7 +1042,9 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_flag_WQXCharValRef(df)
-  if (!download_only) .tada_cache_set(.WQXCharValRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXCharValRef_cache_key, df)
+  }
   df
 }
 
@@ -515,7 +1052,14 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateWQXCharValRef <- function() {
   df <- TADA_GetWQXCharValRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXcharValRef", pkg = "EPATADA", filename = "WQXcharValRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXcharValRef",
+    pkg = "EPATADA",
+    filename = "WQXcharValRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -539,7 +1083,9 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
   }
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$MeasureUnit, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
+    if (is.null(df)) {
+      stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MeasureUnit,
@@ -550,7 +1096,9 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_prepare_MeasureUnitRef(df)
-  if (!download_only) .tada_cache_set(.WQXUnitRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXUnitRef_cache_key, df)
+  }
   df
 }
 
@@ -558,7 +1106,14 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateMeasureUnitRef <- function() {
   df <- TADA_GetMeasureUnitRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXunitRef", pkg = "EPATADA", filename = "WQXunitRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXunitRef",
+    pkg = "EPATADA",
+    filename = "WQXunitRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -581,8 +1136,13 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$ResultDetectionCondition, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$ResultDetectionCondition,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ResultDetectionCondition,
@@ -593,7 +1153,9 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_flag_DetCondRef(df)
-  if (!download_only) .tada_cache_set(.WQXDetCondRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXDetCondRef_cache_key, df)
+  }
   df
 }
 
@@ -601,7 +1163,14 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateDetCondRef <- function() {
   df <- TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXResultDetectionConditionRef", pkg = "EPATADA", filename = "WQXResultDetectionConditionRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXResultDetectionConditionRef",
+    pkg = "EPATADA",
+    filename = "WQXResultDetectionConditionRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -624,8 +1193,13 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$DetectionQuantitationLimitType, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetDetLimitRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$DetectionQuantitationLimitType,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop("TADA_GetDetLimitRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$DetectionQuantitationLimitType,
@@ -636,7 +1210,9 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_flag_DetLimitRef(df)
-  if (!download_only) .tada_cache_set(.WQXDetLimitRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXDetLimitRef_cache_key, df)
+  }
   df
 }
 
@@ -644,7 +1220,14 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateDetLimitRef <- function() {
   df <- TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXDetectionQuantitationLimitTypeRef", pkg = "EPATADA", filename = "WQXDetectionQuantitationLimitTypeRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXDetectionQuantitationLimitTypeRef",
+    pkg = "EPATADA",
+    filename = "WQXDetectionQuantitationLimitTypeRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -668,7 +1251,9 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   }
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$ActivityType, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetActivityTypeRef(download_only=TRUE): download failed.")
+    if (is.null(df)) {
+      stop("TADA_GetActivityTypeRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ActivityType,
@@ -679,7 +1264,9 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_flag_ActivityTypeRef(df)
-  if (!download_only) .tada_cache_set(.WQXActivityTypeRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXActivityTypeRef_cache_key, df)
+  }
   df
 }
 
@@ -687,7 +1274,14 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateActivityTypeRef <- function() {
   df <- TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXActivityTypeRef", pkg = "EPATADA", filename = "WQXActivityTypeRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXActivityTypeRef",
+    pkg = "EPATADA",
+    filename = "WQXActivityTypeRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -710,8 +1304,13 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$MonitoringLocationType, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetMonLocTypeRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$MonitoringLocationType,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop("TADA_GetMonLocTypeRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MonitoringLocationType,
@@ -722,7 +1321,9 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     )
   }
   df <- .TADA_flag_MonLocTypeRef(df)
-  if (!download_only) .tada_cache_set(.WQXMonLocTypeRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXMonLocTypeRef_cache_key, df)
+  }
   df
 }
 
@@ -730,7 +1331,14 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' @keywords internal
 .TADA_UpdateMonLocTypeRef <- function() {
   df <- TADA_GetMonLocTypeRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXMonitoringLocationTypeNameRef", pkg = "EPATADA", filename = "WQXMonitoringLocationTypeNameRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXMonitoringLocationTypeNameRef",
+    pkg = "EPATADA",
+    filename = "WQXMonitoringLocationTypeNameRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
 
@@ -754,25 +1362,37 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
   }
   if (download_only) {
     df <- .tada_read_csv_url(.WQP_URLS$Organization, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetWQPOrganizationRef(download_only=TRUE): download failed.")
+    if (is.null(df)) {
+      stop("TADA_GetWQPOrganizationRef(download_only=TRUE): download failed.")
+    }
     df <- .TADA_prepare_WQPOrgProviderRef(df)
   } else {
     df <- .tada_read_csv_url(.WQP_URLS$Organization, stringsAsFactors = FALSE)
     if (is.null(df)) {
-      message("Downloading latest WQP Organization and Provider Reference Table failed! Falling back to (possibly outdated) internal file.")
+      message(
+        "Downloading latest WQP Organization and Provider Reference Table failed! Falling back to (possibly outdated) internal file."
+      )
       df <- .tada_load_extdata_rda(
         pkg = "EPATADA",
         filename = "WQPOrganizationRef.rda",
-        object_name = "WQPOrganizationRef",  # renamed here
-        required_cols = c("OrganizationIdentifier", "OrganizationFormalName", "ProviderName"),
+        object_name = "WQPOrganizationRef", # renamed here
+        required_cols = c(
+          "OrganizationIdentifier",
+          "OrganizationFormalName",
+          "ProviderName"
+        ),
         trim = TRUE
       )
-      if (is.null(df)) stop("Fallback extdata 'WQPOrganizationRef.rda' not found or invalid.")
+      if (is.null(df)) {
+        stop("Fallback extdata 'WQPOrganizationRef.rda' not found or invalid.")
+      }
     } else {
       df <- .TADA_prepare_WQPOrgProviderRef(df)
     }
   }
-  if (!download_only) .tada_cache_set(.WQPProviderRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQPProviderRef_cache_key, df)
+  }
   df
 }
 
@@ -782,7 +1402,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
   df <- TADA_GetWQPOrganizationRef(download_only = TRUE, refresh = TRUE)
   .tada_save_ext_rda(
     df,
-    obj_name = "WQPOrganizationRef",  # renamed here
+    obj_name = "WQPOrganizationRef", # renamed here
     pkg = "EPATADA",
     filename = "WQPOrganizationRef.rda",
     compress = "xz",
@@ -804,14 +1424,24 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
 #'   package’s internal file on failure), then update the cache. If FALSE (default),
 #'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
-TADA_GetMeasureQualifierCodeRef <- function(download_only = FALSE, refresh = FALSE) {
+TADA_GetMeasureQualifierCodeRef <- function(
+  download_only = FALSE,
+  refresh = FALSE
+) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXMeasureQualifierCodeRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$ResultMeasureQualifier, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetMeasureQualifierCodeRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$ResultMeasureQualifier,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop(
+        "TADA_GetMeasureQualifierCodeRef(download_only=TRUE): download failed."
+      )
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ResultMeasureQualifier,
@@ -822,7 +1452,9 @@ TADA_GetMeasureQualifierCodeRef <- function(download_only = FALSE, refresh = FAL
     )
   }
   df <- .TADA_flag_MeasureQualifierCodeRef(df)
-  if (!download_only) .tada_cache_set(.WQXMeasureQualifierCodeRef_cache_key, df)
+  if (!download_only) {
+    .tada_cache_set(.WQXMeasureQualifierCodeRef_cache_key, df)
+  }
   df
 }
 
@@ -830,6 +1462,13 @@ TADA_GetMeasureQualifierCodeRef <- function(download_only = FALSE, refresh = FAL
 #' @keywords internal
 .TADA_UpdateMeasureQualifierCodeRef <- function() {
   df <- TADA_GetMeasureQualifierCodeRef(download_only = TRUE, refresh = TRUE)
-  .tada_save_ext_rda(df, obj_name = "WQXMeasureQualifierCodeRef", pkg = "EPATADA", filename = "WQXMeasureQualifierCodeRef.rda", compress = "xz", version = 2)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXMeasureQualifierCodeRef",
+    pkg = "EPATADA",
+    filename = "WQXMeasureQualifierCodeRef.rda",
+    compress = "xz",
+    version = 2
+  )
   invisible(df)
 }
