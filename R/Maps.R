@@ -770,10 +770,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
   suppressMessages(suppressWarnings({
     # if data was spatial, remove for downstream leaflet dev:
-    try(
-      ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(),
-      silent = TRUE
-    )
+    try(ATTAINS_table <- ATTAINS_table |> sf::st_drop_geometry(), silent = TRUE)
 
     # create df to assign color based on ATTAINS overall status
     colors <- getATTAINSColorsRef()
