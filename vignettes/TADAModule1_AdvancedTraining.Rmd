@@ -810,4 +810,3 @@ TADAShiny::run_app()
 DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
 currently hosted on the web with minimal server memory/storage
 allocated.
-
