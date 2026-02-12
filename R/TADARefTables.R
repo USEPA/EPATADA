@@ -89,8 +89,7 @@ TADA_GetSynonymRef <- function(.data) {
   }
 
   # check to see if any suspect data flags exist
-  check_inv <- .data[
-    ,
+  check_inv <- .data[,
     names(.data) %in%
       c(
         "TADA.MethodSpeciation.Flag",
