@@ -311,9 +311,7 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
     TADA_FindNearbySites(by_AU = TRUE)
 
-  n_au <- test_au |>
-    dplyr::select(TADA.NearbySiteGroup) |>
-    dplyr::n_distinct()
+  n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
 
   testthat::expect_equal(n_au, 38)
 })
