@@ -496,9 +496,9 @@ TADA_DecimalPlaces <- function(x) {
 #' @param arg An input argument to check
 #' @param type Expected class of input argument
 #' @param paramName Optional name for argument to use in error message
-#' 
+#'
 #' @export
-#' 
+#'
 TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
   if (!inherits(arg, type)) {
     errorMessage <- sprintf("%s must be of class '%s'", paramName, type)
@@ -519,9 +519,9 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
 #' @param .data A dataframe
 #' @param expected_cols A vector of expected column names as strings
 #' @return Invisible `NULL` if all expected columns are present; otherwise, an error is thrown.
-#' 
+#'
 #' @export
-#' 
+#'
 TADA_CheckColumns <- function(.data, expected_cols) {
   TADA_CheckType(.data, "data.frame", "Input object") # check .data is data.frame
 
