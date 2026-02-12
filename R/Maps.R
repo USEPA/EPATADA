@@ -810,7 +810,6 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
       polygons_layer = au_mapper$polygons_mapper,
       lines_layer = au_mapper$lines_mapper,
       catchment_layer = ATTAINS_catchments,
-      outline_layer = with_NHD_catchments,
       missing_raw_layer = missing_raw_mapper,
       overlay_groups = overlay_groups,
       icons = images
