@@ -34,6 +34,12 @@ expect_cat_n_small <- 2
 # RI_CT_secchi
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
+# test_au_ref_MTDEQ.rda is staic, but was generated using:
+# MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+#test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
+#                                                     crosswalk = MT_AU_MLRef)
+load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
+
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
   test_sf <- TADA_MakeSpatial(.data = TADA_dataframe)
@@ -227,6 +233,43 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
   testthat::expect_true(nrow(result) == 0)
   testthat::expect_true("ResultIdentifier" %in% names(result))
   testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
+})
+
+
+testthat::test_that("Get ATTAINS by Assessment Unit ID", {
+  #au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
+
+  # When run with defaults (no ExpertQuery fields)
+  testthat::expect_no_error(
+    actual_default <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ
+    )
+  )
+  # Check .data was updated by adding 83 cols (161+83=244)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
+  # Check results based on number of rows
+  expected_rows <- c(0, 5, 1)
+  expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])
+  expect_equal(nrow(actual_default$ATTAINS_lines), expected_rows[2])
+  expect_equal(nrow(actual_default$ATTAINS_polygons), expected_rows[3])
+  # When default fill_ATTAINS_catch = FALSE, catchments are NULL
+  expect_null(actual_default$ATTAINS_catchments)
+
+  # Run with catchments
+  testthat::expect_no_error(
+    actual_catchments <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ,
+      fill_ATTAINS_catch = TRUE
+    )
+  )
+  # Check results based on number of rows (only catchments change from default)
+  expected_rows <- c(11, expected_rows)
+  expect_equal(nrow(actual_catchments$ATTAINS_catchments), expected_rows[1])
+  expect_equal(nrow(actual_catchments$ATTAINS_points), expected_rows[2])
+  expect_equal(nrow(actual_catchments$ATTAINS_lines), expected_rows[3])
+  expect_equal(nrow(actual_catchments$ATTAINS_polygons), expected_rows[4])
 })
 
 
