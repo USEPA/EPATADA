@@ -678,7 +678,10 @@ TADA_DefineCriteriaMethodology <- function(
 
           # upper case all character columns for consistency
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
-            dplyr::mutate(dplyr::across(where(is.character), toupper))
+            dplyr::mutate(
+              UNIT_NAME = str_replace_all(UNIT_NAME, "\u00B5", "u"),
+              dplyr::across(where(is.character), toupper)
+              )
           # upper case all character columns for consistency
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
@@ -794,10 +797,12 @@ TADA_DefineCriteriaMethodology <- function(
       }
 
       # Now, make sure that the CST Magnitude unit matches TADA data frame unit
-      TADAPriorityCharConvertRef <- read_csv(
-        "inst/extdata/TADAPriorityCharConvertRef.csv"
+      TADAPriorityCharConvertRef <- utils::read.csv(
+        system.file("extdata", "TADAPriorityCharConvertRef.csv", package = "EPATADA"),
+        fileEncoding = "UTF-8-BOM"
       ) |>
-        dplyr::mutate(across(where(is.character), str_to_upper))
+        dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper)) |>
+        dplyr::filter(!is.na(Code))
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::left_join(
@@ -805,10 +810,18 @@ TADA_DefineCriteriaMethodology <- function(
           by = c("MagnitudeUnit" = "Code"),
           keep = TRUE
         ) |>
+        TADA_CorrectColType() |>
         dplyr::mutate(
+          Conversion.Factor = dplyr::if_else(is.na(Conversion.Factor), 1, Conversion.Factor),
           MagnitudeUnit = Target.Unit,
-          MagnitudeValueLower = Conversion.Factor * MagnitudeValueLower,
-          MagnitudeValueUpper = Conversion.Factor * MagnitudeValueUpper
+          MagnitudeValueLower = round(Conversion.Factor * MagnitudeValueLower, digits = 1),
+          MagnitudeValueUpper = round(Conversion.Factor * MagnitudeValueUpper, digits = 1),
+          EquationBased = dplyr::if_else(
+            dplyr::if_any(c(CST.STD_POLLUTANT_NAME, CST.USE), ~!is.na(.x)) & 
+            dplyr::if_all(c(MagnitudeValueLower, MagnitudeValueUpper), is.na), 
+            "Yes",
+            "No"
+            ) # handles case when CST magnitudes are 'see equations' or other non-numeric cases.
         ) |>
         dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
 
