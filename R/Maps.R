@@ -900,7 +900,7 @@ TADA_ViewATTAINS <- function(.data, ref_icons = TRUE) {
 
     # remove intermediate objects
     rm(sumdat, overlay_groups)
-    # Return leaflet map of TADA WQ and its associated ATTAINS data
+    # return leaflet map of TADA WQ and its associated ATTAINS data
     return(map)
   }))
 }
