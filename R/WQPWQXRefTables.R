@@ -428,6 +428,16 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 
 #' Get WQX Characteristic Domain Table
 #' @return data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -468,6 +478,16 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' WQX QAQC Characteristic Validation Reference Table
 #' @return data.frame with TADA.WQXVal.Flag added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -501,6 +521,16 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Measure Unit Reference Table
 #' @return data.frame of measure units
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -534,6 +564,16 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Result Detection Condition Reference Table
 #' @return data.frame with TADA.Detection_Type added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -567,6 +607,16 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Detection/Quantitation Limit Type Reference Table
 #' @return data.frame with TADA.Limit_Type added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -600,6 +650,16 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Activity Type Reference Table
 #' @return data.frame with TADA.ActivityType.Flag added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -633,6 +693,16 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Monitoring Location Type Name Reference Table
 #' @return data.frame with TADA.Media.Flag added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -666,6 +736,16 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQP Organization and Provider Reference Table
 #' @return data.frame with OrganizationIdentifier, OrganizationFormalName, ProviderName
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
@@ -713,6 +793,16 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
 
 #' Get WQX Result Measure Qualifier Code Reference Table
 #' @return data.frame with TADA.MeasureQualifierCode.Flag added
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
+#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 TADA_GetMeasureQualifierCodeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
