@@ -396,14 +396,12 @@ the user-supplied crosswalk, the function will check the ATTAINS crosswalk
 
 ```{r TADA_CreateAUMLCrosswalk}
 # make AU assignments for unassigned MLs
-MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
-  tada.MT.clean,
-  au_ref = user.supplied.cw,
-  org_id = "MTDEQ",
-  fill_ATTAINS_catch = TRUE,
-  return_nearest = TRUE,
-  batch_upload = FALSE,
-)
+MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean, 
+                         au_ref = user.supplied.cw, 
+                         org_id = "MTDEQ", 
+                         fill_ATTAINS_catch = TRUE, 
+                         return_nearest = TRUE, 
+                         batch_upload = FALSE)
 ```
 
 The output of TADA_CreateAUMLCrosswalk is a list of data frames:
@@ -550,7 +548,7 @@ Note that duration, frequency and other criteria components will still need
 to be filled out with auto_assign. However, if users are only interested in
 individual result measurement excursions, they can proceed to use this table as is.
 
-```{r demo_table}
+```{r demo_table, eval = F}
 criteria_table_auto <- TADA_DefineCriteriaMethodology(
   tada.MT.clean,
   org_id = "MTDEQ",
