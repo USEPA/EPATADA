@@ -36,7 +36,7 @@ load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
 # test_au_ref_MTDEQ.rda is staic, but was generated using:
 # MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
-#test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
+# test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
 #                                                     crosswalk = MT_AU_MLRef)
 load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
 

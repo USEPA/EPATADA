@@ -43,6 +43,7 @@ CNENVSER
 COLI
 COMBITR
 COMIDs
+CRS
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -81,6 +82,7 @@ DataFrame
 DataQuality
 DataRetrieval
 DataTypes
+DeepWiki
 DefineCriteriaMethodology
 DepthCategory
 DepthProfileAggregation
@@ -152,6 +154,7 @@ InvalidCoordinates
 InvalidFraction
 InvalidResultUnit
 InvalidSpeciation
+JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -266,6 +269,7 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
+Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -359,6 +363,7 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
+WGS
 WQC
 WQP
 WQS
@@ -434,6 +439,7 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
+datetimes
 decimaldigits
 depthcat
 devtools
@@ -528,6 +534,8 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
+repo
+reproducibility
 resultCount
 sampleMedia
 sd
