@@ -5,15 +5,47 @@ on:
     branches: [develop]
   pull_request:
     branches: [develop]
-  # release:
-  #   types: [published]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or commit SHA to build"
+        required: true
+        default: develop
+        type: string
 
 name: pkgdown
 
 jobs:
+  # Detect whether the PR includes "significant" changes.
+  # Skipped for non-PR events.
+  changes:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    outputs:
+      significant: ${{ steps.filter.outputs.significant }}
+    steps:
+      - name: Detect significant changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          filters: |
+            significant:
+              - 'vignettes/**'
+              - 'README.md'
+              - '_pkgdown.yml'
+              - 'pkgdown/**'
+
   pkgdown:
     runs-on: ubuntu-latest
+    needs: [changes]
+    # Run if:
+    # - Not a PR (push/workflow_dispatch), OR
+    # - PR has significant path changes, OR
+    # - PR has a "significant" label (manual override)
+    if: github.event_name != 'pull_request' || needs.changes.outputs.significant == 'true' || contains(github.event.pull_request.labels.*.name, 'significant')
     # Only restrict concurrency for non-PR jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
@@ -22,7 +54,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      # Checkout for manual runs (uses the ref provided in the Actions UI)
+      - uses: actions/checkout@v4
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        with:
+          ref: ${{ inputs.ref }}
+
+      # Checkout for push/pull_request runs (default behavior)
+      - uses: actions/checkout@v4
+        if: ${{ github.event_name != 'workflow_dispatch' }}
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -46,3 +86,4 @@ jobs:
           clean: false
           branch: gh-pages
           folder: docs
+          

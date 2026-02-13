@@ -28,9 +28,9 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -52,8 +52,30 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      - uses: r-lib/actions/check-r-package@v2
+      # Optional: avoid the NOTE on PRs by excluding vignettes from the built tarball
+      - name: Ignore vignettes on PRs
+        if: ${{ github.event_name == 'pull_request' }}
+        shell: Rscript {0}
+        run: |
+          f <- ".Rbuildignore"
+          p <- "^vignettes$"
+          x <- if (file.exists(f)) readLines(f) else character()
+          if (!any(grepl(p, x))) write(paste(c(x, p), collapse = "\n"), f)
+
+      # PRs: fast check — skip vignettes (and manual)
+      - name: R CMD check (PRs — skip vignettes)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
           build-args: 'c("--no-build-vignettes")'
           args: 'c("--no-vignettes", "--no-manual")'
+
+      # Pushes to develop and manual runs: full check — build vignettes
+      - name: R CMD check (push/develop — build vignettes)
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: r-lib/actions/check-r-package@v2
+        with:
+          upload-snapshots: true
+          # Optional: keep the manual off to avoid LaTeX on CI; remove this line to build the PDF manual too
+          args: 'c("--no-manual")'
