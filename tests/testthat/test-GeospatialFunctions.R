@@ -395,10 +395,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
     testdat,
-    org_hierarchy = c(
-      "CHIPCREE_WQX",
-      "USGS-MT"
-    )
+    org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
   )
 
   test_org_filt <- test_org |>
