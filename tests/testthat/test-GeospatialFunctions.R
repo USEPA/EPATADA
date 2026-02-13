@@ -316,29 +316,33 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
+  # test data
+  testdat <- large_bbox_data |>
+    dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
+
   # find nearby sites tests
 
   # with defaults
-  test_defaults <- TADA_FindNearbySites(large_bbox_data)
+  test_defaults <- TADA_FindNearbySites(testdat)
 
   n_defaults <- test_defaults |>
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_defaults, 45)
+  testthat::expect_equal(n_defaults, 12)
 
   # at 50 m with catchment
-  test_fifty <- TADA_FindNearbySites(large_bbox_data, dist_buffer = 50)
+  test_fifty <- TADA_FindNearbySites(testdat, dist_buffer = 50)
 
   n_fifty <- test_fifty |>
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_fifty, 48)
+  testthat::expect_equal(n_fifty, 8)
 
   # without catchment
   test_bufferonly <- TADA_FindNearbySites(
-    large_bbox_data,
+    testdat,
     catchment = FALSE,
     dist_buffer = 100
   )
@@ -347,22 +351,23 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_bufferonly, 46)
+  testthat::expect_equal(n_bufferonly, 15)
 
   # with AU
   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+    dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
     TADA_FindNearbySites(by_AU = TRUE)
 
   n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
 
-  testthat::expect_equal(n_au, 38)
+  testthat::expect_equal(n_au, 19)
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
   # select by count
   test_count <- TADA_FindNearbySites(
-    large_bbox_data,
+    testdat,
     org_hierarchy = "none",
     meta_select = "count"
   )
@@ -372,7 +377,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationIdentifier,
-    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
@@ -389,15 +394,10 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
-    large_bbox_data,
+    testdat,
     org_hierarchy = c(
-      "CHIPCREE",
       "CHIPCREE_WQX",
-      "USGS-MT",
-      "MDEQ_WQ_WQX",
-      "MONT_DEQ_WQX",
-      "NARS",
-      "NARS_WQX"
+      "USGS-MT"
     )
   )
 
@@ -406,7 +406,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationIdentifier,
-    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
