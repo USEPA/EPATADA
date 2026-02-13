@@ -34,7 +34,44 @@ fetch_bbox <- function(baseurls, df) {
 }
 
 
+#' fetch_au
+#'
+#' This function gets ATTAINS data for a set of Assessment Unit IDs.
+#'
+#' @param baseurls A url or set of urls for ESRI REST service layers.
+#' @param assessment_unit_ids An ATTAINS assessment unit ID or IDs
+#'
+#' @keywords internal
+#'
+#' @examples
+#' baseurls <- c(
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+#' )
+#' 
+#' features <- fetch_au(baseurls, assessment_unit_ids)
 
+fetch_au <- function(baseurls, assessment_unit_ids) {
+  query_and_fetch <- function(url) {
+    lyr <- arcgislayers::arc_open(url)
+    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+    data <- arcgislayers::arc_select(lyr, 
+                                     where = paste0(
+                                       "assessmentunitidentifier IN ('",
+                                       paste(assessment_unit_ids, collapse = "','"),
+                                       "') AND ",
+                                       org_filter
+                                     ))
+    return(data)
+  }
+  
+  all_features <- suppressMessages(suppressWarnings({
+    tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
+  }))
+  dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
+}
 
 
 #' TADA_MakeSpatial
@@ -272,20 +309,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
-  
-  fetch_bbox <- function(baseurls, df) {
-    query_and_fetch <- function(url) {
-      lyr <- arcgislayers::arc_open(url)
-      # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-      data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(example))
-      return(data)
-    }
-
-      all_features <- suppressMessages(suppressWarnings({
-        tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
-      }))
-    dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
-  }
 
   if (org_id == "all") {
     org_filter <- "1=1"
@@ -296,7 +319,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       "')"
     )
   }
-
+  
   fetch_au <- function(baseurls, assessment_unit_ids) {
     id_chunks <- split(
       assessment_unit_ids,
