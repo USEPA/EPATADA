@@ -260,29 +260,29 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
     add = TRUE
   )
-
+  
   message(
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
-
+  
   our_epsg <- 4326
-
+  
   if (!is.null(.data) && inherits(.data, "sf")) {
     .data <- .data |>
       sf::st_transform(crs = our_epsg) |>
       dplyr::distinct(geometry, .keep_all = TRUE)
   }
-
+  
   if (
     !"TADA.LongitudeMeasure" %in% colnames(.data) ||
-      !"TADA.LatitudeMeasure" %in% colnames(.data) ||
-      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
+    !"TADA.LatitudeMeasure" %in% colnames(.data) ||
+    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
   ) {
     stop(
       "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
-
+  
   if (!is.null(.data) && !inherits(.data, "sf")) {
     # Convert the data to a data.table and ensure distinct latitude and longitude
     distinct_data <- .data |>
@@ -292,24 +292,24 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         TADA.LatitudeMeasure,
         .keep_all = TRUE
       )
-
+    
     # Transform the distinct data into an `sf` object
     .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
   }
-
+  
   if (is.null(.data) || nrow(.data) == 0) {
     stop(
       "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
     )
   }
-
+  
   baseurls <- c(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
-
+  
   if (org_id == "all") {
     org_filter <- "1=1"
   } else {
@@ -320,40 +320,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     )
   }
   
-  fetch_au <- function(baseurls, assessment_unit_ids) {
-    id_chunks <- split(
-      assessment_unit_ids,
-      ceiling(seq_along(assessment_unit_ids) / 100)
-    )
-
-    fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0(
-        "assessmentunitidentifier IN ('",
-        paste(id_chunk, collapse = "','"),
-        "') AND ",
-        org_filter
-      )
-
-      query_params <- list(where = where_clause, outFields = "*", f = "geojson")
-
-      response <- httr::GET(baseurls, query = query_params)
-
-      if (httr::status_code(response) != 200) {
-        stop("Failed to retrieve data from EPA ATTAINS API.")
-      }
-
-      geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
-      sf::st_read(geojson_data, quiet = TRUE)
-    }
-
-    purrr::map_dfr(id_chunks, fetch_chunk)
-  }
-
   grab_waterbody_type <- function(au_list, chunk_size = 50) {
     num_chunks <- ceiling(length(au_list) / chunk_size)
     chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
     water_types <- vector("list", length = length(chunks))
-
+    
     for (i in seq_along(chunks)) {
       dat <- httr::GET(utils::URLencode(paste0(
         "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
@@ -361,7 +332,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       ))) |>
         httr::content(as = "text", encoding = "UTF-8") |>
         jsonlite::fromJSON()
-
+      
       water_types[[i]] <- dat[["items"]] |>
         tidyr::unnest("assessmentUnits") |>
         tidyr::unnest("waterTypes") |>
@@ -369,12 +340,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
     dplyr::bind_rows(water_types)
   }
-
+  
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-      points_sf,
-      min_area = 6e+9,
-      max_iterations = 100
+    points_sf,
+    min_area = 6e+9,
+    max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
@@ -385,47 +356,47 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           tidyr::as_tibble() |>
           dplyr::mutate(cluster = clust)
       }
-
+      
       cluster_iteration <- function(points, eps, min_pts, iteration) {
         coords <- sf::st_coordinates(points)
         fr <- dbscan::frNN(coords, eps = eps)
         clusters <- dbscan::dbscan(fr, minPts = min_pts)$cluster
-
+        
         cluster_ids <- ifelse(
           clusters == -1,
           paste0("noise_", iteration),
           paste0("cluster_", iteration, "_", clusters)
         )
-
+        
         points |> dplyr::mutate(cluster = cluster_ids, iteration = iteration)
       }
-
+      
       has_large_clusters <- function(points) {
         if (nrow(points) == 0) {
           return(FALSE)
         }
-
+        
         areas <- unique(points$cluster) |>
           purrr::map_dfr(~ bbox_area(df = points, clust = .))
         any(as.numeric(areas$value) > min_area)
       }
-
+      
       split_clusters_by_area <- function(points, min_area) {
         cluster_areas <- unique(points$cluster) |>
           purrr::map_dfr(~ bbox_area(df = points, clust = .))
-
+        
         large_clusters <- cluster_areas |>
           dplyr::filter(as.numeric(value) > min_area)
-
+        
         small_clusters <- cluster_areas |>
           dplyr::filter(as.numeric(value) <= min_area)
-
+        
         large_points <- points |>
           dplyr::filter(cluster %in% large_clusters$cluster)
-
+        
         small_points <- points |>
           dplyr::filter(cluster %in% small_clusters$cluster)
-
+        
         list(
           large = large_points,
           small = small_points,
@@ -433,51 +404,51 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           small_areas = small_clusters
         )
       }
-
+      
       all_small_clusters <- list()
       current_points <- points_sf |> dplyr::distinct(geometry)
       iteration <- 1
-
+      
       eps_sequence <- c(0.25, 0.05, 1, .1)
       eps_index <- 1
-
+      
       while (nrow(current_points) > 0 && iteration <= max_iterations) {
         current_eps <- eps_sequence[eps_index]
         eps_index <- (eps_index %% length(eps_sequence)) + 1
-
+        
         clustered_points <- cluster_iteration(
           current_points,
           eps = current_eps,
           min_pts = 1,
           iteration = iteration
         )
-
+        
         split_results <- split_clusters_by_area(clustered_points, min_area)
-
+        
         if (nrow(split_results$small) > 0) {
           all_small_clusters[[paste0(
             "iteration_",
             iteration
           )]] <- split_results$small
         }
-
+        
         if (nrow(split_results$large) == 0) {
           break
         }
-
+        
         current_points <- split_results$large
         iteration <- iteration + 1
       }
-
+      
       final_clusters <- dplyr::bind_rows(all_small_clusters) |>
         dplyr::arrange(iteration)
-
+      
       if (iteration == max_iterations) {
         warning(
           "Maximum iterations reached. Some clusters may still exceed the area threshold."
         )
       }
-
+      
       list(
         clusters = final_clusters,
         clusters_by_iteration = all_small_clusters,
@@ -485,23 +456,23 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         final_eps = current_eps
       )
     }
-
+    
     points_sf <- dplyr::distinct(.data, geometry)
-
+    
     init <- perform_iterative_clustering(points_sf = points_sf)
     init_clusters <- init[["clusters_by_iteration"]] |> dplyr::bind_rows()
-
+    
     final_cluster_list <- points_sf |>
       dplyr::filter(!geometry %in% init$geometry) |>
       tibble::rowid_to_column(var = "cluster") |>
       dplyr::mutate(cluster = as.character(cluster)) |>
       dplyr::bind_rows(init)
-
+    
     catchment_features <- vector(
       "list",
       length = length(unique(final_cluster_list$cluster))
     )
-
+    
     for (i in seq_along(unique(final_cluster_list$cluster))) {
       suppressMessages(suppressWarnings({
         bbox <- final_cluster_list |>
@@ -510,25 +481,25 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           toString() |>
           urltools::url_encode()
       }))
-
+      
       catchment_features[[i]] <- fetch_bbox(
         baseurls = baseurls[1],
         sf_bbox = bbox
       )
     }
-
+    
     catchment_features <- catchment_features |>
       purrr::keep(~ !is.null(.)) |>
       purrr::keep(~ nrow(.) > 0) |>
       dplyr::bind_rows()
-
+    
     try(
       {
         catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
       },
       silent = TRUE
     )
-
+    
     if (length(catchment_features) == 0 || is.null(catchment_features)) {
       message(
         "There are no ATTAINS features associated with your WQP observations."
@@ -544,11 +515,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         )
       )
     }
-
+    
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
-
+    
     points <- fetch_au(
       baseurls = baseurls[2],
       assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
@@ -561,7 +532,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       baseurls = baseurls[4],
       assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
     )
-
+    
     try(
       points <- points |>
         dplyr::left_join(
@@ -570,7 +541,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         ),
       silent = TRUE
     )
-
+    
     try(
       lines <- lines |>
         dplyr::left_join(
@@ -579,7 +550,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         ),
       silent = TRUE
     )
-
+    
     try(
       polygons <- polygons |>
         dplyr::left_join(
@@ -588,29 +559,29 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         ),
       silent = TRUE
     )
-
+    
     final_features <- list(
       "ATTAINS_catchments" = dplyr::distinct(catchment_features),
       "ATTAINS_points" = dplyr::distinct(points),
       "ATTAINS_lines" = dplyr::distinct(lines),
       "ATTAINS_polygons" = dplyr::distinct(polygons)
     )
-
+    
     return(final_features)
   } else {
     points_sf <- .data
-
+    
     bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
-
+    
     catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
-
+    
     try(
       {
         catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
       },
       silent = TRUE
     )
-
+    
     if (length(catchment_features) == 0 || is.null(catchment_features)) {
       message(
         "There are no ATTAINS features associated with your WQP observations."
@@ -627,17 +598,17 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         silent = TRUE
       )
     }
-
+    
     if (catchments_only == TRUE) {
       return(list("ATTAINS_catchments" = catchment_features))
     }
-
+    
     suppressMessages({
       suppressWarnings({
         points <- NULL
         lines <- NULL
         polygons <- NULL
-
+        
         try(
           points <- fetch_au(
             baseurls = baseurls[2],
@@ -647,7 +618,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
           silent = TRUE
         )
-
+        
         try(
           lines <- fetch_au(
             baseurls = baseurls[3],
@@ -657,7 +628,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
           silent = TRUE
         )
-
+        
         try(
           polygons <- fetch_au(
             baseurls = baseurls[4],
@@ -667,7 +638,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
           silent = TRUE
         )
-
+        
         try(
           points <- points |>
             dplyr::left_join(
@@ -676,7 +647,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             ),
           silent = TRUE
         )
-
+        
         try(
           lines <- lines |>
             dplyr::left_join(
@@ -685,7 +656,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             ),
           silent = TRUE
         )
-
+        
         try(
           polygons <- polygons |>
             dplyr::left_join(
@@ -694,7 +665,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
             ),
           silent = TRUE
         )
-
+        
         final_features <- list(
           "ATTAINS_catchments" = catchment_features,
           "ATTAINS_points" = points,
@@ -703,7 +674,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         )
       })
     })
-
+    
     return(final_features)
   }
 }
@@ -2093,43 +2064,6 @@ TADA_GetATTAINSByAUID <- function(
     get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
     silent = TRUE
   )
-
-  # function to download ATTAINS features API based on their assessment unit id
-
-  fetch_au <- function(baseurls, assessment_unit_ids, chunk_n = 1000) {
-    # Split the assessment_unit_ids into chunks of 1000
-    # API cannot handle more than 1000 features
-    id_chunks <- split(
-      assessment_unit_ids,
-      ceiling(seq_along(assessment_unit_ids) / chunk_n)
-    )
-
-    # Query API for a chunk of assessment unit IDs
-    fetch_chunk <- function(id_chunk) {
-      where_clause <- paste0(
-        "assessmentunitidentifier IN ('",
-        paste(id_chunk, collapse = "','"),
-        "')"
-      )
-      query_params <- list(where = where_clause, outFields = "*", f = "geojson")
-
-      response <- httr::GET(baseurls, query = query_params)
-
-      if (httr::status_code(response) != 200) {
-        stop("Failed to retrieve data from EPA ATTAINS API.")
-      }
-
-      geojson_data <- httr::content(response, as = "text", encoding = "UTF-8")
-      sf_object <- sf::st_read(geojson_data, quiet = TRUE)
-
-      return(sf_object)
-    }
-
-    # fetch all chunks and combine results
-    au_results <- purrr::map_dfr(id_chunks, fetch_chunk)
-
-    return(au_results)
-  }
 
   # start grabbing the raw ATTAINS features
   points <- NULL
