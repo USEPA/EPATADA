@@ -109,8 +109,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   # Check if necessary columns are present in the dataframe
   if (
     !"TADA.LongitudeMeasure" %in% names(.data) ||
-      !"TADA.LatitudeMeasure" %in% names(.data) ||
-      !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)
+    !"TADA.LatitudeMeasure" %in% names(.data) ||
+    !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)
   ) {
     stop(
       "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
@@ -119,9 +119,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     # Check if the data is already an `sf` object
     stop("Your data is already a spatial object.")
   }
-
+  
   message("Transforming your data into a spatial object.")
-
+  
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
@@ -145,14 +145,14 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       "WGS72"                                       ,  6322 ,
       "HARN"                                        ,  4152
     )
-
+    
     # Handle missing or unknown CRS values
     if (
       any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-        any(
-          .data$HorizontalCoordinateReferenceSystemDatumName %in%
-            c("UNKWN", "Unknown", "OTHER")
-        )
+      any(
+        .data$HorizontalCoordinateReferenceSystemDatumName %in%
+        c("UNKWN", "Unknown", "OTHER")
+      )
     ) {
       message(paste0(
         "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ",
@@ -163,7 +163,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         .data$HorizontalCoordinateReferenceSystemDatumName
       )] <- "Unknown"
     }
-
+    
     # Prepare the data for spatial transformation
     sf <- .data |>
       dplyr::select(-dplyr::any_of("epsg")) |>
@@ -175,10 +175,10 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         lat = as.numeric(TADA.LatitudeMeasure),
         lon = as.numeric(TADA.LongitudeMeasure)
       )
-
+    
     print("Data after CRS assignment:")
     print(sf)
-
+    
     # Transform each subset of data into an `sf` object
     sf <- purrr::map_df(
       split(sf, sf$HorizontalCoordinateReferenceSystemDatumName),
@@ -204,7 +204,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       }
     )
   }))
-
+  
   return(sf) # Return the transformed `sf` object
 }
 
@@ -340,165 +340,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
     dplyr::bind_rows(water_types)
   }
-  
-  if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
-    perform_iterative_clustering <- function(
-    points_sf,
-    min_area = 6e+9,
-    max_iterations = 100
-    ) {
-      bbox_area <- function(df, clust) {
-        df |>
-          dplyr::filter(cluster == clust) |>
-          sf::st_bbox() |>
-          sf::st_as_sfc() |>
-          sf::st_area() |>
-          tidyr::as_tibble() |>
-          dplyr::mutate(cluster = clust)
-      }
-      
-      cluster_iteration <- function(points, eps, min_pts, iteration) {
-        coords <- sf::st_coordinates(points)
-        fr <- dbscan::frNN(coords, eps = eps)
-        clusters <- dbscan::dbscan(fr, minPts = min_pts)$cluster
-        
-        cluster_ids <- ifelse(
-          clusters == -1,
-          paste0("noise_", iteration),
-          paste0("cluster_", iteration, "_", clusters)
-        )
-        
-        points |> dplyr::mutate(cluster = cluster_ids, iteration = iteration)
-      }
-      
-      has_large_clusters <- function(points) {
-        if (nrow(points) == 0) {
-          return(FALSE)
-        }
-        
-        areas <- unique(points$cluster) |>
-          purrr::map_dfr(~ bbox_area(df = points, clust = .))
-        any(as.numeric(areas$value) > min_area)
-      }
-      
-      split_clusters_by_area <- function(points, min_area) {
-        cluster_areas <- unique(points$cluster) |>
-          purrr::map_dfr(~ bbox_area(df = points, clust = .))
-        
-        large_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) > min_area)
-        
-        small_clusters <- cluster_areas |>
-          dplyr::filter(as.numeric(value) <= min_area)
-        
-        large_points <- points |>
-          dplyr::filter(cluster %in% large_clusters$cluster)
-        
-        small_points <- points |>
-          dplyr::filter(cluster %in% small_clusters$cluster)
-        
-        list(
-          large = large_points,
-          small = small_points,
-          large_areas = large_clusters,
-          small_areas = small_clusters
-        )
-      }
-      
-      all_small_clusters <- list()
-      current_points <- points_sf |> dplyr::distinct(geometry)
-      iteration <- 1
-      
-      eps_sequence <- c(0.25, 0.05, 1, .1)
-      eps_index <- 1
-      
-      while (nrow(current_points) > 0 && iteration <= max_iterations) {
-        current_eps <- eps_sequence[eps_index]
-        eps_index <- (eps_index %% length(eps_sequence)) + 1
-        
-        clustered_points <- cluster_iteration(
-          current_points,
-          eps = current_eps,
-          min_pts = 1,
-          iteration = iteration
-        )
-        
-        split_results <- split_clusters_by_area(clustered_points, min_area)
-        
-        if (nrow(split_results$small) > 0) {
-          all_small_clusters[[paste0(
-            "iteration_",
-            iteration
-          )]] <- split_results$small
-        }
-        
-        if (nrow(split_results$large) == 0) {
-          break
-        }
-        
-        current_points <- split_results$large
-        iteration <- iteration + 1
-      }
-      
-      final_clusters <- dplyr::bind_rows(all_small_clusters) |>
-        dplyr::arrange(iteration)
-      
-      if (iteration == max_iterations) {
-        warning(
-          "Maximum iterations reached. Some clusters may still exceed the area threshold."
-        )
-      }
-      
-      list(
-        clusters = final_clusters,
-        clusters_by_iteration = all_small_clusters,
-        total_iterations = iteration,
-        final_eps = current_eps
-      )
-    }
-    
-    points_sf <- dplyr::distinct(.data, geometry)
-    
-    init <- perform_iterative_clustering(points_sf = points_sf)
-    init_clusters <- init[["clusters_by_iteration"]] |> dplyr::bind_rows()
-    
-    final_cluster_list <- points_sf |>
-      dplyr::filter(!geometry %in% init$geometry) |>
-      tibble::rowid_to_column(var = "cluster") |>
-      dplyr::mutate(cluster = as.character(cluster)) |>
-      dplyr::bind_rows(init)
-    
-    catchment_features <- vector(
-      "list",
-      length = length(unique(final_cluster_list$cluster))
-    )
-    
-    for (i in seq_along(unique(final_cluster_list$cluster))) {
-      suppressMessages(suppressWarnings({
-        bbox <- final_cluster_list |>
-          dplyr::filter(cluster == unique(final_cluster_list$cluster)[i]) |>
-          sf::st_bbox() |>
-          toString() |>
-          urltools::url_encode()
-      }))
-      
-      catchment_features[[i]] <- fetch_bbox(
-        baseurls = baseurls[1],
-        sf_bbox = bbox
-      )
-    }
-    
-    catchment_features <- catchment_features |>
-      purrr::keep(~ !is.null(.)) |>
-      purrr::keep(~ nrow(.) > 0) |>
-      dplyr::bind_rows()
-    
-    try(
-      {
-        catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
-      },
-      silent = TRUE
-    )
+
+    catchment_features[[i]] <- fetch_bbox(
+      baseurls = baseurls[1],
+      .data)
     
     if (length(catchment_features) == 0 || is.null(catchment_features)) {
       message(
@@ -571,9 +416,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   } else {
     points_sf <- .data
     
-    bbox <- points_sf |> sf::st_bbox() |> toString() |> urltools::url_encode()
-    
-    catchment_features <- fetch_bbox(baseurls = baseurls[1], sf_bbox = bbox)
+    catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf)
     
     try(
       {
@@ -677,7 +520,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     
     return(final_features)
   }
-}
 
 #' fetchNHD
 #'
@@ -2078,9 +1920,7 @@ TADA_GetATTAINSByAUID <- function(
       baseurls = baseurls[2],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
+      ))),
     silent = TRUE
   )
 
@@ -2089,9 +1929,7 @@ TADA_GetATTAINSByAUID <- function(
       baseurls = baseurls[3],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
+      ))),
     silent = TRUE
   )
 
@@ -2100,9 +1938,7 @@ TADA_GetATTAINSByAUID <- function(
       baseurls = baseurls[4],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      )),
-      chunk_n = 100
-    ),
+      ))),
     silent = TRUE
   )
 
