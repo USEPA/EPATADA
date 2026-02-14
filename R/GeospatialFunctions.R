@@ -310,7 +310,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
   
-  if (org_id == "all") {
+    if (org_id == "all") {
     org_filter <- "1=1"
   } else {
     org_filter <- paste0(
@@ -340,186 +340,114 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
     dplyr::bind_rows(water_types)
   }
-
-    catchment_features[[i]] <- fetch_bbox(
-      baseurls = baseurls[1],
-      .data)
-    
-    if (length(catchment_features) == 0 || is.null(catchment_features)) {
-      message(
-        "There are no ATTAINS features associated with your WQP observations."
-      )
-    } else {
-      all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
-      try(
-        catchment_features <- dplyr::left_join(
-          catchment_features,
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        )
-      )
-    }
-    
-    if (catchments_only == TRUE) {
-      return(list("ATTAINS_catchments" = catchment_features))
-    }
-    
-    points <- fetch_au(
-      baseurls = baseurls[2],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
+  
+  points_sf <- .data
+  
+  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf)
+  
+  try(
+    {
+      catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
+    },
+    silent = TRUE
+  )
+  
+  if (length(catchment_features) == 0 || is.null(catchment_features)) {
+    message(
+      "There are no ATTAINS features associated with your WQP observations."
     )
-    lines <- fetch_au(
-      baseurls = baseurls[3],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
-    )
-    polygons <- fetch_au(
-      baseurls = baseurls[4],
-      assessment_unit_ids = unique(catchment_features$assessmentunitidentifier)
-    )
-    
-    try(
-      points <- points |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-    
-    try(
-      lines <- lines |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-    
-    try(
-      polygons <- polygons |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-        ),
-      silent = TRUE
-    )
-    
-    final_features <- list(
-      "ATTAINS_catchments" = dplyr::distinct(catchment_features),
-      "ATTAINS_points" = dplyr::distinct(points),
-      "ATTAINS_lines" = dplyr::distinct(lines),
-      "ATTAINS_polygons" = dplyr::distinct(polygons)
-    )
-    
-    return(final_features)
   } else {
-    points_sf <- .data
-    
-    catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf)
-    
+    all_units <- unique(catchment_features$assessmentunitidentifier)
+    water_types <- grab_waterbody_type(all_units, chunk_size = 50)
     try(
-      {
-        catchment_features <- catchment_features |> (\(x) x[points_sf, ])()
-      },
+      catchment_features <- dplyr::left_join(
+        catchment_features,
+        water_types,
+        by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+      ),
       silent = TRUE
     )
-    
-    if (length(catchment_features) == 0 || is.null(catchment_features)) {
-      message(
-        "There are no ATTAINS features associated with your WQP observations."
-      )
-    } else {
-      all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+  }
+  
+  if (catchments_only == TRUE) {
+    return(list("ATTAINS_catchments" = catchment_features))
+  }
+  
+  suppressMessages({
+    suppressWarnings({
+      points <- NULL
+      lines <- NULL
+      polygons <- NULL
+      
       try(
-        catchment_features <- dplyr::left_join(
-          catchment_features,
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        points <- fetch_au(
+          baseurls = baseurls[2],
+          assessment_unit_ids = unique(
+            catchment_features$assessmentunitidentifier
+          )
         ),
         silent = TRUE
       )
-    }
-    
-    if (catchments_only == TRUE) {
-      return(list("ATTAINS_catchments" = catchment_features))
-    }
-    
-    suppressMessages({
-      suppressWarnings({
-        points <- NULL
-        lines <- NULL
-        polygons <- NULL
-        
-        try(
-          points <- fetch_au(
-            baseurls = baseurls[2],
-            assessment_unit_ids = unique(
-              catchment_features$assessmentunitidentifier
-            )
+      
+      try(
+        lines <- fetch_au(
+          baseurls = baseurls[3],
+          assessment_unit_ids = unique(
+            catchment_features$assessmentunitidentifier
+          )
+        ),
+        silent = TRUE
+      )
+      
+      try(
+        polygons <- fetch_au(
+          baseurls = baseurls[4],
+          assessment_unit_ids = unique(
+            catchment_features$assessmentunitidentifier
+          )
+        ),
+        silent = TRUE
+      )
+      
+      try(
+        points <- points |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
           ),
-          silent = TRUE
-        )
-        
-        try(
-          lines <- fetch_au(
-            baseurls = baseurls[3],
-            assessment_unit_ids = unique(
-              catchment_features$assessmentunitidentifier
-            )
+        silent = TRUE
+      )
+      
+      try(
+        lines <- lines |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
           ),
-          silent = TRUE
-        )
-        
-        try(
-          polygons <- fetch_au(
-            baseurls = baseurls[4],
-            assessment_unit_ids = unique(
-              catchment_features$assessmentunitidentifier
-            )
+        silent = TRUE
+      )
+      
+      try(
+        polygons <- polygons |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
           ),
-          silent = TRUE
-        )
-        
-        try(
-          points <- points |>
-            dplyr::left_join(
-              water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-            ),
-          silent = TRUE
-        )
-        
-        try(
-          lines <- lines |>
-            dplyr::left_join(
-              water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-            ),
-          silent = TRUE
-        )
-        
-        try(
-          polygons <- polygons |>
-            dplyr::left_join(
-              water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
-            ),
-          silent = TRUE
-        )
-        
-        final_features <- list(
-          "ATTAINS_catchments" = catchment_features,
-          "ATTAINS_points" = points,
-          "ATTAINS_lines" = lines,
-          "ATTAINS_polygons" = polygons
-        )
-      })
+        silent = TRUE
+      )
+      
+      final_features <- list(
+        "ATTAINS_catchments" = catchment_features,
+        "ATTAINS_points" = points,
+        "ATTAINS_lines" = lines,
+        "ATTAINS_polygons" = polygons
+      )
     })
-    
-    return(final_features)
-  }
+  })
+  
+  return(final_features)
+
+}
 
 #' fetchNHD
 #'
