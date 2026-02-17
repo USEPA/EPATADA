@@ -20,3 +20,16 @@ TADA.MonitoringLocationIdentifier, as well as the original and TADA-prefixed Lon
 LatitudeMeasure, MonitoringLocationName, and MonitoringLocationTypeName, filtered for only those
 stations that have a nearby station.
 }
+\examples{
+\dontrun{
+# use MT example data set
+testdat <- Data_MT_MissoulaCounty
+
+# find unique nearby sites
+testdat.unique <-testdat |>
+TADA_FindNearbySites() |>
+TADA_GetUniqueNearbySites()
+)
+}
+
+}

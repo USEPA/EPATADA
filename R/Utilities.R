@@ -447,7 +447,16 @@ utils::globalVariables(c(
   "percent_match_CST",
   "UserRef.AssessmentUnitIdentifier",
   "Group.n",
-  "Ref.TADA.Media.Flag"
+  "Ref.TADA.Media.Flag",
+  "context2",
+  "CST.STD_POLLUTANT_NAME",
+  "ENTITY_NAME",
+  "TADA.NearbySiteGroup.New",
+  "code",
+  "context",
+  "CriteriaSearchToolRef",
+  "ATTAINS.ParameterName.x",
+  "Ref.AssessmentUnitIdentifier"
 ))
 
 #' Calculate Decimal Places
@@ -1113,14 +1122,19 @@ TADA_RandomTestingData <- function(
   max_attempts = 3
 ) {
   # Retrieve random data
-  get_random_data <- function(ndays, state_choice, ac) {
+  get_random_data <- function(
+    ndays = number_of_days,
+    state_choice = choose_random_state,
+    ac = autoclean,
+    ask = FALSE
+  ) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
 
     # Determine if a random state should be selected
-    if (state_choice) {
+    if (state_choice == TRUE) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     } else {
@@ -1659,8 +1673,6 @@ TADA_RenametoLegacy <- function(.data) {
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
 
-  rm(WqxV2.FieldName)
-
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
   }
@@ -1987,8 +1999,18 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 #' @export
 #' @importFrom utils read.csv
 TADA_CorrectColType <- function(.data) {
-  stopifnot(is.data.frame(.data))
-
+  if (is.null(.data)) {
+    return(NULL)
+  }
+  if (inherits(.data, "sf")) {
+    return(.data)
+  } # simplest safe behavior
+  if (!is.data.frame(.data)) {
+    warning(
+      "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
+    )
+    return(.data)
+  }
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   if (!nzchar(ref_path) || !file.exists(ref_path)) {
     stop("TADAColTypeRef.csv not found in EPATADA/extdata.")

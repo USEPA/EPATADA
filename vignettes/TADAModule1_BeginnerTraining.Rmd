@@ -586,7 +586,7 @@ function.
 
 This function returns counts for you the entire dataframe for each of
 the following fields (if populated, columns that are populated only with
-NA's are not included in the output):
+NAs are not included in the output):
 
 -   *ActivityTypeCode*
 

@@ -342,7 +342,7 @@ TADA_DefineCriteriaMethodology <- function(
       # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # if (updateRef == "none") {
       print(paste0(
-        "auto_assign = TRUE selected. Running TADA_ParametersForAnalysis with default assignment."
+        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
       ))
       suppressMessages(
         TADA_ParamRef <- TADA_ParametersForAnalysis(
@@ -355,7 +355,7 @@ TADA_DefineCriteriaMethodology <- function(
       )
 
       print(paste0(
-        "auto_assign = TRUE selected. Running TADA_UsesForAnalysis with default assignment."
+        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment."
       ))
       suppressWarnings(
         TADA_usesRef <- TADA_UsesForAnalysis(
@@ -371,7 +371,7 @@ TADA_DefineCriteriaMethodology <- function(
       )
 
       print(paste0(
-        "auto_assign = TRUE selected. Running TADA_MLSummary with default assignment."
+        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_MLSummary with default assignment."
       ))
       suppressMessages(
         MLSummaryRef <- TADA_MLSummary(
@@ -531,8 +531,8 @@ TADA_DefineCriteriaMethodology <- function(
       }
     }
 
-    # User has went through the recommended workflow. Criteria table is generated
-    # from the MLSummaryRef file. This file also contains unique spatial criteria
+    # user has went through the recommended workflow or chose autoassign = T.
+    # criteria table will be generated from the MLSummaryRef file. This file also contains unique spatial criteria
     # as an option and will include these values if they have been populated.
     if (!is.null(MLSummaryRef)) {
       # corrects for data types
@@ -619,8 +619,181 @@ TADA_DefineCriteriaMethodology <- function(
           desired_cols # defined in beginning of code
         ) |>
         dplyr::arrange(ATTAINS.UseName) |>
+        tidyr::complete(
+          TADA.ComparableDataIdentifier,
+          ATTAINS.OrganizationIdentifier = org_id
+        ) |>
         dplyr::distinct()
 
+      if (auto_assign == TRUE && !all(org_id == "USEPA")) {
+        # currently, we will only apply joining the CST magnitudes when the org_id is known.
+        if ("" %in% org_id) {
+          DefineCriteriaMethodology <- DefineCriteriaMethodology
+        }
+        if (!"" %in% org_id) {
+          # all lines below will focus on joining CST magnitude values to the auto_assign table
+          # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
+          CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
+            displayPercent = FALSE,
+            ATTAINS.WQX.tolerance = 0.75,
+            WQX.ATTAINS.tolerance = 0.75,
+            ATTAINS.CST.tolerance = 0.75, # can change as desired for tolerance on matches
+            CST.ATTAINS.tolerance = 0.75, # can change as desired for tolerance on matches
+            includeCST = TRUE
+          ) |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
+
+          # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
+          message(cat(paste(
+            "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected.",
+            "Finding an alias match between ATTAINS parameter name and Criteria Search Tool (CST) standardized pollutant names.",
+            "Finding an alias match between ATTAINS use name and Criteria Search Tool (CST) uses.",
+            "If an ATTAINS.ParameterName and ATTAINS.UseName alias was found, populating these rows with the CST magnitude values.",
+            "A many-to-many match is likely. User review is needed to ensure the proper parameter and uses from ATTAINS and CST alias crosswalk was accomplished (remove or add rows as needed).",
+            sep = "\n"
+          )))
+
+          # pulls in uses alias table between ATTAINS.UseName and CST uses
+          uses <- suppressMessages(TADA_UsesAliasForReview(
+            ATTAINS.CST.tolerance = 0.15, # lower tolerance for more matches to ensure user reviews the uses crosswalks.
+            CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long.
+          ))
+          # filters uses crosswalk by the org_id
+          uses <- uses |>
+            dplyr::mutate(ATTAINS.UseName = toupper(name)) |>
+            dplyr::filter(
+              !is.na(ATTAINS.OrganizationIdentifier),
+              ATTAINS.OrganizationIdentifier %in%
+                unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier)
+            )
+          # pulls in CriteriaSearchToolRef.rda
+          file_path <- system.file(
+            "extdata",
+            "CriteriaSearchToolRef.rda",
+            package = "EPATADA"
+          )
+          load(file_path)
+
+          # remove intermediate variable
+          rm(file_path)
+
+          # upper case all character columns for consistency
+          CriteriaSearchToolRef <- CriteriaSearchToolRef |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
+          # upper case all character columns for consistency
+          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
+
+          # join the parameter and pollutant names from ATTAINS and CST
+          DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
+            dplyr::left_join(
+              CST_ATTAINS_Param,
+              by = c("TADA.CharacteristicName" = "CharacteristicName"),
+              relationship = "many-to-many"
+            ) |>
+            dplyr::mutate(
+              ATTAINS.UseName = toupper(ATTAINS.UseName),
+              ATTAINS.ParameterName = ATTAINS.ParameterName.x
+            ) |>
+            # Now join by ATTAINS uses and CST uses
+            dplyr::left_join(
+              uses,
+              c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"),
+              relationship = "many-to-many"
+            ) |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+            # Now, pull in the magnitude value if the CST pollutant name and uses are matched
+            dplyr::left_join(
+              CriteriaSearchToolRef,
+              by = dplyr::join_by(
+                POLLUTANT_NAME,
+                STD_POLLUTANT_NAME,
+                ENTITY_ABBR,
+                ENTITY_NAME,
+                CRITERIATYPEAQUAHUMHLTH,
+                CRITERIATYPEFRESHSALTWATER,
+                CRITERIATYPE_ACUTECHRONIC,
+                USE_CLASS_NAME_LOCATION_ETC
+              ),
+              relationship = "many-to-many"
+            ) |>
+            dplyr::filter(!is.na(CRITERION_VALUE)) |>
+            # format the criterion values to the TADA magnitude format, for cases when there's a range.
+            tidyr::separate(
+              col = CRITERION_VALUE,
+              into = c("MagnitudeValueLower", "MagnitudeValueUpper"),
+              sep = "-", # Split by " - "
+              fill = "left",
+              convert = TRUE, # Automatically convert to the appropriate type (numeric)
+              extra = "drop"
+            ) |>
+            # convert CST columns to TADA criteria column name
+            dplyr::mutate(SaltFresh = CRITERIATYPEFRESHSALTWATER) |>
+            dplyr::mutate(AcuteChronic = CRITERIATYPE_ACUTECHRONIC) |>
+            dplyr::mutate(MagnitudeUnit = UNIT_NAME) |>
+            # selct relevant columns found in the TADA criteria table, append CST pollutant name and use at the end
+            dplyr::select(
+              names(suppressMessages(TADA_DefineCriteriaMethodology())),
+              CST.STD_POLLUTANT_NAME = STD_POLLUTANT_NAME,
+              CST.USE = USE_CLASS_NAME_LOCATION_ETC
+            ) |>
+            dplyr::distinct()
+
+          # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
+          if (nrow(DefineCriteriaMethodology2) == 0) {
+            message(paste(
+              "TADA_DefineCriteriaMethodology: auto_assign = TRUE.",
+              "No parameter(s) and/or use(s) were matched between ATTAINS and CST for your defined org_id(s). No magnitude values could be populated for your org(s)."
+            ))
+          }
+
+          # final join, make sure that any ATTAINS param/uses that we could not match to CST remains in the criteria table
+          DefineCriteriaMethodology2 <- DefineCriteriaMethodology2 |>
+            dplyr::right_join(
+              dplyr::select(
+                DefineCriteriaMethodology,
+                ATTAINS.OrganizationIdentifier,
+                ATTAINS.ParameterName,
+                ATTAINS.UseName,
+                TADA.ComparableDataIdentifier,
+                TADA.CharacteristicName,
+                TADA.ResultSampleFractionText,
+                TADA.MethodSpeciationName
+              ),
+              by = dplyr::join_by(
+                ATTAINS.OrganizationIdentifier,
+                ATTAINS.ParameterName,
+                ATTAINS.UseName,
+                TADA.ComparableDataIdentifier,
+                TADA.CharacteristicName,
+                TADA.ResultSampleFractionText,
+                TADA.MethodSpeciationName
+              )
+            )
+
+          # We will filter out any instances of ph variation, temperature rise above ambient and any other
+          # CST pollutant name which TADA analysis function may not be able to handle currently.
+          # NOTE FOR DEVELOPERS: We may wish to include these pollutants back eventually if we can
+          # think of a way to handle these unique cases for analysis.
+          if (
+            any(
+              DefineCriteriaMethodology2$CST.STD_POLLUTANT_NAME %in%
+                c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
+            )
+          ) {
+            print(paste(
+              "TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'.",
+              "TADA functions cannot currently handle analysis for these instances."
+            ))
+          }
+          DefineCriteriaMethodology <- DefineCriteriaMethodology2 |>
+            dplyr::filter(
+              !CST.STD_POLLUTANT_NAME %in%
+                c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
+            )
+        }
+      }
+      # final formatting to ensure all column types are correct
       DefineCriteriaMethodology <- TADA_CorrectColType(
         DefineCriteriaMethodology
       )
@@ -685,15 +858,11 @@ TADA_DefineCriteriaMethodology <- function(
         as.data.frame()
 
       if (nrow(non_definedCriteria) > 0 && displayUniqueId == TRUE) {
-        warning(paste(
+        warning(paste0(
           "Your user supplied criteriaMethods file is missing",
           length(unique(non_definedCriteria$TADA.ComparableDataIdentifier)),
-          "unique TADA.ComparableDataIdentifier(s)",
-          ": \n",
-          paste0(
-            unique(non_definedCriteria$TADA.ComparableDataIdentifier),
-            collapse = ", "
-          ),
+          "unique TADA.ComparableDataIdentifier(s):",
+          unique(non_definedCriteria$TADA.ComparableDataIdentifier),
           "without an ATTAINS.ParameterName crosswalk.",
           "Please review these entries in your crosswalk or remove them/leave them unfilled if not applicable to analysis."
         ))
@@ -747,7 +916,7 @@ TADA_DefineCriteriaMethodology <- function(
         DefineCriteriaMethodology <- TADA_DefineCriteriaMethodology()
       )
 
-      # Must now match the data types
+      # Must now match the data types. Developer note: can this be modified with TADA TADA_CorrectColType function?
       desired_types <- sapply(DefineCriteriaMethodology, class)
 
       suppressWarnings(
@@ -759,10 +928,33 @@ TADA_DefineCriteriaMethodology <- function(
             non_definedCriteria[, i] <- as.character(non_definedCriteria[, i])
             definedCriteria[, i] <- as.character(definedCriteria[, i])
           } else if (desired_types[[i]] == "Date") {
-            non_definedCriteria[, i] <- as.Date(non_definedCriteria[, i])
-            definedCriteria[, i] <- as.Date(definedCriteria[, i])
+            non_definedCriteria[, i] <- as.Date(
+              non_definedCriteria[, i],
+              format = "%b %d"
+            )
+            definedCriteria[, i] <- as.Date(
+              definedCriteria[, i],
+              format = "%b %d"
+            )
           }
         }
+      )
+      # format season dates to only contain MM-DD
+      non_definedCriteria$SeasonStartDate <- format(
+        non_definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      non_definedCriteria$SeasonEndDate <- format(
+        non_definedCriteria$SeasonEndDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonStartDate <- format(
+        definedCriteria$SeasonStartDate,
+        format = "%b %d"
+      )
+      definedCriteria$SeasonEndDate <- format(
+        definedCriteria$SeasonEndDate,
+        format = "%b %d"
       )
 
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
@@ -786,9 +978,7 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::arrange(ATTAINS.UseName) |>
         dplyr::distinct()
 
-      # should not be a problem if we control what column names are allowed,
-      # but including this for the case if edits are made to the function to ensure
-      # excel allowable values are still in the correct order.
+      # ensure the first n columns are shown in TADA criteria table format. Additional columns are allowed for notes etc.
       DefineCriteriaMethodology <- dplyr::relocate(
         DefineCriteriaMethodology,
         desired_cols # NOTE: 12/16/25 changed from dplyr::select to relocate. Allow additional columns from user supplied table.
@@ -801,7 +991,7 @@ TADA_DefineCriteriaMethodology <- function(
     # determine what they would like summarized in their final output.
     if (displayUniqueId == FALSE) {
       print(paste0(
-        "displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. ",
+        "TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. ",
         "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
       ))
 
@@ -816,17 +1006,17 @@ TADA_DefineCriteriaMethodology <- function(
         dplyr::distinct()
     }
   }
+
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
   if ("USEPA" %in% org_id) {
     print(paste0(
-      "USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
+      "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
     ))
-    epa304a <- utils::read.csv(system.file(
-      "extdata",
-      "EPA304a_criteria_table.csv",
-      package = "EPATADA"
-    ))
+    epa304a <- utils::read.csv(
+      system.file("extdata", "EPA304a_criteria_table.csv", package = "EPATADA"),
+      fileEncoding = "UTF-8-BOM"
+    )
     if (displayUniqueId == TRUE) {
       uniqueID <- unique(.data[, c(
         "TADA.ComparableDataIdentifier",
@@ -834,7 +1024,7 @@ TADA_DefineCriteriaMethodology <- function(
       )])
       epa304a <- epa304a |>
         dplyr::select(-TADA.ComparableDataIdentifier) |>
-        dplyr::left_join(uniqueID)
+        dplyr::left_join(uniqueID, by = dplyr::join_by(TADA.CharacteristicName))
     }
     # read in ref csv
     coltype.ref <- utils::read.csv(system.file(
@@ -871,6 +1061,24 @@ TADA_DefineCriteriaMethodology <- function(
       plyr::rbind.fill(epa304a) |>
       dplyr::arrange(ATTAINS.OrganizationIdentifier != "USEPA")
   }
+
+  # Final formatting of criteria table for consistent output
+  if (!all(is.na(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier))) {
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      tidyr::complete(
+        ATTAINS.OrganizationIdentifier,
+        TADA.CharacteristicName
+      ) |>
+      dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier)) |>
+      dplyr::arrange(
+        ATTAINS.OrganizationIdentifier != "USEPA",
+        ATTAINS.OrganizationIdentifier,
+        ATTAINS.UseName
+      ) |>
+      # tidyr::drop_na(ATTAINS.ParameterName) |>
+      dplyr::distinct()
+  }
+
   # Generates the excel function (HIGHLY Recommended for users to export)
   if (excel == TRUE) {
     # Excel ref files to be stored in the Downloads folder location.
@@ -995,7 +1203,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 14,
       startRow = 1,
       # AcuteChronic
-      x = data.frame(AcuteChronic = c("Acute", "Chronic", "NA"))
+      x = data.frame(AcuteChronic = c("A", "C", "NA"))
     )
 
     # get list of ATTAINS Water Types from ATTAINS
@@ -1025,7 +1233,7 @@ TADA_DefineCriteriaMethodology <- function(
       startCol = 11,
       startRow = 1,
       # SaltFresh
-      x = data.frame(SaltFresh = c("Salt", "Fresh", "NA"))
+      x = data.frame(SaltFresh = c("S", "F", "NA"))
     )
 
     openxlsx::writeData(
@@ -1108,7 +1316,9 @@ TADA_DefineCriteriaMethodology <- function(
           "arithmetic extremes",
           "geometric mean",
           "rolling geometric mean",
-          "rolling arithmetic mean"
+          "rolling arithmetic mean",
+          "mean of daily minima", # added 1/21/26 common only for DO it seems.
+          "mean of daily maxima" # added 1/21/26 common only for DO it seems.
         )
       )
     )
@@ -1177,25 +1387,39 @@ TADA_DefineCriteriaMethodology <- function(
       )
     )
 
+    # allowable values for ATTAINS.ParameterName (entire domain, not org specific)
+    suppressWarnings(openxlsx::dataValidation(
+      wb,
+      sheet = "DefineCriteriaMethodology",
+      cols = 3,
+      rows = 2:1000,
+      type = "list",
+      value = sprintf("'Index'!$E$2:$E$60000"),
+      allowBlank = TRUE,
+      showErrorMsg = TRUE,
+      showInputMsg = TRUE
+    ))
+
+    # allowable values for ATTAINS.UseName (org specific)
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 4,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
+      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
     ))
-
+    # allowable value for TADA.ComparableDataIdentifier
     suppressWarnings(openxlsx::dataValidation(
       wb,
       sheet = "DefineCriteriaMethodology",
       cols = 5,
       rows = 2:1000,
       type = "list",
-      value = sprintf("'Index-Criteria'!$G$2:$G$1000"),
+      value = sprintf("'Index-Criteria'!$F$2:$F$1000"),
       allowBlank = TRUE,
       showErrorMsg = TRUE,
       showInputMsg = TRUE
