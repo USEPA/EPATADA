@@ -55,13 +55,13 @@ jobs:
       contents: write
     steps:
       # Checkout for manual runs (uses the ref provided in the Actions UI)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ github.event_name == 'workflow_dispatch' }}
         with:
           ref: ${{ inputs.ref }}
 
       # Checkout for push/pull_request runs (default behavior)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: ${{ github.event_name != 'workflow_dispatch' }}
 
       - uses: r-lib/actions/setup-pandoc@v2
