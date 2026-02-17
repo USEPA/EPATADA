@@ -44,7 +44,7 @@ TADA.NutrientSummationEquation columns, which can be used to trace how the
 total was calculated and from which subspecies.
 }
 \description{
-This function applies the \href{https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
+This function applies the \href{https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
 from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
 to approximate a total nitrogen value on a single day at a single site. Additional
 rows are added with the total nitrogen and total phosphorous estimations.
