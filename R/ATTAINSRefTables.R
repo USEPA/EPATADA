@@ -205,11 +205,12 @@ TADA_AdditionalCharAliasForReview <- function(
     package = "EPATADA"
   ))
 
-  # Extracts all words from each WQX characteristic name
+  # retrieve WQX characteristic names
   raw.data <- TADA_GetCharacteristicRef()
 
   WQXCharacteristicRef <- raw.data |>
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number) |>
+    dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
 
   # WQX has dashes in the CAS number, remove them to match CST CAS number
@@ -218,7 +219,8 @@ TADA_AdditionalCharAliasForReview <- function(
     "",
     WQXCharacteristicRef$CAS.Number
   )
-
+  
+  # Extracts all words from each WQX characteristic name (remove extra)
   WQXCharacteristicRef2 <- WQXCharacteristicRef |>
     dplyr::mutate(
       name_words = stringr::str_split(CharacteristicName, pattern = " ")
@@ -236,16 +238,16 @@ TADA_AdditionalCharAliasForReview <- function(
   # remove intermediate variable
   rm(raw.data)
 
-  # Extracts all words from each ATTAINS Parameter Name
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("param_name")
 
   ATTAINSParamRef <- ATTAINS.raw[, "name", drop = FALSE]
 
+  # extracts all words from each ATTAINS Parameter Name
   ATTAINSParamRef2 <- ATTAINSParamRef |>
     dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
-    dplyr::filter(!name_words %in% c(" ", "-", "%", "--", "&", "#")) |>
+    dplyr::filter(!name_words %in% c("TOTAL", " ", "-", "%", "--", "&", "#")) |>
     dplyr::distinct(name, name_words, .keep_all = TRUE)
 
   ATTAINSParamRef2$name_words <- toupper(gsub(
@@ -257,19 +259,22 @@ TADA_AdditionalCharAliasForReview <- function(
   # remove intermediate variables
   rm(ATTAINSParamRef, ATTAINS.raw)
 
-  # Extracts all words from each CST Pollutant Name
+  # retrieve the Criteria Search Tool
   CriteriaSearchToolRef <- system.file(
     "extdata",
     "CriteriaSearchToolRef.rda",
     package = "EPATADA"
   )
   load(CriteriaSearchToolRef)
-  CST <- CriteriaSearchToolRef
-  CST <- CST |>
+  
+  # extract unique relevant columns
+  CST <- CriteriaSearchToolRef |>
     dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
+    dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct() |>
     dplyr::mutate(CAS_NO = as.character(CAS_NO))
 
+  # Extracts all words from each CST Pollutant Name
   CST2 <- CST |>
     dplyr::mutate(
       name_words = stringr::str_split(POLLUTANT_NAME, pattern = " ")
@@ -286,7 +291,7 @@ TADA_AdditionalCharAliasForReview <- function(
     # dplyr::mutate(ATTAINS.ParameterName = STD_POLLUTANT_NAME) |>
     dplyr::distinct()
 
-  # Look for percent word matches
+  # Look for percent word matches between ATTAINS and WQX
   temp_ATTAINS_WQX <- dplyr::right_join(
     WQXCharacteristicRef2,
     ATTAINSParamRef2,

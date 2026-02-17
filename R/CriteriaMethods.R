@@ -679,7 +679,7 @@ TADA_DefineCriteriaMethodology <- function(
           # upper case all character columns for consistency
           CriteriaSearchToolRef <- CriteriaSearchToolRef |>
             dplyr::mutate(
-              UNIT_NAME = str_replace_all(UNIT_NAME, "\u00B5", "u"),
+              UNIT_NAME = stringr::str_replace_all(UNIT_NAME, "\u00B5", "u"),
               dplyr::across(where(is.character), toupper)
             )
 
