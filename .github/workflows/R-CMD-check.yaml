@@ -52,16 +52,6 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      # Optional: avoid the NOTE on PRs by excluding vignettes from the built tarball
-      - name: Ignore vignettes on PRs
-        if: ${{ github.event_name == 'pull_request' }}
-        shell: Rscript {0}
-        run: |
-          f <- ".Rbuildignore"
-          p <- "^vignettes$"
-          x <- if (file.exists(f)) readLines(f) else character()
-          if (!any(grepl(p, x))) write(paste(c(x, p), collapse = "\n"), f)
-
       # PRs: fast check — skip vignettes (and manual)
       - name: R CMD check (PRs — skip vignettes)
         if: ${{ github.event_name == 'pull_request' }}
@@ -69,7 +59,9 @@ jobs:
         with:
           upload-snapshots: true
           build-args: 'c("--no-build-vignettes")'
-          args: 'c("--no-vignettes", "--no-manual")'
+          args: 'c("--ignore-vignettes", "--no-manual")'
+        env:
+          _R_CHECK_FORCE_SUGGESTS_: "false"
 
       # Pushes to develop and manual runs: full check — build vignettes
       - name: R CMD check (push/develop — build vignettes)
