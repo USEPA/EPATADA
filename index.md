@@ -4,6 +4,8 @@
 
 [![](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/USEPA/EPATADA/actions/workflows/R-CMD-check.yaml)
 
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/USEPA/EPATADA)
+
 Tools for Automated Data Analysis, or TADA, is being developed to help
 States, Tribes (i.e., Tribal Nations, Pueblos, Bands, Rancherias,
 Communities, Colonies, Towns, Indians, Villages), federal partners, and
