@@ -9,13 +9,13 @@ TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier must be
-supplied by the user. More than one org_id may be provided.
-Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
-get a list of valid organization identifiers. A list of organization identifiers
-can also be found by downloading the ATTAINS Domains Excel file:
+supplied by the user. More than one org_id may be provided. A list of
+organization identifiers can be found by downloading the ATTAINS Domains
+Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "code" column of the "OrgName" tab.
-When org_id = "all", all assessment unit/monitoring locations matches recorded in
+Organization identifiers are listed in the "OrgName" tab. The "code" column
+contains the organization identifiers that should be used for this param. When
+org_id = "all", all assessment unit/monitoring locations matches recorded in
 ATTAINS from all organizations will be returned. The default is org_id = "all".}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, the final column

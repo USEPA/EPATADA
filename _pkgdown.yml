@@ -1,4 +1,4 @@
-url: https://usepa.github.io/EPATADA/
+url: usepa.github.io/EPATADA/
 template:
   bootstrap: 5
   bootswatch: yeti
@@ -25,4 +25,3 @@ articles:
   - Participatory-Science-Water-Projects-in-WQX
   - TADACybertown2025
   - TADAWaterSciConWorkshopDemo
-  - TADAWorkFlowDemoR8

@@ -53,7 +53,7 @@ produced has an approved Quality Assurance Project Plan (QAPP) or not.
 Y indicates yes, N indicates no.  This function has three default inputs:
 clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default flags
 rows of data where the QAPPApprovedIndicator equals "N". Users could
-remove NAs in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
+remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
 and flaggedonly = FALSE. If flaggedonly = TRUE, the function will filter out all
 rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE,
 and flaggedonly = FALSE, the function will not make any changes to the data.

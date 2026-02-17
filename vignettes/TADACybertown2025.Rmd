@@ -48,7 +48,7 @@ a package often written as a R Markdown document, such as this one. It
 provides detailed explanations of functions and showcases an example
 workflow. This vignette can be created as an html document or other
 format using the knit option on the top of the RStudio toolbar. Users
-can also access this vignette on the EPATADA GitHub page found
+can also access this vignette on the EPATADA Github page found
 ([here](https://usepa.github.io/EPATADA/articles/TADACybertown2025.html)).
 
 ## Load libraries
@@ -465,6 +465,8 @@ monitoring locations within this assessment unit.
 WQP_clean_subset_spatial <- TADA_CreateATTAINSAUMLCrosswalk(
   WQP_clean_subset,
   return_nearest = TRUE,
+  fill_USGS_catch = FALSE,
+  resolution = "Hi",
   return_sf = TRUE
 )
 

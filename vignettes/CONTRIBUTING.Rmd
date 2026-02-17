@@ -207,7 +207,7 @@ A few tips:
 
 -   We have set up [automated
     checks](https://github.com/USEPA/EPATADA/tree/develop/.github/workflows)
-    (using GitHub Actions). Any new code included in Pull Requests must
+    (using Github Actions). Any new code included in Pull Requests must
     pass these checks before it can be merged into develop. These checks
     will run automatically when Pull Requests are submitted, and are
     ancillary to our content review, and help make sure the code is

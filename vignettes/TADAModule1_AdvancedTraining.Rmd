@@ -472,11 +472,10 @@ the following command:
 ```{r qaqc}
 qaqc_ref <- TADA_GetWQXCharValRef()
 
-unique(qaqc_ref[["Type"]])
+unique(qaqc_ref$Type)
 ```
 
-**Question 5: What do you think the Type column in the qaqc_ref data
-frame indicates?**
+**Question 5: What do you think the `qaqc_ref$Type` column indicates?**
 
 TADA joins this validation table to the data and uses the "Pass" and
 "Suspect" labels in the TADA.WQXVal.Flag column to create easily

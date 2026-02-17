@@ -18,12 +18,13 @@ test_that("Does the current TADA_GetATTAINSParamToWQPCharRef contain all ATTAINS
 
 # Test that new combinations of CST pollutant or STD pollutant names have not been added to domain tables
 test_that("Does the current TADA_GetCriteriaSearchToolRef contain all CST pollutant names?", {
-  testthat::skip_on_cran()
-  testthat::skip_if_offline()
-
   # Check for any new domain values for CST Pollutant Names
   # retrieve the CST
-  CriteriaSearchToolRef.raw <- TADA_GetCriteriaSearchToolRef()
+  CriteriaSearchToolRef.raw <- openxlsx::read.xlsx(
+    # read raw xlsx from url
+    "https://www.epa.gov/system/files/documents/2025-07/criteria-search-tool-data.xlsx",
+    sheet = 3
+  )
   # extract Pollutant Name from the most recent CST ref
   ref <- CriteriaSearchToolRef.raw$POLLUTANT_NAME
   file_path <- system.file(
