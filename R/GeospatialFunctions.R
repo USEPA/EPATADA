@@ -3,7 +3,7 @@
 #' This function gets ATTAINS data for the bounding box of a feature.
 #'
 #' @param baseurls A url or set of urls for ESRI REST service layers.
-#' @param .data An sf dataframe developed with `TADA_MakeSpatial()`.
+#' @param df An sf dataframe developed with `TADA_MakeSpatial()`.
 #' @return An sf data frame of features from the REST service within the
 #' bounding box of the spatial feature of interest.
 #'
@@ -40,7 +40,15 @@ fetch_bbox <- function(baseurls, df) {
 #'
 #' @param baseurls A url or set of urls for ESRI REST service layers.
 #' @param assessment_unit_ids An ATTAINS assessment unit ID or IDs
-#'
+#' @param org_filter ATTAINS organization identifier(s) as a character string.
+#' If populated, Assessment Units  will only be fetched from the specified
+#' organization(s). A list of organization identifiers can be found
+#' by downloading the ATTAINS Domains Excel file:
+#' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
+#' Organization identifiers are listed in the "OrgName" tab. The "code" column
+#' contains the organization identifiers that should be used for this param. When
+#' org_id = "all", Assessment Units from all organizations will be considered.
+#' The default is "all".
 #' @keywords internal
 #'
 #' @examples
@@ -53,16 +61,27 @@ fetch_bbox <- function(baseurls, df) {
 #' 
 #' features <- fetch_au(baseurls, assessment_unit_ids)
 
-fetch_au <- function(baseurls, assessment_unit_ids) {
+fetch_au <- function(baseurls, assessment_unit_ids, org_filter = "all") {
+  # Convert org_filter to SQL WHERE clause
+  if (org_filter == "all") {
+    sql_org_filter <- "1=1"
+  } else {
+    sql_org_filter <- paste0(
+      "organizationid IN ('",
+      paste(org_filter, collapse = "','"),
+      "')"
+    )
+  }
+  
   query_and_fetch <- function(url) {
     lyr <- arcgislayers::arc_open(url)
     # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-    data <- arcgislayers::arc_select(lyr, 
+    data <- arcgislayers::arc_select(lyr,
                                      where = paste0(
                                        "assessmentunitidentifier IN ('",
                                        paste(assessment_unit_ids, collapse = "','"),
                                        "') AND ",
-                                       org_filter
+                                       sql_org_filter
                                      ))
     return(data)
   }
@@ -310,15 +329,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
   
-    if (org_id == "all") {
-    org_filter <- "1=1"
-  } else {
-    org_filter <- paste0(
-      "organizationid IN ('",
-      paste(org_id, collapse = "','"),
-      "')"
-    )
-  }
   
   grab_waterbody_type <- function(au_list, chunk_size = 50) {
     num_chunks <- ceiling(length(au_list) / chunk_size)
@@ -383,9 +393,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         points <- fetch_au(
           baseurls = baseurls[2],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier
-          )
-        ),
+            catchment_features$assessmentunitidentifier),
+          org_filter = org_id),  # Pass org_id directly
         silent = TRUE
       )
       
@@ -393,9 +402,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         lines <- fetch_au(
           baseurls = baseurls[3],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier
-          )
-        ),
+            catchment_features$assessmentunitidentifier),
+          org_filter=org_id),
         silent = TRUE
       )
       
@@ -403,9 +411,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         polygons <- fetch_au(
           baseurls = baseurls[4],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier
-          )
-        ),
+            catchment_features$assessmentunitidentifier),
+          org_filter=org_id),
         silent = TRUE
       )
       
@@ -1834,7 +1841,11 @@ TADA_GetATTAINSByAUID <- function(
     get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
     silent = TRUE
   )
-
+  
+  
+  # Define org_filter for fetch_au calls (set to "all" to get all organizations)
+  org_filter <- "all"
+  
   # start grabbing the raw ATTAINS features
   points <- NULL
   lines <- NULL
@@ -1848,7 +1859,8 @@ TADA_GetATTAINSByAUID <- function(
       baseurls = baseurls[2],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      ))),
+      )),
+      org_filter=org_filter),
     silent = TRUE
   )
 
@@ -1857,16 +1869,18 @@ TADA_GetATTAINSByAUID <- function(
       baseurls = baseurls[3],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      ))),
+      )),
+      org_filter = org_filter),
     silent = TRUE
   )
-
+  
   try(
     polygons <- fetch_au(
       baseurls = baseurls[4],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
-      ))),
+      )),
+      org_filter=org_filter),
     silent = TRUE
   )
 
@@ -1947,8 +1961,7 @@ TADA_GetATTAINSByAUID <- function(
         assessment_unit_ids = paste0(unique(
           filt.data$ATTAINS.AssessmentUnitIdentifier
         )),
-        chunk_n = 10
-      ),
+        org_filter = org_filter),
       silent = TRUE
     )
 
