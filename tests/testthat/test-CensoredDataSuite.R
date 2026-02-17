@@ -160,45 +160,75 @@ test_that("TADA_SimpleCensoredMethods does not introduce duplicates or NAs in re
 make_TADA_IDCensored_fixture <- function() {
   data.frame(
     ResultIdentifier = c("r1", "r2", "r3", "r4", "r5"),
-    
+
     # Original result values (character, because ND/BDL/BPQL are strings)
     ResultMeasureValue = c("ND", "ND", NA_character_, "ND", NA_character_),
-    
+
     # Original result unit (character)
     ResultMeasure.MeasureUnitCode = c(NA, NA, "mg/L", NA, NA),
-    
+
     # TARGET columns that TADA_IDCensoredData expects to exist
-    TADA.ResultMeasureValue = c(NA_real_, NA_real_, NA_real_, NA_real_, NA_real_),
-    TADA.ResultMeasure.MeasureUnitCode = c(NA_character_, NA_character_, NA_character_, NA_character_, NA_character_),
-    
+    TADA.ResultMeasureValue = c(
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      NA_real_,
+      NA_real_
+    ),
+    TADA.ResultMeasure.MeasureUnitCode = c(
+      NA_character_,
+      NA_character_,
+      NA_character_,
+      NA_character_,
+      NA_character_
+    ),
+
     # Detection condition text (Non-Detect when "Below Detection Limit")
     ResultDetectionConditionText = c(
       "Below Detection Limit", # r1
       "Below Detection Limit", # r2
       "Below Detection Limit", # r3
       "Below Detection Limit", # r4 -> will conflict with an Over-Detect limit type
-      "Below Detection Limit"  # r5
+      "Below Detection Limit" # r5
     ),
-    
+
     # Detection limit type name (Non-Detect: "Reporting Limit"; Over-Detect: "Upper Quantitation Limit")
     DetectionQuantitationLimitTypeName = c(
-      "Reporting Limit",          # r1 Non-Detect
-      "Reporting Limit",          # r2 Non-Detect
-      "Reporting Limit",          # r3 Non-Detect
+      "Reporting Limit", # r1 Non-Detect
+      "Reporting Limit", # r2 Non-Detect
+      "Reporting Limit", # r3 Non-Detect
       "Upper Quantitation Limit", # r4 Over-Detect -> conflict with Non-Detect condition
-      "Reporting Limit"           # r5 Non-Detect
+      "Reporting Limit" # r5 Non-Detect
     ),
-    
+
     # Detection limit value/unit (used for copying)
-    TADA.DetectionQuantitationLimitMeasure.MeasureValue = c(0.5, NA, 0.7, 0.8, 1.0),
-    TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = c("mg/L", NA, "mg/L", "mg/L", NA),
-    
+    TADA.DetectionQuantitationLimitMeasure.MeasureValue = c(
+      0.5,
+      NA,
+      0.7,
+      0.8,
+      1.0
+    ),
+    TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode = c(
+      "mg/L",
+      NA,
+      "mg/L",
+      "mg/L",
+      NA
+    ),
+
     # Pre-existing TADA flag (controls path 2 copying when "NA - Not Available" or NA)
-    TADA.ResultMeasureValueDataTypes.Flag = c(NA, NA, "NA - Not Available", NA, "NA - Not Available"),
-    
+    TADA.ResultMeasureValueDataTypes.Flag = c(
+      NA,
+      NA,
+      "NA - Not Available",
+      NA,
+      "NA - Not Available"
+    ),
+
     # Include this to avoid running TADA_FlagMeasureQualifierCode for the test
     TADA.MeasureQualifierCode.Flag = NA_character_,
-    
+
     stringsAsFactors = FALSE
   )
 }
@@ -206,31 +236,39 @@ make_TADA_IDCensored_fixture <- function() {
 test_that("TADA_IDCensoredData copies detection limit values only when rules are met, and reverts on conflicts", {
   df <- make_TADA_IDCensored_fixture()
   out <- TADA_IDCensoredData(df)
-  
+
   # r1: Path 1 copy — original result is ND and DL value+unit both present
   expect_equal(
     out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "r1"],
     "Result Value/Unit Copied from Detection Limit"
   )
   expect_equal(out$TADA.ResultMeasureValue[out$ResultIdentifier == "r1"], 0.5)
-  expect_equal(out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r1"], "mg/L")
-  
+  expect_equal(
+    out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r1"],
+    "mg/L"
+  )
+
   # r2: Path 1 non-copy — original result ND but DL value+unit both NA
   expect_equal(
     out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "r2"],
     "Result Value/Unit Cannot Be Estimated From Detection Limit"
   )
   expect_true(is.na(out$TADA.ResultMeasureValue[out$ResultIdentifier == "r2"]))
-  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r2"]))
-  
+  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[
+    out$ResultIdentifier == "r2"
+  ]))
+
   # r3: Path 2 copy — TADA flag is "NA - Not Available" and DL value present (unit present -> copied)
   expect_equal(
     out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "r3"],
     "Result Value/Unit Copied from Detection Limit"
   )
   expect_equal(out$TADA.ResultMeasureValue[out$ResultIdentifier == "r3"], 0.7)
-  expect_equal(out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r3"], "mg/L")
-  
+  expect_equal(
+    out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r3"],
+    "mg/L"
+  )
+
   # r4: Conflict case — initially copies, but condition/limit mismatch triggers conflict and reversion
   expect_equal(
     out$TADA.CensoredData.Flag[out$ResultIdentifier == "r4"],
@@ -241,13 +279,17 @@ test_that("TADA_IDCensoredData copies detection limit values only when rules are
     "Result Value/Unit Cannot Be Estimated From Detection Limit"
   )
   expect_true(is.na(out$TADA.ResultMeasureValue[out$ResultIdentifier == "r4"]))
-  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r4"]))
-  
+  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[
+    out$ResultIdentifier == "r4"
+  ]))
+
   # r5: Path 2 copy with missing unit — DL value present and flag was NA - Not Available; unit is missing and should remain NA
   expect_equal(
     out$TADA.ResultMeasureValueDataTypes.Flag[out$ResultIdentifier == "r5"],
     "Result Value/Unit Copied from Detection Limit"
   )
   expect_equal(out$TADA.ResultMeasureValue[out$ResultIdentifier == "r5"], 1.0)
-  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[out$ResultIdentifier == "r5"]))
+  expect_true(is.na(out$TADA.ResultMeasure.MeasureUnitCode[
+    out$ResultIdentifier == "r5"
+  ]))
 })
