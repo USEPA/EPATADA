@@ -10,7 +10,8 @@ TADA_GetTADACharAliasRef(
   ATTAINS.WQX.tolerance = 1,
   WQX.ATTAINS.tolerance = 1,
   CST.WQX.tolerance = 1,
-  WQX.CST.tolerance = 1
+  WQX.CST.tolerance = 1,
+  set.all.tolerance = NA
 )
 }
 \arguments{
@@ -43,6 +44,10 @@ WQX characteristic to a CST pollutant name for it to be considered an alias matc
 Default is 100\%. This value is an OR condition with CST.WQX.tolerance which
 defines the minimum percentage of the number of words that must be found in a
 CST pollutant name to a WQX characteristic for it to be considered an alias match.}
+
+\item{set.all.tolerance}{optional: default is NA, if a user specifies a numeric
+value ranging from 0 to 1 (0\% to 100\%), this will populate all tolerances to
+this value.}
 }
 \value{
 updated sys.data.rda consisting of potential additional ATTAINS.ParameterName

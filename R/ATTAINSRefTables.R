@@ -44,6 +44,10 @@ TADACharAliasRef_Cached <- NULL
 #' Default is 100%. This value is an OR condition with CST.WQX.tolerance which
 #' defines the minimum percentage of the number of words that must be found in a
 #' CST pollutant name to a WQX characteristic for it to be considered an alias match.
+#' 
+#' @param set.all.tolerance optional: default is NA, if a user specifies a numeric
+#' value ranging from 0 to 1 (0% to 100%), this will populate all tolerances to
+#' this value.
 #'
 #' @return updated sys.data.rda consisting of potential additional ATTAINS.ParameterName
 #' to WQX.CharacteristicName alias for review. TADA team will review and
@@ -57,7 +61,8 @@ TADA_GetTADACharAliasRef <- function(
     ATTAINS.WQX.tolerance = 1.00,
     WQX.ATTAINS.tolerance = 1.00,
     CST.WQX.tolerance = 1.00,
-    WQX.CST.tolerance = 1.00
+    WQX.CST.tolerance = 1.00,
+    set.all.tolerance = NA
 ) {
   # If there is a cached table available return it
   if (!is.null(TADACharAliasRef_Cached)) {
@@ -92,12 +97,16 @@ TADA_GetTADACharAliasRef <- function(
     )))
   }
   
+  if (!is.na(set.all.tolerance)){
+    ATTAINS.CST.tolerance = CST.ATTAINS.tolerance = WQX.ATTAINS.tolerance = ATTAINS.WQX.tolerance = CST.WQX.tolerance = WQX.CST.tolerance = set.all.tolerance
+  }
+  
   # pull in most recent TADACharAliasRef and only keep rows that have been reviewed as "APPROVED" and from TADA
   current_TADACharAlias <- utils::read.csv(system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"))
   
   # identify andy TADA.AliasMatch that has been approved - but may not have been submitted/updated in WQX Char ref domain
-  # current_TADACharAlias <- current_TADACharAlias |>
-  #   dplyr::filter(review == "APPROVED" & source == "TADA.AliasMatch")
+  current_TADACharAlias <- current_TADACharAlias |>
+    dplyr::filter(review == "APPROVED" & source == "TADA.AliasMatch")
   
   # WQX to ATTAINS
   WQX_char_alias_filtered1 <- data |> 
@@ -313,7 +322,8 @@ TADA_GetTADACharAliasRef <- function(
   # we use a full join here to capture any match combinations of the three tables.
   final_ATTAINS_CST_WQX_CAS <- temp_ATTAINS_CST_ATTAINS_WQX_CAS |>
     dplyr::full_join(temp_CST_WQX, by = c("CharacteristicName", "STD_POLLUTANT_NAME", "POLLUTANT_NAME", "CAS_NO")) |>
-    dplyr::select("CharacteristicName", "POLLUTANT_NAME", "STD_POLLUTANT_NAME", "ATTAINS.ParameterName" = "name")
+    dplyr::select("CharacteristicName", "POLLUTANT_NAME", "STD_POLLUTANT_NAME", "ATTAINS.ParameterName" = "name") |>
+    dplyr::ungroup()
   
   # remove intermediate variables
   rm(temp_ATTAINS_CST, temp_ATTAINS_WQX, temp_CST_WQX, temp_ATTAINS_CST_ATTAINS_WQX_CAS)
@@ -334,10 +344,37 @@ TADA_GetTADACharAliasRef <- function(
   ) |> dplyr::distinct()
   
   # Exclude any new rows that share ANY pair with the existing crosswalk
+  existing_keys <- existing_pairs$key
+  
   no_pair_dup <- final_ATTAINS_CST_WQX_CAS |>
-    dplyr::anti_join(new_pairs |> dplyr::semi_join(existing_pairs, by = "key"), # semi join acts as a filter, keeping only rows from the left table where a match exists, without including any columns from the right table
-              by = c("ATTAINS.ParameterName"),
-              na_matches = "na")
+    dplyr::mutate(
+      key12 = dplyr::if_else(!is.na(ATTAINS.ParameterName) & !is.na(POLLUTANT_NAME),
+                      paste("12", ATTAINS.ParameterName, POLLUTANT_NAME, sep = "|"), NA_character_),
+      key13 = dplyr::if_else(!is.na(ATTAINS.ParameterName) & !is.na(CharacteristicName),
+                      paste("13", ATTAINS.ParameterName, CharacteristicName, sep = "|"), NA_character_),
+      key23 = dplyr::if_else(!is.na(CharacteristicName) & !is.na(POLLUTANT_NAME),
+                      paste("23", CharacteristicName, POLLUTANT_NAME, sep = "|"), NA_character_)
+    ) |>
+    dplyr::filter(
+      !dplyr::coalesce(key12 %in% existing_keys, FALSE),
+      !dplyr::coalesce(key13 %in% existing_keys, FALSE),
+      !dplyr::coalesce(key23 %in% existing_keys, FALSE)
+    ) |>
+    dplyr::select(-key12, -key13, -key23)
+  
+  
+  # no_pair_dup <- final_ATTAINS_CST_WQX_CAS |>
+  #   dplyr::anti_join(
+  #     WQX_char_alias_filtered, # semi join acts as a filter, keeping only rows from the left table where a match exists, without including any columns from the right table
+  #     by = c("ATTAINS.ParameterName", "CharacteristicName", "POLLUTANT_NAME", "STD_POLLUTANT_NAME"),
+  #     na_matches = "na"
+  #     )
+  
+  # combined <- dplyr::bind_rows(
+  #   WQX_char_alias_filtered |>
+  #     dplyr::mutate(source = "old"),
+  #   no_pair_dup        %>% dplyr::mutate(source = "new")
+  # ) %>% dplyr::distinct()
   
   # Label and combine
   TADACharAliasRef <- dplyr::bind_rows(
@@ -355,32 +392,59 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::distinct()
   
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
-  TADACharAliasRef2 <- current_TADACharAlias |>
-    dplyr::anti_join(TADACharAliasRef)
+  TADA_approved_list <- current_TADACharAlias |>
+    dplyr::anti_join(
+      TADACharAliasRef,
+      by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review),
+      na_matches = "na"
+    )
   
   # return rows from current TADACharRef in the TADA internal folder
-  TADACharAliasRef3 <- current_TADACharAlias |>
-    dplyr::semi_join(TADACharAliasRef, by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review)) |>
-    dplyr::bind_rows(TADACharAliasRef2, by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review)) |>
-    dplyr::distinct()
+  TADACharAliasRef <- TADACharAliasRef |>
+    dplyr::filter(!(
+      ATTAINS.ParameterName %in% TADA_approved_list$ATTAINS.ParameterName &
+        CharacteristicName %in% TADA_approved_list$CharacteristicName &
+        POLLUTANT_NAME %in% TADA_approved_list$POLLUTANT_NAME &
+        STD_POLLUTANT_NAME %in% TADA_approved_list$STD_POLLUTANT_NAME
+      )
+    )|>
+    dplyr::bind_rows(
+      dplyr::mutate(TADA_approved_list)
+    )
   
   # remove intermediate variables
-  rm(final_ATTAINS_CST_WQX_CAS, existing_pairs, new_pairs, no_pair_dup)
+  rm(TADA_approved_list, current_TADACharAlias, final_ATTAINS_CST_WQX_CAS, existing_pairs, new_pairs, no_pair_dup)
   
   # Save updated table in cache
-  TADACharAliasRef_Cached <- TADACharAliasRef3
+  TADACharAliasRef_Cached <- TADACharAliasRef
   
   # returns final table
-  TADACharAliasRef3
+  TADACharAliasRef
 }
 
 
 # Update TADACharAlias Reference Table internal file
 # (for internal use only)
 
-TADA_UpdateTADACharAliasRef <- function() {
+TADA_UpdateTADACharAliasRef <- function(
+    ATTAINS.CST.tolerance = 1.00,
+    CST.ATTAINS.tolerance = 1.00,
+    ATTAINS.WQX.tolerance = 1.00,
+    WQX.ATTAINS.tolerance = 1.00,
+    CST.WQX.tolerance = 1.00,
+    WQX.CST.tolerance = 1.00,
+    set.all.tolerance = NA
+  ) {
   utils::write.csv(
-    TADA_GetTADACharAliasRef(),
+    TADA_GetTADACharAliasRef(
+      ATTAINS.CST.tolerance = 1.00,
+      CST.ATTAINS.tolerance = 1.00,
+      ATTAINS.WQX.tolerance = 1.00,
+      WQX.ATTAINS.tolerance = 1.00,
+      CST.WQX.tolerance = 1.00,
+      WQX.CST.tolerance = 1.00,
+      set.all.tolerance = NA
+    ),
     file = "inst/extdata/TADACharAliasRef.csv",
     row.names = FALSE
   )
