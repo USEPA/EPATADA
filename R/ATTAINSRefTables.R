@@ -59,13 +59,12 @@ TADA_GetTADACharAliasRef <- function(
     CST.WQX.tolerance = 1.00,
     WQX.CST.tolerance = 1.00
 ) {
-  # pull in most recent TADACharAliasRef and only keep rows that have been reviewed as "APPROVED" and from TADA
-  current_TADACharAlias <- utils::read.csv(system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"))
+  # If there is a cached table available return it
+  if (!is.null(TADACharAliasRef_Cached)) {
+    return(TADACharAliasRef_Cached)
+  }
   
-  # identify andy TADA.AliasMatch that has been approved - but may not have been submitted/updated in WQX Char ref domain
-  # current_TADACharAlias <- current_TADACharAlias |>
-  #   dplyr::filter(review == "APPROVED" & source == "TADA.AliasMatch")
-  
+  # Try to download up to date WQX Char Alias table
   # pull in WQX Char Alias table.
   temp_zip <- tempfile(fileext = ".zip")
   
@@ -82,6 +81,23 @@ TADA_GetTADACharAliasRef <- function(
   csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
   
   data <- utils::read.csv(csv_file_path)
+  
+  if (!exists("data")) {
+    message("Downloading latest WQX Characteristic Alias Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    return(utils::read.csv(system.file(
+      "extdata",
+      "TADACharAliasRef.csv",
+      package = "EPATADA"
+    )))
+  }
+  
+  # pull in most recent TADACharAliasRef and only keep rows that have been reviewed as "APPROVED" and from TADA
+  current_TADACharAlias <- utils::read.csv(system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"))
+  
+  # identify andy TADA.AliasMatch that has been approved - but may not have been submitted/updated in WQX Char ref domain
+  # current_TADACharAlias <- current_TADACharAlias |>
+  #   dplyr::filter(review == "APPROVED" & source == "TADA.AliasMatch")
   
   # WQX to ATTAINS
   WQX_char_alias_filtered1 <- data |> 
@@ -304,22 +320,22 @@ TADA_GetTADACharAliasRef <- function(
   
   # step 6: build final char alias table and ensuring no dups.To do so, build pairwise combos.
   # Build set of existing pairs (ignore pairs with NAs)
-  existing_pairs <- bind_rows(
-    WQX_char_alias_filtered  %>% filter(!is.na(ATTAINS.ParameterName), !is.na(POLLUTANT_NAME)) %>% transmute(key = paste("12", ATTAINS.ParameterName, POLLUTANT_NAME, sep = "|")),
-    WQX_char_alias_filtered  %>% filter(!is.na(ATTAINS.ParameterName), !is.na(CharacteristicName)) %>% transmute(key = paste("13", ATTAINS.ParameterName, CharacteristicName, sep = "|")),
-    WQX_char_alias_filtered  %>% filter(!is.na(CharacteristicName), !is.na(POLLUTANT_NAME)) %>% transmute(key = paste("23", CharacteristicName, POLLUTANT_NAME, sep = "|"))
-  ) %>% distinct()
+  existing_pairs <- dplyr::bind_rows(
+    WQX_char_alias_filtered  |> dplyr::filter(!is.na(ATTAINS.ParameterName), !is.na(POLLUTANT_NAME)) |> dplyr::transmute(key = paste("12", ATTAINS.ParameterName, POLLUTANT_NAME, sep = "|")),
+    WQX_char_alias_filtered  |> dplyr::filter(!is.na(ATTAINS.ParameterName), !is.na(CharacteristicName)) |> dplyr::transmute(key = paste("13", ATTAINS.ParameterName, CharacteristicName, sep = "|")),
+    WQX_char_alias_filtered  |> dplyr::filter(!is.na(CharacteristicName), !is.na(POLLUTANT_NAME)) |> dplyr::transmute(key = paste("23", CharacteristicName, POLLUTANT_NAME, sep = "|"))
+  ) |> dplyr::distinct()
   
   # Make the same keys for the new rows
-  new_pairs <- bind_rows(
-    final_ATTAINS_CST_WQX_CAS %>% filter(!is.na(ATTAINS.ParameterName), !is.na(POLLUTANT_NAME)) %>% transmute(key = paste("12", ATTAINS.ParameterName, POLLUTANT_NAME, sep = "|")),
-    final_ATTAINS_CST_WQX_CAS %>% filter(!is.na(ATTAINS.ParameterName), !is.na(CharacteristicName)) %>% transmute(key = paste("13", ATTAINS.ParameterName, CharacteristicName, sep = "|")),
-    final_ATTAINS_CST_WQX_CAS %>% filter(!is.na(CharacteristicName), !is.na(POLLUTANT_NAME)) %>% transmute(key = paste("23", CharacteristicName, POLLUTANT_NAME, sep = "|"))
-  ) %>% distinct()
+  new_pairs <- dplyr::bind_rows(
+    final_ATTAINS_CST_WQX_CAS |> dplyr::filter(!is.na(ATTAINS.ParameterName), !is.na(POLLUTANT_NAME)) |> dplyr::transmute(key = paste("12", ATTAINS.ParameterName, POLLUTANT_NAME, sep = "|")),
+    final_ATTAINS_CST_WQX_CAS |> dplyr::filter(!is.na(ATTAINS.ParameterName), !is.na(CharacteristicName)) |> dplyr::transmute(key = paste("13", ATTAINS.ParameterName, CharacteristicName, sep = "|")),
+    final_ATTAINS_CST_WQX_CAS |> dplyr::filter(!is.na(CharacteristicName), !is.na(POLLUTANT_NAME)) |> dplyr::transmute(key = paste("23", CharacteristicName, POLLUTANT_NAME, sep = "|"))
+  ) |> dplyr::distinct()
   
   # Exclude any new rows that share ANY pair with the existing crosswalk
-  no_pair_dup <- final_ATTAINS_CST_WQX_CAS %>%
-    anti_join(new_pairs %>% semi_join(existing_pairs, by = "key"), # semi join acts as a filter, keeping only rows from the left table where a match exists, without including any columns from the right table
+  no_pair_dup <- final_ATTAINS_CST_WQX_CAS |>
+    dplyr::anti_join(new_pairs |> dplyr::semi_join(existing_pairs, by = "key"), # semi join acts as a filter, keeping only rows from the left table where a match exists, without including any columns from the right table
               by = c("ATTAINS.ParameterName"),
               na_matches = "na")
   
@@ -336,7 +352,7 @@ TADA_GetTADACharAliasRef <- function(
       ),
       source = dplyr::if_else(is.na(source), "TADA.AliasMatch", source)
     ) |>
-    distinct()
+    dplyr::distinct()
   
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
   TADACharAliasRef2 <- current_TADACharAlias |>
@@ -344,8 +360,8 @@ TADA_GetTADACharAliasRef <- function(
   
   # return rows from current TADACharRef in the TADA internal folder
   TADACharAliasRef3 <- current_TADACharAlias |>
-    dplyr::semi_join(TADACharAliasRef)|>
-    dplyr::bind_rows(TADACharAliasRef2)|>
+    dplyr::semi_join(TADACharAliasRef, by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review)) |>
+    dplyr::bind_rows(TADACharAliasRef2, by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review)) |>
     dplyr::distinct()
   
   # remove intermediate variables
@@ -355,7 +371,7 @@ TADA_GetTADACharAliasRef <- function(
   TADACharAliasRef_Cached <- TADACharAliasRef3
   
   # returns final table
-  return(TADACharAliasRef3)
+  TADACharAliasRef3
 }
 
 
@@ -1147,7 +1163,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
     )))
   }
 
-  # considers only the latest cycle form each org, you could skip this step
+  # considers only the latest cycle from each org, you could skip this step
   # and use params from all assessment cycles - What is preferred?
 
   latest.assessments <- nat.assessments |>
