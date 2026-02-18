@@ -1900,7 +1900,7 @@ TADA_GetATTAINSByAUID <- function(
 TADA_GetATTAINSByAUID <- function(
   .data,
   au_ref,
-  fill_ATTAINS_catch = FALSE,
+  fill_ATTAINS_catch = FALSE
 ) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
@@ -1944,13 +1944,14 @@ TADA_GetATTAINSByAUID <- function(
       dplyr::select(ResultIdentifier, dplyr::everything())
 
     # Return empty ATTAINS objects
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = NULL,
-        "ATTAINS_points" = NULL,
-        "ATTAINS_lines" = NULL,
-        "ATTAINS_polygons" = NULL
-      ))
+    return(list(
+      "TADA_with_ATTAINS" = no_WQP_data,
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
+    ))
+  }
 
   req.cols <- c(
     "AssessmentUnitIdentifier",
