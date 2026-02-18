@@ -16,7 +16,7 @@
 #' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
 #' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
-#' 
+#'
 #' features <- fetch_bbox(baseurls, df)
 
 fetch_bbox <- function(baseurls, df) {
@@ -26,7 +26,7 @@ fetch_bbox <- function(baseurls, df) {
     data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(df))
     return(data)
   }
-  
+
   all_features <- suppressMessages(suppressWarnings({
     tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
   }))
@@ -58,7 +58,7 @@ fetch_bbox <- function(baseurls, df) {
 #' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
 #' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
-#' 
+#'
 #' features <- fetch_au(baseurls, assessment_unit_ids)
 
 fetch_au <- function(baseurls, assessment_unit_ids, org_filter = "all") {
@@ -72,20 +72,22 @@ fetch_au <- function(baseurls, assessment_unit_ids, org_filter = "all") {
       "')"
     )
   }
-  
+
   query_and_fetch <- function(url) {
     lyr <- arcgislayers::arc_open(url)
     # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-    data <- arcgislayers::arc_select(lyr,
-                                     where = paste0(
-                                       "assessmentunitidentifier IN ('",
-                                       paste(assessment_unit_ids, collapse = "','"),
-                                       "') AND ",
-                                       sql_org_filter
-                                     ))
+    data <- arcgislayers::arc_select(
+      lyr,
+      where = paste0(
+        "assessmentunitidentifier IN ('",
+        paste(assessment_unit_ids, collapse = "','"),
+        "') AND ",
+        sql_org_filter
+      )
+    )
     return(data)
   }
-  
+
   all_features <- suppressMessages(suppressWarnings({
     tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
   }))
@@ -128,8 +130,8 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
   # Check if necessary columns are present in the dataframe
   if (
     !"TADA.LongitudeMeasure" %in% names(.data) ||
-    !"TADA.LatitudeMeasure" %in% names(.data) ||
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)
+      !"TADA.LatitudeMeasure" %in% names(.data) ||
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% names(.data)
   ) {
     stop(
       "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
@@ -138,9 +140,9 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
     # Check if the data is already an `sf` object
     stop("Your data is already a spatial object.")
   }
-  
+
   message("Transforming your data into a spatial object.")
-  
+
   suppressMessages(suppressWarnings({
     # Create a reference table for CRS and EPSG codes using `tribble`
     epsg_codes <- tidyr::tribble(
@@ -164,14 +166,14 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       "WGS72"                                       ,  6322 ,
       "HARN"                                        ,  4152
     )
-    
+
     # Handle missing or unknown CRS values
     if (
       any(is.na(.data$HorizontalCoordinateReferenceSystemDatumName)) ||
-      any(
-        .data$HorizontalCoordinateReferenceSystemDatumName %in%
-        c("UNKWN", "Unknown", "OTHER")
-      )
+        any(
+          .data$HorizontalCoordinateReferenceSystemDatumName %in%
+            c("UNKWN", "Unknown", "OTHER")
+        )
     ) {
       message(paste0(
         "Your WQP dataframe contains observations without a listed coordinate reference system (CRS). For these, we have assigned CRS ",
@@ -182,7 +184,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         .data$HorizontalCoordinateReferenceSystemDatumName
       )] <- "Unknown"
     }
-    
+
     # Prepare the data for spatial transformation
     sf <- .data |>
       dplyr::select(-dplyr::any_of("epsg")) |>
@@ -194,10 +196,10 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         lat = as.numeric(TADA.LatitudeMeasure),
         lon = as.numeric(TADA.LongitudeMeasure)
       )
-    
+
     print("Data after CRS assignment:")
     print(sf)
-    
+
     # Transform each subset of data into an `sf` object
     sf <- purrr::map_df(
       split(sf, sf$HorizontalCoordinateReferenceSystemDatumName),
@@ -223,7 +225,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
       }
     )
   }))
-  
+
   return(sf) # Return the transformed `sf` object
 }
 
@@ -268,7 +270,7 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
 #'
 #' nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 #' }
-#' 
+#'
 fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
@@ -279,29 +281,29 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
     add = TRUE
   )
-  
+
   message(
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
   
   our_epsg <- 5070
-  
+
   if (!is.null(.data) && inherits(.data, "sf")) {
     .data <- .data |>
       sf::st_transform(crs = our_epsg) |>
       dplyr::distinct(geometry, .keep_all = TRUE)
   }
-  
+
   if (
     !"TADA.LongitudeMeasure" %in% colnames(.data) ||
-    !"TADA.LatitudeMeasure" %in% colnames(.data) ||
-    !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
+      !"TADA.LatitudeMeasure" %in% colnames(.data) ||
+      !"HorizontalCoordinateReferenceSystemDatumName" %in% colnames(.data)
   ) {
     stop(
       "The dataframe does not contain TADA-style latitude and longitude data (column names `HorizontalCoordinateReferenceSystemDatumName`, `TADA.LatitudeMeasure`, and `TADA.LongitudeMeasure`)."
     )
   }
-  
+
   if (!is.null(.data) && !inherits(.data, "sf")) {
     # Convert the data to a data.table and ensure distinct latitude and longitude
     distinct_data <- .data |>
@@ -311,30 +313,29 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         TADA.LatitudeMeasure,
         .keep_all = TRUE
       )
-    
+
     # Transform the distinct data into an `sf` object
     .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
   }
-  
+
   if (is.null(.data) || nrow(.data) == 0) {
     stop(
       "There is no data in your `data` object to use as a bounding box for selecting ATTAINS features."
     )
   }
-  
+
   baseurls <- c(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
-  
-  
+
   grab_waterbody_type <- function(au_list, chunk_size = 50) {
     num_chunks <- ceiling(length(au_list) / chunk_size)
     chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
     water_types <- vector("list", length = length(chunks))
-    
+
     for (i in seq_along(chunks)) {
       dat <- httr::GET(utils::URLencode(paste0(
         "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
@@ -342,7 +343,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       ))) |>
         httr::content(as = "text", encoding = "UTF-8") |>
         jsonlite::fromJSON()
-      
+
       water_types[[i]] <- dat[["items"]] |>
         tidyr::unnest("assessmentUnits") |>
         tidyr::unnest("waterTypes") |>
@@ -350,9 +351,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     }
     dplyr::bind_rows(water_types)
   }
-  
-  
-  
+
   points_sf <- .data
   
   catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |> 
@@ -373,7 +372,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     },
     silent = TRUE
   )
-  
+
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
       "There are no ATTAINS features associated with your WQP observations."
@@ -390,44 +389,50 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       silent = TRUE
     )
   }
-  
+
   if (catchments_only == TRUE) {
     return(list("ATTAINS_catchments" = catchment_features))
   }
-  
+
   suppressMessages({
     suppressWarnings({
       points <- NULL
       lines <- NULL
       polygons <- NULL
-      
+
       try(
         points <- fetch_au(
           baseurls = baseurls[2],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier),
-          org_filter = org_id),  # Pass org_id directly
+            catchment_features$assessmentunitidentifier
+          ),
+          org_filter = org_id
+        ), # Pass org_id directly
         silent = TRUE
       )
-      
+
       try(
         lines <- fetch_au(
           baseurls = baseurls[3],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier),
-          org_filter=org_id),
+            catchment_features$assessmentunitidentifier
+          ),
+          org_filter = org_id
+        ),
         silent = TRUE
       )
-      
+
       try(
         polygons <- fetch_au(
           baseurls = baseurls[4],
           assessment_unit_ids = unique(
-            catchment_features$assessmentunitidentifier),
-          org_filter=org_id),
+            catchment_features$assessmentunitidentifier
+          ),
+          org_filter = org_id
+        ),
         silent = TRUE
       )
-      
+
       try(
         points <- points |>
           dplyr::left_join(
@@ -436,7 +441,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
         silent = TRUE
       )
-      
+
       try(
         lines <- lines |>
           dplyr::left_join(
@@ -445,7 +450,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
         silent = TRUE
       )
-      
+
       try(
         polygons <- polygons |>
           dplyr::left_join(
@@ -454,7 +459,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           ),
         silent = TRUE
       )
-      
+
       final_features <- list(
         "ATTAINS_catchments" = catchment_features,
         "ATTAINS_points" = points,
@@ -463,9 +468,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     })
   })
-  
-  return(final_features)
 
+  return(final_features)
 }
 
 #' fetchNHD
@@ -1853,11 +1857,10 @@ TADA_GetATTAINSByAUID <- function(
     get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
     silent = TRUE
   )
-  
-  
+
   # Define org_filter for fetch_au calls (set to "all" to get all organizations)
   org_filter <- "all"
-  
+
   # start grabbing the raw ATTAINS features
   points <- NULL
   lines <- NULL
@@ -1872,7 +1875,8 @@ TADA_GetATTAINSByAUID <- function(
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
-      org_filter=org_filter),
+      org_filter = org_filter
+    ),
     silent = TRUE
   )
 
@@ -1882,17 +1886,19 @@ TADA_GetATTAINSByAUID <- function(
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
-      org_filter = org_filter),
+      org_filter = org_filter
+    ),
     silent = TRUE
   )
-  
+
   try(
     polygons <- fetch_au(
       baseurls = baseurls[4],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
-      org_filter=org_filter),
+      org_filter = org_filter
+    ),
     silent = TRUE
   )
 
@@ -1973,7 +1979,8 @@ TADA_GetATTAINSByAUID <- function(
         assessment_unit_ids = paste0(unique(
           filt.data$ATTAINS.AssessmentUnitIdentifier
         )),
-        org_filter = org_filter),
+        org_filter = org_filter
+      ),
       silent = TRUE
     )
 
