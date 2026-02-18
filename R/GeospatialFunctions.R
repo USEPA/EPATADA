@@ -2113,7 +2113,6 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
   }
-   
   if (inherits(water_types, "try-error")) {
     catchments <- catchments.filt
     warning(
