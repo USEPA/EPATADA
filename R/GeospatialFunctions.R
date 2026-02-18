@@ -1761,10 +1761,10 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' }
 #'
 TADA_GetATTAINSByAUID <- function(
-    .data,
-    au_ref = NULL,
-    fill_ATTAINS_catch = FALSE,
-    return_sf = TRUE
+  .data,
+  au_ref = NULL,
+  fill_ATTAINS_catch = FALSE,
+  return_sf = TRUE
 ) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
@@ -1777,36 +1777,36 @@ TADA_GetATTAINSByAUID <- function(
     suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
     add = TRUE
   )
-  
+
   attains_names <- renameATTAINSCols(return_list = TRUE)
-  
+
   # should ATTAINS prefixed cols already present stop this function?
   if (any(attains_names %in% colnames(.data))) {
     # remove intermediate object
     rm(attains_names)
-    
+
     # print message and stop function
     stop("Your data has already been joined with ATTAINS data.")
   }
-  
+
   if (nrow(.data) == 0) {
     # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
     message(
       "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
     )
-    
+
     # Add ATTAINS columns with NA values
     col_val_list <- stats::setNames(
       object = rep(x = list(NA), times = length(attains_names)),
       nm = attains_names
     )
-    
+
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
       TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
-    
+
     # In this case we'll need to return empty ATTAINS objects
     if (return_sf == TRUE) {
       ATTAINS_catchments <- NULL
