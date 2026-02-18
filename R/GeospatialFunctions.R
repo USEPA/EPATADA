@@ -2115,9 +2115,7 @@ TADA_GetATTAINSByAUID <- function(
   }
   if (inherits(water_types, "try-error")) {
     catchments <- catchments.filt
-    warning(
-      "Problem with ExpertQuery, returning catchments without all fields"
-    )
+    warning("Problem with ExpertQuery, returning catchments without all fields")
   }
 
   # internal function to combine attains.geo data
