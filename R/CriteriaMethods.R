@@ -803,11 +803,15 @@ TADA_DefineCriteriaMethodology <- function(
             )) |>
             dplyr::filter(!is.na(Code))
           
-          WQXunitRef <- utils::read.csv(
-            system.file("extdata", "WQXunitRef.csv", package = "EPATADA"),
-            fileEncoding = "UTF-8-BOM"
-          ) |>
-            dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper))
+          suppressMessages(
+            unitRef <- TADA_CreateUnitRef(.data)
+          )
+          
+          # WQXunitRef <- utils::read.csv(
+          #   system.file("extdata", "WQXunitRef.csv", package = "EPATADA"),
+          #   fileEncoding = "UTF-8-BOM"
+          # ) |>
+          #   dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper))
           
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::left_join(
@@ -844,30 +848,30 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
 
           # Now, convert using WQX unit ref to match the TADA.ResultMeasureUnit
-          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-            dplyr::left_join(
-              WQXunitRef,
-              by = c("MagnitudeUnit" = "Code"),
-              keep = TRUE
-            ) |>
-            TADA_CorrectColType() |>
-            dplyr::mutate(
-              Conversion.Factor = dplyr::if_else(
-                is.na(Conversion.Factor),
-                1,
-                Conversion.Factor
-              ),
-              MagnitudeUnit = Target.Unit,
-              MagnitudeValueLower = round(
-                Conversion.Factor * MagnitudeValueLower,
-                digits = 4
-              ),
-              MagnitudeValueUpper = round(
-                Conversion.Factor * MagnitudeValueUpper,
-                digits = 4
-              )
-            ) |>
-            dplyr::select(-dplyr::any_of(names(WQXunitRef)))
+          # DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+          #   dplyr::left_join(
+          #     WQXunitRef,
+          #     by = c("MagnitudeUnit" = "Code"),
+          #     keep = TRUE
+          #   ) |>
+          #   TADA_CorrectColType() |>
+          #   dplyr::mutate(
+          #     Conversion.Factor = dplyr::if_else(
+          #       is.na(Conversion.Factor),
+          #       1,
+          #       Conversion.Factor
+          #     ),
+          #     MagnitudeUnit = Target.Unit,
+          #     MagnitudeValueLower = round(
+          #       Conversion.Factor * MagnitudeValueLower,
+          #       digits = 4
+          #     ),
+          #     MagnitudeValueUpper = round(
+          #       Conversion.Factor * MagnitudeValueUpper,
+          #       digits = 4
+          #     )
+          #   ) |>
+          #   dplyr::select(-dplyr::any_of(names(WQXunitRef)))
         }
       }
 
@@ -1884,7 +1888,7 @@ TADA_CriteriaDataDictionary <- function() {
       "Spatial",
       "Spatial",
       "Spatial",
-      "Spatial",
+      "Criteria",
       "Criteria",
       "Criteria",
       "Criteria",
