@@ -19,6 +19,10 @@ load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 small_bbox_data <- large_bbox_data[125:140, ]
 expect_cat_n_small <- 2
 
+# data for nearby sites test
+nearby_data <- large_bbox_data |>
+  dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
+
 # Query specific to sites along state border
 # sites = c("NALMS-F1217605",
 #           "EMAP_CS_WQX-RI03-0338-B",
@@ -316,14 +320,10 @@ testthat::test_that("TADA_ViewATTAINS rejects empty datasets", {
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected number of site groups", {
-  # test data
-  testdat <- large_bbox_data |>
-    dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
-
   # find nearby sites tests
 
   # with defaults
-  test_defaults <- TADA_FindNearbySites(testdat)
+  test_defaults <- TADA_FindNearbySites(nearby_data)
 
   n_defaults <- test_defaults |>
     dplyr::select(TADA.NearbySiteGroup) |>
@@ -332,7 +332,7 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
   testthat::expect_equal(n_defaults, 12)
 
   # at 50 m with catchment
-  test_fifty <- TADA_FindNearbySites(testdat, dist_buffer = 50)
+  test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
 
   n_fifty <- test_fifty |>
     dplyr::select(TADA.NearbySiteGroup) |>
@@ -342,7 +342,7 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 
   # without catchment
   test_bufferonly <- TADA_FindNearbySites(
-    testdat,
+    nearby_data,
     catchment = FALSE,
     dist_buffer = 100
   )
@@ -365,13 +365,10 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-  # test data
-  testdat <- large_bbox_data |>
-    dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
 
   # select by count
   test_count <- TADA_FindNearbySites(
-    testdat,
+    nearby_data,
     org_hierarchy = "none",
     meta_select = "count"
   )
@@ -398,7 +395,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
-    testdat,
+    nearby_data,
     org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
   )
 
