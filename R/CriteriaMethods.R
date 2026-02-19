@@ -632,14 +632,7 @@ TADA_DefineCriteriaMethodology <- function(
         if (!"" %in% org_id) {
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
-          CST_ATTAINS_Param <- TADA_AdditionalCharAliasForReview(
-            displayPercent = FALSE,
-            ATTAINS.WQX.tolerance = 0.75,
-            WQX.ATTAINS.tolerance = 0.75,
-            ATTAINS.CST.tolerance = 0.75, # can change as desired for tolerance on matches
-            CST.ATTAINS.tolerance = 0.75, # can change as desired for tolerance on matches
-            includeCST = TRUE
-          ) |>
+          CST_ATTAINS_Param <- TADA_GetTADACharAliasRef() |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.

@@ -106,7 +106,10 @@ TADA_GetTADACharAliasRef <- function(
   
   # identify andy TADA.AliasMatch that has been approved - but may not have been submitted/updated in WQX Char ref domain
   current_TADACharAlias <- current_TADACharAlias |>
-    dplyr::filter(review == "APPROVED" & source == "TADA.AliasMatch")
+    dplyr::filter(
+      review == "APPROVED" & source == "TADA.AliasMatch" |
+      review == "REJECTED" & source == "TADA.AliasMatch"
+      )
   
   # WQX to ATTAINS
   WQX_char_alias_filtered1 <- data |> 
@@ -230,9 +233,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_ATTAINS_WQX = n / stringr::str_count(name, "\\S+")
     ) |>
     # ATTAINS param to WQX char must be strict, choose best match only using slice_max
-    # dplyr::slice_max(
-    #   order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
-    # ) |>
+    dplyr::slice_max(
+      order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
+    ) |>
     dplyr::right_join(
       WQXCharacteristicRef,
       by = "CharacteristicName",
@@ -294,9 +297,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_CST_WQX = n / stringr::str_count(POLLUTANT_NAME, "\\S+")
     ) |>
     # If CST to WQX char must be strict, choose best match only using slice_max
-    # dplyr::slice_max(
-    #   order_by = percent_match_WQX_CST + percent_match_CST_WQX
-    # ) |>
+    dplyr::slice_max(
+      order_by = percent_match_WQX_CST + percent_match_CST_WQX
+    ) |>
     dplyr::right_join(CST, by = "POLLUTANT_NAME", relationship = "many-to-many") |>
     dplyr::filter(
       percent_match_WQX_CST >= WQX.CST.tolerance|
@@ -307,7 +310,7 @@ TADA_GetTADACharAliasRef <- function(
   rm(CST, CST2, ATTAINSParamRef2, WQXCharacteristicRef, WQXCharacteristicRef2)
   ####################################
   # step 4: join the ATTAINS_CST with the ATTAINS_WQX table (now with CAS number)
-  # use left join, CAS number must match and we want to keep any ATTAINS to CST match
+  # use full join, CAS number must match and we want to keep any ATTAINS to CST match
   # that might not match to any WQX char as this will be crucial for mod 3 crosswalks.
   # this table joins ATTAINS_CST with ATTAINS_WQX
   ####################################
@@ -322,7 +325,7 @@ TADA_GetTADACharAliasRef <- function(
   # we use a full join here to capture any match combinations of the three tables.
   final_ATTAINS_CST_WQX_CAS <- temp_ATTAINS_CST_ATTAINS_WQX_CAS |>
     dplyr::full_join(temp_CST_WQX, by = c("CharacteristicName", "STD_POLLUTANT_NAME", "POLLUTANT_NAME", "CAS_NO")) |>
-    dplyr::select("CharacteristicName", "POLLUTANT_NAME", "STD_POLLUTANT_NAME", "ATTAINS.ParameterName" = "name") |>
+    dplyr::select("CharacteristicName", "POLLUTANT_NAME", "STD_POLLUTANT_NAME", "ATTAINS.ParameterName" = "name", "CAS_NO") |>
     dplyr::ungroup()
   
   # remove intermediate variables
@@ -392,7 +395,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::distinct()
   
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
-  TADA_approved_list <- current_TADACharAlias |>
+  TADA_reviewed_list <- current_TADACharAlias |>
     dplyr::anti_join(
       TADACharAliasRef,
       by = dplyr::join_by(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source, review),
@@ -402,18 +405,18 @@ TADA_GetTADACharAliasRef <- function(
   # return rows from current TADACharRef in the TADA internal folder
   TADACharAliasRef <- TADACharAliasRef |>
     dplyr::filter(!(
-      ATTAINS.ParameterName %in% TADA_approved_list$ATTAINS.ParameterName &
-        CharacteristicName %in% TADA_approved_list$CharacteristicName &
-        POLLUTANT_NAME %in% TADA_approved_list$POLLUTANT_NAME &
-        STD_POLLUTANT_NAME %in% TADA_approved_list$STD_POLLUTANT_NAME
+      ATTAINS.ParameterName %in% TADA_reviewed_list$ATTAINS.ParameterName &
+        CharacteristicName %in% TADA_reviewed_list$CharacteristicName &
+        POLLUTANT_NAME %in% TADA_reviewed_list$POLLUTANT_NAME &
+        STD_POLLUTANT_NAME %in% TADA_reviewed_list$STD_POLLUTANT_NAME
       )
     )|>
     dplyr::bind_rows(
-      dplyr::mutate(TADA_approved_list)
+      dplyr::mutate(TADA_reviewed_list)
     )
   
   # remove intermediate variables
-  rm(TADA_approved_list, current_TADACharAlias, final_ATTAINS_CST_WQX_CAS, existing_pairs, new_pairs, no_pair_dup)
+  rm(TADA_reviewed_list, current_TADACharAlias, final_ATTAINS_CST_WQX_CAS, existing_pairs, new_pairs, no_pair_dup)
   
   # Save updated table in cache
   TADACharAliasRef_Cached <- TADACharAliasRef
