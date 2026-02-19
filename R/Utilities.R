@@ -421,7 +421,7 @@ utils::globalVariables(c(
   "Mismatch",
   "Ref.WaterType",
   "Alias.Type.Name",
-  "CAS_NO CAS.Number",
+  "CAS_NO",
   "Char_Flag.x",
   "Char_Flag.y",
   "Characteristic.Name",

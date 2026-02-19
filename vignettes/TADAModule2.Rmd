@@ -127,13 +127,6 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
@@ -161,30 +154,24 @@ Get bacteria and pH data from Missoula County, Montana. This example is
 included in the EPATADA R package, and can be loaded into your R
 environment like this:
 
-```{r load_WQP_data}
-# Load the dataset
+```{r load_WQP_data_dev, include = F, eval = T}
+# Load the example dataset
+# tada.MT.clean should be the same as this example data
 utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
+```
 
-# Un-comment to generate Data_MT_MissoulaCounty example data using TADA_DataRetrieval
-# # get MT data
-# tada.MT <- TADA_DataRetrieval(
-#   startDate = "2020-01-01",
-#   endDate = "2022-12-31",
-#   statecode = "MT",
-#   characteristicName = c(
-#     "Escherichia",
-#     "Escherichia coli",
-#     "pH"
-#   ),
-#   countycode = "Missoula County",
-#   ask = FALSE
-# )
-#
-# # clean up data set (not comprehensive)
-# tada.MT.clean <- tada.MT  |>
-#   TADA_RunKeyFlagFunctions()  |>
-#   TADA_SimpleCensoredMethods()  |>
-#   TADA_HarmonizeSynonyms()
+```{r load_WQP_data_user, eval = F}
+tada.MT.clean <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+  countycode = "Missoula County",
+  ask = FALSE
+  ) |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
+  TADA_HarmonizeSynonyms()
 ```
 
 Rename the example data to tada.MT.clean:
@@ -195,6 +182,9 @@ tada.MT.clean <- Data_MT_MissoulaCounty
 
 # Optionally, remove the original dataset from the environment
 rm(Data_MT_MissoulaCounty)
+
+# Generate a table
+TADA_TableExport(tada.MT.clean)
 ```
 
 # Step A: Discover ML/AU Matches
@@ -290,6 +280,14 @@ rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 
 ## Run `TADA_CreateAUMLCrosswalk`
 
+```{r useexampledata_dev, eval = T, include = F}
+# this should be the same as MT.AUMLRef
+utils::data("Data_MT_AUMLRef", package = "EPATADA")
+MT.AUMLRef <- Data_MT_AUMLRef
+
+rm(Data_MT_AUMLRef)
+```
+
 ```{r TADA_CreateAUMLCrosswalk, eval = F}
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
@@ -302,15 +300,9 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
 )
 ```
 
-This example is also included in the EPATADA R package, and can be
-loaded into your R environment like this:
-
-```{r useexampledata}
-utils::data("Data_MT_AUMLRef", package = "EPATADA")
-
-MT.AUMLRef <- Data_MT_AUMLRef
-
-rm(Data_MT_AUMLRef)
+```{r TADA_CreateAUMLCrosswalk_table}
+# extract ATTAINS_crosswalk data frame from the list and show table
+TADA_TableExport(MT.AUMLRef$ATTAINS_crosswalk)
 ```
 
 #### **Advanced: Deep Dive into `TADA_CreateATTAINSAUMLCrosswalk()`**
@@ -349,10 +341,10 @@ Such WQP observations can be identified using the
 `ResultIdentifier`column (i.e., multiple rows with the same
 `ResultIdentifier` value are the same observation).
 
-To only return a single ATTAINS assessment unit,
-set `return_nearest = TRUE`. This will return only the closest
-assessment unit to the WQP observation in instances where a catchment
-contains more than one assessment unit.
+To only return a single ATTAINS assessment unit, set
+`return_nearest = TRUE`. This will return only the closest assessment
+unit to the WQP observation in instances where a catchment contains more
+than one assessment unit.
 
 `TADA_CreateATTAINSAUMLCrosswalk` also runs `TADA_MakeSpatial()` within
 it to convert any Water Quality Portal (WQP)-style dataframe with
@@ -367,7 +359,7 @@ column.
 Let's run `TADA_MakeSpatial()` to make the water quality data spatial.
 
 ```{r makespatial}
-# default CRS is WGS84 (4326)
+# default CRS is WGS84 (4326), adds epsg and geometry column at end
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
@@ -553,6 +545,9 @@ created in step A, which is not yet present in ATTAINS.
 ```{r get.MLAURef}
 # extract ATTAINS_crosswalk data frame from the list
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
+
+# this is the same final output we got above from TADA_CreateAUMLCrosswalk 
+TADA_TableExport(Final.MT.AUMLRef)
 ```
 
 Now, we will assign uses to each unique assessment unit (AU) in our
@@ -566,15 +561,22 @@ prioritized steps:
 2.  Existing Uses from ATTAINS: Import existing uses for assessment
     units as defined by ATTAINS organizations.
 
-```{r assign.use.to.AU}
-utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
-
+```{r assign.use.to.AU, include = F, eval = T}
+# use example data, this should be the same as MT.UseAURef
+utils::data("Data_MT_AU_UsesRef", package = "EPATADA")
 MT.UseAURef <- Data_MT_AU_UsesRef
+rm(Data_MT_AU_UsesRef)
+```
 
-# MT.UseAURef <- TADA_AssignUsesToAU(
-#   AUMLRef = Final.MT.AUMLRef,
-#   org_id = "MTDEQ"
-# )
+```{r TADA_AssignUsesToAU, eval = F}
+MT.UseAURef <- TADA_AssignUsesToAU(
+  AUMLRef = Final.MT.AUMLRef,
+  org_id = "MTDEQ"
+)
+```
+
+```{r TADA_AssignUsesToAU_table}
+TADA_TableExport(MT.UseAURef)
 ```
 
 #### **Advanced: Assigning Uses to New AUs**
@@ -590,13 +592,24 @@ new AUs into existing frameworks.
 For more information on how to customize this function to suit your
 needs, enter **`?TADA_AssignUsesToWaterType`** into the R console.
 
-```{r assign.use.to.new.AU.with.waterUseRef, eval = FALSE}
+```{r assign.use.to.new.AU.with.waterUseRef_dev, include = F, eval = T}
+# use example data, this should be the same as MT.UseAURef_with_WaterUseRef
+utils::data("Data_MT_AU_UsesRef_Water", package = "EPATADA")
+MT.UseAURef_with_WaterUseRef <- Data_MT_AU_UsesRef_Water
+rm(Data_MT_AU_UsesRef_Water)
+```
+
+```{r assign.use.to.new.AU.with.waterUseRef_user, eval = FALSE}
 MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
     waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
     org_id = "MTDEQ"
   )
+```
+
+```{r watertypetable}
+TADA_TableExport(MT.UseAURef_with_WaterUseRef)
 ```
 
 Users also have the option to manually assign use names to new AUs if
@@ -615,6 +628,8 @@ MT.UseAURef_manual <- MT.UseAURef |>
   ) |>
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
+
+TADA_TableExport(MT.UseAURef_manual)
 ```
 
 # Summary
