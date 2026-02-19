@@ -365,7 +365,6 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
-
   # select by count
   test_count <- TADA_FindNearbySites(
     nearby_data,
