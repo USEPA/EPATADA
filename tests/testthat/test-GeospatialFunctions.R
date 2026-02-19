@@ -365,6 +365,10 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
+  # test data
+  testdat <- large_bbox_data |>
+    dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
+
   # select by count
   test_count <- TADA_FindNearbySites(
     testdat,
