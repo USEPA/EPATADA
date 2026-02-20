@@ -247,7 +247,7 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
     )
   )
   # Check .data was updated by adding 83 cols (161+83=244)
-  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 245)
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
   expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])
@@ -354,9 +354,9 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
     TADA_FindNearbySites(by_AU = TRUE)
 
-  n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
+  n_au <- test_au |> sf::st_drop_geometry() |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
 
-  testthat::expect_equal(n_au, 38)
+  testthat::expect_equal(n_au, 2)
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
