@@ -2116,7 +2116,6 @@ TADA_GetATTAINSByAUID <- function(
     }
   }
 
-
   # internal function to combine attains.geo data
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
