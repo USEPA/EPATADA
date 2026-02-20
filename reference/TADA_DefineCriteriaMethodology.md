@@ -229,7 +229,8 @@ epa_only <- TADA_DefineCriteriaMethodology(
 # Example 3: fill template with EPA304(a)
 # and ATTAINS parameters and uses for MTDEQ:
 epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-  org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE)
+  org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
+)
 #> [1] "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
 #> [1] "TADA_ParametersForAnalysis: More than one org_name was defined in your dataframe. Generating duplicate rows of TADA.ComparableDataIdentifier for each org."
 #> [1] "TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."

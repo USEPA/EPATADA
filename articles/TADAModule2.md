@@ -74,9 +74,7 @@ needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+install.packages("remotes")
 # Load the remotes library
 library(remotes)
 ```
@@ -123,29 +121,17 @@ included in the EPATADA R package, and can be loaded into your R
 environment like this:
 
 ``` r
-# Load the dataset
-utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
-
-# Un-comment to generate Data_MT_MissoulaCounty example data using TADA_DataRetrieval
-# # get MT data
-# tada.MT <- TADA_DataRetrieval(
-#   startDate = "2020-01-01",
-#   endDate = "2022-12-31",
-#   statecode = "MT",
-#   characteristicName = c(
-#     "Escherichia",
-#     "Escherichia coli",
-#     "pH"
-#   ),
-#   countycode = "Missoula County",
-#   ask = FALSE
-# )
-#
-# # clean up data set (not comprehensive)
-# tada.MT.clean <- tada.MT  |>
-#   TADA_RunKeyFlagFunctions()  |>
-#   TADA_SimpleCensoredMethods()  |>
-#   TADA_HarmonizeSynonyms()
+tada.MT.clean <- TADA_DataRetrieval(
+  startDate = "2020-01-01",
+  endDate = "2022-12-31",
+  statecode = "MT",
+  characteristicName = c("Escherichia", "Escherichia coli", "pH"),
+  countycode = "Missoula County",
+  ask = FALSE
+  ) |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
+  TADA_HarmonizeSynonyms()
 ```
 
 Rename the example data to tada.MT.clean:
@@ -156,6 +142,9 @@ tada.MT.clean <- Data_MT_MissoulaCounty
 
 # Optionally, remove the original dataset from the environment
 rm(Data_MT_MissoulaCounty)
+
+# Generate a table
+TADA_TableExport(tada.MT.clean)
 ```
 
 ## Step A: Discover ML/AU Matches
@@ -246,7 +235,6 @@ user.supplied.cw <- clean.existing.attains.MT |>
     WaterType = "LAKE, FRESHWATER"
   ))
 
-
 rm(attains.existing.MT, clean.existing.attains.MT, ATTAINS_orgs)
 ```
 
@@ -264,15 +252,9 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
 )
 ```
 
-This example is also included in the EPATADA R package, and can be
-loaded into your R environment like this:
-
 ``` r
-utils::data("Data_MT_AUMLRef", package = "EPATADA")
-
-MT.AUMLRef <- Data_MT_AUMLRef
-
-rm(Data_MT_AUMLRef)
+# extract ATTAINS_crosswalk data frame from the list and show table
+TADA_TableExport(MT.AUMLRef$ATTAINS_crosswalk)
 ```
 
 ##### **Advanced: Deep Dive into `TADA_CreateATTAINSAUMLCrosswalk()`**
@@ -301,24 +283,23 @@ intersecting any WQP-linked ATTAINS catchment.
 Regardless of the user’s decision on returning the ATTAINS shapefile
 objects,
 [`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
-always returns a dataframe (or dataframes if `fill_USGS_catch = TRUE`,
-see section **Filling in missing ATTAINS assessment units**) containing
-the original TADA WQP dataframe, plus new columns representing the
-ATTAINS assessment unit(s) that fall within the same NHDPlus HiRes
-catchment as them. This means that it is possible for a single TADA WQP
-observation to have multiple ATTAINS assessment units linked to it. If
-the user would like to link all of these features, set
+always returns a dataframe (or dataframes if
+`fill_ATTAINS_catch = TRUE`, see section **Filling in missing ATTAINS
+assessment units**) containing the original TADA WQP dataframe, plus new
+columns representing the ATTAINS assessment unit(s) that fall within the
+same NHDPlus HiRes catchment as them. This means that it is possible for
+a single TADA WQP observation to have multiple ATTAINS assessment units
+linked to it. If the user would like to link all of these features, set
 `return_nearest = FALSE`. In these instances of multiple assessment
 units in the same catchment, the returned dataframe will have more than
 one row of data for each WQP observation. Such WQP observations can be
 identified using the `ResultIdentifier`column (i.e., multiple rows with
 the same `ResultIdentifier` value are the same observation).
 
-If the user would like to only return a single ATTAINS assessment unit,
-set `return_nearest = TRUE`. This will return only the closest
-assessment unit to the WQP observation in instances where a catchment
-contains more than one assessment unit. In this example workflow,
-`return_nearest = TRUE.`
+To only return a single ATTAINS assessment unit, set
+`return_nearest = TRUE`. This will return only the closest assessment
+unit to the WQP observation in instances where a catchment contains more
+than one assessment unit.
 
 `TADA_CreateATTAINSAUMLCrosswalk` also runs
 [`TADA_MakeSpatial()`](https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.md)
@@ -336,12 +317,12 @@ Let’s run
 to make the water quality data spatial.
 
 ``` r
-# default CRS is WGS84 (4326)
+# Adds epsg and geometry column at end, uses default CRS WGS84 (4326)
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
     ## [1] "Data after CRS assignment:"
-    ## # A tibble: 426 × 164
+    ## # A tibble: 426 × 165
     ## # Rowwise: 
     ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
     ##    <chr>            <chr>            <chr>                  <chr>            
@@ -356,7 +337,7 @@ TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
     ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
     ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
     ## # ℹ 416 more rows
-    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
+    ## # ℹ 161 more variables: TADA.ActivityMediaName <chr>,
     ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
     ## #   CountyCode <chr>, MonitoringLocationName <chr>,
     ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
@@ -386,7 +367,7 @@ leaflet::leaflet() |>
     )
   ) |>
   leaflet::clearShapes() |>
-  leaflet.extras::addResetMapButton() |>
+  EPATADA:::addMapReset() |>
   leaflet::addLegend(
     position = "bottomright",
     colors = "black",
@@ -416,36 +397,7 @@ TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(
   return_sf = FALSE,
   return_nearest = FALSE
 )
-```
 
-    ## [1] "Data after CRS assignment:"
-    ## # A tibble: 426 × 164
-    ## # Rowwise: 
-    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
-    ##    <chr>            <chr>            <chr>                  <chr>            
-    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
-    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
-    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
-    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
-    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
-    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
-    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
-    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
-    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
-    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
-    ## # ℹ 416 more rows
-    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
-    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
-    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
-    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
-    ## #   TADA.MonitoringLocationTypeName <chr>,
-    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
-    ## [1] "Processing CRS: NAD27"
-    ## [1] "Processing CRS: NAD83"
-    ## [1] "Processing CRS: UNKWN"
-    ## [1] "Processing CRS: WGS84"
-
-``` r
 # Can also be performed on the spatial data:
 # TADA_with_ATTAINS <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = FALSE, return_nearest = TRUE)
 ```
@@ -465,36 +417,7 @@ TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(
   return_sf = TRUE,
   return_nearest = TRUE
 )
-```
 
-    ## [1] "Data after CRS assignment:"
-    ## # A tibble: 426 × 164
-    ## # Rowwise: 
-    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
-    ##    <chr>            <chr>            <chr>                  <chr>            
-    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
-    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
-    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
-    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
-    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
-    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
-    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
-    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
-    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
-    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
-    ## # ℹ 416 more rows
-    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
-    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
-    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
-    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
-    ## #   TADA.MonitoringLocationTypeName <chr>,
-    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
-    ## [1] "Processing CRS: NAD27"
-    ## [1] "Processing CRS: NAD83"
-    ## [1] "Processing CRS: UNKWN"
-    ## [1] "Processing CRS: WGS84"
-
-``` r
 # return only the closest ATTAINS AU for observations within a catchment with multiple AUs
 # TADA_with_ATTAINS_list <- TADA_CreateATTAINSAUMLCrosswalk(.data = TADA_spatial, return_sf = TRUE, return_nearest = TRUE)
 ```
@@ -615,6 +538,9 @@ created in step A, which is not yet present in ATTAINS.
 ``` r
 # extract ATTAINS_crosswalk data frame from the list
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
+
+# this is the same final output we got above from TADA_CreateAUMLCrosswalk 
+TADA_TableExport(Final.MT.AUMLRef)
 ```
 
 Now, we will assign uses to each unique assessment unit (AU) in our
@@ -635,7 +561,9 @@ MT.UseAURef <- TADA_AssignUsesToAU(
 )
 ```
 
-    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
+``` r
+TADA_TableExport(MT.UseAURef)
+```
 
 ##### **Advanced: Assigning Uses to New AUs**
 
@@ -661,8 +589,9 @@ MT.UseAURef_with_WaterUseRef <-
   )
 ```
 
-    ## [1] "TADA_AssignUsesToAU: Importing existing uses by AU from ATTAINS Expert Query."
-    ## [1] "TADA_CreateWaterusesRef: Importing unique water types and uses by organization from Expert Query."
+``` r
+TADA_TableExport(MT.UseAURef_with_WaterUseRef)
+```
 
 Users also have the option to manually assign use names to new AUs if
 they prefer not to use the TADA_AssignUsesToWaterType function. This
@@ -680,6 +609,8 @@ MT.UseAURef_manual <- MT.UseAURef |>
   ) |>
   dplyr::mutate(ATTAINS.UseName = dplyr::coalesce(ATTAINS.UseName.x, ATTAINS.UseName.y)) |>
   dplyr::select(-ATTAINS.UseName.x, -ATTAINS.UseName.y)
+
+TADA_TableExport(MT.UseAURef_manual)
 ```
 
 ## Summary

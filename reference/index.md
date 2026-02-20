@@ -375,11 +375,62 @@
 - [`TADA_addPolys()`](https://usepa.github.io/EPATADA/reference/TADA_addPolys.md)
   : Add polygons from an ArcGIS feature layer to a leaflet map
 
+- [`addATTAINS()`](https://usepa.github.io/EPATADA/reference/addATTAINS.md)
+  : addATTAINS Internal function to add ATTAINS assessment units (lines,
+  points, or polygons) or ATTAINS catchments (polygons) to TADA maps.
+
+- [`addAllATTAINS()`](https://usepa.github.io/EPATADA/reference/addAllATTAINS.md)
+  : addAllATTAINS Internal function to add all ATTAINS assessment units
+  (lines, points, or polygons) or ATTAINS catchments (polygons) to TADA
+  maps.
+
+- [`addFlaggedSitesMarkers()`](https://usepa.github.io/EPATADA/reference/addFlaggedSitesMarkers.md)
+  : addFlaggedSitesMarkers Internal function to add flagged sites to map
+  for review.
+
+- [`addLayerControl()`](https://usepa.github.io/EPATADA/reference/addLayerControl.md)
+  : addLayerControl Internal function to add layer control to a TADA
+  leaflet map to toggle the legend on/off.
+
+- [`addLegendToggle()`](https://usepa.github.io/EPATADA/reference/addLegendToggle.md)
+  : addLegendToggle Internal function to apply a button to a TADA
+  leaflet map to toggle the legend on/off.
+
+- [`addMapReset()`](https://usepa.github.io/EPATADA/reference/addMapReset.md)
+  : addMapReset
+
+- [`addTADAMapLegend()`](https://usepa.github.io/EPATADA/reference/addTADAMapLegend.md)
+  : addTADAMapLegend
+
+- [`addWQPSites()`](https://usepa.github.io/EPATADA/reference/addWQPSites.md)
+  : addWQPSites Internal function to add WQP sites to a leaflet map. If
+  TADA.AURefSource is included in the TADA data frame, the default is to
+  display varying icons to indicate the source of the assessment
+  unit/monitoring location crosswalk. If TADA.AURefSource is not
+  included or the user does not want to display assessment unit
+  identifier information via the icons (by setting ref_icons = FALSE),
+  solid black circle markers are used to display all WQP sites.
+
 - [`ask_user()`](https://usepa.github.io/EPATADA/reference/ask_user.md)
   : Ask user to approve WQP downloads
 
 - [`checkColName()`](https://usepa.github.io/EPATADA/reference/checkColName.md)
   : checkColNames
+
+- [`checkForATTAINSGeo()`](https://usepa.github.io/EPATADA/reference/checkForATTAINSGeo.md)
+  : checkForATTAINSGeo
+
+- [`checkForWQPData()`](https://usepa.github.io/EPATADA/reference/checkForWQPData.md)
+  : checkForWQPData
+
+- [`checkTADAColsForMap()`](https://usepa.github.io/EPATADA/reference/checkTADAColsForMap.md)
+  : checkTADAColsForMap
+
+- [`createBBox()`](https://usepa.github.io/EPATADA/reference/createBBox.md)
+  : createBBox
+
+- [`createTADABasemap()`](https://usepa.github.io/EPATADA/reference/createTADABasemap.md)
+  : createTADABasemap
 
 - [`.TADA_UpdateExampleData()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateExampleData.md)
   : Update Example Data for EPATADA Package (Internal)
@@ -393,6 +444,12 @@
 - [`fetchNHD()`](https://usepa.github.io/EPATADA/reference/fetchNHD.md)
   : fetchNHD
 
+- [`findATTAINSMissingRawFeatures()`](https://usepa.github.io/EPATADA/reference/findATTAINSMissingRawFeatures.md)
+  : findATTAINSMissingRawFeatures
+
+- [`getATTAINSColorsRef()`](https://usepa.github.io/EPATADA/reference/getATTAINSColorsRef.md)
+  : getATTAINSColorsRef
+
 - [`getBboxJson()`](https://usepa.github.io/EPATADA/reference/getBboxJson.md)
   : Get bounding box JSON
 
@@ -405,19 +462,37 @@
   bounding box, and return it as a sf object getLayer is used within
   TADA_addPolys and TADA_addPoints
 
+- [`getMapIconLabels()`](https://usepa.github.io/EPATADA/reference/getMapIconLabels.md)
+  : getMapIconLabels
+
 - [`getTribalPopup()`](https://usepa.github.io/EPATADA/reference/getTribalPopup.md)
   : Get text for tribal marker popup getTribalPopup is used within
   TADA_addPolys and TADA_addPoints
 
+- [`getWQPSiteStats()`](https://usepa.github.io/EPATADA/reference/getWQPSiteStats.md)
+  : getWQPSiteStats
+
 - [`pchIcons()`](https://usepa.github.io/EPATADA/reference/pchIcons.md)
   : Create icon(s) to be used to represent points on a map feature layer
   pchIcons is used within TADA_addPoints
+
+- [`prepATTAINSMapper()`](https://usepa.github.io/EPATADA/reference/prepATTAINSMapper.md)
+  : prepATTAINSMapper
+
+- [`prepAllATTAINSMapper()`](https://usepa.github.io/EPATADA/reference/prepAllATTAINSMapper.md)
+  : prepAllATTAINSMapper
 
 - [`quiet()`](https://usepa.github.io/EPATADA/reference/quiet.md) :
   Silence Print Messages from Code Execution
 
 - [`renameATTAINSCols()`](https://usepa.github.io/EPATADA/reference/renameATTAINSCols.md)
   : renameATTAINSCols
+
+- [`showMissingATTAINSAUs()`](https://usepa.github.io/EPATADA/reference/showMissingATTAINSAUs.md)
+  : showMissingATTAINSAUs Internal function to apply a dashed circle
+  marking around WQP monitoring locations with a user supplied
+  assessment unit assignment which does not have corresponding geometry
+  in ATTAINS.
 
 - [`writeLayer()`](https://usepa.github.io/EPATADA/reference/writeLayer.md)
   : Download a shapefile from an API and save it to a local folder,

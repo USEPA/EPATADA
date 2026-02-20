@@ -258,7 +258,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 135932    152
+    ## [1] 135932    153
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -429,7 +429,8 @@ all_counts
     ## 105                                ActivityConductingOrganizationText      2
     ## 106                                             SourceMapScaleNumeric      2
     ## 107                                    HorizontalCollectionMethodName      2
-    ## 108                                                      ProviderName      1
+    ## 108                                                        CAS.Number      2
+    ## 109                                                      ProviderName      1
 
 **Question 3: How many unique ‘TADA.ActivityMediaName’ values exist in
 your dataframe? Are there any media types that are not water?**

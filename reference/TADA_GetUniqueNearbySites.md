@@ -27,3 +27,15 @@ MonitoringLocationIdentifier, LongitudeMeasure, LatitudeMeasure,
 MonitoringLocationName, and MonitoringLocationTypeName.
 
 ## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+# use MT example data set
+testdat <- Data_MT_MissoulaCounty
+
+# find unique nearby sites
+testdat.unique <- testdat |>
+  TADA_FindNearbySites() |>
+  TADA_GetUniqueNearbySites()
+} # }
+```

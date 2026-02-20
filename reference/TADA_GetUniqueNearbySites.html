@@ -96,7 +96,17 @@ LongitudeMeasure, LatitudeMeasure, MonitoringLocationName, and MonitoringLocatio
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># use MT example data set</span></span></span>
+<span class="r-in"><span><span class="va">testdat</span> <span class="op">&lt;-</span> <span class="va">Data_MT_MissoulaCounty</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># find unique nearby sites</span></span></span>
+<span class="r-in"><span><span class="va">testdat.unique</span> <span class="op">&lt;-</span> <span class="va">testdat</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="TADA_FindNearbySites.html">TADA_FindNearbySites</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span></span>
+<span class="r-in"><span>  <span class="fu">TADA_GetUniqueNearbySites</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

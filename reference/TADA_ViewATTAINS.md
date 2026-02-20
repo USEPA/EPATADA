@@ -45,7 +45,7 @@ TADA_ViewATTAINS(.data, ref_icons = TRUE)
       [`TADA_CreateATTAINSAUMLCrosswalk()`](https://usepa.github.io/EPATADA/reference/TADA_CreateATTAINSAUMLCrosswalk.md)
       which also runs within TADA_CreateAUMLCrosswalk() to link
       catchment-based ATTAINS assessment unit data to Water Quality
-      Portal observations. When rec_icons = FALSE or the source is not
+      Portal observations. When ref_icons = FALSE or the source is not
       provided in .data, all Monitoring Locations are show with a plain
       circle.
 

@@ -38,9 +38,9 @@ unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
 #>  [5] "NITROGEN_SUSPENDED_NA_NA"            "NITROGEN_TOTAL_AS N_MG/L"           
 #>  [7] "NITROGEN_DISSOLVED_AS N_MG/L"        "NITRATE_NONE_UNKNOWN_MG/L"          
 #>  [9] "AMMONIA_TOTAL RECOVERABLE_AS N_MG/L" "AMMONIA_UNFILTERED_AS N_MG/L"       
-#> [11] "NITRATE_UNFILTERED_AS N_MG/L"        "NITRATE_TOTAL_AS N_NA"              
-#> [13] "NITRATE_UNFILTERED_AS N_NA"          "AMMONIA_TOTAL_AS N_MG/L"            
-#> [15] "NITRATE_TOTAL_AS N_MG/L"            
+#> [11] "NITRATE_TOTAL_AS N_NA"               "NITRATE_UNFILTERED_AS N_NA"         
+#> [13] "AMMONIA_TOTAL_AS N_MG/L"             "NITRATE_TOTAL_AS N_MG/L"            
+#> [15] "NITRATE_UNFILTERED_AS N_MG/L"       
 UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 unique(UT_Titles)
 #>  [1] "NITRATE DISSOLVED"                   "NITROGEN SUSPENDED MG/L"            
@@ -48,7 +48,7 @@ unique(UT_Titles)
 #>  [5] "NITROGEN SUSPENDED"                  "NITROGEN TOTAL AS N MG/L"           
 #>  [7] "NITROGEN DISSOLVED AS N MG/L"        "NITRATE NONE UNKNOWN MG/L"          
 #>  [9] "AMMONIA TOTAL RECOVERABLE AS N MG/L" "AMMONIA UNFILTERED AS N MG/L"       
-#> [11] "NITRATE UNFILTERED AS N MG/L"        "NITRATE TOTAL AS N"                 
-#> [13] "NITRATE UNFILTERED AS N"             "AMMONIA TOTAL AS N MG/L"            
-#> [15] "NITRATE TOTAL AS N MG/L"            
+#> [11] "NITRATE TOTAL AS N"                  "NITRATE UNFILTERED AS N"            
+#> [13] "AMMONIA TOTAL AS N MG/L"             "NITRATE TOTAL AS N MG/L"            
+#> [15] "NITRATE UNFILTERED AS N MG/L"       
 ```
