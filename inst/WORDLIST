@@ -388,6 +388,7 @@ addAllATTAINS
 addFlaggedSitesMarkers
 addLayerControl
 addLegendToggle
+addMapReset
 addPoints
 addPolys
 addTADAMapLegend

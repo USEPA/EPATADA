@@ -939,7 +939,9 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
 #' @return The basemap for TADA mapping functions.
 #'
 createTADABasemap <- function(.data) {
-  stopifnot(all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data)))
+  stopifnot(all(
+    c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data)
+  ))
   bbox <- createBBox(.data, as_vector = TRUE)
 
   btn <- leaflet::easyButton(
@@ -967,7 +969,6 @@ createTADABasemap <- function(.data) {
     leaflet::clearShapes() |>
     leaflet::fitBounds(bbox[1], bbox[2], bbox[3], bbox[4]) |>
     addMapReset(bbox = bbox)
-
 }
 
 #' addMapReset
@@ -979,7 +980,7 @@ createTADABasemap <- function(.data) {
 #'
 #' @param bbox The bounding box the map view should return to.
 #'
-#' @return The basemap for TADA mapping functions.
+#' @return The original map with a reset button added.
 #'
 addMapReset <- function(map, bbox = NULL) {
   btn <- leaflet::easyButton(
