@@ -2109,9 +2109,10 @@ TADA_GetATTAINSByAUID <- function(
           )
       } else {
         catchments <- catchments.filt
-        warning("Problem with ExpertQuery, returning catchments without all fields")
-        }
-
+        warning(
+          "Problem with ExpertQuery, returning catchments without all fields"
+        )
+      }
     }
   }
 
