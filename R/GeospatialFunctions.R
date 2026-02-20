@@ -286,11 +286,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
   
-  our_epsg <- 5070
+  out_epsg <- 5070
 
   if (!is.null(.data) && inherits(.data, "sf")) {
     .data <- .data |>
-      sf::st_transform(crs = our_epsg) |>
+      sf::st_transform(crs = out_epsg) |>
       dplyr::distinct(geometry, .keep_all = TRUE)
   }
 
@@ -315,7 +315,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
 
     # Transform the distinct data into an `sf` object
-    .data <- TADA_MakeSpatial(.data = distinct_data, crs = our_epsg)
+    .data <- TADA_MakeSpatial(.data = distinct_data, crs = out_epsg)
   }
 
   if (is.null(.data) || nrow(.data) == 0) {
@@ -355,10 +355,10 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   points_sf <- .data
   
   catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |> 
-    sf::st_transform(our_epsg) |> 
+    sf::st_transform(out_epsg) |> 
     sf::st_make_valid()
   
-  distance_threshold <- 100
+  distance_threshold <- 100 # meters; this could be made into a function parameter?
   try(
     {
       # Index of nearest polygon for each point
@@ -518,7 +518,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
     # If data is already spatial, just make sure it is in the right CRS
     if (!is.null(.data) & inherits(.data, "sf")) {
       if (sf::st_crs(.data)$epsg != 4326) {
-        geospatial_data <- .data |> sf::st_transform(4326)
+        geospatial_data <- .data |> sf::st_transform(out_epsg)
       } else {
         geospatial_data <- .data
       }
