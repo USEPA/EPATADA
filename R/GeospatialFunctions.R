@@ -362,11 +362,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   try(
     {
       # Index of nearest polygon for each point
-      idx <- st_nearest_feature(points_sf, catchment_features)
+      idx <- sf::st_nearest_feature(points_sf, catchment_features)
       # Distance from each point to its nearest polygon
-      d <- st_distance(points_sf, catchment_features[idx, ], by_element = TRUE)
+      d <- sf::st_distance(points_sf, catchment_features[idx, ], by_element = TRUE)
       # Keep only those matches within the threshold
-      keep <- d <= maxdist
+      keep <- as.numeric(d) <= distance_threshold
       # The set of polygons that are chosen by at least one point within threshold
       catchment_features <- catchment_features  |>  slice(unique(idx[keep])) 
     },
