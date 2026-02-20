@@ -948,7 +948,10 @@ createTADABasemap <- function(.data) {
     position = "topleft",
     onClick = htmlwidgets::JS(sprintf(
       "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2], bbox[1], bbox[4], bbox[3]
+      bbox[2],
+      bbox[1],
+      bbox[4],
+      bbox[3]
     ))
   )
 
@@ -956,7 +959,10 @@ createTADABasemap <- function(.data) {
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
       group = "World topo",
-      options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)
+      options = leaflet::providerTileOptions(
+        updateWhenZooming = FALSE,
+        updateWhenIdle = TRUE
+      )
     ) |>
     leaflet::clearShapes() |>
     leaflet::fitBounds(bbox[1], bbox[2], bbox[3], bbox[4]) |>
@@ -975,23 +981,23 @@ createTADABasemap <- function(.data) {
 #'
 #' @return The basemap for TADA mapping functions.
 #'
-addMapReset <- function(map,
-                              bbox = NULL) {
-
+addMapReset <- function(map, bbox = NULL) {
   btn <- leaflet::easyButton(
     icon = "fa-arrows-alt",
     title = "Reset view",
     position = "topleft",
     onClick = htmlwidgets::JS(sprintf(
       "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
-      bbox[2], bbox[1], bbox[4], bbox[3]
+      bbox[2],
+      bbox[1],
+      bbox[4],
+      bbox[3]
     ))
   )
 
-  map <- map |>
-    leaflet::addEasyButton(btn)
+  map <- map |> leaflet::addEasyButton(btn)
 
-  rm (btn)
+  rm(btn)
 
   return(map)
 }
