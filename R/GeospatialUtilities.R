@@ -939,7 +939,9 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
 #' @return The basemap for TADA mapping functions.
 #'
 createTADABasemap <- function(.data) {
-  stopifnot(all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data)))
+  stopifnot(all(
+    c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data)
+  ))
   bbox <- createBBox(.data, as_vector = TRUE)
 
   btn <- leaflet::easyButton(
