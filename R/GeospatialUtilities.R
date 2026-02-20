@@ -938,42 +938,61 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
 #'
 #' @return The basemap for TADA mapping functions.
 #'
-# Create base map
 createTADABasemap <- function(.data) {
-  if (
-    !all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data))
-  ) {
-    stop(
-      "createTADABasemap: .data must contain TADA.LongitudeMeasure and TADA.LatitudeMeasure columns."
-    )
-  }
-
-  # create bounding box for map using internal function
+  stopifnot(all(c("TADA.LongitudeMeasure", "TADA.LatitudeMeasure") %in% names(.data)))
   bbox <- createBBox(.data, as_vector = TRUE)
 
-  # create base map
-  map <- leaflet::leaflet() |>
+  btn <- leaflet::easyButton(
+    icon = "fa-arrows-alt",
+    title = "Reset view",
+    position = "topleft",
+    onClick = htmlwidgets::JS(sprintf(
+      "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
+      bbox[2], bbox[1], bbox[4], bbox[3]
+    ))
+  )
+
+  leaflet::leaflet() |>
     leaflet::addProviderTiles(
       "Esri.WorldTopoMap",
       group = "World topo",
-      options = leaflet::providerTileOptions(
-        updateWhenZooming = FALSE,
-        updateWhenIdle = TRUE
-      )
+      options = leaflet::providerTileOptions(updateWhenZooming = FALSE, updateWhenIdle = TRUE)
     ) |>
     leaflet::clearShapes() |>
-    leaflet::fitBounds(
-      lng1 = bbox[1],
-      lat1 = bbox[2],
-      lng2 = bbox[3],
-      lat2 = bbox[4]
-    ) |>
-    leaflet.extras::addResetMapButton()
+    leaflet::fitBounds(bbox[1], bbox[2], bbox[3], bbox[4]) |>
+    addMapReset(bbox = bbox)
 
-  # remove intermediate objects
-  rm(bbox)
+}
 
-  # return base map
+#' addMapReset
+#'
+#' Internal function to add a reset button to the map to return it to its
+#' original extent.
+#'
+#' @param map A leaflet map to add the reset button to.
+#'
+#' @param bbox The bounding box the map view should return to.
+#'
+#' @return The basemap for TADA mapping functions.
+#'
+addMapReset <- function(map,
+                              bbox = NULL) {
+
+  btn <- leaflet::easyButton(
+    icon = "fa-arrows-alt",
+    title = "Reset view",
+    position = "topleft",
+    onClick = htmlwidgets::JS(sprintf(
+      "function(btn, map){ map.fitBounds([[%f,%f],[%f,%f]]); }",
+      bbox[2], bbox[1], bbox[4], bbox[3]
+    ))
+  )
+
+  map <- map |>
+    leaflet::addEasyButton(btn)
+
+  rm (btn)
+
   return(map)
 }
 

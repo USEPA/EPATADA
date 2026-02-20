@@ -61,7 +61,6 @@ Imports:
     ggplot2, 
     sf,
     leaflet,
-    leaflet.extras,
     plotly,
     urltools,
     geojsonsf,
