@@ -359,7 +359,7 @@ column.
 Let's run `TADA_MakeSpatial()` to make the water quality data spatial.
 
 ```{r makespatial}
-# default CRS is WGS84 (4326), adds epsg and geometry column at end
+# Adds epsg and geometry column at end, uses default CRS WGS84 (4326)
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
