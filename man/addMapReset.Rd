@@ -12,7 +12,7 @@ addMapReset(map, bbox = NULL)
 \item{bbox}{The bounding box the map view should return to.}
 }
 \value{
-The basemap for TADA mapping functions.
+The original map with a reset button added.
 }
 \description{
 Internal function to add a reset button to the map to return it to its

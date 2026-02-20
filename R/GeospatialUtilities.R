@@ -973,7 +973,7 @@ createTADABasemap <- function(.data) {
 #'
 #' @param bbox The bounding box the map view should return to.
 #'
-#' @return The basemap for TADA mapping functions.
+#' @return The original map with a reset button added.
 #'
 addMapReset <- function(map,
                               bbox = NULL) {
