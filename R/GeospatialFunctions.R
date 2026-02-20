@@ -285,7 +285,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   message(
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
-  
+
   our_epsg <- 5070
 
   if (!is.null(.data) && inherits(.data, "sf")) {
@@ -353,22 +353,26 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   }
 
   points_sf <- .data
-  
-  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |> 
-    sf::st_transform(our_epsg) |> 
+
+  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |>
+    sf::st_transform(our_epsg) |>
     sf::st_make_valid()
-  
+
   distance_threshold <- 100
   try(
     {
       # Index of nearest polygon for each point
       idx <- sf::st_nearest_feature(points_sf, catchment_features)
       # Distance from each point to its nearest polygon
-      d <- sf::st_distance(points_sf, catchment_features[idx, ], by_element = TRUE)
+      d <- sf::st_distance(
+        points_sf,
+        catchment_features[idx, ],
+        by_element = TRUE
+      )
       # Keep only those matches within the threshold
       keep <- as.numeric(d) <= distance_threshold
       # The set of polygons that are chosen by at least one point within threshold
-      catchment_features <- catchment_features  |>  slice(unique(idx[keep])) 
+      catchment_features <- catchment_features |> slice(unique(idx[keep]))
     },
     silent = TRUE
   )
