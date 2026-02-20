@@ -1300,10 +1300,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param return_sf Whether to return the ATTAINS associated catchments, lines,
 #' points, and polygon shapefile objects along with the data frame(s).
 #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326). If fill_USGS_catch = TRUE and return_sf = TRUE,
-#' the function will additionally return the raw catchment features associated
-#' with the observations in TADA_without_ATTAINS in a new shapefile called
-#' without_ATTAINS_catchments. Defaults to TRUE.
+#' are in WGS84 (crs = 4326). Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data.
@@ -1683,7 +1680,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 
   return(final_list)
 }
-
 
 #' TADA_GetATTAINSByAUID
 #'
@@ -2080,38 +2076,40 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
 
-    # get one catchment per WQP location
-    catchments.cw <- filt.data |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        HorizontalCoordinateReferenceSystemDatumName
-      ) |>
-      dplyr::distinct() |>
-      TADA_MakeSpatial() |>
-      sf::st_join(catchments, join = sf::st_nearest_feature) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-      dplyr::mutate(catchCount = dplyr::n()) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
-      dplyr::distinct() |>
-      sf::st_drop_geometry()
+    if (nrow(catchments) > 0) {
+      # get one catchment per WQP location
+      catchments.cw <- filt.data |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          HorizontalCoordinateReferenceSystemDatumName
+        ) |>
+        dplyr::distinct() |>
+        TADA_MakeSpatial() |>
+        sf::st_join(catchments, join = sf::st_nearest_feature) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+        dplyr::mutate(catchCount = dplyr::n()) |>
+        dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
+        dplyr::distinct() |>
+        sf::st_drop_geometry()
 
-    catchments.filt <- catchments |>
-      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+      catchments.filt <- catchments |>
+        dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
 
-    catchments.no.geo <- catchments |>
-      sf::st_drop_geometry() |>
-      dplyr::distinct()
+      catchments.no.geo <- catchments |>
+        sf::st_drop_geometry() |>
+        dplyr::distinct()
 
-    try(
-      catchments <- catchments.filt |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitId")
-        ),
-      silent = TRUE
-    )
+      try(
+        catchments <- catchments.filt |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitId")
+          ),
+        silent = TRUE
+      )
+    }
   }
   if (inherits(water_types, "try-error")) {
     catchments <- catchments.filt
@@ -2122,11 +2120,15 @@ TADA_GetATTAINSByAUID <- function(
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
     geo.data <- geo.data |>
-      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
+      dplyr::rename(
+        ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier
+      ) |>
+      TADA_CorrectColType()
 
     # join data from ATTAINS with TADA df
     df <- .data |>
-      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
+      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier")) |>
+      TADA_CorrectColType()
 
     # Bind with existing attains.geo data
     attains.geo <- plyr::rbind.fill(attains.geo, df)
@@ -3015,10 +3017,9 @@ TADA_FindNearbySites <- function(
 #' testdat <- Data_MT_MissoulaCounty
 #'
 #' # find unique nearby sites
-#' testdat.unique <-testdat |>
-#' TADA_FindNearbySites() |>
-#' TADA_GetUniqueNearbySites()
-#' )
+#' testdat.unique <- testdat |>
+#'   TADA_FindNearbySites() |>
+#'   TADA_GetUniqueNearbySites()
 #' }
 #'
 TADA_GetUniqueNearbySites <- function(.data) {
@@ -3100,9 +3101,10 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' When batch_upload = TRUE, the list will contain an additional data frame formatted
 #' for compatibility with ATTAINS batch upload for Monitoring_Stations.
 #'
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
-#'          [TADA_GetATTAINSAUMLCrosswalk()]
-#'          [TADA_UpdateATTAINSAUMLCrosswalk()]
+#' @seealso
+#' [TADA_CreateATTAINSAUMLCrosswalk()]
+#' [TADA_GetATTAINSAUMLCrosswalk()]
+#' [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -3518,12 +3520,12 @@ TADA_CreateAUMLCrosswalk <- function(
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- TADA_CreateATTAINSAUMLCrosswalk(
-      #spsUtil::quiet(
+      # spsUtil::quiet(
       get.attains.mls,
       return_nearest = return_nearest,
       return_sf = TRUE,
       org_id = org_id
-    ) #)
+    ) # )
   }
 
   # remove intermediate objects
