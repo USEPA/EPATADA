@@ -1309,7 +1309,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
             ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+              "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1379,7 +1379,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
             ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+              "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1714,6 +1714,17 @@ TADA_ParametersForAnalysis <- function(
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
     )
 
+    # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateParamRef",
+      cols = 3,
+      rows = 1:nrow(CreateParamRef) + 1,
+      type = "contains",
+      rule = c("Not Applicable for Analysis."),
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
+    )
+    
     # remove intermediate objects
     rm(max_loops)
 
@@ -2147,7 +2158,7 @@ TADA_UsesForAnalysis <- function(
       # tidyr::drop_na(ATTAINS.ParameterName) |>
       dplyr::filter(
         ATTAINS.ParameterName !=
-          "No parameter match for TADA.ComparableDataIdentifier"
+          "Not Applicable for Analysis."
       ) |>
       dplyr::distinct() |>
       dplyr::mutate(
