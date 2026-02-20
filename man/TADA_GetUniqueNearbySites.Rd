@@ -26,10 +26,9 @@ stations that have a nearby station.
 testdat <- Data_MT_MissoulaCounty
 
 # find unique nearby sites
-testdat.unique <-testdat |>
-TADA_FindNearbySites() |>
-TADA_GetUniqueNearbySites()
-)
+testdat.unique <- testdat |>
+  TADA_FindNearbySites() |>
+  TADA_GetUniqueNearbySites()
 }
 
 }

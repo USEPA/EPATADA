@@ -648,10 +648,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
   # if clean = TRUE, remove flagged data
   if (clean == TRUE) {
-    clean.data <- dplyr::filter(
-      flag.data,
-      flag.data$TADA.ActivityType.Flag == "Non_QC"
-    )
+    clean.data <- dplyr::filter(flag.data, TADA.ActivityType.Flag == "Non_QC")
   }
 
   # if flaggedonly = FALSE, return full clean dataframe
