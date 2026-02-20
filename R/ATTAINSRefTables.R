@@ -421,7 +421,7 @@ TADA_GetTADACharAliasRef <- function(
   TADACharAliasRef <- TADACharAliasRef |>
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, source)|>
     dplyr::filter(source %in% "WQX.CharAlias")|> 
-    dplyr::full_join(TADACharAliasRef, by = c("ATTAINS.ParameterName")) |>
+    dplyr::full_join(TADACharAliasRef, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") |>
     dplyr::mutate(CharacteristicName = dplyr::if_else(is.na(CharacteristicName.y), CharacteristicName.x, CharacteristicName.y)) |> 
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source = source.y, CAS_NO, review) |>
     dplyr::distinct()
