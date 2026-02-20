@@ -130,22 +130,61 @@ TRUE. It performs a variety of tasks, for example:
 
 In this example, we will get dissolved oxygen concentration, Escherichia coli, 
 and pH data from January 2020 to December 2022 (two years) from 
-Missoula County, Montana.
+Missoula County, Montana. Then we will run the following three functions:
 
-```{r load_wqp_data}
-tada.MT <- TADA_DataRetrieval(
+`TADA_RunKeyFlagFunctions` is a shortcut function to run important TADA
+flagging functions. See ?function documentation for TADA_FlagResultUnit,
+TADA_FlagFraction, TADA_FlagMeasureQualifierCode, and
+TADA_FlagSpeciation for more information.
+
+Censored data are measurements for which the true value is not known,
+but we can estimate the value based on known lower or upper detection
+conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
+and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
+from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
+*TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
+using the `TADA_AutoClean` function. The TADA package currently has functions 
+that summarize censored data incidence in the dataset and perform simple 
+substitutions of censored data values, including x times the detection limit 
+and random selection of a value between 0 and the detection limit. 
+The user may specify the methods used for non-detects and over-detects 
+separately in the input to the `TADA_SimpleCensoredMethods` function. 
+In this example, no censored data results were found.
+
+The `TADA_HarmonizeSynonyms` function converts synonymous data to a unified 
+naming format for easier aggregation, analysis, and visualization.
+
+```{r load_WQP_data_dev, include = F, eval = T}
+# Load the example dataset
+# tada.MT.clean should be the same as this example data
+utils::data("Data_MT_MissoulaCounty", package = "EPATADA")
+```
+
+```{r load_wqp_data, eval = F}
+Data_MT_MissoulaCounty <- TADA_DataRetrieval(
   startDate = "2020-01-01",
   endDate = "2022-12-31",
   statecode = "MT",
-  characteristicName = c(
-    "Dissolved oxygen (DO)",
-    "Escherichia coli",
-    "pH"
-  ),
+  characteristicName = c("Escherichia", "Escherichia coli", "pH"),
   countycode = "Missoula County",
-  applyautoclean = TRUE,
   ask = FALSE
-)
+  ) |>
+  TADA_RunKeyFlagFunctions() |>
+  TADA_SimpleCensoredMethods() |>
+  TADA_HarmonizeSynonyms()
+```
+
+Rename the Data_MT_MissoulaCounty data frame to tada.MT. Generate a table:
+
+```{r rename}
+# Assign it to tada.MT
+tada.MT.clean <- Data_MT_MissoulaCounty
+
+# Optionally, remove the original dataset from the environment
+rm(Data_MT_MissoulaCounty)
+
+# Generate a table
+TADA_TableExport(tada.MT.clean)
 ```
 
 ### Flag, clean, and visualize
@@ -158,7 +197,7 @@ Create a pie chart to display the count of results for each TADA.CharacteristicN
 
 ```{r review_chars}
 TADA_FieldValuesPie(
-  tada.MT,
+  tada.MT.clean,
   field = "TADA.CharacteristicName",
   characteristicName = "null"
 )
@@ -172,7 +211,7 @@ Are there any media types that are not water?
 ```{r filter_media}
 # Create table with count for each ActivityMediaName
 media <- TADA_FieldValuesTable(
-  tada.MT,
+  tada.MT.clean,
   field = "ActivityMediaName"
 )
 
@@ -184,7 +223,7 @@ count, visit count and characteristic counts along with the site ID,
 site name, and organization name.
 
 ```{r overview_map}
-TADA_OverviewMap(tada.MT)
+TADA_OverviewMap(tada.MT.clean)
 ```
 
 Let's take a quick look at all unique values in the
@@ -194,7 +233,7 @@ associated with each.
 ```{r review_locations}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 sites <- TADA_FieldValuesTable(
-  tada.MT,
+  tada.MT.clean,
   field = "MonitoringLocationIdentifier"
 )
 
@@ -206,102 +245,17 @@ What about OrganizationFormalName?
 ```{r review_orgs}
 # use TADA_FieldValuesTable to create a table of the number of results per MonitoringLocationIdentifier
 orgs <- TADA_FieldValuesTable(
-  tada.MT,
+  tada.MT.clean,
   field = "OrganizationFormalName",
 )
 
 DT::datatable(orgs, fillContainer = TRUE)
 ```
 
-Next, let's check if the dataset contains potential duplicate results
-from within a single organization or from within multiple organizations
-(such as when two or more organizations monitor the same location and
-may submit duplicate results).
-
-If potential duplicates from multiple organizations are found, you can choose
-to prioritize results from one organization over another, this can be done 
-using the org_hierarchy
-argument in `TADA_FindPotentialDuplicatesMultipleOrgs`.
-
-```{r duplicates}
-# find duplicates from single org
-tada.MT.singleorg.dups <- TADA_FindPotentialDuplicatesSingleOrg(tada.MT)
-
-# Review organizations. You can select one to prioritize in TADA_FindPotentialDuplicatesMultipleOrgs
-unique(tada.MT.singleorg.dups$OrganizationIdentifier)
-unique(tada.MT.singleorg.dups$OrganizationFormalName)
-
-# find duplicates across multiple orgs
-tada.MT.multipleorgs.dups <- TADA_FindPotentialDuplicatesMultipleOrgs(
-  tada.MT.singleorg.dups
-)
-```
-
-We will select to keep only unique samples from
-`TADA_FindPotentialDuplicatesSingleOrg` where TADA.SingleOrgDup.Flag equals "Unique".
-
-```{r duplicate_filter}
-tada.MT.clean <- tada.MT.multipleorgs.dups |>
-  dplyr::filter(TADA.SingleOrgDup.Flag == "Unique") |>
-  dplyr::filter(TADA.ResultSelectedMultipleOrgs == "Y")
-```
-
-Remove intermediate variables in R by using 'rm()'. In the remainder of
-this workshop, we will work with the clean data set.
-
-```{r remove_intermediate_variables}
-to_rm <- c("tada.MT.nearby.flag.dups", "tada.MT.nearby", "tada.MT.filter")
-rm(list = to_rm[to_rm %in% ls()])
-```
-
-Censored data are measurements for which the true value is not known,
-but we can estimate the value based on known lower or upper detection
-conditions and limit types. TADA fills missing *TADA.ResultMeasureValue*
-and *TADA.ResultMeasure.MeasureUnitCode* values with values and units
-from *TADA.DetectionQuantitationLimitMeasure.MeasureValue* and
-*TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode*, respectively,
-using the `TADA_AutoClean` function.
-
-The TADA package currently has functions that summarize censored data
-incidence in the dataset and perform simple substitutions of censored
-data values, including x times the detection limit and random selection
-of a value between 0 and the detection limit. The user may specify the
-methods used for non-detects and over-detects separately in the input to
-the `TADA_SimpleCensoredMethods` function. The next step we take in this
-example is to perform simple conversions to the censored data in the
-dataset: we keep over-detects as is (no conversion made) and convert
-non-detect values to 0.5 times the detection limit (half the detection
-limit).
-
-In this example, no censored data results were found. The input
-tada.MT.clean data is returned.
-
-```{r address_nondetects}
-tada.MT.clean <- TADA_SimpleCensoredMethods(
-  tada.MT.clean,
-  nd_method = "multiplier",
-  nd_multiplier = 0.5,
-  od_method = "as-is",
-  od_multiplier = "null"
-)
-```
-
 `TADA_FindQCActivities` identifies results with QA/QC identifies results with QA/QC ActivityTypeCodes. When clean = TRUE, it removes QA/QC results.
 
 ```{r find_QC_activities}
 tada.MT.clean <- TADA_FindQCActivities(tada.MT.clean, clean = TRUE)
-```
-
-TADA_RunKeyFlagFunctions is a shortcut function to run important TADA
-flagging functions. See ?function documentation for TADA_FlagResultUnit,
-TADA_FlagFraction, TADA_FlagMeasureQualifierCode, and
-TADA_FlagSpeciation for more information.
-
-```{r TADA_RunKeyFlagFunctions}
-tada.MT.clean <- TADA_RunKeyFlagFunctions(
-  tada.MT.clean,
-  clean = TRUE
-)
 ```
 
 The functions TADA_FlagAboveThreshold and TADA_FlagBelowThreshold are used to flag results falling above and below the WQX national thresholds, respectively. When clean = TRUE, the flagged results are removed from the TADA data frame.
@@ -372,7 +326,7 @@ for the assessment unit identifier "MT76M001_020".
 
 Does our TADA data frame contain any of these monitoring locations?
 
-```{r TADA_GetATTAINSCrosswalk}
+```{r TADA_GetATTAINSCrosswalk, eval = F}
 ATTAINS.cw <- TADA_GetATTAINSAUMLCrosswalk(
   org_id = "MTDEQ"
 ) |>
@@ -394,7 +348,7 @@ user.supplied.cw. If any monitoring locations remain unassigned after checking
 the user-supplied crosswalk, the function will check the ATTAINS crosswalk 
 (see ATTAINS.cw above), then lastly, the geospatial join, as needed.
 
-```{r TADA_CreateAUMLCrosswalk}
+```{r TADA_CreateAUMLCrosswalk, eval = F}
 # make AU assignments for unassigned MLs
 MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
   au_ref = user.supplied.cw,
@@ -417,7 +371,7 @@ The data frame, TADA_with_ATTAINS contains all of the clean TADA data as well as
 
 Now, let's view the assessment units and monitoring locations on a map to review the assessment unit/monitoring location assignments.
 
-```{r TADA_ViewATTAINS}
+```{r TADA_ViewATTAINS, eval = F}
 TADA_ViewATTAINS(MT.AUMLRef, ref_icons = TRUE)
 ```
 
@@ -427,7 +381,7 @@ Let's filter our TADA data frame to a single assessment unit "MT76M001_020",
 and for a single TADA.CharacteristicName, "DISSOLVED OXYGEN (DO)" for
 demonstration purposes for the remainder of this example.
 
-```{r TADA_with_ATTAINS}
+```{r TADA_with_ATTAINS, eval = F}
 # get subset DO data for one AU
 tada.MT.clean.DO <- MT.AUMLRef$TADA_with_ATTAINS |>
   sf::st_drop_geometry() |>
@@ -447,7 +401,7 @@ prior ATTAINS assessment cycle for MTDEQ. Users can append additional rows or
 remove use names as needed. See the TADA Module 2: Geospatial Functions 
 vignette for more information.
 
-```{r assign_uses_ATTAINS}
+```{r assign_uses_ATTAINS, eval = F}
 AU.uses <- TADA_AssignUsesToAU(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
@@ -470,7 +424,7 @@ For ATTAINS.WaterType, please ensure this matches the
 ATTAINS.WaterType from the output of MT.AUMLRef$ATTAINS_crosswalk for your 
 assessment unit.
 
-```{r assign_uses_manual}
+```{r assign_uses_manual, eval = F}
 names(TADA_AssignUsesToAU())
 
 AU.uses.user.supplied <- data.frame(
@@ -521,7 +475,7 @@ The EPA 304A criteria and methodologies are also available for use.
 
 For this demo, We will load in a pre-filled criteria template for MTDEQ (draft). The reference tables may need additional review by the region and states/tribes.
 
-```{r TADA_DefineCriteriaMethodology}
+```{r TADA_DefineCriteriaMethodology, eval = F}
 # Load the example R8 criteria table for MTDEQ
 criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
 load(criteria_table)
@@ -595,7 +549,7 @@ which will be compared to the results from your TADA data frame for DO for a
 single assessment unit, "MT76M001_020". We will join your TADA data frame to the
 criteria table using the MTDEQ table sourced from the TADACommunityHub.
 
-```{r table_review}
+```{r table_review, eval = F}
 # join use and criteria to tada df (many to many relationships may occur)
 tada.MT.clean.DO2 <- dplyr::left_join(
   tada.MT.clean.DO,
@@ -618,7 +572,7 @@ criteria (magnitude, duration and frequency) and methodologies information
 (e.g. seasonality and data sufficiency) entered into the Criteria and
 Methodologies Template.
 
-```{r scatterplot}
+```{r scatterplot, eval = F}
 TADA_scatters <- list()
 
 n <- length(tada.MT.do.subsets)
@@ -667,7 +621,7 @@ Here is what the scatter plots might look like if the
 and methodologies information was determined to be the appropriate criteria 
 for this assessment unit and applied.
 
-```{r scatterplots}
+```{r scatterplots, eval = F}
 names(TADA_scatters)
 # TADA_scatters
 TADA_scatters[[1]]
