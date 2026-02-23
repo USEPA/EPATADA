@@ -12,7 +12,8 @@ TADA_UpdateATTAINSAUMLCrosswalk(
   wqp_data_links = "add",
   update_mlid = TRUE,
   batch_upload = FALSE,
-  check_links = FALSE
+  check_links = FALSE,
+  api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
 )
 }
 \arguments{
@@ -67,6 +68,11 @@ the TADA workflow. Default is batch_upload = FALSE.}
 \item{check_links}{Boolean argument. When check_links = TRUE the function
 will examine the response code of each MS_DATA_LINK URL and only retain those
 with a 200 response, which indicates the URL is valid.}
+
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is reccomended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 When batch_upload = FALSE, A dataframe with six columns:
