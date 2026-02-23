@@ -1796,10 +1796,10 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
     # Return empty ATTAINS objects
     return(list(
       "TADA_with_ATTAINS" = no_WQP_data,
-      "ATTAINS_catchments" = ATTAINS_catchments,
-      "ATTAINS_points" = ATTAINS_points,
-      "ATTAINS_lines" = ATTAINS_lines,
-      "ATTAINS_polygons" = ATTAINS_polygons
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
     ))
   }
 
