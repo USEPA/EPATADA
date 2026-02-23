@@ -11,10 +11,10 @@ output:
     fig_height: 8
     fig_width: 8
 vignette: >
-  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\VignetteDepends{EPATADA}
+  %\VignetteIndexEntry{TADA Module 2: Geospatial Functions}
+  %\VignetteEngine{knitr::rmarkdown}
 description: An overview of TADA Module 2 functions and a recommended workflow focused on A) creating an ATTAINS assessment unit/WQP monitoring location crosswalk, B) reviewing assessment units and monitoring locations on a map, C) submitting an up to date assessment unit/WQP monitoring location crosswalk to ATTAINS, and D) assigning uses to assessment units.
 editor_options:
   chunk_output_type: console
@@ -185,6 +185,39 @@ rm(Data_MT_MissoulaCounty)
 
 # Generate a table
 TADA_TableExport(tada.MT.clean)
+```
+
+## Expert Query API Key
+
+Some aspects of the Module 2 workflow depend on ATTAINS data imported
+via Expert Query web services. While public, Expert Query web services
+require an API key, a unique identifier used to authenticate access to
+the Expert Query API. The EPATADA package contains a default API key for
+Expert Query, so users who do not have their own API key can still use
+these functions.
+
+However, Expert Query API keys are rate limited, meaning that if many
+users are all accessing Expert Query data using the same key at the same
+time, server failures from too many requests may occur. Best practice is
+for each EPATADA user is to obtain their own, individual API key by
+requesting one here: [API Key Signup
+Form](https://owapps.epa.gov/expertquery/api-key-signup){.uri}.
+
+![](images/clipboard-3767373632.png)
+
+If you have your own API key, uncomment the code below and assign your
+API key to the "api_key" variable. Otherwise, the default EPATADA
+package key will be used.
+
+```{r api_key}
+
+# api_key <- "paste your key here"
+
+# is user does not provide key, set api_key as NULL
+if (!exists("api_key")) {
+  api_key <- NULL
+}
+
 ```
 
 # Step A: Discover ML/AU Matches
