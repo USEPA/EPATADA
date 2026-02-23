@@ -2,20 +2,27 @@
 % Please edit documentation in R/CriteriaRefTables.R
 \name{TADA_GetLegendCSTRef}
 \alias{TADA_GetLegendCSTRef}
-\title{Legend for the Criteria Search Tool Reference Table}
+\title{Legend for the Criteria Search Tool (CST)}
 \usage{
-TADA_GetLegendCSTRef()
+TADA_GetLegendCSTRef(download_only = FALSE, refresh = FALSE)
+}
+\arguments{
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback
+and attempts to download the latest table directly from EPA, returning it
+without updating the cache. Errors if the download fails. If FALSE (default),
+uses a cached copy when available and updates the cache; on download failure,
+falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-Updated sysdata.rda with updated CriteriaSearchToolRef object
+data.frame of the CST legend
 }
 \description{
-This function downloads the legend from the EPA's Criteria Search Tool which
-contains State-Specific Water Quality Standards Effective under the Clean
-Water Act (CWA). This function caches the table after it has been called once
-so subsequent calls will be faster.
-}
-\examples{
-CWACriteria <- TADA_GetLegendCSTRef()
-
+Downloads the CST Legend (sheet 1 of the CST workbook), normalizes
+the table, and caches the result for the session. Falls back to the
+installed RDA under inst/extdata if the download fails.
 }

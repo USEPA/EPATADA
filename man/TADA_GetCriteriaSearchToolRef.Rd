@@ -4,20 +4,26 @@
 \alias{TADA_GetCriteriaSearchToolRef}
 \title{Criteria Search Tool (CST) Reference Table}
 \usage{
-TADA_GetCriteriaSearchToolRef()
+TADA_GetCriteriaSearchToolRef(download_only = FALSE, refresh = FALSE)
+}
+\arguments{
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback
+and attempts to download the latest table directly from EPA, returning it
+without updating the cache. Errors if the download fails. If FALSE (default),
+uses a cached copy when available and updates the cache; on download failure,
+falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-Updated sysdata.rda with updated CriteriaSearchToolRef object
+data.frame of the CST criteria table
 }
 \description{
-This function downloads State-Specific Water Quality Standards Effective
-under the Clean Water Act (CWA) from EPA's Criteria Search Tool. This file is
-reformatted as a data frame for use in R. This function caches the table after
-it has been called once so subsequent calls will be faster. To get the data
-dictionary for the CST see TADA_GetLegendCSTRef. For the WQS document sources
-see TADA_GetSourcesCSTRef.
-}
-\examples{
-CWACriteria <- TADA_GetCriteriaSearchToolRef()
-
+Downloads the State-Specific Water Quality Standards Effective under the CWA
+from EPA's Criteria Search Tool (sheet 3 of the CST workbook), normalizes
+the table, and caches the result for the session. Falls back to the
+installed RDA under inst/extdata if the download fails.
 }

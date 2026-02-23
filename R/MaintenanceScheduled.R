@@ -71,7 +71,7 @@
   # CriteriaRefTables.R
   tryCatch(
     {
-      TADA_UpdateCriteriaSearchToolRef()
+      .TADA_UpdateCriteriaSearchToolRef()
     },
     error = function(e) {
       message("Error updating EPA CST reference: ", e$message)
@@ -80,7 +80,7 @@
   # Legend for CriteriaRefTables.R
   tryCatch(
     {
-      TADA_UpdateLegendCSTRef()
+      .TADA_UpdateLegendCSTRef()
     },
     error = function(e) {
       message("Error updating Legend for EPA CST reference: ", e$message)
@@ -89,7 +89,7 @@
   # Sources for CriteriaRefTables.R
   tryCatch(
     {
-      TADA_UpdateSourcesCSTRef()
+      .TADA_UpdateSourcesCSTRef()
     },
     error = function(e) {
       message("Error updating Sources for EPA CST reference: ", e$message)
