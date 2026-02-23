@@ -1868,14 +1868,18 @@ TADA_GetATTAINSByAUID <- function(
         sf::st_drop_geometry() |>
         dplyr::distinct()
 
-      try(
+      if (!inherits(water_types, "try-error")) {
         catchments <- catchments.filt |>
           dplyr::left_join(
             water_types,
             by = c("assessmentunitidentifier" = "assessmentUnitId")
-          ),
-        silent = TRUE
-      )
+          )
+      } else {
+        catchments <- catchments.filt
+        warning(
+          "Problem with ExpertQuery, returning catchments without all fields"
+        )
+      }
     }
   }
 
