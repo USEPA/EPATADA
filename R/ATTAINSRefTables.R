@@ -297,9 +297,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_CST_WQX = n / stringr::str_count(POLLUTANT_NAME, "\\S+")
     ) |>
     # If CST to WQX char must be strict, choose best match only using slice_max
-    dplyr::slice_max(
-      order_by = percent_match_WQX_CST + percent_match_CST_WQX
-    ) |>
+    # dplyr::slice_max(
+    #   order_by = percent_match_WQX_CST + percent_match_CST_WQX
+    # ) |>
     dplyr::right_join(CST, by = "POLLUTANT_NAME", relationship = "many-to-many") |>
     dplyr::filter(
       percent_match_WQX_CST >= WQX.CST.tolerance|

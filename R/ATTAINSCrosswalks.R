@@ -1272,16 +1272,16 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       print(paste0(
-        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
-        "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, \n",
+        "finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found."
       ))
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName
         )
@@ -1295,7 +1295,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1345,13 +1345,13 @@ TADA_ParametersForAnalysis <- function(
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName
         )
@@ -1365,7 +1365,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1416,7 +1416,7 @@ TADA_ParametersForAnalysis <- function(
             "No crosswalk was provided and no exact matches were found for this organization."
           )
         ) |>
-        dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::distinct()
     }
 
