@@ -1897,11 +1897,7 @@ TADA_GetATTAINSByAUID <- function(
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(
-  .data,
-  au_ref,
-  fill_ATTAINS_catch = FALSE
-) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
