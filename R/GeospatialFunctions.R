@@ -1751,12 +1751,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(
-  .data,
-  au_ref = NULL,
-  fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
-) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1798,25 +1793,14 @@ TADA_GetATTAINSByAUID <- function(
       TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
-    # In this case we'll need to return empty ATTAINS objects
-    if (return_sf == TRUE) {
-      ATTAINS_catchments <- NULL
-      ATTAINS_lines <- NULL
-      ATTAINS_points <- NULL
-      ATTAINS_polygons <- NULL
-
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = ATTAINS_catchments,
-        "ATTAINS_points" = ATTAINS_points,
-        "ATTAINS_lines" = ATTAINS_lines,
-        "ATTAINS_polygons" = ATTAINS_polygons
-      ))
-
-      # If return_sf == FALSE, then just return the dataframe:
-    } else {
-      return(no_WQP_data)
-    }
+    # Return empty ATTAINS objects
+    return(list(
+      "TADA_with_ATTAINS" = no_WQP_data,
+      "ATTAINS_catchments" = ATTAINS_catchments,
+      "ATTAINS_points" = ATTAINS_points,
+      "ATTAINS_lines" = ATTAINS_lines,
+      "ATTAINS_polygons" = ATTAINS_polygons
+    ))
   }
 
   req.cols <- c(
