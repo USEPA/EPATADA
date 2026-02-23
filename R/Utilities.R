@@ -421,7 +421,7 @@ utils::globalVariables(c(
   "Mismatch",
   "Ref.WaterType",
   "Alias.Type.Name",
-  "CAS_NO CAS.Number",
+  "CAS_NO",
   "Char_Flag.x",
   "Char_Flag.y",
   "Characteristic.Name",
@@ -455,6 +455,10 @@ utils::globalVariables(c(
   "code",
   "context",
   "CriteriaSearchToolRef",
+  "ATTAINS_catchments",
+  "attains.imgs",
+  "attains.labels",
+  "icon.labels",
   "ATTAINS.ParameterName.x",
   "Ref.AssessmentUnitIdentifier"
 ))

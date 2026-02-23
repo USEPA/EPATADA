@@ -161,7 +161,8 @@
 #' # Example 3: fill template with EPA304(a)
 #' # and ATTAINS parameters and uses for MTDEQ:
 #' epa_MT <- TADA_DefineCriteriaMethodology(Data_MT_MissoulaCounty,
-#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE)
+#'   org_id = c("USEPA", "MTDEQ"), auto_assign = TRUE
+#' )
 #'
 TADA_DefineCriteriaMethodology <- function(
   .data,

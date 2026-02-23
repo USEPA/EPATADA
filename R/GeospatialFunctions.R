@@ -1300,10 +1300,7 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' @param return_sf Whether to return the ATTAINS associated catchments, lines,
 #' points, and polygon shapefile objects along with the data frame(s).
 #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326). If fill_USGS_catch = TRUE and return_sf = TRUE,
-#' the function will additionally return the raw catchment features associated
-#' with the observations in TADA_without_ATTAINS in a new shapefile called
-#' without_ATTAINS_catchments. Defaults to TRUE.
+#' are in WGS84 (crs = 4326). Defaults to TRUE.
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data.
@@ -1812,149 +1809,6 @@ TADA_GetATTAINSByAUID <- function(
       ATTAINS_lines <- NULL
       ATTAINS_points <- NULL
       ATTAINS_polygons <- NULL
-    }
-  }
-
-  final_features <- list(
-    "TADA_with_ATTAINS" = TADA_with_ATTAINS,
-    "ATTAINS_catchments" = catchments,
-    "ATTAINS_points" = points,
-    "ATTAINS_lines" = lines,
-    "ATTAINS_polygons" = polygons
-  )
-
-  return(final_features)
-}
-
-
-#' TADA_GetATTAINSByAUID
-#'
-#' Returns ATTAINS data for assessment unit identifiers provided by the user.
-#'
-#' This function can be used to fetch information for known assessment unit
-#' identifier/monitoring location combinations in order to provide data compatible
-#' with the results of TADA_CreateATTAINSAUMLCrosswalk for previously unidentified assessment unit
-#' identifier/monitoring location combinations.
-#'
-#' @param .data A TADA data frame including including some results from monitoring
-#' locations already paired with assessment unit identifiers.
-#'
-#' @param au_ref Required. A df containing the existing crosswalk of known
-#' AU and monitoring location identifier combinations. Can be created using
-#' TADA_GetATTAINSAUMLCrosswalk or provided by the user from an external file.
-#' Must contain the columns ATTAINS.MonitoringLocationIdentifier,
-#' and ATTAINS.AssessmentUnitIdentifier. The monitoring location identifiers must
-#' match those in the WQP, which may contain the organization and provider in
-#' the MonitoringLocationIdentifier.
-#'
-#' @param fill_ATTAINS_catch Boolean argument. Specifies whether catchment-based
-#' ATTAINS assessment unit data (EPA snapshot of NHDPlus HR catchments associated
-#' with entity submitted assessment unit features - points, lines, and polygons)
-#' should be queried and downloaded for the assessment units included in the
-#' USER-SUPPLIED `au_ref`. When fill_ATTAINS_catch = TRUE, the catchment data
-#' are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
-#' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
-#' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
-#'
-#' @param return_sf Whether to return the ATTAINS associated catchments, lines,
-#' points, and polygon shapefile objects along with the data frame(s).
-#' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326).
-#'
-#' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-#' columns associated with the ATTAINS assessment unit data.
-#' Moreover, if return_sf = TRUE, this function will additionally return the
-#' raw ATTAINS and catchment shapefile features associated with those
-#' observations.
-#'
-#' @seealso [TADA_DataRetrieval()]
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
-#'
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' # Example 1: Basic use with default settings
-#' # Assume my_data is a TADA data frame with some monitoring
-#' # location results
-#' # Assume my_au_ref is a data frame containing known AU and monitoring
-#' # location combinations
-#' result <- TADA_GetATTAINSByAUID(my_data, au_ref = my_au_ref)
-#'
-#' # Example 2: Fetching ATTAINS data with catchment information
-#' # Set fill_ATTAINS_catch to TRUE to include catchment data in the output
-#' result_with_catch <- TADA_GetATTAINSByAUID(my_data,
-#'   au_ref = my_au_ref,
-#'   fill_ATTAINS_catch = TRUE
-#' )
-#'
-#' # Example 3: Handling empty data frames
-#' # If the input data frame has no observations, the function returns an
-#' # empty data frame with ATTAINS columns
-#' empty_data <- data.frame()
-#' empty_result <- TADA_GetATTAINSByAUID(empty_data, au_ref = my_au_ref)
-#'
-#' # Example 4: Custom AU reference data from an external file
-#' # Load AU reference data from a CSV file and use it in the function
-#' au_ref_from_file <- read.csv("path/to/au_ref.csv")
-#' result_with_file_au_ref <- TADA_GetATTAINSByAUID(my_data,
-#'   au_ref = au_ref_from_file
-#' )
-#' }
-#'
-TADA_GetATTAINSByAUID <- function(
-  .data,
-  au_ref = NULL,
-  fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
-) {
-  # function settings that we ensure go back to their original settings
-  # after the function stops running:
-  original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
-  suppressMessages(sf::sf_use_s2(FALSE))
-  original_timeout <- getOption("timeout")
-  options(timeout = 30000)
-  on.exit(options(timeout = original_timeout), add = TRUE)
-  on.exit(
-    suppressMessages(suppressWarnings(sf::sf_use_s2(original_s2))),
-    add = TRUE
-  )
-
-  attains_names <- renameATTAINSCols(return_list = TRUE)
-
-  # should ATTAINS prefixed cols already present stop this function?
-  if (any(attains_names %in% colnames(.data))) {
-    # remove intermediate object
-    rm(attains_names)
-
-    # print message and stop function
-    stop("Your data has already been joined with ATTAINS data.")
-  }
-
-  if (nrow(.data) == 0) {
-    # if no WQP observations, return a modified `data` with empty ATTAINS-related columns:
-    message(
-      "Your dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
-    )
-
-    # Add ATTAINS columns with NA values
-    col_val_list <- stats::setNames(
-      object = rep(x = list(NA), times = length(attains_names)),
-      nm = attains_names
-    )
-
-    no_WQP_data <- .data |>
-      dplyr::mutate(ResultIdentifier = NA) |>
-      dplyr::bind_cols(col_val_list) |>
-      TADA_CorrectColType() |>
-      dplyr::select(ResultIdentifier, dplyr::everything())
-
-    # In this case we'll need to return empty ATTAINS objects
-    if (return_sf == TRUE) {
-      ATTAINS_catchments <- NULL
-      ATTAINS_lines <- NULL
-      ATTAINS_points <- NULL
-      ATTAINS_polygons <- NULL
 
       return(list(
         "TADA_with_ATTAINS" = no_WQP_data,
@@ -2222,49 +2076,55 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
 
-    # get one catchment per WQP location
-    catchments.cw <- filt.data |>
-      dplyr::select(
-        TADA.MonitoringLocationIdentifier,
-        TADA.LatitudeMeasure,
-        TADA.LongitudeMeasure,
-        HorizontalCoordinateReferenceSystemDatumName
-      ) |>
-      dplyr::distinct() |>
-      TADA_MakeSpatial() |>
-      sf::st_join(catchments, join = sf::st_nearest_feature) |>
-      dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
-      dplyr::mutate(catchCount = dplyr::n()) |>
-      dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
-      dplyr::distinct() |>
-      sf::st_drop_geometry()
+    if (nrow(catchments) > 0) {
+      # get one catchment per WQP location
+      catchments.cw <- filt.data |>
+        dplyr::select(
+          TADA.MonitoringLocationIdentifier,
+          TADA.LatitudeMeasure,
+          TADA.LongitudeMeasure,
+          HorizontalCoordinateReferenceSystemDatumName
+        ) |>
+        dplyr::distinct() |>
+        TADA_MakeSpatial() |>
+        sf::st_join(catchments, join = sf::st_nearest_feature) |>
+        dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
+        dplyr::mutate(catchCount = dplyr::n()) |>
+        dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
+        dplyr::distinct() |>
+        sf::st_drop_geometry()
 
-    catchments.filt <- catchments |>
-      dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
+      catchments.filt <- catchments |>
+        dplyr::filter(nhdplusid %in% catchments.cw$nhdplusid)
 
-    catchments.no.geo <- catchments |>
-      sf::st_drop_geometry() |>
-      dplyr::distinct()
+      catchments.no.geo <- catchments |>
+        sf::st_drop_geometry() |>
+        dplyr::distinct()
 
-    try(
-      catchments <- catchments.filt |>
-        dplyr::left_join(
-          water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitId")
-        ),
-      silent = TRUE
-    )
+      try(
+        catchments <- catchments.filt |>
+          dplyr::left_join(
+            water_types,
+            by = c("assessmentunitidentifier" = "assessmentUnitId")
+          ),
+        silent = TRUE
+      )
+    }
   }
 
   # internal function to combine attains.geo data
   combineATTAINSGeo <- function(.data, geo.data, attains.geo) {
     # rename AU column in geo.data
     geo.data <- geo.data |>
-      dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier)
+      dplyr::rename(
+        ATTAINS.AssessmentUnitIdentifier = assessmentunitidentifier
+      ) |>
+      TADA_CorrectColType()
 
     # join data from ATTAINS with TADA df
     df <- .data |>
-      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier"))
+      dplyr::left_join(geo.data, by = c("ATTAINS.AssessmentUnitIdentifier")) |>
+      TADA_CorrectColType()
 
     # Bind with existing attains.geo data
     attains.geo <- plyr::rbind.fill(attains.geo, df)
@@ -3153,10 +3013,9 @@ TADA_FindNearbySites <- function(
 #' testdat <- Data_MT_MissoulaCounty
 #'
 #' # find unique nearby sites
-#' testdat.unique <-testdat |>
-#' TADA_FindNearbySites() |>
-#' TADA_GetUniqueNearbySites()
-#' )
+#' testdat.unique <- testdat |>
+#'   TADA_FindNearbySites() |>
+#'   TADA_GetUniqueNearbySites()
 #' }
 #'
 TADA_GetUniqueNearbySites <- function(.data) {
@@ -3238,9 +3097,10 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' When batch_upload = TRUE, the list will contain an additional data frame formatted
 #' for compatibility with ATTAINS batch upload for Monitoring_Stations.
 #'
-#' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
-#'          [TADA_GetATTAINSAUMLCrosswalk()]
-#'          [TADA_UpdateATTAINSAUMLCrosswalk()]
+#' @seealso
+#' [TADA_CreateATTAINSAUMLCrosswalk()]
+#' [TADA_GetATTAINSAUMLCrosswalk()]
+#' [TADA_UpdateATTAINSAUMLCrosswalk()]
 #'
 #' @export
 #'
@@ -3656,12 +3516,12 @@ TADA_CreateAUMLCrosswalk <- function(
 
     # use get attains for matching remaining monitoring locations
     get.attains.matches <- TADA_CreateATTAINSAUMLCrosswalk(
-      #spsUtil::quiet(
+      # spsUtil::quiet(
       get.attains.mls,
       return_nearest = return_nearest,
       return_sf = TRUE,
       org_id = org_id
-    ) #)
+    ) # )
   }
 
   # remove intermediate objects
