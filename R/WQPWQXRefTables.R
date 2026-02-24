@@ -1274,3 +1274,94 @@ TADA_UpdateWQPOrgProviderRef <- function() {
     row.names = FALSE
   )
 }
+
+
+
+# Used to store cached WQX Characteristic Alias Reference Table
+WQXCharAliasRef_Cached <- NULL
+
+#' WQX Characteristic Alias Reference Table
+#'
+#' Function downloads and returns the newest available (cleaned)
+#' raw Water Quality Exchange (WQX) Characteristic Alias reference table.
+#' The WQXCharAliasRef dataframe contains information for 
+#' TADA_GetTADACharAliasRef() function.
+#'
+#' This function caches the table after it has been called once
+#' so subsequent calls will be faster.
+#'
+#' @return Updated sysdata.rda with updated WQXCharAliasRef object
+#'
+#' @export
+
+TADA_GetWQXCharAliasRef <- function() {
+  # Try to download up-to-date data
+  raw.data <- tryCatch(
+    {
+      # Try to download up to date WQX Char Alias table
+      # pull in WQX Char Alias table.
+      temp_zip <- tempfile(fileext = ".zip")
+      
+      utils::download.file(
+        "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip",
+        destfile = temp_zip,
+        mode = "wb"
+      )
+      
+      temp_dir <- tempdir() # Create a temporary directory to extract files
+      utils::unzip(temp_zip, exdir = temp_dir)
+      
+      # specify CSV file name
+      csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
+      
+      utils::read.csv(csv_file_path)
+    },
+    error = function(err) NULL
+  )
+
+  # If the download failed fall back to internal data (and report it)
+  if (is.null(raw.data)) {
+    message("Downloading latest WQXCharAliasRef Reference Table failed!")
+    message("Falling back to (possibly outdated) internal file.")
+    
+    file_path <- system.file(
+      "extdata",
+      "WQXCharAliasRef.rda",
+      package = "EPATADA"
+    )
+    if (!nzchar(file_path) || !file.exists(file_path)) {
+      stop(
+        "Internal file 'extdata/WQXCharAliasRef.rda' not found in installed package."
+      )
+    }
+    
+    ref_env <- new.env(parent = emptyenv())
+    nm <- load(file_path, envir = ref_env)
+    if (!"WQXCharAliasRef" %in% nm) {
+      stop("Internal .rda does not contain object 'WQXCharAliasRef'.")
+    }
+    WQXCharAliasRef <- ref_env[["WQXCharAliasRef"]]
+  }
+  
+  # Save updated table in cache
+  WQXCharAliasRef <- raw.data
+  
+  WQXCharAliasRef_Cached <- WQXCharAliasRef
+  
+  WQXCharAliasRef
+}
+
+# Update Characteristic Validation Reference Table internal file
+# (for internal use only)
+
+TADA_UpdateWQXCharAliasRef <- function() {
+  WQXCharAliasRef <- TADA_GetWQXCharAliasRef()
+  stopifnot(is.data.frame(WQXCharAliasRef))
+  save(
+    WQXCharAliasRef,
+    file = "inst/extdata/WQXCharAliasRef.rda",
+    ascii = FALSE,
+    compress = "xz",
+    version = 3
+  )
+}

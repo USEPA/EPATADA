@@ -636,7 +636,11 @@ TADA_DefineCriteriaMethodology <- function(
           
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
-          CST_ATTAINS_Param <- TADA_GetTADACharAliasRef() |>
+          CST_ATTAINS_Param <- utils::read.csv(system.file(
+            "extdata",
+            "TADACharAliasRef.csv",
+            package = "EPATADA"
+          )) |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
@@ -650,13 +654,14 @@ TADA_DefineCriteriaMethodology <- function(
           )))
 
           # pulls in uses alias table between ATTAINS.UseName and CST uses
-          uses <- suppressMessages(TADA_UsesAliasForReview(
-            ATTAINS.CST.tolerance = 0.15, # lower tolerance for more matches to ensure user reviews the uses crosswalks.
-            CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long.
+          uses <- utils::read.csv(system.file(
+            "extdata",
+            "TADAUsesAliasRef.csv",
+            package = "EPATADA"
           ))
           # filters uses crosswalk by the org_id
           uses <- uses |>
-            dplyr::mutate(ATTAINS.UseName = toupper(name)) |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
             dplyr::filter(
               !is.na(ATTAINS.OrganizationIdentifier),
               ATTAINS.OrganizationIdentifier %in%
@@ -756,7 +761,6 @@ TADA_DefineCriteriaMethodology <- function(
               CST.CriteriaTypeWaterOrg = CRITERIATYPE_WATERORG,
               CST.SourceLink
             ) |>
-            #dplyr::filter(!is.na(CST.StdPollutantName)) |>
             dplyr::distinct()
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
