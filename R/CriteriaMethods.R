@@ -680,11 +680,17 @@ TADA_DefineCriteriaMethodology <- function(
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
 
+          
+          
+          #########################
+          CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |> dplyr::right_join(uses) |> dplyr::filter(ATTAINS.OrganizationIdentifier== "UTAHDWQ") |> dplyr::right_join(char, "POLLUTANT_NAME") |> dplyr::filter(ATTAINS.ParameterName %in% na.omit(unique(test_cst2_1$ATTAINS.ParameterName)))
+          
+          
           # join the parameter and pollutant names from ATTAINS and CST
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::left_join(
               CST_ATTAINS_Param,
-              by = c("TADA.CharacteristicName" = "CharacteristicName"),
+              by = c("TADA.CharacteristicName" = "CharacteristicName", "ATTAINS.ParameterName"),
               relationship = "many-to-many"
             ) |>
             dplyr::mutate(
@@ -692,12 +698,15 @@ TADA_DefineCriteriaMethodology <- function(
               ATTAINS.ParameterName = ATTAINS.ParameterName.x
             ) |>
             # Now join by ATTAINS uses and CST uses
-            dplyr::left_join(
+            dplyr::full_join(
               uses,
-              c("ATTAINS.UseName", "ATTAINS.OrganizationIdentifier"),
+              c("ATTAINS.OrganizationIdentifier"),
               relationship = "many-to-many"
             ) |>
-            dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
+            dplyr::mutate(
+              dplyr::across(where(is.character), toupper),
+              ATTAINS.UseName = ATTAINS.UseName.y
+            ) |>
             # Now, pull in the magnitude value if the CST pollutant name and uses are matched
             dplyr::left_join(
               CriteriaSearchToolRef,
