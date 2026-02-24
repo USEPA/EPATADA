@@ -333,36 +333,27 @@ TADA_MediaFilter <- function(
   }
 
   # Read the monitoring location reference table
-  ref_path <- system.file(
-    "extdata",
-    "WQXMonitoringLocationTypeNameRef.csv",
-    package = "EPATADA"
-  )
-  has_ref <- nzchar(ref_path) && file.exists(ref_path)
+  monitoring_location_types <- TADA_GetMonLocTypeRef()
 
-  if (has_ref) {
-    monitoring_location_types <- utils::read.csv(ref_path, check.names = FALSE)
+  # Standardize names for robust detection
+  std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
 
-    # Standardize names for robust detection
-    std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
+  # Exact matches: "Name" and "TADA.Media.Flag"
+  idx_name <- match("name", std_names)
+  idx_flag <- match("tada.media.flag", std_names)
 
-    # Exact matches: "Name" and "TADA.Media.Flag"
-    idx_name <- match("name", std_names)
-    idx_flag <- match("tada.media.flag", std_names)
+  if (!is.na(idx_name)) {
+    names(monitoring_location_types)[idx_name] <- "Name"
+    monitoring_location_types <- monitoring_location_types |>
+      dplyr::mutate(Name = toupper(Name))
+  } else {
+    has_ref <- FALSE
+  }
 
-    if (!is.na(idx_name)) {
-      names(monitoring_location_types)[idx_name] <- "Name"
-      monitoring_location_types <- monitoring_location_types |>
-        dplyr::mutate(Name = toupper(Name))
-    } else {
-      has_ref <- FALSE
-    }
-
-    if (!is.na(idx_flag)) {
-      names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
-    } else {
-      monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
-    }
+  if (!is.na(idx_flag)) {
+    names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
+  } else {
+    monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
   }
 
   # Uppercase ML type name in .data for reliable joining
