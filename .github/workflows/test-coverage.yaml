@@ -1,12 +1,9 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-on:
-  push:
-    branches: [develop]
-  pull_request:
-    branches: [develop]
-
 name: test-coverage
+
+on:
+  workflow_run:
+    workflows: ["R-CMD-check"]   # Must match the 'name:' in your check workflow
+    types: [completed]
 
 permissions:
   contents: write
@@ -15,12 +12,22 @@ permissions:
 
 jobs:
   test-coverage:
+    # Only run if the R-CMD-check workflow concluded successfully
+    # and was triggered by a push to the develop branch.
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Check out the same commit that passed R-CMD-check
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -70,7 +77,7 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
-          if-no-files-found: ignore  # Suppress warnings if no files are found
+          if-no-files-found: ignore
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v6

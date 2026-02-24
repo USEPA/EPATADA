@@ -1,17 +1,17 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-
 name: R-CMD-check
 
 on:
   push:
     branches: [develop]
 
-  # Triggered by the formatter after it completes (opened or ready_for_review)
+  pull_request:
+    branches: [develop]
+    types: [opened, ready_for_review]  # opened PRs and when drafts are converted
+
+  # Keep your existing triggers if you still need them
   repository_dispatch:
     types: [ci_after_format]
 
-  # Manual trigger (works for draft PR branches too)
   workflow_dispatch:
     inputs:
       ref:
@@ -25,6 +25,8 @@ on:
 
 jobs:
   R-CMD-check:
+    # Skip draft PRs; allow all non-PR events (push, dispatch, manual)
+    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
@@ -43,6 +45,14 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
+      # Checkout for PR runs
+      - name: Check out (pull_request)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # build the PR head
+          fetch-depth: 0
+
       # Checkout for formatter-dispatched PR runs
       - name: Check out PR head (dispatch)
         if: ${{ github.event_name == 'repository_dispatch' }}
@@ -92,8 +102,8 @@ jobs:
         env:
           _R_CHECK_FORCE_SUGGESTS_: "false"
 
-      # Push to develop and manual runs: full check — build vignettes
-      - name: R CMD check (push/manual — build vignettes)
+      # Push to develop, manual, and PR runs: full check — build vignettes
+      - name: R CMD check (push/manual/PR — build vignettes)
         if: ${{ github.event_name != 'repository_dispatch' }}
         uses: r-lib/actions/check-r-package@v2
         with:

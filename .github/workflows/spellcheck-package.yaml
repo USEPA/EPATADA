@@ -1,20 +1,39 @@
+name: spelling-check
+
 on:
   push:
     branches: [develop]
-  pull_request:
-    branches: develop
 
-name: spelling-check
+  # Run on PRs targeting develop (first open or when moved out of draft)
+  pull_request:
+    branches: [develop]
+    types: [opened, ready_for_review]
+
+  # Manual trigger (works for draft PR branches too)
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch, tag, or SHA) to check (optional)"
+        required: false
+        default: ""
 
 jobs:
   spelling-check:
     runs-on: ubuntu-latest
+
+    # Skip on draft PRs; still runs for push and manual runs
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      
+
     steps:
-      - uses: actions/checkout@v6
-      
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          # Use provided ref for manual runs; otherwise use the event ref
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
@@ -24,10 +43,9 @@ jobs:
         shell: Rscript {0}
 
       - name: Spellcheck root directory (include vignettes)
-        id: spellcheck # Assign ID to this step for output
         run: |
           result <- spelling::spell_check_package()
-          result
+          print(result)
           if (length(result[[1]]) != 0) {
             stop("Spelling errors found (fix or add to WORDLIST)")
           }

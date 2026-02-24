@@ -1,29 +1,96 @@
-name: Scheduled Component File Update
+name: Component Maintenance (stale-gated)
 
 on:
-  # Daily at 2:01AM https://crontab.guru/
+  # Weekly at 2:01 AM UTC — adjust as needed
   schedule:
-    - cron: '1 2 * * *'
+    - cron: '1 2 * * 1'
+  # Manual trigger (optionally force maintenance even if not stale)
+  workflow_dispatch:
+    inputs:
+      force_maintenance:
+        type: boolean
+        default: false
+        description: "Run maintenance even if develop is not stale"
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: maintenance-${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  TARGET_BRANCH: develop
+  MAINTENANCE_BRANCH: maintenance/component-files
 
 jobs:
-  maintenance_updates:
+  check_develop_staleness:
+    name: Check develop staleness (>=14 days)
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      stale: ${{ steps.compute.outputs.stale }}
+      last_commit_iso: ${{ steps.compute.outputs.last_commit_iso }}
+      last_commit_sha: ${{ steps.compute.outputs.last_commit_sha }}
+      days_since: ${{ steps.compute.outputs.days_since }}
+    steps:
+      - name: Compute staleness via GitHub API
+        id: compute
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const branch = process.env.TARGET_BRANCH || 'develop';
+
+            const { data: commits } = await github.rest.repos.listCommits({
+              owner, repo, sha: branch, per_page: 1
+            });
+
+            if (!commits || commits.length === 0) {
+              core.info(`No commits found on ${branch}; treating as stale.`);
+              core.setOutput('stale', 'true');
+              core.setOutput('last_commit_iso', '');
+              core.setOutput('last_commit_sha', '');
+              core.setOutput('days_since', '999');
+              return;
+            }
+
+            const commit = commits[0];
+            const dateStr =
+              (commit.commit.committer && commit.commit.committer.date) ||
+              (commit.commit.author && commit.commit.author.date);
+            const lastCommitDate = new Date(dateStr);
+            const now = new Date();
+            const diffDays = Math.floor((now - lastCommitDate) / (1000 * 60 * 60 * 24));
+            const isStale = diffDays >= 14;
+
+            core.info(`Last commit on ${branch}: ${lastCommitDate.toISOString()} (${diffDays} days ago). Stale=${isStale}`);
+            core.setOutput('stale', String(isStale));
+            core.setOutput('last_commit_iso', lastCommitDate.toISOString());
+            core.setOutput('last_commit_sha', commit.sha);
+            core.setOutput('days_since', String(diffDays));
+
+  maintenance:
+    name: Maintenance: update component files and open PR
+    needs: [check_develop_staleness]
+    # Run if the weekly schedule finds it stale, or manually when forced
+    if: ${{ (github.event_name == 'schedule' && needs.check_develop_staleness.outputs.stale == 'true') || (github.event_name == 'workflow_dispatch' && inputs.force_maintenance == true) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
-      - name: Checkout repo (existing branch)
-        uses: actions/checkout@v6
-        id: bad-checkout
-        continue-on-error: true
+      - name: Checkout develop
+        uses: actions/checkout@v4
         with:
-          ref: maintenance-branch
-        # If the first checkout fails, we checkout the `develop` branch by default
-      - name: Fallback to default branch
-        if: steps.bad-checkout.outcome == 'failure'
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -32,28 +99,21 @@ jobs:
 
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-        
-      - name: Install EPATADA package
+        with:
+          extra-packages: any::remotes
+
+      - name: Install EPATADA package (develop)
         run: |
           install.packages("remotes")
           library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
         shell: Rscript {0}
-        
+
       - name: Update reference files
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateRefFiles()
         shell: Rscript {0}
-
-      - name: Commit updated reference files
-        uses: EndBug/add-and-commit@v9
-        with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: "Update reference files"
-          add: '[./inst/extdata/*]'
-          new_branch: maintenance-branch
 
       - name: Update example data
         run: |
@@ -61,12 +121,40 @@ jobs:
           EPATADA:::.TADA_UpdateExampleData()
         shell: Rscript {0}
 
-      - name: Commit updated example data
-        uses: EndBug/add-and-commit@v9
+      - name: Create or update maintenance PR
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
         with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: "Update example data"
-          add: '[./data/*]'
-          new_branch: maintenance-branch
-          
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ env.TARGET_BRANCH }}
+          branch: ${{ env.MAINTENANCE_BRANCH }}
+          commit-message: "chore(maintenance): update component files [skip ci]"
+          title: "Automated component file updates"
+          body: |
+            This PR was created automatically because 'develop' has been inactive for at least 14 days
+            or maintenance was manually forced.
+            - Last commit on develop: ${{ needs.check_develop_staleness.outputs.last_commit_iso }}
+            - Days since last commit: ${{ needs.check_develop_staleness.outputs.days_since }}
+            - Last commit SHA: ${{ needs.check_develop_staleness.outputs.last_commit_sha }}
+
+            The workflow ran EPATADA maintenance tasks and committed any resulting changes.
+          labels: |
+            maintenance
+            automated
+          signoff: true
+
+      - name: Report PR URL or skip
+        run: |
+          if [ -n "${{ steps.cpr.outputs.pull-request-url }}" ]; then
+            echo "PR opened/updated: ${{ steps.cpr.outputs.pull-request-url }}"
+          else
+            echo "No changes produced by maintenance; no PR created."
+          fi
+
+  maintenance_skipped:
+    name: Maintenance skipped (not stale)
+    needs: [check_develop_staleness]
+    if: ${{ github.event_name == 'schedule' && needs.check_develop_staleness.outputs.stale != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "develop is not stale (last commit ${{ needs.check_develop_staleness.outputs.last_commit_iso }}, ${{ needs.check_develop_staleness.outputs.days_since }} days ago). Skipping maintenance."

@@ -1,13 +1,15 @@
+# Combined PR auto-format and manual format-update workflow
+name: formatting
+
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
-
-name: format-commit
+  workflow_dispatch:
 
 jobs:
-  format-commit:
-    # Skip when the actor is the bot (prevents the workflow from re-running on its own push)
-    if: ${{ github.actor != 'github-actions[bot]' }}
+  # Auto-format on PRs
+  format-pr:
+    if: github.event_name == 'pull_request_target' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,10 +27,16 @@ jobs:
       - name: Install air
         uses: posit-dev/setup-air@v1
 
-      - name: Format with air
+      # Same-repo PRs: format and try to push changes
+      - name: Format with air (same-repo PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        env:
+          # Avoid exposing token to tools that process untrusted code
+          GITHUB_TOKEN: ""
         run: air format .
 
       - name: Commit and push formatting changes
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         id: pushfmt
         shell: bash
         run: |
@@ -56,8 +64,42 @@ jobs:
             echo "Formatting changes pushed."
           else
             echo "pushed=false" >> "$GITHUB_OUTPUT"
-            echo "Could not push formatting changes (maintainer edits disabled?)."
+            echo "Could not push formatting changes (likely fork or edits disabled)."
           fi
+
+      # Fork PRs: check formatting and fail with a helpful comment
+      - name: Check formatting (fork PRs, no push)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        env:
+          GITHUB_TOKEN: ""
+        shell: bash
+        run: |
+          set -e
+          if air format --check .; then
+            echo "Formatting is correct."
+          else
+            echo "Formatting issues detected."
+            exit 1
+          fi
+
+      - name: Comment on PR about formatting (fork PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository && failure() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr=${{ github.event.pull_request.number }}
+          body=$(cat <<'MD'
+          Thanks for the contribution! The formatter found issues.
+
+          Because this PR comes from a fork, the bot cannot push fixes. Please:
+          - Install Air: https://github.com/posit-dev/setup-air
+          - Run: air format .
+          - Commit and push the changes
+
+          Alternatively, a maintainer can run the "format-update" workflow on a branch in this repository.
+          MD
+          )
+          gh pr comment "$pr" --body "$body"
 
       # Trigger CI only when the PR is not a draft and the event is the initial open or ready_for_review.
       # This ensures checks run AFTER formatting has completed.
@@ -68,7 +110,6 @@ jobs:
           GH_REPO: ${{ github.repository }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Prepare repository_dispatch payload for downstream workflows
           json=$(cat <<'JSON'
           {
             "event_type": "ci_after_format",
@@ -86,3 +127,26 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${GH_REPO}/dispatches" \
             -d "${json}"
+
+  # Manual, branch-local format-and-commit (run from Actions tab)
+  format-update:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install
+        uses: posit-dev/setup-air@v1
+
+      - name: Format
+        run: air format .
+
+      - name: Commit updates
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'github-actions[bot]'
+          author_email: '41898282+github-actions[bot]@users.noreply.github.com'
+          message: "style: apply formatting via air"
