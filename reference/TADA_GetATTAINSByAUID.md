@@ -6,12 +6,7 @@ user.
 ## Usage
 
 ``` r
-TADA_GetATTAINSByAUID(
-  .data,
-  au_ref = NULL,
-  fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
-)
+TADA_GetATTAINSByAUID(.data, au_ref, fill_ATTAINS_catch = FALSE)
 ```
 
 ## Arguments
@@ -43,21 +38,13 @@ TADA_GetATTAINSByAUID(
   fill_ATTAINS_catch = TRUE, may increase the run time of the function
   significantly. Default is fill_ATTAINS_catch = FALSE.
 
-- return_sf:
-
-  Whether to return the ATTAINS associated catchments, lines, points,
-  and polygon shapefile objects along with the data frame(s). TRUE (yes,
-  return list) or FALSE (no, do not return). All shapefile features are
-  in WGS84 (crs = 4326).
-
 ## Value
 
 A modified
 [`TADA_DataRetrieval()`](https://usepa.github.io/EPATADA/reference/TADA_DataRetrieval.md)
 dataframe or list with additional columns associated with the ATTAINS
-assessment unit data. Moreover, if return_sf = TRUE, this function will
-additionally return the raw ATTAINS and catchment shapefile features
-associated with those observations.
+assessment unit data and the raw ATTAINS and catchment shapefile
+features associated with those observations.
 
 ## Details
 

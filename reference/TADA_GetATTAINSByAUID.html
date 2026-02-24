@@ -65,12 +65,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_GetATTAINSByAUID</span><span class="op">(</span></span>
-<span>  <span class="va">.data</span>,</span>
-<span>  au_ref <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  return_sf <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_GetATTAINSByAUID</span><span class="op">(</span><span class="va">.data</span>, <span class="va">au_ref</span>, fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -102,21 +97,12 @@ are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.</p></dd>
 
-
-<dt id="arg-return-sf">return_sf<a class="anchor" aria-label="anchor" href="#arg-return-sf"></a></dt>
-<dd><p>Whether to return the ATTAINS associated catchments, lines,
-points, and polygon shapefile objects along with the data frame(s).
-TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-are in WGS84 (crs = 4326).</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A modified <code><a href="TADA_DataRetrieval.html">TADA_DataRetrieval()</a></code> dataframe or list with additional
-columns associated with the ATTAINS assessment unit data.
-Moreover, if return_sf = TRUE, this function will additionally return the
-raw ATTAINS and catchment shapefile features associated with those
-observations.</p>
+columns associated with the ATTAINS assessment unit data and the raw
+ATTAINS and catchment shapefile features associated with those observations.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
