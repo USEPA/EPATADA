@@ -75,7 +75,6 @@ CreatePairRef
 CreateUnitRef
 CreateWaterusesRef
 CriteriaMethods
-CriteriaSearchToolRef
 Cybertown
 DEV
 DataFrame
@@ -310,7 +309,6 @@ SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
 SiteGroup
-SourcesCSTRef
 Speciation
 SpeciationAssumptions
 SpeciationUnitConversion

@@ -454,7 +454,6 @@ utils::globalVariables(c(
   "TADA.NearbySiteGroup.New",
   "code",
   "context",
-  "CriteriaSearchToolRef",
   "ATTAINS_catchments",
   "attains.imgs",
   "attains.labels",
