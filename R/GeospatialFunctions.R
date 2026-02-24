@@ -354,8 +354,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   points_sf <- .data
 
-  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |> 
-    sf::st_transform(out_epsg) |> 
+  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |>
+    sf::st_transform(out_epsg) |>
     sf::st_make_valid()
   
   distance_threshold <- 100 # meters; this could be made into a function parameter?
