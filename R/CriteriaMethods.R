@@ -630,6 +630,10 @@ TADA_DefineCriteriaMethodology <- function(
           DefineCriteriaMethodology <- DefineCriteriaMethodology
         }
         if (!"" %in% org_id) {
+          # upper case all character columns for consistency
+          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+            dplyr::mutate(dplyr::across(where(is.character), toupper))
+          
           # all lines below will focus on joining CST magnitude values to the auto_assign table
           # pulls in alias crosswalk between CST STD.PollutantName and ATTAINS.ParameterName
           CST_ATTAINS_Param <- TADA_GetTADACharAliasRef() |>
@@ -675,10 +679,6 @@ TADA_DefineCriteriaMethodology <- function(
               UNIT_NAME = stringr::str_replace_all(UNIT_NAME, "\u00B5", "u"),
               dplyr::across(where(is.character), toupper)
             )
-
-          # upper case all character columns for consistency
-          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-            dplyr::mutate(dplyr::across(where(is.character), toupper))
 
           # pull in the CST source link
           file_path <- system.file(
@@ -756,10 +756,8 @@ TADA_DefineCriteriaMethodology <- function(
               CST.CriteriaTypeWaterOrg = CRITERIATYPE_WATERORG,
               CST.SourceLink
             ) |>
-            dplyr::filter(!is.na(CST.StdPollutantName)) |>
+            #dplyr::filter(!is.na(CST.StdPollutantName)) |>
             dplyr::distinct()
-
-
 
           # print message to indicate we are joining CST magnitudes to user criteria table, additional review is likely needed.
           if (nrow(DefineCriteriaMethodology) == 0) {
@@ -815,39 +813,39 @@ TADA_DefineCriteriaMethodology <- function(
           # ) |>
           #   dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper))
           
-          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-            dplyr::left_join(
-              TADAPriorityCharConvertRef,
-              by = c("MagnitudeUnit" = "Code"),
-              keep = TRUE
-            ) |>
-            TADA_CorrectColType() |>
-            dplyr::mutate(
-              Conversion.Factor = dplyr::if_else(
-                is.na(Conversion.Factor),
-                1,
-                Conversion.Factor
-              ),
-              MagnitudeUnit = Target.Unit,
-              MagnitudeValueLower = round(
-                Conversion.Factor * MagnitudeValueLower,
-                digits = 4
-              ),
-              MagnitudeValueUpper = round(
-                Conversion.Factor * MagnitudeValueUpper,
-                digits = 4
-              ),
-              EquationBased = dplyr::if_else(
-                # Is at least one of the CST columns present and non-NA?
-                dplyr::if_any(dplyr::any_of(c("TADA.CharacteristicName", "CST.StdPollutantName", "CST.USE")), ~ !is.na(.x)) &
-                  # Are BOTH magnitude columns present and NA?
-                  dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
-                "Yes",
-                "No",
-                missing = "No"  # match the type of "Yes"/"No"
-              )
-            ) |>
-            dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
+          # DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+          #   dplyr::left_join(
+          #     TADAPriorityCharConvertRef,
+          #     by = c("MagnitudeUnit" = "Code"),
+          #     keep = TRUE
+          #   ) |>
+          #   TADA_CorrectColType() |>
+          #   dplyr::mutate(
+          #     Conversion.Factor = dplyr::if_else(
+          #       is.na(Conversion.Factor),
+          #       1,
+          #       Conversion.Factor
+          #     ),
+          #     MagnitudeUnit = Target.Unit,
+          #     MagnitudeValueLower = round(
+          #       Conversion.Factor * MagnitudeValueLower,
+          #       digits = 4
+          #     ),
+          #     MagnitudeValueUpper = round(
+          #       Conversion.Factor * MagnitudeValueUpper,
+          #       digits = 4
+          #     ),
+          #     EquationBased = dplyr::if_else(
+          #       # Is at least one of the CST columns present and non-NA?
+          #       dplyr::if_any(dplyr::any_of(c("TADA.CharacteristicName", "CST.StdPollutantName", "CST.USE")), ~ !is.na(.x)) &
+          #         # Are BOTH magnitude columns present and NA?
+          #         dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
+          #       "Yes",
+          #       "No",
+          #       missing = "No"  # match the type of "Yes"/"No"
+          #     )
+          #   ) |>
+          #   dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
 
           # Now, convert using WQX unit ref to match the TADA.ResultMeasureUnit
           # DefineCriteriaMethodology <- DefineCriteriaMethodology |>
@@ -1167,13 +1165,13 @@ TADA_DefineCriteriaMethodology <- function(
       dplyr::distinct()
     
     # identify dups with NA to remove
-    DefineCriteriaMethodology_dups <- DefineCriteriaMethodology |> 
-      dplyr::distinct(across(-ATTAINS.UseName), .keep_all = TRUE)|> 
+    DefineCriteriaMethodology_dups <- DefineCriteriaMethodology |>
+      dplyr::distinct(across(-ATTAINS.UseName), .keep_all = TRUE)|>
       dplyr::filter(is.na(ATTAINS.UseName))
-    
+
     # remove dups and create final criteria table
-    DefineCriteriaMethodology <- DefineCriteriaMethodology |> 
-      dplyr::filter(!is.na(ATTAINS.UseName)) |> 
+    DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+      dplyr::filter(!is.na(ATTAINS.UseName)) |>
       dplyr::bind_rows(DefineCriteriaMethodology_dups)
   }
 

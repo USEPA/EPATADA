@@ -420,10 +420,30 @@ TADA_GetTADACharAliasRef <- function(
   #       as all unique ATTAINS.ParameterName were crosswalked to a WQX char at some point. Verify?
   TADACharAliasRef <- TADACharAliasRef |>
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, source)|>
-    dplyr::filter(source %in% "WQX.CharAlias")|> 
+    dplyr::filter(source %in% "WQX.CharAlias")|>
     dplyr::full_join(TADACharAliasRef, by = c("ATTAINS.ParameterName"), relationship = "many-to-many") |>
-    dplyr::mutate(CharacteristicName = dplyr::if_else(is.na(CharacteristicName.y), CharacteristicName.x, CharacteristicName.y)) |> 
+    dplyr::mutate(CharacteristicName = dplyr::if_else(is.na(CharacteristicName.y), CharacteristicName.x, CharacteristicName.y)) |>
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source = source.y, CAS_NO, review) |>
+    dplyr::distinct()
+  
+  # now separate, and create a final pairwise combo table
+  filter1 <- TADACharAliasRef |> 
+    dplyr::select(CharacteristicName, ATTAINS.ParameterName) |> tidyr::drop_na() |> dplyr::distinct()
+  
+  filter2 <- TADACharAliasRef |> 
+    dplyr::select(CharacteristicName, POLLUTANT_NAME, STD_POLLUTANT_NAME) |> dplyr::distinct()
+  
+  filter3 <- TADACharAliasRef |> 
+    dplyr::select(ATTAINS.ParameterName, POLLUTANT_NAME,  STD_POLLUTANT_NAME) |> dplyr::distinct()
+  
+  TADACharAliasRef <- filter1 |>
+    dplyr::full_join(filter2) |>
+    dplyr::full_join(filter3) |>
+    dplyr::left_join(TADACharAliasRef) |>
+    dplyr::mutate(
+      source = dplyr::if_else(is.na(source), "TADA.AliasMatch", source),
+      review = dplyr::if_else(is.na(review), "TADA.AliasMatch", review)
+    ) |>
     dplyr::distinct()
   
   # remove intermediate variables
