@@ -74,7 +74,10 @@
       .TADA_CST_UpdateWorkbook()
     },
     error = function(e) {
-      message("Error updating EPA Criteria Search Tool Excel workbook: ", e$message)
+      message(
+        "Error updating EPA Criteria Search Tool Excel workbook: ",
+        e$message
+      )
     }
   )
 

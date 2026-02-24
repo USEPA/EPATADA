@@ -258,7 +258,11 @@ TADA_AdditionalCharAliasForReview <- function(
   rm(ATTAINSParamRef, ATTAINS.raw)
 
   # Extract CST Criteria from the internal workbook only; error if missing/unreadable
-  internal_path <- system.file("extdata", "cst-workbook.xlsx", package = "EPATADA")
+  internal_path <- system.file(
+    "extdata",
+    "cst-workbook.xlsx",
+    package = "EPATADA"
+  )
   if (!nzchar(internal_path) || !file.exists(internal_path)) {
     stop(
       "Internal CST workbook is missing: inst/extdata/cst-workbook.xlsx. ",

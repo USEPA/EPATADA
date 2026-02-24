@@ -221,12 +221,16 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 # Compare two data.frames for equality ignoring row order and minor attributes
 .tada_df_equal <- function(a, b) {
   # Fall back to identical() if not data.frames
-  if (!is.data.frame(a) || !is.data.frame(b)) return(identical(a, b))
+  if (!is.data.frame(a) || !is.data.frame(b)) {
+    return(identical(a, b))
+  }
 
   # Same set of column names?
   na <- names(a)
   nb <- names(b)
-  if (!identical(sort(na), sort(nb))) return(FALSE)
+  if (!identical(sort(na), sort(nb))) {
+    return(FALSE)
+  }
 
   # Align by sorted column names
   cols <- sort(na)
@@ -279,11 +283,18 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   if (file.exists(out_path)) {
     e_old <- new.env(parent = emptyenv())
     old_objs <- try(load(out_path, envir = e_old), silent = TRUE)
-    if (!inherits(old_objs, "try-error") &&
-      obj_name %in% old_objs &&
-      is.data.frame(e_old[[obj_name]]) &&
-      .tada_df_equal(e_old[[obj_name]], obj)) {
-      message("No changes detected for ", obj_name, "; skipping save: ", out_path)
+    if (
+      !inherits(old_objs, "try-error") &&
+        obj_name %in% old_objs &&
+        is.data.frame(e_old[[obj_name]]) &&
+        .tada_df_equal(e_old[[obj_name]], obj)
+    ) {
+      message(
+        "No changes detected for ",
+        obj_name,
+        "; skipping save: ",
+        out_path
+      )
       return(invisible(out_path))
     }
   }

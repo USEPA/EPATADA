@@ -4,11 +4,18 @@
 ns <- asNamespace("EPATADA")
 
 # Helpers
-make_cst_xlsx <- function(legend_df, sources_df, criteria_df, sheet_names = c("Legend", "Sources", "Criteria")) {
+make_cst_xlsx <- function(
+  legend_df,
+  sources_df,
+  criteria_df,
+  sheet_names = c("Legend", "Sources", "Criteria")
+) {
   testthat::skip_if_not_installed("openxlsx")
   tmp <- tempfile(fileext = ".xlsx")
   x <- list(legend_df, sources_df, criteria_df)
-  if (!is.null(sheet_names)) names(x) <- sheet_names
+  if (!is.null(sheet_names)) {
+    names(x) <- sheet_names
+  }
   openxlsx::write.xlsx(x, file = tmp, asTable = FALSE, overwrite = TRUE)
   tmp
 }
@@ -33,27 +40,65 @@ testthat::test_that("Getters read, normalize (trim + unique), and cache results"
   testthat::skip_if_not_installed("openxlsx")
   reset_cst_cache()
 
-  legend_in   <- data.frame(A = c(" a ", "a "), B = c(" x ", "x "), stringsAsFactors = FALSE)
-  sources_in  <- data.frame(Src = c(" s1 ", "s1 "), More = c(" y  ", "y"), stringsAsFactors = FALSE)
-  criteria_in <- data.frame(C1 = c(" val ", "val "), C2 = c(" z ", "z "), stringsAsFactors = FALSE)
+  legend_in <- data.frame(
+    A = c(" a ", "a "),
+    B = c(" x ", "x "),
+    stringsAsFactors = FALSE
+  )
+  sources_in <- data.frame(
+    Src = c(" s1 ", "s1 "),
+    More = c(" y  ", "y"),
+    stringsAsFactors = FALSE
+  )
+  criteria_in <- data.frame(
+    C1 = c(" val ", "val "),
+    C2 = c(" z ", "z "),
+    stringsAsFactors = FALSE
+  )
 
-  expected_legend   <- unique(data.frame(A = "a",   B = "x", stringsAsFactors = FALSE))
-  expected_sources  <- unique(data.frame(Src = "s1", More = "y", stringsAsFactors = FALSE))
-  expected_criteria <- unique(data.frame(C1 = "val", C2 = "z", stringsAsFactors = FALSE))
+  expected_legend <- unique(data.frame(
+    A = "a",
+    B = "x",
+    stringsAsFactors = FALSE
+  ))
+  expected_sources <- unique(data.frame(
+    Src = "s1",
+    More = "y",
+    stringsAsFactors = FALSE
+  ))
+  expected_criteria <- unique(data.frame(
+    C1 = "val",
+    C2 = "z",
+    stringsAsFactors = FALSE
+  ))
 
-  wb_path <- make_cst_xlsx(legend_in, sources_in, criteria_in, sheet_names = c("Legend", "Sources", "Criteria"))
+  wb_path <- make_cst_xlsx(
+    legend_in,
+    sources_in,
+    criteria_in,
+    sheet_names = c("Legend", "Sources", "Criteria")
+  )
 
   testthat::local_mocked_bindings(
     .tada_cst_download_workbook = function(url = NULL) wb_path,
     .env = ns
   )
 
-  out_legend   <- EPATADA::TADA_CST_GetLegend(download_only = FALSE, refresh = TRUE)
-  out_sources  <- EPATADA::TADA_CST_GetSources(download_only = FALSE, refresh = TRUE)
-  out_criteria <- EPATADA::TADA_CST_GetCriteria(download_only = FALSE, refresh = TRUE)
+  out_legend <- EPATADA::TADA_CST_GetLegend(
+    download_only = FALSE,
+    refresh = TRUE
+  )
+  out_sources <- EPATADA::TADA_CST_GetSources(
+    download_only = FALSE,
+    refresh = TRUE
+  )
+  out_criteria <- EPATADA::TADA_CST_GetCriteria(
+    download_only = FALSE,
+    refresh = TRUE
+  )
 
-  testthat::expect_equal(out_legend,   expected_legend)
-  testthat::expect_equal(out_sources,  expected_sources)
+  testthat::expect_equal(out_legend, expected_legend)
+  testthat::expect_equal(out_sources, expected_sources)
   testthat::expect_equal(out_criteria, expected_criteria)
 
   # Confirm cached entries exist
@@ -67,7 +112,9 @@ testthat::test_that("Getters read, normalize (trim + unique), and cache results"
 
   # A second call without refresh returns from cache and does not re-download
   testthat::local_mocked_bindings(
-    .tada_cst_download_workbook = function(url = NULL) stop("Should not be called when cache is used"),
+    .tada_cst_download_workbook = function(url = NULL) {
+      stop("Should not be called when cache is used")
+    },
     .env = ns
   )
   out_legend2 <- EPATADA::TADA_CST_GetLegend(refresh = FALSE)
@@ -85,7 +132,12 @@ testthat::test_that("download_only = TRUE returns data but does not populate cac
   sources_in <- data.frame(Src = c(" bar "), stringsAsFactors = FALSE)
   criteria_in <- data.frame(C1 = c(" baz "), stringsAsFactors = FALSE)
 
-  wb_path <- make_cst_xlsx(legend_in, sources_in, criteria_in, sheet_names = c("Legend", "Sources", "Criteria"))
+  wb_path <- make_cst_xlsx(
+    legend_in,
+    sources_in,
+    criteria_in,
+    sheet_names = c("Legend", "Sources", "Criteria")
+  )
   testthat::local_mocked_bindings(
     .tada_cst_download_workbook = function(url = NULL) wb_path,
     .env = ns
@@ -139,7 +191,10 @@ testthat::test_that("refresh = TRUE bypasses cache and updates it", {
   testthat::expect_equal(out2, data.frame(A = "new", stringsAsFactors = FALSE))
 
   # Cache should reflect new
-  testthat::expect_equal(get_cache_value("CST_legend_df"), data.frame(A = "new", stringsAsFactors = FALSE))
+  testthat::expect_equal(
+    get_cache_value("CST_legend_df"),
+    data.frame(A = "new", stringsAsFactors = FALSE)
+  )
 })
 
 # ============================================================
@@ -164,7 +219,10 @@ testthat::test_that("Falls back to internal workbook when download fails", {
   )
 
   out <- EPATADA::TADA_CST_GetCriteria(refresh = TRUE)
-  testthat::expect_equal(out, data.frame(C1 = "from_fallback", stringsAsFactors = FALSE))
+  testthat::expect_equal(
+    out,
+    data.frame(C1 = "from_fallback", stringsAsFactors = FALSE)
+  )
 })
 
 # ============================================================
@@ -176,7 +234,7 @@ testthat::test_that("Errors when download fails and no fallback workbook is foun
 
   testthat::local_mocked_bindings(
     .tada_cst_download_workbook = function(url = NULL) NULL,
-    system.file = function(...) "",  # nothing found
+    system.file = function(...) "", # nothing found
     .env = ns
   )
 
@@ -210,9 +268,18 @@ testthat::test_that("Reads by sheet name using case-insensitive regex", {
   s <- EPATADA::TADA_CST_GetSources(refresh = TRUE)
   c <- EPATADA::TADA_CST_GetCriteria(refresh = TRUE)
 
-  testthat::expect_equal(l, data.frame(Lcol = "L_by_name", stringsAsFactors = FALSE))
-  testthat::expect_equal(s, data.frame(Scol = "S_by_name", stringsAsFactors = FALSE))
-  testthat::expect_equal(c, data.frame(Ccol = "C_by_name", stringsAsFactors = FALSE))
+  testthat::expect_equal(
+    l,
+    data.frame(Lcol = "L_by_name", stringsAsFactors = FALSE)
+  )
+  testthat::expect_equal(
+    s,
+    data.frame(Scol = "S_by_name", stringsAsFactors = FALSE)
+  )
+  testthat::expect_equal(
+    c,
+    data.frame(Ccol = "C_by_name", stringsAsFactors = FALSE)
+  )
 })
 
 testthat::test_that("Falls back to fixed sheet index when names not present", {
@@ -220,9 +287,15 @@ testthat::test_that("Falls back to fixed sheet index when names not present", {
   reset_cst_cache()
 
   # Sheet names do not match regex; must pick by index 1, 2, 3 respectively.
-  legend_idx_df   <- data.frame(Val = "Legend_by_index", stringsAsFactors = FALSE)
-  sources_idx_df  <- data.frame(Val = "Sources_by_index", stringsAsFactors = FALSE)
-  criteria_idx_df <- data.frame(Val = "Criteria_by_index", stringsAsFactors = FALSE)
+  legend_idx_df <- data.frame(Val = "Legend_by_index", stringsAsFactors = FALSE)
+  sources_idx_df <- data.frame(
+    Val = "Sources_by_index",
+    stringsAsFactors = FALSE
+  )
+  criteria_idx_df <- data.frame(
+    Val = "Criteria_by_index",
+    stringsAsFactors = FALSE
+  )
 
   wb <- make_cst_xlsx(
     legend_df = legend_idx_df,
@@ -264,7 +337,10 @@ testthat::test_that("Workbook path is cached and respects refresh flag", {
     .tada_cst_download_workbook = function(url = NULL) path1,
     .env = ns
   )
-  p1 <- EPATADA:::.tada_cst_get_workbook_path(download_only = FALSE, refresh = TRUE)
+  p1 <- EPATADA:::.tada_cst_get_workbook_path(
+    download_only = FALSE,
+    refresh = TRUE
+  )
   testthat::expect_identical(p1, path1)
 
   # Second call: even if download returns path2, with refresh=FALSE it should return cached path1
@@ -272,7 +348,10 @@ testthat::test_that("Workbook path is cached and respects refresh flag", {
     .tada_cst_download_workbook = function(url = NULL) path2,
     .env = ns
   )
-  p2 <- EPATADA:::.tada_cst_get_workbook_path(download_only = FALSE, refresh = FALSE)
+  p2 <- EPATADA:::.tada_cst_get_workbook_path(
+    download_only = FALSE,
+    refresh = FALSE
+  )
   testthat::expect_identical(p2, path1)
 
   # Third call with refresh=TRUE should update to path3
@@ -280,7 +359,10 @@ testthat::test_that("Workbook path is cached and respects refresh flag", {
     .tada_cst_download_workbook = function(url = NULL) path3,
     .env = ns
   )
-  p3 <- EPATADA:::.tada_cst_get_workbook_path(download_only = FALSE, refresh = TRUE)
+  p3 <- EPATADA:::.tada_cst_get_workbook_path(
+    download_only = FALSE,
+    refresh = TRUE
+  )
   testthat::expect_identical(p3, path3)
 })
 
@@ -297,8 +379,18 @@ testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
   captured_src <- NULL
 
   testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(download_only = TRUE, refresh = TRUE, ...) fake_src,
-    .tada_cst_write_ext_workbook_if_changed = function(src_path, pkg = "EPATADA", filename = "cst-workbook.xlsx") {
+    .tada_cst_get_workbook_path = function(
+      download_only = TRUE,
+      refresh = TRUE,
+      ...
+    ) {
+      fake_src
+    },
+    .tada_cst_write_ext_workbook_if_changed = function(
+      src_path,
+      pkg = "EPATADA",
+      filename = "cst-workbook.xlsx"
+    ) {
       called <<- TRUE
       captured_src <<- src_path
       tempfile() # pretend to return a written path

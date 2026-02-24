@@ -26,10 +26,7 @@ test_that("errors if internal CST workbook is missing (fast)", {
     CAS.Number = "14797-55-8",
     stringsAsFactors = FALSE
   )
-  atta_ref <- data.frame(
-    name = "Nitrate",
-    stringsAsFactors = FALSE
-  )
+  atta_ref <- data.frame(name = "Nitrate", stringsAsFactors = FALSE)
 
   # Shadow system.file within EPATADA namespace so the function sees an empty path
   testthat::local_mocked_bindings(
@@ -72,10 +69,7 @@ test_that("errors if internal CST workbook cannot be read (fast)", {
     CAS.Number = "14797-55-8",
     stringsAsFactors = FALSE
   )
-  atta_ref <- data.frame(
-    name = "Nitrate",
-    stringsAsFactors = FALSE
-  )
+  atta_ref <- data.frame(name = "Nitrate", stringsAsFactors = FALSE)
 
   # Create a temp file to simulate an existing internal workbook path
   tmp_xlsx <- tempfile(fileext = ".xlsx")
