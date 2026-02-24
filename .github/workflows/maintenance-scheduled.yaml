@@ -1,4 +1,4 @@
-name: Component Maintenance (stale-gated)
+name: Reference files and example data updates
 
 on:
   # Weekly at 2:01 AM UTC — adjust as needed
@@ -10,19 +10,19 @@ on:
       force_maintenance:
         type: boolean
         default: false
-        description: "Run maintenance even if develop is not stale"
+        description: "Run maintenance to update reference files and example data"
 
 permissions:
   contents: read
   pull-requests: read
 
 concurrency:
-  group: maintenance-${{ github.workflow }}
+  group: maintenance-${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: false
 
 env:
   TARGET_BRANCH: develop
-  MAINTENANCE_BRANCH: maintenance/component-files
+  MAINTENANCE_BRANCH: maintenance/reference-files-and-example-data
 
 jobs:
   check_develop_staleness:
@@ -63,6 +63,16 @@ jobs:
             const dateStr =
               (commit.commit.committer && commit.commit.committer.date) ||
               (commit.commit.author && commit.commit.author.date);
+
+            if (!dateStr) {
+              core.warning(`Latest commit on ${branch} has no date; treating as stale.`);
+              core.setOutput('stale', 'true');
+              core.setOutput('last_commit_iso', '');
+              core.setOutput('last_commit_sha', commit.sha || '');
+              core.setOutput('days_since', '999');
+              return;
+            }
+
             const lastCommitDate = new Date(dateStr);
             const now = new Date();
             const diffDays = Math.floor((now - lastCommitDate) / (1000 * 60 * 60 * 24));
@@ -75,7 +85,7 @@ jobs:
             core.setOutput('days_since', String(diffDays));
 
   maintenance:
-    name: Maintenance: update component files and open PR
+    name: Update reference files and example data and open PR
     needs: [check_develop_staleness]
     # Run if the weekly schedule finds it stale, or manually when forced
     if: ${{ (github.event_name == 'schedule' && needs.check_develop_staleness.outputs.stale == 'true') || (github.event_name == 'workflow_dispatch' && inputs.force_maintenance == true) }}
@@ -104,8 +114,6 @@ jobs:
 
       - name: Install EPATADA package (develop)
         run: |
-          install.packages("remotes")
-          library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
         shell: Rscript {0}
 
@@ -121,15 +129,15 @@ jobs:
           EPATADA:::.TADA_UpdateExampleData()
         shell: Rscript {0}
 
-      - name: Create or update maintenance PR
+      - name: Create or update PR
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ env.TARGET_BRANCH }}
           branch: ${{ env.MAINTENANCE_BRANCH }}
-          commit-message: "chore(maintenance): update component files [skip ci]"
-          title: "Automated component file updates"
+          commit-message: "Mmaintenance: update reference files and example data [skip ci]"
+          title: "Reference files and example data updates"
           body: |
             This PR was created automatically because 'develop' has been inactive for at least 14 days
             or maintenance was manually forced.
