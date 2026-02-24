@@ -222,20 +222,21 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 .tada_df_equal <- function(a, b) {
   # Fall back to identical() if not data.frames
   if (!is.data.frame(a) || !is.data.frame(b)) return(identical(a, b))
-  
+
   # Same set of column names?
-  na <- names(a); nb <- names(b)
+  na <- names(a)
+  nb <- names(b)
   if (!identical(sort(na), sort(nb))) return(FALSE)
-  
+
   # Align by sorted column names
   cols <- sort(na)
   a <- a[, cols, drop = FALSE]
   b <- b[, cols, drop = FALSE]
-  
+
   # Coerce factors to character to avoid attribute-only diffs
   a[] <- lapply(a, function(x) if (is.factor(x)) as.character(x) else x)
   b[] <- lapply(b, function(x) if (is.factor(x)) as.character(x) else x)
-  
+
   # Canonical row ordering by all columns
   if (nrow(a) > 0) {
     oa <- try(do.call(order, a), silent = TRUE)
@@ -245,23 +246,23 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
     ob <- try(do.call(order, b), silent = TRUE)
     if (!inherits(ob, "try-error") && length(ob)) b <- b[ob, , drop = FALSE]
   }
-  
+
   # Remove row names before comparison
   rownames(a) <- NULL
   rownames(b) <- NULL
-  
+
   isTRUE(all.equal(a, b, check.attributes = FALSE))
 }
 
 # Dev-only writer: save a data.frame as RDA into inst/extdata under obj_name
 # Now skips writing if content hasn't changed compared to existing .rda
 .tada_save_ext_rda <- function(
-    obj,
-    obj_name,
-    pkg = "EPATADA",
-    filename,
-    compress = "xz",
-    version = 2
+  obj,
+  obj_name,
+  pkg = "EPATADA",
+  filename,
+  compress = "xz",
+  version = 2
 ) {
   pkg_root <- .tada_find_pkg_root(pkg = pkg)
   if (is.null(pkg_root)) {
@@ -273,20 +274,20 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   }
   out_path <- file.path(pkg_root, "inst", "extdata", filename)
   dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
-  
+
   # If an existing file is present, load and compare to avoid unnecessary writes
   if (file.exists(out_path)) {
     e_old <- new.env(parent = emptyenv())
     old_objs <- try(load(out_path, envir = e_old), silent = TRUE)
     if (!inherits(old_objs, "try-error") &&
-        obj_name %in% old_objs &&
-        is.data.frame(e_old[[obj_name]]) &&
-        .tada_df_equal(e_old[[obj_name]], obj)) {
+      obj_name %in% old_objs &&
+      is.data.frame(e_old[[obj_name]]) &&
+      .tada_df_equal(e_old[[obj_name]], obj)) {
       message("No changes detected for ", obj_name, "; skipping save: ", out_path)
       return(invisible(out_path))
     }
   }
-  
+
   # Save updated object
   e <- new.env(parent = emptyenv())
   e[[obj_name]] <- obj

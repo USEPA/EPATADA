@@ -92,19 +92,19 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
       return(cached)
     }
   }
-  
+
   # Try to download the latest XLSX
   path <- .tada_cst_download_workbook(.CST_WORKBOOK_URL)
   if (!is.null(path) && file.exists(path)) {
     if (!download_only) .tada_cache_set(.CST_WORKBOOK_PATH_CACHE_KEY, path)
     return(path)
   }
-  
+
   # If download_only, fail fast
   if (download_only) {
     stop("CST workbook download failed (download_only=TRUE).")
   }
-  
+
   # Fallback to installed workbook if it exists
   if (!is.null(on_fail_message)) message(on_fail_message)
   fallback_path <- system.file("extdata", .CST_WORKBOOK_LOCAL_FILENAME, package = pkg)
@@ -112,7 +112,7 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
     if (!download_only) .tada_cache_set(.CST_WORKBOOK_PATH_CACHE_KEY, fallback_path)
     return(fallback_path)
   }
-  
+
   NULL
 }
 
@@ -121,20 +121,20 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
 .tada_cst_read_sheet <- function(workbook_path, target = c("legend", "sources", "criteria")) {
   target <- match.arg(target)
   sheet_index <- switch(target, legend = 1, sources = 2, criteria = 3)
-  
+
   # Try to pick by sheet name
   sheet_name <- NULL
   snames <- tryCatch(openxlsx::getSheetNames(workbook_path), error = function(e) NULL)
   if (!is.null(snames)) {
     pattern <- switch(target,
-                      legend   = "(?i)^legend",
-                      sources  = "(?i)^sources",
-                      criteria = "(?i)^criteria"
+      legend   = "(?i)^legend",
+      sources  = "(?i)^sources",
+      criteria = "(?i)^criteria"
     )
     m <- grep(pattern, snames)
     if (length(m) >= 1) sheet_name <- snames[m[1]]
   }
-  
+
   # Read using chosen sheet name or fallback index
   tryCatch(
     openxlsx::read.xlsx(workbook_path, sheet = if (is.null(sheet_name)) sheet_index else sheet_name),
@@ -162,7 +162,7 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
   }
   out_path <- file.path(pkg_root, "inst", "extdata", filename)
   dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
-  
+
   # Compare MD5 digests if dest exists
   same <- FALSE
   if (file.exists(out_path)) {
@@ -170,12 +170,12 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
     new_md5 <- tryCatch(as.character(tools::md5sum(src_path)), error = function(e) NA_character_)
     same <- isTRUE(old_md5 == new_md5) && !is.na(old_md5) && !is.na(new_md5)
   }
-  
+
   if (same) {
     message("No changes to CST workbook; not writing ", out_path)
     return(invisible(out_path))
   }
-  
+
   ok <- file.copy(src_path, out_path, overwrite = TRUE)
   if (!ok) stop("Failed to write CST workbook to ", out_path)
   message("CST workbook saved to: ", out_path)
@@ -187,7 +187,7 @@ if (!exists(".tada_find_pkg_root", inherits = FALSE)) {
 .TADA_CST_UpdateWorkbook <- function() {
   path <- .tada_cst_get_workbook_path(download_only = TRUE, refresh = TRUE)
   .tada_cst_write_ext_workbook_if_changed(src_path = path, pkg = "EPATADA",
-                                          filename = .CST_WORKBOOK_LOCAL_FILENAME)
+    filename = .CST_WORKBOOK_LOCAL_FILENAME)
   invisible(path)
 }
 
@@ -215,7 +215,7 @@ TADA_CST_GetCriteria <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.CST_CRITERIA_CACHE_KEY)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   path <- .tada_cst_get_workbook_path(
     download_only = download_only,
     refresh = refresh,
@@ -225,10 +225,10 @@ TADA_CST_GetCriteria <- function(download_only = FALSE, refresh = FALSE) {
   if (is.null(path)) {
     stop("Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx.")
   }
-  
+
   df <- .tada_cst_read_sheet(path, target = "criteria")
   if (is.null(df)) stop("Failed to read Criteria sheet from CST workbook.")
-  
+
   df <- .tada_cst_prepare_table(df)
   if (!download_only) {
     .tada_cache_set(.CST_CRITERIA_CACHE_KEY, df)
@@ -256,7 +256,7 @@ TADA_CST_GetLegend <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.CST_LEGEND_CACHE_KEY)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   path <- .tada_cst_get_workbook_path(
     download_only = download_only,
     refresh = refresh,
@@ -266,10 +266,10 @@ TADA_CST_GetLegend <- function(download_only = FALSE, refresh = FALSE) {
   if (is.null(path)) {
     stop("Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx.")
   }
-  
+
   df <- .tada_cst_read_sheet(path, target = "legend")
   if (is.null(df)) stop("Failed to read Legend sheet from CST workbook.")
-  
+
   df <- .tada_cst_prepare_table(df)
   if (!download_only) {
     .tada_cache_set(.CST_LEGEND_CACHE_KEY, df)
@@ -297,7 +297,7 @@ TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.CST_SOURCES_CACHE_KEY)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   path <- .tada_cst_get_workbook_path(
     download_only = download_only,
     refresh = refresh,
@@ -307,10 +307,10 @@ TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
   if (is.null(path)) {
     stop("Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx.")
   }
-  
+
   df <- .tada_cst_read_sheet(path, target = "sources")
   if (is.null(df)) stop("Failed to read Sources sheet from CST workbook.")
-  
+
   df <- .tada_cst_prepare_table(df)
   if (!download_only) {
     .tada_cache_set(.CST_SOURCES_CACHE_KEY, df)

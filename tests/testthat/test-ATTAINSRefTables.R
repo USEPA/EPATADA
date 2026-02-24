@@ -30,13 +30,13 @@ test_that("errors if internal CST workbook is missing (fast)", {
     name = "Nitrate",
     stringsAsFactors = FALSE
   )
-  
+
   # Shadow system.file within EPATADA namespace so the function sees an empty path
   testthat::local_mocked_bindings(
     system.file = function(...) "",
     .package = "EPATADA"
   )
-  
+
   # Avoid touching real alias CSV and upstream data
   testthat::local_mocked_bindings(
     read.csv = function(...) {
@@ -56,7 +56,7 @@ test_that("errors if internal CST workbook is missing (fast)", {
     EQ_DomainValues = function(domain) atta_ref,
     .package = "rExpertQuery"
   )
-  
+
   expect_error(
     TADA_AdditionalCharAliasForReview(),
     regexp = "Internal CST workbook is missing"
@@ -76,23 +76,23 @@ test_that("errors if internal CST workbook cannot be read (fast)", {
     name = "Nitrate",
     stringsAsFactors = FALSE
   )
-  
+
   # Create a temp file to simulate an existing internal workbook path
   tmp_xlsx <- tempfile(fileext = ".xlsx")
   file.create(tmp_xlsx)
-  
+
   # Shadow system.file within EPATADA namespace to return our temp path
   testthat::local_mocked_bindings(
     system.file = function(...) tmp_xlsx,
     .package = "EPATADA"
   )
-  
+
   # Force read failure from the internal workbook
   testthat::local_mocked_bindings(
     .tada_cst_read_sheet = function(workbook_path, target) NULL,
     .package = "EPATADA"
   )
-  
+
   # Avoid touching real alias CSV and upstream data
   testthat::local_mocked_bindings(
     read.csv = function(...) {
@@ -112,7 +112,7 @@ test_that("errors if internal CST workbook cannot be read (fast)", {
     EQ_DomainValues = function(domain) atta_ref,
     .package = "rExpertQuery"
   )
-  
+
   expect_error(
     TADA_AdditionalCharAliasForReview(),
     regexp = "Failed to read 'Criteria' sheet from internal CST workbook"

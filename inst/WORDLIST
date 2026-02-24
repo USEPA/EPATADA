@@ -129,9 +129,7 @@ Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
 GetCharacteristicRef
-GetLegendCSTRef
 GetNutrientSummationRef
-GetSourcesCSTRef
 GetSynonymRef
 HMW
 HRM
@@ -150,9 +148,6 @@ IDCensoredData
 IDDepthProfiles
 IncludeOrExclude
 InvalidCoordinates
-InvalidFraction
-InvalidResultUnit
-InvalidSpeciation
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -223,9 +218,7 @@ ORs
 Okabe
 OrgName
 OrganizationFormalName
-OrganizationFormalNames
 OrganizationIdentifier
-OrganizationIdentifiers
 OrganizationName
 OutsideUSA
 OverviewMap
@@ -245,7 +238,6 @@ Pojoaque
 ProjectFileUrl
 ProjectName
 ProviderName
-ProviderNames
 QAPP
 QAPPApprovedIndicator
 QAPPDocAvailable
@@ -271,12 +263,10 @@ ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
 ResultDepthHeightMeasure
-ResultDetectionCondition
 ResultDetectionConditionText
 ResultIdentifier
 ResultLaboratoryCommentText
 ResultMeasure
-ResultMeasureQualifier
 ResultMeasureUnit
 ResultMeasureValue
 ResultMeasureValueDataTypes
@@ -345,7 +335,6 @@ USERPROFILE
 USGS
 USGS's
 Uncomment
-UncommonAnalyticalMethodID
 UniqueHarmonizationRef
 UniqueSpatialCriteria
 UnitCode
@@ -364,17 +353,9 @@ WQP
 WQS
 WQX
 WQX's
-WQXActivityTypeRef
-WQXCharacteristicRef
-WQXDetectionQuantitationLimitTypeRef
-WQXMeasureQualifierCodeRef
-WQXMonitoringLocationTypeName
-WQXResultDetectionConditionRef
 WQXResultUnitConversion
 WQXUnitConversionFactor
 WQXVal
-WQXcharValRef
-WQXunitRef
 WaterSciCon
 WaterType
 Waterbody
@@ -430,6 +411,7 @@ createTADABasemap
 cristinamullin
 criteriaMethods
 crs
+cst
 csv
 cwa
 dailyagg

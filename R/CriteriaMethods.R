@@ -668,7 +668,7 @@ TADA_DefineCriteriaMethodology <- function(
             )
           # pulls in Criteria Search Tool
           CST_Ref <- TADA_CST_GetCriteria()
-          
+
           # upper case all character columns for consistency
           CST_Ref_upper <- CST_Ref |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
