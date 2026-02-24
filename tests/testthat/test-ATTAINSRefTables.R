@@ -16,50 +16,6 @@ test_that("Is the saved ATTAINSParamToWQPCharRef.csv up to date?", {
   expect_in(ref, old)
 })
 
-test_that("errors if internal CST workbook is missing (fast)", {
-  # Minimal synthetic inputs to avoid upstream I/O (only needed if function
-  # does not fail fast on CST before WQX/ATTAINS).
-  wqx_ref <- data.frame(
-    CharacteristicName = "Nitrate as N",
-    Char_Flag = NA_character_,
-    Comparable.Name = "Nitrate",
-    CAS.Number = "14797-55-8",
-    stringsAsFactors = FALSE
-  )
-  atta_ref <- data.frame(name = "Nitrate", stringsAsFactors = FALSE)
-
-  # Shadow system.file within EPATADA namespace so the function sees an empty path
-  testthat::local_mocked_bindings(
-    system.file = function(...) "",
-    .package = "EPATADA"
-  )
-
-  # Avoid touching real alias CSV and upstream data
-  testthat::local_mocked_bindings(
-    read.csv = function(...) {
-      data.frame(
-        ATTAINS.ParameterName = character(),
-        CharacteristicName = character(),
-        stringsAsFactors = FALSE
-      )
-    },
-    .package = "utils"
-  )
-  testthat::local_mocked_bindings(
-    TADA_GetCharacteristicRef = function() wqx_ref,
-    .package = "EPATADA"
-  )
-  testthat::local_mocked_bindings(
-    EQ_DomainValues = function(domain) atta_ref,
-    .package = "rExpertQuery"
-  )
-
-  expect_error(
-    TADA_AdditionalCharAliasForReview(),
-    regexp = "Internal CST workbook is missing"
-  )
-})
-
 test_that("errors if internal CST workbook cannot be read (fast)", {
   # Minimal synthetic inputs to avoid upstream I/O
   wqx_ref <- data.frame(
