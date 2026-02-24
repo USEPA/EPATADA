@@ -1,68 +1,57 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-on:
-  push:
-    branches: [develop]
-  pull_request:
-    branches: [develop]
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "Branch, tag, or commit SHA to build"
-        required: true
-        default: develop
-        type: string
 
 name: pkgdown
 
-jobs:
-  # Detect whether the PR includes "significant" changes.
-  # Skipped for non-PR events.
-  changes:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    outputs:
-      significant: ${{ steps.filter.outputs.significant }}
-    steps:
-      - name: Detect significant changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.event.pull_request.base.sha }}
-          head: ${{ github.event.pull_request.head.sha }}
-          filters: |
-            significant:
-              - 'vignettes/**'
-              - 'README.md'
-              - '_pkgdown.yml'
-              - 'pkgdown/**'
+on:
+  push:
+    branches: [develop]
 
+  # Run on PRs targeting develop (first open or when moved out of draft)
+  pull_request:
+    branches: [develop]
+    types: [opened, ready_for_review]
+
+  # Manual trigger (works for draft PR branches too)
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or commit SHA to build (optional)"
+        required: false
+        default: ""
+      repository:
+        description: "owner/repo to build (optional; defaults to this repo)"
+        required: false
+        default: ""
+
+jobs:
   pkgdown:
     runs-on: ubuntu-latest
-    needs: [changes]
-    # Run if:
-    # - Not a PR (push/workflow_dispatch), OR
-    # - PR has significant path changes, OR
-    # - PR has a "significant" label (manual override)
-    if: github.event_name != 'pull_request' || needs.changes.outputs.significant == 'true' || contains(github.event.pull_request.labels.*.name, 'significant')
-    # Only restrict concurrency for non-PR jobs
-    concurrency:
-      group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
+
+    # Skip on draft PRs; still runs for push and manual runs
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
-    steps:
-      # Checkout for manual runs (uses the ref provided in the Actions UI)
-      - uses: actions/checkout@v6
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        with:
-          ref: ${{ inputs.ref }}
 
-      # Checkout for push/pull_request runs (default behavior)
-      - uses: actions/checkout@v6
+    steps:
+      # Checkout for manual runs (optional ref/repo)
+      - name: Check out (manual)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repository != '' && inputs.repository || github.repository }}
+          ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      # Checkout for push/PR runs (default behavior)
+      - name: Check out
         if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -79,11 +68,11 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
+      # Deploy only for pushes to develop (avoid deploying on PRs or manual runs)
       - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
+        if: ${{ github.event_name == 'push' }}
         uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           clean: false
           branch: gh-pages
           folder: docs
-          
