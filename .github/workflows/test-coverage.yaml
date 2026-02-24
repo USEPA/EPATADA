@@ -6,25 +6,32 @@ on:
     types: [completed]
 
 permissions:
-  contents: write
+  contents: read
   checks: write
   pull-requests: write
 
 jobs:
   test-coverage:
-    # Only run if the R-CMD-check workflow concluded successfully
-    # and was triggered by a push to the develop branch.
+    # Run after successful R-CMD-check for:
+    # - push to develop, OR
+    # - any pull_request
     if: >
       github.event.workflow_run.conclusion == 'success' &&
-      github.event.workflow_run.event == 'push' &&
-      github.event.workflow_run.ref == 'refs/heads/develop'
+      (
+        (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'develop') ||
+        (github.event.workflow_run.event == 'pull_request')
+      )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: coverage-${{ github.event.workflow_run.head_sha }}
+      cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Check out the same commit that passed R-CMD-check
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
@@ -32,20 +39,21 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+          # r-version: '4.3'  # Optionally pin for reproducibility
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::covr, any::xml2
           needs: coverage
+          # cache: true       # Optional: speed up repeated runs
 
       - name: Capture Environment Info
+        shell: Rscript {0}
         run: |
-          Rscript -e '
-            env_vars <- Sys.getenv()
-            pkg_versions <- installed.packages()[, c("Package", "Version")]
-            sys_info <- Sys.info()
-            save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
-          '
+          env_vars <- Sys.getenv()
+          pkg_versions <- installed.packages()[, c("Package", "Version")]
+          sys_info <- Sys.info()
+          save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
 
       - name: Upload Environment Info
         uses: actions/upload-artifact@v6
@@ -54,6 +62,7 @@ jobs:
           path: ci_env_info.RData
 
       - name: Test coverage
+        shell: Rscript {0}
         run: |
           cov <- covr::package_coverage(
             quiet = FALSE,
@@ -61,15 +70,14 @@ jobs:
             install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
           )
           print(cov)
-          covr::to_cobertura(cov)
-        shell: Rscript {0}
+          covr::to_cobertura(cov, filename = "cobertura.xml")
 
       - name: Show testthat output
         if: always()
+        shell: bash
         run: |
           ## --------------------------------------------------------------------
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
-        shell: bash
 
       - name: Upload test results
         if: failure()
@@ -84,9 +92,11 @@ jobs:
         with:
           name: coverage-report
           path: ./cobertura.xml
+          if-no-files-found: ignore
 
-      - name: Comment coverage
-        uses: 5monkeys/cobertura-action@master
+      - name: Comment coverage on PR
+        if: hashFiles('cobertura.xml') != '' && github.event.workflow_run.event == 'pull_request'
+        uses: 5monkeys/cobertura-action@vX.Y.Z   # pin to a released tag or commit SHA
         with:
           report_name: coverage-report
           path: ./cobertura.xml
