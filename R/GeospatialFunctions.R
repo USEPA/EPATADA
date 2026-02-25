@@ -1759,8 +1759,12 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE, api_key = NULL) {
-
+TADA_GetATTAINSByAUID <- function(
+  .data,
+  au_ref,
+  fill_ATTAINS_catch = FALSE,
+  api_key = NULL
+) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()
@@ -3162,7 +3166,6 @@ TADA_CreateAUMLCrosswalk <- function(
   batch_upload = FALSE,
   api_key = NULL
 ) {
-
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()

@@ -2539,7 +2539,6 @@ TADA_CorrectColType <- function(.data) {
 #' @return Character string. The default rExpertQuery API key.
 #'
 getDefaultrEQKey <- function() {
-
   default.key <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
 
   return(default.key)
