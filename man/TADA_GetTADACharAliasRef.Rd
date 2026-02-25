@@ -50,7 +50,7 @@ value ranging from 0 to 1 (0\% to 100\%), this will populate all tolerances to
 this value.}
 }
 \value{
-updated sys.data.rda consisting of potential additional ATTAINS.ParameterName
+updated rda consisting of potential additional ATTAINS.ParameterName
 to WQX.CharacteristicName alias for review. TADA team will review and
 decide if these are appropriate aliases.
 }

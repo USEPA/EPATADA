@@ -90,14 +90,14 @@
 #' )
 #'
 TADA_FlagDepthCategory <- function(
-  .data,
-  bycategory = "no",
-  bottomvalue = 2,
-  surfacevalue = 2,
-  dailyagg = "none",
-  aggregatedonly = FALSE,
-  clean = FALSE
-) {
+    .data,
+    bycategory = "no",
+    bottomvalue = 2,
+    surfacevalue = 2,
+    dailyagg = "none",
+    aggregatedonly = FALSE,
+    clean = FALSE
+    ) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.ActivityDepthHeightMeasure.MeasureValue",
@@ -657,11 +657,11 @@ TADA_FlagDepthCategory <- function(
 #' Data_6Tribes_5y_DepthProfileID <- TADA_IDDepthProfiles(Data_6Tribes_5y)
 #'
 TADA_IDDepthProfiles <- function(
-  .data,
-  nresults = TRUE,
-  nvalue = 2,
-  aggregates = FALSE
-) {
+    .data,
+    nresults = TRUE,
+    nvalue = 2,
+    aggregates = FALSE
+    ) {
   # check for columns created in TADA_FlagDepthCategory and run the function if they are missing
   # add check that depth category flag function has been run, run it if it has not
   flag.func.cols <- c(
@@ -917,15 +917,15 @@ TADA_IDDepthProfiles <- function(
 #' }
 #'
 TADA_DepthProfilePlot <- function(
-  .data,
-  groups = NULL,
-  location = NULL,
-  activity_date = NULL,
-  depthcat = TRUE,
-  surfacevalue = 2,
-  bottomvalue = 2,
-  unit = "m"
-) {
+    .data,
+    groups = NULL,
+    location = NULL,
+    activity_date = NULL,
+    depthcat = TRUE,
+    surfacevalue = 2,
+    bottomvalue = 2,
+    unit = "m"
+    ) {
   # check to see if TADA.ComparableDataIdentifier column is present
   if ("TADA.ComparableDataIdentifier" %in% colnames(.data)) {
     .data <- .data

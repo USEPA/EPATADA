@@ -8,9 +8,9 @@ TADACharAliasRef_Cached <- NULL
 #' from the WQX Characteristic alias domain and joins in additional potential
 #' matches using TADA logic between the 3 sources for review. Note: A 'review'
 #' column is included which will be kept in the inst/extdata folder and must be
-#' labeled as 'approved' to keep a running list of alias that has been reviewed - 
-#' otherwise, updating this alias table will not remember what has already been 
-#' reviewed. 
+#' labeled as 'approved' to keep a running list of alias that has been reviewed -
+#' otherwise, updating this alias table will not remember what has already been
+#' reviewed.
 #'
 #' This function caches the table after it has been called once
 #' so subsequent calls will be faster.
@@ -44,7 +44,7 @@ TADACharAliasRef_Cached <- NULL
 #' Default is 100%. This value is an OR condition with CST.WQX.tolerance which
 #' defines the minimum percentage of the number of words that must be found in a
 #' CST pollutant name to a WQX characteristic for it to be considered an alias match.
-#' 
+#'
 #' @param set.all.tolerance optional: default is NA, if a user specifies a numeric
 #' value ranging from 0 to 1 (0% to 100%), this will populate all tolerances to
 #' this value.
@@ -54,7 +54,7 @@ TADACharAliasRef_Cached <- NULL
 #' decide if these are appropriate aliases.
 #'
 #' @export
-#' 
+#'
 TADA_GetTADACharAliasRef <- function(
     ATTAINS.CST.tolerance = 1.00,
     CST.ATTAINS.tolerance = 1.00,
@@ -63,25 +63,25 @@ TADA_GetTADACharAliasRef <- function(
     CST.WQX.tolerance = 1.00,
     WQX.CST.tolerance = 1.00,
     set.all.tolerance = NA
-) {
+    ) {
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)){
-    ATTAINS.CST.tolerance = CST.ATTAINS.tolerance = WQX.ATTAINS.tolerance = ATTAINS.WQX.tolerance = CST.WQX.tolerance = WQX.CST.tolerance = set.all.tolerance
+    ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- WQX.ATTAINS.tolerance <- ATTAINS.WQX.tolerance <- CST.WQX.tolerance <- WQX.CST.tolerance <- set.all.tolerance
   }
   # stop if greater than 1, must be between 0 and 1
   if (any(
-    ATTAINS.CST.tolerance > 1.00, 
+    ATTAINS.CST.tolerance > 1.00,
     CST.ATTAINS.tolerance > 1.00,
     ATTAINS.WQX.tolerance > 1.00,
     WQX.ATTAINS.tolerance > 1.00
-    )) {
+  )) {
     stop(
       "One or more tolerance defined is greater than 1.00. Tolerance cannot exceed 100%."
     )
   }
   # stop if less than 0, must be between 0 and 1
   if (any(
-    ATTAINS.CST.tolerance < 0.00, 
+    ATTAINS.CST.tolerance < 0.00,
     CST.ATTAINS.tolerance < 0.00,
     ATTAINS.WQX.tolerance < 0.00,
     WQX.ATTAINS.tolerance < 0.00
@@ -90,12 +90,12 @@ TADA_GetTADACharAliasRef <- function(
       "One or more tolerance defined is less than 0.00. Tolerance cannot be less than 0%."
     )
   }
-  
+
   # If there is a cached table available return it
   if (!is.null(TADACharAliasRef_Cached)) {
     return(TADACharAliasRef_Cached)
   }
-  
+
   # retrieve WQXCharAliasRef table
   file_path <- system.file(
     "extdata",
@@ -103,20 +103,20 @@ TADA_GetTADACharAliasRef <- function(
     package = "EPATADA"
   )
   load(file_path)
-  
+
   # remove intermediate variable
   rm(file_path)
- 
+
   # WQX to ATTAINS
-  WQX_char_alias_filtered1 <- WQXCharAliasRef |> 
+  WQX_char_alias_filtered1 <- WQXCharAliasRef |>
     dplyr::filter(Alias.Type.Name %in% c("ATTAINS.PARAMETER")) |>
     dplyr::select(CharacteristicName = Characteristic.Name, ATTAINS.ParameterName = Alias.Name, Last.Change.Date)
   # WQX to CST.Pollutant
-  WQX_char_alias_filtered2 <- WQXCharAliasRef |> 
+  WQX_char_alias_filtered2 <- WQXCharAliasRef |>
     dplyr::filter(Alias.Type.Name %in% c("CST.POLLUTANT")) |>
     dplyr::select(CharacteristicName = Characteristic.Name, POLLUTANT_NAME = Alias.Name, Last.Change.Date)
   # WQX to CST Std. pollutant
-  WQX_char_alias_filtered3 <- WQXCharAliasRef |> 
+  WQX_char_alias_filtered3 <- WQXCharAliasRef |>
     dplyr::filter(Alias.Type.Name %in% c("CST.STD.POLLUTANT")) |>
     dplyr::select(CharacteristicName = Characteristic.Name, STD_POLLUTANT_NAME = Alias.Name, Last.Change.Date)
   # WQX-ATTAINS-CST initial parameter crosswalk
@@ -126,7 +126,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::mutate(
       dplyr::across(where(is.character), toupper)
     )
-  
+
   # for word matching method, create a list of common stop words and punctuation marks to exclude
   # assisted generation of stop words from EPA GenAI Tool
   stop_words <- c(
@@ -162,7 +162,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
-  
+
   # WQX has dashes in the CAS number, remove them to match CST CAS number
   WQXCharacteristicRef$CAS.Number <- gsub(
     "-",
@@ -184,31 +184,31 @@ TADA_GetTADACharAliasRef <- function(
     "",
     WQXCharacteristicRef2$name_words
   ))
-  
+
   # remove intermediate variable
   rm(WQX_char_alias_filtered1, WQX_char_alias_filtered2, WQX_char_alias_filtered3, raw.data)
-  
+
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("param_name")
-  
+
   ATTAINSParamRef <- ATTAINS.raw[, "name", drop = FALSE]
-  
+
   # extracts all words from each ATTAINS Parameter Name
   ATTAINSParamRef2 <- ATTAINSParamRef |>
     dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
     dplyr::distinct(name, name_words, .keep_all = TRUE)
-  
+
   ATTAINSParamRef2$name_words <- toupper(gsub(
     "[^[:alnum:] ]",
     "",
     ATTAINSParamRef2$name_words
   ))
-  
+
   # remove intermediate variables
   rm(ATTAINS.raw)
-  
+
   # retrieve the Criteria Search Tool
   CriteriaSearchToolRef <- system.file(
     "extdata",
@@ -216,14 +216,14 @@ TADA_GetTADACharAliasRef <- function(
     package = "EPATADA"
   )
   load(CriteriaSearchToolRef)
-  
+
   # extract unique relevant columns
   CST <- CriteriaSearchToolRef |>
     dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct() |>
     dplyr::mutate(CAS_NO = as.character(CAS_NO))
-  
+
   # Extracts all words from each CST Pollutant Name
   CST2 <- CST |>
     dplyr::mutate(
@@ -232,9 +232,9 @@ TADA_GetTADACharAliasRef <- function(
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(!name_words %in% toupper(stop_words)) |>
     dplyr::distinct(POLLUTANT_NAME, name_words, .keep_all = TRUE)
-  
+
   CST2$name_words <- toupper(gsub("[^[:alnum:] ]", "", CST2$name_words))
-  
+
   # Step 1:
   # Look for percent word matches between ATTAINS and WQX
   # inner join is being used to show matches that were found as an alias.
@@ -264,9 +264,9 @@ TADA_GetTADACharAliasRef <- function(
     ) |>
     dplyr::filter(
       percent_match_WQX_ATTAINS >= WQX.ATTAINS.tolerance |
-      percent_match_ATTAINS_WQX >= ATTAINS.WQX.tolerance
+        percent_match_ATTAINS_WQX >= ATTAINS.WQX.tolerance
     )
-  
+
   # step 2: CST and ATTAINS
   # Look for percent word matches between ATTAINS and CST
   # inner join is being used to show matches that were found as an alias.
@@ -294,7 +294,7 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_CST_ATTAINS >= CST.ATTAINS.tolerance |
         percent_match_ATTAINS_CST >= ATTAINS.CST.tolerance
     )
-  
+
   # step 3: CST and WQX
   # Look for percent word matches between CST and WQX
   # inner join is being used to show matches that were found as an alias.
@@ -320,9 +320,9 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::right_join(CST, by = "POLLUTANT_NAME", relationship = "many-to-many") |>
     dplyr::filter(
       percent_match_WQX_CST >= WQX.CST.tolerance|
-      percent_match_CST_WQX >= CST.WQX.tolerance
+        percent_match_CST_WQX >= CST.WQX.tolerance
     )
-  
+
   # remove intermediate variables
   rm(CST, CST2, ATTAINSParamRef, ATTAINSParamRef2, WQXCharacteristicRef, WQXCharacteristicRef2)
 
@@ -332,8 +332,8 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::full_join(CST_WQX, by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME", "CAS_NO", "CharacteristicName"), relationship = "many-to-many") |>
     dplyr::select(
       CharacteristicName, POLLUTANT_NAME, STD_POLLUTANT_NAME, ATTAINS.ParameterName = name, CST_CAS_NO = CAS_NO, WQX_CAS_NO = CAS.Number
-      )
-  
+    )
+
   # These are highly likely matches as they contain CAS No exact matches
   final_CAS_match <- final |>
     dplyr::filter(WQX_CAS_NO == CST_CAS_NO) |>
@@ -342,11 +342,11 @@ TADA_GetTADACharAliasRef <- function(
       source = "TADA.AliasMatch",
       Last.Change.Date = format(Sys.time(), "%Y-%m-%d %H:%M:%S")
     )
-  
+
   # drop unlikely matches (CAS do not match if both CAS is populated)
   final_drop <- final |>
     dplyr::filter(WQX_CAS_NO != CST_CAS_NO & WQX_CAS_NO != "")
-  
+
   # create final TADA_char_alias table with matching CAS labeled as APPROVED
   final_filtered <- final |>
     # drop unlikely matches here
@@ -355,10 +355,10 @@ TADA_GetTADACharAliasRef <- function(
       by = dplyr::join_by(CharacteristicName, POLLUTANT_NAME, STD_POLLUTANT_NAME, ATTAINS.ParameterName, CST_CAS_NO, WQX_CAS_NO)
     ) |>
     # drop those that have been approved and bind them back with correct label
-    dplyr::anti_join( 
+    dplyr::anti_join(
       final_CAS_match,
       by = dplyr::join_by(CharacteristicName, POLLUTANT_NAME, STD_POLLUTANT_NAME, ATTAINS.ParameterName, CST_CAS_NO, WQX_CAS_NO)
-    ) |> 
+    ) |>
     # label those that still needs review
     dplyr::mutate(
       review = "New Row: Needs Review",
@@ -367,10 +367,10 @@ TADA_GetTADACharAliasRef <- function(
     ) |>
     # join back CAS matches with the approved label
     dplyr::bind_rows(final_CAS_match)
-  
+
   # remove intermediate variables
   rm(ATTAINS_CST, ATTAINS_WQX, CST_WQX)
-  
+
   # Now populate the WQXCharAliasTable that was pulled in from the beginning with CAS number, source, and review labels
   WQX_char_alias_filtered <- WQX_char_alias_filtered |>
     dplyr::left_join(WQXCharacteristicRef, by = "CharacteristicName") |>
@@ -389,18 +389,18 @@ TADA_GetTADACharAliasRef <- function(
       source,
       review,
       Last.Change.Date
-    ) 
-  
+    )
+
   # now, get the most up to date TADACharAlias Ref table
   TADACharAliasRef <- final_filtered |>
     # find all new TADA alias match to add to the final char alias table
     dplyr::anti_join(
       WQX_char_alias_filtered,
       by = dplyr::join_by(CharacteristicName, POLLUTANT_NAME, STD_POLLUTANT_NAME, ATTAINS.ParameterName)
-      ) |>
-    # bind existing WQX char alias. 
+    ) |>
+    # bind existing WQX char alias.
     dplyr::bind_rows(WQX_char_alias_filtered)
-  
+
   # pull in most recent TADACharAliasRef in EPATADA
   current_TADACharAlias <- utils::read.csv(system.file(
     "extdata",
@@ -413,7 +413,7 @@ TADA_GetTADACharAliasRef <- function(
     # dplyr::filter( review != "New Row: Needs Review") # Note: we can probably filter it by this line instead.
     dplyr::filter(
       review == "APPROVED" & source == "TADA.AliasMatch" |
-      review == "REJECTED" & source == "TADA.AliasMatch"
+        review == "REJECTED" & source == "TADA.AliasMatch"
     )
 
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
@@ -435,7 +435,7 @@ TADA_GetTADACharAliasRef <- function(
         CharacteristicName %in% TADA_reviewed_list$CharacteristicName &
         POLLUTANT_NAME %in% TADA_reviewed_list$POLLUTANT_NAME &
         STD_POLLUTANT_NAME %in% TADA_reviewed_list$STD_POLLUTANT_NAME
-      )
+    )
     ) |>
     dplyr::bind_rows(
       dplyr::mutate(TADA_reviewed_list)
@@ -450,13 +450,13 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::mutate(CharacteristicName = dplyr::if_else(is.na(CharacteristicName.y), CharacteristicName.x, CharacteristicName.y)) |>
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, source = source.y, WQX_CAS_NO, CST_CAS_NO, review, Last.Change.Date) |>
     dplyr::distinct()
-  
+
   # remove intermediate variables
   rm(TADA_reviewed_list, current_TADACharAlias, final, final_CAS_match, final_drop, final_filtered)
-  
+
   # Save updated table in cache
   TADACharAliasRef_Cached <- TADACharAliasRef
-  
+
   # returns final table
   TADACharAliasRef
 }
@@ -472,7 +472,7 @@ TADA_UpdateTADACharAliasRef <- function(
     CST.WQX.tolerance = 1.00,
     WQX.CST.tolerance = 1.00,
     set.all.tolerance = NA
-  ) {
+    ) {
   utils::write.csv(
     TADA_GetTADACharAliasRef(
       ATTAINS.CST.tolerance = 1.00,
@@ -533,7 +533,7 @@ TADAUsesAliasRef_Cached <- NULL
 #' Default is 100%. This value is an OR condition with ATTAINS.CST.tolerance which
 #' defines the minimum percentage of the number of words that must be found in a
 #' CST pollutant name to an ATTAINS parameter to for it to be considered an alias match.
-#' 
+#'
 #' @param set.all.tolerance optional: default is NA, if a user specifies a numeric
 #' value ranging from 0 to 1 (0% to 100%), this will populate all tolerances to
 #' this value.
@@ -551,13 +551,13 @@ TADAUsesAliasRef_Cached <- NULL
 #' )
 #'
 TADA_GetTADAUsesAliasRef <- function(
-  ATTAINS.CST.tolerance = 0.15,
-  CST.ATTAINS.tolerance = 0.15,
-  set.all.tolerance = NA
-) {
+    ATTAINS.CST.tolerance = 0.15,
+    CST.ATTAINS.tolerance = 0.15,
+    set.all.tolerance = NA
+    ) {
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)){
-    ATTAINS.CST.tolerance = CST.ATTAINS.tolerance = set.all.tolerance
+    ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- set.all.tolerance
   }
   # stop if greater than 1, must be between 0 and 1
   if (ATTAINS.CST.tolerance > 1.00 | CST.ATTAINS.tolerance > 1.00) {
@@ -633,7 +633,7 @@ TADA_GetTADAUsesAliasRef <- function(
     # any additional words added below that TADA developers can add below in their review:
     "(%)", "--"
   )
-  
+
   # extract the context2 of ATTAINS.UseName for the use "category type" and applies
   # logic to match them to a Human Health or Aquatic Life indicator.
   ATTAINSUseRef <- ATTAINS.raw |>
@@ -821,12 +821,12 @@ TADA_GetTADAUsesAliasRef <- function(
       percent_match_CST >= CST.ATTAINS.tolerance |
         percent_match_ATTAINS_CST >= ATTAINS.CST.tolerance |
         (is.na(percent_match_CST) & is.na(percent_match_ATTAINS_CST))
-    ) |> 
+    ) |>
     dplyr::mutate(
       ATTAINS.UseName = name,
       review = "New row: Needs Review",
       Last.Change.Date = NA
-      ) |>
+    ) |>
     dplyr::select(-n, -name)
 
   # drop percentages
@@ -835,14 +835,14 @@ TADA_GetTADAUsesAliasRef <- function(
       -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
     )
 
-  # lastly, pull in the current TADAUsesAlias Ref table in TADA inst/extdata that have been reviewed. 
-  current_TADAUsesAlias <- 
-  utils::read.csv(system.file(
-    "extdata",
-    "TADAUsesAliasRef.csv",
-    package = "EPATADA"
-  )) 
-  
+  # lastly, pull in the current TADAUsesAlias Ref table in TADA inst/extdata that have been reviewed.
+  current_TADAUsesAlias <-
+    utils::read.csv(system.file(
+      "extdata",
+      "TADAUsesAliasRef.csv",
+      package = "EPATADA"
+    ))
+
   # filter those that have been reviewed.
   current_TADAUsesAlias <- current_TADAUsesAlias |>
     # dplyr::filter( review != "New Row: Needs Review") # Note: we can probably filter it by this line instead.
@@ -850,13 +850,13 @@ TADA_GetTADAUsesAliasRef <- function(
       review == "APPROVED" |
         review == "REJECTED"
     )
-  
+
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
   TADA_reviewed_list <- current_TADAUsesAlias |>
     dplyr::anti_join(
       TADAUsesAliasRef,
       by = dplyr::join_by(ENTITY_ABBR, ENTITY_NAME, CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
-                   USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier, context2, ATTAINS.UseName, review, Last.Change.Date),
+        USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier, context2, ATTAINS.UseName, review, Last.Change.Date),
       na_matches = "na"
     )
 
@@ -869,7 +869,7 @@ TADA_GetTADAUsesAliasRef <- function(
         USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier, context2, ATTAINS.UseName)
     ) |>
     dplyr::bind_rows(TADA_reviewed_list)
-  
+
   return(TADAUsesAliasRef)
 }
 
@@ -880,7 +880,7 @@ TADA_UpdateTADAUsesAliasRef <- function(
     ATTAINS.CST.tolerance = 0.15,
     CST.ATTAINS.tolerance = 0.15,
     set.all.tolerance = NA
-) {
+    ) {
   utils::write.csv(
     TADA_GetTADAUsesAliasRef(
       ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,

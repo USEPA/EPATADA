@@ -177,13 +177,13 @@ getMapIconLabels <- function(icons = TRUE, labels = TRUE) {
 #'
 # add ATTAINS geometry to existing leaflet map
 addATTAINS <- function(
-  .data,
-  map = NULL,
-  overlay_groups = NULL,
-  icons = NULL,
-  catchment = FALSE,
-  catchment_type = "attains_au"
-) {
+    .data,
+    map = NULL,
+    overlay_groups = NULL,
+    icons = NULL,
+    catchment = FALSE,
+    catchment_type = "attains_au"
+    ) {
   # stop function if map is not provided
   if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
@@ -453,18 +453,18 @@ addATTAINS <- function(
 #'
 # add all ATTAINS geometries to map
 addAllATTAINS <- function(
-  .data = NULL,
-  map = NULL,
-  points_layer = NULL,
-  polygons_layer = NULL,
-  lines_layer = NULL,
-  catchment_layer = NULL,
-  outline_layer = NULL,
-  missing_raw_layer = NULL,
-  overlay_groups = NULL,
-  icons = NULL,
-  catchment = NULL
-) {
+    .data = NULL,
+    map = NULL,
+    points_layer = NULL,
+    polygons_layer = NULL,
+    lines_layer = NULL,
+    catchment_layer = NULL,
+    outline_layer = NULL,
+    missing_raw_layer = NULL,
+    overlay_groups = NULL,
+    icons = NULL,
+    catchment = NULL
+    ) {
   # ensure map is provided
   if (missing(map) | is.null(map)) {
     stop("addAllATTAINS: Argument 'map' is required.")
@@ -639,11 +639,11 @@ getATTAINSColorsRef <- function() {
 #'
 # prep data for mapping with ATTAINS
 prepATTAINSMapper <- function(
-  .data,
-  geo_type = NULL,
-  color_ref = NULL,
-  auid_list = NULL
-) {
+    .data,
+    geo_type = NULL,
+    color_ref = NULL,
+    auid_list = NULL
+    ) {
   # check to see if any data contained in .data
   if (dim(.data)[1] == 0) {
     mapper <- NULL
@@ -789,13 +789,13 @@ prepATTAINSMapper <- function(
 #' @return A list of data frames ready for use in a TADA leaflet map.
 # prep all ATTAINS layers for use in leaflet map
 prepAllATTAINSMapper <- function(
-  lines_layer = NULL,
-  polygons_layer = NULL,
-  points_layer = NULL,
-  catchment_layer = NULL,
-  color_ref = NULL,
-  auid_list = NULL
-) {
+    lines_layer = NULL,
+    polygons_layer = NULL,
+    points_layer = NULL,
+    catchment_layer = NULL,
+    color_ref = NULL,
+    auid_list = NULL
+    ) {
   # get color ref for ATTAINS overall status if not provided
   if (is.null(color_ref)) {
     color_ref <- getATTAINSColorsRef()
@@ -1094,13 +1094,13 @@ createBBox <- function(.data, as_vector = TRUE, attains_geo = FALSE) {
 #'
 # add ATTAINS geometry to existing leaflet map
 showMissingATTAINSAUs <- function(
-  map = NULL,
-  overlay_groups = NULL,
-  ATTAINS_table = NULL,
-  ATTAINS_points = NULL,
-  ATTAINS_lines = NULL,
-  ATTAINS_polygons = NULL
-) {
+    map = NULL,
+    overlay_groups = NULL,
+    ATTAINS_table = NULL,
+    ATTAINS_points = NULL,
+    ATTAINS_lines = NULL,
+    ATTAINS_polygons = NULL
+    ) {
   # stop function if map is not provided
   if (is.null(map)) {
     stop("addATTAINS: a leaflet map must be supplied to run this function.")
@@ -1260,13 +1260,13 @@ showMissingATTAINSAUs <- function(
 #'
 # add ATTAINS geometry to existing leaflet map
 addWQPSites <- function(
-  .data,
-  map = NULL,
-  icons = NULL,
-  icon_labels = NULL,
-  ref_icons = TRUE,
-  overlay_groups = NULL
-) {
+    .data,
+    map = NULL,
+    icons = NULL,
+    icon_labels = NULL,
+    ref_icons = TRUE,
+    overlay_groups = NULL
+    ) {
   # data summary columns
   sum.cols <- c("Sample_Count", "Visit_Count", "Parameter_Count", "ATTAINS_AUs")
 
@@ -1431,16 +1431,16 @@ addWQPSites <- function(
 #'
 # add ATTAINS geometry to existing leaflet map
 addTADAMapLegend <- function(
-  .data,
-  map = NULL,
-  icons = NULL,
-  icon_labels = NULL,
-  wqp = TRUE,
-  ref_icons = TRUE,
-  attains_au = TRUE,
-  attains_missing = TRUE,
-  nhd_attains = TRUE
-) {
+    .data,
+    map = NULL,
+    icons = NULL,
+    icon_labels = NULL,
+    wqp = TRUE,
+    ref_icons = TRUE,
+    attains_au = TRUE,
+    attains_missing = TRUE,
+    nhd_attains = TRUE
+    ) {
   # stop function if no map is provided
   if (is.null(map)) {
     stop(
@@ -1715,12 +1715,12 @@ addFlaggedSitesMarkers <- function(.data, map = NULL, flag_type = NULL) {
 #' points, lines, and polygons layers but still preserved in the catchment layer.
 #'
 findATTAINSMissingRawFeatures <- function(
-  .data,
-  points_layer = NULL,
-  lines_layer = NULL,
-  polygons_layer = NULL,
-  auid_list = NULL
-) {
+    .data,
+    points_layer = NULL,
+    lines_layer = NULL,
+    polygons_layer = NULL,
+    auid_list = NULL
+    ) {
   # set missing raw features to null
   missing_raw_features <- NULL
 
@@ -1838,10 +1838,10 @@ checkTADAColsForMap <- function(.data, attains = FALSE) {
 #' geometry.
 # check for ATTAINS geometry
 checkForATTAINSGeo <- function(
-  points_layer = NULL,
-  lines_layer = NULL,
-  polygons_layer = NULL
-) {
+    points_layer = NULL,
+    lines_layer = NULL,
+    polygons_layer = NULL
+    ) {
   if (is.null(lines_layer) & is.null(points_layer) & is.null(polygons_layer)) {
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }

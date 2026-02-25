@@ -40,14 +40,14 @@
 #' )
 #'
 TADA_CreatePairRef <- function(
-  .data,
-  ph = TRUE,
-  hardness = TRUE,
-  temp = TRUE,
-  chloride = TRUE,
-  salinity = TRUE,
-  other_char = "null"
-) {
+    .data,
+    ph = TRUE,
+    hardness = TRUE,
+    temp = TRUE,
+    chloride = TRUE,
+    salinity = TRUE,
+    other_char = "null"
+    ) {
   # create data frame to store pair refs
   pair.ref <- data.frame(matrix(ncol = 6, nrow = 0))
 

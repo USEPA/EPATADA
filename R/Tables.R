@@ -102,11 +102,11 @@ TADA_SummarizeColumn <- function(.data, col = "TADA.CharacteristicName") {
 #'   pct_digits = 0
 #' )
 TADA_Stats <- function(
-  .data,
-  group_cols = c("TADA.ComparableDataIdentifier"),
-  sig_figs = 3,
-  pct_digits = 1
-) {
+    .data,
+    group_cols = c("TADA.ComparableDataIdentifier"),
+    sig_figs = 3,
+    pct_digits = 1
+    ) {
   if (any(is.na(.data$TADA.ResultMeasureValue))) {
     sumNAs <- length(.data$TADA.ResultMeasureValue[is.na(
       .data$TADA.ResultMeasureValue

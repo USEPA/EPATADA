@@ -905,18 +905,18 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
 #' )
 #'
 TADA_AggregateMeasurements <- function(
-  .data,
-  grouping_cols = c(
-    "ActivityStartDate",
-    "TADA.MonitoringLocationIdentifier",
-    "TADA.ComparableDataIdentifier",
-    "ResultDetectionConditionText",
-    "ActivityTypeCode",
-    "TADA.ResultMeasure.MeasureUnitCode"
-  ),
-  agg_fun = c("max", "min", "mean"),
-  clean = FALSE
-) {
+    .data,
+    grouping_cols = c(
+      "ActivityStartDate",
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.ComparableDataIdentifier",
+      "ResultDetectionConditionText",
+      "ActivityTypeCode",
+      "TADA.ResultMeasure.MeasureUnitCode"
+    ),
+    agg_fun = c("max", "min", "mean"),
+    clean = FALSE
+    ) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, grouping_cols)
   # Check if the input data frame is empty

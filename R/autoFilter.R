@@ -23,10 +23,10 @@
 #'   display = "most", characteristicName = "AMMONIA"
 #' )
 TADA_FieldCounts <- function(
-  .data,
-  display = c("key", "most", "all"),
-  characteristicName = "null"
-) {
+    .data,
+    display = c("key", "most", "all"),
+    characteristicName = "null"
+    ) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -189,10 +189,10 @@ TADA_FieldCounts <- function(
 #' TADA_FieldValuesTable(Data_Nutrients_UT, field = "TADA.CharacteristicName")
 #'
 TADA_FieldValuesTable <- function(
-  .data,
-  field = "null",
-  characteristicName = "null"
-) {
+    .data,
+    field = "null",
+    characteristicName = "null"
+    ) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
 
@@ -297,13 +297,13 @@ TADA_FieldValuesTable <- function(
 #'   surface_water = TRUE
 #' )
 TADA_MediaFilter <- function(
-  .data,
-  clean = FALSE,
-  surface_water = FALSE,
-  ground_water = FALSE,
-  sediment = FALSE,
-  other = FALSE
-) {
+    .data,
+    clean = FALSE,
+    surface_water = FALSE,
+    ground_water = FALSE,
+    sediment = FALSE,
+    other = FALSE
+    ) {
   # Validate input
   if (!is.data.frame(.data)) {
     stop("Input object must be a data frame.")
