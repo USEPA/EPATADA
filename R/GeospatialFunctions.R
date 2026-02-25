@@ -1721,10 +1721,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
-#' columns associated with the ATTAINS assessment unit data.
-#' Moreover, if return_sf = TRUE, this function will additionally return the
-#' raw ATTAINS and catchment shapefile features associated with those
-#' observations.
+#' columns associated with the ATTAINS assessment unit data and the raw
+#' ATTAINS and catchment shapefile features associated with those observations.
 #'
 #' @seealso [TADA_DataRetrieval()]
 #' @seealso [TADA_CreateATTAINSAUMLCrosswalk()]
@@ -1761,13 +1759,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(
-  .data,
-  au_ref = NULL,
-  fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE,
-  api_key = NULL
-) {
+TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE, api_key = NULL) {
 
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
@@ -1815,25 +1807,14 @@ TADA_GetATTAINSByAUID <- function(
       TADA_CorrectColType() |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
-    # In this case we'll need to return empty ATTAINS objects
-    if (return_sf == TRUE) {
-      ATTAINS_catchments <- NULL
-      ATTAINS_lines <- NULL
-      ATTAINS_points <- NULL
-      ATTAINS_polygons <- NULL
-
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = ATTAINS_catchments,
-        "ATTAINS_points" = ATTAINS_points,
-        "ATTAINS_lines" = ATTAINS_lines,
-        "ATTAINS_polygons" = ATTAINS_polygons
-      ))
-
-      # If return_sf == FALSE, then just return the dataframe:
-    } else {
-      return(no_WQP_data)
-    }
+    # Return empty ATTAINS objects
+    return(list(
+      "TADA_with_ATTAINS" = no_WQP_data,
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
+    ))
   }
 
   req.cols <- c(
