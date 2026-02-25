@@ -612,6 +612,33 @@ TADA_GetTADAUsesAliasRef <- function(
     )
   )
 
+  # for word matching method, create a list of common stop words and punctuation marks to exclude
+  # assisted generation of stop words from EPA GenAI Tool
+  stop_words <- c(
+    "a","about","above","after","again","against","all","am","an","and","any","are","aren","aren't","as","at",
+    "be","because","been","before","being","below","between","both","but","by",
+    "can","could","couldn","couldn't",
+    "did","didn","didn't","do","does","doesn","doesn't","doing","don","don't","down","during",
+    "each","few","for","from","further",
+    "had","hadn","hadn't","has","hasn","hasn't","have","haven","haven't","having","he","her","here","hers","herself","him","himself","his","how",
+    "i","if","in","into","is","isn","isn't","it","its","itself",
+    "just",
+    "ll","m","ma","me","more","most","mustn","mustn't","my","myself",
+    "needn","needn't","no","nor","not","now",
+    "o","of","off","on","once","only","or","other","our","ours","ourselves","out","over","own",
+    "re",
+    "s","same","shan","shan't","she","should","should've","shouldn","shouldn't","so","some","such",
+    "t","than","that","the","their","theirs","them","themselves","then","there","these","they","this","those","through","to","too",
+    "under","until","up","very",
+    "was","wasn","wasn't","we","were","weren","weren't","what","when","where","which","while","who","whom","why","will","with","won","won't","wouldn","wouldn't",
+    "y","you","your","yours","yourself","yourselves",
+    "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~",
+    "’", "‘", "“", "”", "—", "–",
+    # any additional words added below that TADA developers can add below in their review:
+    "(%)", "--"
+  )
+  
   # extract the context2 of ATTAINS.UseName for the use "category type" and applies
   # logic to match them to a Human Health or Aquatic Life indicator.
   ATTAINSUseRef <- ATTAINS.raw |>
@@ -632,7 +659,7 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::mutate(name_words = stringr::str_split(name, pattern = " ")) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(
-      !name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")
+      !name_words %in% toupper(stop_words)
     ) |>
     dplyr::mutate(
       name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
@@ -686,7 +713,7 @@ TADA_GetTADAUsesAliasRef <- function(
     ) |>
     tidyr::unnest(cols = c(name_words)) |>
     dplyr::filter(
-      !name_words %in% c(" ", "-", "%", "--", "&", "#", "and", "or")
+      !name_words %in% toupper(stop_words)
     ) |>
     dplyr::mutate(
       name_words = toupper(gsub("[^[:alnum:] ]", "", name_words))
@@ -794,49 +821,62 @@ TADA_GetTADAUsesAliasRef <- function(
   )
 
   # filter by desired tolerance level defined in the arg inputs
-  ATTAINS_CST_Final <- ATTAINS_CST_final |>
+  TADAUsesAliasRef <- ATTAINS_CST_final |>
     dplyr::filter(
       percent_match_CST >= CST.ATTAINS.tolerance |
         percent_match_ATTAINS_CST >= ATTAINS.CST.tolerance |
         (is.na(percent_match_CST) & is.na(percent_match_ATTAINS_CST))
     ) |> 
     dplyr::mutate(
+      ATTAINS.UseName = name,
       review = "New row: Needs Review",
-      ATTAINS.UseName = name
+      Last.Change.Date = NA
       ) |>
     dplyr::select(-n, -name)
 
   if (displayPercent == FALSE) {
-    ATTAINS_CST_Final <- ATTAINS_CST_Final |>
+    TADAUsesAliasRef <- TADAUsesAliasRef |>
       dplyr::select(
         -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
       )
   }
 
-  #current_TADAUsesAlias <- TADA_GetTADACharUsesRef()
+  # lastly, pull in the current TADAUsesAlias Ref table in TADA inst/extdata that have been reviewed. 
+  current_TADAUsesAlias <- 
+  utils::read.csv(system.file(
+    "extdata",
+    "TADAUsesAliasRef.csv",
+    package = "EPATADA"
+  )) 
+  
+  # filter those that have been reviewed.
+  current_TADAUsesAlias <- current_TADAUsesAlias |>
+    # dplyr::filter( review != "New Row: Needs Review") # Note: we can probably filter it by this line instead.
+    dplyr::filter(
+      review == "APPROVED" |
+        review == "REJECTED"
+    )
   
   # keep rows that exist in current TADACharRef that do not have a match with the new ref
-  # TADA_reviewed_list <- current_TADACharAlias |>
-  #   dplyr::mutate(CAS_NO = as.character(CAS_NO)) |>
-  #   dplyr::anti_join(
-  #     ATTAINS_CST_Final,
-  #     na_matches = "na"
-  #   ) 
-  # 
-  # # return rows from current TADACharRef in the TADA internal folder
-  # TADACharAliasRef <- TADACharAliasRef |>
-  #   dplyr::filter(!(
-  #     ATTAINS.ParameterName %in% TADA_reviewed_list$ATTAINS.ParameterName &
-  #       CharacteristicName %in% TADA_reviewed_list$CharacteristicName &
-  #       POLLUTANT_NAME %in% TADA_reviewed_list$POLLUTANT_NAME &
-  #       STD_POLLUTANT_NAME %in% TADA_reviewed_list$STD_POLLUTANT_NAME
-  #   )
-  #   ) |>
-  #   dplyr::bind_rows(
-  #     dplyr::mutate(TADA_reviewed_list)
-  #   )
+  TADA_reviewed_list <- current_TADAUsesAlias |>
+    dplyr::anti_join(
+      TADAUsesAliasRef,
+      by = dplyr::join_by(ENTITY_ABBR, ENTITY_NAME, CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+                   USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier, context2, ATTAINS.UseName, review, Last.Change.Date),
+      na_matches = "na"
+    )
+
+  # return rows from current TADAUsesRef in the TADA internal folder
+  TADAUsesAliasRef <- TADAUsesAliasRef |>
+    dplyr::anti_join(
+      TADA_reviewed_list,
+      by = dplyr::join_by(
+        ENTITY_ABBR, ENTITY_NAME, CRITERIATYPEAQUAHUMHLTH, CRITERIATYPEFRESHSALTWATER, CRITERIATYPE_ACUTECHRONIC,
+        USE_CLASS_NAME_LOCATION_ETC, ATTAINS.OrganizationIdentifier, context2, ATTAINS.UseName)
+    ) |>
+    dplyr::bind_rows(TADA_reviewed_list)
   
-  return(ATTAINS_CST_Final)
+  return(TADAUsesAliasRef)
 }
 
 # Update TADAUsesAlias Reference Table internal file
