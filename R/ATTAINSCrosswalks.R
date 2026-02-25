@@ -63,10 +63,11 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
-                                         batch_upload = FALSE,
-                                         api_key = NULL) {
-
+TADA_GetATTAINSAUMLCrosswalk <- function(
+  org_id = "all",
+  batch_upload = FALSE,
+  api_key = NULL
+) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()
@@ -355,7 +356,6 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   check_links = FALSE,
   api_key = NULL
 ) {
-
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()
@@ -2950,7 +2950,6 @@ TADA_AssignUsesToAU <- function(
   overwrite = FALSE,
   api_key = NULL
 ) {
-
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()
@@ -3380,7 +3379,6 @@ TADA_AssignUsesToWaterType <- function(
   AUMLRef = NULL,
   api_key = NULL
 ) {
-
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- getDefaultrEQKey()
