@@ -315,13 +315,6 @@ if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
     openxlsx::read.xlsx(workbook_path, sheet = sheet_to_read),
     error = function(e) NULL
   )
-  if (is.null(out)) {
-    # Fallback to readxl if openxlsx has trouble
-    out <- tryCatch(
-      readxl::read_excel(workbook_path, sheet = sheet_to_read),
-      error = function(e) NULL
-    )
-  }
   out
 }
 
