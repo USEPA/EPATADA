@@ -1318,7 +1318,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'
 #' @examples
 #' # Create a small mock dataset with minimal required columns.
-#' # Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa, 
+#' # Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa,
 #' # Northern Mariana Islands, Guam, and an imprecise coordinate.
 #' mock_coords <- data.frame(
 #'   ID = c(
@@ -1394,7 +1394,7 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #'   clean_outsideUSA = "remove",
 #'   clean_imprecise = TRUE
 #' )
-#' 
+#'
 TADA_FlagCoordinates <- function(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
