@@ -1717,7 +1717,7 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #'
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
@@ -3090,7 +3090,7 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' function's output.
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @return A list containing a modified TADA data frame with added ATTAINS columns and

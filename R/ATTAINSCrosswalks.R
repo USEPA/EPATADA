@@ -21,7 +21,7 @@
 
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
@@ -226,7 +226,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
 #'
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
@@ -1075,7 +1075,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-FTADA_ParametersForAnalysis <- function(
+TADA_ParametersForAnalysis <- function(
   .data,
   org_id = NULL,
   paramRef = NULL, # If provided, crosswalk is based on user supplied crosswalk.
@@ -2811,7 +2811,7 @@ TADA_UsesForAnalysis <- function(
 #'
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
@@ -3349,7 +3349,7 @@ TADA_AssignUsesToAU <- function(
 #'
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
-#' performance, it is reccomended that users obtain and use their own api key.
+#' performance, it is recommended that users obtain and use their own api key.
 #' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @param waterUseRef An optional data frame input. If provided, this data frame
