@@ -1762,7 +1762,7 @@ TADA_GetATTAINSByAUID <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- getDefaultrEQKey()
+    api_key <- .setDefaultEQKey()
   }
 
   # function settings that we ensure go back to their original settings
@@ -3163,7 +3163,7 @@ TADA_CreateAUMLCrosswalk <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- getDefaultrEQKey()
+    api_key <- .setDefaultEQKey()
   }
 
   # create list where all user matches dfs are set to NULL

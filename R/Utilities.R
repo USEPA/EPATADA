@@ -2530,7 +2530,7 @@ TADA_CorrectColType <- function(.data) {
   .data
 }
 
-#' getDefaultrEQKey
+#' .setDefaultEQKey
 #'
 #' Get default EPATADA package rExpertQuery API key. For best performance and to
 #' avoid server failures from rate-limits, EPATADA users should obtain their own
@@ -2538,7 +2538,7 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' @return Character string. The default rExpertQuery API key.
 #'
-getDefaultrEQKey <- function() {
+.setDefaultEQKey <- function() {
   default.key <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
 
   return(default.key)
