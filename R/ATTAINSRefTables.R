@@ -524,10 +524,6 @@ TADAUsesAliasRef_Cached <- NULL
 #' less strict may result in greater number of matches that shouldn't
 #' be matched (false positives). Default for now is to be more strict.
 #'
-#' @param displayPercent a Boolean value. If True, this will display the percent
-#' match in number of words between the WQX characteristic, ATTAINS parameter
-#' and CST pollutant names.
-#'
 #' @param ATTAINS.CST.tolerance a numeric value ranging from 0 to 1 (0% to 100%).
 #' Default is 100%. This value is an OR condition with CST.ATTAINS.tolerance which
 #' defines the minimum percentage of the number of words that must be found in an
@@ -555,7 +551,6 @@ TADAUsesAliasRef_Cached <- NULL
 #' )
 #'
 TADA_GetTADAUsesAliasRef <- function(
-  displayPercent = FALSE,
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
   set.all.tolerance = NA
@@ -834,12 +829,11 @@ TADA_GetTADAUsesAliasRef <- function(
       ) |>
     dplyr::select(-n, -name)
 
-  if (displayPercent == FALSE) {
-    TADAUsesAliasRef <- TADAUsesAliasRef |>
-      dplyr::select(
-        -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
-      )
-  }
+  # drop percentages
+  TADAUsesAliasRef <- TADAUsesAliasRef |>
+    dplyr::select(
+      -dplyr::any_of(c("percent_match_ATTAINS_CST", "percent_match_CST"))
+    )
 
   # lastly, pull in the current TADAUsesAlias Ref table in TADA inst/extdata that have been reviewed. 
   current_TADAUsesAlias <- 

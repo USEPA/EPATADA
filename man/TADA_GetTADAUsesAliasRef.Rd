@@ -5,17 +5,12 @@
 \title{TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review}
 \usage{
 TADA_GetTADAUsesAliasRef(
-  displayPercent = FALSE,
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
   set.all.tolerance = NA
 )
 }
 \arguments{
-\item{displayPercent}{a Boolean value. If True, this will display the percent
-match in number of words between the WQX characteristic, ATTAINS parameter
-and CST pollutant names.}
-
 \item{ATTAINS.CST.tolerance}{a numeric value ranging from 0 to 1 (0\% to 100\%).
 Default is 100\%. This value is an OR condition with CST.ATTAINS.tolerance which
 defines the minimum percentage of the number of words that must be found in an
