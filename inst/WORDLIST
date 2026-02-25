@@ -474,7 +474,6 @@ geospatial
 geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
-.setDefaultEQKey
 getFeatureLayer
 getLayer
 getMapIconLabels
@@ -546,6 +545,7 @@ resultCount
 sampleMedia
 sd
 secchi
+setDefaultEQKey
 setnames
 showMissingATTAINSAUs
 shp
