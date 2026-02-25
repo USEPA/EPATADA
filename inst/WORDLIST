@@ -308,6 +308,7 @@ SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
 SampleTissueAnatomyName
+Signup
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
@@ -400,6 +401,7 @@ agg
 aggregatedonly
 analytes
 aoi
+api
 applyautoclean
 arcgis
 asNO
@@ -456,6 +458,7 @@ ecoregions
 endDate
 endDateHi
 epa
+expertquery
 extdata
 fabec
 fetchATTAINS
@@ -471,6 +474,7 @@ geospatial
 geospatially
 getATTAINSColorRef
 getATTAINSColorsRef
+getDefaultrEQKey
 getFeatureLayer
 getLayer
 getMapIconLabels
@@ -517,6 +521,7 @@ outsideUSA
 outsideusa
 overallstatus
 overdetects
+owapps
 param
 paramRef
 params
@@ -544,6 +549,7 @@ secchi
 setnames
 showMissingATTAINSAUs
 shp
+signup
 siteType
 siteid
 sitetype

@@ -201,7 +201,7 @@ users are all accessing Expert Query data using the same key at the same
 time, server failures from too many requests may occur. Best practice is
 for each EPATADA user is to obtain their own, individual API key by
 requesting one here: [API Key Signup
-Form](https://owapps.epa.gov/expertquery/api-key-signup){.uri}.
+Form](https://owapps.epa.gov/expertquery/api-key-signup)
 
 ![](images/clipboard-3767373632.png)
 
