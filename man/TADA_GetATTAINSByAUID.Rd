@@ -36,11 +36,6 @@ run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
 services. If not supplied, the default TADA api key will be used. For best
 performance, it is recommended that users obtain and use their own api key.
 Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
-
-\item{return_sf}{Whether to return the ATTAINS associated catchments, lines,
-points, and polygon shapefile objects along with the data frame(s).
-TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-are in WGS84 (crs = 4326).}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional

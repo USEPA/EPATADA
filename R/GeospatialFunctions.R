@@ -1710,11 +1710,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
-#' @param return_sf Whether to return the ATTAINS associated catchments, lines,
-#' points, and polygon shapefile objects along with the data frame(s).
-#' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-#' are in WGS84 (crs = 4326).
-#'
 #' @param api_key Optional character string. An api key for Expert Query web
 #' services. If not supplied, the default TADA api key will be used. For best
 #' performance, it is recommended that users obtain and use their own api key.
