@@ -1317,30 +1317,64 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
-#' utils::data(Data_R5_TADAPackageDemo)
+#' # Create a small mock dataset with minimal required columns.
+#' # Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa, 
+#' # Northern Mariana Islands, Guam, and an imprecise coordinate.
+#' mock_coords <- data.frame(
+#'   ID = c(
+#'     "Pass_US_mainland",
+#'     "Lat_outside",
+#'     "Long_outside",
+#'     "American_Samoa",
+#'     "Northern_Mariana_Islands",
+#'     "Guam",
+#'     "Imprecise"
+#'   ),
+#'   TADA.LatitudeMeasure = c(
+#'     38.8977,   # Pass (USA mainland-like)
+#'     -5.0000,   # LAT_OutsideUSA
+#'     40.0000,   # LONG_OutsideUSA (long between 0 and 145)
+#'     -13.5000,  # American Samoa (excluded from outside flags)
+#'     15.0000,   # Northern Mariana Islands (excluded)
+#'     13.4000,   # Guam (excluded)
+#'     35.12      # Imprecise (< 3 decimal places)
+#'   ),
+#'   TADA.LongitudeMeasure = c(
+#'     -77.0365,  # Pass
+#'     -120.0000, # LAT_OutsideUSA
+#'     10.0000,   # LONG_OutsideUSA
+#'     -170.0000, # American Samoa
+#'     145.5000,  # Northern Mariana Islands
+#'     144.8500,  # Guam
+#'     -120.0     # Imprecise (<= 1 decimal place)
+#'   ),
+#'   stringsAsFactors = FALSE
+#' )
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag":
 #' # Return ALL data:
-#' SuspectCoord_flags <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo)
+#' SuspectCoord_flags <- TADA_FlagCoordinates(mock_coords)
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   flaggedonly = TRUE
 #' )
 #'
 #' # Remove data with coordinates outside the USA, but keep flagged data with
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_outsideUSA = "remove"
 #' )
 #'
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_outsideUSA = "change sign"
 #' )
 #'
@@ -1348,16 +1382,19 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # coordinates outside the USA;
 #' # imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_imprecise = TRUE
 #' )
 #'
 #' # Remove data with imprecise coordinates or coordinates outside the USA
 #' # from the dataframe:
-#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
-#'   clean_outsideUSA = "remove", clean_imprecise = TRUE
+#' SuspectCoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
+#'   clean_outsideUSA = "remove",
+#'   clean_imprecise = TRUE
 #' )
-#'
+#' 
 TADA_FlagCoordinates <- function(
   .data,
   clean_outsideUSA = c("no", "remove", "change sign"),
