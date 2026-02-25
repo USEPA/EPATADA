@@ -8,7 +8,8 @@ TADA_AssignUsesToWaterType(
   .data,
   org_id = NULL,
   waterUseRef = NULL,
-  AUMLRef = NULL
+  AUMLRef = NULL,
+  api_key = NULL
 )
 }
 \arguments{

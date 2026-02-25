@@ -8,7 +8,7 @@ Crosswalk from ATTAINS}
 TADA_GetATTAINSAUMLCrosswalk(
   org_id = "all",
   batch_upload = FALSE,
-  api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  api_key = NULL
 )
 }
 \arguments{

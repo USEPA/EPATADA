@@ -8,7 +8,8 @@ TADA_GetATTAINSByAUID(
   .data,
   au_ref = NULL,
   fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
+  return_sf = TRUE,
+  api_key = NULL
 )
 }
 \arguments{

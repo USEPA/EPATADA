@@ -13,7 +13,7 @@ TADA_UpdateATTAINSAUMLCrosswalk(
   update_mlid = TRUE,
   batch_upload = FALSE,
   check_links = FALSE,
-  api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  api_key = NULL
 )
 }
 \arguments{
