@@ -19,6 +19,10 @@ load(testthat::test_path("testdata", "Hill_MT_pH.rda"))
 small_bbox_data <- large_bbox_data[125:140, ]
 expect_cat_n_small <- 2
 
+# data for nearby sites test
+nearby_data <- large_bbox_data |>
+  dplyr::filter(OrganizationIdentifier %in% c("CHIPCREE_WQX", "USGS-MT"))
+
 # Query specific to sites along state border
 # sites = c("NALMS-F1217605",
 #           "EMAP_CS_WQX-RI03-0338-B",
@@ -33,6 +37,12 @@ expect_cat_n_small <- 2
 #  )
 # RI_CT_secchi
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
+
+# test_au_ref_MTDEQ.rda is staic, but was generated using:
+# MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+# test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
+#                                                     crosswalk = MT_AU_MLRef)
+load(testthat::test_path("testdata", "test_au_ref_MTDEQ.rda"))
 
 # TADA_MakeSpatial Tests ----
 testthat::test_that("TADA_MakeSpatial converts non-spatial data to sf object", {
@@ -230,6 +240,43 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk handles empty datasets appr
 })
 
 
+testthat::test_that("Get ATTAINS by Assessment Unit ID", {
+  #au_id_list <- test_au_ref_MTDEQ$ATTAINS.AssessmentUnitIdentifier
+
+  # When run with defaults (no ExpertQuery fields)
+  testthat::expect_no_error(
+    actual_default <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ
+    )
+  )
+  # Check .data was updated by adding 83 cols (161+83=244)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 245)
+  # Check results based on number of rows
+  expected_rows <- c(0, 5, 1)
+  expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])
+  expect_equal(nrow(actual_default$ATTAINS_lines), expected_rows[2])
+  expect_equal(nrow(actual_default$ATTAINS_polygons), expected_rows[3])
+  # When default fill_ATTAINS_catch = FALSE, catchments are NULL
+  expect_null(actual_default$ATTAINS_catchments)
+
+  # Run with catchments
+  testthat::expect_no_error(
+    actual_catchments <- TADA_GetATTAINSByAUID(
+      Data_MT_MissoulaCounty,
+      test_au_ref_MTDEQ,
+      fill_ATTAINS_catch = TRUE
+    )
+  )
+  # Check results based on number of rows (only catchments change from default)
+  expected_rows <- c(11, expected_rows)
+  expect_equal(nrow(actual_catchments$ATTAINS_catchments), expected_rows[1])
+  expect_equal(nrow(actual_catchments$ATTAINS_points), expected_rows[2])
+  expect_equal(nrow(actual_catchments$ATTAINS_lines), expected_rows[3])
+  expect_equal(nrow(actual_catchments$ATTAINS_polygons), expected_rows[4])
+})
+
+
 testthat::test_that("TADA_ViewATTAINS validates input structure", {
   # Test with data that's missing required ATTAINS components
   invalid_data <- list("TADA_with_ATTAINS" = TADA_dataframe)
@@ -276,26 +323,26 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
   # find nearby sites tests
 
   # with defaults
-  test_defaults <- TADA_FindNearbySites(large_bbox_data)
+  test_defaults <- TADA_FindNearbySites(nearby_data)
 
   n_defaults <- test_defaults |>
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_defaults, 45)
+  testthat::expect_equal(n_defaults, 12)
 
   # at 50 m with catchment
-  test_fifty <- TADA_FindNearbySites(large_bbox_data, dist_buffer = 50)
+  test_fifty <- TADA_FindNearbySites(nearby_data, dist_buffer = 50)
 
   n_fifty <- test_fifty |>
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_fifty, 48)
+  testthat::expect_equal(n_fifty, 8)
 
   # without catchment
   test_bufferonly <- TADA_FindNearbySites(
-    large_bbox_data,
+    nearby_data,
     catchment = FALSE,
     dist_buffer = 100
   )
@@ -304,22 +351,26 @@ testthat::test_that("TADA_FindNearbySites returns expected number of site groups
     dplyr::select(TADA.NearbySiteGroup) |>
     dplyr::n_distinct()
 
-  testthat::expect_equal(n_bufferonly, 46)
+  testthat::expect_equal(n_bufferonly, 15)
 
   # with AU
   # the expected value here may need to be updated if geospatial data for Data_MT_AUMLRef change
   test_au <- Data_MT_AUMLRef$TADA_with_ATTAINS |>
+    dplyr::filter(OrganizationIdentifier == "MTVOLWQM_WQX") |>
     TADA_FindNearbySites(by_AU = TRUE)
 
-  n_au <- test_au |> dplyr::select(TADA.NearbySiteGroup) |> dplyr::n_distinct()
+  n_au <- test_au |>
+    sf::st_drop_geometry() |>
+    dplyr::select(TADA.NearbySiteGroup) |>
+    dplyr::n_distinct()
 
-  testthat::expect_equal(n_au, 38)
+  testthat::expect_equal(n_au, 2)
 })
 
 testthat::test_that("TADA_FindNearbySites returns expected metadata", {
   # select by count
   test_count <- TADA_FindNearbySites(
-    large_bbox_data,
+    nearby_data,
     org_hierarchy = "none",
     meta_select = "count"
   )
@@ -329,7 +380,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   testthat::expect_equal(
     test_count_filt$TADA.MonitoringLocationIdentifier,
-    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
   testthat::expect_equal(test_count_filt$TADA.LatitudeMeasure, 48.4091576)
@@ -346,16 +397,8 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   # select by org hierarchy
   test_org <- TADA_FindNearbySites(
-    large_bbox_data,
-    org_hierarchy = c(
-      "CHIPCREE",
-      "CHIPCREE_WQX",
-      "USGS-MT",
-      "MDEQ_WQ_WQX",
-      "MONT_DEQ_WQX",
-      "NARS",
-      "NARS_WQX"
-    )
+    nearby_data,
+    org_hierarchy = c("CHIPCREE_WQX", "USGS-MT")
   )
 
   test_org_filt <- test_org |>
@@ -363,7 +406,7 @@ testthat::test_that("TADA_FindNearbySites returns expected metadata", {
 
   testthat::expect_equal(
     test_org_filt$TADA.MonitoringLocationIdentifier,
-    "[USGS-06138570, CHIPCREE-LBS4, CHIPCREE_WQX-LBS4]"
+    "[USGS-06138570, CHIPCREE_WQX-LBS4]"
   )
 
   testthat::expect_equal(test_org_filt$TADA.LatitudeMeasure, 48.40935910)
