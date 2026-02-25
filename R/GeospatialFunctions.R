@@ -1715,6 +1715,11 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
 #' are in WGS84 (crs = 4326).
 #'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is reccomended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data.
 #' Moreover, if return_sf = TRUE, this function will additionally return the
@@ -1760,8 +1765,15 @@ TADA_GetATTAINSByAUID <- function(
   .data,
   au_ref = NULL,
   fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
+  return_sf = TRUE,
+  api_key = NULL
 ) {
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- getDefaultrEQKey()
+  }
+
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1896,7 +1908,7 @@ TADA_GetATTAINSByAUID <- function(
 
     wat_type <- function(chunk) {
       results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
+        api_key = api_key,
         auid = chunk
       ))
     }

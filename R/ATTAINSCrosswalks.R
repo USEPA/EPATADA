@@ -65,7 +65,13 @@
 #'
 TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all",
                                          batch_upload = FALSE,
-                                         api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5") {
+                                         api_key = NULL) {
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- getDefaultrEQKey()
+  }
+
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
@@ -347,8 +353,14 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   update_mlid = TRUE,
   batch_upload = FALSE,
   check_links = FALSE,
-  api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  api_key = NULL
 ) {
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- getDefaultrEQKey()
+  }
+
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
@@ -2936,8 +2948,14 @@ TADA_AssignUsesToAU <- function(
   waterUseRef = NULL,
   excel = FALSE,
   overwrite = FALSE,
-  api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  api_key = NULL
 ) {
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- getDefaultrEQKey()
+  }
+
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(excel) && missing(overwrite)
@@ -3359,8 +3377,15 @@ TADA_AssignUsesToWaterType <- function(
   .data,
   org_id = NULL,
   waterUseRef = NULL,
-  AUMLRef = NULL
+  AUMLRef = NULL,
+  api_key = NULL
 ) {
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- getDefaultrEQKey()
+  }
+
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
