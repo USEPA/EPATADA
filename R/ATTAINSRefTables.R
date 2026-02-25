@@ -369,7 +369,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::bind_rows(final_CAS_match)
   
   # remove intermediate variables
-  rm(ATTAINS_CST, ATTAINS_WQX, CST_WQX, ATTAINS_CST_ATTAINS_WQX_CAS)
+  rm(ATTAINS_CST, ATTAINS_WQX, CST_WQX)
   
   # Now populate the WQXCharAliasTable that was pulled in from the beginning with CAS number, source, and review labels
   WQX_char_alias_filtered <- WQX_char_alias_filtered |>
