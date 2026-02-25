@@ -56,7 +56,7 @@ with changing raw data, email the WQX help desk: \email{WQX@epa.gov}
 }
 \examples{
 # Create a small mock dataset with minimal required columns.
-# Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa, 
+# Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa,
 # Northern Mariana Islands, Guam, and an imprecise coordinate.
 mock_coords <- data.frame(
   ID = c(
