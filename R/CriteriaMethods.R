@@ -802,87 +802,106 @@ TADA_DefineCriteriaMethodology <- function(
             ),
             fileEncoding = "UTF-8-BOM"
           ) |>
-            dplyr::mutate(dplyr::across(
+            dplyr::mutate(
+              dplyr::across(
               where(is.character),
-              stringr::str_to_upper
-            )) |>
+              stringr::str_to_upper)
+            ) |>
             dplyr::filter(!is.na(Code))
           
+          # identify the unit ref of the .data
           suppressMessages(
             unitRef <- TADA_CreateUnitRef(.data)
           )
           
-          # WQXunitRef <- utils::read.csv(
-          #   system.file("extdata", "WQXunitRef.csv", package = "EPATADA"),
-          #   fileEncoding = "UTF-8-BOM"
-          # ) |>
-          #   dplyr::mutate(dplyr::across(where(is.character), stringr::str_to_upper))
+          # modify unitRef to have the MagnitudeUnit as the target.
+          unitRef_CST <- unitRef |>
+            dplyr::inner_join(
+              dplyr::select(R5, TADA.CharacteristicName, MagnitudeUnit),
+              by = "TADA.CharacteristicName",
+              relationship = "many-to-many"
+            ) |>
+            dplyr::filter(
+              !is.na(MagnitudeUnit),
+              TADA.ResultMeasure.MeasureUnitCode != MagnitudeUnit
+            ) |>
+            dplyr::select(
+              TADA.CharacteristicName,
+              TADA.ResultMeasure.MeasureUnitCode,
+              MagnitudeUnit,
+              -TADA.WQXUnitConversionCoefficient,
+              -TADA.WQXUnitConversionFactor
+            ) |>
+            dplyr::left_join(
+              TADAPriorityCharConvertRef,
+              by = c("MagnitudeUnit" = "Code")
+            ) |>
+            dplyr::distinct()
           
-          # DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-          #   dplyr::left_join(
-          #     TADAPriorityCharConvertRef,
-          #     by = c("MagnitudeUnit" = "Code"),
-          #     keep = TRUE
-          #   ) |>
-          #   TADA_CorrectColType() |>
-          #   dplyr::mutate(
-          #     Conversion.Factor = dplyr::if_else(
-          #       is.na(Conversion.Factor),
-          #       1,
-          #       Conversion.Factor
-          #     ),
-          #     MagnitudeUnit = Target.Unit,
-          #     MagnitudeValueLower = round(
-          #       Conversion.Factor * MagnitudeValueLower,
-          #       digits = 4
-          #     ),
-          #     MagnitudeValueUpper = round(
-          #       Conversion.Factor * MagnitudeValueUpper,
-          #       digits = 4
-          #     ),
-          #     EquationBased = dplyr::if_else(
-          #       # Is at least one of the CST columns present and non-NA?
-          #       dplyr::if_any(dplyr::any_of(c("TADA.CharacteristicName", "CST.StdPollutantName", "CST.USE")), ~ !is.na(.x)) &
-          #         # Are BOTH magnitude columns present and NA?
-          #         dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
-          #       "Yes",
-          #       "No",
-          #       missing = "No"  # match the type of "Yes"/"No"
-          #     )
-          #   ) |>
-          #   dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)))
-
-          # Now, convert using WQX unit ref to match the TADA.ResultMeasureUnit
-          # DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-          #   dplyr::left_join(
-          #     WQXunitRef,
-          #     by = c("MagnitudeUnit" = "Code"),
-          #     keep = TRUE
-          #   ) |>
-          #   TADA_CorrectColType() |>
-          #   dplyr::mutate(
-          #     Conversion.Factor = dplyr::if_else(
-          #       is.na(Conversion.Factor),
-          #       1,
-          #       Conversion.Factor
-          #     ),
-          #     MagnitudeUnit = Target.Unit,
-          #     MagnitudeValueLower = round(
-          #       Conversion.Factor * MagnitudeValueLower,
-          #       digits = 4
-          #     ),
-          #     MagnitudeValueUpper = round(
-          #       Conversion.Factor * MagnitudeValueUpper,
-          #       digits = 4
-          #     )
-          #   ) |>
-          #   dplyr::select(-dplyr::any_of(names(WQXunitRef)))
+          unitRef_CST_NA <- dplyr::filter(unitRef_CST, is.na(Target.Unit))
+          
+          # print message to indicate there are values pulled in from the CST that are being converted to match those in the TADA df
+          if(length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
+            print(
+              paste("Warning in TADA_DefineCriteriaMethodology: ",
+                    "There are", length(unique(unitRef_CST$TADA.CharacteristicName)),
+                    "TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values.",
+                    "Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe.",
+                    "Please review these conversions.")
+            )
+          }
+          # print message to identify those that could not be converted. Recommend users to select appropriate unit alias or convert manually.
+          if (nrow(unitRef_CST_NA) > 0){
+            print(
+              paste("Warning in TADA_DefineCriteriaMethodology:",
+                    "There are", length(unique(unitRef_CST_NA$TADA.CharacteristicName)), "TADA.CharacteristicName with CST MagnitudeUnit values that could not be converted.",
+                    "Please review these CST magnitude units:", paste(unique(unitRef_CST_NA$MagnitudeUnit), collapse = ", "),
+                    "and convert to an appropriate unit found in your TADA data frame.")
+            )
+          }
+            
+          # convert cst units to match those found in the TADA df
+          DefineCriteriaMethodology <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology))
+          
+          DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+            dplyr::left_join(
+              unitRef_CST,
+              by = c("TADA.CharacteristicName", "MagnitudeUnit"),
+              relationship = "many-to-many"
+            ) |>
+            dplyr::mutate(
+              Conversion.Factor = dplyr::if_else(
+                is.na(Conversion.Factor),
+                1,
+                Conversion.Factor
+              ),
+              MagnitudeUnit = Target.Unit,
+              MagnitudeValueLower = round(
+                Conversion.Factor * MagnitudeValueLower,
+                digits = 4
+              ),
+              MagnitudeValueUpper = round(
+                Conversion.Factor * MagnitudeValueUpper,
+                digits = 4
+              ),
+              EquationBased = dplyr::if_else(
+                # Is at least one of the CST columns present and non-NA?
+                dplyr::if_any(dplyr::any_of(c("TADA.CharacteristicName", "CST.StdPollutantName", "CST.USE")), ~ !is.na(.x)) &
+                  # Are BOTH magnitude columns present and NA?
+                  dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
+                "Yes",
+                "No",
+                missing = "No"  # match the type of "Yes"/"No"
+              )
+            ) |>
+            dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)), - TADA.ResultMeasure.MeasureUnitCode) |>
+            dplyr::distinct()
         }
       }
 
       # final formatting to ensure all column types are correct
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
-        TADA_CorrectColType() |>
+        suppressWarnings(TADA_CorrectColType()) |>
         dplyr::filter(!is.na(TADA.CharacteristicName))
     }
 
