@@ -3,12 +3,14 @@ name: formatting
 
 on:
   pull_request_target:
-    types: [opened, ready_for_review]  # Only at PR open or when draft → ready_for_review
+    branches: [develop]                  # Only PRs targeting develop
+    types: [opened, ready_for_review]    # On PR open or when draft → ready_for_review
 
 jobs:
   # Auto-format on PRs (same-repo), suggest-only on forks
   format-pr:
-    if: github.event_name == 'pull_request_target' && github.actor != 'github-actions[bot]'
+    # Skip drafts and avoid self-trigger loops
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     permissions:
       contents: write            # needed to commit/push on same-repo PRs

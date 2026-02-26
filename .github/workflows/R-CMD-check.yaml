@@ -1,9 +1,15 @@
 name: R-CMD-check
 
 on:
+  # Always run on pushes to develop
+  push:
+    branches: [develop]
+
+  # Run after formatting and spelling-check complete (for PRs to develop)
   workflow_run:
     workflows: ["formatting", "spelling-check"]
     types: [completed]
+
   workflow_dispatch:
     inputs:
       ref:
@@ -22,7 +28,7 @@ jobs:
       ok: ${{ steps.verify.outputs.ok }}
       note: ${{ steps.verify.outputs.note }}
     steps:
-      - name: Verify formatting + spelling-check succeeded (develop only for workflow_run)
+      - name: Verify prerequisites and routing
         id: verify
         uses: actions/github-script@v7
         with:
@@ -38,12 +44,28 @@ jobs:
               return;
             }
 
-            // For workflow_run from formatting/spelling-check, enforce:
-            // - push must be to develop OR PR base must be develop (and not draft)
+            // For pushes to develop: run unconditionally
+            if (event === 'push') {
+              const ref = context.ref || '';
+              const isDevelop = ref.endsWith('/develop');
+              core.setOutput('ok', isDevelop ? 'true' : 'false');
+              core.setOutput('note', `Push event; ref=${ref}; allow=${isDevelop}`);
+              return;
+            }
+
+            // For workflow_run from formatting/spelling-check:
+            // - require PR base branch develop (and not draft), OR
+            // - ignore (we only want PRs here; pushes handled above)
+            if (event !== 'workflow_run') {
+              core.setOutput('ok', 'false');
+              core.setOutput('note', `Unsupported event: ${event}`);
+              return;
+            }
+
             const wr = context.payload.workflow_run;
             const headSha = wr.head_sha;
 
-            let baseDevelopOk = true;
+            let baseDevelopOk = false;
             if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
               // Prefer payload PRs; fall back to associated PRs for safety
               let prs = wr.pull_requests || [];
@@ -54,10 +76,6 @@ jobs:
                 prs = assoc.data;
               }
               baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop' && !pr?.draft);
-            } else if (wr.event === 'push') {
-              baseDevelopOk = wr.head_branch === 'develop';
-            } else {
-              baseDevelopOk = false;
             }
 
             // Require both prerequisite workflows to have succeeded for this head SHA
@@ -92,7 +110,7 @@ jobs:
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     concurrency:
-      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha) || format('rcmdcheck-manual-{0}', github.run_id) }}
+      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha) || github.event_name == 'push' && format('rcmdcheck-push-{0}', github.sha) || format('rcmdcheck-manual-{0}', github.run_id) }}
       cancel-in-progress: true
 
     strategy:
@@ -113,12 +131,20 @@ jobs:
       - name: Echo gate status
         run: echo "${{ needs.gate.outputs.note }}"
 
-      # Checkout exact commit for workflow_run-triggered checks
+      # Checkout exact commit for workflow_run-triggered checks (PRs)
       - name: Check out exact commit (workflow_run)
         if: ${{ github.event_name == 'workflow_run' }}
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      # Checkout for pushes to develop
+      - name: Check out (push)
+        if: ${{ github.event_name == 'push' }}
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       # Checkout for manual runs (optional ref/repo)
@@ -147,5 +173,4 @@ jobs:
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          # Optional: keep the manual off to avoid LaTeX on CI; remove to build the PDF manual too
           args: 'c("--no-manual")'

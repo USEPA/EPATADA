@@ -1,15 +1,12 @@
 name: spelling-check
 
 on:
-  push:
-    branches: [develop]
-
-  # Run on PRs targeting develop (first open or when moved out of draft)
+  # Run on PRs targeting develop (open, reopen, new commits, and when moved out of draft)
   pull_request:
     branches: [develop]
-    types: [opened, ready_for_review]
+    types: [opened, reopened, synchronize, ready_for_review]
 
-  # Manual trigger (works for draft PR branches too)
+  # Optional manual trigger
   workflow_dispatch:
     inputs:
       ref:
@@ -21,7 +18,7 @@ jobs:
   spelling-check:
     runs-on: ubuntu-latest
 
-    # Skip on draft PRs; still runs for push and manual runs
+    # Skip on draft PRs; still allows manual runs
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
 
     env:
@@ -32,6 +29,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           # Use provided ref for manual runs; otherwise use the event ref
+          # (On pull_request events this is the merge ref; fine for spellcheck.
+          # If you prefer the PR head commit, set ref: ${{ github.head_ref }} instead.)
           ref: ${{ github.event.inputs.ref || github.ref }}
 
       - uses: r-lib/actions/setup-r@v2
