@@ -209,16 +209,30 @@ TADA_GetTADACharAliasRef <- function(
   # remove intermediate variables
   rm(ATTAINS.raw)
 
-  # retrieve the Criteria Search Tool
-  CriteriaSearchToolRef <- system.file(
+  # Extract CST Criteria from the internal workbook only; error if missing/unreadable
+  internal_path <- system.file(
     "extdata",
-    "CriteriaSearchToolRef.rda",
+    "cst-workbook.xlsx",
     package = "EPATADA"
   )
-  load(CriteriaSearchToolRef)
+  if (!nzchar(internal_path) || !file.exists(internal_path)) {
+    stop(
+      "Internal CST workbook is missing: inst/extdata/cst-workbook.xlsx. ",
+      "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
+    )
+  }
+  
+  CST_ref <- .tada_cst_read_sheet(internal_path, target = "criteria")
+  if (is.null(CST_ref)) {
+    stop(
+      "Failed to read 'Criteria' sheet from internal CST workbook at: ",
+      internal_path
+    )
+  }
+  CST_ref <- .tada_cst_prepare_table(CST_ref)
 
   # extract unique relevant columns
-  CST <- CriteriaSearchToolRef |>
+  CST <- CST_ref |>
     dplyr::select(POLLUTANT_NAME, STD_POLLUTANT_NAME, CAS_NO) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct() |>
@@ -323,9 +337,6 @@ TADA_GetTADACharAliasRef <- function(
         percent_match_CST_WQX >= CST.WQX.tolerance
     )
 
-  # remove intermediate variables
-  rm(CST, CST2, ATTAINSParamRef, ATTAINSParamRef2, WQXCharacteristicRef, WQXCharacteristicRef2)
-
   ## step 4: join pairwise combination tables into one.
   final <- ATTAINS_CST |>
     dplyr::full_join(ATTAINS_WQX, by = "name", relationship = "many-to-many") |>
@@ -401,6 +412,9 @@ TADA_GetTADACharAliasRef <- function(
     # bind existing WQX char alias.
     dplyr::bind_rows(WQX_char_alias_filtered)
 
+  # remove intermediate variables
+  rm(CST, CST2, ATTAINSParamRef, ATTAINSParamRef2, WQXCharacteristicRef, WQXCharacteristicRef2)
+  
   # pull in most recent TADACharAliasRef in EPATADA
   current_TADACharAlias <- utils::read.csv(system.file(
     "extdata",
