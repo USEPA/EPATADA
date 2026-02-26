@@ -358,23 +358,24 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     sf::st_transform(out_epsg) |>
     sf::st_make_valid()
   
-  distance_threshold <- 100 # meters; this could be made into a function parameter?
+  # distance_threshold <- 100 # meters; this could be made into a function parameter?
 
   try(
-    {
-      # Index of nearest polygon for each point
-      idx <- sf::st_nearest_feature(points_sf, catchment_features)
-      # Distance from each point to its nearest polygon
-      d <- sf::st_distance(
-        points_sf,
-        catchment_features[idx, ],
-        by_element = TRUE
-      )
-      # Keep only those matches within the threshold
-      keep <- as.numeric(d) <= distance_threshold
-      # Set of polygons that have at least one point within the threshold
-      catchment_features <- catchment_features |> 
-        dplyr::slice(unique(idx[keep]))
+    { 
+      catchment_features <- sf::st_filter(catchment_features, points_sf)
+      # # Index of nearest polygon for each point
+      # idx <- sf::st_nearest_feature(points_sf, catchment_features)
+      # # Distance from each point to its nearest polygon
+      # d <- sf::st_distance(
+      #   points_sf,
+      #   catchment_features[idx, ],
+      #   by_element = TRUE
+      # )
+      # # Keep only those matches within the threshold
+      # keep <- as.numeric(d) <= distance_threshold
+      # # Set of polygons that have at least one point within the threshold
+      # catchment_features <- catchment_features |> 
+      #   dplyr::slice(unique(idx[keep]))
     },
     silent = TRUE
   )
