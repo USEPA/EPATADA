@@ -1,57 +1,25 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  workflow_run:
+    workflows: ["formatting", "spelling-check"]
+    types: [completed]
+  workflow_dispatch:
 
 name: pkgdown
-
-on:
-  push:
-    branches: [develop]
-
-  # Run on PRs targeting develop (first open or when moved out of draft)
-  pull_request:
-    branches: [develop]
-    types: [opened, ready_for_review]
-
-  # Manual trigger (works for draft PR branches too)
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "Branch, tag, or commit SHA to build (optional)"
-        required: false
-        default: ""
-      repository:
-        description: "owner/repo to build (optional; defaults to this repo)"
-        required: false
-        default: ""
 
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
-
-    # Skip on draft PRs; still runs for push and manual runs
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
-
+    concurrency:
+      group: ${{ github.event_name == 'workflow_run' && format('pkgdown-{0}', github.event.workflow_run.head_sha) || format('pkgdown-manual-{0}', github.run_id) }}
+      cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
-
     steps:
-      # Checkout for manual runs (optional ref/repo)
-      - name: Check out (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ inputs.repository != '' && inputs.repository || github.repository }}
-          ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
-          fetch-depth: 0
-
-      # Checkout for push/PR runs (default behavior)
-      - name: Check out
-        if: ${{ github.event_name != 'workflow_dispatch' }}
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -68,9 +36,8 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      # Deploy only for pushes to develop (avoid deploying on PRs or manual runs)
       - name: Deploy to GitHub pages 🚀
-        if: ${{ github.event_name == 'push' }}
+        if: github.event_name == 'workflow_run' && github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'develop'
         uses: JamesIves/github-pages-deploy-action@v4.8.0
         with:
           clean: false
