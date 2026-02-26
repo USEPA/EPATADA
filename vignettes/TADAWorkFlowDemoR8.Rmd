@@ -306,6 +306,39 @@ associated with the AssessmentUnitIdentifier "MT76M001_020".
 Let's create a crosswalk to assign "MTWTRSHD_WQX-COMBITR02" to the
 assessment unit "MT76M001_020" and give it the WaterType "RIVER".
 
+### Get Expert Query API Key
+
+Some aspects of this workflow depend on ATTAINS data imported
+via Expert Query web services. While public, Expert Query web services
+require an API key, a unique identifier used to authenticate access to
+the Expert Query API. The EPATADA package contains a default API key for
+Expert Query, so users who do not have their own API key can still use
+these functions.
+
+However, Expert Query API keys are rate limited, meaning that if many
+users are all accessing Expert Query data using the same key at the same
+time, server failures from too many requests may occur. Best practice is
+for each EPATADA user is to obtain their own, individual API key by
+requesting one here: [API Key Signup
+Form](https://owapps.epa.gov/expertquery/api-key-signup)
+
+![](images/clipboard-3767373632.png)
+
+If you have your own API key, uncomment the code below and assign your
+API key to the "api_key" variable. Otherwise, the default EPATADA
+package key will be used.
+
+```{r api_key}
+
+# api_key <- "paste your key here"
+
+# is user does not provide key, set api_key as NULL
+if (!exists("api_key")) {
+  api_key <- NULL
+}
+
+```
+
 ### Define a user supplied crosswalk of Assessment Units and Monitoring Location(s)
 
 ```{r demo_user_cw, results = 'hide'}
@@ -328,7 +361,8 @@ Does our TADA data frame contain any of these monitoring locations?
 
 ```{r TADA_GetATTAINSCrosswalk, eval = F}
 ATTAINS.cw <- TADA_GetATTAINSAUMLCrosswalk(
-  org_id = "MTDEQ"
+  org_id = "MTDEQ",
+  api_key = api_key
 ) |>
   dplyr::filter(ATTAINS.AssessmentUnitIdentifier == "MT76M001_020")
 
@@ -355,7 +389,8 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(tada.MT.clean,
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
   return_nearest = TRUE,
-  batch_upload = FALSE
+  batch_upload = FALSE,
+  api_key = api_key
 )
 ```
 
@@ -405,7 +440,8 @@ vignette for more information.
 AU.uses <- TADA_AssignUsesToAU(
   tada.MT.clean.DO,
   org_id = "MTDEQ",
-  AUMLRef = tada.MT.AUMLRef
+  AUMLRef = tada.MT.AUMLRef,
+  api_key = api_key
 )
 
 TADA_TableExport(AU.uses)
@@ -439,7 +475,8 @@ AU.uses2 <- TADA_AssignUsesToAU(
   tada.MT.clean,
   org_id = "MTDEQ",
   AUMLRef = tada.MT.AUMLRef,
-  AU_UsesRef = AU.uses.user.supplied
+  AU_UsesRef = AU.uses.user.supplied,
+  api_key = api_key
 )
 
 TADA_TableExport(AU.uses2)
