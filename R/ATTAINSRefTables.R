@@ -543,7 +543,6 @@ TADA_GetTADACharAliasRef <- function(
         STD_POLLUTANT_NAME %in% TADA_reviewed_list$STD_POLLUTANT_NAME)
     ) |>
     dplyr::bind_rows(dplyr::mutate(TADA_reviewed_list))
-  
   # keep any TADA.CharAlias that have already been approved or rejected
   TADACharAliasRef <- TADACharAliasRef |>
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, source) |>
