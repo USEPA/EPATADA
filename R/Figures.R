@@ -253,9 +253,9 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #' Histogram_output[[30]]
 #'
 TADA_Histogram <- function(
-    .data,
-    id_cols = c("TADA.ComparableDataIdentifier")
-    ) {
+  .data,
+  id_cols = c("TADA.ComparableDataIdentifier")
+) {
   # ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -442,10 +442,10 @@ TADA_Histogram <- function(
 #' )
 #'
 TADA_FieldValuesPie <- function(
-    .data,
-    field = "null",
-    characteristicName = "null"
-    ) {
+  .data,
+  field = "null",
+  characteristicName = "null"
+) {
   dat <- utils::head(
     TADA_FieldValuesTable(
       .data = .data,
@@ -575,9 +575,9 @@ TADA_FieldValuesPie <- function(
 #' Scatterplot_output[[35]]
 #'
 TADA_Scatterplot <- function(
-    .data,
-    id_cols = c("TADA.ComparableDataIdentifier")
-    ) {
+  .data,
+  id_cols = c("TADA.ComparableDataIdentifier")
+) {
   # ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -789,10 +789,10 @@ TADA_Scatterplot <- function(
 #' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(
-    .data,
-    id_cols = "TADA.ComparableDataIdentifier",
-    groups
-    ) {
+  .data,
+  id_cols = "TADA.ComparableDataIdentifier",
+  groups
+) {
   # if left blank, ensure comparable data identifier is in the id_cols vector
   if (is.null(id_cols)) {
     id_cols <- "TADA.ComparableDataIdentifier"
@@ -1182,10 +1182,10 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' TADA_GroupedScatterplot(df, group_col = "MonitoringLocationName")
 #'
 TADA_GroupedScatterplot <- function(
-    .data,
-    group_col = "MonitoringLocationName",
-    groups = NULL
-    ) {
+  .data,
+  group_col = "MonitoringLocationName",
+  groups = NULL
+) {
   # check .data is data.frame and has required columns (including group_col)
   required_cols <- c(
     "TADA.ComparableDataIdentifier",

@@ -340,9 +340,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
-                                             points_sf,
-                                             min_area = 6e+9,
-                                             max_iterations = 100
+      points_sf,
+      min_area = 6e+9,
+      max_iterations = 100
     ) {
       bbox_area <- function(df, clust) {
         df |>
@@ -1344,11 +1344,11 @@ fetchNHD <- function(.data, resolution = "Hi", features = "catchments") {
 #' )
 #' }
 TADA_CreateATTAINSAUMLCrosswalk <- function(
-    .data,
-    org_id = "all",
-    return_nearest = TRUE,
-    return_sf = TRUE
-    ) {
+  .data,
+  org_id = "all",
+  return_nearest = TRUE,
+  return_sf = TRUE
+) {
   # Store original settings for s2 geometry and timeout for restoration after execution
   original_s2 <- sf::sf_use_s2()
   suppressMessages(sf::sf_use_s2(FALSE))
@@ -2352,14 +2352,14 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
 #' )
 #' }
 TADA_FindNearbySites <- function(
-    .data,
-    dist_buffer = 100,
-    nhd_res = "Hi",
-    org_hierarchy = "none",
-    meta_select = "random",
-    catchment = TRUE,
-    by_AU = TRUE
-    ) {
+  .data,
+  dist_buffer = 100,
+  nhd_res = "Hi",
+  org_hierarchy = "none",
+  meta_select = "random",
+  catchment = TRUE,
+  by_AU = TRUE
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.MonitoringLocationIdentifier",
@@ -3134,13 +3134,13 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' }
 #'
 TADA_CreateAUMLCrosswalk <- function(
-    .data,
-    au_ref = NULL,
-    org_id = "all",
-    fill_ATTAINS_catch = FALSE,
-    return_nearest = TRUE,
-    batch_upload = FALSE
-    ) {
+  .data,
+  au_ref = NULL,
+  org_id = "all",
+  fill_ATTAINS_catch = FALSE,
+  return_nearest = TRUE,
+  batch_upload = FALSE
+) {
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,

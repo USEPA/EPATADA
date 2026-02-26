@@ -165,17 +165,17 @@
 #' )
 #'
 TADA_DefineCriteriaMethodology <- function(
-    .data,
-    org_id = NULL,
-    MLSummaryRef = NULL,
-    criteriaMethods = NULL, # user supplied input here
-    auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
-    AUMLRef = NULL,
-    AU_UsesRef = NULL, # Optional if auto_assign = TRUE
-    displayUniqueId = FALSE,
-    excel = FALSE,
-    overwrite = FALSE
-    ) {
+  .data,
+  org_id = NULL,
+  MLSummaryRef = NULL,
+  criteriaMethods = NULL, # user supplied input here
+  auto_assign = FALSE, # ref = c("ATTAINS", "CST", "TADA", "Other") future development to consider additional crosswalk alternatives?
+  AUMLRef = NULL,
+  AU_UsesRef = NULL, # Optional if auto_assign = TRUE
+  displayUniqueId = FALSE,
+  excel = FALSE,
+  overwrite = FALSE
+) {
   desired_cols <- c(
     "ATTAINS.OrganizationIdentifier",
     "ATTAINS.ParameterName",
@@ -681,19 +681,34 @@ TADA_DefineCriteriaMethodology <- function(
               "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
             )
           }
-          
-          CriteriaSearchToolRef <- .tada_cst_read_sheet(internal_path, target = "criteria")
-          CriteriaSearchToolRef_Legend <- .tada_cst_read_sheet(internal_path, target = "legend")
-          CriteriaSearchToolRef_Sources <- .tada_cst_read_sheet(internal_path, target = "sources")
+
+          CriteriaSearchToolRef <- .tada_cst_read_sheet(
+            internal_path,
+            target = "criteria"
+          )
+          CriteriaSearchToolRef_Legend <- .tada_cst_read_sheet(
+            internal_path,
+            target = "legend"
+          )
+          CriteriaSearchToolRef_Sources <- .tada_cst_read_sheet(
+            internal_path,
+            target = "sources"
+          )
           if (is.null(CriteriaSearchToolRef)) {
             stop(
               "Failed to read 'Criteria' sheet from internal CST workbook at: ",
               internal_path
             )
           }
-          CriteriaSearchToolRef <- .tada_cst_prepare_table(CriteriaSearchToolRef)
-          CriteriaSearchToolRef_Legend <- .tada_cst_prepare_table(CriteriaSearchToolRef_Legend)
-          CriteriaSearchToolRef_Sources <- .tada_cst_prepare_table(CriteriaSearchToolRef_Sources)
+          CriteriaSearchToolRef <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef
+          )
+          CriteriaSearchToolRef_Legend <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef_Legend
+          )
+          CriteriaSearchToolRef_Sources <- .tada_cst_prepare_table(
+            CriteriaSearchToolRef_Sources
+          )
 
           # remove intermediate variable
           rm(internal_path)
@@ -709,14 +724,19 @@ TADA_DefineCriteriaMethodology <- function(
           CriteriaSearchToolRef_filtered <- CriteriaSearchToolRef |>
             dplyr::right_join(
               dplyr::filter(
-                CST_ATTAINS_Param, CharacteristicName %in% stats::na.omit(unique(DefineCriteriaMethodology$TADA.CharacteristicName))
+                CST_ATTAINS_Param,
+                CharacteristicName %in%
+                  stats::na.omit(unique(
+                    DefineCriteriaMethodology$TADA.CharacteristicName
+                  ))
               ),
               by = c("STD_POLLUTANT_NAME")
             ) |>
             dplyr::right_join(
               dplyr::filter(
                 uses,
-                ATTAINS.OrganizationIdentifier %in% DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier
+                ATTAINS.OrganizationIdentifier %in%
+                  DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier
               ),
               by = dplyr::join_by(
                 ENTITY_NAME,
@@ -733,14 +753,18 @@ TADA_DefineCriteriaMethodology <- function(
               by = c("CRIT_SOURCE_ID")
             ) |>
             dplyr::mutate(
-              CST.SourceLink = paste0(SOURCE,"#page=",as.character(PDFPGNO))
+              CST.SourceLink = paste0(SOURCE, "#page=", as.character(PDFPGNO))
             )
 
           # fill in TADA criteria table with CST magnitude values and other relevant CST columns
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
             dplyr::left_join(
               CriteriaSearchToolRef_filtered,
-              by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.ParameterName", "TADA.CharacteristicName" = "CharacteristicName")
+              by = c(
+                "ATTAINS.OrganizationIdentifier",
+                "ATTAINS.ParameterName",
+                "TADA.CharacteristicName" = "CharacteristicName"
+              )
             ) |>
             dplyr::mutate(
               ATTAINS.UseName = dplyr::if_else(
@@ -810,11 +834,10 @@ TADA_DefineCriteriaMethodology <- function(
             ),
             fileEncoding = "UTF-8-BOM"
           ) |>
-            dplyr::mutate(
-              dplyr::across(
-                where(is.character),
-                stringr::str_to_upper)
-            ) |>
+            dplyr::mutate(dplyr::across(
+              where(is.character),
+              stringr::str_to_upper
+            )) |>
             dplyr::filter(!is.na(Code))
 
           # identify the unit ref of the .data
@@ -822,11 +845,15 @@ TADA_DefineCriteriaMethodology <- function(
 
           # remove scientific notation in output
           options(scipen = 999)
-            
+
           # modify unitRef to have the MagnitudeUnit as the target.
           unitRef_CST <- unitRef |>
             dplyr::inner_join(
-              dplyr::select(DefineCriteriaMethodology2, TADA.CharacteristicName, MagnitudeUnit),
+              dplyr::select(
+                DefineCriteriaMethodology2,
+                TADA.CharacteristicName,
+                MagnitudeUnit
+              ),
               by = "TADA.CharacteristicName",
               relationship = "many-to-many"
             ) |>
@@ -850,27 +877,33 @@ TADA_DefineCriteriaMethodology <- function(
           unitRef_CST_NA <- dplyr::filter(unitRef_CST, is.na(Target.Unit))
 
           # print message to indicate there are values pulled in from the CST that are being converted to match those in the TADA df
-          if(length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
-            print(
-              paste("Warning in TADA_DefineCriteriaMethodology: ",
-                "There are", length(unique(unitRef_CST$TADA.CharacteristicName)),
-                "TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values.",
-                "Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe.",
-                "Please review these conversions.")
-            )
+          if (length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
+            print(paste(
+              "Warning in TADA_DefineCriteriaMethodology: ",
+              "There are",
+              length(unique(unitRef_CST$TADA.CharacteristicName)),
+              "TADA.CharacteristicName units that do not match with the CST autoassign MagnitudeUnit values.",
+              "Converting these MagnitudeUnit Values from the CST to match the TADA.ResultMeasure.MeasureUnitCode in your dataframe.",
+              "Please review these conversions."
+            ))
           }
           # print message to identify those that could not be converted. Recommend users to select appropriate unit alias or convert manually.
-          if (nrow(unitRef_CST_NA) > 0){
-            print(
-              paste("Warning in TADA_DefineCriteriaMethodology:",
-                "There are", length(unique(unitRef_CST_NA$TADA.CharacteristicName)), "TADA.CharacteristicName with CST MagnitudeUnit values that could not be converted.",
-                "Please review these CST magnitude units:", paste(unique(unitRef_CST_NA$MagnitudeUnit), collapse = ", "),
-                "and convert to an appropriate unit found in your TADA data frame.")
-            )
+          if (nrow(unitRef_CST_NA) > 0) {
+            print(paste(
+              "Warning in TADA_DefineCriteriaMethodology:",
+              "There are",
+              length(unique(unitRef_CST_NA$TADA.CharacteristicName)),
+              "TADA.CharacteristicName with CST MagnitudeUnit values that could not be converted.",
+              "Please review these CST magnitude units:",
+              paste(unique(unitRef_CST_NA$MagnitudeUnit), collapse = ", "),
+              "and convert to an appropriate unit found in your TADA data frame."
+            ))
           }
 
           # convert cst units to match those found in the TADA df
-          DefineCriteriaMethodology2 <- suppressWarnings(TADA_CorrectColType(DefineCriteriaMethodology2))
+          DefineCriteriaMethodology2 <- suppressWarnings(TADA_CorrectColType(
+            DefineCriteriaMethodology2
+          ))
 
           DefineCriteriaMethodology <- DefineCriteriaMethodology2 |>
             dplyr::left_join(
@@ -895,15 +928,31 @@ TADA_DefineCriteriaMethodology <- function(
               ),
               EquationBased = dplyr::if_else(
                 # Is at least one of the CST columns present and non-NA?
-                dplyr::if_any(dplyr::any_of(c("TADA.CharacteristicName", "CST.StdPollutantName", "CST.USE")), ~ !is.na(.x)) &
+                dplyr::if_any(
+                  dplyr::any_of(c(
+                    "TADA.CharacteristicName",
+                    "CST.StdPollutantName",
+                    "CST.USE"
+                  )),
+                  ~ !is.na(.x)
+                ) &
                   # Are BOTH magnitude columns present and NA?
-                  dplyr::if_all(dplyr::all_of(c("MagnitudeValueLower", "MagnitudeValueUpper")), ~ is.na(.x)),
+                  dplyr::if_all(
+                    dplyr::all_of(c(
+                      "MagnitudeValueLower",
+                      "MagnitudeValueUpper"
+                    )),
+                    ~ is.na(.x)
+                  ),
                 "Yes",
                 "No",
-                missing = "No"  # match the type of "Yes"/"No"
+                missing = "No" # match the type of "Yes"/"No"
               )
             ) |>
-            dplyr::select(-dplyr::any_of(names(TADAPriorityCharConvertRef)), - TADA.ResultMeasure.MeasureUnitCode) |>
+            dplyr::select(
+              -dplyr::any_of(names(TADAPriorityCharConvertRef)),
+              -TADA.ResultMeasure.MeasureUnitCode
+            ) |>
             dplyr::distinct()
         }
       }
@@ -1199,7 +1248,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # identify dups with NA to remove
     DefineCriteriaMethodology_dups <- DefineCriteriaMethodology |>
-      dplyr::distinct(across(-ATTAINS.UseName), .keep_all = TRUE)|>
+      dplyr::distinct(across(-ATTAINS.UseName), .keep_all = TRUE) |>
       dplyr::filter(is.na(ATTAINS.UseName))
 
     # remove dups and create final criteria table
