@@ -228,7 +228,7 @@ This example includes monitoring data collected from Jan 2018 to Jan
 du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation.
 
 ```{r TADA_DataRetrieval}
-TADAProfile_raw <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
+TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
 ```
 
 We will move forward with this example in the remainder of the vignette.
@@ -240,7 +240,7 @@ TADA_DataRetrieval options that allow for **spatial** or
 Focusing just on the "PUEBLO_POJOAQUE" organization, rerun the example
 above:
 
-```{r TADA_DataRetrieval_single, , eval = F}
+```{r TADA_DataRetrieval_single}
 TADAProfile_single <- TADA_DataRetrieval(
   organization = "PUEBLO_POJOAQUE",
   startDate = "2018-01-01",
@@ -284,7 +284,7 @@ TADAProfile_tribal <- TADA_DataRetrieval(
 all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_tribal))
 ```
 
-```{r, include = F, eval = F}
+```{r, include = F}
 rm(TRIBE_NAME)
 rm(TADAProfile_tribal)
 ```
@@ -306,8 +306,9 @@ TADAProfile_spatial <- TADA_DataRetrieval(
 all.equal(data.frame(TADAProfile_single), data.frame(TADAProfile_spatial))
 ```
 
-```{r, include = F, eval = F}
+```{r, include = F}
 rm(TADAProfile_spatial)
+rm(TADAProfile_single)
 ```
 
 **Note**: In this example the output data is identical from these three
@@ -345,7 +346,7 @@ unique(TADAProfile_single_2$OrganizationFormalName)
 unique(TADAProfile_tribal_2$OrganizationFormalName)
 ```
 
-```{r, include = F, eval = F}
+```{r, include = F}
 rm(TADAProfile_single_2)
 rm(TADAProfile_tribal_2)
 ```
@@ -360,7 +361,7 @@ data from multiple WQP profiles, and does some additional data cleaning
 as part of the data retrieval process.
 
 ```{r dataRetrieval_example, eval = FALSE, results = 'hide'}
-dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
+# dataRetrieval_example <- dataRetrieval::readWQPdata(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", ignore_attributes = TRUE)
 ```
 
 ## Big Data Queries
@@ -393,13 +394,13 @@ below can take multiple HOURS to run. The total run time depends on your
 query inputs.
 
 ```{r BigdataRetrieval, eval = FALSE, results = 'hide'}
-AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK", "AL"))
-
-AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
-
-AllPhosphorus <- TADA_DataRetrieval(characteristicName = "Phosphorus")
-
-AllCT <- TADA_DataRetrieval(statecode = "CT")
+# AK_AL_WaterTemp <- TADA_DataRetrieval(startDate = "2000-01-01", endDate = "2022-12-31", characteristicName = "Temperature, water", statecode = c("AK","AL"))
+#
+# AllWaterTemp <- TADA_DataRetrieval(characteristicName = "Temperature, water")
+#
+# AllPhosphorus <- TADA_DataRetrieval(characteristicName = "Phosphorus")
+#
+# AllCT <- TADA_DataRetrieval(statecode = "CT")
 ```
 
 ## Filter data based on media type
@@ -409,18 +410,39 @@ or for analysis of some non-water data. The **TADA_MediaFilter**
 function can assist in identifying results of interest. Multiple columns
 are used to identify groundwater results as different organizations may
 populate different combinations of fields in order to identify a result
-as groundwater. This function identifies surface water, groundwater, and 
-sediment results.
+as groundwater.
+
+This function identifies surface water, groundwater, and sediment
+results. Users can specify whether all results should be returned with a
+new column, *TADA.Media.Flag*, identifying if the result should be
+included in further analysis or if only results that should be in
+included are returned.
+
+The defaults are to include surface water, exclude groundwater and
+sediment, and to return only the results that should be used for
+analysis (clean = TRUE). This is shown in the active example below. If
+you would like to see all results with the *TADA.Media.Flag* column, you
+can uncomment the example where clean = FALSE.
+
+If you are not interested in using **TADA_MediaFilter**, but would like
+to filter by activity media, uncomment the example to filter for water
+data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
-# Retain only surface water results
-TADAProfile <- TADA_MediaFilter(TADAProfile_raw,
+# Filter to retain only results for use in analysis
+TADAProfile <- TADA_MediaFilter(TADAProfile,
   clean = TRUE,
   surface_water = FALSE,
   ground_water = TRUE,
   sediment = TRUE,
   other = TRUE
 )
+
+# Add TADA.Media.Flag column to identify which results should be used for analysis
+# TADAProfile <- TADA_MediaFilter(TADAProfile, clean = FALSE)
+
+# Remove data for non-water media types, alternate workflow without using TADA_MediaFilter()
+# TADAProfile <- dplyr::filter(TADAProfile, TADA.ActivityMediaName == "WATER")
 ```
 
 ## TADA_AutoClean
@@ -828,10 +850,10 @@ This function has three default inputs: clean = TRUE, cleanNA = FALSE,
 and flaggedonly = FALSE. These defaults remove rows of data where the
 QAPPApprovedIndicator equals "N".
 
-Users could alternatively remove both N's and NA's using the inputs
-clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
+Users could alternatively remove both Ns and NAs using the inputs clean
+= TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
 
-Additionally, users could filter to show only N's and NA's by using the
+Additionally, users could filter to show only Ns and NAs by using the
 inputs clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE.
 
 If clean = FALSE, cleanNA = FALSE, and flaggedonly = FALSE, the function
@@ -871,8 +893,8 @@ number of unique values in each field using the **TADA_FieldCounts**
 function.
 
 This function returns counts for you entire dataframe for each of the
-following fields (if populated, columns that are populated only with
-NA's are not included in the output):
+following fields (if populated, columns that are populated only with NAs
+are not included in the output):
 
 -   *ActivityTypeCode*
 
@@ -1022,9 +1044,9 @@ limit, as even small absolute differences might show up as large
 relative percent differences that "fail" the 20% RPD test.
 
 For example, when nutrient concentrations are close to detection limit,
-it becomes impossible to have a low RPD. In this scenario, high RPD's
-are acceptable because if you stand back and look at ALL the data, and
-not just the replicates, these data may be agreeing perfectly well that
+it becomes impossible to have a low RPD. In this scenario, high RPDs are
+acceptable because if you stand back and look at ALL the data, and not
+just the replicates, these data may be agreeing perfectly well that
 nutrients are very low. DO NOT throw out data if RPD is \>20%, unless
 you have good reason, or you will potentially bias your data toward high
 concentrations. QA procedures should not bias statistical analyses of
@@ -1040,7 +1062,7 @@ unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 
 # Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
 
-# Exclude NA's
+# Exclude NAs
 TADAProfileClean3b <- TADAProfileClean3b[!is.na(TADAProfileClean3b$TADA.ReplicateSampleID), ]
 # Exclude orphans
 TADAProfileClean3b <- dplyr::filter(TADAProfileClean3b, TADA.ReplicateSampleID != "Orphan")
@@ -1191,13 +1213,13 @@ unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
 Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
-NA's or ND's (non-detects) remain.
+NAs or NDs (non-detects) remain.
 
 ```{r ResultMeasureValueDataTypes.Flag_uniquevalues}
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-Count how many NA's remain in the TADA.ResultMeasureValue.
+Count how many NAs remain in the TADA.ResultMeasureValue.
 
 ```{r Review_NA_MeasureValues}
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
@@ -1211,7 +1233,7 @@ TADA.ResultMeasureValueDataTypes.Flag = "Text" or "NA - Not Available".
 TADAProfileClean5 <- TADA_ConvertSpecialChars(TADAProfileClean4, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
-Double check to make sure no NA's or ND's remain.
+Double check to make sure no NAs or NDs remain.
 
 ```{r check_for_NAs_again}
 unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)

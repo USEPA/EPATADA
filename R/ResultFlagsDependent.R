@@ -66,6 +66,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
+
   # read in fraction reference table from extdata and filter
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
@@ -590,54 +591,33 @@ TADA_FlagResultUnit <- function(.data, clean = "none", flaggedonly = FALSE) {
 #' QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
 #'
 TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
-  # If input is NULL, return a zero-row tibble with minimal expected columns
+  # Check if the input .data is NULL
   if (is.null(.data)) {
     warning(
-      "TADA_FindQCActivities: The input dataframe is NULL. Returning an empty dataframe."
+      "TADA_FindQCActivities: The input dataframe is NULL. Please provide a valid dataframe."
     )
-    empty <- tibble::tibble(
-      ActivityTypeCode = character(0),
-      TADA.ActivityType.Flag = character(0)
-    )
-    return(empty)
+    return(NULL)
   }
-  # Check .data is data.frame and has required columns
+  # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("ActivityTypeCode"))
-  # Normalize and validate 'clean'
-  # Backward compatibility: logical TRUE -> "all", FALSE -> "none"
-  if (is.logical(clean)) {
-    clean <- ifelse(isTRUE(clean), "all", "none")
-  }
-  allowed_clean <- c(
-    "none",
-    "all",
-    "duplicates",
-    "blanks",
-    "calibrations",
-    "other"
-  )
-  if (is.na(clean) || !(clean %in% allowed_clean)) {
-    stop(
-      "TADA_FindQCActivities: 'clean' must be one of: ",
-      paste(allowed_clean, collapse = ", "),
-      " (or a logical TRUE/FALSE for backward compatibility)."
-    )
-  }
-  # Check flaggedonly is boolean
+  # check that clean is boolean
+  TADA_CheckType(clean, "logical")
+  # check flaggedonly is boolean
   TADA_CheckType(flaggedonly, "logical")
-  # Delete existing flag column if present
-  if ("TADA.ActivityType.Flag" %in% colnames(.data)) {
+
+  # execute function after checks are passed
+  # delete existing flag column
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.ActivityType.Flag)
   }
-  # Load ActivityType reference table
-  qc.ref <- utils::read.csv(system.file(
-    "extdata",
-    "WQXActivityTypeRef.csv",
-    package = "EPATADA"
-  )) |>
+
+  # load in ActivityTypeRef Table
+  qc.ref <- TADA_GetActivityTypeRef() |>
     dplyr::rename(ActivityTypeCode = Code) |>
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
-  # Identify any Activity Type Codes not in reference table (likely USGS-only values)
+
+  # identify any Activity Type Codes not in reference table
+  # these are likely USGS only values
   codes <- unique(.data$ActivityTypeCode)
   if (any(!codes %in% qc.ref$ActivityTypeCode)) {
     missing_codes <- codes[!codes %in% qc.ref$ActivityTypeCode]
@@ -646,91 +626,60 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
       TADA.ActivityType.Flag = "Not Reviewed"
     )
     qc.ref <- rbind(qc.ref, missing_codes_df)
-    missing_codes_str <- paste(missing_codes, collapse = ", ")
-    message(paste0(
+    missing_codes <- paste(missing_codes, collapse = ", ")
+    print(paste0(
       "TADA_FindQCActivities: ActivityTypeCode column in dataset contains value(s) ",
-      missing_codes_str,
-      " which is/are not in the ActivityType WQX domain table. These data records ",
-      "are USGS-only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. ",
-      "Please review these carefully to determine data usability."
+      missing_codes,
+      " which is/are not in the ActivityType WQX domain table. These data records are USGS only values and placed under the TADA.ActivityType.Flag: 'Not Reviewed'. Please review these carefully to detemine data usability."
     ))
   }
-  # Populate flag column in data
-  flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode") |>
-    dplyr::distinct()
-  # Treat missing flags (e.g., NA ActivityTypeCode) as "Not Reviewed"
-  flag.data$TADA.ActivityType.Flag[is.na(
-    flag.data$TADA.ActivityType.Flag
-  )] <- "Not Reviewed"
 
-  # Clean dataframe according to 'clean'
-  if (clean == "none") {
+  # populate flag column in data
+  flag.data <- dplyr::left_join(.data, qc.ref, by = "ActivityTypeCode")
+  flag.data <- flag.data |> dplyr::distinct()
+
+  # clean dataframe
+  # if clean = FALSE, return full dataframe
+  if (clean == FALSE) {
     clean.data <- flag.data
-  } else if (clean == "all") {
-    # Keep only Non_QC rows
+  }
+  # if clean = TRUE, remove flagged data
+  if (clean == TRUE) {
     clean.data <- dplyr::filter(flag.data, TADA.ActivityType.Flag == "Non_QC")
-  } else {
-    # Remove only specified QC category
-    remove_flags <- switch(
-      clean,
-      duplicates = "QC_duplicate",
-      blanks = "QC_blank",
-      calibrations = "QC_calibration",
-      other = "QC_other"
-    )
-    clean.data <- dplyr::filter(
-      flag.data,
-      !(TADA.ActivityType.Flag %in% remove_flags)
-    )
   }
-  # Determine final data based on flaggedonly
-  if (isTRUE(flaggedonly)) {
-    # Show only QC (non-Non_QC) rows
-    final.data <- dplyr::filter(clean.data, TADA.ActivityType.Flag != "Non_QC")
-    if (nrow(final.data) == 0) {
-      message(
-        "TADA_FindQCActivities: This dataframe is empty because either we did not find any ",
-        "QC samples or because they were all removed."
-      )
-      # Return a zero-row dataframe with the same schema as the flagged data
-      final.data <- dplyr::slice(flag.data, 0)
-    }
-  } else {
+
+  # if flaggedonly = FALSE, return full clean dataframe
+  if (flaggedonly == FALSE) {
     final.data <- clean.data
-    # Informative messages
+    # if the dataframe is empty, print message
     if (nrow(final.data) == 0) {
-      message(
-        "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed."
+      print(
+        "TADA_FindQCActivities: This dataframe is empty because all rows contained QC samples and were removed"
       )
-    } else if (
-      sum(final.data$TADA.ActivityType.Flag != "Non_QC", na.rm = TRUE) == 0
-    ) {
-      message(
-        "TADA_FindQCActivities: Quality control samples have been removed or were not present ",
-        "in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
+    }
+    # if there are no flags, print message
+    if (sum(final.data$TADA.ActivityType.Flag != "Non_QC") == 0) {
+      print(
+        "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
       )
     }
   }
-  # If final.data is empty, return it after attempting to order columns
-  if (nrow(final.data) == 0) {
-    final.data <- tryCatch(TADA_OrderCols(final.data), error = function(e) {
-      final.data
-    })
-    return(final.data)
+
+  # if flaggedonly = TRUE, return clean dataframe filtered to only the flagged rows
+  if (flaggedonly == TRUE) {
+    # filter to review only samples that are not Non_QC
+    final.data <- dplyr::filter(clean.data, TADA.ActivityType.Flag != "Non_QC")
+
+    # if the dataframe is empty, print message
+    if (nrow(final.data) == 0) {
+      print(
+        "TADA_FindQCActivities: This dataframe is empty because either we did not find any QC samples or because they were all removed"
+      )
+    }
   }
-  # For non-empty data, proceed with ID creation and column ordering
+
+  # order and return final dataframe
   final.data <- TADA_CreateComparableID(final.data)
-  # Guard in case downstream function returns NULL unexpectedly
-  if (is.null(final.data)) {
-    warning(
-      "TADA_FindQCActivities: TADA_CreateComparableID returned NULL. Returning an empty dataframe."
-    )
-    final.data <- dplyr::slice(clean.data, 0)
-    final.data <- tryCatch(TADA_OrderCols(final.data), error = function(e) {
-      final.data
-    })
-    return(final.data)
-  }
   final.data <- TADA_OrderCols(final.data)
   return(final.data)
 }
@@ -745,12 +694,10 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' @param .data TADA dataframe which must include the columns 'OrganizationIdentifier',
 #' 'ActivityTypeCode', 'ActivityStartDate', 'ActivityStartDateTime', 'ResultIdentifier',
 #' 'ActivityRelativeDepthName', 'TADA.LatitudeMeasure', 'TADA.LongitudeMeasure',
-#' 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier',
+#' 'TADA.ResultMeasureValue', 'TADA.ComparableDataIdentifier', 'TADA.ActivityType.Flag',
 #' 'TADA.ActivityDepthHeightMeasure.MeasureValue', 'TADA.ResultDepthHeightMeasure.MeasureValue',
 #' 'TADA.ActivityTopDepthHeightMeasure.MeasureValue', and
 #' 'TADA.ActivityBottomDepthHeightMeasure.MeasureValue'.
-#' The column 'TADA.ActivityType.Flag' is optional; if missing, it will be created
-#' internally using TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE).
 #'
 #' @param type Character argument identifying which Activity Types to look for while pairing replicates
 #' to their parent samples. The default type is "QC_replicate", which includes Activity Type Codes:
@@ -760,25 +707,20 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' "Quality Control Field Replicate Sample-Composite", and
 #' "Quality Control Sample-Field Replicate".
 #'
-#' @param time_difference Numeric scalar defining the maximum time difference in seconds
-#' to search for parent samples. The default time window is 600 seconds (10 minutes).
-#' The time_difference can be as large as the user would like, but parent–replicate pairs will only be
+#' @param time_difference Numeric argument defining the maximum time difference in seconds
+#' to search for parent samples. The default time window is 600 seconds or 10 minutes.
+#' The time_difference can be as large as the user would like, but parent-replicate pairs will only be
 #' identified if they were collected on the same date.
 #'
-#' @return If replicates of the requested type are present, this function adds one column
-#' to the dataframe: 'TADA.ReplicateSampleID'. When added, it is initialized to the string
-#' "NA - Not Available", matched pairs receive the replicate sample's 'ResultIdentifier',
-#' and unmatched replicate rows are assigned "Orphan". If no replicates of the requested type
-#' are found, the function emits a message and returns the input unchanged (no column added).
-#'
-#' @details
-#' - Column creation is conditional: 'TADA.ReplicateSampleID' is added only when replicates
-#'   of the requested type exist; if present already, it will be overwritten.
-#' - If 'ActivityStartDateTime' is not POSIXct/POSIXlt, the function will attempt to parse it
-#'   internally (format "%Y-%m-%d %H:%M:%S", tz = "UTC") for time-window filtering.
-#'   If parsing fails (all values NA), time filtering is skipped.
-#' - Time comparisons are performed in seconds using difftime(..., units = "secs").
-#' - Parent–replicate pairing is only considered when 'ActivityStartDate' matches.
+#' @return This function adds one column to the original dataframe: 'TADA.ReplicateSampleID'.
+#' 'TADA.ReplicateSampleID' contains the 'ResultIdentifier' value from the replicate sample
+#' if a parent sample match is identified. Both the replicate sample and the parent sample
+#' will have the same 'ResultIdentifier' code in this column, marking them as a pair.
+#' If a sample was identified as a replicate sample in the 'TADA.ActivityType.Flag'
+#' column but does not have an associated parent sample in the dataframe, the 'TADA.ReplicateSampleID'
+#' column will contain the flag 'Orphan'. If more than one parent or replicate sample is identified
+#' in the dataframe, the 'TADA.ReplicateSampleID' column for all samples will contain the
+#' 'ResultIdentifier' value from one of the replicate samples marking them as a grouping.
 #'
 #' @export
 #'
@@ -821,124 +763,114 @@ TADA_PairReplicates <- function(
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # ensure QC flags exist
-  if (!("TADA.ActivityType.Flag" %in% colnames(.data))) {
+  # run TADA_FindQCActivities if needed
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == TRUE) {
+    .data <- .data
+  }
+
+  if (("TADA.ActivityType.Flag" %in% colnames(.data)) == FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE, flaggedonly = FALSE)
   }
 
-  # type checks
-  TADA_CheckType(type, "character")
-  TADA_CheckType(time_difference, "numeric")
-
-  # validate time_difference
-  if (length(time_difference) != 1 || is.na(time_difference)) {
-    stop("time_difference must be a single non-NA numeric value (seconds).")
-  }
-  if (time_difference < 0) {
-    stop("time_difference must be non-negative (seconds).")
-  }
-
-  # Prepare datetime vector for time filtering:
-  # Use as-is if POSIXt; otherwise attempt to parse character datetimes (UTC).
-  dt_vec <- .data$ActivityStartDateTime
-  posix_ok <- inherits(dt_vec, "POSIXt")
-  if (!posix_ok) {
-    dt_parsed <- suppressWarnings(as.POSIXct(
-      dt_vec,
-      format = "%Y-%m-%d %H:%M:%S",
-      tz = "UTC"
-    ))
-    if (any(!is.na(dt_parsed))) {
-      dt_vec <- dt_parsed
-      posix_ok <- TRUE
-    } else {
-      warning(
-        "ActivityStartDateTime is not POSIXct/POSIXlt and could not be parsed; time filtering will be skipped."
-      )
+  # execute function after checks are passed
+  if ("QC_replicate" %in% type) {
+    if (
+      nrow(dplyr::filter(
+        .data,
+        .data$TADA.ActivityType.Flag == "QC_replicate"
+      )) ==
+        0
+    ) {
+      stop("Function not executed because no replicates found in dataframe.")
     }
-  }
-
-  # detect presence of replicates for the requested type
-  has_reps <- if ("QC_replicate" %in% type) {
-    any(.data$TADA.ActivityType.Flag == "QC_replicate", na.rm = TRUE)
   } else {
-    any(.data$ActivityTypeCode %in% type, na.rm = TRUE)
-  }
-
-  # If no replicates, message and return input unchanged (no new column added)
-  if (!has_reps) {
-    if ("QC_replicate" %in% type) {
-      message("No replicates found in dataframe. Returning input unchanged.")
-    } else {
-      message(paste0(
-        "No replicates of type '",
-        paste(type, collapse = "', '"),
-        "' found in dataframe. Returning input unchanged."
+    if (nrow(dplyr::filter(.data, .data$ActivityTypeCode %in% type)) == 0) {
+      stop(paste0(
+        "Function not executed because no replicates of type '",
+        type,
+        "' found in dataframe."
       ))
     }
-    return(.data)
   }
+  # check type is character
+  TADA_CheckType(type, "character")
+  # check time_window is numeric
+  TADA_CheckType(time_difference, "numeric")
 
-  # When replicates are present, create/initialize output column
-  .data$TADA.ReplicateSampleID <- rep("NA - Not Available", nrow(.data))
+  # execute function after checks are passed
 
-  # loop through rows to find matches
-  for (i in seq_len(nrow(.data))) {
-    x <- if ("QC_replicate" %in% type) {
-      .data$TADA.ActivityType.Flag[i]
+  # create column for matching replicates to their parent sample
+  .data$TADA.ReplicateSampleID <- NA
+
+  # loop through rows flagged as "QC_replicate" to find Non_QC samples taken within 5 minutes of the replicate sample
+  for (i in 1:nrow(.data)) {
+    if ("QC_replicate" %in% type) {
+      x <- .data$TADA.ActivityType.Flag[i]
     } else {
-      .data$ActivityTypeCode[i]
+      x <- .data$ActivityTypeCode[i]
     }
-    if (is.na(x) || !(x %in% type)) {
-      next
-    }
+    if (x %in% type) {
+      # find samples with the same date, lat/long, organization name, comparable data identifier, and depth
+      info_match <- which(
+        .data$ActivityStartDate == .data$ActivityStartDate[i] &
+          .data$TADA.LatitudeMeasure == .data$TADA.LatitudeMeasure[i] &
+          .data$TADA.LongitudeMeasure == .data$TADA.LongitudeMeasure[i] &
+          .data$OrganizationIdentifier == .data$OrganizationIdentifier[i] &
+          .data$TADA.ComparableDataIdentifier ==
+            .data$TADA.ComparableDataIdentifier[i] &
+          ((.data$TADA.ActivityDepthHeightMeasure.MeasureValue ==
+            .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) |
+            (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) &
+              is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
+          ((.data$TADA.ResultDepthHeightMeasure.MeasureValue ==
+            .data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) |
+            (is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue) &
+              is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
+          ((.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue ==
+            .data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) |
+            (is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) &
+              is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[
+                i
+              ]))) &
+          ((.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue ==
+            .data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) |
+            (is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
+              is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[
+                i
+              ]))) &
+          ((.data$ActivityRelativeDepthName ==
+            .data$ActivityRelativeDepthName[i]) |
+            (is.na(.data$ActivityRelativeDepthName) &
+              is.na(.data$ActivityRelativeDepthName[i])))
+      )
 
-    # match on date, location, org, comparable ID, and depths
-    info_match <- which(
-      .data$ActivityStartDate == .data$ActivityStartDate[i] &
-        .data$TADA.LatitudeMeasure == .data$TADA.LatitudeMeasure[i] &
-        .data$TADA.LongitudeMeasure == .data$TADA.LongitudeMeasure[i] &
-        .data$OrganizationIdentifier == .data$OrganizationIdentifier[i] &
-        .data$TADA.ComparableDataIdentifier ==
-          .data$TADA.ComparableDataIdentifier[i] &
-        ((.data$TADA.ActivityDepthHeightMeasure.MeasureValue ==
-          .data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]) |
-          (is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue) &
-            is.na(.data$TADA.ActivityDepthHeightMeasure.MeasureValue[i]))) &
-        ((.data$TADA.ResultDepthHeightMeasure.MeasureValue ==
-          .data$TADA.ResultDepthHeightMeasure.MeasureValue[i]) |
-          (is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue) &
-            is.na(.data$TADA.ResultDepthHeightMeasure.MeasureValue[i]))) &
-        ((.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue ==
-          .data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]) |
-          (is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue) &
-            is.na(.data$TADA.ActivityTopDepthHeightMeasure.MeasureValue[i]))) &
-        ((.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue ==
-          .data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[i]) |
-          (is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue) &
-            is.na(.data$TADA.ActivityBottomDepthHeightMeasure.MeasureValue[
-              i
-            ]))) &
-        ((.data$ActivityRelativeDepthName ==
-          .data$ActivityRelativeDepthName[i]) |
-          (is.na(.data$ActivityRelativeDepthName) &
-            is.na(.data$ActivityRelativeDepthName[i])))
-    )
+      # if time field is not NA, find time difference between current sample and info_match samples
+      if (!is.na(.data$ActivityStartDateTime[i])) {
+        time_diff <- abs(difftime(
+          .data$ActivityStartDateTime[i],
+          .data$ActivityStartDateTime[info_match]
+        ))
 
-    # time window filter (in seconds), only if parsed timestamps available and current row’s timestamp is non-NA
-    if (posix_ok && !is.na(dt_vec[i]) && length(info_match) > 0) {
-      td <- abs(difftime(dt_vec[info_match], dt_vec[i], units = "secs"))
-      info_match <- info_match[as.numeric(td) <= time_difference]
-    }
+        # samples where the time differences is <= time_difference (default is 10 minutes)
+        within_window <- info_match[time_diff <= time_difference]
 
-    # assign replicate grouping or orphan flag
-    if (length(info_match) >= 2) {
-      .data$TADA.ReplicateSampleID[info_match] <- .data$ResultIdentifier[i]
-    } else {
-      .data$TADA.ReplicateSampleID[i] <- "Orphan"
+        # keep the samples with times within the window
+        info_match <- intersect(info_match, within_window)
+      }
+
+      # if 2 or more matches are identified (2 includes the replicate and the parent sample),
+      # give all matches the result identifier of the replicate
+      if (length(info_match) >= 2) {
+        .data$TADA.ReplicateSampleID[info_match] <- .data$ResultIdentifier[i]
+      }
+
+      # if less than 2 matches are identified (i.e. just the replicate, no parent sample),
+      # label the replicate as an orphan
+      if (length(info_match) <= 1) {
+        .data$TADA.ReplicateSampleID[i] <- "Orphan"
+      }
     }
   }
-
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
@@ -1024,7 +956,7 @@ TADA_FlagMeasureQualifierCode <- function(
   # check .data MeasureQualifierCode is not all NA. If it is, don't run function and return .data
   if (all(is.na(.data$MeasureQualifierCode))) {
     print(
-      "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NA's) in MeasureQualifierCode."
+      "TADA_FlagMeasureQualifierCode: Dataframe does not include any information (all NAs) in MeasureQualifierCode."
     )
 
     .data <- .data |>
@@ -1043,11 +975,7 @@ TADA_FlagMeasureQualifierCode <- function(
   }
 
   # load in ResultMeasureQualifier Flag Table
-  qc.ref <- utils::read.csv(system.file(
-    "extdata",
-    "WQXMeasureQualifierCodeRef.csv",
-    package = "EPATADA"
-  )) |>
+  qc.ref <- TADA_GetMeasureQualifierCodeRef() |>
     dplyr::rename(MeasureQualifierCode = Code) |>
     dplyr::select(
       MeasureQualifierCode,

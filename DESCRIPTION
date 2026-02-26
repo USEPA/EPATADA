@@ -61,7 +61,6 @@ Imports:
     ggplot2, 
     sf (>= 1.0-0),
     leaflet,
-    leaflet.extras,
     plotly,
     geojsonsf,
     tibble,
@@ -92,7 +91,6 @@ Suggests:
     lwgeom,
     RColorBrewer,
     rmarkdown,
-    tidyverse,
     knitr,
     testthat,
     testthis,
@@ -107,6 +105,7 @@ Suggests:
     remotes,
     covr,
     here,
+    Polychrome,
     httr2 (>= 1.2.1),
     roxygen2
 Remotes:

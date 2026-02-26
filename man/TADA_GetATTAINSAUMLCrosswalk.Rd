@@ -5,7 +5,11 @@
 \title{Get Monitoring Location Identifier and Assessment Unit Identifier
 Crosswalk from ATTAINS}
 \usage{
-TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
+TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "all",
+  batch_upload = FALSE,
+  api_key = NULL
+)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier must be
@@ -22,6 +26,11 @@ ATTAINS from all organizations will be returned. The default is org_id = "all".}
 names in the output will match those required for batch upload to ATTAINS. When
 batch_upload = FALSE, the output column names will be consistent with the TADA
 workflow. Default is batch_upload = FALSE.}
+
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 When batch_upload = FALSE, A dataframe with six columns:

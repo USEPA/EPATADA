@@ -421,7 +421,7 @@ utils::globalVariables(c(
   "Mismatch",
   "Ref.WaterType",
   "Alias.Type.Name",
-  "CAS_NO CAS.Number",
+  "CAS_NO",
   "Char_Flag.x",
   "Char_Flag.y",
   "Characteristic.Name",
@@ -447,52 +447,50 @@ utils::globalVariables(c(
   "percent_match_CST",
   "UserRef.AssessmentUnitIdentifier",
   "Group.n",
-  "Ref.TADA.Media.Flag"
+  "Ref.TADA.Media.Flag",
+  "context2",
+  "CST.STD_POLLUTANT_NAME",
+  "ENTITY_NAME",
+  "TADA.NearbySiteGroup.New",
+  "code",
+  "context",
+  "ATTAINS_catchments",
+  "attains.imgs",
+  "attains.labels",
+  "icon.labels",
+  "ATTAINS.ParameterName.x",
+  "Ref.AssessmentUnitIdentifier"
 ))
+
+# global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
+AKAllotmentsUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/0/query"
+AKVillagesUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/1/query"
+AmericanIndianUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query"
+OffReservationUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/3/query"
+OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+VATribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/5/query"
 
 #' Calculate Decimal Places
 #'
-#' This function calculates the number of decimal places in a numeric or character vector.
-#' It returns the number of digits to the right of the decimal point for each element.
+#' This function calculates the number of decimal places in a numeric value.
+#' It returns the number of digits to the right of the decimal point for numeric data.
 #'
-#' Note: For numeric inputs, R does not preserve trailing zeros (e.g., 12.30 becomes 12.3),
-#' so the count reflects the minimal decimal representation. If you must preserve the
-#' original textual precision, call this on the original character field instead of numeric.
+#' @param x A numeric value or vector from the TADA profile.
 #'
-#' @param x A numeric value or vector (or character vector) from the TADA profile.
-#' @return An integer vector representing the number of decimal places for each element in `x`.
-#'   Returns 0 if no decimal point is present. Returns NA for NA inputs.
-#' @export
+#' @return An integer representing the number of decimal places in the numeric value.
+#' If the input is an integer or a numeric value with no decimal places, the function returns 0.
 TADA_DecimalPlaces <- function(x) {
-  if (length(x) == 0) {
-    return(integer(0))
-  }
+  # Convert the number to a character string, remove trailing zeros, and split by the decimal point
+  parts <- strsplit(sub("0+$", "", as.character(x)), ".", fixed = TRUE)[[1]]
 
-  # Convert to strings; avoid scientific notation for numeric
-  x_chr <- if (is.numeric(x)) {
-    format(x, scientific = FALSE, trim = TRUE)
+  # If there is a decimal part, return its length; otherwise, return 0
+  if (length(parts) > 1) {
+    return(nchar(parts[[2]]))
   } else {
-    as.character(x)
+    return(0)
   }
-  x_chr <- trimws(x_chr)
-
-  vapply(
-    x_chr,
-    function(s) {
-      if (is.na(s) || s == "" || s %in% c("NA", "NaN")) {
-        return(NA_integer_)
-      }
-      s <- sub(",", "", s) # remove any thousands separators
-      s <- sub("0+$", "", s) # trim trailing zeros if present
-      if (!grepl("\\.", s)) {
-        return(0L)
-      }
-      dec <- sub(".*\\.", "", s) # substring after decimal point
-      nchar(dec)
-    },
-    integer(1)
-  )
 }
+
 
 #' Check Type
 #'
@@ -509,6 +507,7 @@ TADA_CheckType <- function(arg, type, paramName = deparse(substitute(arg))) {
   }
   invisible(NULL)
 }
+
 
 #' Check Columns
 #'
@@ -540,6 +539,7 @@ TADA_CheckColumns <- function(.data, expected_cols) {
 
   invisible(NULL)
 }
+
 
 #' TADA_ConvertSpecialChars
 #'
@@ -874,9 +874,10 @@ TADA_ConvertSpecialChars <- function(
 #' their new names (Comparable.Name).
 #'
 #' @param .data TADA dataframe
+#' @param quiet logical; suppress messages if TRUE
 #'
 #' @return Input TADA dataframe with substituted characteristic names in
-#'   TADA.CharacteristicName column. Original columns are unchanged.
+#' TADA.CharacteristicName column. Original columns are unchanged.
 #'
 #' @export
 #'
@@ -908,79 +909,103 @@ TADA_ConvertSpecialChars <- function(
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
 #' }
-TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame and has required columns
+TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
+  # Ensure required column
   TADA_CheckColumns(.data, c("CharacteristicName"))
-  # Check if the input data frame is empty
+
+  # Handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    if (!quiet) {
+      message(
+        "The entered data frame is empty. Skipping deprecated-name substitution."
+      )
+    }
+    return(.data)
   }
 
-  if ("TADA.CharacteristicName" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original CharacteristicName
+  # Ensure TADA.CharacteristicName exists (initialize uppercase)
+  if (!"TADA.CharacteristicName" %in% colnames(.data)) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
+  # Load the characteristic domain table
+  char.table <- TADA_GetCharacteristicRef()
+
+  # NWIS-friendly variant: trim at first '*' for retired WQX names
+  nwis_table <- char.table |>
     dplyr::filter(
       Char_Flag == "Deprecated",
-      grepl("retired", CharacteristicName)
+      grepl("retired", CharacteristicName, ignore.case = TRUE)
     ) |>
     dplyr::mutate(
       CharacteristicName = trimws(stringr::str_split(
         CharacteristicName,
         "\\*",
-        simplify = T
+        simplify = TRUE
       )[, 1])
     )
 
-  # read in characteristic reference table with deprecation information and filter to deprecated terms.
-  # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
-    dplyr::filter(Char_Flag == "Deprecated") |>
-    rbind(nwis.table)
+  # Build reference table of deprecated names; select only needed columns and de-duplicate
+  ref.table <- char.table |>
+    dplyr::filter(Char_Flag %in% c("Deprecated")) |> # add "Suspect" here if desired
+    dplyr::bind_rows(nwis_table) |>
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name) |>
+    dplyr::distinct(CharacteristicName, .keep_all = TRUE)
 
-  rm(nwis.table)
+  # Left-join on CharacteristicName only; preserve row order
+  .data <- dplyr::left_join(.data, ref.table, by = "CharacteristicName")
 
-  # merge to dataset
-  .data <- merge(.data, ref.table, all.x = TRUE)
-  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  # Substitute deprecated names when Comparable.Name is present and non-empty
   .data$TADA.CharacteristicName <- ifelse(
-    !is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""),
+    !is.na(.data$Char_Flag) &
+      !is.na(.data$Comparable.Name) &
+      nzchar(trimws(.data$Comparable.Name)),
     .data$Comparable.Name,
     .data$TADA.CharacteristicName
   )
 
-  howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
+  # Enforce uppercase for all values in TADA.CharacteristicName
+  .data$TADA.CharacteristicName <- toupper(.data$TADA.CharacteristicName)
 
-  if (howmany > 0) {
-    chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
-    chars <- paste0(chars, collapse = "; ")
-    print(paste0(
-      "TADA_SubstituteDeprecatedChars: ", 
-      howmany,
-      " results in your dataset have one of the following deprecated characteristic names: ",
-      chars,
-      ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
-    ))
-  } else {
-    message("TADA_SubstituteDeprecatedChars: No deprecated characteristic names found in dataset.")
+  # Reporting (respect quiet)
+  total_deprecated <- sum(!is.na(.data$Char_Flag))
+  changed_rows <- .data |>
+    dplyr::filter(
+      !is.na(Char_Flag),
+      !is.na(Comparable.Name),
+      nzchar(trimws(Comparable.Name))
+    )
+  changed_n <- nrow(changed_rows)
+
+  if (!quiet) {
+    if (changed_n > 0) {
+      # Unique mapping of original -> substituted (uppercase) names
+      mapping_df <- changed_rows |>
+        dplyr::distinct(CharacteristicName, TADA.CharacteristicName)
+      mapping_pairs <- paste0(
+        mapping_df$CharacteristicName,
+        " -> ",
+        mapping_df$TADA.CharacteristicName
+      )
+      msg <- paste0(
+        changed_n,
+        " results in your dataset had deprecated characteristic names. ",
+        "These were substituted as follows: ",
+        paste(mapping_pairs, collapse = "; "),
+        "."
+      )
+      message(msg)
+    } else if (total_deprecated > 0) {
+      message(
+        "Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank."
+      )
+    } else {
+      message("No deprecated characteristic names found in dataset.")
+    }
   }
 
-  .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
+  # Clean up ref columns
+  .data <- dplyr::select(.data, -Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
@@ -997,7 +1022,7 @@ TADA_SubstituteDeprecatedChars <- function(.data) {
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # Check .data is data.frame and has required columns
+  # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1005,20 +1030,17 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # If zero rows, add an empty character column and return (type-stable; never returns NULL)
+  # Check if the input data frame is empty
   if (nrow(.data) == 0) {
-    .data$TADA.ComparableDataIdentifier <- character(0)
-    message(
-      "TADA_CreateComparableID: Input data frame has zero rows; returning with TADA.ComparableDataIdentifier added."
-    )
-    return(.data)
+    message("The entered data frame is empty. The function will not run.")
+    return(NULL) # Exit the function early
   }
-  # Create the ComparableDataIdentifier (coerce to character to avoid factor issues)
+
   .data$TADA.ComparableDataIdentifier <- paste(
-    as.character(.data$TADA.CharacteristicName),
-    as.character(.data$TADA.ResultSampleFractionText),
-    as.character(.data$TADA.MethodSpeciationName),
-    as.character(.data$TADA.ResultMeasure.MeasureUnitCode),
+    .data$TADA.CharacteristicName,
+    .data$TADA.ResultSampleFractionText,
+    .data$TADA.MethodSpeciationName,
+    .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
   return(.data)
@@ -1047,6 +1069,7 @@ TADA_FormatDelimitedString <- function(delimited_string, delimiter = ",") {
   }
   return(paste0('["', gsub(delimiter, '","', delimited_string), '"]'))
 }
+
 
 #' Generate a Random Water Quality Portal (WQP) Dataset
 #'
@@ -1113,14 +1136,19 @@ TADA_RandomTestingData <- function(
   max_attempts = 3
 ) {
   # Retrieve random data
-  get_random_data <- function(ndays, state_choice, ac) {
+  get_random_data <- function(
+    ndays = number_of_days,
+    state_choice = choose_random_state,
+    ac = autoclean,
+    ask = FALSE
+  ) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
 
     # Determine if a random state should be selected
-    if (state_choice) {
+    if (state_choice == TRUE) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     } else {
@@ -1194,6 +1222,393 @@ TADA_RandomTestingData <- function(
   # Retrieve and return the verified dataset
   df <- verify_random_data()
   return(df)
+}
+
+
+#' Get bounding box JSON
+#'
+#' @param bbox A bounding box from the sf function st_bbox
+#' @return A string containing bounding box JSON that can be passed to an
+#' ArcGIS feature layer in the Input Geometry field
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataset
+#' utils::data(Data_6Tribes_5y)
+#' # Get the bounding box of the data
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(Data_6Tribes_5y$TADA.LongitudeMeasure),
+#'     ymin = min(Data_6Tribes_5y$TADA.LatitudeMeasure),
+#'     xmax = max(Data_6Tribes_5y$TADA.LongitudeMeasure),
+#'     ymax = max(Data_6Tribes_5y$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_6Tribes_5y)
+#' )
+#' # Get a string containing the JSON of the bounding box
+#' getBboxJson(bbox)
+#' }
+getBboxJson <- function(bbox) {
+  json <- paste0(
+    '{"xmin":',
+    bbox[1],
+    ',"ymin":',
+    bbox[2],
+    ',"xmax":',
+    bbox[3],
+    ',"ymax":',
+    bbox[4],
+    "}"
+  )
+  return(json)
+}
+
+#' Create icon(s) to be used to represent points on a map feature layer
+#' pchIcons is used within TADA_addPoints
+#'
+#' Uses the different plotting symbols available in R to create PNG files that can be used as markers on a map feature layer.
+#'
+#' @param pch Plot character code; either a single number or a vector of multiple numbers. Possible values available at https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/. Defaults to 1 (an open circle).
+#' @param width Width of the plot character. Defaults to 30 pixels.
+#' @param height Height of the plot character. Defaults to 30 pixels.
+#' @param bg Background color of the plot character Defaults to transparent.
+#' @param col Color(s) of the plot character(s). Defaults to black.
+#' @param lwd Line width. Optional, defaults to NULL.
+#' @return Path(s) to PNG file(s) in a temp folder on user's computer.
+#'
+#' @examples
+#' \dontrun{
+#' # Create three PNG files, a red circle, blue triangle, and yellow "X", each on a green background.
+#' pchIcons(c(1, 2, 4), 40, 40, "green", c("red", "blue", "yellow"))
+#' }
+pchIcons <- function(
+  pch = 1,
+  width = 30,
+  height = 30,
+  bg = "transparent",
+  col = "black",
+  lwd = NULL
+) {
+  n <- length(pch)
+  files <- character(n)
+  for (i in seq_len(n)) {
+    f <- tempfile(fileext = ".png")
+    grDevices::png(f, width = width, height = height, bg = bg)
+    graphics::par(mar = c(0, 0, 0, 0))
+    graphics::plot.new()
+    graphics::points(
+      .5,
+      .5,
+      pch = pch[i],
+      col = col[i],
+      cex = min(width, height) / 8,
+      lwd = lwd
+    )
+    grDevices::dev.off()
+    files[i] <- f
+  }
+  files
+}
+
+#' Retrieve feature layer from ArcGIS REST service
+#' getFeatureLayer is used by writeLayer to write feature layers to local files
+#'
+#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return ArcGIS feature layer
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataset
+#' utils::data(Data_Nutrients_UT)
+#' # Get the bounding box of the data
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(Data_Nutrients_UT$TADA.LongitudeMeasure),
+#'     ymin = min(Data_Nutrients_UT$TADA.LatitudeMeasure),
+#'     xmax = max(Data_Nutrients_UT$TADA.LongitudeMeasure),
+#'     ymax = max(Data_Nutrients_UT$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_Nutrients_UT)
+#' )
+#' # Get the American Indian Reservations feature layer,
+#' # filtered by the bounding box for the Data_Nutrients_UT example dataset
+#' getFeatureLayer("https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query", bbox)
+#' }
+getFeatureLayer <- function(url, bbox = NULL) {
+  if (is.null(bbox)) {
+    inputGeom <- NULL
+  } else {
+    inputGeom <- getBboxJson(bbox)
+  }
+  url <- paste0(
+    url,
+    "?where=1%3D1&outfields=*&returnGeometry=true&geometry=",
+    inputGeom,
+    "&f=geojson"
+  )
+  layer <- sf::read_sf(url)
+  return(layer)
+}
+
+
+#' Download a shapefile from an API and save it to a local folder, overwriting existing file if it exists
+#' writeLayer is used by TADA_UpdateTribalLayers in TADAGeospatialRefLayers.R.
+#'
+#' @param url URL of the layer REST service, ending with "/query". Example: https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/2/query (American Indian Reservations)
+#' @param layerfilepath Local path to save the .shp file to
+#'
+#' @examples
+#' \dontrun{
+#' # Get the Oklahoma Tribal Statistical Areas feature layer and write
+#' # local file to inst/extdata/OKTribe.shp
+#' OKTribeUrl <- "https://geopub.epa.gov/arcgis/rest/services/EMEF/Tribal/MapServer/4/query"
+#' writeLayer(OKTribeUrl, "inst/extdata/OKTribe.shp")
+#' }
+writeLayer <- function(url, layerfilepath) {
+  layer <- getFeatureLayer(url)
+  # Attribute names can only be up to 10 characters long when saved to .dbf as part of sf::st_write.
+  # They are truncated automatically but TOTALAREA_MI and TOTALAREA_KM will not be unique after being
+  # truncated, so explicitly rename them first if they exist to avoid error.
+  if ("TOTALAREA_MI" %in% colnames(layer)) {
+    layer <- layer |>
+      dplyr::rename(TAREA_MI = TOTALAREA_MI, TAREA_KM = TOTALAREA_KM)
+  }
+  sf::st_write(layer, layerfilepath, delete_layer = TRUE)
+}
+
+
+#' Get a shapefile from a local folder, optionally crop it by a bounding box, and return it as a sf object
+#' getLayer is used within TADA_addPolys and TADA_addPoints
+#'
+#' @param layerfilepath Local path to the .shp file for the layer
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return sf object containing the layer
+#'
+#'
+#' @examples
+#' \dontrun{
+#' # Load example dataset
+#' utils::data(Data_6Tribes_5y_Harmonized)
+#' # Get the bounding box of the data
+#' bbox <- sf::st_bbox(
+#'   c(
+#'     xmin = min(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
+#'     ymin = min(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure),
+#'     xmax = max(Data_6Tribes_5y_Harmonized$TADA.LongitudeMeasure),
+#'     ymax = max(Data_6Tribes_5y_Harmonized$TADA.LatitudeMeasure)
+#'   ),
+#'   crs = sf::st_crs(Data_6Tribes_5y_Harmonized)
+#' )
+#' # Get the American Indian Reservations feature layer,
+#' # filtered by the bounding box for the Data_6Tribes_5y_Harmonized
+#' # example dataset
+#' layerfilepath <- "extdata/AmericanIndian.shp"
+#' getLayer(layerfilepath, bbox)
+#' }
+getLayer <- function(layerfilepath, bbox = NULL) {
+  layer <- sf::st_read(system.file(layerfilepath, package = "EPATADA"))
+  if (!(is.null(bbox))) {
+    sf::sf_use_s2(FALSE)
+    layer <- sf::st_make_valid(layer)
+    layer <- sf::st_crop(layer, bbox)
+  }
+  return(layer)
+}
+
+#' Get text for tribal marker popup
+#' getTribalPopup is used within TADA_addPolys and TADA_addPoints
+#'
+#' @param layer A map feature layer
+#' @param layername Name of the layer
+#' @return Vector of strings to be used as the text for the popups when clicking on a tribal marker
+#'
+#' @examples
+#' \dontrun{
+#' # Get the Oklahoma Tribal Statistical Areas feature layer
+#' layer <- getLayer("extdata/OKTribe.shp")
+#' # Get popup text for individual markers
+#' getTribalPopup(layer, "Oklahoma Tribal Statistical Areas")
+#' }
+getTribalPopup <- function(layer, layername) {
+  popups <- vector("character", nrow(layer))
+
+  # select and rename cols
+  cols <- c(
+    "TRIBE_N" = "Tribe",
+    "STATE" = "State",
+    "REGION" = "EPA Region",
+    "AWATER_M" = "Water Area (sq miles)",
+    "ALAND_M" = "Land Area (sq miles)",
+    "TOTALAREA_M" = "Total Area (sq miles)",
+    "EPA_ID" = "EPA ID"
+  )
+
+  # create popup text for each polygon
+  for (j in seq_len(nrow(layer))) {
+    text <- paste0("<strong>", layername, "</strong><p>")
+
+    for (i in seq_along(cols)) {
+      col_name <- names(cols[i])
+
+      if (col_name %in% colnames(layer)) {
+        value <- layer[j, col_name, drop = TRUE]
+
+        # if col is "REGION", process the semicolon-delimited string
+        if (col_name == "REGION") {
+          # split the string by semicolon, get unique values, and join them back
+          value <- unique(unlist(strsplit(value, ";\\s*")))
+        }
+
+        # if the col contains an area, round the value
+        if (col_name %in% c("AWATER_M", "ALAND_M", "TOTALAREA_M")) {
+          # round to two decimal places
+          value <- round(value, digits = 2)
+        }
+
+        value_str <- paste(value, collapse = ", ")
+
+        text <- paste0(
+          text,
+          "<strong>",
+          cols[i],
+          "</strong>: ",
+          value_str,
+          "<br>"
+        )
+      }
+    }
+
+    popups[j] <- text
+  }
+
+  return(popups)
+}
+
+#' Add polygons from an ArcGIS feature layer to a leaflet map
+#'
+#' @param map A leaflet map
+#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layergroup Name of the layer group
+#' @param layername Name of the layer
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return The original map with polygons from the feature layer added to it.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Create a leaflet map
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
+#'   leaflet::addMapPane("featurelayers", zIndex = 300)
+#' # Add the American Indian Reservations feature layer to the map
+#' lmap <- TADA_addPolys(lmap, "extdata/AmericanIndian.shp", "Tribes", "American Indian Reservations")
+#' lmap
+#' }
+TADA_addPolys <- function(
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
+  layer <- getLayer(layerfilepath, bbox)
+  if (is.null(layer)) {
+    return(map)
+  }
+  lbbox <- sf::st_bbox(layer)
+  if (is.na(lbbox[1])) {
+    return(map)
+  }
+  areaColumn <- "ALAND_KM"
+  if (!(areaColumn %in% colnames(layer))) {
+    areaColumn <- "AREA_KM"
+  }
+
+  map <- leaflet::addPolygons(
+    map,
+    data = layer,
+    color = "#A0522D",
+    weight = 0.35,
+    smoothFactor = 0.5,
+    opacity = 1.0,
+    fillOpacity = 0.2,
+    fillColor = ~ leaflet::colorNumeric("Oranges", layer[[areaColumn]])(layer[[
+      areaColumn
+    ]]),
+    highlightOptions = leaflet::highlightOptions(
+      color = "white",
+      weight = 2,
+      bringToFront = TRUE
+    ),
+    popup = getTribalPopup(layer, layername),
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "featurelayers")
+  )
+  return(map)
+}
+
+#' Add points from an ArcGIS feature layer to a leaflet map
+#'
+#' @param map A leaflet map
+#' @param layerfilepath Local path to the .shp file for the layer
+#' @param layergroup Name of the layer group
+#' @param layername Name of the layer
+#' @param bbox A bounding box from the sf function st_bbox; used to filter the query results. Optional; defaults to NULL.
+#' @return The original map with polygon from the feature layer added to it.
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Create a leaflet map
+#' lmap <- leaflet::leaflet() |>
+#'   leaflet::addProviderTiles("Esri.WorldTopoMap", group = "World topo") |>
+#'   leaflet::addMapPane("featurelayers", zIndex = 300)
+#' # Add the Virginia Federally Recognized Tribes feature layer to the map
+#' lmap <- TADA_addPoints(
+#'   lmap, "extdata/VATribe.shp",
+#'   "Tribes", "Virginia Federally Recognized Tribes"
+#' )
+#' lmap
+#' }
+TADA_addPoints <- function(
+  map,
+  layerfilepath,
+  layergroup,
+  layername,
+  bbox = NULL
+) {
+  layer <- getLayer(layerfilepath, bbox)
+  if (is.null(layer)) {
+    return(map)
+  }
+  lbbox <- sf::st_bbox(layer)
+  if (is.na(lbbox[1])) {
+    return(map)
+  }
+  shapes <- c(2) # open triangle; for other options see https://www.geeksforgeeks.org/r-plot-pch-symbols-different-point-shapes-available-in-r/
+  iconFiles <- pchIcons(
+    shapes,
+    width = 20,
+    height = 20,
+    col = c("#CC7722"),
+    lwd = 2
+  )
+  map <- leaflet::addMarkers(
+    map,
+    data = layer,
+    icon = ~ leaflet::icons(
+      iconUrl = iconFiles[],
+      popupAnchorX = 20,
+      popupAnchorY = 0
+    ),
+    popup = getTribalPopup(layer, layername),
+    group = layergroup,
+    options = leaflet::pathOptions(pane = "featurelayers")
+  )
+  return(map)
 }
 
 #' Create Characteristic/MeasureUnitCode/MethodSpeciation Ref
@@ -1283,6 +1698,7 @@ TADA_UniqueCharUnitSpeciation <- function(.data) {
   return(data.units)
 }
 
+
 #' Create Color Palette For Use in Graphs and Maps
 #'
 #' Creates a consistent color palette for use in TADA visualizations. Consistent
@@ -1339,6 +1755,7 @@ TADA_ColorPalette <- function(col_pair = FALSE) {
 
   return(pal)
 }
+
 
 #' View TADA Color Palette
 #'
@@ -1441,6 +1858,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
   return(swatch)
 }
 
+
 #' Remove NAs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
@@ -1489,6 +1907,7 @@ TADA_CharStringRemoveNA <- function(char_string) {
   return(labs)
 }
 
+
 #' Create downloadable table
 #'
 #' This function creates a data table that can be downloaded as a .csv, .xlsx or .pdf.
@@ -1528,6 +1947,7 @@ TADA_TableExport <- function(.data = NULL) {
 
   return(data)
 }
+
 
 #' Create and download .csv
 #'
@@ -1595,7 +2015,7 @@ TADA_CreateCSV <- function(.data) {
 #'   ignore_attributes = TRUE
 #' )
 #'
-#' DeWitt_wqx3_withlegacynames <- TADA_RenametoLegacy(DeWitt_wqx3)
+#' DeWitt_wqx3_withlegacynames <- EPATADA::TADA_RenametoLegacy(DeWitt_wqx3)
 #'
 TADA_RenametoLegacy <- function(.data) {
   ## READ WQX3.0 column name schema from EPA Water Data WQP Quick Reference Guide
@@ -1658,8 +2078,6 @@ TADA_RenametoLegacy <- function(.data) {
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
-
-  rm(WqxV2.FieldName)
 
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
@@ -1987,8 +2405,18 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
 #' @export
 #' @importFrom utils read.csv
 TADA_CorrectColType <- function(.data) {
-  stopifnot(is.data.frame(.data))
-
+  if (is.null(.data)) {
+    return(NULL)
+  }
+  if (inherits(.data, "sf")) {
+    return(.data)
+  } # simplest safe behavior
+  if (!is.data.frame(.data)) {
+    warning(
+      "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
+    )
+    return(.data)
+  }
   ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
   if (!nzchar(ref_path) || !file.exists(ref_path)) {
     stop("TADAColTypeRef.csv not found in EPATADA/extdata.")
@@ -2125,4 +2553,18 @@ TADA_CorrectColType <- function(.data) {
   }
 
   .data
+}
+
+#' .setDefaultEQKey
+#'
+#' Get default EPATADA package rExpertQuery API key. For best performance and to
+#' avoid server failures from rate-limits, EPATADA users should obtain their own
+#' rExpertQuery API Key here: https://owapps.epa.gov/expertquery/api-key-signup
+#'
+#' @return Character string. The default rExpertQuery API key.
+#'
+.setDefaultEQKey <- function() {
+  default.key <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+
+  return(default.key)
 }

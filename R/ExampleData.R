@@ -95,13 +95,12 @@ NULL
 
 #' Data_MT_MissoulaCounty
 #'
-#' See Module 2 and 3 workflows for examples of this data set can be used in the
-#' TADA analysis workflow.
+#' This example data is used in the Module 2 and 3 vignettes.
 #'
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_MissoulaCounty
-#' @format A data frame with 426 rows and 161 variables
+#' @format A data frame with 426 rows and 162 variables
 NULL
 
 #' Data_MT_AUMLRef

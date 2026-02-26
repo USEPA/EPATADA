@@ -48,10 +48,7 @@ ATTAINS were developed based on NHDPlus V2 HiRes.}
 \item{return_sf}{Whether to return the ATTAINS associated catchments, lines,
 points, and polygon shapefile objects along with the data frame(s).
 TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-are in WGS84 (crs = 4326). If fill_USGS_catch = TRUE and return_sf = TRUE,
-the function will additionally return the raw catchment features associated
-with the observations in TADA_without_ATTAINS in a new shapefile called
-without_ATTAINS_catchments. Defaults to TRUE.}
+are in WGS84 (crs = 4326). Defaults to TRUE.}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional

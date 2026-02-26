@@ -11,7 +11,8 @@ TADA_CreateAUMLCrosswalk(
   fill_ATTAINS_catch = FALSE,
   fill_USGS_catch = FALSE,
   return_nearest = TRUE,
-  batch_upload = FALSE
+  batch_upload = FALSE,
+  api_key = NULL
 )
 }
 \arguments{
@@ -61,6 +62,11 @@ Default is batch_upload = FALSE. If you would like to add new monitoring locatio
 data links or retain existing ones in ATTAINS, you will need to run
 TADA_UpdateATTAINSAUMLCrosswalk on the ATTAINS_batchupload data frame from this
 function's output.}
+
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 A list containing a modified TADA data frame with added ATTAINS columns and
