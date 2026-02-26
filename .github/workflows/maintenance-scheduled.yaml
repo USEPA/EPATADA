@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      EQ_API_KEY_FOR_CHECKS: ${{ secrets.EQ_API_KEY_FOR_CHECKS }}
 
     steps:
       - name: Checkout repo (existing branch)
@@ -32,14 +33,14 @@ jobs:
 
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-        
+
       - name: Install EPATADA package
         run: |
           install.packages("remotes")
           library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
         shell: Rscript {0}
-        
+
       - name: Update reference files
         run: |
           library(EPATADA)
@@ -69,4 +70,4 @@ jobs:
           message: "Update example data"
           add: '[./data/*]'
           new_branch: maintenance-branch
-          
+
