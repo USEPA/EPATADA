@@ -1,33 +1,33 @@
-# Combined PR auto-format and manual format-update workflow
+# Combined PR auto-format (same-repo) and suggestion-only for forks, plus manual format-update
 name: formatting
 
 on:
   pull_request_target:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, ready_for_review]  # Only at PR open or when draft → ready_for_review
   workflow_dispatch:
 
 jobs:
-  # Auto-format on PRs
+  # Auto-format on PRs (same-repo), suggest-only on forks
   format-pr:
     if: github.event_name == 'pull_request_target' && github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write            # needed to commit/push on same-repo PRs
+      pull-requests: write       # needed to post suggestions/comments on PRs
 
     steps:
       - name: Check out PR head
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.ref }}
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Install air
+      - name: Install Air formatter
         uses: posit-dev/setup-air@v1
 
-      # Same-repo PRs: format and try to push changes
+      # Same-repo PRs: format and push changes
       - name: Format with air (same-repo PRs)
         if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         env:
@@ -67,66 +67,44 @@ jobs:
             echo "Could not push formatting changes (likely fork or edits disabled)."
           fi
 
-      # Fork PRs: check formatting and fail with a helpful comment
-      - name: Check formatting (fork PRs, no push)
+      # Fork PRs: suggest formatting changes inline, do not fail the job
+      - name: Format (fork PRs)
         if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
         env:
           GITHUB_TOKEN: ""
+        run: air format .
+
+      - name: Suggest formatting changes on PR (forks)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: air
+          level: warning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post guidance comment (fork PRs, only if changes found)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
-          set -e
-          if air format --check .; then
-            echo "Formatting is correct."
-          else
-            echo "Formatting issues detected."
-            exit 1
+          # If Air produced changes, git diff will not be empty
+          if ! git diff --quiet; then
+            pr=${{ github.event.pull_request.number }}
+            body=$(cat <<'MD'
+            Thanks for the contribution! The formatter found issues.
+
+            Because this PR comes from a fork, the bot cannot push fixes. Please:
+            - Install Air: https://github.com/posit-dev/setup-air
+            - Run: air format .
+            - Commit and push the changes
+
+            Alternatively, a maintainer can run the "format-update" workflow on a branch in this repository.
+            MD
+            )
+            gh pr comment "$pr" --body "$body"
           fi
-
-      - name: Comment on PR about formatting (fork PRs)
-        if: ${{ github.event.pull_request.head.repo.full_name != github.repository && failure() }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pr=${{ github.event.pull_request.number }}
-          body=$(cat <<'MD'
-          Thanks for the contribution! The formatter found issues.
-
-          Because this PR comes from a fork, the bot cannot push fixes. Please:
-          - Install Air: https://github.com/posit-dev/setup-air
-          - Run: air format .
-          - Commit and push the changes
-
-          Alternatively, a maintainer can run the "format-update" workflow on a branch in this repository.
-          MD
-          )
-          gh pr comment "$pr" --body "$body"
-
-      # Trigger CI only when the PR is not a draft and the event is the initial open or ready_for_review.
-      # This ensures checks run AFTER formatting has completed.
-      - name: Trigger checks after formatting
-        if: ${{ (github.event.action == 'opened' || github.event.action == 'ready_for_review') && github.event.pull_request.draft == false }}
-        shell: bash
-        env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          json=$(cat <<'JSON'
-          {
-            "event_type": "ci_after_format",
-            "client_payload": {
-              "head_repo": "${{ github.event.pull_request.head.repo.full_name }}",
-              "head_ref": "${{ github.event.pull_request.head.ref }}",
-              "head_sha": "${{ github.event.pull_request.head.sha }}",
-              "pr_number": ${{ github.event.pull_request.number }}
-            }
-          }
-          JSON
-          )
-          curl -s -X POST \
-            -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${GH_REPO}/dispatches" \
-            -d "${json}"
 
   # Manual, branch-local format-and-commit (run from Actions tab)
   format-update:
@@ -136,9 +114,9 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install
+      - name: Install Air formatter
         uses: posit-dev/setup-air@v1
 
       - name: Format

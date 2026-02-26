@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Use provided ref for manual runs; otherwise use the event ref
           ref: ${{ github.event.inputs.ref || github.ref }}
@@ -43,6 +43,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Spellcheck root directory (include vignettes)
+        id: spellcheck
         run: |
           result <- spelling::spell_check_package()
           print(result)

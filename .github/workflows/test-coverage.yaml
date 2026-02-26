@@ -2,24 +2,27 @@ name: test-coverage
 
 on:
   workflow_run:
-    workflows: ["R-CMD-check"]   # Must match the 'name:' in your check workflow
+    workflows: ["formatting", "spelling-check"]   # Must match the 'name:' fields of those workflows
     types: [completed]
 
 permissions:
+  actions: read            # Needed to query workflow runs/PRs via the API
   contents: read
   checks: write
   pull-requests: write
 
 jobs:
   test-coverage:
-    # Run after successful R-CMD-check for:
-    # - push to develop, OR
-    # - any pull_request
+    # Only proceed if:
+    # - the prerequisite workflow_run concluded successfully, AND
+    # - (push to develop) OR (PR with base branch develop)
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       (
         (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'develop') ||
-        (github.event.workflow_run.event == 'pull_request')
+        (github.event.workflow_run.event == 'pull_request' &&
+         github.event.workflow_run.pull_requests &&
+         github.event.workflow_run.pull_requests[0].base.ref == 'develop')
       )
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -30,24 +33,74 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Check out the same commit that passed R-CMD-check
+      - name: Verify formatting and spelling-check succeeded (and PR base is develop)
+        id: verify
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const headSha = context.payload.workflow_run.head_sha;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const event = context.payload.workflow_run.event;
+
+            // Collect latest runs for the same SHA
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner, repo, head_sha: headSha, per_page: 100
+            });
+
+            const targetNames = new Set(["formatting", "spelling-check"]);
+            const latestByName = {};
+            for (const run of runs.data.workflow_runs) {
+              if (targetNames.has(run.name)) {
+                const prev = latestByName[run.name];
+                if (!prev || new Date(run.created_at) > new Date(prev.created_at)) {
+                  latestByName[run.name] = run;
+                }
+              }
+            }
+
+            const missing = [...targetNames].filter(n => !latestByName[n]);
+            const failed = Object.entries(latestByName).filter(([n, r]) => r.conclusion !== 'success');
+
+            // PR base branch check (limit to develop)
+            let prBaseOk = true;
+            if (event === 'pull_request') {
+              // Prefer payload; fall back to commit->PR association
+              const prsFromPayload = context.payload.workflow_run.pull_requests || [];
+              let prs = prsFromPayload;
+              if (prs.length === 0) {
+                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: headSha
+                });
+                prs = assoc.data;
+              }
+              prBaseOk = prs.some(pr => pr.base && pr.base.ref === 'develop');
+            }
+
+            const ok = missing.length === 0 && failed.length === 0 && prBaseOk;
+            core.setOutput('ok', ok ? 'true' : 'false');
+            core.info(`Prereq check: ok=${ok}. Missing=${missing.join(', ') || 'none'}. Failed=${failed.map(([n, r]) => `${n}:${r.conclusion}`).join(', ') || 'none'}. PR base OK=${prBaseOk}.`);
+
+      - name: Check out the same commit
+        if: steps.verify.outputs.ok == 'true'
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
+        if: steps.verify.outputs.ok == 'true'
         with:
           use-public-rspm: true
-          # r-version: '4.3'  # Optionally pin for reproducibility
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        if: steps.verify.outputs.ok == 'true'
         with:
           extra-packages: any::covr, any::xml2
           needs: coverage
-          # cache: true       # Optional: speed up repeated runs
 
       - name: Capture Environment Info
+        if: steps.verify.outputs.ok == 'true'
         shell: Rscript {0}
         run: |
           env_vars <- Sys.getenv()
@@ -56,12 +109,14 @@ jobs:
           save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
 
       - name: Upload Environment Info
+        if: steps.verify.outputs.ok == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: ci_env_info
           path: ci_env_info.RData
 
       - name: Test coverage
+        if: steps.verify.outputs.ok == 'true'
         shell: Rscript {0}
         run: |
           cov <- covr::package_coverage(
@@ -73,14 +128,14 @@ jobs:
           covr::to_cobertura(cov, filename = "cobertura.xml")
 
       - name: Show testthat output
-        if: always()
+        if: always() && steps.verify.outputs.ok == 'true'
         shell: bash
         run: |
           ## --------------------------------------------------------------------
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
 
       - name: Upload test results
-        if: failure()
+        if: failure() && steps.verify.outputs.ok == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: coverage-test-failures
@@ -88,15 +143,16 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload coverage report
+        if: steps.verify.outputs.ok == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: ./cobertura.xml
           if-no-files-found: ignore
 
-      - name: Comment coverage on PR
-        if: hashFiles('cobertura.xml') != '' && github.event.workflow_run.event == 'pull_request'
-        uses: 5monkeys/cobertura-action@vX.Y.Z   # pin to a released tag or commit SHA
+      - name: Comment coverage on PR (develop only)
+        if: steps.verify.outputs.ok == 'true' && hashFiles('cobertura.xml') != '' && github.event.workflow_run.event == 'pull_request'
+        uses: 5monkeys/cobertura-action@vX.Y.Z
         with:
           report_name: coverage-report
           path: ./cobertura.xml

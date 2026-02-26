@@ -1,17 +1,9 @@
 name: R-CMD-check
 
 on:
-  push:
-    branches: [develop]
-
-  pull_request:
-    branches: [develop]
-    types: [opened, ready_for_review]  # opened PRs and when drafts are converted
-
-  # Keep your existing triggers if you still need them
-  repository_dispatch:
-    types: [ci_after_format]
-
+  workflow_run:
+    workflows: ["formatting", "spelling-check"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       ref:
@@ -24,11 +16,84 @@ on:
         default: ""
 
 jobs:
+  gate:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.verify.outputs.ok }}
+      note: ${{ steps.verify.outputs.note }}
+    steps:
+      - name: Verify formatting + spelling-check succeeded (develop only for workflow_run)
+        id: verify
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const event = context.eventName;
+
+            // Manual runs bypass prerequisites to allow on-demand checks
+            if (event === 'workflow_dispatch') {
+              core.setOutput('ok', 'true');
+              core.setOutput('note', 'Manual run — prerequisite check skipped.');
+              return;
+            }
+
+            // For workflow_run from formatting/spelling-check, enforce:
+            // - push must be to develop OR PR base must be develop (and not draft)
+            const wr = context.payload.workflow_run;
+            const headSha = wr.head_sha;
+
+            let baseDevelopOk = true;
+            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
+              // Prefer payload PRs; fall back to associated PRs for safety
+              let prs = wr.pull_requests || [];
+              if (!prs || prs.length === 0) {
+                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: headSha
+                });
+                prs = assoc.data;
+              }
+              baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop' && !pr?.draft);
+            } else if (wr.event === 'push') {
+              baseDevelopOk = wr.head_branch === 'develop';
+            } else {
+              baseDevelopOk = false;
+            }
+
+            // Require both prerequisite workflows to have succeeded for this head SHA
+            const targetNames = new Set(['formatting', 'spelling-check']);
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner, repo, head_sha: headSha, per_page: 100
+            });
+
+            const latestByName = {};
+            for (const r of runs.data.workflow_runs) {
+              if (targetNames.has(r.name)) {
+                const prev = latestByName[r.name];
+                if (!prev || new Date(r.created_at) > new Date(prev.created_at)) {
+                  latestByName[r.name] = r;
+                }
+              }
+            }
+
+            const missing = [...targetNames].filter(n => !latestByName[n]);
+            const failed = Object.entries(latestByName).filter(([n, r]) => r.conclusion !== 'success');
+
+            const ok = baseDevelopOk && missing.length === 0 && failed.length === 0;
+            core.setOutput('ok', ok ? 'true' : 'false');
+            const note = `baseDevelopOk=${baseDevelopOk}; missing=${missing.join(', ') || 'none'}; failed=${failed.map(([n, r]) => `${n}:${r.conclusion}`).join(', ') || 'none'}; headSha=${headSha}; trigger=${wr.event}`;
+            core.setOutput('note', note);
+            core.info(`Gate result: ${note}`);
+
   R-CMD-check:
-    # Skip draft PRs; allow all non-PR events (push, dispatch, manual)
-    if: ${{ github.event_name != 'pull_request' || !github.event.pull_request.draft }}
+    needs: gate
+    if: ${{ needs.gate.outputs.ok == 'true' }}
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+
+    concurrency:
+      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha) || format('rcmdcheck-manual-{0}', github.run_id) }}
+      cancel-in-progress: true
 
     strategy:
       fail-fast: false
@@ -45,37 +110,24 @@ jobs:
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      # Checkout for PR runs
-      - name: Check out (pull_request)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}  # build the PR head
-          fetch-depth: 0
+      - name: Echo gate status
+        run: echo "${{ needs.gate.outputs.note }}"
 
-      # Checkout for formatter-dispatched PR runs
-      - name: Check out PR head (dispatch)
-        if: ${{ github.event_name == 'repository_dispatch' }}
-        uses: actions/checkout@v4
+      # Checkout exact commit for workflow_run-triggered checks
+      - name: Check out exact commit (workflow_run)
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/checkout@v6
         with:
-          repository: ${{ github.event.client_payload.head_repo }}
-          ref: ${{ github.event.client_payload.head_ref }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
       # Checkout for manual runs (optional ref/repo)
       - name: Check out (manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository != '' && inputs.repository || github.repository }}
           ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
-          fetch-depth: 0
-
-      # Checkout for push runs
-      - name: Check out (push)
-        if: ${{ github.event_name == 'push' }}
-        uses: actions/checkout@v4
-        with:
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-pandoc@v2
@@ -91,20 +143,7 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
-      # PR-like runs (from formatter dispatch): fast check — skip vignettes/manual
-      - name: R CMD check (dispatch/PR — skip vignettes)
-        if: ${{ github.event_name == 'repository_dispatch' }}
-        uses: r-lib/actions/check-r-package@v2
-        with:
-          upload-snapshots: true
-          build-args: 'c("--no-build-vignettes")'
-          args: 'c("--ignore-vignettes", "--no-manual")'
-        env:
-          _R_CHECK_FORCE_SUGGESTS_: "false"
-
-      # Push to develop, manual, and PR runs: full check — build vignettes
-      - name: R CMD check (push/manual/PR — build vignettes)
-        if: ${{ github.event_name != 'repository_dispatch' }}
+      - name: R CMD check (build vignettes; no PDF manual)
         uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
