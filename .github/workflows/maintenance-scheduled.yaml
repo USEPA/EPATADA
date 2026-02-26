@@ -4,13 +4,6 @@ on:
   # Weekly at 2:01 AM UTC — adjust as needed
   schedule:
     - cron: '1 2 * * 1'
-  # Manual trigger (optionally force maintenance even if not stale)
-  workflow_dispatch:
-    inputs:
-      force_maintenance:
-        type: boolean
-        default: false
-        description: "Run maintenance to update reference files and example data"
 
 permissions:
   contents: read
@@ -27,7 +20,7 @@ env:
 jobs:
   check_develop_staleness:
     name: Check develop staleness (>=14 days)
-    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -87,8 +80,8 @@ jobs:
   maintenance:
     name: Update reference files and example data and open PR
     needs: [check_develop_staleness]
-    # Run if the weekly schedule finds it stale, or manually when forced
-    if: ${{ (github.event_name == 'schedule' && needs.check_develop_staleness.outputs.stale == 'true') || (github.event_name == 'workflow_dispatch' && inputs.force_maintenance == true) }}
+    # Run if the weekly schedule finds it stale
+    if: ${{ github.event_name == 'schedule' && needs.check_develop_staleness.outputs.stale == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -97,7 +90,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout develop
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ env.TARGET_BRANCH }}
           fetch-depth: 0
@@ -136,11 +129,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: ${{ env.TARGET_BRANCH }}
           branch: ${{ env.MAINTENANCE_BRANCH }}
-          commit-message: "Mmaintenance: update reference files and example data [skip ci]"
+          commit-message: "Maintenance: update reference files and example data [skip ci]"
           title: "Reference files and example data updates"
           body: |
-            This PR was created automatically because 'develop' has been inactive for at least 14 days
-            or maintenance was manually forced.
+            This PR was created automatically because 'develop' has been inactive for at least 14 days.
             - Last commit on develop: ${{ needs.check_develop_staleness.outputs.last_commit_iso }}
             - Days since last commit: ${{ needs.check_develop_staleness.outputs.days_since }}
             - Last commit SHA: ${{ needs.check_develop_staleness.outputs.last_commit_sha }}

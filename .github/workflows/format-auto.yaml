@@ -1,10 +1,9 @@
-# Combined PR auto-format (same-repo) and suggestion-only for forks, plus manual format-update
+# Combined PR auto-format (same-repo) and suggestion-only for forks
 name: formatting
 
 on:
   pull_request_target:
     types: [opened, ready_for_review]  # Only at PR open or when draft → ready_for_review
-  workflow_dispatch:
 
 jobs:
   # Auto-format on PRs (same-repo), suggest-only on forks
@@ -99,32 +98,7 @@ jobs:
             - Install Air: https://github.com/posit-dev/setup-air
             - Run: air format .
             - Commit and push the changes
-
-            Alternatively, a maintainer can run the "format-update" workflow on a branch in this repository.
             MD
             )
             gh pr comment "$pr" --body "$body"
           fi
-
-  # Manual, branch-local format-and-commit (run from Actions tab)
-  format-update:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install Air formatter
-        uses: posit-dev/setup-air@v1
-
-      - name: Format
-        run: air format .
-
-      - name: Commit updates
-        uses: EndBug/add-and-commit@v9
-        with:
-          author_name: 'github-actions[bot]'
-          author_email: '41898282+github-actions[bot]@users.noreply.github.com'
-          message: "style: apply formatting via air"
