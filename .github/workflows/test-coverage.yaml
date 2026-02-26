@@ -1,33 +1,104 @@
 name: test-coverage
 
 on:
+  push:
+    branches:
+      - develop
   workflow_run:
-    workflows: ["formatting", "spelling-check"]   # Must match the 'name:' fields of those workflows
+    workflows: ["formatting", "spelling-check"]
     types: [completed]
 
 permissions:
-  actions: read            # Needed to query workflow runs/PRs via the API
+  actions: read
   contents: read
   checks: write
   pull-requests: write
 
 jobs:
-  test-coverage:
-    # Only proceed if:
-    # - the prerequisite workflow_run concluded successfully, AND
-    # - (push to develop) OR (PR with base branch develop)
-    if: >
-      github.event.workflow_run.conclusion == 'success' &&
-      (
-        (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'develop') ||
-        (github.event.workflow_run.event == 'pull_request' &&
-         github.event.workflow_run.pull_requests &&
-         github.event.workflow_run.pull_requests[0].base.ref == 'develop')
-      )
+  coverage-on-push:
+    name: Coverage on push to develop
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
-      group: coverage-${{ github.event.workflow_run.head_sha }}
+      group: coverage-push-${{ github.sha }}
+      cancel-in-progress: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check out the commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr, any::xml2
+          needs: coverage
+
+      - name: Capture Environment Info
+        shell: Rscript {0}
+        run: |
+          env_vars <- Sys.getenv()
+          pkg_versions <- installed.packages()[, c("Package", "Version")]
+          sys_info <- Sys.info()
+          save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
+
+      - name: Upload Environment Info
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci_env_info
+          path: ci_env_info.RData
+
+      - name: Test coverage
+        shell: Rscript {0}
+        run: |
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          print(cov)
+          covr::to_cobertura(cov, filename = "cobertura.xml")
+
+      - name: Show testthat output
+        if: always()
+        shell: bash
+        run: |
+          ## --------------------------------------------------------------------
+          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package
+          if-no-files-found: ignore
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-report
+          path: ./cobertura.xml
+          if-no-files-found: ignore
+
+  coverage-on-pr:
+    name: Coverage on PRs to develop (after formatting & spelling)
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: coverage-pr-${{ github.event.workflow_run.head_sha }}
       cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
