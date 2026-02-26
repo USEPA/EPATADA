@@ -1248,7 +1248,7 @@ TADA_DefineCriteriaMethodology <- function(
 
     # identify dups with NA to remove
     DefineCriteriaMethodology_dups <- DefineCriteriaMethodology |>
-      dplyr::distinct(across(-ATTAINS.UseName), .keep_all = TRUE) |>
+      dplyr::distinct(dplyr::across(-ATTAINS.UseName), .keep_all = TRUE) |>
       dplyr::filter(is.na(ATTAINS.UseName))
 
     # remove dups and create final criteria table

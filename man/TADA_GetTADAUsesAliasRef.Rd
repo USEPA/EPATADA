@@ -61,10 +61,3 @@ can result in less potential match (false negatives) findings while
 less strict may result in greater number of matches that shouldn't
 be matched (false positives). Default for now is to be more strict.
 }
-\examples{
-uses <- TADA_UsesAliasForReview(
-  ATTAINS.CST.tolerance = 0.50,
-  CST.ATTAINS.tolerance = 0.15 # uses a lower value as CST uses can be very long string.
-)
-
-}
