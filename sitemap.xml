@@ -165,6 +165,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQPOrganizationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateWQXCharValRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-setDefaultEQKey.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/findATTAINSMissingRawFeatures.html</loc></url>

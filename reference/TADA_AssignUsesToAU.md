@@ -24,7 +24,8 @@ TADA_AssignUsesToAU(
   AU_UsesRef = NULL,
   waterUseRef = NULL,
   excel = FALSE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  api_key = NULL
 )
 ```
 
@@ -99,6 +100,14 @@ TADA_AssignUsesToAU(
   (overwritten) by the new file you create if you re-run this function.
   Users should only specify overwrite = TRUE once they are ready to
   re-run this function if they have already ran it once.
+
+- api_key:
+
+  Optional character string. An api key for Expert Query web services.
+  If not supplied, the default TADA api key will be used. For best
+  performance, it is recommended that users obtain and use their own api
+  key. Request an api key here:
+  https://owapps.epa.gov/expertquery/api-documentation
 
 ## Value
 

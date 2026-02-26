@@ -338,10 +338,37 @@ associated with the AssessmentUnitIdentifier “MT76M001_020”. Let’s
 create a crosswalk to assign “MTWTRSHD_WQX-COMBITR02” to the assessment
 unit “MT76M001_020” and give it the WaterType “RIVER”.</p>
 <div class="section level4">
+<h4 id="get-expert-query-api-key">Get Expert Query API Key<a class="anchor" aria-label="anchor" href="#get-expert-query-api-key"></a>
+</h4>
+<p>Some aspects of this workflow depend on ATTAINS data imported via
+Expert Query web services. While public, Expert Query web services
+require an API key, a unique identifier used to authenticate access to
+the Expert Query API. The EPATADA package contains a default API key for
+Expert Query, so users who do not have their own API key can still use
+these functions.</p>
+<p>However, Expert Query API keys are rate limited, meaning that if many
+users are all accessing Expert Query data using the same key at the same
+time, server failures from too many requests may occur. Best practice is
+for each EPATADA user is to obtain their own, individual API key by
+requesting one here: <a href="https://owapps.epa.gov/expertquery/api-key-signup" class="external-link">API Key Signup
+Form</a></p>
+<p><img src="images/clipboard-3767373632.png"></p>
+<p>If you have your own API key, uncomment the code below and assign
+your API key to the “api_key” variable. Otherwise, the default EPATADA
+package key will be used.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># api_key &lt;- "paste your key here"</span></span>
+<span></span>
+<span><span class="co"># is user does not provide key, set api_key as NULL</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"api_key"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">api_key</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<div class="section level4">
 <h4 id="define-a-user-supplied-crosswalk-of-assessment-units-and-monitoring-locations">Define a user supplied crosswalk of Assessment Units and Monitoring
 Location(s)<a class="anchor" aria-label="anchor" href="#define-a-user-supplied-crosswalk-of-assessment-units-and-monitoring-locations"></a>
 </h4>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># user would like to associate this MonitoringLocationIdentifier to this AU.</span></span>
 <span><span class="va">user.supplied.cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  AssessmentUnitIdentifier <span class="op">=</span> <span class="st">"MT76M001_020"</span>,</span>
@@ -358,9 +385,10 @@ Location(s)<a class="anchor" aria-label="anchor" href="#define-a-user-supplied-c
 ATTAINS for the assessment unit identifier “MT76M001_020”.</p>
 <p>Does our TADA data frame contain any of these monitoring
 locations?</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ATTAINS.cw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_GetATTAINSAUMLCrosswalk.html">TADA_GetATTAINSAUMLCrosswalk</a></span><span class="op">(</span></span>
-<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span></span>
+<span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
 <span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">ATTAINS.AssessmentUnitIdentifier</span> <span class="op">==</span> <span class="st">"MT76M001_020"</span><span class="op">)</span></span>
 <span></span>
@@ -380,14 +408,15 @@ crosswalk, user.supplied.cw. If any monitoring locations remain
 unassigned after checking the user-supplied crosswalk, the function will
 check the ATTAINS crosswalk (see ATTAINS.cw above), then lastly, the
 geospatial join, as needed.</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># make AU assignments for unassigned MLs</span></span>
 <span><span class="va">MT.AUMLRef</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_CreateAUMLCrosswalk.html">TADA_CreateAUMLCrosswalk</a></span><span class="op">(</span><span class="va">tada.MT.clean</span>,</span>
 <span>  au_ref <span class="op">=</span> <span class="va">user.supplied.cw</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  return_nearest <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  batch_upload <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  batch_upload <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The output of TADA_CreateAUMLCrosswalk is a list of data frames: 1)
 “TADA_with_ATTAINS”<br>
@@ -402,7 +431,7 @@ geometry for mapping. The ATTAINS_crosswalk data frame contains a simple
 crosswalk of monitoring locations and assessment units.</p>
 <p>Now, let’s view the assessment units and monitoring locations on a
 map to review the assessment unit/monitoring location assignments.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/TADA_ViewATTAINS.html">TADA_ViewATTAINS</a></span><span class="op">(</span><span class="va">MT.AUMLRef</span>, ref_icons <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -413,7 +442,7 @@ map to review the assessment unit/monitoring location assignments.</p>
 “MT76M001_020”, and for a single TADA.CharacteristicName, “DISSOLVED
 OXYGEN (DO)” for demonstration purposes for the remainder of this
 example.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># get subset DO data for one AU</span></span>
 <span><span class="va">tada.MT.clean.DO</span> <span class="op">&lt;-</span> <span class="va">MT.AUMLRef</span><span class="op">$</span><span class="va">TADA_with_ATTAINS</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_geometry.html" class="external-link">st_drop_geometry</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -431,11 +460,12 @@ example.</p>
 from a prior ATTAINS assessment cycle for MTDEQ. Users can append
 additional rows or remove use names as needed. See the TADA Module 2:
 Geospatial Functions vignette for more information.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">AU.uses</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_AssignUsesToAU.html">TADA_AssignUsesToAU</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean.DO</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
-<span>  AUMLRef <span class="op">=</span> <span class="va">tada.MT.AUMLRef</span></span>
+<span>  AUMLRef <span class="op">=</span> <span class="va">tada.MT.AUMLRef</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">AU.uses</span><span class="op">)</span></span></code></pre></div>
@@ -452,7 +482,7 @@ be supplied from a user supplied crosswalk.</p>
 <p>For ATTAINS.WaterType, please ensure this matches the
 ATTAINS.WaterType from the output of MT.AUMLRef$ATTAINS_crosswalk for
 your assessment unit.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/TADA_AssignUsesToAU.html">TADA_AssignUsesToAU</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">AU.uses.user.supplied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
@@ -467,7 +497,8 @@ your assessment unit.</p>
 <span>  <span class="va">tada.MT.clean</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
 <span>  AUMLRef <span class="op">=</span> <span class="va">tada.MT.AUMLRef</span>,</span>
-<span>  AU_UsesRef <span class="op">=</span> <span class="va">AU.uses.user.supplied</span></span>
+<span>  AU_UsesRef <span class="op">=</span> <span class="va">AU.uses.user.supplied</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="va">api_key</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/TADA_TableExport.html">TADA_TableExport</a></span><span class="op">(</span><span class="va">AU.uses2</span><span class="op">)</span></span></code></pre></div>
@@ -514,7 +545,7 @@ use.</p>
 <p>For this demo, We will load in a pre-filled criteria template for
 MTDEQ (draft). The reference tables may need additional review by the
 region and states/tribes.</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load the example R8 criteria table for MTDEQ</span></span>
 <span><span class="va">criteria_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"criteria_table.rda"</span>, package <span class="op">=</span> <span class="st">"EPATADA"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="va">criteria_table</span><span class="op">)</span></span>
@@ -545,7 +576,7 @@ ATTAINS assessment cycles. Filter it to just “DISSOLVED OXYGEN
 still need to be filled out with auto_assign. However, if users are only
 interested in individual result measurement excursions, they can proceed
 to use this table as is.</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">criteria_table_auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
@@ -567,7 +598,7 @@ submitted to the TADACommunityHub.</p>
 <p>If further edits are desired to the criteria table, users can export
 the criteria table into an excel spreadsheet and read it back into the R
 environment once any edits are made.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">MT_criteria_excel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/TADA_DefineCriteriaMethodology.html">TADA_DefineCriteriaMethodology</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean.DO</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="st">"MTDEQ"</span>,</span>
@@ -588,7 +619,7 @@ criteria table which will be compared to the results from your TADA data
 frame for DO for a single assessment unit, “MT76M001_020”. We will join
 your TADA data frame to the criteria table using the MTDEQ table sourced
 from the TADACommunityHub.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># join use and criteria to tada df (many to many relationships may occur)</span></span>
 <span><span class="va">tada.MT.clean.DO2</span> <span class="op">&lt;-</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
 <span>  <span class="va">tada.MT.clean.DO</span>,</span>
@@ -608,7 +639,7 @@ The TADA Team is working on developing functions for handling the
 criteria (magnitude, duration and frequency) and methodologies
 information (e.g. seasonality and data sufficiency) entered into the
 Criteria and Methodologies Template.</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">TADA_scatters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">tada.MT.do.subsets</span><span class="op">)</span></span>
@@ -652,7 +683,7 @@ stages present)” and “Lower bound for Aquatic Life (7 n-day arithmetic
 mean for Cold water, other life stages present)” criteria and
 methodologies information was determined to be the appropriate criteria
 for this assessment unit and applied.</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">TADA_scatters</span><span class="op">)</span></span>
 <span><span class="co"># TADA_scatters</span></span>
 <span><span class="va">TADA_scatters</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>

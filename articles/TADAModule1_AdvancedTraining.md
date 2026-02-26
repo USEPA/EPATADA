@@ -300,7 +300,7 @@ all_counts
 
     ##                                                                Fields  Count
     ## 1                                                    ResultIdentifier 135932
-    ## 2                                             TADA.ResultMeasureValue  40846
+    ## 2                                             TADA.ResultMeasureValue  40875
     ## 3                                                  ResultMeasureValue  37487
     ## 4                                                  ActivityIdentifier  19180
     ## 5                                 ResultDetectionQuantitationLimitUrl  12311

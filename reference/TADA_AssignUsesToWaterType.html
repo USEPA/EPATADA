@@ -78,7 +78,8 @@ assessment unit provided from a user's AUMLRef if there are any.</p>
 <span>  <span class="va">.data</span>,</span>
 <span>  org_id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  waterUseRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  AUMLRef <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  AUMLRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -123,6 +124,13 @@ with an assessment unit. This data frame must contain the following
 column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.</p></dd>
+
+
+<dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
+<dd><p>Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation</p></dd>
 
 </dl></div>
     <div class="section level2">

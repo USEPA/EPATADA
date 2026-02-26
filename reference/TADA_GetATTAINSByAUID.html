@@ -65,7 +65,12 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_GetATTAINSByAUID</span><span class="op">(</span><span class="va">.data</span>, <span class="va">au_ref</span>, fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">TADA_GetATTAINSByAUID</span><span class="op">(</span></span>
+<span>  <span class="va">.data</span>,</span>
+<span>  <span class="va">au_ref</span>,</span>
+<span>  fill_ATTAINS_catch <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -96,6 +101,13 @@ USER-SUPPLIED <code>au_ref</code>. When fill_ATTAINS_catch = TRUE, the catchment
 are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.</p></dd>
+
+
+<dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
+<dd><p>Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation</p></dd>
 
 </dl></div>
     <div class="section level2">

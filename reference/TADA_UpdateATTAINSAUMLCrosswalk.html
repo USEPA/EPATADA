@@ -84,7 +84,8 @@ records.</p>
 <span>  wqp_data_links <span class="op">=</span> <span class="st">"add"</span>,</span>
 <span>  update_mlid <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  batch_upload <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  check_links <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  check_links <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -156,6 +157,13 @@ the TADA workflow. Default is batch_upload = FALSE.</p></dd>
 <dd><p>Boolean argument. When check_links = TRUE the function
 will examine the response code of each MS_DATA_LINK URL and only retain those
 with a 200 response, which indicates the URL is valid.</p></dd>
+
+
+<dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
+<dd><p>Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation</p></dd>
 
 </dl></div>
     <div class="section level2">

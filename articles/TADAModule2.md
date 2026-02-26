@@ -147,6 +147,37 @@ rm(Data_MT_MissoulaCounty)
 TADA_TableExport(tada.MT.clean)
 ```
 
+### Expert Query API Key
+
+Some aspects of the Module 2 workflow depend on ATTAINS data imported
+via Expert Query web services. While public, Expert Query web services
+require an API key, a unique identifier used to authenticate access to
+the Expert Query API. The EPATADA package contains a default API key for
+Expert Query, so users who do not have their own API key can still use
+these functions.
+
+However, Expert Query API keys are rate limited, meaning that if many
+users are all accessing Expert Query data using the same key at the same
+time, server failures from too many requests may occur. Best practice is
+for each EPATADA user is to obtain their own, individual API key by
+requesting one here: [API Key Signup
+Form](https://owapps.epa.gov/expertquery/api-key-signup)
+
+![](images/clipboard-3767373632.png)
+
+If you have your own API key, uncomment the code below and assign your
+API key to the “api_key” variable. Otherwise, the default EPATADA
+package key will be used.
+
+``` r
+# api_key <- "paste your key here"
+
+# is user does not provide key, set api_key as NULL
+if (!exists("api_key")) {
+  api_key <- NULL
+}
+```
+
 ## Step A: Discover ML/AU Matches
 
 The **`TADA_CreateAUMLCrosswalk`** function efficiently creates a
@@ -207,10 +238,12 @@ If you have your own crosswalk, this step can be skipped.
 ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
 # get crosswalk from ATTAINS
-attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ",
+                                                    api_key = api_key)
 
 # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
-clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ")
+clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
+                                                             api_key = api_key)
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
 user.supplied.cw <- clean.existing.attains.MT |>
@@ -248,7 +281,8 @@ MT.AUMLRef <- TADA_CreateAUMLCrosswalk(
   org_id = "MTDEQ",
   fill_ATTAINS_catch = TRUE,
   return_nearest = TRUE,
-  batch_upload = TRUE
+  batch_upload = TRUE,
+  api_key = api_key
 )
 ```
 
@@ -522,7 +556,8 @@ batch.upload.MT <- MT.AUMLRef$ATTAINS_batchupload |>
     wqp_data_links = "add",
     # ml ids have already  been corrected if needed
     update_mlid = FALSE,
-    org_id = "MTDEQ"
+    org_id = "MTDEQ",
+    api_key = api_key
   )
 ```
 
@@ -557,7 +592,8 @@ prioritized steps:
 ``` r
 MT.UseAURef <- TADA_AssignUsesToAU(
   AUMLRef = Final.MT.AUMLRef,
-  org_id = "MTDEQ"
+  org_id = "MTDEQ",
+  api_key = api_key
 )
 ```
 
@@ -585,7 +621,8 @@ MT.UseAURef_with_WaterUseRef <-
   TADA_AssignUsesToAU(
     waterUseRef = TADA_AssignUsesToWaterType(org_id = "MTDEQ"),
     AUMLRef = Final.MT.AUMLRef,
-    org_id = "MTDEQ"
+    org_id = "MTDEQ",
+    api_key = api_key
   )
 ```
 

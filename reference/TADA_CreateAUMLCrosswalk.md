@@ -14,7 +14,8 @@ TADA_CreateAUMLCrosswalk(
   org_id = "all",
   fill_ATTAINS_catch = FALSE,
   return_nearest = TRUE,
-  batch_upload = FALSE
+  batch_upload = FALSE,
+  api_key = NULL
 )
 ```
 
@@ -73,6 +74,14 @@ TADA_CreateAUMLCrosswalk(
   like to add new monitoring location data links or retain existing ones
   in ATTAINS, you will need to run TADA_UpdateATTAINSAUMLCrosswalk on
   the ATTAINS_batchupload data frame from this function's output.
+
+- api_key:
+
+  Optional character string. An api key for Expert Query web services.
+  If not supplied, the default TADA api key will be used. For best
+  performance, it is recommended that users obtain and use their own api
+  key. Request an api key here:
+  https://owapps.epa.gov/expertquery/api-documentation
 
 ## Value
 

@@ -134,21 +134,28 @@ df <- TADA_DataRetrieval(
 #> Checking what data is available. This may take a moment.
 #> The number of sites and/or records matched by the query terms is large, so the download may take some time.
 #> [1] "Downloading data from sites with fewer than 350000 results by grouping them together."
-#>   |                                                                              |                                                                      |   0%
-#> Error in httr2::req_perform(obs_url): HTTP 500 Internal Server Error.
+#>   |                                                                              |                                                                      |   0%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================================| 100%
+#> [1] "Data successfully downloaded. Running TADA_AutoClean function."
+#> [1] "TADA_Autoclean: creating TADA-specific columns."
+#> [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
+#> [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
+#> [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
+#> [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
+#> No deprecated characteristic names found in dataset.
+#> [1] "TADA_Autoclean: harmonizing result and depth units."
+#> [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
+#> [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
 
 df2 <- TADA_SimpleCensoredMethods(df,
   nd_method = "multiplier",
   nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
 )
-#> Error in TADA_CheckType(.data, "data.frame", "Input object"): Input object must be of class 'data.frame'
 
 df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-#> Error: object 'df2' not found
+#> [1] "TADA_FlagSpeciation: All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking."
+#> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
 
 df2 <- TADA_HarmonizeSynonyms(df2)
-#> Error: object 'df2' not found
 
 df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-#> Error: object 'df2' not found
 ```

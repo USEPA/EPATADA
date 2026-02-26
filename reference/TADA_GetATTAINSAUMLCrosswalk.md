@@ -12,7 +12,11 @@ only a few states.
 ## Usage
 
 ``` r
-TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
+TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "all",
+  batch_upload = FALSE,
+  api_key = NULL
+)
 ```
 
 ## Arguments
@@ -37,6 +41,14 @@ TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
   the output will match those required for batch upload to ATTAINS. When
   batch_upload = FALSE, the output column names will be consistent with
   the TADA workflow. Default is batch_upload = FALSE.
+
+- api_key:
+
+  Optional character string. An api key for Expert Query web services.
+  If not supplied, the default TADA api key will be used. For best
+  performance, it is recommended that users obtain and use their own api
+  key. Request an api key here:
+  https://owapps.epa.gov/expertquery/api-documentation
 
 ## Value
 

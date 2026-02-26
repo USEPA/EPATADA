@@ -99,7 +99,8 @@ to generate the crosswalk.</p>
 <span>  AU_UsesRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  waterUseRef <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  excel <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  overwrite <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -168,6 +169,13 @@ the cells in which users should input information.</p></dd>
 replaced (overwritten) by the new file you create if you re-run this function.
 Users should only specify overwrite = TRUE once they are ready to re-run this
 function if they have already ran it once.</p></dd>
+
+
+<dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
+<dd><p>Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation</p></dd>
 
 </dl></div>
     <div class="section level2">

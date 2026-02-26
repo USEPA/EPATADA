@@ -438,6 +438,9 @@
 - [`.TADA_UpdateRefFiles()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
   : Update All TADA Reference Files (Internal)
 
+- [`.setDefaultEQKey()`](https://usepa.github.io/EPATADA/reference/dot-setDefaultEQKey.md)
+  : .setDefaultEQKey
+
 - [`fetchATTAINS()`](https://usepa.github.io/EPATADA/reference/fetchATTAINS.md)
   : fetchATTAINS
 
