@@ -187,7 +187,7 @@ specific sites.
 Additionally, users must specify the parameter codes and statistics they
 want to download and a date range. A list of all available parameters
 can be found at:
-[https://help.waterdata.usgs.gov/parameter_cd?group_cd=%](https://help.waterdata.usgs.gov/parameter_cd?group_cd=%){.uri}
+[https://help.waterdata.usgs.gov/parameter_cd?group_cd=%](https://help.waterdata.usgs.gov/parameter_cd?group_cd=%)
 and a list of all statistics codes can be found at:
 <https://help.waterdata.usgs.gov/stat_code>
 
