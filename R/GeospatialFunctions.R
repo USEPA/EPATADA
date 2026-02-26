@@ -1710,6 +1710,11 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 #' run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.
 #'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
 #' @return A modified `TADA_DataRetrieval()` dataframe or list with additional
 #' columns associated with the ATTAINS assessment unit data and the raw
 #' ATTAINS and catchment shapefile features associated with those observations.
@@ -1749,7 +1754,17 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
 #' )
 #' }
 #'
-TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
+TADA_GetATTAINSByAUID <- function(
+  .data,
+  au_ref,
+  fill_ATTAINS_catch = FALSE,
+  api_key = NULL
+) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setDefaultEQKey()
+  }
+
   # function settings that we ensure go back to their original settings
   # after the function stops running:
   original_s2 <- sf::sf_use_s2() # Store the original s2 setting first
@@ -1873,7 +1888,7 @@ TADA_GetATTAINSByAUID <- function(.data, au_ref, fill_ATTAINS_catch = FALSE) {
 
     wat_type <- function(chunk) {
       results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5",
+        api_key = api_key,
         auid = chunk
       ))
     }
@@ -3072,6 +3087,10 @@ TADA_GetUniqueNearbySites <- function(.data) {
 #' data links or retain existing ones in ATTAINS, you will need to run
 #' TADA_UpdateATTAINSAUMLCrosswalk on the ATTAINS_batchupload data frame from this
 #' function's output.
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @return A list containing a modified TADA data frame with added ATTAINS columns and
 #' data frames for ATTAINS data and features for points, lines, polygons and catchments.
@@ -3139,8 +3158,14 @@ TADA_CreateAUMLCrosswalk <- function(
   org_id = "all",
   fill_ATTAINS_catch = FALSE,
   return_nearest = TRUE,
-  batch_upload = FALSE
+  batch_upload = FALSE,
+  api_key = NULL
 ) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setDefaultEQKey()
+  }
+
   # create list where all user matches dfs are set to NULL
   user.matches <- list(
     "TADA_with_ATTAINS" = NULL,
@@ -3220,7 +3245,8 @@ TADA_CreateAUMLCrosswalk <- function(
         user.matches <- spsUtil::quiet(TADA_GetATTAINSByAUID(
           au.ref.mls,
           au_ref = au_ref,
-          fill_ATTAINS_catch = fill_ATTAINS_catch
+          fill_ATTAINS_catch = fill_ATTAINS_catch,
+          api_key = api_key
         ))
 
         # add AUIDs if user ref contained AUs not found in ATTAINS
