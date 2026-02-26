@@ -493,7 +493,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   if (
     wqp_data_links == "add" | wqp_data_links == "replace" | update_mlid == TRUE
   ) {
-    provider.ref <- TADA_GetWQPOrgProviderRef() |>
+    provider.ref <- TADA_GetWQPOrganizationRef() |>
       dplyr::select(OrganizationIdentifier, ProviderName) |>
       dplyr::distinct() |>
       dplyr::mutate(OrgIDForURL = OrganizationIdentifier)

@@ -38,7 +38,7 @@ nearby_data <- large_bbox_data |>
 # RI_CT_secchi
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
-# test_au_ref_MTDEQ.rda is staic, but was generated using:
+# test_au_ref_MTDEQ.rda is static, but was generated using:
 # MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 # test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
 #                                                     crosswalk = MT_AU_MLRef)
@@ -251,7 +251,7 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
     )
   )
   # Check .data was updated by adding 83 cols (161+83=244)
-  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 245)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
   expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])

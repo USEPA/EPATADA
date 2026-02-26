@@ -168,7 +168,7 @@ tada.MT.clean <- TADA_DataRetrieval(
   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
   countycode = "Missoula County",
   ask = FALSE
-  ) |>
+) |>
   TADA_RunKeyFlagFunctions() |>
   TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
@@ -583,7 +583,7 @@ created in step A, which is not yet present in ATTAINS.
 # extract ATTAINS_crosswalk data frame from the list
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
 
-# this is the same final output we got above from TADA_CreateAUMLCrosswalk 
+# this is the same final output we got above from TADA_CreateAUMLCrosswalk
 TADA_TableExport(Final.MT.AUMLRef)
 ```
 

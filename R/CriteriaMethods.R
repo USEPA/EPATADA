@@ -666,19 +666,11 @@ TADA_DefineCriteriaMethodology <- function(
               ATTAINS.OrganizationIdentifier %in%
                 unique(DefineCriteriaMethodology$ATTAINS.OrganizationIdentifier)
             )
-          # pulls in CriteriaSearchToolRef.rda
-          file_path <- system.file(
-            "extdata",
-            "CriteriaSearchToolRef.rda",
-            package = "EPATADA"
-          )
-          load(file_path)
-
-          # remove intermediate variable
-          rm(file_path)
+          # pulls in Criteria Search Tool
+          CST_Ref <- TADA_CST_GetCriteria()
 
           # upper case all character columns for consistency
-          CriteriaSearchToolRef <- CriteriaSearchToolRef |>
+          CST_Ref_upper <- CST_Ref |>
             dplyr::mutate(dplyr::across(where(is.character), toupper))
           # upper case all character columns for consistency
           DefineCriteriaMethodology <- DefineCriteriaMethodology |>
@@ -704,7 +696,7 @@ TADA_DefineCriteriaMethodology <- function(
             dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
             # Now, pull in the magnitude value if the CST pollutant name and uses are matched
             dplyr::left_join(
-              CriteriaSearchToolRef,
+              CST_Ref_upper,
               by = dplyr::join_by(
                 POLLUTANT_NAME,
                 STD_POLLUTANT_NAME,

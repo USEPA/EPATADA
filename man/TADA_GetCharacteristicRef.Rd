@@ -2,18 +2,25 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetCharacteristicRef}
 \alias{TADA_GetCharacteristicRef}
-\title{Update Characteristic Reference Table}
+\title{Get WQX Characteristic Domain Table}
 \usage{
-TADA_GetCharacteristicRef()
+TADA_GetCharacteristicRef(download_only = FALSE, refresh = FALSE)
+}
+\arguments{
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
+attempts to download the latest Activity Type reference table directly from WQX,
+returning it without updating the cache. Errors if the download fails. If FALSE
+(default), uses a cached copy when available and updates the cache; on download
+failure, falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-sysdata.rda with updated WQXCharacteristicRef object (characteristic reference
-table)
+data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
 }
 \description{
-Function downloads and returns in the latest WQX Characteristic Domain table and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Characteristic Domain Table
 }
