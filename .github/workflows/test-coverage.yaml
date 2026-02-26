@@ -152,7 +152,7 @@ jobs:
 
       - name: Comment coverage on PR (develop only)
         if: steps.verify.outputs.ok == 'true' && hashFiles('cobertura.xml') != '' && github.event.workflow_run.event == 'pull_request'
-        uses: 5monkeys/cobertura-action@vX.Y.Z
+        uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
           path: ./cobertura.xml
