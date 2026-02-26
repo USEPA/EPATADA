@@ -1,11 +1,11 @@
 ---
-title: "TADA Module 1: Training for Intermediate/Advanced R Users"
-format: html
-editor: visual
+title: 'TADA Module 1: Training for Intermediate/Advanced R Users'
+always_allow_html: yes
 author: "TADA Team"
 date: "`r Sys.Date()`"
-output: 
+output:
   rmarkdown::html_vignette:
+    self_contained: false
     toc: true
     fig_caption: yes
     fig_height: 8
@@ -14,6 +14,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{TADA Module 1: Training for Intermediate/Advanced R Users}
   %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteDepends{EPATADA}
 description: A foray into major TADA Module 1 functions for users familiar with R and RStudio.
 editor_options:
   chunk_output_type: console
@@ -21,24 +22,28 @@ editor_options:
     wrap: 72
 ---
 
-```{r knitr, include = FALSE}
+```{r setup, include = F}
 library(knitr)
 
 knitr::opts_chunk$set(
+  fig.width = 7, 
+  fig.height = 4, 
+  dpi = 96, 
   echo = TRUE,
+  out.width = "80%",
   warning = FALSE,
   message = FALSE
 )
 ```
 
-```{css, echo = F}
+```{css, include = F}
 pre {
   max-height: 300px;
   overflow-y: auto;
 }
 
 pre[class] {
-  max-height: 100px;
+  max-height: 300px;
 }
 ```
 
@@ -52,12 +57,13 @@ document ([learn more about
 RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
 download the TADA R package from GitHub, access and parameterize several
 important functions with a sample dataframe, and create basic
-visualizations. The workflow is similar to a funnel: at each decision
-point, data that fail QC checks are removed from the core dataframe and
-placed in a separate dataframe, while data that pass are carried into
-the next step. At the end of the QC checks, the user should be confident
-that their data are properly documented and applicable to the analysis
-at hand.
+visualizations.
+
+The workflow is similar to a funnel: at each decision point, data that
+fail QC checks are removed from the core dataframe and placed in a
+separate dataframe, while data that pass are carried into the next step.
+At the end of the QC checks, the user should be confident that their
+data are properly documented and applicable to the analysis at hand.
 
 **Note: TADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
@@ -81,29 +87,24 @@ encourages input and development from users. Check out the
 [Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 page on the TADA GitHub site for guidance on collaboration conventions.
 
-## Install and setup
+## Install and load packages
 
-Users can install the TADA package from GitHub into their R library
-using the `remotes` package.
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
-```{r install_remotes, results = 'hide'}
-if (!"remotes" %in% installed.packages()) {
-  install.packages("remotes")
-}
-```
-
-Load the remotes library:
-
-```{r}
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. TADA R Package
-dependencies will also be downloaded automatically from CRAN with the
-TADA install. You may be prompted in the console to update dependency
-packages that have more recent versions available. If you see this
-prompt, it is recommended to update all of them (enter 1 into the
-console).
+Next, install and load EPATADA using the remotes package. USGS's
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
@@ -113,37 +114,11 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
 ```{r library, results = 'hide'}
 library(EPATADA)
-```
-
-It's that easy!
-
-The following code block ensures the additional packages needed to run
-the code in this RMarkdown document are loaded. However, users may also
-use the `package name:: package function` notation to avoid the list of
-`library()` calls.
-
-```{r setup, results = 'hide'}
-if (!"tidyverse" %in% installed.packages()) {
-  install.packages("tidyverse")
-}
-```
-
-Load tidyverse library:
-
-```{r tidyverse}
-library(tidyverse)
 ```
 
 ## Help pages
@@ -384,7 +359,7 @@ remove problematic detection limit data before proceeding. We can also
 filter for the "problem" data by TADA.CensoredData.Flag and review the
 unique reasons for data removal.
 
-```{r id cens data}
+```{r id cens data, results='hide'}
 dataset <- TADA_IDCensoredData(dataset)
 
 TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
@@ -396,7 +371,7 @@ problem_censored <- dataset |>
 # Let's take a look at the problematic data that we filtered out (if any)
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
 
-check
+TADA_TableExport(check)
 
 dataset <- dataset |> dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
 
@@ -430,7 +405,7 @@ incompatible_datatype <- dataset |>
 # take a look at the difficult data types - do they make sense?
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 
-check
+TADA_TableExport(check)
 ```
 
 Then we can take a closer look at the removed results and run another
@@ -807,6 +782,5 @@ remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 TADAShiny::run_app()
 ```
 
-DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
-currently hosted on the web with minimal server memory/storage
-allocated.
+The [TADA Module 1 R Shiny App](https://rconnect-public.epa.gov/TADAShiny/) is 
+also currently hosted on the web.
