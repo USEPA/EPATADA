@@ -259,7 +259,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
 
 #' Calculate Total Nitrogen and Phosphorus
 #'
-#' This function applies the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation#nitrogen)
+#' This function applies the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen)
 #' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
 #' to approximate a total nitrogen value on a single day at a single site. Additional
 #' rows are added with the total nitrogen and total phosphorous estimations.
