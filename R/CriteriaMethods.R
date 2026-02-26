@@ -917,7 +917,7 @@ TADA_DefineCriteriaMethodology <- function(
                 1,
                 Conversion.Factor
               ),
-              MagnitudeUnit = Target.Unit,
+              MagnitudeUnit = dplyr::if_else(is.na(Target.Unit), MagnitudeUnit, Target.Unit),
               MagnitudeValueLower = round(
                 Conversion.Factor * MagnitudeValueLower,
                 digits = 4
