@@ -2569,7 +2569,7 @@ TADA_CorrectColType <- function(.data) {
   }
 
   # check to see if key is stored in system environment (primarily for use in checks)
-  env <- Sys.getenv("EQ_API_KEY_FOR_CHECKS", unset = "")
+  env <- Sys.getenv("EQ_API_KEY", unset = "")
   if (nzchar(env)) {
     return(env)
   }
