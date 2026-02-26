@@ -3276,7 +3276,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
     print(paste0(
-      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
+      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk) ",
       "was provided."
     ))
   }

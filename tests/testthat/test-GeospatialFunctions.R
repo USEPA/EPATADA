@@ -242,6 +242,50 @@ testthat::test_that("TADA_CreateATTAINSAUMLCrosswalk rejects invalid resolution 
   )
 })
 
+# new TADA_CreateAUMLCrosswalk tests
+testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joined ATTAINS data", {
+  # Create mock data with ATTAINS columns
+  mock_attains_data <- TADA_dataframe
+  mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
+
+  testthat::expect_error(
+    TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
+    "Your data has already been joined with ATTAINS data"
+  )
+})
+
+testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriately", {
+  # Create an empty dataframe with required structure
+  empty_df <- tibble::tibble(
+    ResultIdentifier = character(0),
+    LongitudeMeasure = character(0),
+    LatitudeMeasure = character(0),
+    HorizontalCoordinateReferenceSystemDatumName = character(0)
+  )
+
+  result <- TADA_CreateAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
+  testthat::expect_true(nrow(result) == 0)
+  testthat::expect_true("ResultIdentifier" %in% names(result))
+  testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
+})
+
+
+testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
+
+  # need to find an example that has some data in ATTAINS
+  crosswalk <- TADA_CreateAUMLCrosswalk(small_bbox_data)
+
+  au.sources <- sort(unique(crosswalk$TADA_with_ATTAINS$TADA.AURefSource))
+
+  testthat::expect_error(
+    TADA_CreateAUMLCrosswalk(
+      .data = TADA_dataframe,
+      fill_USGS_catch = TRUE
+    ),
+    "User-supplied resolution unavailable"
+  )
+})
+
 testthat::test_that("TADA_ViewATTAINS validates input structure", {
   # Test with data that's missing required ATTAINS components
   invalid_data <- list("TADA_with_ATTAINS" = TADA_dataframe)
