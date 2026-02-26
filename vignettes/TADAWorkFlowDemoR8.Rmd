@@ -168,7 +168,7 @@ Data_MT_MissoulaCounty <- TADA_DataRetrieval(
   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
   countycode = "Missoula County",
   ask = FALSE
-  ) |>
+) |>
   TADA_RunKeyFlagFunctions() |>
   TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
