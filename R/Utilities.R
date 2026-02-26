@@ -2558,7 +2558,7 @@ TADA_CorrectColType <- function(.data) {
 #' .setEQKey
 #' Resolve the rExpertQuery API key, preferring env/options over default
 #' @return Expert Query API key for use in EPATADA functions, checks, or tests.
-.setEQKey <- function(key = NULL) {
+.setEQKey <- function() {
   # check to see if key is stored in R session
   # this allows developers to easily use their own key during local dev and testing
   # per session: options(epatada.eq_key = "YOUR_KEY_HERE")

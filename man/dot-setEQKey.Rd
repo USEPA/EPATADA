@@ -5,7 +5,7 @@
 \title{.setEQKey
 Resolve the rExpertQuery API key, preferring env/options over default}
 \usage{
-.setEQKey(key = NULL)
+.setEQKey()
 }
 \value{
 Expert Query API key for use in EPATADA functions, checks, or tests.
