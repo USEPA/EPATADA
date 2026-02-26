@@ -232,10 +232,10 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
 #' )
 #'
 TADA_FlagSpeciation <- function(
-    .data,
-    clean = c("suspect_only", "nonstandardized_only", "both", "none"),
-    flaggedonly = FALSE
-    ) {
+  .data,
+  clean = c("suspect_only", "nonstandardized_only", "both", "none"),
+  flaggedonly = FALSE
+) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(
     .data,
@@ -743,10 +743,10 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Find pairs for all data flagged as "QC_replicate" within a 5-minute time window:
 #' df_all_pairs_5min <- TADA_PairReplicates(df, time_difference = 300)
 TADA_PairReplicates <- function(
-    .data,
-    type = c("QC_replicate"),
-    time_difference = 600
-    ) {
+  .data,
+  type = c("QC_replicate"),
+  time_difference = 600
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "OrganizationIdentifier",
@@ -938,11 +938,11 @@ TADA_PairReplicates <- function(
 #' )
 #'
 TADA_FlagMeasureQualifierCode <- function(
-    .data,
-    clean = FALSE,
-    flaggedonly = FALSE,
-    define = TRUE
-    ) {
+  .data,
+  clean = FALSE,
+  flaggedonly = FALSE,
+  define = TRUE
+) {
   # Check if the input .data is NULL
   if (is.null(.data)) {
     warning(

@@ -475,12 +475,12 @@ TADA_IDCensoredData <- function(.data) {
 #' }
 #'
 TADA_SimpleCensoredMethods <- function(
-    .data,
-    nd_method = "multiplier",
-    nd_multiplier = 0.5,
-    od_method = "as-is",
-    od_multiplier = "null"
-    ) {
+  .data,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "ResultDetectionConditionText",

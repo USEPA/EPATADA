@@ -9,11 +9,11 @@ test_that("TADA_Stats suggestions complete", {
 
 # Helper: build a clean, single-group subset from random data with a mix of flags
 make_clean_group <- function(
-    testdat,
-    target_n = 20,
-    nd_frac = 0.4,
-    od_frac = 0.2
-    ) {
+  testdat,
+  target_n = 20,
+  nd_frac = 0.4,
+  od_frac = 0.2
+) {
   sub <- testdat[!is.na(testdat$TADA.ResultMeasureValue), , drop = FALSE]
   # If too few rows, recycle to reach target_n
   if (nrow(sub) < target_n) {

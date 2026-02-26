@@ -350,11 +350,11 @@ TADA_FlaggedSitesMap <- function(.data) {
 #' }
 #'
 TADA_NearbySitesMap <- function(
-    .data,
-    dist_buffer = 100,
-    attains = TRUE,
-    catchment = FALSE
-    ) {
+  .data,
+  dist_buffer = 100,
+  attains = TRUE,
+  catchment = FALSE
+) {
   # columns to select for nearby site
   nearby.cols <- c(
     "LongitudeMeasure",

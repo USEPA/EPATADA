@@ -238,11 +238,11 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' }
 #'
 TADA_FlagContinuousData <- function(
-    .data,
-    clean = FALSE,
-    flaggedonly = FALSE,
-    time_difference = 4
-    ) {
+  .data,
+  clean = FALSE,
+  flaggedonly = FALSE,
+  time_difference = 4
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "ActivityTypeCode",
@@ -1087,11 +1087,11 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' # Note: When clean = TRUE, cleanNA = TRUE, and flaggedonly = TRUE, an error message is returned
 #'
 TADA_FindQAPPApproval <- function(
-    .data,
-    clean = FALSE,
-    cleanNA = FALSE,
-    flaggedonly = FALSE
-    ) {
+  .data,
+  clean = FALSE,
+  cleanNA = FALSE,
+  flaggedonly = FALSE
+) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, "QAPPApprovedIndicator")
   # check clean is boolean
@@ -1359,11 +1359,11 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' )
 #'
 TADA_FlagCoordinates <- function(
-    .data,
-    clean_outsideUSA = c("no", "remove", "change sign"),
-    clean_imprecise = FALSE,
-    flaggedonly = FALSE
-    ) {
+  .data,
+  clean_outsideUSA = c("no", "remove", "change sign"),
+  clean_imprecise = FALSE,
+  flaggedonly = FALSE
+) {
   # check .data is data.frame and has required columns
   TADA_CheckColumns(.data, c("TADA.LatitudeMeasure", "TADA.LongitudeMeasure"))
   # check clean_outsideUSA is character
@@ -1523,10 +1523,10 @@ TADA_FlagCoordinates <- function(
 #' table(dat1$TADA.ResultSelectedMultipleOrgs)
 #' }
 TADA_FindPotentialDuplicatesMultipleOrgs <- function(
-    .data,
-    dist_buffer = 100,
-    org_hierarchy = "none"
-    ) {
+  .data,
+  dist_buffer = 100,
+  org_hierarchy = "none"
+) {
   # Check if the input dataframe is empty
   if (nrow(.data) == 0) {
     message("The input dataframe is empty. Returning the dataframe unchanged.")

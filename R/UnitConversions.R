@@ -555,11 +555,11 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
   # internal functions
   # internal function to join unit.ref to data
   joinUnitRef <- function(
-      .data,
-      ref,
-      convert.col = conversion.cols,
-      spec = FALSE
-      ) {
+    .data,
+    ref,
+    convert.col = conversion.cols,
+    spec = FALSE
+  ) {
     # ref join
     ref.join <- c(
       "TADA.CharacteristicName",
@@ -1085,16 +1085,16 @@ TADA_ConvertResultUnits <- function(.data, ref = "tada", transform = TRUE) {
 #' unique(DepthUnitsNotConverted$ActivityDepthHeightMeasure.MeasureUnitCode)
 #'
 TADA_ConvertDepthUnits <- function(
-    .data,
-    unit = "m",
-    # fields = c(
-    #  "ActivityDepthHeightMeasure",
-    #   "ActivityTopDepthHeightMeasure",
-    #  "ActivityBottomDepthHeightMeasure",
-    #   "ResultDepthHeightMeasure"
-    # ),
-    transform = TRUE
-    ) {
+  .data,
+  unit = "m",
+  # fields = c(
+  #  "ActivityDepthHeightMeasure",
+  #   "ActivityTopDepthHeightMeasure",
+  #  "ActivityBottomDepthHeightMeasure",
+  #   "ResultDepthHeightMeasure"
+  # ),
+  transform = TRUE
+) {
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "ActivityDepthHeightMeasure.MeasureValue",
