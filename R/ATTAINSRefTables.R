@@ -684,18 +684,32 @@ TADA_GetTADAUsesAliasRef <- function(
   # remove intermediate variables
   rm(ATTAINS.raw)
 
-  # pulls in CST and extract relevant columns
-  file_path <- system.file(
+  # Extract CST Criteria from the internal workbook only; error if missing/unreadable
+  internal_path <- system.file(
     "extdata",
-    "CriteriaSearchToolRef.rda",
+    "cst-workbook.xlsx",
     package = "EPATADA"
   )
-  load(file_path)
+  if (!nzchar(internal_path) || !file.exists(internal_path)) {
+    stop(
+      "Internal CST workbook is missing: inst/extdata/cst-workbook.xlsx. ",
+      "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
+    )
+  }
+  
+  CST_ref <- .tada_cst_read_sheet(internal_path, target = "criteria")
+  if (is.null(CST_ref)) {
+    stop(
+      "Failed to read 'Criteria' sheet from internal CST workbook at: ",
+      internal_path
+    )
+  }
+  CST_ref <- .tada_cst_prepare_table(CST_ref)
 
-  CST <- CriteriaSearchToolRef
+  CST <- CST_ref
 
   # remove intermediate variables
-  rm(file_path)
+  rm(internal_path, CST_ref)
 
   # select appropriate columns from the CST
   CST <- CST |>
@@ -737,7 +751,7 @@ TADA_GetTADAUsesAliasRef <- function(
     package = "EPATADA"
   ))
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
-  ATTAINS_CST.org <- data.frame(unique(CriteriaSearchToolRef[, c(
+  ATTAINS_CST.org <- data.frame(unique(CST[, c(
     "ENTITY_NAME",
     "ENTITY_ABBR"
   )])) |>
