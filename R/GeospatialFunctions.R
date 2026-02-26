@@ -373,7 +373,8 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       # Keep only those matches within the threshold
       keep <- as.numeric(d) <= distance_threshold
       # Set of polygons that have at least one point within the threshold
-      catchment_features <- catchment_features |> dplyr::slice(unique(idx[keep]))
+      catchment_features <- catchment_features |> 
+        dplyr::slice(unique(idx[keep]))
     },
     silent = TRUE
   )
