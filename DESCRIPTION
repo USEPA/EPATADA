@@ -92,7 +92,6 @@ Suggests:
     lwgeom,
     RColorBrewer,
     rmarkdown,
-    tidyverse,
     knitr,
     testthat,
     testthis,
