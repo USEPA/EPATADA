@@ -8,7 +8,8 @@ TADA_AssignUsesToWaterType(
   .data,
   org_id = NULL,
   waterUseRef = NULL,
-  AUMLRef = NULL
+  AUMLRef = NULL,
+  api_key = NULL
 )
 }
 \arguments{
@@ -42,6 +43,11 @@ with an assessment unit. This data frame must contain the following
 column names which can be generated from the output of TADA_CreateAUMLCrosswalk:
 ATTAINS.OrganizationIdentifier, TADA.MonitoringLocationIdentifier,
 ATTAINS.AssessmentUnitIdentifier, and ATTAINS.WaterType.}
+
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 A data frame with all the MonitoringLocationIdentifier Sites for a defined AU.
