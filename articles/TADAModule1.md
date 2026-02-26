@@ -459,7 +459,7 @@ TADAProfile <- TADA_AutoClean(TADAProfile)
     ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
     ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
     ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-    ## [1] "8 results in your dataset have one of the following deprecated characteristic names: Inorganic nitrogen (nitrate and nitrite) ***retired***use Nitrate + Nitrite. These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
+
     ## [1] "TADA_Autoclean: harmonizing result and depth units."
     ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
     ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
@@ -627,8 +627,7 @@ colnames(TADAProfile)
     ## [149] "ContributingDrainageAreaMeasure.MeasureValue"                     
     ## [150] "ContributingDrainageAreaMeasure.MeasureUnitCode"                  
     ## [151] "ProviderName"                                                     
-    ## [152] "LastUpdated"                                                      
-    ## [153] "CAS.Number"
+    ## [152] "LastUpdated"
 
 ``` r
 # Review the number of sites and number of records for each CharacteristicName in TADAProfile
@@ -2265,7 +2264,7 @@ TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
     ## [1] "TADA_RetainRequired: checking required columns for non-NA values."
     ## [1] "TADA_RetainRequired: TADA Required column(s) SampleTissueAnatomyName, ResultDepthAltitudeReferencePointText, ResultTimeBasisText, StatisticalBaseCode, ResultFileUrl, ResultAnalyticalMethod.MethodUrl, HydrologicCondition, HydrologicEvent, DataQuality.PrecisionValue, DataQuality.BiasValue, DataQuality.ConfidenceIntervalValue, SamplingDesignTypeCode, ResultLaboratoryCommentText, ProjectFileUrl, AquiferName, AquiferTypeName, LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue and WellHoleDepthMeasure.MeasureUnitCode contain only NA values. This may impact other TADA functions."
     ## [1] "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."
-    ## [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityEndDateTime, ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, ActivityEndTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalCollectionMethodName, ProviderName, LastUpdated and CAS.Number."
+    ## [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityEndDateTime, ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, ActivityEndTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalCollectionMethodName, ProviderName and LastUpdated."
 
 ## TADA Shiny Application
 

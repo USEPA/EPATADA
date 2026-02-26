@@ -119,7 +119,7 @@ tada.MT <- TADA_DataRetrieval(
     ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
     ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
     ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-    ## [1] "No deprecated characteristic names found in dataset."
+
     ## [1] "TADA_Autoclean: harmonizing result and depth units."
     ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
     ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"

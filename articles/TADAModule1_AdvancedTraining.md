@@ -10,12 +10,13 @@ document ([learn more about
 RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
 download the TADA R package from GitHub, access and parameterize several
 important functions with a sample dataframe, and create basic
-visualizations. The workflow is similar to a funnel: at each decision
-point, data that fail QC checks are removed from the core dataframe and
-placed in a separate dataframe, while data that pass are carried into
-the next step. At the end of the QC checks, the user should be confident
-that their data are properly documented and applicable to the analysis
-at hand.
+visualizations.
+
+The workflow is similar to a funnel: at each decision point, data that
+fail QC checks are removed from the core dataframe and placed in a
+separate dataframe, while data that pass are carried into the next step.
+At the end of the QC checks, the user should be confident that their
+data are properly documented and applicable to the analysis at hand.
 
 **Note: TADA is still under development. New functionality is added
 weekly, and sometimes we need to make bug fixes in response to tester
@@ -39,29 +40,24 @@ encourages input and development from users. Check out the
 [Contributing](https://usepa.github.io/EPATADA/articles/CONTRIBUTING.html)
 page on the TADA GitHub site for guidance on collaboration conventions.
 
-## Install and setup
+## Install and load packages
 
-Users can install the TADA package from GitHub into their R library
-using the `remotes` package.
-
-``` r
-if (!"remotes" %in% installed.packages()) {
-  install.packages("remotes")
-}
-```
-
-Load the remotes library:
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
 ``` r
+install.packages("remotes",
+  repos = "http://cran.us.r-project.org"
+)
 library(remotes)
 ```
 
-Next, install and load TADA using the remotes package. TADA R Package
-dependencies will also be downloaded automatically from CRAN with the
-TADA install. You may be prompted in the console to update dependency
-packages that have more recent versions available. If you see this
-prompt, it is recommended to update all of them (enter 1 into the
-console).
+Next, install and load EPATADA using the remotes package. USGS’s
+dataRetrieval and other TADA R Package dependencies will also be
+downloaded automatically from CRAN with the TADA install. If desired,
+the development version of dataRetrieval can be downloaded directly from
+GitHub (un-comment).
 
 ``` r
 remotes::install_github("USEPA/EPATADA",
@@ -76,25 +72,6 @@ your R session.
 
 ``` r
 library(EPATADA)
-```
-
-It’s that easy!
-
-The following code block ensures the additional packages needed to run
-the code in this RMarkdown document are loaded. However, users may also
-use the `package name:: package function` notation to avoid the list of
-[`library()`](https://rdrr.io/r/base/library.html) calls.
-
-``` r
-if (!"tidyverse" %in% installed.packages()) {
-  install.packages("tidyverse")
-}
-```
-
-Load tidyverse library:
-
-``` r
-library(tidyverse)
 ```
 
 ## Help pages
@@ -258,7 +235,7 @@ First, always good to take a look at the dataframe dimensions.
 dim(dataset_0) # returns x and of x (as the numbers of rows and columns respectively)
 ```
 
-    ## [1] 135932    153
+    ## [1] 135932    152
 
 Before we start filtering and flagging our data, let’s create a function
 (`dimCheck`) that performs dimension checks between the results that
@@ -429,8 +406,7 @@ all_counts
     ## 105                                ActivityConductingOrganizationText      2
     ## 106                                             SourceMapScaleNumeric      2
     ## 107                                    HorizontalCollectionMethodName      2
-    ## 108                                                        CAS.Number      2
-    ## 109                                                      ProviderName      1
+    ## 108                                                      ProviderName      1
 
 **Question 3: How many unique ‘TADA.ActivityMediaName’ values exist in
 your dataframe? Are there any media types that are not water?**
@@ -525,12 +501,7 @@ TADA.CensoredData.Flag and review the unique reasons for data removal.
 
 ``` r
 dataset <- TADA_IDCensoredData(dataset)
-```
 
-    ## [1] "TADA_IDCensoredData: There are 115 results in your dataframe that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."
-    ## [1] "TADA_IDCensoredData: DetectionQuantitationLimitTypeName column in dataframe contains value(s) NA which is/are not represented in the DetectionQuantitationLimitTypeName WQX domain table. These data records are placed under the TADA.CensoredData.Flag: Censored but not Categorized, and will not be used in censored data handling methods. Please contact TADA administrators to resolve."
-
-``` r
 TADA_FieldValuesPie(dataset, field = "TADA.CensoredData.Flag")
 ```
 
@@ -544,41 +515,8 @@ problem_censored <- dataset |>
 # Let's take a look at the problematic data that we filtered out (if any)
 check <- unique(problem_censored[, c("TADA.CharacteristicName", "ResultDetectionConditionText", "DetectionQuantitationLimitTypeName", "TADA.CensoredData.Flag")])
 
-check
-```
+TADA_TableExport(check)
 
-    ##     TADA.CharacteristicName ResultDetectionConditionText
-    ## 1              PHEOPHYTIN A                         <NA>
-    ## 10            CHLOROPHYLL A                         <NA>
-    ## 12           ORTHOPHOSPHATE                         <NA>
-    ## 14                  NITRATE                         <NA>
-    ## 15                  NITRITE                         <NA>
-    ## 23        ALKALINITY, TOTAL                         <NA>
-    ## 27                 CHROMIUM                         <NA>
-    ## 28                   COPPER                         <NA>
-    ## 104                 SULFATE                         <NA>
-    ##     DetectionQuantitationLimitTypeName
-    ## 1                                 <NA>
-    ## 10                                <NA>
-    ## 12              Method Detection Level
-    ## 14              Method Detection Level
-    ## 15              Method Detection Level
-    ## 23              Method Detection Level
-    ## 27              Method Detection Level
-    ## 28              Method Detection Level
-    ## 104             Method Detection Level
-    ##                                                TADA.CensoredData.Flag
-    ## 1   Detection condition is missing and required for censored data ID.
-    ## 10  Detection condition is missing and required for censored data ID.
-    ## 12  Detection condition is missing and required for censored data ID.
-    ## 14  Detection condition is missing and required for censored data ID.
-    ## 15  Detection condition is missing and required for censored data ID.
-    ## 23  Detection condition is missing and required for censored data ID.
-    ## 27  Detection condition is missing and required for censored data ID.
-    ## 28  Detection condition is missing and required for censored data ID.
-    ## 104 Detection condition is missing and required for censored data ID.
-
-``` r
 dataset <- dataset |> dplyr::filter(TADA.CensoredData.Flag %in% c("Non-Detect", "Over-Detect", "Other", "Uncensored"))
 
 # Let's take a look at the removed data
@@ -587,8 +525,6 @@ removed <- plyr::rbind.fill(removed, problem_censored)
 # dimension check
 dimCheck(all_result_num, dataset, removed, checkName = "Censored Data")
 ```
-
-    ## [1] "Good to go. Zero results created or destroyed in Censored Data check."
 
 Next, we can take a look at the data types present and filter out any
 non-allowable types.
@@ -613,497 +549,8 @@ incompatible_datatype <- dataset |>
 # take a look at the difficult data types - do they make sense?
 check <- unique(incompatible_datatype[, c("TADA.CharacteristicName", "ResultMeasureValue", "TADA.ResultMeasureValue", "ResultMeasure.MeasureUnitCode", "TADA.ResultMeasure.MeasureUnitCode", "TADA.ResultMeasureValueDataTypes.Flag", "DetectionQuantitationLimitMeasure.MeasureValue", "TADA.DetectionQuantitationLimitMeasure.MeasureValue", "DetectionQuantitationLimitMeasure.MeasureUnitCode", "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode")])
 
-check
+TADA_TableExport(check)
 ```
-
-    ##                          TADA.CharacteristicName
-    ## 1                      LOONS, VISUAL OBSERVATION
-    ## 3                                    CLOUD COVER
-    ## 6                                  WIND VELOCITY
-    ## 7                                    CLOUD COVER
-    ## 17                                   CLOUD COVER
-    ## 23                                  HEIGHT, GAGE
-    ## 32                                    TRUE COLOR
-    ## 33                                TOTAL HARDNESS
-    ## 34                                APPARENT COLOR
-    ## 35                                    ALKALINITY
-    ## 36                       WATER APPEARANCE (TEXT)
-    ## 37                       WATER APPEARANCE (TEXT)
-    ## 39                       WATER APPEARANCE (TEXT)
-    ## 41                       WATER APPEARANCE (TEXT)
-    ## 42                       WATER APPEARANCE (TEXT)
-    ## 44                       WATER APPEARANCE (TEXT)
-    ## 50                       WATER APPEARANCE (TEXT)
-    ## 66                       WATER APPEARANCE (TEXT)
-    ## 70                       WATER APPEARANCE (TEXT)
-    ## 87                       WATER APPEARANCE (TEXT)
-    ## 92                       WATER APPEARANCE (TEXT)
-    ## 95                       WATER APPEARANCE (TEXT)
-    ## 132                      WATER APPEARANCE (TEXT)
-    ## 164                      WATER APPEARANCE (TEXT)
-    ## 166                      WATER APPEARANCE (TEXT)
-    ## 216                      WATER APPEARANCE (TEXT)
-    ## 234                      WATER APPEARANCE (TEXT)
-    ## 280                      WATER APPEARANCE (TEXT)
-    ## 294                      WATER APPEARANCE (TEXT)
-    ## 369                      WATER APPEARANCE (TEXT)
-    ## 426                      WATER APPEARANCE (TEXT)
-    ## 492                      WATER APPEARANCE (TEXT)
-    ## 502                      WATER APPEARANCE (TEXT)
-    ## 508                      WATER APPEARANCE (TEXT)
-    ## 578                      WATER APPEARANCE (TEXT)
-    ## 598                      WATER APPEARANCE (TEXT)
-    ## 600                      WATER APPEARANCE (TEXT)
-    ## 672                      WATER APPEARANCE (TEXT)
-    ## 804                      WATER APPEARANCE (TEXT)
-    ## 817                      WATER APPEARANCE (TEXT)
-    ## 964                      WATER APPEARANCE (TEXT)
-    ## 1103                                        FLOW
-    ## 1104                         BAROMETRIC PRESSURE
-    ## 1105                         BAROMETRIC PRESSURE
-    ## 1113                     WATER APPEARANCE (TEXT)
-    ## 1313                     WATER APPEARANCE (TEXT)
-    ## 1503                     WATER APPEARANCE (TEXT)
-    ## 1615                          TEMPERATURE, WATER
-    ## 1616                 DISSOLVED OXYGEN SATURATION
-    ## 1617                                CONDUCTIVITY
-    ## 1618                      TOTAL DISSOLVED SOLIDS
-    ## 1643                     WATER APPEARANCE (TEXT)
-    ## 1919                     WATER APPEARANCE (TEXT)
-    ## 2027                     WATER APPEARANCE (TEXT)
-    ## 2046                     WATER APPEARANCE (TEXT)
-    ## 2248                     WATER APPEARANCE (TEXT)
-    ## 2333 LAKE RECREATIONAL SUITABILITY (CHOICE LIST)
-    ## 2373 LAKE RECREATIONAL SUITABILITY (CHOICE LIST)
-    ## 2381 LAKE RECREATIONAL SUITABILITY (CHOICE LIST)
-    ## 2427                     WATER APPEARANCE (TEXT)
-    ##                                         ResultMeasureValue
-    ## 1                                                     <NA>
-    ## 3                                                    foggy
-    ## 6                                                     Calm
-    ## 7                                              clear_sunny
-    ## 17                                                 raining
-    ## 23                                                    1:78
-    ## 32                                                    <NA>
-    ## 33                                                    <NA>
-    ## 34                                                    <NA>
-    ## 35                                                    <NA>
-    ## 36                            Sediment; some algae present
-    ## 37                               Stain; some algae present
-    ## 39                                                Sediment
-    ## 41                               Stain; Some algae present
-    ## 42                                    Clear; Crystal Clear
-    ## 44                                                   Stain
-    ## 50                               Green; some algae present
-    ## 66                               Green; Some algae present
-    ## 70                                  Stained; Crystal Clear
-    ## 87                                    Green; crystal clear
-    ## 92                            Sediment; Some algae present
-    ## 95    Clear water color; crystal clear physical conditions
-    ## 132                              Clear; some algae present
-    ## 164                                   Stain; crystal clear
-    ## 166                          Green; definite algae present
-    ## 216                                                  Clear
-    ## 234                                                  Green
-    ## 280                                            Tea-colored
-    ## 294                              Clear; Some algae present
-    ## 369                                   Stain; Crystal clear
-    ## 426                                                 Cloudy
-    ## 492    Water color clear; physical condition crystal clear
-    ## 502  Water color stained; physical condition crystal clear
-    ## 508                          Stain; Definite algae present
-    ## 578                                   Green; Crystal Clear
-    ## 598                                Sediment; Crystal clear
-    ## 600                                Sediment; Crystal Clear
-    ## 672                          Green; Definite algae present
-    ## 804                      Sediment; Definitie algae present
-    ## 817                                   Green; Crystal clear
-    ## 964                                                Stained
-    ## 1103                                                  <NA>
-    ## 1104                                         600.7061 mmHG
-    ## 1105                                           600.71 mmHG
-    ## 1113                                  Clear; Crystal clear
-    ## 1313                      Sediment; Definite algae present
-    ## 1503                         Stain; definite algae present
-    ## 1615                                                  None
-    ## 1616                                                  mg/l
-    ## 1617                                                  mg/l
-    ## 1618                                                   PSS
-    ## 1643                                  Clear; crystal clear
-    ## 1919                         Clear; Definite algae present
-    ## 2027                 Sediment; Stage tape-down from bridge
-    ## 2046                      Sediment; definite algae present
-    ## 2248                                                 Muddy
-    ## 2333                                           1.VERY GOOD
-    ## 2373                                                2.GOOD
-    ## 2381                                                3.FAIR
-    ## 2427                               Green; High algal color
-    ##      TADA.ResultMeasureValue ResultMeasure.MeasureUnitCode
-    ## 1                         NA                          <NA>
-    ## 3                         NA                             %
-    ## 6                         NA                           mph
-    ## 7                         NA                             %
-    ## 17                        NA                             %
-    ## 23                        NA                            ft
-    ## 32                        NA                            CU
-    ## 33                        NA                          mg/L
-    ## 34                        NA                            CU
-    ## 35                        NA                          mg/L
-    ## 36                        NA                          <NA>
-    ## 37                        NA                          <NA>
-    ## 39                        NA                          <NA>
-    ## 41                        NA                          <NA>
-    ## 42                        NA                          <NA>
-    ## 44                        NA                          <NA>
-    ## 50                        NA                          <NA>
-    ## 66                        NA                          <NA>
-    ## 70                        NA                          <NA>
-    ## 87                        NA                          <NA>
-    ## 92                        NA                          <NA>
-    ## 95                        NA                          <NA>
-    ## 132                       NA                          <NA>
-    ## 164                       NA                          <NA>
-    ## 166                       NA                          <NA>
-    ## 216                       NA                          <NA>
-    ## 234                       NA                          <NA>
-    ## 280                       NA                          <NA>
-    ## 294                       NA                          <NA>
-    ## 369                       NA                          <NA>
-    ## 426                       NA                          <NA>
-    ## 492                       NA                          <NA>
-    ## 502                       NA                          <NA>
-    ## 508                       NA                          <NA>
-    ## 578                       NA                          <NA>
-    ## 598                       NA                          <NA>
-    ## 600                       NA                          <NA>
-    ## 672                       NA                          <NA>
-    ## 804                       NA                          <NA>
-    ## 817                       NA                          <NA>
-    ## 964                       NA                          <NA>
-    ## 1103                      NA                           cfs
-    ## 1104                      NA                           psi
-    ## 1105                      NA                           psi
-    ## 1113                      NA                          <NA>
-    ## 1313                      NA                          <NA>
-    ## 1503                      NA                          <NA>
-    ## 1615                      NA                         deg C
-    ## 1616                      NA                             %
-    ## 1617                      NA                         uS/cm
-    ## 1618                      NA                          mg/L
-    ## 1643                      NA                          <NA>
-    ## 1919                      NA                          <NA>
-    ## 2027                      NA                          <NA>
-    ## 2046                      NA                          <NA>
-    ## 2248                      NA                          <NA>
-    ## 2333                      NA                          <NA>
-    ## 2373                      NA                          <NA>
-    ## 2381                      NA                          <NA>
-    ## 2427                      NA                          <NA>
-    ##      TADA.ResultMeasure.MeasureUnitCode TADA.ResultMeasureValueDataTypes.Flag
-    ## 1                                  <NA>                    NA - Not Available
-    ## 3                                     %                                  Text
-    ## 6                                 M/SEC                                  Text
-    ## 7                                     %                                  Text
-    ## 17                                    %                                  Text
-    ## 23                                    M                         Coerced to NA
-    ## 32                                  PCU                    NA - Not Available
-    ## 33                                 MG/L                    NA - Not Available
-    ## 34                                  PCU                    NA - Not Available
-    ## 35                                 UG/L                    NA - Not Available
-    ## 36                                 <NA>                                  Text
-    ## 37                                 <NA>                                  Text
-    ## 39                                 <NA>                                  Text
-    ## 41                                 <NA>                                  Text
-    ## 42                                 <NA>                                  Text
-    ## 44                                 <NA>                                  Text
-    ## 50                                 <NA>                                  Text
-    ## 66                                 <NA>                                  Text
-    ## 70                                 <NA>                                  Text
-    ## 87                                 <NA>                                  Text
-    ## 92                                 <NA>                                  Text
-    ## 95                                 <NA>                                  Text
-    ## 132                                <NA>                                  Text
-    ## 164                                <NA>                                  Text
-    ## 166                                <NA>                                  Text
-    ## 216                                <NA>                                  Text
-    ## 234                                <NA>                                  Text
-    ## 280                                <NA>                                  Text
-    ## 294                                <NA>                                  Text
-    ## 369                                <NA>                                  Text
-    ## 426                                <NA>                                  Text
-    ## 492                                <NA>                                  Text
-    ## 502                                <NA>                                  Text
-    ## 508                                <NA>                                  Text
-    ## 578                                <NA>                                  Text
-    ## 598                                <NA>                                  Text
-    ## 600                                <NA>                                  Text
-    ## 672                                <NA>                                  Text
-    ## 804                                <NA>                                  Text
-    ## 817                                <NA>                                  Text
-    ## 964                                <NA>                                  Text
-    ## 1103                                CFS                    NA - Not Available
-    ## 1104                               G/M2                                  Text
-    ## 1105                               G/M2                                  Text
-    ## 1113                               <NA>                                  Text
-    ## 1313                               <NA>                                  Text
-    ## 1503                               <NA>                                  Text
-    ## 1615                              DEG C                                  Text
-    ## 1616                                  %                                  Text
-    ## 1617                              US/CM                                  Text
-    ## 1618                               UG/L                                  Text
-    ## 1643                               <NA>                                  Text
-    ## 1919                               <NA>                                  Text
-    ## 2027                               <NA>                                  Text
-    ## 2046                               <NA>                                  Text
-    ## 2248                               <NA>                                  Text
-    ## 2333                               <NA>                                  Text
-    ## 2373                               <NA>                                  Text
-    ## 2381                               <NA>                                  Text
-    ## 2427                               <NA>                                  Text
-    ##      DetectionQuantitationLimitMeasure.MeasureValue
-    ## 1                                              <NA>
-    ## 3                                              <NA>
-    ## 6                                              <NA>
-    ## 7                                              <NA>
-    ## 17                                             <NA>
-    ## 23                                             <NA>
-    ## 32                                             <NA>
-    ## 33                                             <NA>
-    ## 34                                             <NA>
-    ## 35                                             <NA>
-    ## 36                                             <NA>
-    ## 37                                             <NA>
-    ## 39                                             <NA>
-    ## 41                                             <NA>
-    ## 42                                             <NA>
-    ## 44                                             <NA>
-    ## 50                                             <NA>
-    ## 66                                             <NA>
-    ## 70                                             <NA>
-    ## 87                                             <NA>
-    ## 92                                             <NA>
-    ## 95                                             <NA>
-    ## 132                                            <NA>
-    ## 164                                            <NA>
-    ## 166                                            <NA>
-    ## 216                                            <NA>
-    ## 234                                            <NA>
-    ## 280                                            <NA>
-    ## 294                                            <NA>
-    ## 369                                            <NA>
-    ## 426                                            <NA>
-    ## 492                                            <NA>
-    ## 502                                            <NA>
-    ## 508                                            <NA>
-    ## 578                                            <NA>
-    ## 598                                            <NA>
-    ## 600                                            <NA>
-    ## 672                                            <NA>
-    ## 804                                            <NA>
-    ## 817                                            <NA>
-    ## 964                                            <NA>
-    ## 1103                                           <NA>
-    ## 1104                                           <NA>
-    ## 1105                                           <NA>
-    ## 1113                                           <NA>
-    ## 1313                                           <NA>
-    ## 1503                                           <NA>
-    ## 1615                                           <NA>
-    ## 1616                                           <NA>
-    ## 1617                                           <NA>
-    ## 1618                                           <NA>
-    ## 1643                                           <NA>
-    ## 1919                                           <NA>
-    ## 2027                                           <NA>
-    ## 2046                                           <NA>
-    ## 2248                                           <NA>
-    ## 2333                                           <NA>
-    ## 2373                                           <NA>
-    ## 2381                                           <NA>
-    ## 2427                                           <NA>
-    ##      TADA.DetectionQuantitationLimitMeasure.MeasureValue
-    ## 1                                                     NA
-    ## 3                                                     NA
-    ## 6                                                     NA
-    ## 7                                                     NA
-    ## 17                                                    NA
-    ## 23                                                    NA
-    ## 32                                                    NA
-    ## 33                                                    NA
-    ## 34                                                    NA
-    ## 35                                                    NA
-    ## 36                                                    NA
-    ## 37                                                    NA
-    ## 39                                                    NA
-    ## 41                                                    NA
-    ## 42                                                    NA
-    ## 44                                                    NA
-    ## 50                                                    NA
-    ## 66                                                    NA
-    ## 70                                                    NA
-    ## 87                                                    NA
-    ## 92                                                    NA
-    ## 95                                                    NA
-    ## 132                                                   NA
-    ## 164                                                   NA
-    ## 166                                                   NA
-    ## 216                                                   NA
-    ## 234                                                   NA
-    ## 280                                                   NA
-    ## 294                                                   NA
-    ## 369                                                   NA
-    ## 426                                                   NA
-    ## 492                                                   NA
-    ## 502                                                   NA
-    ## 508                                                   NA
-    ## 578                                                   NA
-    ## 598                                                   NA
-    ## 600                                                   NA
-    ## 672                                                   NA
-    ## 804                                                   NA
-    ## 817                                                   NA
-    ## 964                                                   NA
-    ## 1103                                                  NA
-    ## 1104                                                  NA
-    ## 1105                                                  NA
-    ## 1113                                                  NA
-    ## 1313                                                  NA
-    ## 1503                                                  NA
-    ## 1615                                                  NA
-    ## 1616                                                  NA
-    ## 1617                                                  NA
-    ## 1618                                                  NA
-    ## 1643                                                  NA
-    ## 1919                                                  NA
-    ## 2027                                                  NA
-    ## 2046                                                  NA
-    ## 2248                                                  NA
-    ## 2333                                                  NA
-    ## 2373                                                  NA
-    ## 2381                                                  NA
-    ## 2427                                                  NA
-    ##      DetectionQuantitationLimitMeasure.MeasureUnitCode
-    ## 1                                                 <NA>
-    ## 3                                                 <NA>
-    ## 6                                                 <NA>
-    ## 7                                                 <NA>
-    ## 17                                                <NA>
-    ## 23                                                <NA>
-    ## 32                                                <NA>
-    ## 33                                                <NA>
-    ## 34                                                <NA>
-    ## 35                                                <NA>
-    ## 36                                                <NA>
-    ## 37                                                <NA>
-    ## 39                                                <NA>
-    ## 41                                                <NA>
-    ## 42                                                <NA>
-    ## 44                                                <NA>
-    ## 50                                                <NA>
-    ## 66                                                <NA>
-    ## 70                                                <NA>
-    ## 87                                                <NA>
-    ## 92                                                <NA>
-    ## 95                                                <NA>
-    ## 132                                               <NA>
-    ## 164                                               <NA>
-    ## 166                                               <NA>
-    ## 216                                               <NA>
-    ## 234                                               <NA>
-    ## 280                                               <NA>
-    ## 294                                               <NA>
-    ## 369                                               <NA>
-    ## 426                                               <NA>
-    ## 492                                               <NA>
-    ## 502                                               <NA>
-    ## 508                                               <NA>
-    ## 578                                               <NA>
-    ## 598                                               <NA>
-    ## 600                                               <NA>
-    ## 672                                               <NA>
-    ## 804                                               <NA>
-    ## 817                                               <NA>
-    ## 964                                               <NA>
-    ## 1103                                              <NA>
-    ## 1104                                              <NA>
-    ## 1105                                              <NA>
-    ## 1113                                              <NA>
-    ## 1313                                              <NA>
-    ## 1503                                              <NA>
-    ## 1615                                              <NA>
-    ## 1616                                              <NA>
-    ## 1617                                              <NA>
-    ## 1618                                              <NA>
-    ## 1643                                              <NA>
-    ## 1919                                              <NA>
-    ## 2027                                              <NA>
-    ## 2046                                              <NA>
-    ## 2248                                              <NA>
-    ## 2333                                              <NA>
-    ## 2373                                              <NA>
-    ## 2381                                              <NA>
-    ## 2427                                              <NA>
-    ##      TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode
-    ## 1                                                      <NA>
-    ## 3                                                      <NA>
-    ## 6                                                      <NA>
-    ## 7                                                      <NA>
-    ## 17                                                     <NA>
-    ## 23                                                     <NA>
-    ## 32                                                     <NA>
-    ## 33                                                     <NA>
-    ## 34                                                     <NA>
-    ## 35                                                     <NA>
-    ## 36                                                     <NA>
-    ## 37                                                     <NA>
-    ## 39                                                     <NA>
-    ## 41                                                     <NA>
-    ## 42                                                     <NA>
-    ## 44                                                     <NA>
-    ## 50                                                     <NA>
-    ## 66                                                     <NA>
-    ## 70                                                     <NA>
-    ## 87                                                     <NA>
-    ## 92                                                     <NA>
-    ## 95                                                     <NA>
-    ## 132                                                    <NA>
-    ## 164                                                    <NA>
-    ## 166                                                    <NA>
-    ## 216                                                    <NA>
-    ## 234                                                    <NA>
-    ## 280                                                    <NA>
-    ## 294                                                    <NA>
-    ## 369                                                    <NA>
-    ## 426                                                    <NA>
-    ## 492                                                    <NA>
-    ## 502                                                    <NA>
-    ## 508                                                    <NA>
-    ## 578                                                    <NA>
-    ## 598                                                    <NA>
-    ## 600                                                    <NA>
-    ## 672                                                    <NA>
-    ## 804                                                    <NA>
-    ## 817                                                    <NA>
-    ## 964                                                    <NA>
-    ## 1103                                                   <NA>
-    ## 1104                                                   <NA>
-    ## 1105                                                   <NA>
-    ## 1113                                                   <NA>
-    ## 1313                                                   <NA>
-    ## 1503                                                   <NA>
-    ## 1615                                                   <NA>
-    ## 1616                                                   <NA>
-    ## 1617                                                   <NA>
-    ## 1618                                                   <NA>
-    ## 1643                                                   <NA>
-    ## 1919                                                   <NA>
-    ## 2027                                                   <NA>
-    ## 2046                                                   <NA>
-    ## 2248                                                   <NA>
-    ## 2333                                                   <NA>
-    ## 2373                                                   <NA>
-    ## 2381                                                   <NA>
-    ## 2427                                                   <NA>
 
 Then we can take a closer look at the removed results and run another
 dimension check on the data set.
@@ -1579,6 +1026,6 @@ remotes::install_github("USEPA/TADAShiny", ref = "develop", dependencies = TRUE)
 TADAShiny::run_app()
 ```
 
-DRAFT [Module 1](https://rconnect-public.epa.gov/TADAShiny/) is also
-currently hosted on the web with minimal server memory/storage
-allocated.
+The [TADA Module 1 R Shiny
+App](https://rconnect-public.epa.gov/TADAShiny/) is also currently
+hosted on the web.

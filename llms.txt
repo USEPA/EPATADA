@@ -230,6 +230,15 @@ mywaterway@epa.gov.
 - [`TADA_Boxplot()`](https://usepa.github.io/EPATADA/reference/TADA_Boxplot.md)
   : Create Boxplot(s)
 
+- [`TADA_CST_GetCriteria()`](https://usepa.github.io/EPATADA/reference/TADA_CST_GetCriteria.md)
+  : Get CST Criteria table
+
+- [`TADA_CST_GetLegend()`](https://usepa.github.io/EPATADA/reference/TADA_CST_GetLegend.md)
+  : Get CST Legend table
+
+- [`TADA_CST_GetSources()`](https://usepa.github.io/EPATADA/reference/TADA_CST_GetSources.md)
+  : Get CST Sources table
+
 - [`TADA_CalculateTotalNP()`](https://usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.md)
   : Calculate Total Nitrogen and Phosphorus
 
@@ -381,37 +390,28 @@ mywaterway@epa.gov.
   : ATTAINS Parameter and Use Name by Organization Reference Key
 
 - [`TADA_GetActivityTypeRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md)
-  : Update Activity Type Reference Table
+  : Get WQX Activity Type Reference Table
 
 - [`TADA_GetCharacteristicRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.md)
-  : Update Characteristic Reference Table
-
-- [`TADA_GetCriteriaSearchToolRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetCriteriaSearchToolRef.md)
-  : Criteria Search Tool (CST) Reference Table
+  : Get WQX Characteristic Domain Table
 
 - [`TADA_GetDetCondRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
-  : Update Result Detection Condition Reference Table
+  : Get WQX Result Detection Condition Reference Table
 
 - [`TADA_GetDetLimitRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetLimitRef.md)
-  : Update Detection Quantitation Limit Type Reference Table
-
-- [`TADA_GetLegendCSTRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetLegendCSTRef.md)
-  : Legend for the Criteria Search Tool Reference Table
+  : Get WQX Detection/Quantitation Limit Type Reference Table
 
 - [`TADA_GetMeasureQualifierCodeRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetMeasureQualifierCodeRef.md)
-  : Update result Measure Qualifier Code Reference Table
+  : Get WQX Result Measure Qualifier Code Reference Table
 
 - [`TADA_GetMeasureUnitRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetMeasureUnitRef.md)
-  : Update Measure Unit Reference Table
+  : Get WQX Measure Unit Reference Table
 
 - [`TADA_GetMonLocTypeRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetMonLocTypeRef.md)
-  : Update Monitoring Location Type Name Reference Table
+  : Get WQX Monitoring Location Type Name Reference Table
 
 - [`TADA_GetNutrientSummationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
   : Nutrient Summation Reference Key
-
-- [`TADA_GetSourcesCSTRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetSourcesCSTRef.md)
-  : Sources for the Criteria Search Tool Reference Table
 
 - [`TADA_GetSynonymRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.md)
   : Generate Unique Synonym Reference Table
@@ -425,8 +425,8 @@ mywaterway@epa.gov.
 - [`TADA_GetUniqueNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.md)
   : Get grouped monitoring stations that are near each other
 
-- [`TADA_GetWQPOrgProviderRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrgProviderRef.md)
-  : Get Organization and Provider Reference Table
+- [`TADA_GetWQPOrganizationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrganizationRef.md)
+  : Get WQP Organization and Provider Reference Table
 
 - [`TADA_GetWQXCharValRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.md)
   : WQX QAQC Characteristic Validation Reference Table

@@ -1,19 +1,32 @@
-# Update Activity Type Reference Table
+# Get WQX Activity Type Reference Table
 
-Function downloads and returns in the latest WQX ActivityType Domain
-table, adds QC category information, and writes the data to sysdata.rda.
+Get WQX Activity Type Reference Table
 
 ## Usage
 
 ``` r
-TADA_GetActivityTypeRef()
+TADA_GetActivityTypeRef(download_only = FALSE, refresh = FALSE)
 ```
+
+## Arguments
+
+- download_only:
+
+  Logical. If TRUE, bypasses the cache and package fallback and attempts
+  to download the latest Activity Type reference table directly from
+  WQX, returning it without updating the cache. Errors if the download
+  fails. If FALSE (default), uses a cached copy when available and
+  updates the cache; on download failure, falls back to the package’s
+  internal file.
+
+- refresh:
+
+  Logical. Only used when download_only = FALSE. If TRUE, ignore any
+  cached copy and attempt to retrieve a fresh table (download, falling
+  back to the package’s internal file on failure), then update the
+  cache. If FALSE (default), return the cached table when available.
+  Ignored when download_only = TRUE.
 
 ## Value
 
-sysdata.rda with updated WQXActivityTypeRef object
-
-## Details
-
-This function caches the table after it has been called once so
-subsequent calls will be faster.
+data.frame with TADA.ActivityType.Flag added

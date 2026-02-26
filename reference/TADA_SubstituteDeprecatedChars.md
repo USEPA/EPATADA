@@ -14,7 +14,7 @@ solution works for both EPA WQX and USGS NWIS provided data.
 ## Usage
 
 ``` r
-TADA_SubstituteDeprecatedChars(.data)
+TADA_SubstituteDeprecatedChars(.data, quiet = FALSE)
 ```
 
 ## Arguments
@@ -22,6 +22,10 @@ TADA_SubstituteDeprecatedChars(.data)
 - .data:
 
   TADA dataframe
+
+- quiet:
+
+  logical; suppress messages if TRUE
 
 ## Value
 

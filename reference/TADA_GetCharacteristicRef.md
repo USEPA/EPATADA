@@ -1,20 +1,33 @@
-# Update Characteristic Reference Table
+# Get WQX Characteristic Domain Table
 
-Function downloads and returns in the latest WQX Characteristic Domain
-table and writes the data to sysdata.rda.
+Get WQX Characteristic Domain Table
 
 ## Usage
 
 ``` r
-TADA_GetCharacteristicRef()
+TADA_GetCharacteristicRef(download_only = FALSE, refresh = FALSE)
 ```
+
+## Arguments
+
+- download_only:
+
+  Logical. If TRUE, bypasses the cache and package fallback and attempts
+  to download the latest Activity Type reference table directly from
+  WQX, returning it without updating the cache. Errors if the download
+  fails. If FALSE (default), uses a cached copy when available and
+  updates the cache; on download failure, falls back to the package’s
+  internal file.
+
+- refresh:
+
+  Logical. Only used when download_only = FALSE. If TRUE, ignore any
+  cached copy and attempt to retrieve a fresh table (download, falling
+  back to the package’s internal file on failure), then update the
+  cache. If FALSE (default), return the cached table when available.
+  Ignored when download_only = TRUE.
 
 ## Value
 
-sysdata.rda with updated WQXCharacteristicRef object (characteristic
-reference table)
-
-## Details
-
-This function caches the table after it has been called once so
-subsequent calls will be faster.
+data.frame with columns CharacteristicName, Char_Flag, Comparable.Name,
+and CAS.Number

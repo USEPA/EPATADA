@@ -128,7 +128,7 @@ tada.MT.clean <- TADA_DataRetrieval(
   characteristicName = c("Escherichia", "Escherichia coli", "pH"),
   countycode = "Missoula County",
   ask = FALSE
-  ) |>
+) |>
   TADA_RunKeyFlagFunctions() |>
   TADA_SimpleCensoredMethods() |>
   TADA_HarmonizeSynonyms()
@@ -322,7 +322,7 @@ TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
     ## [1] "Data after CRS assignment:"
-    ## # A tibble: 426 × 165
+    ## # A tibble: 426 × 164
     ## # Rowwise: 
     ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
     ##    <chr>            <chr>            <chr>                  <chr>            
@@ -337,7 +337,7 @@ TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
     ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
     ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
     ## # ℹ 416 more rows
-    ## # ℹ 161 more variables: TADA.ActivityMediaName <chr>,
+    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
     ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
     ## #   CountyCode <chr>, MonitoringLocationName <chr>,
     ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
@@ -539,7 +539,7 @@ created in step A, which is not yet present in ATTAINS.
 # extract ATTAINS_crosswalk data frame from the list
 Final.MT.AUMLRef <- MT.AUMLRef$ATTAINS_crosswalk
 
-# this is the same final output we got above from TADA_CreateAUMLCrosswalk 
+# this is the same final output we got above from TADA_CreateAUMLCrosswalk
 TADA_TableExport(Final.MT.AUMLRef)
 ```
 

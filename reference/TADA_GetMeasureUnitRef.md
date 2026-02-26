@@ -1,21 +1,32 @@
-# Update Measure Unit Reference Table
+# Get WQX Measure Unit Reference Table
 
-Function downloads and returns in the latest WQX MeasureUnit Domain
-table, adds additional target unit information, and writes the data to
-sysdata.rda.
+Get WQX Measure Unit Reference Table
 
 ## Usage
 
 ``` r
-TADA_GetMeasureUnitRef()
+TADA_GetMeasureUnitRef(download_only = FALSE, refresh = FALSE)
 ```
+
+## Arguments
+
+- download_only:
+
+  Logical. If TRUE, bypasses the cache and package fallback and attempts
+  to download the latest Activity Type reference table directly from
+  WQX, returning it without updating the cache. Errors if the download
+  fails. If FALSE (default), uses a cached copy when available and
+  updates the cache; on download failure, falls back to the package’s
+  internal file.
+
+- refresh:
+
+  Logical. Only used when download_only = FALSE. If TRUE, ignore any
+  cached copy and attempt to retrieve a fresh table (download, falling
+  back to the package’s internal file on failure), then update the
+  cache. If FALSE (default), return the cached table when available.
+  Ignored when download_only = TRUE.
 
 ## Value
 
-sysdata.rda with updated WQXunitRef object (unit conversion reference
-table)
-
-## Details
-
-This function caches the table after it has been called once so
-subsequent calls will be faster.
+data.frame of measure units
