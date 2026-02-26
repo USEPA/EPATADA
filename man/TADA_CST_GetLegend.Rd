@@ -20,7 +20,8 @@ return the cached table when available. Ignored when download_only = TRUE.}
 data.frame
 }
 \description{
-Reads the Legend table (sheet "Legend" or index 1) from the CST workbook,
-normalizes the table, and caches the result for the session.
+Reads the Legend table from the CST workbook (supports classic "Legend"
+or "Search Tool Criteria Data" without numeric suffix), normalizes the table,
+and caches the result for the session.
 Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
 }

@@ -20,7 +20,7 @@ return the cached table when available. Ignored when download_only = TRUE.}
 data.frame
 }
 \description{
-Reads the Criteria table (sheet "Criteria" or index 3) from the CST workbook,
-normalizes the table, and caches the result for the session.
+Reads the Criteria table from the CST workbook (supports classic "Criteria"
+or "Search Tool Criteria Data (3)"), normalizes the table, and caches the result.
 Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
 }

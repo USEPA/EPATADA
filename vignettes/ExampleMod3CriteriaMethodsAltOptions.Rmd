@@ -148,6 +148,39 @@ rm(tada.MT)
 # tada.MT.clean <- Data_MT_MissoulaCounty
 ```
 
+## Expert Query API Key
+
+Some aspects of the Module 2 workflow depend on ATTAINS data imported
+via Expert Query web services. While public, Expert Query web services
+require an API key, a unique identifier used to authenticate access to
+the Expert Query API. The EPATADA package contains a default API key for
+Expert Query, so users who do not have their own API key can still use
+these functions.
+
+However, Expert Query API keys are rate limited, meaning that if many
+users are all accessing Expert Query data using the same key at the same
+time, server failures from too many requests may occur. Best practice is
+for each EPATADA user is to obtain their own, individual API key by
+requesting one here: [API Key Signup
+Form](https://owapps.epa.gov/expertquery/api-key-signup)
+
+![](images/clipboard-3767373632.png)
+
+If you have your own API key, uncomment the code below and assign your
+API key to the "api_key" variable. Otherwise, the default EPATADA
+package key will be used.
+
+```{r api_key}
+
+# api_key <- "paste your key here"
+
+# is user does not provide key, set api_key as NULL
+if (!exists("api_key")) {
+  api_key <- NULL
+}
+
+```
+
 # Defining Criteria - Magnitude Methodology
 
 Users can proceed with a few different options for generating their

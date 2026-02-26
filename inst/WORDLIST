@@ -295,6 +295,7 @@ SampleCollectionEquipmentName
 SampleCollectionMethod
 SampleFraction
 SampleTissueAnatomyName
+Signup
 SimpleCensoredMethods
 SingleOrgDup
 SingleOrgDupGroupID
@@ -376,6 +377,7 @@ agg
 aggregatedonly
 analytes
 aoi
+api
 applyautoclean
 arcgis
 asNO
@@ -432,6 +434,7 @@ ecoregions
 endDate
 endDateHi
 epa
+expertquery
 extdata
 fabec
 fetchATTAINS
@@ -493,6 +496,7 @@ outsideUSA
 outsideusa
 overallstatus
 overdetects
+owapps
 param
 paramRef
 params
@@ -515,9 +519,11 @@ resultCount
 sampleMedia
 sd
 secchi
+setDefaultEQKey
 setnames
 showMissingATTAINSAUs
 shp
+signup
 siteType
 siteid
 sitetype
@@ -537,7 +543,6 @@ terra
 testthat
 th
 tibble
-tidyverse
 tigris
 tmap
 un

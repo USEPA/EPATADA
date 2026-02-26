@@ -20,7 +20,7 @@ return the cached table when available. Ignored when download_only = TRUE.}
 data.frame
 }
 \description{
-Reads the Sources table (sheet "Sources" or index 2) from the CST workbook,
-normalizes the table, and caches the result for the session.
+Reads the Sources table from the CST workbook (supports classic "Sources"
+or "Search Tool Criteria Data (2)"), normalizes the table, and caches the result.
 Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
 }
