@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      EQ_API_KEY_FOR_CHECKS: ${{ secrets.EQ_API_KEY_FOR_CHECKS }}
+      EQ_API_KEY_FOR_CHECKS: ${{ secrets.EQ_API_KEY }}
 
     steps:
       - name: Checkout repo
