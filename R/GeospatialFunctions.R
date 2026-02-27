@@ -3161,6 +3161,37 @@ TADA_CreateAUMLCrosswalk <- function(
   batch_upload = FALSE,
   api_key = NULL
 ) {
+  # Handle empty input data scenario
+  if (nrow(.data) == 0) {
+    message(
+      "Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+    )
+
+    # Retrieve ATTAINS column names for validation
+    attains_names <- renameATTAINSCols(return_list = TRUE)
+
+    # Check if ATTAINS data is already present in `.data`
+    if (any(attains_names %in% colnames(.data))) {
+      stop("Your data has already been joined with ATTAINS data.")
+    }
+    col_val_list <- stats::setNames(
+      object = rep(x = list(NA), times = length(attains_names)),
+      nm = attains_names
+    )
+    no_WQP_data <- .data |>
+      dplyr::mutate(ResultIdentifier = NA) |>
+      dplyr::bind_cols(col_val_list) |>
+      dplyr::select(ResultIdentifier, dplyr::everything())
+
+    return(list(
+      "TADA_with_ATTAINS" = no_WQP_data,
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
+    ))
+  }
+
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
     api_key <- .setEQKey()
@@ -3178,7 +3209,7 @@ TADA_CreateAUMLCrosswalk <- function(
   # check to see if user supplied ref is NULL
   if (is.null(au_ref)) {
     print(paste0(
-      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk ",
+      "TADA_CreateAUMLCrosswalk: no au_ref (user-supplied crosswalk) ",
       "was provided."
     ))
   }
