@@ -1,4 +1,4 @@
-name: Update Files Manually
+name: File Update - Manual
 
 on:
   workflow_dispatch: {}

@@ -1,5 +1,5 @@
 # Workflow derived from https://github.com/posit-dev/setup-air/tree/main/examples
-name: File Update - Manual
+name: Format Update - Manual
 
 on:
   # This workflow is run manually from the Actions tab
