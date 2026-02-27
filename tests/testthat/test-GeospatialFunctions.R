@@ -297,27 +297,26 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
     HorizontalCoordinateReferenceSystemDatumName = character(0)
   )
 
-  result <- TADA_CreateAUMLCrosswalk(.data = empty_df, return_sf = FALSE)
-  testthat::expect_true(nrow(result) == 0)
-  testthat::expect_true("ResultIdentifier" %in% names(result))
-  testthat::expect_true(any(grepl("^ATTAINS\\.", names(result))))
+  result <- TADA_CreateAUMLCrosswalk(.data = empty_df)
+  testthat::expect_true(length(result) == 5)
+  testthat::expect_true("ResultIdentifier" %in% names(result$TADA_with_ATTAINS))
+  testthat::expect_true(any(grepl("^ATTAINS\\.", names(result$TADA_with_ATTAINS))))
 })
 
 
 testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
 
-  # need to find an example that has some data in ATTAINS
-  crosswalk <- TADA_CreateAUMLCrosswalk(small_bbox_data)
+  # Uses example data set that has already had TADA_CreateAUMLCrosswalk applied
+  au.sources <- sort(unique(Data_MT_AUMLRef$ATTAINS_crosswalk$TADA.AURefSource))
 
-  au.sources <- sort(unique(crosswalk$TADA_with_ATTAINS$TADA.AURefSource))
+  expected <- c("User-supplied Ref",
+                "ATTAINS Crosswalk",
+                "TADA_CreateATTAINSAUMLCrosswalk")
 
-  testthat::expect_error(
-    TADA_CreateAUMLCrosswalk(
-      .data = TADA_dataframe,
-      fill_USGS_catch = TRUE
-    ),
-    "User-supplied resolution unavailable"
-  )
+
+  # Tests to ensure that all expected values of TADA.AURefSource are returned
+  missing <- setdiff(expected, au.sources)
+  testthat::expect_equal(missing, character(0))
 })
 
 testthat::test_that("TADA_ViewATTAINS validates input structure", {
