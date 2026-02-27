@@ -174,7 +174,7 @@ TADA_GetTADACharAliasRef <- function(
     "was","wasn","wasn't","we","were","weren","weren't","what","when","where","which","while","who","whom","why","will","with","won","won't","wouldn","wouldn't",
     "y","you","your","yours","yourself","yourselves",
     "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
-    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~", "-"
+    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~", "-",
     # any additional words added below that TADA developers can add below in their review:
     "(%)", "--"
   )
