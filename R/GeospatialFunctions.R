@@ -3161,7 +3161,6 @@ TADA_CreateAUMLCrosswalk <- function(
   batch_upload = FALSE,
   api_key = NULL
 ) {
-
   # Handle empty input data scenario
   if (nrow(.data) == 0) {
     message(
@@ -3184,14 +3183,14 @@ TADA_CreateAUMLCrosswalk <- function(
       dplyr::bind_cols(col_val_list) |>
       dplyr::select(ResultIdentifier, dplyr::everything())
 
-      return(list(
-        "TADA_with_ATTAINS" = no_WQP_data,
-        "ATTAINS_catchments" = NULL,
-        "ATTAINS_points" = NULL,
-        "ATTAINS_lines" = NULL,
-        "ATTAINS_polygons" = NULL
-      ))
-    }
+    return(list(
+      "TADA_with_ATTAINS" = no_WQP_data,
+      "ATTAINS_catchments" = NULL,
+      "ATTAINS_points" = NULL,
+      "ATTAINS_lines" = NULL,
+      "ATTAINS_polygons" = NULL
+    ))
+  }
 
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
