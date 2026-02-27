@@ -2,7 +2,7 @@ name: coverage
 
 on:
   workflow_run:
-    workflows: ["Automated Formatting and Spelling Check"]
+    workflows: ["Prerequisites"]
     types: [completed]
 
 permissions:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   coverage-on-pr:
-    name: Coverage on PRs to develop (after Automated Formatting and Spelling Check)
+    name: Coverage on PRs to develop (after Prerequisites)
     if: >
       github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&

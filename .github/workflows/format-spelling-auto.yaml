@@ -1,9 +1,17 @@
-name: Automated Formatting and Spelling Check
+name: Prerequisites
 
+# Use pull_request_target so the workflow runs in the base repo context (can comment on fork PRs).
 on:
   pull_request_target:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
+
+# Top-level permissions must allow writes. Also ensure repo setting
+# Settings → Actions → General → Workflow permissions = Read and write permissions.
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   format-pr:
@@ -94,15 +102,16 @@ jobs:
           if ! git diff --quiet; then
             pr=${{ github.event.pull_request.number }}
             body=$(cat <<'MD'
-            Thanks for the contribution! The formatter found issues.
+Thanks for the contribution! The formatter found issues.
 
-            Because this PR comes from a fork, the bot cannot push fixes. Please:
-            - Install Air: https://github.com/posit-dev/setup-air
-            - Run: air format .
-            - Commit and push the changes
-            MD
+Because this PR comes from a fork, the bot cannot push fixes. Please:
+- Install Air: https://github.com/posit-dev/setup-air
+- Run: air format .
+- Commit and push the changes
+MD
             )
-            gh pr comment "$pr" --body "$body"
+            # Explicitly target the base repository when commenting
+            gh pr comment "$pr" -R "${{ github.repository }}" --body "$body"
           fi
 
       # Make sure we always provide a 'pushed' output for downstream logic
@@ -122,7 +131,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: write   # needed to post PR comments
 
     steps:
@@ -131,6 +140,7 @@ jobs:
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
@@ -138,11 +148,15 @@ jobs:
           use-public-rspm: true
 
       - name: Install spellchecker
+        env:
+          GITHUB_TOKEN: ""  # prevent accidental token exposure to tooling
         shell: Rscript {0}
         run: install.packages("spelling")
 
       - name: Run spellcheck and capture output
         id: spellcheck
+        env:
+          GITHUB_TOKEN: ""  # prevent accidental token exposure to tooling
         shell: bash
         run: |
           set -o pipefail
@@ -157,14 +171,14 @@ jobs:
         if: steps.spellcheck.outputs.ok == 'false'
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const number = context.payload.pull_request.number;
+            const number = context.issue.number; // robust for PR events
 
             let log = fs.readFileSync('spellcheck.log', 'utf8');
-            // Safety: trim overly long logs
             const max = 65000;
             if (log.length > max) {
               log = log.slice(0, max) + '\n… (truncated)';
@@ -179,12 +193,17 @@ jobs:
               '```'
             ].join('\n');
 
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number: number,
-              body
-            });
+            try {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body
+              });
+            } catch (error) {
+              // Avoid failing the step on 403; log a warning instead.
+              core.warning(`Could not post comment: ${error?.message || error}`);
+            }
 
       - name: Fail job if spelling errors
         if: steps.spellcheck.outputs.ok == 'false'

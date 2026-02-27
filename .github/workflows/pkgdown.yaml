@@ -7,9 +7,9 @@ on:
   push:
     branches: [develop]
 
-  # Run after Automated Formatting and Spelling Check completes (for PRs to develop)
+  # Run after prerequisites complete (for PRs to develop)
   workflow_run:
-    workflows: ["Automated Formatting and Spelling Check"]
+    workflows: ["Prerequisites"]
     types: [completed]
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
               return;
             }
 
-            // For workflow_run from Automated Formatting and Spelling Check:
+            // For workflow_run from Prerequisites:
             if (event !== 'workflow_run') {
               core.setOutput('ok', 'false');
               core.setOutput('note', `Unsupported event: ${event}`);
@@ -46,10 +46,10 @@ jobs:
 
             const wr = context.payload.workflow_run;
 
-            // Require the Automated Formatting and Spelling Check run to have succeeded
+            // Require the prerequisites run to have succeeded
             if (wr.conclusion !== 'success') {
               core.setOutput('ok', 'false');
-              core.setOutput('note', `Automated Formatting and Spelling Check Conclusion=${wr.conclusion}`);
+              core.setOutput('note', `Prerequisites Conclusion=${wr.conclusion}`);
               return;
             }
 
