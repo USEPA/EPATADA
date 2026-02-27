@@ -70,7 +70,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- .setDefaultEQKey()
+    api_key <- .setEQKey()
   }
 
   # get reference df of all organization ids
@@ -358,7 +358,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- .setDefaultEQKey()
+    api_key <- .setEQKey()
   }
 
   if (is.null(crosswalk) & attains_replace == TRUE) {
@@ -2958,7 +2958,7 @@ TADA_AssignUsesToAU <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- .setDefaultEQKey()
+    api_key <- .setEQKey()
   }
 
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
@@ -3387,7 +3387,7 @@ TADA_AssignUsesToWaterType <- function(
 ) {
   # get default api_key if user does not supply one
   if (is.null(api_key)) {
-    api_key <- .setDefaultEQKey()
+    api_key <- .setEQKey()
   }
 
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.

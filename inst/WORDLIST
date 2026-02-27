@@ -441,6 +441,7 @@ ecc
 ecoregions
 endDate
 endDateHi
+env
 epa
 expertquery
 extdata
@@ -529,11 +530,10 @@ resultCount
 sampleMedia
 sd
 secchi
-setDefaultEQKey
+setEQKey
 setnames
 showMissingATTAINSAUs
 shp
-signup
 siteType
 siteid
 sitetype
