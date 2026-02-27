@@ -271,17 +271,13 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
 
 
 testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
-
   # need to find an example that has some data in ATTAINS
   crosswalk <- TADA_CreateAUMLCrosswalk(small_bbox_data)
 
   au.sources <- sort(unique(crosswalk$TADA_with_ATTAINS$TADA.AURefSource))
 
   testthat::expect_error(
-    TADA_CreateAUMLCrosswalk(
-      .data = TADA_dataframe,
-      fill_USGS_catch = TRUE
-    ),
+    TADA_CreateAUMLCrosswalk(.data = TADA_dataframe, fill_USGS_catch = TRUE),
     "User-supplied resolution unavailable"
   )
 })
