@@ -169,10 +169,10 @@ jobs:
         if: steps.spellcheck.outputs.ok == 'false'
         run: exit 1
 
-  spelling-after-formatter-push:
-    name: Spelling (after formatter push)
-    # Run on any synchronize, then verify the commit is from the formatter
-    if: github.event.pull_request.draft == false && github.event.action == 'synchronize'
+  spelling-after-formatter-same-run:
+    name: Spelling (same run after formatter push)
+    needs: format-pr
+    if: github.event.pull_request.draft == false && needs.format-pr.outputs.pushed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -180,62 +180,26 @@ jobs:
       issues: write
 
     steps:
-      - name: Verify head commit is the formatter push
-        id: verifyfmt
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const sha = context.payload.pull_request.head.sha;
-            const full = context.payload.pull_request.head.repo?.full_name || '';
-            let proceed = false;
-            let msg = '';
-            let committerName = '';
-            let committerEmail = '';
-
-            if (sha && full && full.includes('/')) {
-              const [headOwner, headRepo] = full.split('/');
-              try {
-                const { data } = await github.rest.repos.getCommit({ owner: headOwner, repo: headRepo, ref: sha });
-                msg = data?.commit?.message || '';
-                committerName = data?.commit?.committer?.name || '';
-                committerEmail = data?.commit?.committer?.email || '';
-                const isFormatterMsg = msg.startsWith('style: apply formatting via air');
-                const isBotCommitter = committerName === 'github-actions[bot]' && (committerEmail || '').includes('users.noreply.github.com');
-                // Stricter gating to avoid false positives
-                proceed = isFormatterMsg && isBotCommitter;
-              } catch (error) {
-                // Could be a private fork; in that case, do not proceed
-                proceed = false;
-                core.info(`Could not fetch commit ${sha} from ${full}: ${error?.message || error}`);
-              }
-            }
-
-            core.setOutput('proceed', proceed ? 'true' : 'false');
-            core.info(`Head commit ${sha} from ${full}: proceed=${proceed} (msg='${msg}', committer='${committerName}', email='${committerEmail}')`);
-
-      - name: Check out PR head commit (new commit from formatter)
-        if: steps.verifyfmt.outputs.proceed == 'true'
+      - name: Check out latest PR head (branch)
         uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
-          ref: ${{ github.event.pull_request.head.sha }}
+          # Use the branch name to get the newest commit from the formatter push
+          ref: ${{ github.event.pull_request.head.ref }}
           persist-credentials: false
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
-        if: steps.verifyfmt.outputs.proceed == 'true'
         with:
           use-public-rspm: true
 
       - name: Install dependencies (spelling) with cache
-        if: steps.verifyfmt.outputs.proceed == 'true'
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 1
           extra-packages: any::spelling
 
       - name: Run spellcheck and capture output
-        if: steps.verifyfmt.outputs.proceed == 'true'
         id: spellcheck
         env:
           GITHUB_TOKEN: ""
@@ -250,7 +214,7 @@ jobs:
           fi
 
       - name: Comment on PR with spelling results (same-repo PRs only)
-        if: steps.verifyfmt.outputs.proceed == 'true' && steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo.full_name == github.repository
+        if: steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         uses: actions/github-script@v7
         with:
@@ -277,11 +241,16 @@ jobs:
             ].join('\n');
 
             try {
-              await github.rest.issues.createComment({ owner, repo, issue_number: number, body });
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body
+              });
             } catch (error) {
               core.warning(`Could not post comment: ${error?.message || error}`);
             }
 
       - name: Fail job if spelling errors
-        if: steps.verifyfmt.outputs.proceed == 'true' && steps.spellcheck.outputs.ok == 'false'
+        if: steps.spellcheck.outputs.ok == 'false'
         run: exit 1
