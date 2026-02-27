@@ -414,20 +414,19 @@ as groundwater.
 
 This function identifies surface water, groundwater, and sediment
 results. Users can specify whether all results should be returned with a
-new column, *TADA.Media.Flag*, identifying if the result should
-be included in further analysis or if only results that should be in
+new column, *TADA.Media.Flag*, identifying if the result should be
+included in further analysis or if only results that should be in
 included are returned.
 
 The defaults are to include surface water, exclude groundwater and
 sediment, and to return only the results that should be used for
 analysis (clean = TRUE). This is shown in the active example below. If
-you would like to see all results with the *TADA.Media.Flag*
-column, you can uncomment the example where clean = FALSE.
+you would like to see all results with the *TADA.Media.Flag* column, you
+can uncomment the example where clean = FALSE.
 
-If you are not interested in using **TADA_MediaFilter**, but
-would like to filter by activity media, uncomment the example to filter
-for water data only by using dplyr::filter() with
-TADA.ActivityMediaName.
+If you are not interested in using **TADA_MediaFilter**, but would like
+to filter by activity media, uncomment the example to filter for water
+data only by using dplyr::filter() with TADA.ActivityMediaName.
 
 ```{r AnalysisDataFilter}
 # Filter to retain only results for use in analysis
@@ -851,8 +850,8 @@ This function has three default inputs: clean = TRUE, cleanNA = FALSE,
 and flaggedonly = FALSE. These defaults remove rows of data where the
 QAPPApprovedIndicator equals "N".
 
-Users could alternatively remove both Ns and NAs using the inputs
-clean = TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
+Users could alternatively remove both Ns and NAs using the inputs clean
+= TRUE, cleanNA = TRUE, and flaggedonly = FALSE.
 
 Additionally, users could filter to show only Ns and NAs by using the
 inputs clean = FALSE, cleanNA = FALSE, and flaggedonly = TRUE.
@@ -894,8 +893,8 @@ number of unique values in each field using the **TADA_FieldCounts**
 function.
 
 This function returns counts for you entire dataframe for each of the
-following fields (if populated, columns that are populated only with
-NAs are not included in the output):
+following fields (if populated, columns that are populated only with NAs
+are not included in the output):
 
 -   *ActivityTypeCode*
 
@@ -1045,9 +1044,9 @@ limit, as even small absolute differences might show up as large
 relative percent differences that "fail" the 20% RPD test.
 
 For example, when nutrient concentrations are close to detection limit,
-it becomes impossible to have a low RPD. In this scenario, high RPDs
-are acceptable because if you stand back and look at ALL the data, and
-not just the replicates, these data may be agreeing perfectly well that
+it becomes impossible to have a low RPD. In this scenario, high RPDs are
+acceptable because if you stand back and look at ALL the data, and not
+just the replicates, these data may be agreeing perfectly well that
 nutrients are very low. DO NOT throw out data if RPD is \>20%, unless
 you have good reason, or you will potentially bias your data toward high
 concentrations. QA procedures should not bias statistical analyses of

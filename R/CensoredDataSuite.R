@@ -186,11 +186,7 @@ TADA_IDCensoredData <- function(.data) {
 
   if (dim(cens)[1] > 0) {
     ## Bring in det cond reference table
-    cond.ref <- utils::read.csv(system.file(
-      "extdata",
-      "WQXResultDetectionConditionRef.csv",
-      package = "EPATADA"
-    )) |>
+    cond.ref <- TADA_GetDetCondRef() |>
       dplyr::rename(ResultDetectionConditionText = Name) |>
       dplyr::select(ResultDetectionConditionText, TADA.Detection_Type)
 
@@ -210,11 +206,7 @@ TADA_IDCensoredData <- function(.data) {
 
     ## Fill in detection type when ResultMeasureValue indicates it is a nondetect
     ## should be blank in result value so that the rest of the function can work
-    nd.rmv.list <- utils::read.csv(system.file(
-      "extdata",
-      "WQXMeasureQualifierCodeRef.csv",
-      package = "EPATADA"
-    )) |>
+    nd.rmv.list <- TADA_GetMeasureQualifierCodeRef() |>
       dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") |>
       dplyr::select(Code) |>
       dplyr::pull()
@@ -260,11 +252,7 @@ TADA_IDCensoredData <- function(.data) {
     }
 
     ## Bring in det limit type reference table
-    limtype.ref <- utils::read.csv(system.file(
-      "extdata",
-      "WQXDetectionQuantitationLimitTypeRef.csv",
-      package = "EPATADA"
-    )) |>
+    limtype.ref <- TADA_GetDetLimitRef() |>
       dplyr::rename(DetectionQuantitationLimitTypeName = Name) |>
       dplyr::select(DetectionQuantitationLimitTypeName, TADA.Limit_Type)
 

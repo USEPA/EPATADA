@@ -5,23 +5,32 @@
 \title{Get Monitoring Location Identifier and Assessment Unit Identifier
 Crosswalk from ATTAINS}
 \usage{
-TADA_GetATTAINSAUMLCrosswalk(org_id = "all", batch_upload = FALSE)
+TADA_GetATTAINSAUMLCrosswalk(
+  org_id = "all",
+  batch_upload = FALSE,
+  api_key = NULL
+)
 }
 \arguments{
 \item{org_id}{Character string. The ATTAINS organization identifier must be
-supplied by the user. More than one org_id may be provided. A list of
-organization identifiers can be found by downloading the ATTAINS Domains
-Excel file:
+supplied by the user. More than one org_id may be provided.
+Enter \code{rExpertQuery::EQ_DomainValues("org_id")} into the console to
+get a list of valid organization identifiers. A list of organization identifiers
+can also be found by downloading the ATTAINS Domains Excel file:
 https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "OrgName" tab. The "code" column
-contains the organization identifiers that should be used for this param. When
-org_id = "all", all assessment unit/monitoring locations matches recorded in
+Organization identifiers are listed in the "code" column of the "OrgName" tab.
+When org_id = "all", all assessment unit/monitoring locations matches recorded in
 ATTAINS from all organizations will be returned. The default is org_id = "all".}
 
 \item{batch_upload}{Boolean argument. When batch_upload = TRUE, the final column
 names in the output will match those required for batch upload to ATTAINS. When
 batch_upload = FALSE, the output column names will be consistent with the TADA
 workflow. Default is batch_upload = FALSE.}
+
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 When batch_upload = FALSE, A dataframe with six columns:

@@ -2,18 +2,25 @@
 % Please edit documentation in R/WQPWQXRefTables.R
 \name{TADA_GetMeasureQualifierCodeRef}
 \alias{TADA_GetMeasureQualifierCodeRef}
-\title{Update result Measure Qualifier Code Reference Table}
+\title{Get WQX Result Measure Qualifier Code Reference Table}
 \usage{
-TADA_GetMeasureQualifierCodeRef()
+TADA_GetMeasureQualifierCodeRef(download_only = FALSE, refresh = FALSE)
+}
+\arguments{
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
+attempts to download the latest Activity Type reference table directly from WQX,
+returning it without updating the cache. Errors if the download fails. If FALSE
+(default), uses a cached copy when available and updates the cache; on download
+failure, falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-sysdata.rda with updated WQXMeasureQualifierCodeRef object
+data.frame with TADA.MeasureQualifierCode.Flag added
 }
 \description{
-Function downloads and returns in the latest WQX ResultMeasureQualifier Domain table,
-adds category information, and writes the data to sysdata.rda.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+Get WQX Result Measure Qualifier Code Reference Table
 }
