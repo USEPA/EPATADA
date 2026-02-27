@@ -1,4 +1,4 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+name: R-CMD-check
 on:
   push:
     branches: [develop]
@@ -10,14 +10,12 @@ on:
     workflows: ["Prerequisites"]
     types: [completed]
 
-name: R-CMD-check
-
 # Concurrency:
 # - Pushes: one active run per branch
-# - PR runs: unique per PR head SHA
+# - PR runs: one active run per PR number (older runs get cancelled when new commits arrive)
 # - workflow_run: unique per "Prerequisites" run id
 concurrency:
-  group: R-CMD-check-${{ github.event_name == 'push' && github.ref || github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
+  group: R-CMD-check-${{ github.event_name == 'push' && github.ref || github.event_name == 'pull_request' && github.event.pull_request.number || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
   cancel-in-progress: true
 
 permissions:
@@ -50,11 +48,12 @@ jobs:
               return;
             }
 
-            // For PR runs: only proceed once "Prerequisites" succeeded for this head SHA
+            // For PR runs: proceed only once "Prerequisites" succeeded for this PR head SHA
             if (context.eventName === 'pull_request') {
-              const headSha = context.payload.pull_request.head.sha;
+              const pr = context.payload.pull_request;
+              const headSha = pr.head.sha;
 
-              // Find the "Prerequisites" workflow in this repo
+              // Find "Prerequisites" workflow
               const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
               const prereq = wfs.data.workflows.find(w => w.name === 'Prerequisites');
               if (!prereq) {
@@ -62,25 +61,15 @@ jobs:
                 return;
               }
 
-              // Find the latest completed "Prerequisites" run for this PR head SHA
+              // Find latest completed "Prerequisites" run for this head SHA
               const runs = await github.rest.actions.listWorkflowRuns({
                 owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: headSha, status: 'completed', per_page: 1
               });
               const run = runs.data.workflow_runs?.[0];
-              if (!run || run.conclusion !== 'success') {
-                core.setOutput('run_check', 'false');
-                return;
-              }
 
-              // Optionally verify both jobs succeeded (Spelling may be skipped if formatter pushed)
-              const jobs = await github.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: run.id });
-              const byName = n => jobs.data.jobs.find(j => (j.name || '').toLowerCase() === n);
-              const fmt = byName('format');    // matches job name: "Format"
-              const spl = byName('spelling');  // matches job name: "Spelling"
-              const fmtOk = fmt && fmt.conclusion === 'success';
-              const splOk = spl && (spl.conclusion === 'success' || spl.conclusion === 'skipped');
-
-              core.setOutput('run_check', (fmtOk && splOk) ? 'true' : 'false');
+              // Require overall success; this covers both initial runs and the bot follow-up run after formatting push
+              const ok = !!(run && run.conclusion === 'success');
+              core.setOutput('run_check', ok ? 'true' : 'false');
               return;
             }
 
