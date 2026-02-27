@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   coverage-on-pr:
-    name: Coverage on PRs to develop (after spelling; formatting verified)
+    name: Coverage on PRs to develop (after spelling)
     if: >
       github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
@@ -28,12 +28,11 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Verify formatting succeeded (and PR base is develop)
+      - name: Verify PR base is develop
         id: verify
         uses: actions/github-script@v7
         with:
           script: |
-            const core = require('@actions/core');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const wr = context.payload.workflow_run;
@@ -52,28 +51,14 @@ jobs:
               prBaseOk = prs.some(pr => pr?.base?.ref === 'develop');
             }
 
-            // Verify Automated Formatting succeeded for the same SHA
-            const { data: workflows } = await github.rest.actions.listRepoWorkflows({ owner, repo });
-            const formattingWf = workflows.workflows.find(wf => wf.name === 'Automated Formatting');
-            let formattingOk = false;
-            if (formattingWf) {
-              const runs = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: formattingWf.id, per_page: 100
-              });
-              const match = runs.data.workflow_runs.find(r =>
-                r.head_sha === headSha && (r.event === 'pull_request' || r.event === 'pull_request_target')
-              );
-              formattingOk = !!(match && match.conclusion === 'success');
-            }
-
-            const ok = prBaseOk && formattingOk;
-            core.setOutput('ok', ok ? 'true' : 'false');
-            core.info(`Prereq check: ok=${ok}. PR base OK=${prBaseOk}. Automated Formatting OK=${formattingOk}.`);
+            core.setOutput('ok', prBaseOk ? 'true' : 'false');
+            core.info(`Prereq check: PR base OK=${prBaseOk}.`)
 
       - name: Check out the same commit
         if: steps.verify.outputs.ok == 'true'
         uses: actions/checkout@v6
         with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
