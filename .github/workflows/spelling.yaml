@@ -22,12 +22,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const core = require('@actions/core');
-            const github = require('@actions/github');
-
-            const wr = github.context.payload.workflow_run;
-            const owner = github.context.repo.owner;
-            const repo = github.context.repo.repo;
+            const wr = context.payload.workflow_run;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
 
             // Must be a PR event and formatting must have succeeded
             if (wr.event !== 'pull_request' && wr.event !== 'pull_request_target') {
@@ -46,7 +43,7 @@ jobs:
             // Get associated PR(s) for this SHA
             let prs = wr.pull_requests || [];
             if (!prs || prs.length === 0) {
-              const assoc = await github.getOctokit(process.env.GITHUB_TOKEN).rest.repos.listPullRequestsAssociatedWithCommit({
+              const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
                 owner, repo, commit_sha: headSha
               });
               prs = assoc.data;
@@ -54,10 +51,9 @@ jobs:
 
             // Ensure base branch is develop and PR is not draft
             let ok = false;
-            const octo = github.getOctokit(process.env.GITHUB_TOKEN);
             for (const pr of prs) {
               try {
-                const { data: full } = await octo.rest.pulls.get({ owner, repo, pull_number: pr.number });
+                const { data: full } = await github.rest.pulls.get({ owner, repo, pull_number: pr.number });
                 const baseDevelop = full.base?.ref === 'develop';
                 const notDraft = !full.draft;
                 if (baseDevelop && notDraft) { ok = true; break; }

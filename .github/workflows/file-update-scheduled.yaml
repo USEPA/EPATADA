@@ -1,4 +1,4 @@
-name: Scheduled File Update
+name: File Update - Scheduled
 
 on:
   # Weekly at 2:01 AM UTC — adjust as needed
