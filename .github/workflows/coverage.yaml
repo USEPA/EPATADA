@@ -1,80 +1,159 @@
 name: coverage
 
 on:
+  pull_request:
+    branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
+  # Kick PR-based run after Prerequisites completes
   workflow_run:
     workflows: ["Prerequisites"]
     types: [completed]
 
 permissions:
-  actions: read
+  actions: write       # needed to request reruns
   contents: read
   checks: write
   pull-requests: write
 
+# Concurrency:
+# - PR runs: unique per PR head SHA
+# - workflow_run: unique per "Prerequisites" run id (to avoid cross-cancellation)
+concurrency:
+  group: coverage-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
+  gate-coverage:
+    name: gate
+    runs-on: ubuntu-latest
+    outputs:
+      run_cov: ${{ steps.gate.outputs.run_cov }}
+    steps:
+      - name: Decide whether to run Coverage (and kick PR re-run after prerequisites)
+        id: gate
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // For PR runs: only proceed once "Prerequisites" succeeded and base is develop
+            if (context.eventName === 'pull_request') {
+              const pr = context.payload.pull_request;
+              if ((pr.base?.ref || '') !== 'develop') {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Locate "Prerequisites" workflow
+              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
+              const prereq = wfs.data.workflows.find(w => w.name === 'Prerequisites');
+              if (!prereq) {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Find latest completed Prerequisites run for this head SHA
+              const headSha = pr.head.sha;
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: headSha, status: 'completed', per_page: 1
+              });
+              const run = runs.data.workflow_runs?.[0];
+              if (!run || run.conclusion !== 'success') {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Verify Format success and Spelling success or skipped
+              const jobs = await github.rest.actions.listJobsForWorkflowRun({ owner, repo, run_id: run.id });
+              const byName = n => jobs.data.jobs.find(j => (j.name || '').toLowerCase() === n);
+              const fmt = byName('format');    // matches job name: "Format"
+              const spl = byName('spelling');  // matches job name: "Spelling"
+              const fmtOk = fmt && fmt.conclusion === 'success';
+              const splOk = spl && (spl.conclusion === 'success' || spl.conclusion === 'skipped');
+
+              core.setOutput('run_cov', (fmtOk && splOk) ? 'true' : 'false');
+              return;
+            }
+
+            // After successful Prerequisites (PR-triggered), rerun latest PR-based coverage so it attaches to the PR
+            if (context.eventName === 'workflow_run') {
+              const wr = context.payload.workflow_run;
+
+              if ((wr.name || '') !== 'Prerequisites' || wr.conclusion !== 'success') {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+              const isPR = wr.event === 'pull_request' || wr.event === 'pull_request_target';
+              if (!isPR) {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Confirm PR base is develop
+              let prs = wr.pull_requests || [];
+              if (!prs || prs.length === 0) {
+                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: wr.head_sha
+                });
+                prs = assoc.data;
+              }
+              const baseDevelop = prs.some(pr => pr?.base?.ref === 'develop');
+              if (!baseDevelop) {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Find this workflow (coverage)
+              const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
+              const self = wfs.data.workflows.find(w => w.name === 'coverage');
+              if (!self) {
+                core.setOutput('run_cov', 'false');
+                return;
+              }
+
+              // Find latest PR-based run for same head SHA and rerun it
+              const prRuns = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: self.id, event: 'pull_request', head_sha: wr.head_sha, per_page: 1
+              });
+              const prRun = prRuns.data.workflow_runs?.[0];
+              if (prRun) {
+                await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
+                  owner, repo, run_id: prRun.id
+                });
+              }
+              core.setOutput('run_cov', 'false');
+              return;
+            }
+
+            core.setOutput('run_cov', 'false');
+
   coverage-on-pr:
-    name: Coverage on PRs to develop (after Prerequisites)
-    if: >
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'pull_request_target')
+    name: Coverage on PRs to develop
+    needs: gate-coverage
+    if: needs.gate-coverage.outputs.run_cov == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    concurrency:
-      # Include workflow_run.id to avoid accidental cancellation collisions
-      group: coverage-pr-${{ github.event.workflow_run.head_sha }}-${{ github.event.workflow_run.id }}
-      cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Verify PR base is develop
-        id: verify
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const wr = context.payload.workflow_run;
-            const headSha = wr.head_sha;
-
-            // Ensure PR base branch is develop
-            let prBaseOk = false;
-            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
-              let prs = wr.pull_requests || [];
-              if (!prs || prs.length === 0) {
-                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner, repo, commit_sha: headSha
-                });
-                prs = assoc.data;
-              }
-              prBaseOk = prs.some(pr => pr?.base?.ref === 'develop');
-            }
-
-            core.setOutput('ok', prBaseOk ? 'true' : 'false');
-            core.info(`Prereq check: PR base OK=${prBaseOk}.`)
-
-      - name: Check out the same commit
-        if: steps.verify.outputs.ok == 'true'
+      - name: Checkout PR head
         uses: actions/checkout@v6
         with:
-          repository: ${{ github.event.workflow_run.head_repository.full_name }}
-          ref: ${{ github.event.workflow_run.head_sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
-        if: steps.verify.outputs.ok == 'true'
         with:
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
-        if: steps.verify.outputs.ok == 'true'
         with:
           extra-packages: any::covr, any::xml2
           needs: coverage
 
       - name: Capture Environment Info
-        if: steps.verify.outputs.ok == 'true'
         shell: Rscript {0}
         run: |
           env_vars <- Sys.getenv()
@@ -83,14 +162,12 @@ jobs:
           save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
 
       - name: Upload Environment Info
-        if: steps.verify.outputs.ok == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: ci_env_info
           path: ci_env_info.RData
 
       - name: Test coverage
-        if: steps.verify.outputs.ok == 'true'
         shell: Rscript {0}
         run: |
           cov <- covr::package_coverage(
@@ -102,14 +179,13 @@ jobs:
           covr::to_cobertura(cov, filename = "cobertura.xml")
 
       - name: Show testthat output
-        if: always() && steps.verify.outputs.ok == 'true'
+        if: always()
         shell: bash
         run: |
-          ## --------------------------------------------------------------------
           find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
 
-      - name: Upload test results
-        if: failure() && steps.verify.outputs.ok == 'true'
+      - name: Upload test results on failure
+        if: failure()
         uses: actions/upload-artifact@v6
         with:
           name: coverage-test-failures
@@ -117,15 +193,14 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload coverage report
-        if: steps.verify.outputs.ok == 'true'
         uses: actions/upload-artifact@v6
         with:
           name: coverage-report
           path: ./cobertura.xml
           if-no-files-found: ignore
 
-      - name: Comment coverage on PR (develop only)
-        if: steps.verify.outputs.ok == 'true' && hashFiles('cobertura.xml') != '' && (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'pull_request_target')
+      - name: Comment coverage on PR (same-repo PRs to develop only)
+        if: hashFiles('cobertura.xml') != '' && github.event.pull_request.head.repo.full_name == github.repository
         uses: 5monkeys/cobertura-action@master
         with:
           report_name: coverage-report
