@@ -174,8 +174,7 @@ TADA_GetTADACharAliasRef <- function(
     "was","wasn","wasn't","we","were","weren","weren't","what","when","where","which","while","who","whom","why","will","with","won","won't","wouldn","wouldn't",
     "y","you","your","yours","yourself","yourselves",
     "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
-    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~",
-    "’", "‘", "“", "”", "—", "–",
+    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~", "-"
     # any additional words added below that TADA developers can add below in their review:
     "(%)", "--"
   )
@@ -640,7 +639,7 @@ TADAUsesAliasRef_Cached <- NULL
 #' Lastly, if no use matches are found between ATTAINS and the CST, but an ATTAINS
 #' parameter matches a CST standard pollutant name for the organization, return
 #' all CST uses for each distinct ATTAINS use name. Users must then select the
-#' appropriate CST magnitude value(s) to populate for each ATTAINS parameter–use
+#' appropriate CST magnitude value(s) to populate for each ATTAINS parameter and use
 #' combination.
 #'
 #' Many-to-many matches are likely and will require thorough review. Users should
@@ -753,8 +752,7 @@ TADA_GetTADAUsesAliasRef <- function(
     "was","wasn","wasn't","we","were","weren","weren't","what","when","where","which","while","who","whom","why","will","with","won","won't","wouldn","wouldn't",
     "y","you","your","yours","yourself","yourselves",
     "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
-    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~",
-    "’", "‘", "“", "”", "—", "–",
+    ":", ";", "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "|", "}", "~", "-",
     # any additional words added below that TADA developers can add below in their review:
     "(%)", "--"
   )
