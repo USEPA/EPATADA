@@ -313,7 +313,6 @@ testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source va
                 "ATTAINS Crosswalk",
                 "TADA_CreateATTAINSAUMLCrosswalk")
 
-
   # Tests to ensure that all expected values of TADA.AURefSource are returned
   missing <- setdiff(expected, au.sources)
   testthat::expect_equal(missing, character(0))
