@@ -791,6 +791,7 @@ TADA_DefineCriteriaMethodology <- function(
               names(suppressMessages(TADA_DefineCriteriaMethodology())),
               CST.StdPollutantName = STD_POLLUTANT_NAME,
               CST.Use = USE_CLASS_NAME_LOCATION_ETC,
+              CST.CriteriaTypeAquaHumHlth = CRITERIATYPEAQUAHUMHLTH,
               CST.CriteriaTypeWaterOrg = CRITERIATYPE_WATERORG,
               CST.SourceLink
             ) |>
