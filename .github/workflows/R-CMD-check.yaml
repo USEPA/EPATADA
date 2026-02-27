@@ -1,130 +1,105 @@
-name: R-CMD-check
-
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
-  # Always run on pushes to develop
   push:
     branches: [develop]
-
-  # Run after formatting and spelling complete (for PRs to develop)
+  # Trigger only after spelling completes; gate will verify Automated Formatting also succeeded
   workflow_run:
-    workflows: ["Automated Formatting", "spelling"]
+    workflows: ["spelling"]
     types: [completed]
-
-  # Manual runs with optional branch/SHA and optional other repo
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "Git ref (branch, tag, or SHA) to check (optional)"
-        required: false
-        default: ""
-      repository:
-        description: "owner/repo to check (optional; defaults to this repo)"
-        required: false
-        default: ""
+
+name: R-CMD-check
+
+# Concurrency:
+# - Pushes: one active run per branch (older runs on develop get cancelled)
+# - PR workflow_run: unique group per workflow_run event to avoid cross-cancellation
+concurrency:
+  group: R-CMD-check-${{ github.event_name == 'push' && github.ref || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || '' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+env:
+  GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+  R_KEEP_PKG_SOURCE: yes
+  EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
 jobs:
-  gate:
+  gate-prereqs:
+    name: Gate prerequisites
     runs-on: ubuntu-latest
     outputs:
-      ok: ${{ steps.verify.outputs.ok }}
-      note: ${{ steps.verify.outputs.note }}
+      run_check: ${{ steps.gate.outputs.run_check }}
     steps:
-      - name: Verify prerequisites and routing
-        id: verify
+      - name: Decide whether to run R-CMD-check
+        id: gate
         uses: actions/github-script@v7
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const event = context.eventName;
-
-            // Manual runs bypass prerequisites to allow on-demand checks
-            if (event === 'workflow_dispatch') {
-              core.setOutput('ok', 'true');
-              const ref = context.payload?.inputs?.ref || 'develop';
-              const repository = context.payload?.inputs?.repository || `${owner}/${repo}`;
-              core.setOutput('note', `Manual run — repository=${repository}; ref=${ref}`);
+            const core = require('@actions/core');
+            const isPush = context.eventName === 'push';
+            if (isPush) {
+              // Always run on push to develop
+              core.setOutput('run_check', 'true');
+              return;
+            }
+            if (context.eventName !== 'workflow_run') {
+              core.setOutput('run_check', 'false');
               return;
             }
 
-            // For pushes to develop: run unconditionally
-            if (event === 'push') {
-              const ref = context.ref || '';
-              const isDevelop = ref.endsWith('/develop');
-              core.setOutput('ok', isDevelop ? 'true' : 'false');
-              core.setOutput('note', `Push event; ref=${ref}; allow=${isDevelop}`);
-              return;
-            }
-
-            // Only handle workflow_run from Formatting/Spelling
-            if (event !== 'workflow_run') {
-              core.setOutput('ok', 'false');
-              core.setOutput('note', `Unsupported event: ${event}`);
-              return;
-            }
-
-            // Short-circuit if upstream workflow_run didn't succeed
             const wr = context.payload.workflow_run;
-            if (wr?.conclusion !== 'success') {
-              core.setOutput('ok', 'false');
-              core.setOutput('note', `Upstream workflow_run not successful: ${wr?.conclusion}`);
+            // Only proceed if the triggering workflow (spelling) for a PR completed successfully
+            if (wr.conclusion !== 'success' || wr.event !== 'pull_request') {
+              core.setOutput('run_check', 'false');
               return;
             }
 
             const headSha = wr.head_sha;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
 
-            // Confirm PR base is develop (drafts allowed)
-            let baseDevelopOk = false;
-            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
-              let prs = wr.pull_requests || [];
-              if (!prs || prs.length === 0) {
-                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  owner, repo, commit_sha: headSha
-                });
-                prs = assoc.data;
-              }
-              baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop');
+            // Ensure "Automated Formatting" also succeeded for the same PR commit
+            const requiredNames = ["Automated Formatting"];
+            const { data: workflows } = await github.rest.actions.listRepoWorkflows({ owner, repo });
+
+            const nameToId = new Map();
+            for (const wf of workflows.workflows) {
+              nameToId.set(wf.name, wf.id);
             }
 
-            // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['Automated Formatting', 'spelling']);
-            const runs = await github.rest.actions.listWorkflowRunsForRepo({
-              owner, repo, head_sha: headSha, per_page: 100
-            });
-
-            const latestByName = {};
-            for (const r of runs.data.workflow_runs) {
-              if (targetNames.has(r.name)) {
-                const prev = latestByName[r.name];
-                if (!prev || new Date(r.created_at) > new Date(prev.created_at)) {
-                  latestByName[r.name] = r;
-                }
-              }
+            async function workflowSucceededForSha(name) {
+              const id = nameToId.get(name);
+              if (!id) return false;
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: id, per_page: 100
+              });
+              const match = runs.data.workflow_runs.find(r =>
+                r.head_sha === headSha && r.event === 'pull_request'
+              );
+              return !!(match && match.conclusion === 'success');
             }
 
-            const missing = [...targetNames].filter(n => !latestByName[n]);
-            const failed = Object.entries(latestByName).filter(([n, r]) => r.conclusion !== 'success');
-
-            const ok = baseDevelopOk && missing.length === 0 && failed.length === 0;
-            core.setOutput('ok', ok ? 'true' : 'false');
-            const note = `baseDevelopOk=${baseDevelopOk}; missing=${missing.join(', ') || 'none'}; failed=${failed.map(([n, r]) => `${n}:${r.conclusion}`).join(', ') || 'none'}; headSha=${headSha}; trigger=${wr.event}`;
-            core.setOutput('note', note);
-            core.info(`Gate result: ${note}`);
+            let ok = true;
+            for (const name of requiredNames) {
+              const passed = await workflowSucceededForSha(name);
+              if (!passed) { ok = false; break; }
+            }
+            core.setOutput('run_check', ok ? 'true' : 'false');
 
   R-CMD-check:
-    needs: gate
-    if: ${{ needs.gate.outputs.ok == 'true' }}
+    needs: gate-prereqs
+    if: needs.gate-prereqs.outputs.run_check == 'true'
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
-    concurrency:
-      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha)
-        || github.event_name == 'push' && format('rcmdcheck-push-{0}', github.sha)
-        || format('rcmdcheck-manual-{0}-{1}', inputs.repository != '' && inputs.repository || github.repository, inputs.ref != '' && inputs.ref || 'develop') }}
-      cancel-in-progress: true
-
     strategy:
       fail-fast: false
+      max-parallel: 5
       matrix:
         config:
           - {os: macos-latest,   r: 'release'}
@@ -133,39 +108,18 @@ jobs:
           - {os: ubuntu-latest,  r: 'release'}
           - {os: ubuntu-latest,  r: 'oldrel-1'}
 
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      R_KEEP_PKG_SOURCE: yes
-      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
-
     steps:
-      - name: Echo gate status
-        run: echo "${{ needs.gate.outputs.note }}"
+      # Checkout the right commit depending on the trigger
+      - name: Checkout (push)
+        if: github.event_name == 'push'
+        uses: actions/checkout@v6
 
-      # Checkout exact commit for workflow_run-triggered checks (PRs)
-      - name: Check out exact commit (workflow_run)
-        if: ${{ github.event_name == 'workflow_run' }}
+      - name: Checkout (workflow_run for PR)
+        if: github.event_name == 'workflow_run'
         uses: actions/checkout@v6
         with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
-          fetch-depth: 0
-
-      # Checkout for pushes to develop
-      - name: Check out (push)
-        if: ${{ github.event_name == 'push' }}
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-
-      # Checkout for manual runs (selected branch/SHA and optional repo)
-      - name: Check out (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ inputs.repository != '' && inputs.repository || github.repository }}
-          ref: ${{ inputs.ref != '' && inputs.ref || 'develop' }}
-          fetch-depth: 0
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -179,9 +133,8 @@ jobs:
         with:
           extra-packages: any::rcmdcheck
           needs: check
+          install-system-requirements: true
 
-      - name: R CMD check (build vignettes; no PDF manual)
-        uses: r-lib/actions/check-r-package@v2
+      - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
-          args: 'c("--no-manual")'

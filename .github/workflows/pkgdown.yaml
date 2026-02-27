@@ -7,9 +7,9 @@ on:
   push:
     branches: [develop]
 
-  # Run after formatting and spelling complete (for PRs to develop)
+  # Run after spelling completes (for PRs to develop)
   workflow_run:
-    workflows: ["Automated Formatting", "spelling"]
+    workflows: ["spelling"]
     types: [completed]
 
 jobs:
@@ -24,11 +24,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const core = require('@actions/core');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const event = context.eventName;
 
-            // Pushes to develop always allowed
+            // Pushes to develop are always allowed
             if (event === 'push') {
               const ref = context.ref || '';
               const isDevelop = ref.endsWith('/develop');
@@ -37,8 +38,7 @@ jobs:
               return;
             }
 
-            // For workflow_run from formatting/spelling:
-            // - require PR base branch develop
+            // For workflow_run from spelling:
             if (event !== 'workflow_run') {
               core.setOutput('ok', 'false');
               core.setOutput('note', `Unsupported event: ${event}`);
@@ -46,11 +46,19 @@ jobs:
             }
 
             const wr = context.payload.workflow_run;
+
+            // Require the spelling run to have succeeded
+            if (wr.conclusion !== 'success') {
+              core.setOutput('ok', 'false');
+              core.setOutput('note', `Spelling conclusion=${wr.conclusion}`);
+              return;
+            }
+
             const headSha = wr.head_sha;
 
             // Confirm PR base is develop
             let baseDevelopOk = false;
-            if (wr.event === 'pull_request' || 'pull_request_target') {
+            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
               let prs = wr.pull_requests || [];
               if (!prs || prs.length === 0) {
                 const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
@@ -61,28 +69,25 @@ jobs:
               baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop');
             }
 
-            // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['Automated Formatting', 'spelling']);
-            const runs = await github.rest.actions.listWorkflowRunsForRepo({
-              owner, repo, head_sha: headSha, per_page: 100
-            });
+            // Verify "Automated Formatting" succeeded for this head SHA
+            const { data: workflows } = await github.rest.actions.listRepoWorkflows({ owner, repo });
+            const formattingWf = workflows.workflows.find(wf => wf.name === 'Automated Formatting');
 
-            const latestByName = {};
-            for (const r of runs.data.workflow_runs) {
-              if (targetNames.has(r.name)) {
-                const prev = latestByName[r.name];
-                if (!prev || new Date(r.created_at) > new Date(prev.created_at)) {
-                  latestByName[r.name] = r;
-                }
-              }
+            let formattingOk = false;
+            if (formattingWf) {
+              const runs = await github.rest.actions.listWorkflowRuns({
+                owner, repo, workflow_id: formattingWf.id, per_page: 100
+              });
+              const match = runs.data.workflow_runs.find(r =>
+                r.head_sha === headSha &&
+                (r.event === 'pull_request' || r.event === 'pull_request_target')
+              );
+              formattingOk = !!(match && match.conclusion === 'success');
             }
 
-            const missing = [...targetNames].filter(n => !latestByName[n]);
-            const failed = Object.entries(latestByName).filter(([n, r]) => r.conclusion !== 'success');
-
-            const ok = baseDevelopOk && missing.length === 0 && failed.length === 0;
+            const ok = baseDevelopOk && formattingOk;
+            const note = `baseDevelopOk=${baseDevelopOk}; formattingOk=${formattingOk}; headSha=${headSha}; trigger=${wr.event}`;
             core.setOutput('ok', ok ? 'true' : 'false');
-            const note = `baseDevelopOk=${baseDevelopOk}; missing=${missing.join(', ') || 'none'}; failed=${failed.map(([n, r]) => `${n}:${r.conclusion}`).join(', ') || 'none'}; headSha=${headSha}; trigger=${wr.event}`;
             core.setOutput('note', note);
             core.info(`Gate result: ${note}`);
 
@@ -91,7 +96,8 @@ jobs:
     if: ${{ needs.gate.outputs.ok == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.event_name == 'workflow_run' && format('pkgdown-{0}', github.event.workflow_run.head_sha) || format('pkgdown-push-{0}', github.sha) }}
+      # Use workflow_run.id to avoid cross-cancellation collisions; dedupe pushes by branch
+      group: ${{ github.event_name == 'workflow_run' && format('pkgdown-{0}-{1}', github.event.workflow_run.head_sha, github.event.workflow_run.id) || format('pkgdown-push-{0}', github.ref) }}
       cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -105,6 +111,7 @@ jobs:
         if: ${{ github.event_name == 'workflow_run' }}
         uses: actions/checkout@v6
         with:
+          repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
