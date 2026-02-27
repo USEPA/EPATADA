@@ -3,9 +3,9 @@
 on:
   push:
     branches: [develop]
-  # Trigger only after spelling completes
+  # Trigger only after Automated Formatting and Spelling Check completes
   workflow_run:
-    workflows: ["spelling"]
+    workflows: ["Automated Formatting and Spelling Check"]
     types: [completed]
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
               return;
             }
 
-            // Only proceed for workflow_run events from "spelling" that finished successfully
+            // Only proceed for workflow_run events from "Automated Formatting and Spelling Check" that finished successfully
             if (context.eventName !== 'workflow_run') {
               core.setOutput('run_check', 'false');
               return;
