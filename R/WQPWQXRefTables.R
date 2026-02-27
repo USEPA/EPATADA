@@ -1562,24 +1562,21 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
     # Try to download up to date WQX Char Alias table
     # pull in WQX Char Alias table from zip first
     temp_zip <- tempfile(fileext = ".zip")
-    
+
     utils::download.file(
       "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip",
       destfile = temp_zip,
       mode = "wb"
     )
-    
+
     temp_dir <- tempdir() # Create a temporary directory to extract files
     utils::unzip(temp_zip, exdir = temp_dir)
-    
+
     # specify CSV file name
     csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
-    
-    df <- .tada_read_csv_url(
-      csv_file_path,
-      stringsAsFactors = FALSE
-    )
-    
+
+    df <- .tada_read_csv_url(csv_file_path, stringsAsFactors = FALSE)
+
     if (is.null(df)) {
       stop("TADA_GetWQXCharAliasRef(download_only=TRUE): download failed.")
     }
