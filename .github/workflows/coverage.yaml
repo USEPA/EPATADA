@@ -16,10 +16,10 @@ permissions:
   pull-requests: write
 
 # Concurrency:
-# - PR runs: unique per PR head SHA
+# - PR runs: one active run per PR number (older runs are cancelled when new commits arrive)
 # - workflow_run: unique per "Prerequisites" run id (to avoid cross-cancellation)
 concurrency:
-  group: coverage-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
+  group: coverage-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.event.workflow_run.head_sha }}-${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
 
-            // For PR runs: only proceed once "Prerequisites" succeeded and base is develop
+            // For PR runs: proceed only once "Prerequisites" succeeded and base is develop
             if (context.eventName === 'pull_request') {
               const pr = context.payload.pull_request;
               if ((pr.base?.ref || '') !== 'develop') {
