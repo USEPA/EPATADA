@@ -616,8 +616,9 @@ mywaterway@epa.gov.
 - [`.TADA_UpdateRefFiles()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateRefFiles.md)
   : Update All TADA Reference Files (Internal)
 
-- [`.setDefaultEQKey()`](https://usepa.github.io/EPATADA/reference/dot-setDefaultEQKey.md)
-  : .setDefaultEQKey
+- [`.setEQKey()`](https://usepa.github.io/EPATADA/reference/dot-setEQKey.md)
+  : .setEQKey Resolve the rExpertQuery API key, preferring env/options
+  over default
 
 - [`fetchATTAINS()`](https://usepa.github.io/EPATADA/reference/fetchATTAINS.md)
   : fetchATTAINS
