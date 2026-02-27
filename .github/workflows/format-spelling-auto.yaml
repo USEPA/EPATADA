@@ -1,25 +1,26 @@
 name: Prerequisites
 
-# Use pull_request_target so the workflow runs in the base repo context (can comment on fork PRs).
 on:
   pull_request_target:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
 
-# Top-level permissions must allow writes. Also ensure repo setting
-# Settings → Actions → General → Workflow permissions = Read and write permissions.
 permissions:
   contents: write
   issues: write
   pull-requests: write
+
+concurrency:
+  group: prerequisites-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   format-pr:
     name: Format
     runs-on: ubuntu-latest
     permissions:
-      contents: write            # allow committing/pushing on same-repo PRs
-      pull-requests: write       # allow suggestions/comments on PRs
+      contents: write
+      pull-requests: write
     outputs:
       pushed: ${{ steps.pushed.outputs.value }}
 
@@ -36,11 +37,9 @@ jobs:
         if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false
         uses: posit-dev/setup-air@v1
 
-      # Same-repo PRs: format and push changes
       - name: Format with air (same-repo PRs)
         if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
         env:
-          # Avoid exposing token to tools that process untrusted code
           GITHUB_TOKEN: ""
         run: air format .
 
@@ -76,7 +75,6 @@ jobs:
             echo "Could not push formatting changes (likely fork or edits disabled)."
           fi
 
-      # Fork PRs: suggest formatting changes inline, do not fail the job
       - name: Format (fork PRs)
         if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
         env:
@@ -85,6 +83,7 @@ jobs:
 
       - name: Suggest formatting changes on PR (forks)
         if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
+        continue-on-error: true
         uses: reviewdog/action-suggester@v1
         with:
           tool_name: air
@@ -96,9 +95,9 @@ jobs:
         if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
         shell: bash
         run: |
-          # If Air produced changes, git diff will not be empty
           if ! git diff --quiet; then
             pr=${{ github.event.pull_request.number }}
             body=$(cat <<'MD'
@@ -110,12 +109,11 @@ Because this PR comes from a fork, the bot cannot push fixes. Please:
 - Commit and push the changes
 MD
             )
-            # Explicitly target the base repository when commenting
             gh pr comment "$pr" -R "${{ github.repository }}" --body "$body"
           fi
 
-      # Make sure we always provide a 'pushed' output for downstream logic
       - name: Set pushed output
+        if: always()
         id: pushed
         shell: bash
         run: |
@@ -126,13 +124,12 @@ MD
   spelling:
     name: Spelling
     needs: format-pr
-    # Run on non-draft PRs and skip the exact run that pushed formatting changes
     if: github.event.pull_request.draft == false && needs.format-pr.outputs.pushed != 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-      issues: write   # needed to post PR comments
+      issues: write
 
     steps:
       - name: Check out PR head commit
@@ -149,18 +146,18 @@ MD
 
       - name: Install spellchecker
         env:
-          GITHUB_TOKEN: ""  # prevent accidental token exposure to tooling
+          GITHUB_TOKEN: ""
         shell: Rscript {0}
         run: install.packages("spelling")
 
       - name: Run spellcheck and capture output
         id: spellcheck
         env:
-          GITHUB_TOKEN: ""  # prevent accidental token exposure to tooling
+          GITHUB_TOKEN: ""
         shell: bash
         run: |
           set -o pipefail
-          CMD='result <- spelling::spell_check_package(); print(result); if (length(result[[1]]) != 0) stop("Spelling errors found (fix or add to WORDLIST)")'
+          CMD='result <- spelling::spell_check_package(); print(result); if (nrow(result) != 0) stop("Spelling errors found (fix or add to WORDLIST)")'
           if Rscript -e "$CMD" 2>&1 | tee spellcheck.log; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
@@ -169,6 +166,7 @@ MD
 
       - name: Comment on PR with spelling results (on failure)
         if: steps.spellcheck.outputs.ok == 'false'
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -176,7 +174,7 @@ MD
             const fs = require('fs');
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const number = context.issue.number; // robust for PR events
+            const number = context.issue.number;
 
             let log = fs.readFileSync('spellcheck.log', 'utf8');
             const max = 65000;
@@ -201,7 +199,6 @@ MD
                 body
               });
             } catch (error) {
-              // Avoid failing the step on 403; log a warning instead.
               core.warning(`Could not post comment: ${error?.message || error}`);
             }
 
