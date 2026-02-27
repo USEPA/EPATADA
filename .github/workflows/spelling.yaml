@@ -1,86 +1,136 @@
-name: spelling
+name: Automated Formatting
 
 on:
-  workflow_run:
-    workflows: ["Automated Formatting"]
-    types: [completed]
-
-permissions:
-  actions: read
-  contents: read
-  pull-requests: read
+  pull_request_target:
+    branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 jobs:
-  gate:
+  format-pr:
+    name: Format
     runs-on: ubuntu-latest
+    permissions:
+      contents: write            # allow committing/pushing on same-repo PRs
+      pull-requests: write       # allow suggestions/comments on PRs
     outputs:
-      ok: ${{ steps.verify.outputs.ok }}
-      note: ${{ steps.verify.outputs.note }}
+      pushed: ${{ steps.pushed.outputs.value }}
+
     steps:
-      - name: Verify formatting success and PR status
-        id: verify
-        uses: actions/github-script@v7
+      - name: Check out PR head
+        uses: actions/checkout@v6
         with:
-          script: |
-            const wr = context.payload.workflow_run;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
+          fetch-depth: 0
 
-            // Must be a PR event and formatting must have succeeded
-            if (wr.event !== 'pull_request' && wr.event !== 'pull_request_target') {
-              core.setOutput('ok', 'false');
-              core.setOutput('note', `Not a PR event: ${wr.event}`);
-              return;
-            }
-            if (wr.conclusion !== 'success') {
-              core.setOutput('ok', 'false');
-              core.setOutput('note', `Automated Formatting conclusion: ${wr.conclusion}`);
-              return;
-            }
+      - name: Install Air formatter
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false
+        uses: posit-dev/setup-air@v1
 
-            const headSha = wr.head_sha;
+      # Same-repo PRs: format and push changes
+      - name: Format with air (same-repo PRs)
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          # Avoid exposing token to tools that process untrusted code
+          GITHUB_TOKEN: ""
+        run: air format .
 
-            // Get associated PR(s) for this SHA
-            let prs = wr.pull_requests || [];
-            if (!prs || prs.length === 0) {
-              const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                owner, repo, commit_sha: headSha
-              });
-              prs = assoc.data;
-            }
+      - name: Commit and push formatting changes
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name == github.repository
+        id: pushfmt
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-            // Ensure base branch is develop and PR is not draft
-            let ok = false;
-            for (const pr of prs) {
-              try {
-                const { data: full } = await github.rest.pulls.get({ owner, repo, pull_number: pr.number });
-                const baseDevelop = full.base?.ref === 'develop';
-                const notDraft = !full.draft;
-                if (baseDevelop && notDraft) { ok = true; break; }
-              } catch (e) {
-                // ignore any fetch errors
-              }
-            }
+          if git diff --quiet; then
+            echo "No formatting changes to commit."
+            echo "pushed=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-            core.setOutput('ok', ok ? 'true' : 'false');
-            core.setOutput('note', `ok=${ok}; headSha=${headSha}; event=${wr.event}`);
+          git add -A
+          git commit -m "style: apply formatting via air"
 
-  spelling-check:
-    needs: gate
-    if: needs.gate.outputs.ok == 'true'
+          set +e
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git" \
+                   "HEAD:${{ github.event.pull_request.head.ref }}"
+          status=$?
+          set -e
+
+          if [ $status -eq 0 ]; then
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+            echo "Formatting changes pushed."
+          else
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            echo "Could not push formatting changes (likely fork or edits disabled)."
+          fi
+
+      # Fork PRs: suggest formatting changes inline, do not fail the job
+      - name: Format (fork PRs)
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          GITHUB_TOKEN: ""
+        run: air format .
+
+      - name: Suggest formatting changes on PR (forks)
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: air
+          level: warning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post guidance comment (fork PRs, only if changes found)
+        if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false && github.event.pull_request.head.repo.full_name != github.repository
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          # If Air produced changes, git diff will not be empty
+          if ! git diff --quiet; then
+            pr=${{ github.event.pull_request.number }}
+            body=$(cat <<'MD'
+            Thanks for the contribution! The formatter found issues.
+
+            Because this PR comes from a fork, the bot cannot push fixes. Please:
+            - Install Air: https://github.com/posit-dev/setup-air
+            - Run: air format .
+            - Commit and push the changes
+            MD
+            )
+            gh pr comment "$pr" --body "$body"
+          fi
+
+      # Make sure we always provide a 'pushed' output for downstream logic
+      - name: Set pushed output
+        id: pushed
+        shell: bash
+        run: |
+          val="${{ steps.pushfmt.outputs.pushed }}"
+          if [ -z "$val" ]; then val="none"; fi
+          echo "value=$val" >> "$GITHUB_OUTPUT"
+
+  spelling:
+    name: Spelling
+    needs: format-pr
+    # Run on non-draft PRs and skip the exact run that pushed formatting changes
+    if: github.event.pull_request.draft == false && needs.format-pr.outputs.pushed != 'true'
     runs-on: ubuntu-latest
-    concurrency:
-      group: spelling-${{ github.event.workflow_run.head_sha }}-${{ github.event.workflow_run.id }}
-      cancel-in-progress: true
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: write   # needed to post PR comments
 
     steps:
       - name: Check out PR head commit
         uses: actions/checkout@v6
         with:
-          repository: ${{ github.event.workflow_run.head_repository.full_name }}
-          ref: ${{ github.event.workflow_run.head_sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
@@ -91,12 +141,51 @@ jobs:
         shell: Rscript {0}
         run: install.packages("spelling")
 
-      - name: Spellcheck root directory (include vignettes)
+      - name: Run spellcheck and capture output
         id: spellcheck
-        shell: Rscript {0}
+        shell: bash
         run: |
-          result <- spelling::spell_check_package()
-          print(result)
-          if (length(result[[1]]) != 0) {
-            stop("Spelling errors found (fix or add to WORDLIST)")
-          }
+          set -o pipefail
+          CMD='result <- spelling::spell_check_package(); print(result); if (length(result[[1]]) != 0) stop("Spelling errors found (fix or add to WORDLIST)")'
+          if Rscript -e "$CMD" 2>&1 | tee spellcheck.log; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on PR with spelling results (on failure)
+        if: steps.spellcheck.outputs.ok == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.payload.pull_request.number;
+
+            let log = fs.readFileSync('spellcheck.log', 'utf8');
+            // Safety: trim overly long logs
+            const max = 65000;
+            if (log.length > max) {
+              log = log.slice(0, max) + '\n… (truncated)';
+            }
+
+            const body = [
+              '<!-- spellcheck-report -->',
+              'Spelling check failed. Details:',
+              '',
+              '```',
+              log.trim(),
+              '```'
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: number,
+              body
+            });
+
+      - name: Fail job if spelling errors
+        if: steps.spellcheck.outputs.ok == 'false'
+        run: exit 1
