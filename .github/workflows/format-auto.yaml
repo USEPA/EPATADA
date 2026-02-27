@@ -1,10 +1,9 @@
-# Combined PR auto-format (same-repo) and suggestion-only for forks
-name: formatting
+name: Automated Formatting
 
 on:
   pull_request_target:
-    branches: [develop]                  # Only PRs targeting develop
-    types: [opened, ready_for_review]    # On PR open or when draft → ready_for_review
+    branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 jobs:
   # Auto-format on PRs (same-repo), suggest-only on forks

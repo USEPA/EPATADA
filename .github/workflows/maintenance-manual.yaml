@@ -1,4 +1,4 @@
-name: Component File Update
+name: Update Files Manually
 
 on:
   workflow_dispatch: {}

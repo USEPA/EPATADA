@@ -7,7 +7,7 @@ on:
 
   # Run after formatting and spelling-check complete (for PRs to develop)
   workflow_run:
-    workflows: ["formatting", "spelling-check"]
+    workflows: ["Automated Formatting", "Spelling Test"]
     types: [completed]
 
   workflow_dispatch:
@@ -40,7 +40,9 @@ jobs:
             // Manual runs bypass prerequisites to allow on-demand checks
             if (event === 'workflow_dispatch') {
               core.setOutput('ok', 'true');
-              core.setOutput('note', 'Manual run — prerequisite check skipped.');
+              const ref = context.payload?.inputs?.ref || 'develop';
+              const repository = context.payload?.inputs?.repository || `${owner}/${repo}`;
+              core.setOutput('note', `Manual run — repository=${repository}; ref=${ref}`);
               return;
             }
 
@@ -53,21 +55,26 @@ jobs:
               return;
             }
 
-            // For workflow_run from formatting/spelling-check:
-            // - require PR base branch develop (and not draft), OR
-            // - ignore (we only want PRs here; pushes handled above)
+            // Only handle workflow_run from Formatting/Spelling
             if (event !== 'workflow_run') {
               core.setOutput('ok', 'false');
               core.setOutput('note', `Unsupported event: ${event}`);
               return;
             }
 
+            // Optional: short-circuit if upstream workflow_run didn't succeed
             const wr = context.payload.workflow_run;
+            if (wr?.conclusion !== 'success') {
+              core.setOutput('ok', 'false');
+              core.setOutput('note', `Upstream workflow_run not successful: ${wr?.conclusion}`);
+              return;
+            }
+
             const headSha = wr.head_sha;
 
+            // Confirm PR base is develop (drafts allowed)
             let baseDevelopOk = false;
             if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
-              // Prefer payload PRs; fall back to associated PRs for safety
               let prs = wr.pull_requests || [];
               if (!prs || prs.length === 0) {
                 const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
@@ -75,11 +82,11 @@ jobs:
                 });
                 prs = assoc.data;
               }
-              baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop' && !pr?.draft);
+              baseDevelopOk = prs.some(pr => pr?.base?.ref === 'develop');
             }
 
             // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['formatting', 'spelling-check']);
+            const targetNames = new Set(['Automated Formatting', 'Spelling Test']);
             const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner, repo, head_sha: headSha, per_page: 100
             });

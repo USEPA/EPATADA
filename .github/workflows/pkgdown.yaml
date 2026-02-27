@@ -9,11 +9,8 @@ on:
 
   # Run after formatting and spelling-check complete (for PRs to develop)
   workflow_run:
-    workflows: ["formatting", "spelling-check"]
+    workflows: ["Automated Formatting", "Spelling Test"]
     types: [completed]
-
-  # Optional manual trigger
-  workflow_dispatch:
 
 jobs:
   gate:
@@ -30,13 +27,6 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const event = context.eventName;
-
-            // Manual runs are allowed
-            if (event === 'workflow_dispatch') {
-              core.setOutput('ok', 'true');
-              core.setOutput('note', 'Manual run — prerequisite check skipped.');
-              return;
-            }
 
             // Pushes to develop always allowed
             if (event === 'push') {
@@ -60,7 +50,7 @@ jobs:
 
             // Confirm PR base is develop
             let baseDevelopOk = false;
-            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
+            if (wr.event === 'pull_request' || 'pull_request_target') {
               let prs = wr.pull_requests || [];
               if (!prs || prs.length === 0) {
                 const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
@@ -72,7 +62,7 @@ jobs:
             }
 
             // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['formatting', 'spelling-check']);
+            const targetNames = new Set(['Automated Formatting', 'Spelling Test']);
             const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner, repo, head_sha: headSha, per_page: 100
             });
@@ -101,7 +91,7 @@ jobs:
     if: ${{ needs.gate.outputs.ok == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.event_name == 'workflow_run' && format('pkgdown-{0}', github.event.workflow_run.head_sha) || github.event_name == 'push' && format('pkgdown-push-{0}', github.sha) || format('pkgdown-manual-{0}', github.run_id) }}
+      group: ${{ github.event_name == 'workflow_run' && format('pkgdown-{0}', github.event.workflow_run.head_sha) || format('pkgdown-push-{0}', github.sha) }}
       cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -123,10 +113,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
-
-      - name: Check out (manual)
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
 

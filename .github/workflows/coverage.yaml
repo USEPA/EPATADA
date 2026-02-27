@@ -1,8 +1,8 @@
-name: test-coverage
+name: Coverage Test
 
 on:
   workflow_run:
-    workflows: ["formatting", "spelling-check"]
+    workflows: ["Automated Formatting", "Spelling Test"]
     types: [completed]
 
 permissions:
@@ -27,7 +27,7 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Verify formatting and spelling-check succeeded (and PR base is develop)
+      - name: Verify formatting and spelling succeeded (and PR base is develop)
         id: verify
         uses: actions/github-script@v7
         with:
@@ -42,7 +42,7 @@ jobs:
               owner, repo, head_sha: headSha, per_page: 100
             });
 
-            const targetNames = new Set(["formatting", "spelling-check"]);
+            const targetNames = new Set(["Automated Formatting", "Spelling Test"]);
             const latestByName = {};
             for (const run of runs.data.workflow_runs) {
               if (targetNames.has(run.name)) {

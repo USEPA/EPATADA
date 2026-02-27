@@ -1,24 +1,15 @@
-name: spelling-check
+name: Spelling Test
 
 on:
-  # Run on PRs targeting develop (open, reopen, new commits, and when moved out of draft)
   pull_request:
     branches: [develop]
     types: [opened, reopened, synchronize, ready_for_review]
-
-  # Optional manual trigger
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: "Git ref (branch, tag, or SHA) to check (optional)"
-        required: false
-        default: ""
 
 jobs:
   spelling-check:
     runs-on: ubuntu-latest
 
-    # Skip on draft PRs; still allows manual runs
+    # Skip on draft PRs
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
 
     env:
@@ -28,10 +19,7 @@ jobs:
       - name: Check out
         uses: actions/checkout@v6
         with:
-          # Use provided ref for manual runs; otherwise use the event ref
-          # (On pull_request events this is the merge ref; fine for spellcheck.
-          # If you prefer the PR head commit, set ref: ${{ github.head_ref }} instead.)
-          ref: ${{ github.event.inputs.ref || github.ref }}
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - uses: r-lib/actions/setup-r@v2
         with:

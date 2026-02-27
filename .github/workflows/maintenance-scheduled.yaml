@@ -1,4 +1,4 @@
-name: Reference files and example data updates
+name: Scheduled File Update
 
 on:
   # Weekly at 2:01 AM UTC — adjust as needed
