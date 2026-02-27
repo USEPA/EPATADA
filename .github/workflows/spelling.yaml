@@ -1,4 +1,4 @@
-name: Spelling Test
+name: spelling
 
 on:
   pull_request:

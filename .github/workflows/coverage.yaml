@@ -1,8 +1,8 @@
-name: Coverage Test
+name: coverage
 
 on:
   workflow_run:
-    workflows: ["Automated Formatting", "Spelling Test"]
+    workflows: ["Automated Formatting", "spelling"]
     types: [completed]
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
               owner, repo, head_sha: headSha, per_page: 100
             });
 
-            const targetNames = new Set(["Automated Formatting", "Spelling Test"]);
+            const targetNames = new Set(["Automated Formatting", "spelling"]);
             const latestByName = {};
             for (const run of runs.data.workflow_runs) {
               if (targetNames.has(run.name)) {
