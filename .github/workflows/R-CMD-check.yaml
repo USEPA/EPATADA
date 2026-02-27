@@ -48,10 +48,28 @@ jobs:
               return;
             }
 
-            // For PR runs: proceed only once "Prerequisites" succeeded for this PR head SHA
+            // For PR runs:
+            // - Only run the matrix if this run's commit is still the PR's current head
+            // - And only after "Prerequisites" succeeded for this exact commit
             if (context.eventName === 'pull_request') {
-              const pr = context.payload.pull_request;
-              const headSha = pr.head.sha;
+              const prNum = context.payload?.pull_request?.number;
+              if (!prNum) {
+                core.setOutput('run_check', 'false');
+                return;
+              }
+
+              // Current PR head (latest commit on the PR)
+              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNum });
+              const currentHeadSha = pr?.head?.sha || '';
+              const runSha = context.sha;
+
+              // If this run's commit is not the latest PR head, do not run.
+              // This avoids running on the initial commit when a formatter commit has been pushed.
+              if (!currentHeadSha || currentHeadSha !== runSha) {
+                core.info(`Skipping: run sha ${runSha} is not current PR head ${currentHeadSha}`);
+                core.setOutput('run_check', 'false');
+                return;
+              }
 
               // Find "Prerequisites" workflow
               const wfs = await github.rest.actions.listRepoWorkflows({ owner, repo });
@@ -61,19 +79,21 @@ jobs:
                 return;
               }
 
-              // Find latest completed "Prerequisites" run for this head SHA
+              // Require a successful "Prerequisites" run for this exact commit
               const runs = await github.rest.actions.listWorkflowRuns({
-                owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: headSha, status: 'completed', per_page: 1
+                owner, repo, workflow_id: prereq.id, event: 'pull_request', head_sha: runSha, status: 'completed', per_page: 1
               });
               const run = runs.data.workflow_runs?.[0];
-
-              // Require overall success; this covers both initial runs and the bot follow-up run after formatting push
               const ok = !!(run && run.conclusion === 'success');
+
+              core.info(`Prerequisites for ${runSha}: ${ok ? 'success' : 'not successful'}`);
               core.setOutput('run_check', ok ? 'true' : 'false');
               return;
             }
 
-            // After "Prerequisites" completes successfully, re-run the latest PR-based R-CMD-check so it shows on the PR
+            // After "Prerequisites" completes successfully, re-run the latest PR-based R-CMD-check
+            // so the PR-attached run executes. Only when the Prerequisites run head_sha is still
+            // the PR's current head (e.g., formatter commit case).
             if (context.eventName === 'workflow_run') {
               const wr = context.payload.workflow_run;
 
@@ -84,6 +104,34 @@ jobs:
               }
               const isPR = wr.event === 'pull_request' || wr.event === 'pull_request_target';
               if (!isPR) {
+                core.setOutput('run_check', 'false');
+                return;
+              }
+
+              // Determine the associated PR for this commit
+              // Use the "list pull requests associated with a commit" API
+              let prNum = 0;
+              try {
+                const prsForCommit = await github.request('GET /repos/{owner}/{repo}/commits/{commit_sha}/pulls', {
+                  owner, repo, commit_sha: wr.head_sha,
+                  mediaType: { previews: ['groot'] } // compatibility for this endpoint
+                });
+                const pr = prsForCommit.data?.[0];
+                prNum = pr?.number || 0;
+              } catch (e) {
+                core.info(`Could not find PR for commit ${wr.head_sha}: ${e?.message || e}`);
+              }
+
+              if (!prNum) {
+                core.setOutput('run_check', 'false');
+                return;
+              }
+
+              // Check current PR head; only re-run when the Prerequisites head_sha is still the PR's head
+              const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: prNum });
+              const currentHeadSha = pr?.head?.sha || '';
+              if (!currentHeadSha || currentHeadSha !== wr.head_sha) {
+                core.info(`Skipping rerun: Prerequisites head ${wr.head_sha} != current PR head ${currentHeadSha}`);
                 core.setOutput('run_check', 'false');
                 return;
               }
@@ -107,7 +155,11 @@ jobs:
                 await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
                   owner, repo, run_id: prRun.id
                 });
+                core.info(`Requested rerun of PR-based R-CMD-check run ${prRun.id} for ${wr.head_sha}`);
+              } else {
+                core.info(`No PR-based R-CMD-check run found for ${wr.head_sha}`);
               }
+
               // Skip performing the matrix on this workflow_run
               core.setOutput('run_check', 'false');
               return;
