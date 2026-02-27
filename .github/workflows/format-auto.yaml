@@ -1,0 +1,105 @@
+name: Automated Formatting
+
+on:
+  pull_request_target:
+    branches: [develop]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+jobs:
+  # Auto-format on PRs (same-repo), suggest-only on forks
+  format-pr:
+    # Skip drafts and avoid self-trigger loops
+    if: github.actor != 'github-actions[bot]' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write            # needed to commit/push on same-repo PRs
+      pull-requests: write       # needed to post suggestions/comments on PRs
+
+    steps:
+      - name: Check out PR head
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install Air formatter
+        uses: posit-dev/setup-air@v1
+
+      # Same-repo PRs: format and push changes
+      - name: Format with air (same-repo PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        env:
+          # Avoid exposing token to tools that process untrusted code
+          GITHUB_TOKEN: ""
+        run: air format .
+
+      - name: Commit and push formatting changes
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        id: pushfmt
+        shell: bash
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No formatting changes to commit."
+            echo "pushed=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "style: apply formatting via air"
+
+          set +e
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.event.pull_request.head.repo.full_name }}.git" \
+                   "HEAD:${{ github.event.pull_request.head.ref }}"
+          status=$?
+          set -e
+
+          if [ $status -eq 0 ]; then
+            echo "pushed=true" >> "$GITHUB_OUTPUT"
+            echo "Formatting changes pushed."
+          else
+            echo "pushed=false" >> "$GITHUB_OUTPUT"
+            echo "Could not push formatting changes (likely fork or edits disabled)."
+          fi
+
+      # Fork PRs: suggest formatting changes inline, do not fail the job
+      - name: Format (fork PRs)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        env:
+          GITHUB_TOKEN: ""
+        run: air format .
+
+      - name: Suggest formatting changes on PR (forks)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: air
+          level: warning
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post guidance comment (fork PRs, only if changes found)
+        if: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          # If Air produced changes, git diff will not be empty
+          if ! git diff --quiet; then
+            pr=${{ github.event.pull_request.number }}
+            body=$(cat <<'MD'
+            Thanks for the contribution! The formatter found issues.
+
+            Because this PR comes from a fork, the bot cannot push fixes. Please:
+            - Install Air: https://github.com/posit-dev/setup-air
+            - Run: air format .
+            - Commit and push the changes
+            MD
+            )
+            gh pr comment "$pr" --body "$body"
+          fi

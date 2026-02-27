@@ -1,23 +1,22 @@
-name: Component File Update
+name: Update Files Manually
 
 on:
-#  pull_request:
-#    branches:
-#      [develop]
-  workflow_dispatch:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
 
 jobs:
   maintenance_updates:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -28,40 +27,35 @@ jobs:
         uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: Install EPATADA package
+        shell: "Rscript {0}"
         run: |
           install.packages("remotes")
-          library(remotes)
           remotes::install_github("USEPA/EPATADA", ref = "develop", dependencies = TRUE, force = TRUE)
-        shell: Rscript {0}
 
       - name: Update reference files
+        shell: "Rscript {0}"
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateRefFiles()
-        shell: Rscript {0}
 
       - name: Commit updated reference files
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
           message: "Update reference files"
-          add: '[./inst/extdata/*]'
+          add: "inst/extdata/*"
 
       - name: Update example data
+        shell: "Rscript {0}"
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateExampleData()
-        shell: Rscript {0}
 
       - name: Commit updated example data
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: 'github-actions[bot]'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
+          author_name: github-actions[bot]
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
           message: "Update example data"
-          add: '[./data/*]'
-
-#      - uses: pre-commit/action@v3.0.1
-#        with:
-#          extra_args: --files = '[./data/*, ./inst/extdata/*]'
+          add: "data/*"

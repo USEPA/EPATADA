@@ -1,0 +1,153 @@
+name: Coverage Test
+
+on:
+  workflow_run:
+    workflows: ["Automated Formatting", "Spelling Test"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  coverage-on-pr:
+    name: Coverage on PRs to develop (after formatting & spelling)
+    if: >
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'pull_request_target')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: coverage-pr-${{ github.event.workflow_run.head_sha }}
+      cancel-in-progress: true
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Verify formatting and spelling succeeded (and PR base is develop)
+        id: verify
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const wr = context.payload.workflow_run;
+            const headSha = wr.head_sha;
+
+            // Collect latest runs for the same SHA
+            const runs = await github.rest.actions.listWorkflowRunsForRepo({
+              owner, repo, head_sha: headSha, per_page: 100
+            });
+
+            const targetNames = new Set(["Automated Formatting", "Spelling Test"]);
+            const latestByName = {};
+            for (const run of runs.data.workflow_runs) {
+              if (targetNames.has(run.name)) {
+                const prev = latestByName[run.name];
+                if (!prev || new Date(run.created_at) > new Date(prev.created_at)) {
+                  latestByName[run.name] = run;
+                }
+              }
+            }
+
+            const missing = [...targetNames].filter(n => !latestByName[n]);
+            const failed = Object.entries(latestByName).filter(([n, r]) => r.conclusion !== 'success');
+
+            // PR base branch check (limit to develop)
+            let prBaseOk = false;
+            if (wr.event === 'pull_request' || wr.event === 'pull_request_target') {
+              let prs = wr.pull_requests || [];
+              if (!prs || prs.length === 0) {
+                const assoc = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner, repo, commit_sha: headSha
+                });
+                prs = assoc.data;
+              }
+              prBaseOk = prs.some(pr => pr?.base?.ref === 'develop');
+            }
+
+            const ok = prBaseOk && missing.length === 0 && failed.length === 0;
+            core.setOutput('ok', ok ? 'true' : 'false');
+            core.info(`Prereq check: ok=${ok}. Missing=${missing.join(', ') || 'none'}. Failed=${failed.map(([n, r]) => `${n}:${r.conclusion}`).join(', ') || 'none'}. PR base OK=${prBaseOk}.`);
+
+      - name: Check out the same commit
+        if: steps.verify.outputs.ok == 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      - uses: r-lib/actions/setup-r@v2
+        if: steps.verify.outputs.ok == 'true'
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        if: steps.verify.outputs.ok == 'true'
+        with:
+          extra-packages: any::covr, any::xml2
+          needs: coverage
+
+      - name: Capture Environment Info
+        if: steps.verify.outputs.ok == 'true'
+        shell: Rscript {0}
+        run: |
+          env_vars <- Sys.getenv()
+          pkg_versions <- installed.packages()[, c("Package", "Version")]
+          sys_info <- Sys.info()
+          save(env_vars, pkg_versions, sys_info, file = "ci_env_info.RData")
+
+      - name: Upload Environment Info
+        if: steps.verify.outputs.ok == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: ci_env_info
+          path: ci_env_info.RData
+
+      - name: Test coverage
+        if: steps.verify.outputs.ok == 'true'
+        shell: Rscript {0}
+        run: |
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          print(cov)
+          covr::to_cobertura(cov, filename = "cobertura.xml")
+
+      - name: Show testthat output
+        if: always() && steps.verify.outputs.ok == 'true'
+        shell: bash
+        run: |
+          ## --------------------------------------------------------------------
+          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+
+      - name: Upload test results
+        if: failure() && steps.verify.outputs.ok == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package
+          if-no-files-found: ignore
+
+      - name: Upload coverage report
+        if: steps.verify.outputs.ok == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-report
+          path: ./cobertura.xml
+          if-no-files-found: ignore
+
+      - name: Comment coverage on PR (develop only)
+        if: steps.verify.outputs.ok == 'true' && hashFiles('cobertura.xml') != '' && (github.event.workflow_run.event == 'pull_request' || github.event.workflow_run.event == 'pull_request_target')
+        uses: 5monkeys/cobertura-action@master
+        with:
+          report_name: coverage-report
+          path: ./cobertura.xml
+          minimum_coverage: 10
+          show_missing: true
+          link_missing_lines: true
