@@ -21,8 +21,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    # Run for branches and forks, skip drafts and any bot-triggered re-run
-    if: github.event.pull_request.draft == false && github.actor != 'github-actions[bot]'
+    # Allow formatting on bot-opened PRs; skip only bot-triggered synchronize runs
+    if: github.event.pull_request.draft == false && (github.actor != 'github-actions[bot]' || github.event.action != 'synchronize')
     outputs:
       pushed: ${{ steps.pushed.outputs.value }}
 
@@ -84,7 +84,6 @@ jobs:
           if [ -z "$val" ]; then val="none"; fi
           echo "value=$val" >> "$GITHUB_OUTPUT"
 
-  # Spelling on the initial run (only if formatter did NOT push changes)
   spelling-initial:
     name: Spelling
     needs: format-pr
@@ -108,11 +107,11 @@ jobs:
         with:
           use-public-rspm: true
 
-      - name: Install spellchecker
-        env:
-          GITHUB_TOKEN: ""
-        shell: Rscript {0}
-        run: install.packages("spelling")
+      - name: Install dependencies (spelling) with cache
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1
+          extra-packages: any::spelling
 
       - name: Run spellcheck and capture output
         id: spellcheck
@@ -134,17 +133,46 @@ jobs:
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        # (script unchanged)
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.issue.number;
+
+            let log = fs.readFileSync('spellcheck.log', 'utf8');
+            const max = 65000;
+            if (log.length > max) {
+              log = log.slice(0, max) + '\n… (truncated)';
+            }
+
+            const body = [
+              '<!-- spellcheck-report -->',
+              'Spelling check failed. Details:',
+              '',
+              '```',
+              log.trim(),
+              '```'
+            ].join('\n');
+
+            try {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body
+              });
+            } catch (error) {
+              core.warning(`Could not post comment: ${error?.message || error}`);
+            }
 
       - name: Fail job if spelling errors
         if: steps.spellcheck.outputs.ok == 'false'
         run: exit 1
 
-  # Spelling on the follow-up run triggered by the formatter's bot push
   spelling-after-formatter-push:
     name: Spelling (after formatter push)
-    # No 'needs' here so it can run when Format is skipped (actor is bot)
-    if: github.event.pull_request.draft == false && github.actor == 'github-actions[bot]'
+    # Run on any synchronize, then verify the commit is from the formatter
+    if: github.event.pull_request.draft == false && github.event.action == 'synchronize'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -152,7 +180,41 @@ jobs:
       issues: write
 
     steps:
+      - name: Verify head commit is the formatter push
+        id: verifyfmt
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sha = context.payload.pull_request.head.sha;
+            const full = context.payload.pull_request.head.repo?.full_name || '';
+            let proceed = false;
+            let msg = '';
+            let committerName = '';
+            let committerEmail = '';
+
+            if (sha && full && full.includes('/')) {
+              const [headOwner, headRepo] = full.split('/');
+              try {
+                const { data } = await github.rest.repos.getCommit({ owner: headOwner, repo: headRepo, ref: sha });
+                msg = data?.commit?.message || '';
+                committerName = data?.commit?.committer?.name || '';
+                committerEmail = data?.commit?.committer?.email || '';
+                const isFormatterMsg = msg.startsWith('style: apply formatting via air');
+                const isBotCommitter = committerName === 'github-actions[bot]' && (committerEmail || '').includes('users.noreply.github.com');
+                // Stricter gating to avoid false positives
+                proceed = isFormatterMsg && isBotCommitter;
+              } catch (error) {
+                // Could be a private fork; in that case, do not proceed
+                proceed = false;
+                core.info(`Could not fetch commit ${sha} from ${full}: ${error?.message || error}`);
+              }
+            }
+
+            core.setOutput('proceed', proceed ? 'true' : 'false');
+            core.info(`Head commit ${sha} from ${full}: proceed=${proceed} (msg='${msg}', committer='${committerName}', email='${committerEmail}')`);
+
       - name: Check out PR head commit (new commit from formatter)
+        if: steps.verifyfmt.outputs.proceed == 'true'
         uses: actions/checkout@v6
         with:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
@@ -161,16 +223,19 @@ jobs:
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-r@v2
+        if: steps.verifyfmt.outputs.proceed == 'true'
         with:
           use-public-rspm: true
 
-      - name: Install spellchecker
-        env:
-          GITHUB_TOKEN: ""
-        shell: Rscript {0}
-        run: install.packages("spelling")
+      - name: Install dependencies (spelling) with cache
+        if: steps.verifyfmt.outputs.proceed == 'true'
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          cache-version: 1
+          extra-packages: any::spelling
 
       - name: Run spellcheck and capture output
+        if: steps.verifyfmt.outputs.proceed == 'true'
         id: spellcheck
         env:
           GITHUB_TOKEN: ""
@@ -185,13 +250,38 @@ jobs:
           fi
 
       - name: Comment on PR with spelling results (same-repo PRs only)
-        if: steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo_full_name == github.repository
+        if: steps.verifyfmt.outputs.proceed == 'true' && steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-        # (script unchanged)
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.issue.number;
+
+            let log = fs.readFileSync('spellcheck.log', 'utf8');
+            const max = 65000;
+            if (log.length > max) {
+              log = log.slice(0, max) + '\n… (truncated)';
+            }
+
+            const body = [
+              '<!-- spellcheck-report -->',
+              'Spelling check failed. Details:',
+              '',
+              '```',
+              log.trim(),
+              '```'
+            ].join('\n');
+
+            try {
+              await github.rest.issues.createComment({ owner, repo, issue_number: number, body });
+            } catch (error) {
+              core.warning(`Could not post comment: ${error?.message || error}`);
+            }
 
       - name: Fail job if spelling errors
-        if: steps.spellcheck.outputs.ok == 'false'
+        if: steps.verifyfmt.outputs.proceed == 'true' && steps.spellcheck.outputs.ok == 'false'
         run: exit 1
