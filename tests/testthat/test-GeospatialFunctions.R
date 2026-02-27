@@ -308,7 +308,6 @@ testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriate
 
 
 testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
-
   # Uses example data set that has already had TADA_CreateAUMLCrosswalk applied
   au.sources <- sort(unique(Data_MT_AUMLRef$ATTAINS_crosswalk$TADA.AURefSource))
 

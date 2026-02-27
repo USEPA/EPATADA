@@ -3161,7 +3161,6 @@ TADA_CreateAUMLCrosswalk <- function(
   batch_upload = FALSE,
   api_key = NULL
 ) {
-
   # Handle empty input data scenario
   if (nrow(.data) == 0) {
     message(
