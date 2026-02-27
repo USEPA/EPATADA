@@ -95,6 +95,7 @@ jobs:
       cancel-in-progress: true
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
     permissions:
       contents: write
 
