@@ -5,11 +5,12 @@ on:
   push:
     branches: [develop]
 
-  # Run after formatting and spelling-check complete (for PRs to develop)
+  # Run after formatting and spelling complete (for PRs to develop)
   workflow_run:
-    workflows: ["Automated Formatting", "Spelling Test"]
+    workflows: ["Automated Formatting", "spelling"]
     types: [completed]
 
+  # Manual runs with optional branch/SHA and optional other repo
   workflow_dispatch:
     inputs:
       ref:
@@ -62,7 +63,7 @@ jobs:
               return;
             }
 
-            // Optional: short-circuit if upstream workflow_run didn't succeed
+            // Short-circuit if upstream workflow_run didn't succeed
             const wr = context.payload.workflow_run;
             if (wr?.conclusion !== 'success') {
               core.setOutput('ok', 'false');
@@ -86,7 +87,7 @@ jobs:
             }
 
             // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['Automated Formatting', 'Spelling Test']);
+            const targetNames = new Set(['Automated Formatting', 'spelling']);
             const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner, repo, head_sha: headSha, per_page: 100
             });
@@ -117,7 +118,9 @@ jobs:
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     concurrency:
-      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha) || github.event_name == 'push' && format('rcmdcheck-push-{0}', github.sha) || format('rcmdcheck-manual-{0}', github.run_id) }}
+      group: ${{ github.event_name == 'workflow_run' && format('rcmdcheck-{0}', github.event.workflow_run.head_sha)
+        || github.event_name == 'push' && format('rcmdcheck-push-{0}', github.sha)
+        || format('rcmdcheck-manual-{0}-{1}', inputs.repository != '' && inputs.repository || github.repository, inputs.ref != '' && inputs.ref || 'develop') }}
       cancel-in-progress: true
 
     strategy:
@@ -155,13 +158,13 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
-      # Checkout for manual runs (optional ref/repo)
+      # Checkout for manual runs (selected branch/SHA and optional repo)
       - name: Check out (manual)
         if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repository != '' && inputs.repository || github.repository }}
-          ref: ${{ inputs.ref != '' && inputs.ref || github.ref }}
+          ref: ${{ inputs.ref != '' && inputs.ref || 'develop' }}
           fetch-depth: 0
 
       - uses: r-lib/actions/setup-pandoc@v2

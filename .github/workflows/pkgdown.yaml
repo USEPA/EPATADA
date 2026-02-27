@@ -7,9 +7,9 @@ on:
   push:
     branches: [develop]
 
-  # Run after formatting and spelling-check complete (for PRs to develop)
+  # Run after formatting and spelling complete (for PRs to develop)
   workflow_run:
-    workflows: ["Automated Formatting", "Spelling Test"]
+    workflows: ["Automated Formatting", "spelling"]
     types: [completed]
 
 jobs:
@@ -37,7 +37,7 @@ jobs:
               return;
             }
 
-            // For workflow_run from formatting/spelling-check:
+            // For workflow_run from formatting/spelling:
             // - require PR base branch develop
             if (event !== 'workflow_run') {
               core.setOutput('ok', 'false');
@@ -62,7 +62,7 @@ jobs:
             }
 
             // Require both prerequisite workflows to have succeeded for this head SHA
-            const targetNames = new Set(['Automated Formatting', 'Spelling Test']);
+            const targetNames = new Set(['Automated Formatting', 'spelling']);
             const runs = await github.rest.actions.listWorkflowRunsForRepo({
               owner, repo, head_sha: headSha, per_page: 100
             });
