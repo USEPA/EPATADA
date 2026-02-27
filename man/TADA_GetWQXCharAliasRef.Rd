@@ -4,18 +4,24 @@
 \alias{TADA_GetWQXCharAliasRef}
 \title{WQX Characteristic Alias Reference Table}
 \usage{
-TADA_GetWQXCharAliasRef()
+TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
+}
+\arguments{
+\item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
+attempts to download the latest Characteristic Alias reference table directly from WQX,
+returning it without updating the cache. Errors if the download fails. If FALSE
+(default), uses a cached copy when available and updates the cache; on download
+failure, falls back to the package’s internal file.}
+
+\item{refresh}{Logical. Only used when download_only = FALSE. If TRUE, ignore any
+cached copy and attempt to retrieve a fresh table (download, falling back to the
+package’s internal file on failure), then update the cache. If FALSE (default),
+return the cached table when available. Ignored when download_only = TRUE.}
 }
 \value{
-Updated sysdata.rda with updated WQXCharAliasRef object
+data.frame with "Domain", "Unique.Identifier", "Alias.Name", "Description",
+"Characteristic.Name", "Alias.Type.Name", "Last.Change.Date"
 }
 \description{
-Function downloads and returns the newest available (cleaned)
-raw Water Quality Exchange (WQX) Characteristic Alias reference table.
-The WQXCharAliasRef dataframe contains information for
-TADA_GetTADACharAliasRef() function.
-}
-\details{
-This function caches the table after it has been called once
-so subsequent calls will be faster.
+WQX Characteristic Alias Reference Table
 }

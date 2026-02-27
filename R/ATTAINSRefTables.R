@@ -74,7 +74,9 @@ TADA_GetTADACharAliasRef <- function(
       ATTAINS.CST.tolerance > 1.00,
       CST.ATTAINS.tolerance > 1.00,
       ATTAINS.WQX.tolerance > 1.00,
-      WQX.ATTAINS.tolerance > 1.00
+      WQX.ATTAINS.tolerance > 1.00,
+      CST.WQX.tolerance > 1.00,
+      WQX.CST.tolerance > 1.00
     )
   ) {
     stop(
@@ -87,7 +89,9 @@ TADA_GetTADACharAliasRef <- function(
       ATTAINS.CST.tolerance < 0.00,
       CST.ATTAINS.tolerance < 0.00,
       ATTAINS.WQX.tolerance < 0.00,
-      WQX.ATTAINS.tolerance < 0.00
+      WQX.ATTAINS.tolerance < 0.00,
+      CST.WQX.tolerance < 0.00,
+      WQX.CST.tolerance < 0.00
     )
   ) {
     stop(

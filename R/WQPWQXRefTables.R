@@ -35,6 +35,7 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   ActivityType = "https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV",
   MonitoringLocationType = "https://cdx.epa.gov/wqx/download/DomainValues/MonitoringLocationType.CSV",
   ResultMeasureQualifier = "https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"
+  # WQXCharAliasRef = "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip" # zip file
 )
 
 .WQP_URLS <- list(
@@ -51,6 +52,7 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 .WQXMonLocTypeRef_cache_key <- "WQXMonitoringLocationTypeNameRef"
 .WQPProviderRef_cache_key <- "WQPProviderRef"
 .WQXMeasureQualifierCodeRef_cache_key <- "WQXMeasureQualifierCodeRef"
+.WQXCharAliasRef_cache_key <- "WQXCharAliasRef"
 
 # =========================
 # Generic helper functions
@@ -1536,92 +1538,77 @@ TADA_GetMeasureQualifierCodeRef <- function(
   invisible(df)
 }
 
-
-# Used to store cached WQX Characteristic Alias Reference Table
-WQXCharAliasRef_Cached <- NULL
-
 #' WQX Characteristic Alias Reference Table
+#' @return data.frame with "Domain", "Unique.Identifier", "Alias.Name", "Description",
+#'          "Characteristic.Name", "Alias.Type.Name", "Last.Change.Date"
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
+#'   attempts to download the latest Characteristic Alias reference table directly from WQX,
+#'   returning it without updating the cache. Errors if the download fails. If FALSE
+#'   (default), uses a cached copy when available and updates the cache; on download
+#'   failure, falls back to the package’s internal file.
 #'
-#' Function downloads and returns the newest available (cleaned)
-#' raw Water Quality Exchange (WQX) Characteristic Alias reference table.
-#' The WQXCharAliasRef dataframe contains information for
-#' TADA_GetTADACharAliasRef() function.
-#'
-#' This function caches the table after it has been called once
-#' so subsequent calls will be faster.
-#'
-#' @return Updated sysdata.rda with updated WQXCharAliasRef object
-#'
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
+#'   package’s internal file on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
 
-TADA_GetWQXCharAliasRef <- function() {
-  # Try to download up-to-date data
-  raw.data <- tryCatch(
-    {
-      # Try to download up to date WQX Char Alias table
-      # pull in WQX Char Alias table.
-      temp_zip <- tempfile(fileext = ".zip")
-
-      utils::download.file(
-        "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip",
-        destfile = temp_zip,
-        mode = "wb"
-      )
-
-      temp_dir <- tempdir() # Create a temporary directory to extract files
-      utils::unzip(temp_zip, exdir = temp_dir)
-
-      # specify CSV file name
-      csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
-
-      utils::read.csv(csv_file_path)
-    },
-    error = function(err) NULL
-  )
-
-  # If the download failed fall back to internal data (and report it)
-  if (is.null(raw.data)) {
-    message("Downloading latest WQXCharAliasRef Reference Table failed!")
-    message("Falling back to (possibly outdated) internal file.")
-
-    file_path <- system.file(
-      "extdata",
-      "WQXCharAliasRef.rda",
-      package = "EPATADA"
-    )
-    if (!nzchar(file_path) || !file.exists(file_path)) {
-      stop(
-        "Internal file 'extdata/WQXCharAliasRef.rda' not found in installed package."
-      )
-    }
-
-    ref_env <- new.env(parent = emptyenv())
-    nm <- load(file_path, envir = ref_env)
-    if (!"WQXCharAliasRef" %in% nm) {
-      stop("Internal .rda does not contain object 'WQXCharAliasRef'.")
-    }
-    WQXCharAliasRef <- ref_env[["WQXCharAliasRef"]]
+TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.WQXCharValRef_cache_key)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-
-  # Save updated table in cache
-  WQXCharAliasRef <- raw.data
-
-  WQXCharAliasRef_Cached <- WQXCharAliasRef
-
-  WQXCharAliasRef
+  if (download_only) {
+    # Try to download up to date WQX Char Alias table
+    # pull in WQX Char Alias table from zip first
+    temp_zip <- tempfile(fileext = ".zip")
+    
+    utils::download.file(
+      "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip",
+      destfile = temp_zip,
+      mode = "wb"
+    )
+    
+    temp_dir <- tempdir() # Create a temporary directory to extract files
+    utils::unzip(temp_zip, exdir = temp_dir)
+    
+    # specify CSV file name
+    csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
+    
+    df <- .tada_read_csv_url(
+      csv_file_path,
+      stringsAsFactors = FALSE
+    )
+    
+    if (is.null(df)) {
+      stop("TADA_GetWQXCharAliasRef(download_only=TRUE): download failed.")
+    }
+  } else {
+    df <- .tada_download_or_extdata_rda(
+      url = csv_file_path, # this csv file path url is from a zip file. See other WQX examples for all other .csv cases.
+      fallback_filename = "WQXcharAliasRef.rda",
+      object_name = "WQXcharAliasRef",
+      pkg = "EPATADA",
+      on_fail_message = "Downloading latest Validation Reference Table failed! Falling back to (possibly outdated) internal file."
+    )
+  }
+  if (!download_only) {
+    .tada_cache_set(.WQXCharAliasRef_cache_key, df)
+  }
+  df
 }
 
-# Update Characteristic Validation Reference Table internal file
-# (for internal use only)
-
+# Update Characteristic Validation Reference Table internal file (DEV-TIME ONLY)
+#' @keywords internal
 TADA_UpdateWQXCharAliasRef <- function() {
-  WQXCharAliasRef <- TADA_GetWQXCharAliasRef()
-  stopifnot(is.data.frame(WQXCharAliasRef))
-  save(
-    WQXCharAliasRef,
-    file = "inst/extdata/WQXCharAliasRef.rda",
-    ascii = FALSE,
+  df <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+  .tada_save_ext_rda(
+    df,
+    obj_name = "WQXCharAliasRef",
+    pkg = "EPATADA",
+    filename = "WQXCharAliasRef.rda",
     compress = "xz",
-    version = 3
+    version = 2
   )
+  invisible(df)
 }

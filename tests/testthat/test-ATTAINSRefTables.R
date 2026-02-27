@@ -33,6 +33,14 @@ test_that("errors when any tolerance exceeds 1.0", {
     TADA_GetTADACharAliasRef(CST.ATTAINS.tolerance = 1.01),
     regexp = "Tolerance cannot exceed 100%"
   )
+  expect_error(
+    TADA_GetTADACharAliasRef(CST.WQX.tolerance = 1.01),
+    regexp = "Tolerance cannot exceed 100%"
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(WQX.CST.tolerance = 1.01),
+    regexp = "Tolerance cannot exceed 100%"
+  )
 })
 
 test_that("errors when any tolerance exceeds 1.0", {
@@ -43,5 +51,43 @@ test_that("errors when any tolerance exceeds 1.0", {
   expect_error(
     TADA_GetTADAUsesAliasRef(CST.ATTAINS.tolerance = 2),
     regexp = "Tolerance cannot exceed 100%"
+  )
+})
+
+test_that("errors when any tolerance exceeds 1.0", {
+  expect_error(
+    TADA_GetTADAUsesAliasRef(ATTAINS.CST.tolerance = 1.2),
+    regexp = "Tolerance cannot exceed 100%"
+  )
+  expect_error(
+    TADA_GetTADAUsesAliasRef(CST.ATTAINS.tolerance = 2),
+    regexp = "Tolerance cannot exceed 100%"
+  )
+})
+
+test_that("errors when any tolerance is less than 0.0", {
+  expect_error(
+    TADA_GetTADACharAliasRef(ATTAINS.WQX.tolerance = -1.2),
+    regexp = "Tolerance cannot be less than 0%."
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(WQX.ATTAINS.tolerance = -2),
+    regexp = "Tolerance cannot be less than 0%."
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(ATTAINS.CST.tolerance = -0.01),
+    regexp = "Tolerance cannot be less than 0%."
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(CST.ATTAINS.tolerance = -0.01),
+    regexp = "Tolerance cannot be less than 0%."
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(CST.WQX.tolerance = -.01),
+    regexp = "Tolerance cannot be less than 0%."
+  )
+  expect_error(
+    TADA_GetTADACharAliasRef(WQX.CST.tolerance = -1.01),
+    regexp = "Tolerance cannot be less than 0%."
   )
 })
