@@ -30,7 +30,7 @@ env:
 
 jobs:
   gate-prereqs:
-    name: Gate prerequisites
+    name: gate
     runs-on: ubuntu-latest
     outputs:
       run_check: ${{ steps.gate.outputs.run_check }}
