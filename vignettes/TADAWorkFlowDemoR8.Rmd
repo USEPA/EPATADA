@@ -513,7 +513,7 @@ For this demo, We will load in a pre-filled criteria template for MTDEQ (draft).
 
 ```{r TADA_DefineCriteriaMethodology, eval = F}
 # Load the example R8 criteria table for MTDEQ
-criteria_table <- loadCriteria(org_id = "MTDEQ")
+criteria_table <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
 
 MT_criteria <- TADA_DefineCriteriaMethodology(
   tada.MT.clean.DO,

@@ -2589,7 +2589,7 @@ TADA_CorrectColType <- function(.data) {
 #'
 #' @return a data frame with four columns
 #'
-getCriteriaFiles <- function(branch = "main") {
+TADA_GetCriteriaFiles <- function(branch = "main") {
   # GitHub API endpoint for repository contents
   api_url <- sprintf(
     "https://api.github.com/repos/USEPA/TADACommunityHub/contents/inst/extdata?ref=%s",
@@ -2678,8 +2678,8 @@ getCriteriaFiles <- function(branch = "main") {
 #'
 #' A function to download the criteria data frame from TADACommunityHub
 #'
-#' @param org_id Character string. The ATTAINS organization identifier must be
-#' supplied by the user. More than one org_id may be provided.
+#' @param org_id Character string. The ATTAINS organization identifier should be
+#' supplied by the user consistent with the TADA package mod 3 workflow.
 #'
 #' @param state_tribe Character string. This is the state or tribe name used
 #' that is consistent with what is found in the UI of the module 3 ShinyAnalyze
@@ -2691,7 +2691,7 @@ getCriteriaFiles <- function(branch = "main") {
 #' @return a data frame containing the TADACommunityHub TADA criteria table
 #' based on the user supplied org_id or state_tribe name.
 #'
-loadCriteria <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
+TADA_LoadCriteriaFile <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
   if (is.null(ref)) {
     ref <- getCriteriaFiles()
   }
