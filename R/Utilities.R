@@ -2578,3 +2578,171 @@ TADA_CorrectColType <- function(.data) {
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
   if (nzchar(def)) return(def)
 }
+
+#' Get TADACommunityHub Criteria File List
+#'
+#' A function to download the full list of criteria file list from TADACommunityHub
+#' 
+#' @param branch defines the GitHub TADACommunityHub branch to reference from.
+#' The "main" branch is the default. This branch may be changed if there is a
+#' desire or need to reference the TADA criteria table from a different branch.
+#' 
+#' @return a data frame with four columns
+#'
+getCriteriaFiles <- function(branch = "main") {
+  # GitHub API endpoint for repository contents
+  api_url <- sprintf(
+    "https://api.github.com/repos/USEPA/TADACommunityHub/contents/inst/extdata?ref=%s",
+    branch
+  )
+
+  # Make the API request
+  response <- httr::GET(api_url)
+
+  # Check for errors
+  if (httr::status_code(response) != 200) {
+    stop("Failed to fetch file list from GitHub. Status code: ",
+      httr::status_code(response))
+  }
+
+  # Parse JSON response
+  content <- httr::content(response, as = "parsed")
+  # name each list of items by it's 'name' element (1st)
+  names(content) <- sapply(content, "[[", 1)
+
+  # extract ATTAINS.OrganizationIdentifier column from the default .xlsx from TADACommunityHub
+  file_url <- content[["default_files.xlsx"]][["download_url"]]
+
+  # Create a temporary file
+  temp_file <- tempfile(fileext = ".xlsx")
+
+  # Download the file (use mode = "wb" for binary files like xlsx)
+  utils::download.file(file_url, temp_file, mode = "wb")
+
+  # Now read it
+  df <- readxl::read_excel(temp_file)
+
+  # Clean up
+  unlink(temp_file)
+
+  # Filter for xlsx files with "_criteria_crosswalk" pattern
+  criteria_files <- lapply(content, function(file) {
+    if (grepl("_criteria_crosswalk\\.xlsx$", file$name)) {
+      # Extract display name by removing the suffix
+      display_name <- gsub("_criteria_crosswalk\\.xlsx$", "", file$name)
+      # Convert underscores to spaces and title case for nicer display
+      display_name <- gsub("_", " ", display_name)
+      display_name <- tools::toTitleCase(display_name)
+
+      output <- data.frame(
+        display_name = display_name,
+        file_name = file$name,
+        download_url = file$download_url,
+        stringsAsFactors = FALSE
+      )
+      return(output)
+    }
+    return(NULL)
+  })
+
+  # Combine into a data frame
+  result <- dplyr::bind_rows(criteria_files)
+
+  # retrieve ATTAINS org_id crosswalk from its state_tribe name that is being used in TADAShinyAnalyze
+  result <- result |>
+    dplyr::left_join(
+      df,
+      by = c("display_name" = "Display Name")
+    ) |>
+    dplyr::select(ATTAINS.OrganizationIdentifier, names(result))
+
+  if (is.null(result) || nrow(result) == 0) {
+    warning("No criteria crosswalk files found in the TADACommunityHub repository.")
+
+    result <- data.frame(
+      ATTAINS.OrganizationIdentifier = character(),
+      display_name = character(),
+      file_name = character(),
+      download_url = character(),
+      stringsAsFactors = FALSE
+    )
+
+    return(result)
+  }
+
+  return(result)
+}
+
+#' Load TADACommunityHub Criteria File
+#'
+#' A function to download the criteria data frame from TADACommunityHub
+#'
+#' @param org_id Character string. The ATTAINS organization identifier must be
+#' supplied by the user. More than one org_id may be provided.
+#'
+#' @param state_tribe Character string. This is the state or tribe name used
+#' that is consistent with what is found in the UI of the module 3 ShinyAnalyze
+#' app (note to developers: we should review the spelling of these names to ensure
+#' consistency with ATTAINS state or tribe names.)
+#'
+#' @param ref a data frame with four columns from [getCriteriaFiles()]
+#'
+#' @return a data frame containing the TADACommunityHub TADA criteria table
+#' based on the user supplied org_id or state_tribe name.
+#'
+loadCriteria <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
+  if( is.null(ref)) {
+    ref <- getCriteriaFiles()
+  }
+
+  if(all(is.null(org_id) & is.null(state_tribe))){
+    stop(paste(
+      "loadCriteria: ",
+      "You did not provide either of the required inputs for this function (org_id or state_tribe). "
+    ))
+  }
+
+  if(all(!is.null(org_id) & !is.null(state_tribe))){
+    stop(paste(
+      "loadCriteria: ",
+      "Please provide only one of these argument inputs (org_id or state_tribe). "
+    ))
+  }
+
+  if(!is.null(state_tribe) & is.null(org_id)) {
+    # checks if the state_tribe is a valid name (and checks for misspells)
+    if( !state_tribe %in% ref$display_name) {
+      stop(paste(
+        "loadCriteria: ",
+        "Your state_tribe function input is not found as a valid name (check for spelling errors)."
+      ))
+    }
+    # Get the file_url
+    file_url <- ref[ref$display_name %in% state_tribe, "download_url"]
+  }
+
+  if(is.null(state_tribe) & !is.null(org_id)) {
+    # checks if the org_id is a valid name (and checks for misspells)
+    if( !org_id %in% ref$ATTAINS.OrganizationIdentifier) {
+      stop(paste(
+        "loadCriteria: ",
+        "Your state_tribe function input is not found as a valid name (check for spelling errors)."
+      ))
+    }# Get the file_url
+    file_url <- ref[ref$ATTAINS.OrganizationIdentifier %in% org_id, "download_url"]
+  }
+
+  # Create a temporary file
+  temp_file <- tempfile(fileext = ".xlsx")
+
+  # Download the file (use mode = "wb" for binary files like xlsx)
+  utils::download.file(file_url, temp_file, mode = "wb")
+
+  # Now read it
+  df <- readxl::read_excel(temp_file)
+
+  # Clean up
+  unlink(temp_file)
+
+  return(df)
+}

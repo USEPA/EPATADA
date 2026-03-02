@@ -631,9 +631,7 @@ consider for analysis.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-
-load(criteria_table)
+criteria_table <- loadCriteria(org_id = "MTDEQ")
 
 MT.UseParam.user.supplied <- dplyr::select(criteria_table, ATTAINS.OrganizationIdentifier, TADA.ComparableDataIdentifier, TADA.CharacteristicName, ATTAINS.ParameterName, ATTAINS.UseName)
 

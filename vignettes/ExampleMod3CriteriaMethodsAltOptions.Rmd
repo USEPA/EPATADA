@@ -178,7 +178,6 @@ package key will be used.
 if (!exists("api_key")) {
   api_key <- NULL
 }
-
 ```
 
 # Defining Criteria - Magnitude Methodology
@@ -348,8 +347,7 @@ cycle.
 
 ```{r user.supplied.w.epa304a}
 # Load the example R8 criteria table
-criteria_table <- system.file("extdata", "criteria_table.rda", package = "EPATADA")
-load(criteria_table)
+criteria_table <- loadCriteria(org_id = "MTDEQ")
 # Load example uses to AU Ref table
 utils::data(Data_MT_AU_UsesRef)
 
