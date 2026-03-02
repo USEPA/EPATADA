@@ -789,13 +789,13 @@ TADA_UpdateTADACharAliasRef <- function(
 ) {
   utils::write.csv(
     TADA_GetTADACharAliasRef(
-      ATTAINS.CST.tolerance = 1.00,
-      CST.ATTAINS.tolerance = 1.00,
-      ATTAINS.WQX.tolerance = 1.00,
-      WQX.ATTAINS.tolerance = 1.00,
-      CST.WQX.tolerance = 1.00,
-      WQX.CST.tolerance = 1.00,
-      set.all.tolerance = NA
+      ATTAINS.CST.tolerance = ATTAINS.CST.tolerance,
+      CST.ATTAINS.tolerance = CST.ATTAINS.tolerance,
+      ATTAINS.WQX.tolerance = ATTAINS.WQX.tolerance,
+      WQX.ATTAINS.tolerance = WQX.ATTAINS.tolerance,
+      CST.WQX.tolerance = CST.WQX.tolerance,
+      WQX.CST.tolerance = WQX.CST.tolerance,
+      set.all.tolerance = set.all.tolerance
     ),
     file = "inst/extdata/TADACharAliasRef.csv",
     row.names = FALSE

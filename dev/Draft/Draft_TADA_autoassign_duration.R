@@ -68,8 +68,9 @@ TADA_autoassign_duration <- function(
   text = pdf_text
 ) {
   list_of_strings <- split_sentences_distinct(text)
+  return(list_of_strings)
 }
-list_of_strings
+TADA_autoassign_duration(pdf_text)
 
 # runs through each sentence in pdf to identify if the param and magnitude are found as a match
 #searched_string <- list()
