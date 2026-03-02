@@ -2691,7 +2691,11 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' @return a data frame containing the TADACommunityHub TADA criteria table
 #' based on the user supplied org_id or state_tribe name.
 #'
-TADA_LoadCriteriaFile <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
+TADA_LoadCriteriaFile <- function(
+  org_id = NULL,
+  state_tribe = NULL,
+  ref = NULL
+) {
   if (is.null(ref)) {
     ref <- getCriteriaFiles()
   }
