@@ -2582,11 +2582,11 @@ TADA_CorrectColType <- function(.data) {
 #' Get TADACommunityHub Criteria File List
 #'
 #' A function to download the full list of criteria file list from TADACommunityHub
-#' 
+#'
 #' @param branch defines the GitHub TADACommunityHub branch to reference from.
 #' The "main" branch is the default. This branch may be changed if there is a
 #' desire or need to reference the TADA criteria table from a different branch.
-#' 
+#'
 #' @return a data frame with four columns
 #'
 getCriteriaFiles <- function(branch = "main") {
@@ -2601,8 +2601,10 @@ getCriteriaFiles <- function(branch = "main") {
 
   # Check for errors
   if (httr::status_code(response) != 200) {
-    stop("Failed to fetch file list from GitHub. Status code: ",
-      httr::status_code(response))
+    stop(
+      "Failed to fetch file list from GitHub. Status code: ",
+      httr::status_code(response)
+    )
   }
 
   # Parse JSON response
@@ -2650,14 +2652,13 @@ getCriteriaFiles <- function(branch = "main") {
 
   # retrieve ATTAINS org_id crosswalk from its state_tribe name that is being used in TADAShinyAnalyze
   result <- result |>
-    dplyr::left_join(
-      df,
-      by = c("display_name" = "Display Name")
-    ) |>
+    dplyr::left_join(df, by = c("display_name" = "Display Name")) |>
     dplyr::select(ATTAINS.OrganizationIdentifier, names(result))
 
   if (is.null(result) || nrow(result) == 0) {
-    warning("No criteria crosswalk files found in the TADACommunityHub repository.")
+    warning(
+      "No criteria crosswalk files found in the TADACommunityHub repository."
+    )
 
     result <- data.frame(
       ATTAINS.OrganizationIdentifier = character(),
@@ -2691,27 +2692,27 @@ getCriteriaFiles <- function(branch = "main") {
 #' based on the user supplied org_id or state_tribe name.
 #'
 loadCriteria <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
-  if( is.null(ref)) {
+  if (is.null(ref)) {
     ref <- getCriteriaFiles()
   }
 
-  if(all(is.null(org_id) & is.null(state_tribe))){
+  if (all(is.null(org_id) & is.null(state_tribe))) {
     stop(paste(
       "loadCriteria: ",
       "You did not provide either of the required inputs for this function (org_id or state_tribe). "
     ))
   }
 
-  if(all(!is.null(org_id) & !is.null(state_tribe))){
+  if (all(!is.null(org_id) & !is.null(state_tribe))) {
     stop(paste(
       "loadCriteria: ",
       "Please provide only one of these argument inputs (org_id or state_tribe). "
     ))
   }
 
-  if(!is.null(state_tribe) & is.null(org_id)) {
+  if (!is.null(state_tribe) & is.null(org_id)) {
     # checks if the state_tribe is a valid name (and checks for misspells)
-    if( !state_tribe %in% ref$display_name) {
+    if (!state_tribe %in% ref$display_name) {
       stop(paste(
         "loadCriteria: ",
         "Your state_tribe function input is not found as a valid name (check for spelling errors)."
@@ -2721,15 +2722,18 @@ loadCriteria <- function(org_id = NULL, state_tribe = NULL, ref = NULL) {
     file_url <- ref[ref$display_name %in% state_tribe, "download_url"]
   }
 
-  if(is.null(state_tribe) & !is.null(org_id)) {
+  if (is.null(state_tribe) & !is.null(org_id)) {
     # checks if the org_id is a valid name (and checks for misspells)
-    if( !org_id %in% ref$ATTAINS.OrganizationIdentifier) {
+    if (!org_id %in% ref$ATTAINS.OrganizationIdentifier) {
       stop(paste(
         "loadCriteria: ",
         "Your state_tribe function input is not found as a valid name (check for spelling errors)."
       ))
-    }# Get the file_url
-    file_url <- ref[ref$ATTAINS.OrganizationIdentifier %in% org_id, "download_url"]
+    } # Get the file_url
+    file_url <- ref[
+      ref$ATTAINS.OrganizationIdentifier %in% org_id,
+      "download_url"
+    ]
   }
 
   # Create a temporary file
