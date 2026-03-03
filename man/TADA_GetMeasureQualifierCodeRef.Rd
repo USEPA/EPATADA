@@ -8,7 +8,7 @@ TADA_GetMeasureQualifierCodeRef(download_only = FALSE, refresh = FALSE)
 }
 \arguments{
 \item{download_only}{Logical. If TRUE, bypasses the cache and package fallback and
-attempts to download the latest Activity Type reference table directly from WQX,
+attempts to download the latest Result Measure Qualifier reference table directly from WQX,
 returning it without updating the cache. Errors if the download fails. If FALSE
 (default), uses a cached copy when available and updates the cache; on download
 failure, falls back to the package’s internal file.}

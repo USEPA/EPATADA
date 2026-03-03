@@ -62,6 +62,7 @@
       .TADA_UpdateMeasureQualifierCodeRef()
       .TADA_UpdateMonLocTypeRef()
       .TADA_UpdateWQPOrganizationRef()
+      .TADA_UpdateWQXCharAliasRef()
     },
     error = function(e) {
       message("Error updating WQPWQX reference tables: ", e$message)

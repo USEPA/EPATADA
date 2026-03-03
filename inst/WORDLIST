@@ -42,7 +42,6 @@ CNENVSER
 COLI
 COMBITR
 COMIDs
-CRS
 CWA
 CalculateTotalNP
 CalculateTotalNitrogen
@@ -131,8 +130,6 @@ GetATTAINSByAUID
 GetCharacteristicRef
 GetNutrientSummationRef
 GetSynonymRef
-GetTADACharAliasRef
-Github
 HMW
 HRM
 HUC
@@ -150,7 +147,6 @@ IDCensoredData
 IDDepthProfiles
 IncludeOrExclude
 InvalidCoordinates
-JSON
 Jhguch
 JoinWQPProfiles
 KJELDAHL
@@ -263,7 +259,6 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
-Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -354,13 +349,11 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
-WGS
 WQC
 WQP
 WQS
 WQX
 WQX's
-WQXCharAliasRef
 WQXResultUnitConversion
 WQXUnitConversionFactor
 WQXVal
@@ -426,7 +419,6 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
-datetimes
 decimaldigits
 depthcat
 devtools
@@ -524,8 +516,6 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
-repo
-reproducibility
 resultCount
 sampleMedia
 sd
