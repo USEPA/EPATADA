@@ -2624,7 +2624,7 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
   utils::download.file(file_url, temp_file, mode = "wb")
 
   # Now read it
-  df <- readxl::read_excel(temp_file)
+  df <-openxlsx::read.xlsx(temp_file)
 
   # Clean up
   unlink(temp_file)
@@ -2654,7 +2654,7 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 
   # retrieve ATTAINS org_id crosswalk from its state_tribe name that is being used in TADAShinyAnalyze
   result <- result |>
-    dplyr::left_join(df, by = c("display_name" = "Display Name")) |>
+    dplyr::left_join(df, by = c("display_name" = "Display.Name")) |>
     dplyr::select(ATTAINS.OrganizationIdentifier, names(result))
 
   if (is.null(result) || nrow(result) == 0) {
@@ -2751,7 +2751,7 @@ TADA_LoadCriteriaFile <- function(
   utils::download.file(file_url, temp_file, mode = "wb")
 
   # Now read it
-  df <- readxl::read_excel(temp_file)
+  df <- openxlsx::read.xlsx(temp_file)
 
   # Clean up
   unlink(temp_file)
