@@ -73,9 +73,9 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 
 # Read CSV from URL; returns NULL on error (network/format)
 .tada_read_csv_url <- function(
-    url,
-    stringsAsFactors = FALSE,
-    encodings = c("UTF-8", "latin1")
+  url,
+  stringsAsFactors = FALSE,
+  encodings = c("UTF-8", "latin1")
 ) {
   for (enc in encodings) {
     df <- tryCatch(
@@ -1027,10 +1027,13 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
     ref_cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
     if (!is.null(ref_cached) && !isTRUE(refresh)) return(ref_cached)
   }
-  
+
   # Try download first when not download_only; otherwise error if download fails
   if (download_only) {
-    raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
+    raw.data <- .tada_read_csv_url(
+      .WQX_URLS$Characteristic,
+      stringsAsFactors = FALSE
+    )
     if (is.null(raw.data)) {
       stop("TADA_GetCharacteristicRef(download_only==TRUE): download failed.")
     }
@@ -1039,15 +1042,22 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
       stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
     }
   } else {
-    raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
+    raw.data <- .tada_read_csv_url(
+      .WQX_URLS$Characteristic,
+      stringsAsFactors = FALSE
+    )
     if (!is.null(raw.data)) {
       ref <- .TADA_normalize_characteristic_ref(raw.data)
       if (is.null(ref)) {
-        message("Downloaded Characteristic table had unexpected structure. Falling back to internal file.")
+        message(
+          "Downloaded Characteristic table had unexpected structure. Falling back to internal file."
+        )
         ref <- NULL
       }
     } else {
-      message("Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file.")
+      message(
+        "Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file."
+      )
       ref <- NULL
     }
     if (is.null(ref)) {
@@ -1059,11 +1069,13 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
         trim = TRUE
       )
       if (is.null(ref)) {
-        stop("Fallback extdata 'WQXCharacteristicRef.rda' not found or invalid.")
+        stop(
+          "Fallback extdata 'WQXCharacteristicRef.rda' not found or invalid."
+        )
       }
     }
   }
-  
+
   if (!download_only) {
     .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
   }
@@ -1571,34 +1583,60 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.WQXCharAliasRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   # Helper: download ZIP, unzip, locate CSV, read it, preserving row order
   .download_unzip_read_alias <- function() {
     zip_url <- "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip"
     temp_zip <- tempfile(fileext = ".zip")
     temp_dir <- tempfile("wqx_alias_unzip_")
-    on.exit({
-      if (dir.exists(temp_dir)) unlink(temp_dir, recursive = TRUE, force = TRUE)
-      if (file.exists(temp_zip)) unlink(temp_zip, force = TRUE)
-    }, add = TRUE)
-    
+    on.exit(
+      {
+        if (dir.exists(temp_dir)) {
+          unlink(temp_dir, recursive = TRUE, force = TRUE)
+        }
+        if (file.exists(temp_zip)) unlink(temp_zip, force = TRUE)
+      },
+      add = TRUE
+    )
+
     # Download and check status + size
     status <- tryCatch(
-      utils::download.file(zip_url, destfile = temp_zip, mode = "wb", quiet = TRUE),
+      utils::download.file(
+        zip_url,
+        destfile = temp_zip,
+        mode = "wb",
+        quiet = TRUE
+      ),
       error = function(e) 1L
     )
-    if (!identical(status, 0L) || !file.exists(temp_zip)) return(NULL)
+    if (!identical(status, 0L) || !file.exists(temp_zip)) {
+      return(NULL)
+    }
     fi <- tryCatch(file.info(temp_zip)$size, error = function(e) NA_real_)
-    if (!is.finite(fi) || fi <= 0) return(NULL)
-    
+    if (!is.finite(fi) || fi <= 0) {
+      return(NULL)
+    }
+
     dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
-    uz <- tryCatch(utils::unzip(temp_zip, exdir = temp_dir), error = function(e) character(0))
-    if (!length(uz)) return(NULL)
-    
+    uz <- tryCatch(
+      utils::unzip(temp_zip, exdir = temp_dir),
+      error = function(e) character(0)
+    )
+    if (!length(uz)) {
+      return(NULL)
+    }
+
     # Prefer exactly "Characteristic Alias.csv" (case-sensitive) by basename.
-    files <- list.files(temp_dir, pattern = "\\.csv$", full.names = TRUE, recursive = TRUE)
-    if (!length(files)) return(NULL)
-    
+    files <- list.files(
+      temp_dir,
+      pattern = "\\.csv$",
+      full.names = TRUE,
+      recursive = TRUE
+    )
+    if (!length(files)) {
+      return(NULL)
+    }
+
     exact <- files[basename(files) == "Characteristic Alias.csv"]
     if (length(exact) >= 1) {
       # Deterministic choice if multiple copies exist: prefer shortest path, then alphabetical
@@ -1609,25 +1647,33 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       # Strict: if the expected file isn't present, consider the download invalid
       return(NULL)
     }
-    
+
     # Read as-is; do not reorder rows; try common encodings
     try_read <- function(enc) {
       tryCatch(
-        utils::read.csv(target_csv, stringsAsFactors = FALSE, fileEncoding = enc),
+        utils::read.csv(
+          target_csv,
+          stringsAsFactors = FALSE,
+          fileEncoding = enc
+        ),
         error = function(e) NULL
       )
     }
     df <- try_read("UTF-8")
-    if (is.null(df)) df <- try_read("latin1")
-    if (is.null(df)) return(NULL)
-    
+    if (is.null(df)) {
+      df <- try_read("latin1")
+    }
+    if (is.null(df)) {
+      return(NULL)
+    }
+
     # Trim character columns (no row reordering)
     df <- .tada_trim_char_cols(df)
     # Drop row names to avoid accidental reindexing downstream
     rownames(df) <- NULL
     df
   }
-  
+
   if (download_only) {
     df <- .download_unzip_read_alias()
     if (is.null(df)) {
@@ -1654,7 +1700,7 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       rownames(df) <- NULL
     }
   }
-  
+
   # Cache and return without altering row order
   if (!download_only) {
     .tada_cache_set(.WQXCharAliasRef_cache_key, df)
