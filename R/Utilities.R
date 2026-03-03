@@ -2588,6 +2588,8 @@ TADA_CorrectColType <- function(.data) {
 #' desire or need to reference the TADA criteria table from a different branch.
 #'
 #' @return a data frame with four columns
+#' 
+#' @export
 #'
 TADA_GetCriteriaFiles <- function(branch = "main") {
   # GitHub API endpoint for repository contents
@@ -2686,10 +2688,12 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' app (note to developers: we should review the spelling of these names to ensure
 #' consistency with ATTAINS state or tribe names.)
 #'
-#' @param ref a data frame with four columns from [getCriteriaFiles()]
+#' @param ref a data frame with four columns from [TADA_GetCriteriaFiles()]
 #'
 #' @return a data frame containing the TADACommunityHub TADA criteria table
 #' based on the user supplied org_id or state_tribe name.
+#' 
+#' @export
 #'
 TADA_LoadCriteriaFile <- function(
   org_id = NULL,
@@ -2697,7 +2701,7 @@ TADA_LoadCriteriaFile <- function(
   ref = NULL
 ) {
   if (is.null(ref)) {
-    ref <- getCriteriaFiles()
+    ref <- TADA_GetCriteriaFiles()
   }
 
   if (all(is.null(org_id) & is.null(state_tribe))) {

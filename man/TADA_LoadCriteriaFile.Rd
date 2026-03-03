@@ -15,7 +15,7 @@ that is consistent with what is found in the UI of the module 3 ShinyAnalyze
 app (note to developers: we should review the spelling of these names to ensure
 consistency with ATTAINS state or tribe names.)}
 
-\item{ref}{a data frame with four columns from \code{\link[=getCriteriaFiles]{getCriteriaFiles()}}}
+\item{ref}{a data frame with four columns from \code{\link[=TADA_GetCriteriaFiles]{TADA_GetCriteriaFiles()}}}
 }
 \value{
 a data frame containing the TADACommunityHub TADA criteria table
