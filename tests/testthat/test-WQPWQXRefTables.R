@@ -104,16 +104,9 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   expect_true(nrow(find.dups) == 0)
 })
 
-# Test that new char alias have not been added to WQXCharAliasRef domain table
-test_that("Is TADA_GetWQXCharRef up to date?", {
-  # Check for any new domain values that may not follow above logic and warn.
-  file_path <- system.file(
-    "extdata",
-    "WQXCharAliasRef.rda",
-    package = "EPATADA"
-  )
-  load(file_path)
-  old <- WQXCharAliasRef
+# Test if new alias have been added to the WQX domain table
+test_that("Is TADA_GetWQXCharRef.rda up to date?", {
+  old <- TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
   old_latedate <- max(as.Date(old$Last.Change.Date, "%m/%d/%Y"))
   ref <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
   new_latedate <- max(as.Date(ref$Last.Change.Date, "%m/%d/%Y"))

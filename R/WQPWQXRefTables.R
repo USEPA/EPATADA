@@ -35,7 +35,7 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   ActivityType = "https://cdx.epa.gov/wqx/download/DomainValues/ActivityType.CSV",
   MonitoringLocationType = "https://cdx.epa.gov/wqx/download/DomainValues/MonitoringLocationType.CSV",
   ResultMeasureQualifier = "https://cdx.epa.gov/wqx/download/DomainValues/ResultMeasureQualifier.CSV"
-  # WQXCharAliasRef = "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip" # zip file
+  # WQXCharAliasRef = "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip" # zip file handled within function
 )
 
 .WQP_URLS <- list(
@@ -72,11 +72,24 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 }
 
 # Read CSV from URL; returns NULL on error (network/format)
-.tada_read_csv_url <- function(url, stringsAsFactors = FALSE) {
-  tryCatch(
-    utils::read.csv(url, stringsAsFactors = stringsAsFactors),
-    error = function(e) NULL
-  )
+.tada_read_csv_url <- function(
+    url,
+    stringsAsFactors = FALSE,
+    encodings = c("UTF-8", "latin1")
+) {
+  for (enc in encodings) {
+    df <- tryCatch(
+      utils::read.csv(
+        url,
+        stringsAsFactors = stringsAsFactors,
+        fileEncoding = enc,
+        comment.char = ""
+      ),
+      error = function(e) NULL
+    )
+    if (!is.null(df)) return(df)
+  }
+  NULL
 }
 
 # Load a data.frame from an installed extdata .rda (returns NULL if not found/invalid)
@@ -192,8 +205,10 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   all_cols <- union(names(df1), names(df2))
   df1[setdiff(all_cols, names(df1))] <- NA
   df2[setdiff(all_cols, names(df2))] <- NA
-  df1 <- df1[, all_cols]
-  df2 <- df2[, all_cols]
+  df1 <- df1[, all_cols, drop = FALSE]
+  df2 <- df2[, all_cols, drop = FALSE]
+  df1[] <- lapply(df1, function(x) if (is.factor(x)) as.character(x) else x)
+  df2[] <- lapply(df2, function(x) if (is.factor(x)) as.character(x) else x)
   rbind(df1, df2)
 }
 
@@ -997,7 +1012,7 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 #' Get WQX Characteristic Domain Table
 #' @return data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Characteristic reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1012,44 +1027,43 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
     ref_cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
     if (!is.null(ref_cached) && !isTRUE(refresh)) return(ref_cached)
   }
+  
+  # Try download first when not download_only; otherwise error if download fails
   if (download_only) {
-    raw.data <- .tada_read_csv_url(
-      .WQX_URLS$Characteristic,
-      stringsAsFactors = FALSE
-    )
+    raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
     if (is.null(raw.data)) {
-      stop("TADA_GetCharacteristicRef(download_only=TRUE): download failed.")
+      stop("TADA_GetCharacteristicRef(download_only==TRUE): download failed.")
     }
     ref <- .TADA_normalize_characteristic_ref(raw.data)
     if (is.null(ref)) {
       stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
     }
   } else {
-    ref <- .tada_load_extdata_rda(
-      pkg = "EPATADA",
-      filename = "WQXCharacteristicRef.rda",
-      object_name = "WQXCharacteristicRef",
-      required_cols = c("CharacteristicName", "Char_Flag"),
-      trim = TRUE
-    )
-    if (is.null(ref)) {
-      raw.data <- .tada_read_csv_url(
-        .WQX_URLS$Characteristic,
-        stringsAsFactors = FALSE
-      )
-      if (is.null(raw.data)) {
-        stop(
-          "TADA_GetCharacteristicRef: extdata RDA not found and download failed."
-        )
-      }
+    raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
+    if (!is.null(raw.data)) {
       ref <- .TADA_normalize_characteristic_ref(raw.data)
       if (is.null(ref)) {
-        stop(
-          "TADA_GetCharacteristicRef: Unexpected columns in downloaded table."
-        )
+        message("Downloaded Characteristic table had unexpected structure. Falling back to internal file.")
+        ref <- NULL
+      }
+    } else {
+      message("Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file.")
+      ref <- NULL
+    }
+    if (is.null(ref)) {
+      ref <- .tada_load_extdata_rda(
+        pkg = "EPATADA",
+        filename = "WQXCharacteristicRef.rda",
+        object_name = "WQXCharacteristicRef",
+        required_cols = c("CharacteristicName", "Char_Flag"),
+        trim = TRUE
+      )
+      if (is.null(ref)) {
+        stop("Fallback extdata 'WQXCharacteristicRef.rda' not found or invalid.")
       }
     }
   }
+  
   if (!download_only) {
     .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
   }
@@ -1059,7 +1073,7 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateCharacteristicRef <- function() {
-  ref <- TADA_GetCharacteristicRef(download_only = TRUE, refresh = TRUE)
+  ref <- TADA_GetCharacteristicRef(download_only = TRUE)
   .tada_save_ext_rda(
     ref,
     obj_name = "WQXCharacteristicRef",
@@ -1074,7 +1088,7 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 #' WQX QAQC Characteristic Validation Reference Table
 #' @return data.frame with TADA.WQXVal.Flag added
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Characteristic Validation reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1116,7 +1130,7 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Characteristic Validation Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateWQXCharValRef <- function() {
-  df <- TADA_GetWQXCharValRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetWQXCharValRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXcharValRef",
@@ -1131,7 +1145,7 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQX Measure Unit Reference Table
 #' @return data.frame of measure units
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Measure Unit reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1170,7 +1184,7 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Measure Unit Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateMeasureUnitRef <- function() {
-  df <- TADA_GetMeasureUnitRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetMeasureUnitRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXunitRef",
@@ -1185,7 +1199,7 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQX Result Detection Condition Reference Table
 #' @return data.frame with TADA.Detection_Type added
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Detection Condition reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1227,7 +1241,7 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Result Detection Condition Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateDetCondRef <- function() {
-  df <- TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetDetCondRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXResultDetectionConditionRef",
@@ -1242,7 +1256,7 @@ TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQX Detection/Quantitation Limit Type Reference Table
 #' @return data.frame with TADA.Limit_Type added
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Detection Limit reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1284,7 +1298,7 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Detection Quantitation Limit Type Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateDetLimitRef <- function() {
-  df <- TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetDetLimitRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXDetectionQuantitationLimitTypeRef",
@@ -1338,7 +1352,7 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Activity Type Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateActivityTypeRef <- function() {
-  df <- TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetActivityTypeRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXActivityTypeRef",
@@ -1353,7 +1367,7 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQX Monitoring Location Type Name Reference Table
 #' @return data.frame with TADA.Media.Flag added
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Monitoring Location Type reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1395,7 +1409,7 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update Monitoring Location Type Name Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateMonLocTypeRef <- function() {
-  df <- TADA_GetMonLocTypeRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetMonLocTypeRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXMonitoringLocationTypeNameRef",
@@ -1410,7 +1424,7 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQP Organization and Provider Reference Table
 #' @return data.frame with OrganizationIdentifier, OrganizationFormalName, ProviderName
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest WQP Organization reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1464,7 +1478,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Update WQP Organization Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateWQPOrganizationRef <- function() {
-  df <- TADA_GetWQPOrganizationRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetWQPOrganizationRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQPOrganizationRef", # renamed here
@@ -1479,7 +1493,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
 #' Get WQX Result Measure Qualifier Code Reference Table
 #' @return data.frame with TADA.MeasureQualifierCode.Flag added
 #' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Activity Type reference table directly from WQX,
+#'   attempts to download the latest Result Measure Qualifier reference table directly from WQX,
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
@@ -1526,7 +1540,7 @@ TADA_GetMeasureQualifierCodeRef <- function(
 #' Update WQX Result Measure Qualifier Code Reference Table (DEV-TIME ONLY)
 #' @keywords internal
 .TADA_UpdateMeasureQualifierCodeRef <- function() {
-  df <- TADA_GetMeasureQualifierCodeRef(download_only = TRUE, refresh = TRUE)
+  df <- TADA_GetMeasureQualifierCodeRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXMeasureQualifierCodeRef",
@@ -1546,49 +1560,102 @@ TADA_GetMeasureQualifierCodeRef <- function(
 #'   returning it without updating the cache. Errors if the download fails. If FALSE
 #'   (default), uses a cached copy when available and updates the cache; on download
 #'   failure, falls back to the package’s internal file.
-#'
 #' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
 #'   cached copy and attempt to retrieve a fresh table (download, falling back to the
 #'   package’s internal file on failure), then update the cache. If FALSE (default),
 #'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
-
 TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
+  # Return cached table unless refresh is requested
   if (!download_only) {
-    cached <- .tada_cache_get(.WQXCharValRef_cache_key)
+    cached <- .tada_cache_get(.WQXCharAliasRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  if (download_only) {
-    # Try to download up to date WQX Char Alias table
-    # pull in WQX Char Alias table from zip first
+  
+  # Helper: download ZIP, unzip, locate CSV, read it, preserving row order
+  .download_unzip_read_alias <- function() {
+    zip_url <- "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip"
     temp_zip <- tempfile(fileext = ".zip")
-
-    utils::download.file(
-      "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip",
-      destfile = temp_zip,
-      mode = "wb"
+    temp_dir <- tempfile("wqx_alias_unzip_")
+    on.exit({
+      if (dir.exists(temp_dir)) unlink(temp_dir, recursive = TRUE, force = TRUE)
+      if (file.exists(temp_zip)) unlink(temp_zip, force = TRUE)
+    }, add = TRUE)
+    
+    # Download and check status + size
+    status <- tryCatch(
+      utils::download.file(zip_url, destfile = temp_zip, mode = "wb", quiet = TRUE),
+      error = function(e) 1L
     )
-
-    temp_dir <- tempdir() # Create a temporary directory to extract files
-    utils::unzip(temp_zip, exdir = temp_dir)
-
-    # specify CSV file name
-    csv_file_path <- file.path(temp_dir, "Characteristic Alias.csv")
-
-    df <- .tada_read_csv_url(csv_file_path, stringsAsFactors = FALSE)
-
+    if (!identical(status, 0L) || !file.exists(temp_zip)) return(NULL)
+    fi <- tryCatch(file.info(temp_zip)$size, error = function(e) NA_real_)
+    if (!is.finite(fi) || fi <= 0) return(NULL)
+    
+    dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
+    uz <- tryCatch(utils::unzip(temp_zip, exdir = temp_dir), error = function(e) character(0))
+    if (!length(uz)) return(NULL)
+    
+    # Prefer exactly "Characteristic Alias.csv" (case-sensitive) by basename.
+    files <- list.files(temp_dir, pattern = "\\.csv$", full.names = TRUE, recursive = TRUE)
+    if (!length(files)) return(NULL)
+    
+    exact <- files[basename(files) == "Characteristic Alias.csv"]
+    if (length(exact) >= 1) {
+      # Deterministic choice if multiple copies exist: prefer shortest path, then alphabetical
+      path_len <- nchar(normalizePath(exact, winslash = "/", mustWork = FALSE))
+      ord <- order(path_len, exact)
+      target_csv <- exact[ord][1]
+    } else {
+      # Strict: if the expected file isn't present, consider the download invalid
+      return(NULL)
+    }
+    
+    # Read as-is; do not reorder rows; try common encodings
+    try_read <- function(enc) {
+      tryCatch(
+        utils::read.csv(target_csv, stringsAsFactors = FALSE, fileEncoding = enc),
+        error = function(e) NULL
+      )
+    }
+    df <- try_read("UTF-8")
+    if (is.null(df)) df <- try_read("latin1")
+    if (is.null(df)) return(NULL)
+    
+    # Trim character columns (no row reordering)
+    df <- .tada_trim_char_cols(df)
+    # Drop row names to avoid accidental reindexing downstream
+    rownames(df) <- NULL
+    df
+  }
+  
+  if (download_only) {
+    df <- .download_unzip_read_alias()
     if (is.null(df)) {
       stop("TADA_GetWQXCharAliasRef(download_only=TRUE): download failed.")
     }
   } else {
-    df <- .tada_download_or_extdata_rda(
-      url = csv_file_path, # this csv file path url is from a zip file. See other WQX examples for all other .csv cases.
-      fallback_filename = "WQXcharAliasRef.rda",
-      object_name = "WQXcharAliasRef",
-      pkg = "EPATADA",
-      on_fail_message = "Downloading latest Validation Reference Table failed! Falling back to (possibly outdated) internal file."
-    )
+    # Try live download; fallback to installed RDA if it fails
+    df <- .download_unzip_read_alias()
+    if (is.null(df)) {
+      message(
+        "Downloading latest WQX Characteristic Alias Reference Table failed! ",
+        "Falling back to (possibly outdated) internal file."
+      )
+      df <- .tada_load_extdata_rda(
+        pkg = "EPATADA",
+        filename = "WQXCharAliasRef.rda",
+        object_name = "WQXCharAliasRef",
+        trim = TRUE
+      )
+      if (is.null(df)) {
+        stop("Fallback extdata 'WQXCharAliasRef.rda' not found or invalid.")
+      }
+      # Ensure row names are plain sequential; preserve row ordering as stored
+      rownames(df) <- NULL
+    }
   }
+  
+  # Cache and return without altering row order
   if (!download_only) {
     .tada_cache_set(.WQXCharAliasRef_cache_key, df)
   }
@@ -1597,8 +1664,8 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
 
 # Update Characteristic Validation Reference Table internal file (DEV-TIME ONLY)
 #' @keywords internal
-TADA_UpdateWQXCharAliasRef <- function() {
-  df <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+.TADA_UpdateWQXCharAliasRef <- function() {
+  df <- TADA_GetWQXCharAliasRef(download_only = TRUE)
   .tada_save_ext_rda(
     df,
     obj_name = "WQXCharAliasRef",
