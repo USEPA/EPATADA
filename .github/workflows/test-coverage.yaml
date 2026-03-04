@@ -13,7 +13,8 @@ concurrency:
 
 permissions:
   contents: write
-  checks: write
+  checks: read
+  statuses: read
   pull-requests: write
 
 jobs:
@@ -26,7 +27,7 @@ jobs:
       EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
     steps:
-      - name: Wait for pre-commit.ci
+      - name: Wait for pre-commit.ci to succeed
         if: ${{ github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         with:
@@ -35,31 +36,32 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const ref = context.payload.pull_request.head.sha;
-            const checkName = 'pre-commit.ci - pr';
+            const names = ['pre-commit.ci - pr', 'pre-commit.ci - push'];
             const timeoutMs = 15 * 60 * 1000;
             const intervalMs = 10 * 1000;
             const started = Date.now();
+
+            async function getStatus() {
+              const checks = await github.rest.checks.listForRef({ owner, repo, ref });
+              const cr = checks.data.check_runs.find(r => names.includes(r.name));
+              if (cr) {
+                if (cr.status === 'completed') return cr.conclusion || 'failure';
+                return 'pending';
+              }
+              const status = await github.rest.repos.getCombinedStatusForRef({ owner, repo, ref });
+              const st = status.data.statuses.find(s => names.includes(s.context));
+              if (st) return st.state;
+              return null;
+            }
+
             while (true) {
-              const { data } = await github.rest.checks.listForRef({ owner, repo, ref });
-              const check = data.check_runs.find(cr => cr.name === checkName);
-              if (check) {
-                if (check.status === 'completed') {
-                  if (check.conclusion === 'success') {
-                    core.info(`${checkName} succeeded`);
-                    break;
-                  }
-                  core.setFailed(`${checkName} concluded with ${check.conclusion}`);
-                  break;
-                } else {
-                  core.info(`${checkName} status: ${check.status}; waiting...`);
-                }
-              } else {
-                core.info(`No check named "${checkName}" yet; waiting...`);
+              const s = await getStatus();
+              if (s === 'success') { core.info('pre-commit.ci status: success'); break; }
+              if (['failure','error','cancelled','timed_out','neutral','skipped'].includes(s)) {
+                core.setFailed(`pre-commit.ci concluded with: ${s}`); break;
               }
-              if (Date.now() - started > timeoutMs) {
-                core.setFailed(`Timed out waiting for "${checkName}"`);
-                break;
-              }
+              core.info(`Waiting for pre-commit.ci... (status: ${s ?? 'not yet created'})`);
+              if (Date.now() - started > timeoutMs) { core.setFailed('Timed out waiting for pre-commit.ci to report'); break; }
               await new Promise(r => setTimeout(r, intervalMs));
             }
 
