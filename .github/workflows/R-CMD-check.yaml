@@ -1,11 +1,9 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
-  # allow manual action trigger
   workflow_dispatch:
 
 name: R-CMD-check
@@ -15,11 +13,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Need to read status checks to wait on pre-commit.ci
+permissions:
+  contents: read
+  checks: read
+
 jobs:
   R-CMD-check:
-    # Run on pre-commit.ci autofix commits in PRs; otherwise run on push/dispatch
-    if: ${{ github.event_name != 'pull_request' || github.actor == 'pre-commit-ci[bot]' }}
-
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
@@ -39,6 +39,15 @@ jobs:
       EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
     steps:
+      - name: Wait for pre-commit.ci
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: lewagon/wait-on-check@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: pre-commit.ci - pr
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 10
+
       - uses: actions/checkout@v6
 
       - uses: r-lib/actions/setup-pandoc@v2
