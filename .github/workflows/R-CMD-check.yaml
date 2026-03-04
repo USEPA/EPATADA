@@ -10,6 +10,11 @@ on:
 
 name: R-CMD-check
 
+# Cancel older runs on the same PR/branch when a new commit arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   R-CMD-check:
     # Run on pre-commit.ci autofix commits in PRs; otherwise run on push/dispatch

@@ -8,6 +8,11 @@ on:
 
 name: test-coverage
 
+# Cancel older runs on the same PR/branch when a new commit arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   checks: write

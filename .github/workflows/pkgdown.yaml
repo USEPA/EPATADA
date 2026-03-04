@@ -7,6 +7,11 @@ on:
 
 name: pkgdown
 
+# Cancel older runs on the same PR/branch when a new commit arrives
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pkgdown:
     # Run on pre-commit.ci autofix commits in PRs; otherwise run only on push/dispatch
