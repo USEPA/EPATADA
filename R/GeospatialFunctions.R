@@ -226,6 +226,9 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     )
   }
 
+  # Nothing comment
+  nothing_var <- c("https://gispub.epa.gov/arcgis/1", "https://gispub.epa.gov/arcgis/2", "https://gispub.epa.gov/arcgis/3")
+
   baseurls <- c(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
