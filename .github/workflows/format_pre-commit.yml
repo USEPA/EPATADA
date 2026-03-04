@@ -1,0 +1,33 @@
+# Workflow derived from https://github.com/posit-dev/setup-air/tree/main/examples
+name: format
+on:
+  pull_request:
+  workflow_dispatch: # allows you to trigger manually
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format-pre-commit:
+    name: format-update
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: format
+        uses: pre-commit/action@v3.0.1
+        continue-on-error: true
+        
+      - name: commit & push
+        run: |
+          git add .
+          git commit -m "ci: 🤖 auto-format" || echo "nothing to commit"
+          git push || echo "nothing to push"
