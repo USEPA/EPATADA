@@ -1,0 +1,75 @@
+name: R formatting (auto-fix + fork suggestions)
+
+on:
+  pull_request:
+    branches: [develop]
+  pull_request_target:
+    branches: [develop]
+
+# Default to least privilege; grant per job below
+permissions:
+  contents: read
+
+jobs:
+  # 1) Same-repo PRs: run pre-commit and push fixes back to the PR branch
+  auto_fix_same_repo:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+        # .pre-commit-config.yaml must be in repo root
+
+      - name: Commit and push changes (if any)
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "chore(pre-commit): auto-apply formatting"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+
+  # 2) Forked PRs (secure path): format with Air and post suggestions
+  fork_suggest:
+    if: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.repo.fork == true }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout PR head (fork)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Install Air
+        uses: posit-dev/setup-air@v1
+
+      - name: Format with Air
+        run: air format .
+
+      - name: Suggest changes as PR review comments
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: air
+          level: error
+          fail_level: error
+          # Uses GITHUB_TOKEN by default
