@@ -2,19 +2,21 @@ on:
   push:
     branches: [develop]
   pull_request:
-    branches: develop
+    branches: [develop]
 
 name: spelling-check
 
 jobs:
   spelling-check:
+    # Run on pre-commit.ci autofix commits in PRs; otherwise run on push
+    if: ${{ github.event_name != 'pull_request' || github.actor == 'pre-commit-ci[bot]' }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      
+
     steps:
       - uses: actions/checkout@v6
-      
+
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
@@ -24,7 +26,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Spellcheck root directory (include vignettes)
-        id: spellcheck # Assign ID to this step for output
+        id: spellcheck
         run: |
           result <- spelling::spell_check_package()
           result

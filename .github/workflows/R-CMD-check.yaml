@@ -4,22 +4,18 @@ on:
   push:
     branches: [develop]
   pull_request:
-    branches: develop
+    branches: [develop]
   # allow manual action trigger
   workflow_dispatch:
 
 name: R-CMD-check
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# Also, cancel in-progress runs.
-# concurrency:
-#   group: "R-CMD-check"
-#  cancel-in-progress: true
-
 jobs:
   R-CMD-check:
-    runs-on: ${{ matrix.config.os }}
+    # Run on pre-commit.ci autofix commits in PRs; otherwise run on push/dispatch
+    if: ${{ github.event_name != 'pull_request' || github.actor == 'pre-commit-ci[bot]' }}
 
+    runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
 
     strategy:
@@ -28,9 +24,9 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'oldrel-1'}
+          - {os: ubuntu-latest,  r: 'devel',   http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

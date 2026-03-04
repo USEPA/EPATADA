@@ -1,18 +1,16 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [develop]
   pull_request:
     branches: [develop]
-  # release:
-  #   types: [published]
   workflow_dispatch:
 
 name: pkgdown
 
 jobs:
   pkgdown:
+    # Run on pre-commit.ci autofix commits in PRs; otherwise run only on push/dispatch
+    if: ${{ github.event_name != 'pull_request' || github.actor == 'pre-commit-ci[bot]' }}
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
