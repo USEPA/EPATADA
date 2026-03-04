@@ -7,7 +7,6 @@ on:
 
 name: pkgdown
 
-# Cancel older runs on the same PR/branch when a new commit arrives
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -25,12 +24,40 @@ jobs:
     steps:
       - name: Wait for pre-commit.ci
         if: ${{ github.event_name == 'pull_request' }}
-        uses: lewagon/wait-on-check-action@master
+        uses: actions/github-script@v7
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          check-name: pre-commit.ci - pr
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = context.payload.pull_request.head.sha;
+            const checkName = 'pre-commit.ci - pr';
+            const timeoutMs = 15 * 60 * 1000;
+            const intervalMs = 10 * 1000;
+            const started = Date.now();
+            while (true) {
+              const { data } = await github.rest.checks.listForRef({ owner, repo, ref });
+              const check = data.check_runs.find(cr => cr.name === checkName);
+              if (check) {
+                if (check.status === 'completed') {
+                  if (check.conclusion === 'success') {
+                    core.info(`${checkName} succeeded`);
+                    break;
+                  }
+                  core.setFailed(`${checkName} concluded with ${check.conclusion}`);
+                  break;
+                } else {
+                  core.info(`${checkName} status: ${check.status}; waiting...`);
+                }
+              } else {
+                core.info(`No check named "${checkName}" yet; waiting...`);
+              }
+              if (Date.now() - started > timeoutMs) {
+                core.setFailed(`Timed out waiting for "${checkName}"`);
+                break;
+              }
+              await new Promise(r => setTimeout(r, intervalMs));
+            }
 
       - uses: actions/checkout@v6
 
