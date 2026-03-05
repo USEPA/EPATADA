@@ -559,12 +559,12 @@ TADA_GetTADACharAliasRef <- function(
   ))
   
   # remove intermediate variable
-  rm(
-    WQX_char_alias_filtered1,
-    WQX_char_alias_filtered2,
-    WQX_char_alias_filtered3,
-    raw.data
-  )
+  # rm(
+  #   WQX_char_alias_filtered1,
+  #   WQX_char_alias_filtered2,
+  #   WQX_char_alias_filtered3,
+  #   raw.data
+  # )
   
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- rExpertQuery::EQ_DomainValues("param_name")
@@ -647,9 +647,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_ATTAINS_WQX = n / stringr::str_count(name, "\\S+")
     ) |>
     # ATTAINS param to WQX char must be strict, choose best match only using slice_max
-    dplyr::slice_max(
-      order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
-    ) |>
+    # dplyr::slice_max(
+    #   order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
+    # ) |>
     dplyr::right_join(
       WQXCharacteristicRef,
       by = "CharacteristicName",
@@ -681,7 +681,7 @@ TADA_GetTADACharAliasRef <- function(
     ) |>
     # If CST to ATTAINS match must be strict, choose best match only using slice_max
     # dplyr::slice_max(
-    #   order_by = percent_match_CST + percent_match_ATTAINS_CST
+    #   order_by = percent_match_CST_ATTAINS + percent_match_ATTAINS_CST
     # ) |>
     dplyr::right_join(
       CST,
@@ -766,6 +766,15 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, WQX_CAS_NO, CST_CAS_NO) |>
     dplyr::distinct()
   
+  # because all ATTAINS parameter matches to a WQX char, for any ATTAINS_CST that do not have a WQX label, fill those WQX labels in
+  final3.1 <- final3 |> dplyr::filter(is.na(CharacteristicName))
+  final3.1_complete <- final3 |> dplyr::filter(!is.na(CharacteristicName))
+  # populate the WQX char
+  final3.2 <- final3.1 |>
+    dplyr::left_join(final3.1_complete, "ATTAINS.ParameterName") |>
+    dplyr::select(CharacteristicName = CharacteristicName.y, ATTAINS.ParameterName, POLLUTANT_NAME = POLLUTANT_NAME.x, STD_POLLUTANT_NAME = STD_POLLUTANT_NAME.x)
+  # bind the rows to fill them in
+  final3.3 <- dplyr::bind_rows(final3.1_complete, final3.2) |> dplyr::distinct()
   
   # # step 4: join pairwise combination tables into one.
   # final <- ATTAINS_CST |>
