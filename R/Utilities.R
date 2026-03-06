@@ -2578,3 +2578,27 @@ TADA_CorrectColType <- function(.data) {
   def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
   if (nzchar(def)) return(def)
 }
+
+#' createDfFromColNamesList
+#'
+#' Based on a list of column names, create an empty df that can be returned
+#' as part of functions when no data are found (ex: TADA_CreateAUMLCrosswalk,
+#' TADA_CreateNHDCrosswalk).
+#'
+#' @param col_names A list of character strings to be used as the column names
+#' for the new df. Required.
+#'
+#' @return A df with columns from the user supplied list and a single row containing
+#' all NAs.
+
+createDfFromColNamesList <- function(col_names = NULL){
+
+  if(is.null(col_names)) {
+    stop("createDfFromColNamesList: Internal function requires a list of character
+         strings to be used as column names.")
+  }
+    df <- stats::setNames(
+  object = rep(x = list(NA), times = length(col_names)),
+  nm = col_names
+)
+}

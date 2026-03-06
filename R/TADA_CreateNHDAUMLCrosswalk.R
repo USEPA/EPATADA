@@ -67,12 +67,12 @@ TADA_CreateNHDAUMLCrosswalk <- function(
   # Handle empty input data scenario
   if (nrow(.data) == 0) {
     message(
-      "Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty ATTAINS features."
+      "Your Water Quality Portal dataframe has no observations. Returning an empty dataframe with empty NHD features."
     )
-    col_val_list <- stats::setNames(
-      object = rep(x = list(NA), times = length(attains_names)),
-      nm = attains_names
-    )
+
+
+    add.nhd.cols <- createDfFromColNamesList()
+
     no_WQP_data <- .data |>
       dplyr::mutate(ResultIdentifier = NA) |>
       dplyr::bind_cols(col_val_list) |>
@@ -139,18 +139,13 @@ TADA_CreateNHDAUMLCrosswalk <- function(
       # get NHD column names for selected feature
       df.col.names <- NHDColNames(nhd_df = features)
 
-      # set the data farme name for the nhd df output
+      # set the data frame name for the nhd df output
       set.df.name <-  assignNHDDfName(feature = features)
 
       # add new columns to .data and create TADA_with_NHD df
-      col_val_list <- stats::setNames(
-        object = rep(x = list(NA), times = length(df.col.names)),
-        nm = df.col.names
-      )
+      nhd.df <- createDfFromColNamesList(df.col.names)
 
-      TADA_with_NHD <- .data |> dplyr::bind_rows(col_val_list)
-
-      assign(paste(set.df.name), as.data.frame(col_val_list))
+      TADA_with_NHD <- .data |> dplyr::bind_rows(nhd.df)
 
       # remove intermediate objects
       rm(df.col.names)
@@ -158,7 +153,7 @@ TADA_CreateNHDAUMLCrosswalk <- function(
       return(
        rlang::list2(
           "TADA_with_NHD" = TADA_with_NHD,
-          !!set.df.name := as.data.frame(col_val_list)
+          !!set.df.name := nhd.df
         )
       )
     }
