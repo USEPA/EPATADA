@@ -647,9 +647,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_ATTAINS_WQX = n / stringr::str_count(name, "\\S+")
     ) |>
     # ATTAINS param to WQX char must be strict, choose best match only using slice_max
-    # dplyr::slice_max(
-    #   order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
-    # ) |>
+    dplyr::slice_max(
+      order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
+    ) |>
     dplyr::right_join(
       WQXCharacteristicRef,
       by = "CharacteristicName",
@@ -679,7 +679,9 @@ TADA_GetTADACharAliasRef <- function(
         stringr::str_count(POLLUTANT_NAME, "\\S+"),
       percent_match_ATTAINS_CST = n / stringr::str_count(name, "\\S+")
     ) |>
-    # If CST to ATTAINS match must be strict, choose best match only using slice_max
+    # Note: chose to make ATTAINS to CST crosswalk less strict to ensure all potential information in ATTAINS can be populated. 
+    #       Removal of extra rows in criteria table will be needed by the TADA user to reflect their org's needs.
+    # However, if CST to ATTAINS match must be strict, choose best match only using slice_max
     # dplyr::slice_max(
     #   order_by = percent_match_CST_ATTAINS + percent_match_ATTAINS_CST
     # ) |>
@@ -718,9 +720,9 @@ TADA_GetTADACharAliasRef <- function(
       percent_match_CST_WQX = n / stringr::str_count(POLLUTANT_NAME, "\\S+")
     ) |>
     # If CST to WQX char must be strict, choose best match only using slice_max
-    # dplyr::slice_max(
-    #   order_by = percent_match_WQX_CST + percent_match_CST_WQX
-    # ) |>
+    dplyr::slice_max(
+      order_by = percent_match_WQX_CST + percent_match_CST_WQX
+    ) |>
     dplyr::right_join(
       CST,
       by = "POLLUTANT_NAME",
@@ -749,7 +751,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::select(CharacteristicName, ATTAINS.ParameterName, WQX_CAS_NO = CAS.Number) |>
     dplyr::distinct()
   
-  # Now find additional CST_WQX crosswalk from TADA alias match
+  # Now find additional CST_WQX crosswalk from TADA alias match and bind it with what is found in WQX
   CST_WQX_Final <- WQX_char_alias_filtered2 |>
     dplyr::mutate(POLLUTANT_NAME = toupper(POLLUTANT_NAME), CharacteristicName = toupper(CharacteristicName)) |>
     dplyr::full_join(CST_WQX, c("POLLUTANT_NAME", "CharacteristicName")) |>
@@ -757,14 +759,39 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::distinct()
   
   final3 <- ATTAINS_WQX_Final |>
+    # first, we join ATTAINS_WQX with CST_WQX to get ATTAINS_WQX_CST to get preliminary table.
     dplyr::full_join(CST_WQX_Final, by = "CharacteristicName", relationship = "many-to-many") |>
+    # now, join the ATTAINS_CST from the TADA.alias match method to find any additional matches.
+    # recall that ATTAINS and CST were less strict in its word matches. 
     dplyr::full_join(
       dplyr::select(ATTAINS_CST, ATTAINS.ParameterName = name, POLLUTANT_NAME, STD_POLLUTANT_NAME),
-      by = c("ATTAINS.ParameterName", "STD_POLLUTANT_NAME", "POLLUTANT_NAME"),
+      by = c("ATTAINS.ParameterName"), # only join by ATTAINS as there may be additional ATTAINS and CST matches that were not matched from ATTAINS_WQX_CST table.
       relationship = "many-to-many"
       ) |>
-    dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, WQX_CAS_NO, CST_CAS_NO) |>
+    # perform coalesce on the pollutant names. Prioritize matches from ATTAINS_WQX_CST (.x) (we were more strict with these) but if additional matches are found in ATTAINS_CST, coalesce them.
+    dplyr::mutate(
+      POLLUTANT_NAME = dplyr::coalesce(POLLUTANT_NAME.x, POLLUTANT_NAME.y ),
+      STD_POLLUTANT_NAME = dplyr::coalesce(STD_POLLUTANT_NAME.x, STD_POLLUTANT_NAME.y )
+    ) |>
+    dplyr::select(CharacteristicName, ATTAINS.ParameterName, POLLUTANT_NAME, STD_POLLUTANT_NAME, WQX_CAS_NO, CST_CAS_NO, p.na) |>
     dplyr::distinct()
+  
+  
+  ATTAINS_CST_WQX <- ATTAINS_CST |>
+    dplyr::full_join(ATTAINS_WQX_Final, c("name" = "ATTAINS.ParameterName")) |>
+    dplyr::select(CharacteristicName, ATTAINS.ParameterName = name, POLLUTANT_NAME, STD_POLLUTANT_NAME) |>
+    dplyr::distinct()
+  
+  ATTAINS_CST_WQX2 <- ATTAINS_CST |>
+    dplyr::full_join(CST_WQX_Final, c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")) |>
+    dplyr::select(CharacteristicName, ATTAINS.ParameterName = name, POLLUTANT_NAME, STD_POLLUTANT_NAME) |>
+    dplyr::distinct()
+  
+  ATTAINS_CST_WQX_Final <- ATTAINS_CST_WQX |> dplyr::full_join(final3)
+  
+  
+  
+  
   
   # because all ATTAINS parameter matches to a WQX char, for any ATTAINS_CST that do not have a WQX label, fill those WQX labels in
   final3.1 <- final3 |> dplyr::filter(is.na(CharacteristicName))
