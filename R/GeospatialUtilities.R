@@ -1846,3 +1846,49 @@ checkForATTAINSGeo <- function(
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }
 }
+
+#' NHDColNames
+#'
+#' Get either (1) a df containing the data frame names and the column names associated with
+#' them for all possible output data frames from fetchNHD or (2) a list of column names
+#' associated with a specific output data frame from fetchNHD.
+#'
+#' @param nhd_df Character string argument. When nhd_df equals "all", the output is
+#' a df containing df names and column names. When nhd_df equals "catchments",
+#' "flowlines" or "waterbodies", a list is returned which corresponds to the column
+#' names for the selected fetchNHD data frame.
+#'
+#' @return Based on user inputs either(1) a df containing the data frame names
+#' and the column names associated with them for all possible output data frames
+#' from fetchNHD or (2) a list of column names associated with a specific output
+#' data frame from fetchNHD.
+# get fetchNHD column names
+NHDColNames <- function(
+    nhd_df = "all"
+) {
+
+  # load internal ref file
+  ref <- utils::read.csv(system.file(
+    "extdata",
+    "NHDColNamesRef.csv",
+    package = "EPATADA"
+  ))
+
+  if(nhd_df == "all") {
+    return(ref)
+  }
+
+  if(nhd_df %in% c("catchments", "flowlines", "waterbodies")) {
+
+    df.filt <- switch(nhd_df,
+                      "catchments" = "fill_USGS_catchments",
+                      "flowlines" = "NHD_flowlines",
+                      "waterbodies" = "NHD_waterbodies")
+
+    ref.filt <- ref |>
+      dplyr::filter(nhd.df == df.filt) |>
+      dplyr::pull()
+
+    return(ref)
+  }
+}
