@@ -1889,6 +1889,6 @@ NHDColNames <- function(
       dplyr::filter(nhd.df == df.filt) |>
       dplyr::pull()
 
-    return(ref)
+    return(ref.filt)
   }
 }

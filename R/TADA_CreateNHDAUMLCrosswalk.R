@@ -117,11 +117,90 @@ TADA_CreateNHDAUMLCrosswalk <- function(
   nhd.catch <- TADA_DataRetrieval_data |> fetchNHD(resolution = res,
                                                    features = features)
 
+  # helper function to assign NHD df name based on feature
+  assignNHDDfName <- function(feature) {
+
+    df.name <- switch(feature,
+                      "catchments" = "fill_USGS_catchments",
+                      "flowlines" = "NHD_flowlines",
+                      "waterbodies" = "NHD_waterbodies")
+
+    return(df.name)
+  }
+
 
 
   # Handle scenario where no NHD data is associated with WQP observations
   if (is.data.frame(nhd.catch) & is.null(nhd.catch) |
       is.list(nhd.catch) & length(purrr::compact(nhd.catch)) == 0) {
+
+    if(is.data.frame(nhd.catch) & length(features) == 1) {
+
+      # get NHD column names for selected feature
+      df.col.names <- NHDColNames(nhd_df = features)
+
+      # set the data farme name for the nhd df output
+      set.df.name <-  assignNHDDfName(feature = features)
+
+      # add new columns to .data and create TADA_with_NHD df
+      col_val_list <- stats::setNames(
+        object = rep(x = list(NA), times = length(df.col.names)),
+        nm = df.col.names
+      )
+
+      TADA_with_NHD <- .data |> dplyr::bind_rows(col_val_list)
+
+      assign(paste(set.df.name), as.data.frame(col_val_list))
+
+      # remove intermediate objects
+      rm(df.col.names)
+
+      return(
+       rlang::list2(
+          "TADA_with_NHD" = TADA_with_NHD,
+          !!set.df.name := as.data.frame(col_val_list)
+        )
+      )
+    }
+
+    if (is.list(nhd.catch) & length(purrr::compact(nhd.catch))) {
+
+       # create list of all nhd df names in list
+      nhd.df.names <- names(nhd.catch)
+
+      createNHDOutput <- function(feature) {
+
+        # get NHD column names for selected feature
+        df.col.names <- NHDColNames(nhd_df = features)
+
+        # set the data farme name for the nhd df output
+        set.df.name <-  assignNHDDfName(feature = features)
+
+        # add new columns to .data and create TADA_with_NHD df
+        # could make this a utils function and use in TADA_CreateATTAINSAUMLCrosswalk too (HRM note: 3/6/26)
+        col_val_list <- stats::setNames(
+          object = rep(x = list(NA), times = length(df.col.names)),
+          nm = df.col.names
+        )
+
+        TADA_with_NHD <- .data |> dplyr::bind_rows(col_val_list)
+
+        assign(paste(set.df.name), as.data.frame(col_val_list))
+
+        # remove intermediate objects
+        rm(df.col.names)
+
+        return(
+          rlang::list2(
+            "TADA_with_NHD" = TADA_with_NHD,
+            !!set.df.name := as.data.frame(col_val_list)
+          )
+        )
+
+      }
+
+
+    }
 
     nhd.list <- c("fill_USGS_catchments",
                   "NHD_flowlines",
@@ -129,10 +208,7 @@ TADA_CreateNHDAUMLCrosswalk <- function(
 
     nhd.cols <-
 
-    col_val_list <- stats::setNames(
-      object = rep(x = list(NA), times = length(attains_names)),
-      nm = attains_names
-    )
+
     no_ATTAINS_data <- .data |> dplyr::bind_cols(col_val_list)
 
     message(
