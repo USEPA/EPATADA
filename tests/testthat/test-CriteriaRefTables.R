@@ -36,10 +36,10 @@ get_cache_value <- function(key) {
 mock_resolver_to_path <- function(wb_path) {
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      pkg = "EPATADA",
-      on_fail_message = NULL
+                                           download_only = FALSE,
+                                           refresh = FALSE,
+                                           pkg = "EPATADA",
+                                           on_fail_message = NULL
     ) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
@@ -166,9 +166,9 @@ testthat::test_that("refresh = TRUE bypasses cached data and updates it", {
   current_path <- wb1
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
+                                           download_only = FALSE,
+                                           refresh = FALSE,
+                                           ...
     ) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", current_path)
@@ -300,17 +300,17 @@ testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
 
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
-      download_only = TRUE,
-      refresh = TRUE,
-      ...
+                                           download_only = TRUE,
+                                           refresh = TRUE,
+                                           ...
     ) {
       fake_src
     },
     .tada_cst_write_ext_workbook_if_changed = function(
-      src_path,
-      pkg = "EPATADA",
-      filename = "cst-workbook.xlsx",
-      normalize_tabs = TRUE
+                                                       src_path,
+                                                       pkg = "EPATADA",
+                                                       filename = "cst-workbook.xlsx",
+                                                       normalize_tabs = TRUE
     ) {
       called <<- TRUE
       captured_src <<- src_path
