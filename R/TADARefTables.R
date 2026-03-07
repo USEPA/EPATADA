@@ -884,22 +884,14 @@ TADA_GetTADAUsesAliasRef <- function(
     )
   }
 
-  CST_ref <- .tada_cst_read_sheet(internal_path, target = "criteria")
-  if (is.null(CST_ref)) {
-    stop(
-      "Failed to read 'Criteria' sheet from internal CST workbook at: ",
-      internal_path
-    )
-  }
-  CST_ref <- .tada_cst_prepare_table(CST_ref)
-
-  CST <- CST_ref
-
-  # remove intermediate variables
-  rm(internal_path, CST_ref)
+  # Extract CST Criteria from the internal workbook only; error if missing/unreadable
+  CST.raw <- TADA_CST_GetCriteria()
+  
+  # extract unique relevant columns
+  CST <- CST.raw |>
 
   # select appropriate columns from the CST
-  CST <- CST |>
+  CST <- CST.raw |>
     dplyr::select(
       ENTITY_ABBR,
       ENTITY_NAME,
@@ -1019,7 +1011,7 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::distinct()
 
   # remove intermediate variables
-  rm(CST, ATTAINSUseRef, CST2, ATTAINSUseRef2, ATTAINS_CST, ATTAINS_CST2)
+  rm(CST, CST.raw, ATTAINSUseRef, CST2, ATTAINSUseRef2, ATTAINS_CST, ATTAINS_CST2)
 
   # filter by desired tolerance level defined in the arg inputs
   TADAUsesAliasRef <- ATTAINS_CST_final |>
