@@ -947,18 +947,18 @@ TADA_GetTADAUsesAliasRef <- function(
 
   # select appropriate columns from the CST
   CST <- CST.raw |>
-  dplyr::select(
-    ENTITY_ABBR,
-    ENTITY_NAME,
-    CRITERIATYPEAQUAHUMHLTH,
-    CRITERIATYPEFRESHSALTWATER,
-    CRITERIATYPE_ACUTECHRONIC,
-    USE_CLASS_NAME_LOCATION_ETC
-  ) |>
-  dplyr::mutate(
-    USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
-  ) |>
-  dplyr::distinct()
+    dplyr::select(
+      ENTITY_ABBR,
+      ENTITY_NAME,
+      CRITERIATYPEAQUAHUMHLTH,
+      CRITERIATYPEFRESHSALTWATER,
+      CRITERIATYPE_ACUTECHRONIC,
+      USE_CLASS_NAME_LOCATION_ETC
+    ) |>
+    dplyr::mutate(
+      USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
+    ) |>
+    dplyr::distinct()
 
   # Extracts all words from each CST Use
   CST2 <- CST |>

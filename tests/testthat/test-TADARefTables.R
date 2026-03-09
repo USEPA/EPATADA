@@ -42,10 +42,10 @@ test_that("No combos were missed in NP key from harmonization table", {
 # Test that new combinations of ATTAINS parameter have not been added to domain tables
 test_that("Is the saved TADACharAliasRef.csv up to date?", {
   # Check for any new domain values for ATTAINS Parameters
-  
+
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- spsUtil::quiet(rExpertQuery::EQ_DomainValues("param_name"))
-  
+
   # extract unique ATTAINS parameter names
   ref <- ATTAINS.raw[, "name"]
   old <- utils::read.csv(system.file(
@@ -53,7 +53,7 @@ test_that("Is the saved TADACharAliasRef.csv up to date?", {
     "TADACharAliasRef.csv",
     package = "EPATADA"
   ))[, "ATTAINS.ParameterName"]
-  
+
   expect_in(ref, old)
 })
 
