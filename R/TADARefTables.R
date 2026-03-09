@@ -704,7 +704,7 @@ TADA_GetTADACharAliasRef <- function(
 # Update TADACharAlias Reference Table internal file
 # (for internal use only)
 
-TADA_UpdateTADACharAliasRef <- function(
+.TADA_UpdateTADACharAliasRef <- function(
   ATTAINS.CST.tolerance = 1.00,
   CST.ATTAINS.tolerance = 1.00,
   ATTAINS.WQX.tolerance = 1.00,
@@ -941,22 +941,22 @@ TADA_GetTADAUsesAliasRef <- function(
   CST.raw <- TADA_CST_GetCriteria()
 
   # extract unique relevant columns
-  CST <- CST.raw |>
+  CST <- CST.raw
 
-    # select appropriate columns from the CST
-    CST <- CST.raw |>
-    dplyr::select(
-      ENTITY_ABBR,
-      ENTITY_NAME,
-      CRITERIATYPEAQUAHUMHLTH,
-      CRITERIATYPEFRESHSALTWATER,
-      CRITERIATYPE_ACUTECHRONIC,
-      USE_CLASS_NAME_LOCATION_ETC
-    ) |>
-    dplyr::mutate(
-      USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
-    ) |>
-    dplyr::distinct()
+  # select appropriate columns from the CST
+  CST <- CST.raw |>
+  dplyr::select(
+    ENTITY_ABBR,
+    ENTITY_NAME,
+    CRITERIATYPEAQUAHUMHLTH,
+    CRITERIATYPEFRESHSALTWATER,
+    CRITERIATYPE_ACUTECHRONIC,
+    USE_CLASS_NAME_LOCATION_ETC
+  ) |>
+  dplyr::mutate(
+    USE_CLASS_NAME_LOCATION_ETC = toupper(USE_CLASS_NAME_LOCATION_ETC)
+  ) |>
+  dplyr::distinct()
 
   # Extracts all words from each CST Use
   CST2 <- CST |>
@@ -1150,7 +1150,7 @@ TADA_GetTADAUsesAliasRef <- function(
 # Update TADAUsesAlias Reference Table internal file
 # (for internal use only)
 
-TADA_UpdateTADAUsesAliasRef <- function(
+.TADA_UpdateTADAUsesAliasRef <- function(
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,
   set.all.tolerance = NA
