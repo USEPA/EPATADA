@@ -460,11 +460,6 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::slice_max(
       order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
     ) |>
-    dplyr::right_join(
-      WQXCharacteristicRef,
-      by = "CharacteristicName",
-      relationship = "many-to-many"
-    ) |>
     dplyr::filter(
       (percent_match_WQX_ATTAINS >= WQX.ATTAINS.tolerance |
         percent_match_ATTAINS_WQX >= ATTAINS.WQX.tolerance) &
@@ -496,6 +491,7 @@ TADA_GetTADACharAliasRef <- function(
     # dplyr::slice_max(
     #   order_by = percent_match_CST_ATTAINS + percent_match_ATTAINS_CST
     # ) |>
+    # pulls in STD_POLLUTANT_NAME
     dplyr::right_join(
       CST,
       by = "POLLUTANT_NAME",
@@ -535,6 +531,7 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::slice_max(
       order_by = percent_match_WQX_CST + percent_match_CST_WQX
     ) |>
+    # pulls in STD_POLLUTANT_NAME
     dplyr::right_join(
       CST,
       by = "POLLUTANT_NAME",
@@ -601,13 +598,13 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::distinct()
 
   ATTAINS_WQX_CST_Final <- ATTAINS_WQX_Final |>
-    # first, we join ATTAINS_WQX with CST_WQX to get ATTAINS_WQX_CST to get preliminary table.
+    # first, we join ATTAINS_WQX with CST_WQX to get ATTAINS_WQX_CST, the preliminary 3-way table.
     dplyr::full_join(
       CST_WQX_Final,
       by = "CharacteristicName",
       relationship = "many-to-many"
     ) |>
-    # now, join the ATTAINS_CST from the TADA.alias match method to find any additional matches.
+    # now, join the TADA ref table of ATTAINS_CST from the TADA.alias match method to find any additional matches.
     # recall that ATTAINS and CST is less strict in its word matches as CST is for discovery (users will review a larger list of crosswalk filtered by their org)
     dplyr::full_join(
       dplyr::select(
@@ -624,9 +621,14 @@ TADA_GetTADACharAliasRef <- function(
       cols = tidyr::matches("\\.x$|\\.y$"), # Selects columns ending in .x or .y
       names_to = c(".value", "source"),
       names_sep = "\\.",
-      values_drop_na = TRUE
+      values_drop_na = FALSE
     ) |>
-    # populate CAS NO
+    # ensures all ATTAINS.ParameterName are included
+    dplyr::full_join(
+      ATTAINSParamRef,
+      by = c("ATTAINS.ParameterName" = "name")
+    ) |>
+    # populate the CAS NO
     dplyr::left_join(
       dplyr::select(WQXCharacteristicRef, CharacteristicName, CAS.Number),
       by = "CharacteristicName"
