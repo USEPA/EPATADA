@@ -632,10 +632,10 @@ TADA_GetTADACharAliasRef <- function(
     tidyr::fill(STD_POLLUTANT_NAME, .direction = "downup") |>
     dplyr::ungroup() |>
     # ensures all ATTAINS.ParameterName are included
-    # dplyr::full_join(
-    #   ATTAINSParamRef,
-    #   by = c("ATTAINS.ParameterName" = "name")
-    # ) |>
+    dplyr::full_join(
+      ATTAINSParamRef,
+      by = c("ATTAINS.ParameterName" = "name")
+    ) |>
     # populate the CAS NO
     dplyr::left_join(
       dplyr::select(WQXCharacteristicRef, CharacteristicName, CAS.Number),
@@ -658,10 +658,10 @@ TADA_GetTADACharAliasRef <- function(
           !is.na(CST_CAS_NO) &
           WQX_CAS_NO != "" &
           WQX_CAS_NO !=
-            CST_CAS_NO ~ "TADA_GetTADACharAliasRef() recommendation: 'rejected' based on mismatching CAS_NO.",
+            CST_CAS_NO ~ paste0("TADA_GetTADACharAliasRef() recommendation: 'rejected' based on mismatching CAS_NO at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance),
         WQX_CAS_NO ==
-          CST_CAS_NO ~ "TADA_GetTADACharAliasRef() recommendation: 'approved' based on matching CAS_NO.",
-        TRUE ~ "Manual Status assignment needed."
+          CST_CAS_NO ~ paste0("TADA_GetTADACharAliasRef() recommendation: 'approved' based on matching CAS_NO at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance),
+        TRUE ~ paste0("Manual 'Status' assignment needed at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance)
       )
     ) |>
     dplyr::distinct()
