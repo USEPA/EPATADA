@@ -589,10 +589,7 @@ TADA_GetTADACharAliasRef <- function(
       POLLUTANT_NAME = toupper(POLLUTANT_NAME),
       CharacteristicName = toupper(CharacteristicName)
     ) |>
-    dplyr::left_join(
-      CST,
-      by = "POLLUTANT_NAME"
-    ) |>
+    dplyr::left_join(CST, by = "POLLUTANT_NAME") |>
     dplyr::full_join(
       TADARef_CST_WQX,
       c("POLLUTANT_NAME", "STD_POLLUTANT_NAME", "CharacteristicName")
@@ -657,11 +654,48 @@ TADA_GetTADACharAliasRef <- function(
         !is.na(WQX_CAS_NO) &
           !is.na(CST_CAS_NO) &
           WQX_CAS_NO != "" &
-          WQX_CAS_NO !=
-            CST_CAS_NO ~ paste0("TADA_GetTADACharAliasRef() recommendation: 'rejected' based on mismatching CAS_NO at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance),
-        WQX_CAS_NO ==
-          CST_CAS_NO ~ paste0("TADA_GetTADACharAliasRef() recommendation: 'approved' based on matching CAS_NO at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance),
-        TRUE ~ paste0("Manual 'Status' assignment needed at tolerances of: WQX.ATTAINS = ", WQX.ATTAINS.tolerance, " ATTAINS.WQX = ", ATTAINS.WQX.tolerance, " CST.WQX = ", CST.WQX.tolerance, " WQX.CST = ", WQX.CST.tolerance, " ATTAINS.CST = ", ATTAINS.CST.tolerance, " CST.ATTAINS = ", CST.ATTAINS.tolerance)
+          WQX_CAS_NO != CST_CAS_NO ~ paste0(
+          "TADA_GetTADACharAliasRef() recommendation: 'rejected' based on mismatching CAS_NO at tolerances of: WQX.ATTAINS = ",
+          WQX.ATTAINS.tolerance,
+          " ATTAINS.WQX = ",
+          ATTAINS.WQX.tolerance,
+          " CST.WQX = ",
+          CST.WQX.tolerance,
+          " WQX.CST = ",
+          WQX.CST.tolerance,
+          " ATTAINS.CST = ",
+          ATTAINS.CST.tolerance,
+          " CST.ATTAINS = ",
+          CST.ATTAINS.tolerance
+        ),
+        WQX_CAS_NO == CST_CAS_NO ~ paste0(
+          "TADA_GetTADACharAliasRef() recommendation: 'approved' based on matching CAS_NO at tolerances of: WQX.ATTAINS = ",
+          WQX.ATTAINS.tolerance,
+          " ATTAINS.WQX = ",
+          ATTAINS.WQX.tolerance,
+          " CST.WQX = ",
+          CST.WQX.tolerance,
+          " WQX.CST = ",
+          WQX.CST.tolerance,
+          " ATTAINS.CST = ",
+          ATTAINS.CST.tolerance,
+          " CST.ATTAINS = ",
+          CST.ATTAINS.tolerance
+        ),
+        TRUE ~ paste0(
+          "Manual 'Status' assignment needed at tolerances of: WQX.ATTAINS = ",
+          WQX.ATTAINS.tolerance,
+          " ATTAINS.WQX = ",
+          ATTAINS.WQX.tolerance,
+          " CST.WQX = ",
+          CST.WQX.tolerance,
+          " WQX.CST = ",
+          WQX.CST.tolerance,
+          " ATTAINS.CST = ",
+          ATTAINS.CST.tolerance,
+          " CST.ATTAINS = ",
+          CST.ATTAINS.tolerance
+        )
       )
     ) |>
     dplyr::distinct()
