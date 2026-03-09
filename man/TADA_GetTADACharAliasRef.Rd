@@ -5,7 +5,6 @@
 \title{ATTAINS Parameter, CST Pollutant and WQP Characteristic Alias Reference Table}
 \usage{
 TADA_GetTADACharAliasRef(
-  refresh = FALSE,
   ATTAINS.CST.tolerance = 1,
   CST.ATTAINS.tolerance = 1,
   ATTAINS.WQX.tolerance = 1,

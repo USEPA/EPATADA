@@ -221,8 +221,6 @@ TADACharAliasRef_Cached <- NULL
 #' @export
 #'
 TADA_GetTADACharAliasRef <- function(
-  #download_only = FALSE,
-  refresh = FALSE,
   ATTAINS.CST.tolerance = 1.00,
   CST.ATTAINS.tolerance = 1.00,
   ATTAINS.WQX.tolerance = 1.00,
@@ -231,10 +229,6 @@ TADA_GetTADACharAliasRef <- function(
   WQX.CST.tolerance = 1.00,
   set.all.tolerance = NA
 ) {
-  # if (!download_only) {
-  #   cached <- TADACharAliasRef_Cached
-  #   if (!is.null(cached) && !isTRUE(refresh)) return(cached)
-  # }
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- WQX.ATTAINS.tolerance <- ATTAINS.WQX.tolerance <- CST.WQX.tolerance <- WQX.CST.tolerance <- set.all.tolerance
@@ -460,6 +454,11 @@ TADA_GetTADACharAliasRef <- function(
     dplyr::slice_max(
       order_by = percent_match_WQX_ATTAINS + percent_match_ATTAINS_WQX
     ) |>
+    dplyr::right_join(
+      WQXCharacteristicRef,
+      by = "CharacteristicName",
+      relationship = "many-to-many"
+    ) |>
     dplyr::filter(
       (percent_match_WQX_ATTAINS >= WQX.ATTAINS.tolerance |
         percent_match_ATTAINS_WQX >= ATTAINS.WQX.tolerance) &
@@ -590,11 +589,16 @@ TADA_GetTADACharAliasRef <- function(
       POLLUTANT_NAME = toupper(POLLUTANT_NAME),
       CharacteristicName = toupper(CharacteristicName)
     ) |>
+    dplyr::left_join(
+      CST,
+      by = "POLLUTANT_NAME"
+    ) |>
     dplyr::full_join(
       TADARef_CST_WQX,
-      c("POLLUTANT_NAME", "CharacteristicName")
+      c("POLLUTANT_NAME", "STD_POLLUTANT_NAME", "CharacteristicName")
     ) |>
     dplyr::select(CharacteristicName, STD_POLLUTANT_NAME, POLLUTANT_NAME) |>
+    dplyr::filter(!is.na(STD_POLLUTANT_NAME)) |>
     dplyr::distinct()
 
   ATTAINS_WQX_CST_Final <- ATTAINS_WQX_Final |>
@@ -616,18 +620,22 @@ TADA_GetTADACharAliasRef <- function(
       by = c("ATTAINS.ParameterName"), # only join by ATTAINS as there may be additional ATTAINS and CST matches that were not matched from ATTAINS_WQX_CST table.
       relationship = "many-to-many"
     ) |>
-    # additional rows to account for pairwise combinations
+    # show additional rows to account for pairwise combinations
     tidyr::pivot_longer(
       cols = tidyr::matches("\\.x$|\\.y$"), # Selects columns ending in .x or .y
       names_to = c(".value", "source"),
       names_sep = "\\.",
       values_drop_na = FALSE
     ) |>
+    dplyr::group_by(CharacteristicName, ATTAINS.ParameterName) |>
+    tidyr::fill(POLLUTANT_NAME, .direction = "downup") |>
+    tidyr::fill(STD_POLLUTANT_NAME, .direction = "downup") |>
+    dplyr::ungroup() |>
     # ensures all ATTAINS.ParameterName are included
-    dplyr::full_join(
-      ATTAINSParamRef,
-      by = c("ATTAINS.ParameterName" = "name")
-    ) |>
+    # dplyr::full_join(
+    #   ATTAINSParamRef,
+    #   by = c("ATTAINS.ParameterName" = "name")
+    # ) |>
     # populate the CAS NO
     dplyr::left_join(
       dplyr::select(WQXCharacteristicRef, CharacteristicName, CAS.Number),
