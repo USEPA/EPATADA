@@ -2588,7 +2588,7 @@ TADA_CorrectColType <- function(.data) {
 #' desire or need to reference the TADA criteria table from a different branch.
 #'
 #' @return a data frame with four columns
-#' 
+#'
 #' @export
 #'
 TADA_GetCriteriaFiles <- function(branch = "main") {
@@ -2624,7 +2624,7 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
   utils::download.file(file_url, temp_file, mode = "wb")
 
   # Now read it
-  df <-openxlsx::read.xlsx(temp_file)
+  df <- openxlsx::read.xlsx(temp_file)
 
   # Clean up
   unlink(temp_file)
@@ -2692,7 +2692,7 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #'
 #' @return a data frame containing the TADACommunityHub TADA criteria table
 #' based on the user supplied org_id or state_tribe name.
-#' 
+#'
 #' @export
 #'
 TADA_LoadCriteriaFile <- function(
