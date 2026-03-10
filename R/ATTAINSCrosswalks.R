@@ -2070,7 +2070,11 @@ TADA_UsesForAnalysis <- function(
         dplyr::distinct() |>
         dplyr::left_join(
           AU_UsesRef,
-          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "ATTAINS.UseGroup")
+          by = c(
+            "ATTAINS.OrganizationIdentifier",
+            "ATTAINS.WaterType",
+            "ATTAINS.UseGroup"
+          )
         )
     }
 

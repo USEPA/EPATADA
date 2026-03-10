@@ -2587,10 +2587,10 @@ TADA_CorrectColType <- function(.data) {
 #' Specify a different branch if needed.
 #'
 #' @return A data frame with four columns.
-#' 
+#'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' criteriaFiles <- TADA_GetCriteriaFiles()
 #'
 TADA_GetCriteriaFiles <- function(branch = "main") {
@@ -2696,8 +2696,8 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' based on the user supplied org_id or state_tribe name.
 #'
 #' @export
-#' 
-#' @examples 
+#'
+#' @examples
 #' loadCriteria_MTDEQ <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
 #'
 TADA_LoadCriteriaFile <- function(
