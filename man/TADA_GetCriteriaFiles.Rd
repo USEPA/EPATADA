@@ -2,18 +2,21 @@
 % Please edit documentation in R/Utilities.R
 \name{TADA_GetCriteriaFiles}
 \alias{TADA_GetCriteriaFiles}
-\title{Get TADACommunityHub Criteria File List}
+\title{List Criteria and Methodologies Files in TADACommunityHub}
 \usage{
 TADA_GetCriteriaFiles(branch = "main")
 }
 \arguments{
-\item{branch}{defines the GitHub TADACommunityHub branch to reference from.
-The "main" branch is the default. This branch may be changed if there is a
-desire or need to reference the TADA criteria table from a different branch.}
+\item{branch}{The GitHub TADACommunityHub branch to query. Defaults to "main".
+Specify a different branch if needed.}
 }
 \value{
-a data frame with four columns
+A data frame with four columns.
 }
 \description{
-A function to download the full list of criteria file list from TADACommunityHub
+Retrieves the complete listing of Criteria and Methodologies files from the TADACommunityHub repository.
+}
+\examples{
+criteriaFiles <- TADA_GetCriteriaFiles()
+
 }

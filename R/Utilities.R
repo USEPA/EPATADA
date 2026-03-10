@@ -2579,17 +2579,19 @@ TADA_CorrectColType <- function(.data) {
   if (nzchar(def)) return(def)
 }
 
-#' Get TADACommunityHub Criteria File List
+#' List Criteria and Methodologies Files in TADACommunityHub
 #'
-#' A function to download the full list of criteria file list from TADACommunityHub
+#' Retrieves the complete listing of Criteria and Methodologies files from the TADACommunityHub repository.
 #'
-#' @param branch defines the GitHub TADACommunityHub branch to reference from.
-#' The "main" branch is the default. This branch may be changed if there is a
-#' desire or need to reference the TADA criteria table from a different branch.
+#' @param branch The GitHub TADACommunityHub branch to query. Defaults to "main".
+#' Specify a different branch if needed.
 #'
-#' @return a data frame with four columns
-#'
+#' @return A data frame with four columns.
+#' 
 #' @export
+#' 
+#' @examples 
+#' criteriaFiles <- TADA_GetCriteriaFiles()
 #'
 TADA_GetCriteriaFiles <- function(branch = "main") {
   # GitHub API endpoint for repository contents
@@ -2694,6 +2696,9 @@ TADA_GetCriteriaFiles <- function(branch = "main") {
 #' based on the user supplied org_id or state_tribe name.
 #'
 #' @export
+#' 
+#' @examples 
+#' loadCriteria_MTDEQ <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
 #'
 TADA_LoadCriteriaFile <- function(
   org_id = NULL,

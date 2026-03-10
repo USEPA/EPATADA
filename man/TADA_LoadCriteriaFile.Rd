@@ -24,3 +24,7 @@ based on the user supplied org_id or state_tribe name.
 \description{
 A function to download the criteria data frame from TADACommunityHub
 }
+\examples{
+loadCriteria_MTDEQ <- TADA_LoadCriteriaFile(org_id = "MTDEQ")
+
+}

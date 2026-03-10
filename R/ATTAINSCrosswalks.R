@@ -1298,7 +1298,7 @@ TADA_ParametersForAnalysis <- function(
     if (tolower(auto_assign) == tolower("All")) {
       print(paste0(
         "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
-        "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "finding an alias ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
       ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
         "extdata",
@@ -1357,8 +1357,8 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an exact match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no exact matches were found."
+            "This crosswalk was provided through an alias match auto_assign = 'All', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+            "No crosswalk was provided and no alias matches were found."
           )
         ) |>
         dplyr::distinct()
@@ -1367,7 +1367,7 @@ TADA_ParametersForAnalysis <- function(
     if (tolower(auto_assign) == tolower("Org")) {
       print(paste0(
         "TADA_ParametersForAnalysis: auto_assign == 'Org' was selected, ",
-        "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "finding an alias ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
       ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
@@ -1437,8 +1437,8 @@ TADA_ParametersForAnalysis <- function(
         dplyr::mutate(
           Flag.ParameterInput = dplyr::if_else(
             !is.na(ATTAINS.ParameterName),
-            "This crosswalk was provided through an exact match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
-            "No crosswalk was provided and no exact matches were found for this organization."
+            "This crosswalk was provided through an alias match auto_assign = 'Org', between ATTAINS.ParameterName and TADA.CharacteristicName.",
+            "No crosswalk was provided and no alias matches were found for this organization."
           )
         ) |>
         dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
@@ -2063,14 +2063,14 @@ TADA_UsesForAnalysis <- function(
       package = "EPATADA"
     ))
 
-    # If a user provides a AU_UsesRef, We will use the uses in this table
+    # If a user provides an AU_UsesRef, We will use the uses in this table
     if (!is.null(AU_UsesRef)) {
       ATTAINS_param_all <- ATTAINS_param_all |>
         dplyr::select(-ATTAINS.UseName) |>
         dplyr::distinct() |>
         dplyr::left_join(
           AU_UsesRef,
-          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType")
+          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType", "ATTAINS.UseGroup")
         )
     }
 
@@ -2200,7 +2200,13 @@ TADA_UsesForAnalysis <- function(
         "organization have not done assessments for in prior ATTAINS cycle. Please review carefully and Exclude rows as needed."
       ))
 
-      use.names <- CreateUsesRef |>
+      # pulls in all prior use names from prior assessment cycles for an org
+      use.names <- utils::read.csv(system.file(
+        "extdata",
+        "ATTAINSParamUseEntityRef.csv",
+        package = "EPATADA"
+      )) |>
+        dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
         dplyr::distinct()
@@ -2967,6 +2973,7 @@ TADA_AssignUsesToAU <- function(
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.AssessmentUnitIdentifier = character(0), # ATTAINS.assessmentunitname,
       ATTAINS.UseName = character(0),
+      ATTAINS.UseType = character(0),
       ATTAINS.WaterType = character(0),
       TADA.AssessmentUnitStatus = character(0),
       IncludeOrExclude = character(0)
@@ -3119,6 +3126,7 @@ TADA_AssignUsesToAU <- function(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
         ATTAINS.UseName = useName,
+        ATTAINS.UseGroup = useGroup,
         ATTAINS.WaterType,
         TADA.AssessmentUnitStatus,
         IncludeOrExclude
@@ -3171,6 +3179,7 @@ TADA_AssignUsesToAU <- function(
           ATTAINS.OrganizationIdentifier,
           ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
           ATTAINS.UseName,
+          ATTAINS.UseGroup,
           ATTAINS.WaterType,
           TADA.AssessmentUnitStatus,
           IncludeOrExclude

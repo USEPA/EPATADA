@@ -883,6 +883,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       organizationType,
       parameterName,
       useName,
+      useGroup,
       waterType
     ) |>
     dplyr::rename(
@@ -891,6 +892,7 @@ TADA_GetATTAINSParamUseOrgRef <- function() {
       ATTAINS.OrganizationType = organizationType,
       ATTAINS.ParameterName = parameterName,
       ATTAINS.UseName = useName,
+      ATTAINS.UseGroup = useGroup,
       ATTAINS.WaterType = waterType
     ) |>
     dplyr::distinct()
