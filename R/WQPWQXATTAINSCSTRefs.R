@@ -1379,7 +1379,7 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
     if (is.null(df)) {
       stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
     }
-    .tada_require_cols(df, c("Code", "Name"), "Measure Unit")
+    .tada_require_cols(df, c("Code"), "Measure Unit")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MeasureUnit,
