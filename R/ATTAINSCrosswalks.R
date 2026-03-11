@@ -1297,16 +1297,16 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       print(paste0(
-        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
-        "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, \n",
+        "finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found."
       ))
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName
         )
@@ -1320,7 +1320,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1333,8 +1333,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
-            ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+            ATTAINS.ParameterName == "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1370,13 +1369,13 @@ TADA_ParametersForAnalysis <- function(
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName
         )
@@ -1390,7 +1389,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1403,8 +1402,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
-            ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+            ATTAINS.ParameterName == "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1441,7 +1439,7 @@ TADA_ParametersForAnalysis <- function(
             "No crosswalk was provided and no exact matches were found for this organization."
           )
         ) |>
-        dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::distinct()
     }
 
@@ -1737,6 +1735,17 @@ TADA_ParametersForAnalysis <- function(
       rows = 1:nrow(CreateParamRef) + 1,
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+
+    # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateParamRef",
+      cols = 3,
+      rows = 1:nrow(CreateParamRef) + 1,
+      type = "contains",
+      rule = c("Not Applicable for Analysis."),
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
 
     # remove intermediate objects
@@ -2170,10 +2179,7 @@ TADA_UsesForAnalysis <- function(
         ATTAINS.UseName
       ) |>
       # tidyr::drop_na(ATTAINS.ParameterName) |>
-      dplyr::filter(
-        ATTAINS.ParameterName !=
-          "No parameter match for TADA.ComparableDataIdentifier"
-      ) |>
+      dplyr::filter(ATTAINS.ParameterName != "Not Applicable for Analysis.") |>
       dplyr::distinct() |>
       dplyr::mutate(
         IncludeOrExclude = dplyr::if_else(

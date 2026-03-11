@@ -103,3 +103,12 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
 
   expect_true(nrow(find.dups) == 0)
 })
+
+# Test if new alias have been added to the WQX domain table
+test_that("Is TADA_GetWQXCharRef.rda up to date?", {
+  old <- TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
+  old_latedate <- max(as.Date(old$Last.Change.Date, "%m/%d/%Y"))
+  ref <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+  new_latedate <- max(as.Date(ref$Last.Change.Date, "%m/%d/%Y"))
+  expect_true(old_latedate == new_latedate)
+})

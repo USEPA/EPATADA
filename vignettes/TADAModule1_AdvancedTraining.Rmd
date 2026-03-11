@@ -26,9 +26,9 @@ editor_options:
 library(knitr)
 
 knitr::opts_chunk$set(
-  fig.width = 7, 
-  fig.height = 4, 
-  dpi = 96, 
+  fig.width = 7,
+  fig.height = 4,
+  dpi = 96,
   echo = TRUE,
   out.width = "80%",
   warning = FALSE,
