@@ -323,10 +323,10 @@ TADA_TableExport(MT.ParamRef.None)
 ### Auto_assign Options
 
 Now, let's see what happens we we use auto_assign = 'All' to
-autopopulate characteristic alias matches. The auto assignment will create exact
-matches based on the entire list of allowable ATTAINS parameters. This
-means that parameter names your organization has not previously record
-in ATTAINS may be included in the assignments.
+autopopulate characteristic alias matches. The auto assignment will
+create exact matches based on the entire list of allowable ATTAINS
+parameters. This means that parameter names your organization has not
+previously record in ATTAINS may be included in the assignments.
 
 ```{r auto_assign-All}
 # create TADA parameter reference table for specified organization
@@ -341,9 +341,9 @@ MT.ParamRef.All <- TADA_ParametersForAnalysis(
 TADA_TableExport(MT.ParamRef.All)
 ```
 
-Another option is to set auto_assign = 'Org'. This limits the characteristic alias
-matches to return only ATTAINS.ParameterNames that an
-organization has used in the past.
+Another option is to set auto_assign = 'Org'. This limits the
+characteristic alias matches to return only ATTAINS.ParameterNames that
+an organization has used in the past.
 
 ```{r auto_assign-Org}
 # create TADA parameter reference table for specified organization
@@ -544,13 +544,13 @@ TADA_TableExport(MT.UsesRef.Manual.Update)
 
 ### Auto_assign Option
 
-Alternatively, we can choose to assign all unique use names that was submitted
-in prior ATTAINS assessment cycles, by your organization to those
-ATTAINS.ParameterName without any associated ATTAINS.UseName. Users will
-need to review this assignment carefully, choose include or exclude
-appropriately, and include additional rows as needed if there are more
-ATTAINS.UseName applicable for that ATTAINS.ParameterName that was not
-captured by the auto_assign method.
+Alternatively, we can choose to assign all unique use names that was
+submitted in prior ATTAINS assessment cycles, by your organization to
+those ATTAINS.ParameterName without any associated ATTAINS.UseName.
+Users will need to review this assignment carefully, choose include or
+exclude appropriately, and include additional rows as needed if there
+are more ATTAINS.UseName applicable for that ATTAINS.ParameterName that
+was not captured by the auto_assign method.
 
 ```{r usesRef-AutoAssign}
 MT.UsesRef.AutoAssign <- TADA_UsesForAnalysis(
@@ -568,16 +568,16 @@ TADA_TableExport(MT.UsesRef.AutoAssign)
 
 ### User has completed a Uses to AU crosswalk
 
-Now, if you’ve assigned uses to AUs with ExampleMod2Workflow.Rmd, 
-pass that table as AU_UsesRef so uses for your analysis needs come
-from your defined uses table in AU_UsesRef, not prior ATTAINS cycles.
+Now, if you’ve assigned uses to AUs with ExampleMod2Workflow.Rmd, pass
+that table as AU_UsesRef so use names for your analysis needs come from
+your defined uses table in AU_UsesRef, not prior ATTAINS cycles.
 
-Existing ATTAINS uses (pulled from prior cycles) include a useGroup column.
-Align them to your AUMLRef by joining on ATTAINS.OrganizationIdentifier,
-ATTAINS.WaterType, and ATTAINS.UseGroup.
+Existing ATTAINS uses (pulled from prior cycles) include a useGroup
+column. Align them to your AUMLRef by joining on
+ATTAINS.OrganizationIdentifier, ATTAINS.WaterType, and ATTAINS.UseGroup.
 
-Note: In the MT.UsesRef.AutoAssign example, use names are unchanged,
-so the tables should be identical to MT.UsesRef.with.AU_UsesRef.
+Note: In the MT.UsesRef.AutoAssign example, use names are unchanged, so
+the tables should be identical to MT.UsesRef.with.AU_UsesRef.
 
 ```{r usesRef-with-AU_UsesRef}
 # uses will come from the user supplied reference table produced in ExampleMod2Workflow.Rmd
@@ -616,12 +616,12 @@ the TADACommunityHub in which TADA users can submit, share and maintain
 user-contributed criteria and methodologies templates to support
 reproducible and efficient analyses.
 
-We can see that MTDEQ has additional rows of uses associated with E. Coli
-that was unable to be retrieved from ATTAINS. We also see PH was not found
-in the user supplied UsesRef table. We will assume MTDEQ has forgotten to
-include PH in their table and showcase the importance of considering all readily
-available data from your WQP data retrieval that you may need to
-consider for analysis.
+We can see that MTDEQ has additional rows of uses associated with E.
+Coli that was unable to be retrieved from ATTAINS. We also see PH was
+not found in the user supplied UsesRef table. We will assume MTDEQ has
+forgotten to include PH in their table and showcase the importance of
+considering all readily available data from your WQP data retrieval that
+you may need to consider for analysis.
 
 ```{r usesRef-User-Supplied}
 # Load the example MTDEQ criteria table
