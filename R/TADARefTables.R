@@ -1,9 +1,9 @@
 #' Nutrient Summation Reference Key
-#' 
-#' Returns the installed nutrient summation reference table from the package’s 
-#' extdata. This table is used in TADA_CalculateTotalNitrogen as the basis 
+#'
+#' Returns the installed nutrient summation reference table from the package’s
+#' extdata. This table is used in TADA_CalculateTotalNitrogen as the basis
 #' for the combinations added to get total nitrogen. Users may customize this
-#' reference table for their own dataset and supply the custom data.frame 
+#' reference table for their own dataset and supply the custom data.frame
 #' to TADA_CalculateTotalNitrogen.
 #'
 #' @return Dataframe of nutrient summation combinations
@@ -64,7 +64,7 @@ TADA_GetSynonymRef <- function(.data) {
     )
     return(ref)
   }
-  
+
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
@@ -72,33 +72,51 @@ TADA_GetSynonymRef <- function(.data) {
     "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
-  if (!any(c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag") %in% names(.data))) {
+
+  if (
+    !any(
+      c(
+        "TADA.MethodSpeciation.Flag",
+        "TADA.SampleFraction.Flag",
+        "TADA.ResultUnit.Flag"
+      ) %in%
+        names(.data)
+    )
+  ) {
     warning(
       "This dataframe is missing TADA QC flagging columns. ",
       "Run TADA_FlagResultUnit, TADA_FlagFraction, and TADA_FlagSpeciation and remove Suspect combinations before this step."
     )
   }
-  
+
   # Check to see if any suspect data flags exist (guard when columns are absent)
   flag_cols <- intersect(
-    c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag"),
+    c(
+      "TADA.MethodSpeciation.Flag",
+      "TADA.SampleFraction.Flag",
+      "TADA.ResultUnit.Flag"
+    ),
     names(.data)
   )
   if (length(flag_cols) > 0) {
     check_inv <- .data[, flag_cols, drop = FALSE] |>
-      tidyr::pivot_longer(cols = dplyr::all_of(flag_cols), names_to = "Flag_Column") |>
+      tidyr::pivot_longer(
+        cols = dplyr::all_of(flag_cols),
+        names_to = "Flag_Column"
+      ) |>
       dplyr::filter(value == "Suspect")
-    
+
     if (nrow(check_inv) > 0) {
       summary_inv <- check_inv |>
         dplyr::group_by(Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
-      message("Warning: Your dataframe contains suspect metadata combinations in the following flag columns:")
+      message(
+        "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
+      )
       print(as.data.frame(summary_inv))
     }
   }
-  
+
   # Load harmonization template with safe options
   harm.raw <- utils::read.csv(
     system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
@@ -106,7 +124,7 @@ TADA_GetSynonymRef <- function(.data) {
     check.names = TRUE,
     comment.char = ""
   )
-  
+
   # Join and return unique combinations aligned to template columns
   join.data <- merge(
     unique(.data[, expected_cols, drop = FALSE]),
@@ -114,15 +132,15 @@ TADA_GetSynonymRef <- function(.data) {
     by = expected_cols,
     all.x = TRUE
   )
-  
+
   unique.data <- dplyr::distinct(join.data)
   unique.data <- unique.data[, names(harm.raw), drop = FALSE]
-  
+
   unique.data
 }
 
 #' USGS Unit and Speciation Conversion Table
-#' 
+#'
 #' This internal reference file includes USGS only units/speciations. It was
 #' created in July 2023 using the pcodes domain table from NWIS. All USGS units
 #' and speciations are given a target unit and speciation that is synonymous, but
@@ -213,7 +231,9 @@ TADA_GetTADACharAliasRef <- function(
   set.all.tolerance = NA
 ) {
   if (!requireNamespace("rExpertQuery", quietly = TRUE)) {
-    stop("Package 'rExpertQuery' is required by TADA_GetTADACharAliasRef(). Please install it.")
+    stop(
+      "Package 'rExpertQuery' is required by TADA_GetTADACharAliasRef(). Please install it."
+    )
   }
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)) {
@@ -326,13 +346,22 @@ TADA_GetTADACharAliasRef <- function(
   raw.data <- TADA_GetCharacteristicRef()
 
   WQXCharacteristicRef <- raw.data |>
-    dplyr::select(dplyr::any_of(c("CharacteristicName", "Char_Flag", "Comparable.Name", "CAS.Number"))) |>
+    dplyr::select(dplyr::any_of(c(
+      "CharacteristicName",
+      "Char_Flag",
+      "Comparable.Name",
+      "CAS.Number"
+    ))) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
 
   # WQX has dashes in the CAS number; remove them if present to match CST CAS number
   if ("CAS.Number" %in% names(WQXCharacteristicRef)) {
-    WQXCharacteristicRef$CAS.Number <- gsub("-", "", WQXCharacteristicRef$CAS.Number)
+    WQXCharacteristicRef$CAS.Number <- gsub(
+      "-",
+      "",
+      WQXCharacteristicRef$CAS.Number
+    )
   }
 
   # Extracts all words from each WQX characteristic name (remove extra)
@@ -550,7 +579,10 @@ TADA_GetTADACharAliasRef <- function(
       Last.Change.Date
     ) |>
     dplyr::left_join(
-      dplyr::select(WQXCharacteristicRef, dplyr::any_of(c("CharacteristicName", "CAS.Number"))),
+      dplyr::select(
+        WQXCharacteristicRef,
+        dplyr::any_of(c("CharacteristicName", "CAS.Number"))
+      ),
       by = "CharacteristicName"
     )
 
@@ -620,7 +652,10 @@ TADA_GetTADACharAliasRef <- function(
     ) |>
     # populate the CAS NO
     dplyr::left_join(
-      dplyr::select(WQXCharacteristicRef, dplyr::any_of(c("CharacteristicName", "CAS.Number"))),
+      dplyr::select(
+        WQXCharacteristicRef,
+        dplyr::any_of(c("CharacteristicName", "CAS.Number"))
+      ),
       by = "CharacteristicName"
     ) |>
     dplyr::left_join(CST, by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")) |>
@@ -731,7 +766,7 @@ TADA_GetTADACharAliasRef <- function(
 
   # Save updated table in cache
   TADACharAliasRef_Cached <<- TADACharAliasRef
-  
+
   # returns final table
   TADACharAliasRef
 }
@@ -967,7 +1002,8 @@ TADA_GetTADAUsesAliasRef <- function(
     error = function(e) {
       stop(
         "Unable to retrieve CST Criteria. Ensure internet access or that the package ships inst/extdata/cst-workbook.xlsx. ",
-        "Underlying error: ", conditionMessage(e)
+        "Underlying error: ",
+        conditionMessage(e)
       )
     }
   )
@@ -1172,7 +1208,7 @@ TADA_GetTADAUsesAliasRef <- function(
 
   # Save updated table in cache
   TADAUsesAliasRef_Cached <<- TADAUsesAliasRef
-  TADAUsesAliasRef  
+  TADAUsesAliasRef
 }
 
 # Update TADAUsesAlias Reference Table internal file

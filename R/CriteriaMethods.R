@@ -1866,7 +1866,7 @@ TADA_CriteriaDataDictionary <- function() {
   }
 
   wb <- openxlsx::loadWorkbook(downloads_path)
-  
+
   tryCatch(
     {
       openxlsx::addWorksheet(wb, "DataDictionary")
