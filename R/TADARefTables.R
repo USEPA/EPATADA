@@ -1,24 +1,23 @@
 #' Nutrient Summation Reference Key
-#'
-#' Function downloads and returns the newest available nutrient summation
-#' reference dataframe. This dataframe is used in TADA_CalculateTotalNitrogen as
-#' the basis for the combinations added together to get total nitrogen. Users
-#' may customize this reference table for their own dataset and use the custom
-#' dataframe as an input in TADA_CalculateTotalNitrogen.
+#' 
+#' Returns the installed nutrient summation reference table from the package’s 
+#' extdata. This table is used in TADA_CalculateTotalNitrogen as the basis 
+#' for the combinations added to get total nitrogen. Users may customize this
+#' reference table for their own dataset and supply the custom data.frame 
+#' to TADA_CalculateTotalNitrogen.
 #'
 #' @return Dataframe of nutrient summation combinations
 #'
 #' @export
-
 TADA_GetNutrientSummationRef <- function() {
-  ref <- utils::read.csv(system.file(
-    "extdata",
-    "NPsummation_key.csv",
-    package = "EPATADA"
-  ))
-  return(ref)
+  ref <- utils::read.csv(
+    system.file("extdata", "NPsummation_key.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = ""
+  )
+  ref
 }
-
 
 #' Generate Unique Synonym Reference Table
 #'
@@ -57,14 +56,15 @@ TADA_GetNutrientSummationRef <- function() {
 #' reference <- TADA_GetSynonymRef()
 TADA_GetSynonymRef <- function(.data) {
   if (missing(.data)) {
-    ref <- utils::read.csv(system.file(
-      "extdata",
-      "HarmonizationTemplate.csv",
-      package = "EPATADA"
-    ))
+    ref <- utils::read.csv(
+      system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
+      stringsAsFactors = FALSE,
+      check.names = TRUE,
+      comment.char = ""
+    )
     return(ref)
   }
-
+  
   # check .data is data.frame and has required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
@@ -72,72 +72,57 @@ TADA_GetSynonymRef <- function(.data) {
     "TADA.MethodSpeciationName"
   )
   TADA_CheckColumns(.data, expected_cols)
-
-  if (
-    !any(
-      c(
-        "TADA.MethodSpeciation.Flag",
-        "TADA.SampleFraction.Flag",
-        "TADA.ResultUnit.Flag"
-      ) %in%
-        names(.data)
-    )
-  ) {
-    print(
-      "Warning: This dataframe is missing TADA QC flagging columns, indicating that you have not yet run the TADA_FlagResultUnit, TADA_FlagFraction, or TADA_FlagSpeciation functions. It is highly recommended you run these flagging functions and remove Suspect combinations before proceeding to this step."
+  
+  if (!any(c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag") %in% names(.data))) {
+    warning(
+      "This dataframe is missing TADA QC flagging columns. ",
+      "Run TADA_FlagResultUnit, TADA_FlagFraction, and TADA_FlagSpeciation and remove Suspect combinations before this step."
     )
   }
-
-  # check to see if any suspect data flags exist
-  check_inv <- .data[,
-    names(.data) %in%
-      c(
-        "TADA.MethodSpeciation.Flag",
-        "TADA.SampleFraction.Flag",
-        "TADA.ResultUnit.Flag"
-      )
-  ]
-  check_inv <- check_inv |>
-    tidyr::pivot_longer(cols = names(check_inv), names_to = "Flag_Column") |>
-    dplyr::filter(value == "Suspect")
-
-  if (dim(check_inv)[1] > 0) {
-    check_inv <- check_inv |>
-      dplyr::group_by(Flag_Column) |>
-      dplyr::summarise("Result Count" = length(value))
-    print(
-      "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
-    )
-    print(as.data.frame(check_inv))
+  
+  # Check to see if any suspect data flags exist (guard when columns are absent)
+  flag_cols <- intersect(
+    c("TADA.MethodSpeciation.Flag", "TADA.SampleFraction.Flag", "TADA.ResultUnit.Flag"),
+    names(.data)
+  )
+  if (length(flag_cols) > 0) {
+    check_inv <- .data[, flag_cols, drop = FALSE] |>
+      tidyr::pivot_longer(cols = dplyr::all_of(flag_cols), names_to = "Flag_Column") |>
+      dplyr::filter(value == "Suspect")
+    
+    if (nrow(check_inv) > 0) {
+      summary_inv <- check_inv |>
+        dplyr::group_by(Flag_Column) |>
+        dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
+      message("Warning: Your dataframe contains suspect metadata combinations in the following flag columns:")
+      print(as.data.frame(summary_inv))
+    }
   }
-
-  # execute function after checks are passed
-  # define raw harmonization table as an object
-  harm.raw <- utils::read.csv(system.file(
-    "extdata",
-    "HarmonizationTemplate.csv",
-    package = "EPATADA"
-  ))
-
+  
+  # Load harmonization template with safe options
+  harm.raw <- utils::read.csv(
+    system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = ""
+  )
+  
+  # Join and return unique combinations aligned to template columns
   join.data <- merge(
-    unique(.data[, expected_cols]),
+    unique(.data[, expected_cols, drop = FALSE]),
     harm.raw,
     by = expected_cols,
     all.x = TRUE
   )
-
-  # trim join.data to include only unique combos of char-frac-spec-unit
-  unique.data <- join.data |> dplyr::distinct()
-
-  unique.data <- unique.data[, names(harm.raw)]
-
-  # return unique.data
-  return(unique.data)
+  
+  unique.data <- dplyr::distinct(join.data)
+  unique.data <- unique.data[, names(harm.raw), drop = FALSE]
+  
+  unique.data
 }
 
-
-#' Nutrient Summation Reference Key
-#'
+#' USGS Unit and Speciation Conversion Table
+#' 
 #' This internal reference file includes USGS only units/speciations. It was
 #' created in July 2023 using the pcodes domain table from NWIS. All USGS units
 #' and speciations are given a target unit and speciation that is synonymous, but
@@ -147,21 +132,19 @@ TADA_GetSynonymRef <- function(.data) {
 #' synonymous units and speciations are harmonized before units are then also
 #' harmonized/converted to WQX targets.
 #'
-#'
 #' @return Dataframe of USGS only units and speciations and their WQX compatible
 #' targets/synonyms.
 #'
 #' @export
-
 TADA_GetUSGSSynonymRef <- function() {
-  ref <- utils::read.csv(system.file(
-    "extdata",
-    "USGS_units_speciation.csv",
-    package = "EPATADA"
-  ))
-  return(ref)
+  ref <- utils::read.csv(
+    system.file("extdata", "USGS_units_speciation.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = ""
+  )
+  ref
 }
-
 
 # Used to store cached TADACharAliasRef Reference Table
 TADACharAliasRef_Cached <- NULL
@@ -229,6 +212,9 @@ TADA_GetTADACharAliasRef <- function(
   WQX.CST.tolerance = 1.00,
   set.all.tolerance = NA
 ) {
+  if (!requireNamespace("rExpertQuery", quietly = TRUE)) {
+    stop("Package 'rExpertQuery' is required by TADA_GetTADACharAliasRef(). Please install it.")
+  }
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- WQX.ATTAINS.tolerance <- ATTAINS.WQX.tolerance <- CST.WQX.tolerance <- WQX.CST.tolerance <- set.all.tolerance
@@ -270,18 +256,19 @@ TADA_GetTADACharAliasRef <- function(
   }
 
   # pull in most recent TADACharAliasRef in EPATADA
-  current_TADACharAlias <- utils::read.csv(system.file(
-    "extdata",
-    "TADACharAliasRef.csv",
-    package = "EPATADA"
-  ))
+  current_TADACharAlias <- utils::read.csv(
+    system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = ""
+  )
 
   # identifies how many WQX-ATTAINS-CST alias are already approved or rejected in the current inst/extdata csv file
-  print(paste(
+  message(paste(
     "The current 'TADACharAliasRef.csv' file in EPATADA inst/extdata folder contains",
     sum(current_TADACharAlias$Status != "Needs review"),
     "that have already been reviewed (see 'Status' column as approved or rejected). These rows will not be replaced and will be returned in the new output of this function's run. Any additional rows that are found as potential alias will be appended.",
-    "If you would like to made edits to this alias table, open the file and modify the Status column."
+    "If you would like to make edits to this alias table, open the file and modify the Status column."
   ))
 
   # for word matching method, create a list of common stop words and punctuation marks to exclude
@@ -339,16 +326,14 @@ TADA_GetTADACharAliasRef <- function(
   raw.data <- TADA_GetCharacteristicRef()
 
   WQXCharacteristicRef <- raw.data |>
-    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name, CAS.Number) |>
+    dplyr::select(dplyr::any_of(c("CharacteristicName", "Char_Flag", "Comparable.Name", "CAS.Number"))) |>
     dplyr::mutate(dplyr::across(where(is.character), toupper)) |>
     dplyr::distinct()
 
-  # WQX has dashes in the CAS number, remove them to match CST CAS number
-  WQXCharacteristicRef$CAS.Number <- gsub(
-    "-",
-    "",
-    WQXCharacteristicRef$CAS.Number
-  )
+  # WQX has dashes in the CAS number; remove them if present to match CST CAS number
+  if ("CAS.Number" %in% names(WQXCharacteristicRef)) {
+    WQXCharacteristicRef$CAS.Number <- gsub("-", "", WQXCharacteristicRef$CAS.Number)
+  }
 
   # Extracts all words from each WQX characteristic name (remove extra)
   WQXCharacteristicRef2 <- WQXCharacteristicRef |>
@@ -565,7 +550,7 @@ TADA_GetTADACharAliasRef <- function(
       Last.Change.Date
     ) |>
     dplyr::left_join(
-      dplyr::select(WQXCharacteristicRef, CharacteristicName, CAS.Number),
+      dplyr::select(WQXCharacteristicRef, dplyr::any_of(c("CharacteristicName", "CAS.Number"))),
       by = "CharacteristicName"
     )
 
@@ -635,7 +620,7 @@ TADA_GetTADACharAliasRef <- function(
     ) |>
     # populate the CAS NO
     dplyr::left_join(
-      dplyr::select(WQXCharacteristicRef, CharacteristicName, CAS.Number),
+      dplyr::select(WQXCharacteristicRef, dplyr::any_of(c("CharacteristicName", "CAS.Number"))),
       by = "CharacteristicName"
     ) |>
     dplyr::left_join(CST, by = c("POLLUTANT_NAME", "STD_POLLUTANT_NAME")) |>
@@ -727,27 +712,32 @@ TADA_GetTADACharAliasRef <- function(
       WQX_CAS_NO = as.character(WQX_CAS_NO),
       CST_CAS_NO = as.character(CST_CAS_NO)
     ) |>
-    dplyr::filter(
-      !(ATTAINS.ParameterName %in%
-        TADA_reviewed_list$ATTAINS.ParameterName &
-        CharacteristicName %in% TADA_reviewed_list$CharacteristicName &
-        POLLUTANT_NAME %in% TADA_reviewed_list$POLLUTANT_NAME &
-        STD_POLLUTANT_NAME %in% TADA_reviewed_list$STD_POLLUTANT_NAME &
-        WQX_CAS_NO %in% TADA_reviewed_list$WQX_CAS_NO &
-        CST_CAS_NO %in% TADA_reviewed_list$CST_CAS_NO)
+    dplyr::anti_join(
+      dplyr::mutate(
+        TADA_reviewed_list,
+        WQX_CAS_NO = as.character(WQX_CAS_NO),
+        CST_CAS_NO = as.character(CST_CAS_NO)
+      ),
+      by = c(
+        "CharacteristicName",
+        "ATTAINS.ParameterName",
+        "POLLUTANT_NAME",
+        "STD_POLLUTANT_NAME",
+        "WQX_CAS_NO",
+        "CST_CAS_NO"
+      )
     ) |>
-    dplyr::bind_rows(dplyr::mutate(TADA_reviewed_list))
+    dplyr::bind_rows(TADA_reviewed_list)
 
   # Save updated table in cache
-  TADACharAliasRef_Cached <- TADACharAliasRef
-
+  TADACharAliasRef_Cached <<- TADACharAliasRef
+  
   # returns final table
   TADACharAliasRef
 }
 
 # Update TADACharAlias Reference Table internal file
 # (for internal use only)
-
 .TADA_UpdateTADACharAliasRef <- function(
   ATTAINS.CST.tolerance = 1.00,
   CST.ATTAINS.tolerance = 1.00,
@@ -771,7 +761,6 @@ TADA_GetTADACharAliasRef <- function(
     row.names = FALSE
   )
 }
-
 
 # Used to store cached TADAUsesAliasRef Reference Table
 TADAUsesAliasRef_Cached <- NULL
@@ -832,6 +821,10 @@ TADA_GetTADAUsesAliasRef <- function(
   CST.ATTAINS.tolerance = 0.15,
   set.all.tolerance = NA
 ) {
+  # Return cached table if available
+  if (!is.null(TADAUsesAliasRef_Cached)) {
+    return(TADAUsesAliasRef_Cached)
+  }
   # if set.all.tolerance is populated, populate all tolerance limits with same value.
   if (!is.na(set.all.tolerance)) {
     ATTAINS.CST.tolerance <- CST.ATTAINS.tolerance <- set.all.tolerance
@@ -968,24 +961,16 @@ TADA_GetTADAUsesAliasRef <- function(
   # remove intermediate variables
   rm(ATTAINS.raw)
 
-  # Extract CST Criteria from the internal workbook only; error if missing/unreadable
-  internal_path <- system.file(
-    "extdata",
-    "cst-workbook.xlsx",
-    package = "EPATADA"
+  # Retrieve CST Criteria with download + fallback logic (no hard requirement on internal workbook)
+  CST.raw <- tryCatch(
+    TADA_CST_GetCriteria(download_only = FALSE),
+    error = function(e) {
+      stop(
+        "Unable to retrieve CST Criteria. Ensure internet access or that the package ships inst/extdata/cst-workbook.xlsx. ",
+        "Underlying error: ", conditionMessage(e)
+      )
+    }
   )
-  if (!nzchar(internal_path) || !file.exists(internal_path)) {
-    stop(
-      "Internal CST workbook is missing: inst/extdata/cst-workbook.xlsx. ",
-      "Please add this file to the EPATADA package (dev-time: run .TADA_CST_UpdateWorkbook())."
-    )
-  }
-
-  # Extract CST Criteria from the internal workbook only; error if missing/unreadable
-  CST.raw <- TADA_CST_GetCriteria()
-
-  # extract unique relevant columns
-  CST <- CST.raw
 
   # select appropriate columns from the CST
   CST <- CST.raw |>
@@ -1019,11 +1004,7 @@ TADA_GetTADAUsesAliasRef <- function(
     dplyr::distinct(USE_CLASS_NAME_LOCATION_ETC, name_words, .keep_all = TRUE)
 
   # match CST Entity with ATTAINS org (best guess using state/tribe name)
-  ATTAINSOrgIDsRef <- utils::read.csv(system.file(
-    "extdata",
-    "ATTAINSOrgIDsRef.csv",
-    package = "EPATADA"
-  ))
+  ATTAINSOrgIDsRef <- TADA_GetATTAINSOrgIDsRef()
   ATTAINSOrgIDsRef$name <- toupper(ATTAINSOrgIDsRef$name)
   ATTAINS_CST.org <- data.frame(unique(CST[, c(
     "ENTITY_NAME",
@@ -1139,11 +1120,12 @@ TADA_GetTADAUsesAliasRef <- function(
     )
 
   # lastly, pull in the current TADAUsesAlias Ref table in TADA inst/extdata that have been reviewed.
-  current_TADAUsesAlias <- utils::read.csv(system.file(
-    "extdata",
-    "TADAUsesAliasRef.csv",
-    package = "EPATADA"
-  ))
+  current_TADAUsesAlias <- utils::read.csv(
+    system.file("extdata", "TADAUsesAliasRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = ""
+  )
 
   # filter those that have been reviewed.
   current_TADAUsesAlias <- current_TADAUsesAlias |>
@@ -1188,12 +1170,13 @@ TADA_GetTADAUsesAliasRef <- function(
     ) |>
     dplyr::bind_rows(TADA_reviewed_list)
 
-  return(TADAUsesAliasRef)
+  # Save updated table in cache
+  TADAUsesAliasRef_Cached <<- TADAUsesAliasRef
+  TADAUsesAliasRef  
 }
 
 # Update TADAUsesAlias Reference Table internal file
 # (for internal use only)
-
 .TADA_UpdateTADAUsesAliasRef <- function(
   ATTAINS.CST.tolerance = 0.15,
   CST.ATTAINS.tolerance = 0.15,

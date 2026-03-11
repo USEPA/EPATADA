@@ -2,7 +2,7 @@
 % Please edit documentation in R/TADARefTables.R
 \name{TADA_GetUSGSSynonymRef}
 \alias{TADA_GetUSGSSynonymRef}
-\title{Nutrient Summation Reference Key}
+\title{USGS Unit and Speciation Conversion Table}
 \usage{
 TADA_GetUSGSSynonymRef()
 }

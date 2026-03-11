@@ -7,7 +7,7 @@
 #' @details
 #' The function sequentially calls several internal functions that update different sets
 #' of reference data. Some updates may take longer than others, particularly the
-#' `TADA_UpdateATTAINSParamUseOrgRef()` function.
+#' `.TADA_UpdateATTAINSParamUseOrgRef()` function.
 #'
 #' The specific reference files updated by this function include:
 #' \itemize{
@@ -36,14 +36,13 @@
 #' .TADA_UpdateRefFiles()
 #' }
 .TADA_UpdateRefFiles <- function() {
-  # Update All TADA Reference Files
+  # Update All Reference Files
 
   # ATTAINSRefTables.R
   tryCatch(
     {
-      TADA_UpdateATTAINSOrgIDsRef()
-      TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
-      TADA_UpdateATTAINSParamToWQPCharRef()
+      .TADA_UpdateATTAINSOrgIDsRef()
+      .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)

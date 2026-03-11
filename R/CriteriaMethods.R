@@ -1292,7 +1292,7 @@ TADA_DefineCriteriaMethodology <- function(
       suppressMessages(TADA_MLSummary(excel = excel, overwrite = overwrite))
     }
 
-    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    wb <- openxlsx::loadWorkbook(downloads_path)
 
     tryCatch(
       {
@@ -1865,7 +1865,8 @@ TADA_CriteriaDataDictionary <- function() {
     downloads_path <- default_downloads_path
   }
 
-  wb <- openxlsx::loadWorkbook(wb, downloads_path)
+  wb <- openxlsx::loadWorkbook(downloads_path)
+  
   tryCatch(
     {
       openxlsx::addWorksheet(wb, "DataDictionary")

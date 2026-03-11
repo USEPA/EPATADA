@@ -20,9 +20,30 @@
 # Shared cache + constants
 # =========================
 
-# Session cache env (avoids <<- scoping issues)
-if (!exists(".TADA_cache", inherits = FALSE)) {
+# Session cache environment (single instance for entire package)
+if (!exists(".TADA_cache", envir = topenv(), inherits = FALSE)) {
   .TADA_cache <- new.env(parent = emptyenv())
+}
+
+#' Clear EPATADA reference table cache
+#' @export
+TADA_ClearCache <- function() {
+  # Ensure env exists (belt and suspenders)
+  if (!exists(".TADA_cache", inherits = TRUE)) {
+    .TADA_cache <<- new.env(parent = emptyenv())
+  }
+  rm(list = ls(envir = .TADA_cache, all.names = TRUE), envir = .TADA_cache)
+  invisible(TRUE)
+}
+
+#' List keys in the EPATADA cache
+#' @export
+TADA_ListCacheKeys <- function() {
+  if (!exists(".TADA_cache", inherits = TRUE)) {
+    character(0)
+  } else {
+    ls(envir = .TADA_cache, all.names = TRUE)
+  }
 }
 
 # Authoritative CSV sources
@@ -53,41 +74,124 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
 .WQPProviderRef_cache_key <- "WQPProviderRef"
 .WQXMeasureQualifierCodeRef_cache_key <- "WQXMeasureQualifierCodeRef"
 .WQXCharAliasRef_cache_key <- "WQXCharAliasRef"
+.ATTAINSOrgIDsRef_cache_key      <- "ATTAINSOrgIDsRef"
+.ATTAINSParamUseOrgRef_cache_key <- "ATTAINSParamUseOrgRef"
+
+# ATTAINS Org IDs RDA constants
+.ATTAINS_ORG_IDS_RDA_FILENAME <- "ATTAINSOrgIDsRef.rda"
+.ATTAINS_ORG_IDS_OBJ_NAME     <- "ATTAINSOrgIDsRef"
 
 # =========================
 # Generic helper functions
 # =========================
 
-# Trim character columns in any data.frame (defensive hygiene)
+# Convert factors to character (makes further processing consistent
+# with downloaded CSVs which are character)
 .tada_trim_char_cols <- function(df) {
-  df[] <- lapply(df, function(x) if (is.character(x)) trimws(x) else x)
+  df[] <- lapply(df, function(x) {
+    if (is.factor(x)) x <- as.character(x)
+    if (is.character(x)) trimws(x) else x
+  })
   df
 }
 
+.tada_require_cols <- function(df, required_cols, context = "table") {
+  if (is.null(required_cols)) return(invisible(TRUE))
+  missing <- setdiff(required_cols, names(df))
+  if (length(missing)) {
+    stop(sprintf(
+      "%s: missing required columns: %s",
+      context, paste(missing, collapse = ", ")
+    ))
+  }
+  invisible(TRUE)
+}
+
 # Cache helpers
-.tada_cache_get <- function(key) .TADA_cache[[key]]
+.tada_cache_get <- function(key) {
+  if (!exists(".TADA_cache", inherits = TRUE)) {
+    .TADA_cache <<- new.env(parent = emptyenv())
+  }
+  .TADA_cache[[key]]
+}
 .tada_cache_set <- function(key, value) {
+  if (!exists(".TADA_cache", inherits = TRUE)) {
+    .TADA_cache <<- new.env(parent = emptyenv())
+  }
   .TADA_cache[[key]] <- value
   invisible(value)
 }
 
-# Read CSV from URL; returns NULL on error (network/format)
+# Read CSV from URL; returns NULL on error; avoids lingering connections
 .tada_read_csv_url <- function(
-  url,
-  stringsAsFactors = FALSE,
-  encodings = c("UTF-8", "latin1")
+    url,
+    stringsAsFactors = FALSE,
+    encodings = c("UTF-8", "latin1"),
+    retries = 2,
+    user_agent = "EPATADA (R)"
 ) {
+  tf <- tempfile(fileext = ".csv")
+  on.exit({ if (file.exists(tf)) unlink(tf, force = TRUE) }, add = TRUE)
+  
+  # Attempt download with small retries
+  download_ok <- FALSE
+  attempt <- 0L
+  while (!download_ok && attempt <= retries) {
+    attempt <- attempt + 1L
+    download_ok <- tryCatch(
+      {
+        if (requireNamespace("curl", quietly = TRUE)) {
+          h <- curl::new_handle(followlocation = TRUE)
+          curl::handle_setheaders(
+            h,
+            "User-Agent" = user_agent,
+            "Accept" = "text/csv, */*"
+          )
+          curl::curl_download(url, tf, mode = "wb", handle = h)
+        } else {
+          # Prefer libcurl when available; otherwise default method
+          suppressWarnings(
+            utils::download.file(
+              url, tf, mode = "wb", method = "libcurl", quiet = TRUE
+            )
+          )
+        }
+        file.exists(tf) && is.finite(file.info(tf)$size) && file.info(tf)$size > 0
+      },
+      error   = function(e) FALSE,
+      warning = function(w) FALSE
+    )
+    if (!download_ok) Sys.sleep(0.5 * attempt)
+  }
+  if (!download_ok) return(NULL)
+  
+  # Quick guard against HTML error pages served as "CSV"
+  head_bytes <- tryCatch(readChar(tf, nchars = 256L, useBytes = TRUE), error = function(e) "")
+  if (grepl("(?i)<html|<!DOCTYPE", head_bytes)) {
+    return(NULL)
+  }
+  
+  # Try to parse with a couple of encodings
   for (enc in encodings) {
     df <- tryCatch(
       utils::read.csv(
-        url,
+        tf,
         stringsAsFactors = stringsAsFactors,
         fileEncoding = enc,
-        comment.char = ""
+        comment.char = "",
+        check.names = TRUE
       ),
       error = function(e) NULL
     )
-    if (!is.null(df)) return(df)
+    if (!is.null(df)) {
+      # Strip BOM artifacts and trim colnames (fixes missing "Name" issue)
+      nm <- names(df)
+      nm <- sub("^\ufeff", "", nm, perl = TRUE)      # true BOM
+      nm <- sub("^ï\\.?\\.?\\s*", "", nm, perl = TRUE) # "ï..Name" style
+      nm <- trimws(nm)
+      names(df) <- nm
+      return(df)
+    }
   }
   NULL
 }
@@ -152,34 +256,24 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   trim = TRUE,
   on_fail_message = NULL
 ) {
-  # Attempt online download (CSV)
   df <- .tada_read_csv_url(url, stringsAsFactors = stringsAsFactors)
   if (!is.null(df)) {
-    if (trim) {
-      df <- .tada_trim_char_cols(df)
+    if (!is.null(required_cols) && !all(required_cols %in% names(df))) {
+      # Structure not as expected; force fallback
+      df <- NULL
+    } else {
+      if (trim) df <- .tada_trim_char_cols(df)
+      return(df)
     }
-    return(df)
   }
-  # Inform the user about fallback
-  if (!is.null(on_fail_message)) {
-    message(on_fail_message)
-  }
-  # Attempt installed extdata fallback (RDA)
+  if (!is.null(on_fail_message)) message(on_fail_message)
   df <- .tada_load_extdata_rda(
-    pkg = pkg,
-    filename = fallback_filename,
-    object_name = object_name,
-    required_cols = required_cols,
-    trim = trim
+    pkg = pkg, filename = fallback_filename, object_name = object_name,
+    required_cols = required_cols, trim = trim
   )
   if (is.null(df)) {
-    stop(
-      "Fallback extdata '",
-      fallback_filename,
-      "' not found or invalid in installed package '",
-      pkg,
-      "'."
-    )
+    stop("Fallback extdata '", fallback_filename,
+      "' not found or invalid in installed package '", pkg, "'.")
   }
   df
 }
@@ -207,8 +301,56 @@ if (!exists(".TADA_cache", inherits = FALSE)) {
   df2[setdiff(all_cols, names(df2))] <- NA
   df1 <- df1[, all_cols, drop = FALSE]
   df2 <- df2[, all_cols, drop = FALSE]
-  df1[] <- lapply(df1, function(x) if (is.factor(x)) as.character(x) else x)
-  df2[] <- lapply(df2, function(x) if (is.factor(x)) as.character(x) else x)
+  
+  for (nm in all_cols) {
+    x <- df1[[nm]]
+    y <- df2[[nm]]
+    
+    is_date_x  <- inherits(x, "Date")
+    is_date_y  <- inherits(y, "Date")
+    is_posix_x <- inherits(x, "POSIXct")
+    is_posix_y <- inherits(y, "POSIXct")
+    
+    # If either side is Date, ensure logical placeholders become Date NA
+    if (is_date_x || is_date_y) {
+      if (is.logical(x)) df1[[nm]] <- as.Date(rep(NA_real_, nrow(df1)))
+      if (is.logical(y)) df2[[nm]] <- as.Date(rep(NA_real_, nrow(df2)))
+      next
+    }
+    
+    # If either side is POSIXct, ensure logical placeholders become POSIXct NA (respect tzone if present)
+    if (is_posix_x || is_posix_y) {
+      tzx <- attr(x, "tzone")
+      tzy <- attr(y, "tzone")
+      tz <- if (!is.null(tzx) && length(tzx) && nzchar(tzx[1])) {
+        tzx[1]
+      } else if (!is.null(tzy) && length(tzy) && nzchar(tzy[1])) {
+        tzy[1]
+      } else {
+        ""  # session default
+      }
+      if (is.logical(x)) df1[[nm]] <- as.POSIXct(rep(NA_real_, nrow(df1)), tz = tz, origin = "1970-01-01")
+      if (is.logical(y)) df2[[nm]] <- as.POSIXct(rep(NA_real_, nrow(df2)), tz = tz, origin = "1970-01-01")
+      next
+    }
+    
+    # Promote factors to character to avoid level mismatches and unintended coercion
+    if (is.factor(x)) df1[[nm]] <- as.character(x)
+    if (is.factor(y)) df2[[nm]] <- as.character(y)
+    
+    # Promote logical NA placeholders to the other's simple atomic type
+    if (is.logical(x) && !is.logical(y)) {
+      if (is.character(y))      df1[[nm]] <- rep(NA_character_, nrow(df1))
+      else if (is.integer(y))   df1[[nm]] <- rep(NA_integer_,   nrow(df1))
+      else if (is.numeric(y))   df1[[nm]] <- rep(NA_real_,      nrow(df1))
+      # logical vs other complex classes will fall back to rbind's coercion
+    } else if (is.logical(y) && !is.logical(x)) {
+      if (is.character(x))      df2[[nm]] <- rep(NA_character_, nrow(df2))
+      else if (is.integer(x))   df2[[nm]] <- rep(NA_integer_,   nrow(df2))
+      else if (is.numeric(x))   df2[[nm]] <- rep(NA_real_,      nrow(df2))
+    }
+  }
+  
   rbind(df1, df2)
 }
 
@@ -1172,24 +1314,24 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.WQXUnitRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
+  
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$MeasureUnit, stringsAsFactors = FALSE)
-    if (is.null(df)) {
-      stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
-    }
+    if (is.null(df)) stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
+    .tada_require_cols(df, c("Code", "Name"), "Measure Unit")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MeasureUnit,
       fallback_filename = "WQXunitRef.rda",
       object_name = "WQXunitRef",
       pkg = "EPATADA",
+      required_cols = c("Code", "Name"),
       on_fail_message = "Downloading latest Measure Unit Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
+  
   df <- .TADA_prepare_MeasureUnitRef(df)
-  if (!download_only) {
-    .tada_cache_set(.WQXUnitRef_cache_key, df)
-  }
+  if (!download_only) .tada_cache_set(.WQXUnitRef_cache_key, df)
   df
 }
 
@@ -1209,44 +1351,77 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 }
 
 #' Get WQX Result Detection Condition Reference Table
-#' @return data.frame with TADA.Detection_Type added
-#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Detection Condition reference table directly from WQX,
-#'   returning it without updating the cache. Errors if the download fails. If FALSE
-#'   (default), uses a cached copy when available and updates the cache; on download
-#'   failure, falls back to the package’s internal file.
 #'
-#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
-#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
-#'   package’s internal file on failure), then update the cache. If FALSE (default),
-#'   return the cached table when available. Ignored when download_only = TRUE.
+#' Retrieve the WQX Result Detection Condition domain table, normalize it, and
+#' add a classification column, TADA.Detection_Type. The classifier assigns each
+#' detection condition to one of: "Non-Detect", "Over-Detect", "Other", or
+#' "Not Reviewed". 
+#'
+#' When download_only = FALSE (default), the function first attempts to download
+#' the latest table from WQX; if the download fails or the structure is
+#' unexpected (e.g., missing the required "Name" column), it falls back to the
+#' package’s installed extdata (.rda). The resulting table is cached for the
+#' current R session.
+#'
+#' @return A data.frame that includes at least:
+#'   - Name: the detection condition name (from WQX)
+#'   - TADA.Detection_Type: the assigned classification
+#'   - Additional columns such as Description and Last.Change.Date are returned
+#'     when provided by WQX
+#'
+#' @param download_only Logical. If TRUE, bypasses the cache and package
+#'   fallback and attempts to download the latest Detection Condition table
+#'   directly from WQX, returning it without updating the cache. Errors if the
+#'   download fails. If FALSE (default), uses a cached copy when available and
+#'   updates the cache; on download failure (or unexpected structure), falls
+#'   back to the package’s internal file.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore
+#'   any cached copy and attempt to retrieve a fresh table (download, falling
+#'   back to the package’s internal file on failure), then update the cache. If
+#'   FALSE (default), return the cached table when available. Ignored when
+#'   download_only = TRUE.
+#' @param quiet Logical. If TRUE, suppresses fallback messages when a live
+#'   download fails and the function reverts to the installed extdata. Default
+#'   is FALSE.
+#'
+#' @examples
+#' # Cached retrieval (download with fallback as needed)
+#' ref <- TADA_GetDetCondRef()
+#'
+#' # Force a fresh retrieval (ignores cache)
+#' ref_fresh <- TADA_GetDetCondRef(refresh = TRUE)
+#'
+#' # Download only: no cache update and no fallback (errors if offline)
+#' \dontrun{
+#' ref_live <- TADA_GetDetCondRef(download_only = TRUE)
+#' }
+#'
 #' @export
-TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE) {
+TADA_GetDetCondRef <- function(download_only = FALSE, refresh = FALSE, quiet = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXDetCondRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  if (download_only) {
-    df <- .tada_read_csv_url(
-      .WQX_URLS$ResultDetectionCondition,
-      stringsAsFactors = FALSE
-    )
-    if (is.null(df)) {
-      stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
-    }
+  msg <- if (quiet) NULL else
+    "Downloading latest Result Detection Condition Reference Table failed! Falling back to (possibly outdated) internal file."
+  df <- if (download_only) {
+    df <- .tada_read_csv_url(.WQX_URLS$ResultDetectionCondition, stringsAsFactors = FALSE)
+    if (is.null(df)) stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
+    .tada_require_cols(df, c("Name"), "Result Detection Condition")
+    df
   } else {
-    df <- .tada_download_or_extdata_rda(
+    .tada_download_or_extdata_rda(
       url = .WQX_URLS$ResultDetectionCondition,
       fallback_filename = "WQXResultDetectionConditionRef.rda",
       object_name = "WQXResultDetectionConditionRef",
       pkg = "EPATADA",
-      on_fail_message = "Downloading latest Result Detection Condition Reference Table failed! Falling back to (possibly outdated) internal file."
+      required_cols = c("Name"),
+      on_fail_message = msg
     )
   }
+  if (is.null(df)) stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
   df <- .TADA_flag_DetCondRef(df)
-  if (!download_only) {
-    .tada_cache_set(.WQXDetCondRef_cache_key, df)
-  }
+  if (!download_only) .tada_cache_set(.WQXDetCondRef_cache_key, df)
   df
 }
 
@@ -1284,19 +1459,16 @@ TADA_GetDetLimitRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(
-      .WQX_URLS$DetectionQuantitationLimitType,
-      stringsAsFactors = FALSE
-    )
-    if (is.null(df)) {
-      stop("TADA_GetDetLimitRef(download_only=TRUE): download failed.")
-    }
+    df <- .tada_read_csv_url(.WQX_URLS$DetectionQuantitationLimitType, stringsAsFactors = FALSE)
+    if (is.null(df)) stop("TADA_GetDetLimitRef(download_only=TRUE): download failed.")
+    .tada_require_cols(df, c("Name"), "Detection/Quantitation Limit Type")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$DetectionQuantitationLimitType,
       fallback_filename = "WQXDetectionQuantitationLimitTypeRef.rda",
       object_name = "WQXDetectionQuantitationLimitTypeRef",
       pkg = "EPATADA",
+      required_cols = c("Name"),
       on_fail_message = "Downloading latest Detection Limit Type Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
@@ -1342,15 +1514,15 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
   }
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$ActivityType, stringsAsFactors = FALSE)
-    if (is.null(df)) {
-      stop("TADA_GetActivityTypeRef(download_only=TRUE): download failed.")
-    }
+    if (is.null(df)) stop("TADA_GetActivityTypeRef(download_only=TRUE): download failed.")
+    .tada_require_cols(df, c("Code"), "Activity Type")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ActivityType,
       fallback_filename = "WQXActivityTypeRef.rda",
       object_name = "WQXActivityTypeRef",
       pkg = "EPATADA",
+      required_cols = c("Code"),
       on_fail_message = "Downloading latest Activity Type Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
@@ -1395,19 +1567,16 @@ TADA_GetMonLocTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(
-      .WQX_URLS$MonitoringLocationType,
-      stringsAsFactors = FALSE
-    )
-    if (is.null(df)) {
-      stop("TADA_GetMonLocTypeRef(download_only=TRUE): download failed.")
-    }
+    df <- .tada_read_csv_url(.WQX_URLS$MonitoringLocationType, stringsAsFactors = FALSE)
+    if (is.null(df)) stop("TADA_GetMonLocTypeRef(download_only=TRUE): download failed.")
+    .tada_require_cols(df, c("Name"), "Monitoring Location Type Name")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MonitoringLocationType,
       fallback_filename = "WQXMonitoringLocationTypeNameRef.rda",
       object_name = "WQXMonitoringLocationTypeNameRef",
       pkg = "EPATADA",
+      required_cols = c("Name"),
       on_fail_message = "Downloading latest Monitoring Location Type Name Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
@@ -1515,37 +1684,31 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
 #'   package’s internal file on failure), then update the cache. If FALSE (default),
 #'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
-TADA_GetMeasureQualifierCodeRef <- function(
-  download_only = FALSE,
-  refresh = FALSE
-) {
+TADA_GetMeasureQualifierCodeRef <- function(download_only = FALSE, refresh = FALSE) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXMeasureQualifierCodeRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
   if (download_only) {
-    df <- .tada_read_csv_url(
-      .WQX_URLS$ResultMeasureQualifier,
-      stringsAsFactors = FALSE
-    )
+    # Verbose TRUE to print the underlying cause if it fails
+    df <- .tada_read_csv_url(.WQX_URLS$ResultMeasureQualifier, stringsAsFactors = FALSE)
     if (is.null(df)) {
-      stop(
-        "TADA_GetMeasureQualifierCodeRef(download_only=TRUE): download failed."
-      )
+      stop("TADA_GetMeasureQualifierCodeRef(download_only=TRUE): download failed for ",
+           .WQX_URLS$ResultMeasureQualifier, ".")
     }
+    .tada_require_cols(df, c("Code"), "Result Measure Qualifier")
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ResultMeasureQualifier,
       fallback_filename = "WQXMeasureQualifierCodeRef.rda",
       object_name = "WQXMeasureQualifierCodeRef",
       pkg = "EPATADA",
+      required_cols = c("Code"),
       on_fail_message = "Downloading latest Measure Qualifier Code Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
   df <- .TADA_flag_MeasureQualifierCodeRef(df)
-  if (!download_only) {
-    .tada_cache_set(.WQXMeasureQualifierCodeRef_cache_key, df)
-  }
+  if (!download_only) .tada_cache_set(.WQXMeasureQualifierCodeRef_cache_key, df)
   df
 }
 
@@ -1654,7 +1817,9 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
         utils::read.csv(
           target_csv,
           stringsAsFactors = FALSE,
-          fileEncoding = enc
+          fileEncoding = enc,
+          comment.char = "",
+          check.names = TRUE
         ),
         error = function(e) NULL
       )
@@ -1721,4 +1886,858 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
     version = 2
   )
   invisible(df)
+}
+
+#' ATTAINS Organization Identifier Reference Table
+#'
+#' Retrieve the latest ATTAINS domain values for org identifiers. Attempts a live
+#' query via rExpertQuery::EQ_DomainValues("org_id"); on failure (or if
+#' rExpertQuery isn't installed), falls back to the package’s installed
+#' extdata (.rda). Results are cached in the current session.
+#'
+#' The returned columns mirror the source endpoint. Content is de-duplicated.
+#'
+#' @param download_only Logical. If TRUE, bypasses cache and fallback and queries
+#'   ATTAINS live. Errors if rExpertQuery is unavailable or the query fails.
+#'   Default FALSE.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore
+#'   any cached copy and attempt a fresh retrieval (download with extdata fallback),
+#'   then update the cache.
+#' @param quiet Logical. If TRUE, suppress non-critical fallback messages.
+#' @return data.frame of organization domain values (de-duplicated)
+#' @export
+TADA_GetATTAINSOrgIDsRef <- function(download_only = FALSE, refresh = FALSE, quiet = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.ATTAINSOrgIDsRef_cache_key)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+  }
+  
+  # Attempt live download via rExpertQuery if present
+  live_ok <- requireNamespace("rExpertQuery", quietly = TRUE)
+  df <- NULL
+  if (live_ok) {
+    df <- tryCatch(
+      suppressWarnings(suppressMessages(
+        rExpertQuery::EQ_DomainValues("org_id")
+      )),
+      error = function(e) NULL
+    )
+  }
+  
+  if (download_only) {
+    if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) {
+      stop("TADA_GetATTAINSOrgIDsRef(download_only=TRUE): live query failed or rExpertQuery not available.")
+    }
+    df <- unique(.tada_trim_char_cols(df))
+    return(df)
+  }
+  
+  # Fallback to installed RDA if live failed
+  if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) {
+    if (!quiet) {
+      message("Downloading latest ATTAINS Org ID domain values failed; falling back to internal RDA.")
+    }
+    df <- .tada_load_extdata_rda(
+      pkg = "EPATADA",
+      filename = .ATTAINS_ORG_IDS_RDA_FILENAME,
+      object_name = .ATTAINS_ORG_IDS_OBJ_NAME,
+      trim = TRUE
+    )
+    if (is.null(df)) {
+      stop("Fallback extdata '", .ATTAINS_ORG_IDS_RDA_FILENAME, "' not found or invalid in the installed package.")
+    }
+  } else {
+    df <- unique(.tada_trim_char_cols(df))
+  }
+  
+  .tada_cache_set(.ATTAINSOrgIDsRef_cache_key, df)
+  df
+}
+
+#' Update EPATADA internal ATTAINS Org ID table (DEV-TIME ONLY)
+#' @keywords internal
+.TADA_UpdateATTAINSOrgIDsRef <- function() {
+  df <- TADA_GetATTAINSOrgIDsRef(download_only = TRUE)
+  .tada_save_ext_rda(
+    obj = df,
+    obj_name = .ATTAINS_ORG_IDS_OBJ_NAME,
+    pkg = "EPATADA",
+    filename = .ATTAINS_ORG_IDS_RDA_FILENAME,
+    compress = "xz",
+    version = 2
+  )
+  invisible(df)
+}
+
+#' ATTAINS Parameter and Use Name by Organization Reference
+#'
+#' Builds a compact crosswalk of parameter and use names by ATTAINS organization,
+#' de-duplicated and cached for the session. Attempts live retrieval via
+#' rExpertQuery::EQ_NationalExtract("assessments"). If the live query is
+#' unavailable or empty, falls back to the package’s installed extdata (.rda).
+#'
+#' Output columns:
+#'   - ATTAINS.OrganizationIdentifier
+#'   - ATTAINS.OrganizationName
+#'   - ATTAINS.OrganizationType
+#'   - ATTAINS.ParameterName
+#'   - ATTAINS.UseName
+#'   - ATTAINS.WaterType
+#'
+#' By default, only the latest reporting cycle per organization is used when
+#' reportingCycle is available. Set latest_cycle_only = FALSE to include all cycles.
+#'
+#' @param latest_cycle_only Logical; TRUE (default) keeps only each organization’s
+#'   latest reporting cycle when possible; FALSE returns all cycles.
+#' @param download_only Logical. If TRUE, bypasses cache and fallback and queries
+#'   ATTAINS live. Errors if rExpertQuery is unavailable or the query fails.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore
+#'   cache and attempt a fresh retrieval (download with extdata fallback), then cache.
+#' @param quiet Logical. If TRUE, suppress non-critical fallback messages.
+#' @return data.frame with the columns listed above, de-duplicated
+#' @export
+TADA_GetATTAINSParamUseOrgRef <- function(
+    latest_cycle_only = TRUE,
+    download_only = FALSE,
+    refresh = FALSE,
+    quiet = FALSE
+) {
+  cache_key <- paste0(.ATTAINSParamUseOrgRef_cache_key, if (latest_cycle_only) "_latest" else "_all")
+  if (!download_only) {
+    cached <- .tada_cache_get(cache_key)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+  }
+  
+  # Live retrieval via rExpertQuery if available
+  live_ok <- requireNamespace("rExpertQuery", quietly = TRUE)
+  nat <- NULL
+  if (live_ok) {
+    nat <- tryCatch(
+      {
+        suppressWarnings(suppressMessages(
+          rExpertQuery::EQ_NationalExtract("assessments")
+        ))
+      },
+      error = function(e) NULL
+    )
+  }
+  
+  # Helper: normalize the live table into the stable schema using base R
+  .normalize_assessment <- function(nat_df) {
+    if (is.null(nat_df) || !is.data.frame(nat_df) || nrow(nat_df) == 0) return(NULL)
+    
+    # Keep only relevant columns that might exist
+    keep <- c("organizationId", "organizationName", "organizationType",
+              "parameterName", "useName", "waterType", "reportingCycle")
+    has <- intersect(colnames(nat_df), keep)
+    if (!("organizationId" %in% has)) return(NULL)  # critical key missing
+    
+    x <- nat_df[, has, drop = FALSE]
+    
+    # Optionally reduce to latest cycle per organization when reportingCycle exists
+    if (isTRUE(latest_cycle_only) && "reportingCycle" %in% names(x)) {
+      rc_chr <- as.character(x$reportingCycle)
+      suppressWarnings(rc_num <- as.numeric(rc_chr))
+      
+      org_ids <- as.character(x$organizationId)
+      keep_idx <- rep(FALSE, nrow(x))
+      
+      # Per-organization max cycle logic (numeric if any non-NA, else character)
+      uorg <- unique(org_ids)
+      for (org in uorg) {
+        g <- which(org_ids == org)
+        rcg_num <- rc_num[g]
+        if (all(is.na(rcg_num))) {
+          rcg_chr <- rc_chr[g]
+          if (all(is.na(rcg_chr))) {
+            # If everything missing, keep all rows for this org
+            keep_idx[g] <- TRUE
+          } else {
+            m <- max(rcg_chr, na.rm = TRUE)
+            keep_idx[g] <- !is.na(rcg_chr) & rcg_chr == m
+          }
+        } else {
+          m <- max(rcg_num, na.rm = TRUE)
+          keep_idx[g] <- !is.na(rcg_num) & rcg_num == m
+        }
+      }
+      x <- x[keep_idx, , drop = FALSE]
+    }
+    
+    # Select/rename to stable schema
+    out <- data.frame(
+      ATTAINS.OrganizationIdentifier = if ("organizationId" %in% names(x)) x[["organizationId"]] else NA_character_,
+      ATTAINS.OrganizationName      = if ("organizationName" %in% names(x)) x[["organizationName"]] else NA_character_,
+      ATTAINS.OrganizationType      = if ("organizationType" %in% names(x)) x[["organizationType"]] else NA_character_,
+      ATTAINS.ParameterName         = if ("parameterName" %in% names(x)) x[["parameterName"]] else NA_character_,
+      ATTAINS.UseName               = if ("useName" %in% names(x)) x[["useName"]] else NA_character_,
+      ATTAINS.WaterType             = if ("waterType" %in% names(x)) x[["waterType"]] else NA_character_,
+      stringsAsFactors = FALSE
+    )
+    
+    # Trim and de-duplicate
+    out <- unique(.tada_trim_char_cols(out))
+    out
+  }
+  
+  if (download_only) {
+    out <- .normalize_assessment(nat)
+    if (is.null(out) || nrow(out) == 0) {
+      stop("TADA_GetATTAINSParamUseOrgRef(download_only=TRUE): live query failed or returned no usable data.")
+    }
+    return(out)
+  }
+  
+  # Fallback to installed RDA if live fails
+  out <- .normalize_assessment(nat)
+  if (is.null(out) || nrow(out) == 0) {
+    if (!quiet) {
+      message("Downloading latest ATTAINS assessments failed; falling back to internal RDA.")
+    }
+    required_cols <- c(
+      "ATTAINS.OrganizationIdentifier",
+      "ATTAINS.OrganizationName",
+      "ATTAINS.OrganizationType",
+      "ATTAINS.ParameterName",
+      "ATTAINS.UseName",
+      "ATTAINS.WaterType"
+    )
+    out <- .tada_load_extdata_rda(
+      pkg = "EPATADA",
+      filename = "ATTAINSParamUseOrgRef.rda",
+      object_name = "ATTAINSParamUseOrgRef",
+      required_cols = required_cols,
+      trim = TRUE
+    )
+    if (is.null(out)) {
+      stop("Fallback extdata 'ATTAINSParamUseOrgRef.rda' not found or invalid in the installed package.")
+    }
+    out <- unique(.tada_trim_char_cols(out))
+  }
+  
+  .tada_cache_set(cache_key, out)
+  out
+}
+
+#' Update EPATADA internal ATTAINS Param/Use-by-Org table (DEV-TIME ONLY)
+#' Saves the latest-cycle view by default.
+#' @param latest_cycle_only logical; default TRUE
+#' @keywords internal
+.TADA_UpdateATTAINSParamUseOrgRef <- function(latest_cycle_only = TRUE) {
+  df <- TADA_GetATTAINSParamUseOrgRef(
+    latest_cycle_only = latest_cycle_only,
+    download_only = TRUE
+  )
+  .tada_save_ext_rda(
+    obj = df,
+    obj_name = "ATTAINSParamUseOrgRef",
+    pkg = "EPATADA",
+    filename = "ATTAINSParamUseOrgRef.rda",
+    compress = "xz",
+    version = 2
+  )
+  invisible(df)
+}
+
+# ============================================================
+# EPATADA CST (Criteria Search Tool) utilities
+# ============================================================
+# - Consistent function names:
+#   * TADA_CST_GetCriteria
+#   * TADA_CST_GetLegend
+#   * TADA_CST_GetSources
+#   * TADA_CST_UpdateWorkbook (dev-time)
+# - Download workbook once per session and reuse
+# - Fallback to package-installed raw XLSX (inst/extdata/cst-workbook.xlsx)
+# - No RDA files are read or written
+# - Normalize: trim character cols + unique rows
+# - Read sheets by anchored name patterns; also supports new CST naming
+#
+# Requires: openxlsx
+
+# =========================
+# Shared cache + constants
+# =========================
+
+# Validate that a path is a real .xlsx we can read
+if (!exists(".is_valid_xlsx", inherits = FALSE)) {
+  .is_valid_xlsx <- function(path) {
+    if (
+      !is.character(path) ||
+      length(path) != 1L ||
+      !nzchar(path) ||
+      !file.exists(path)
+    ) {
+      return(FALSE)
+    }
+    ok <- FALSE
+    con <- NULL
+    try(
+      {
+        con <- file(path, "rb")
+        on.exit(close(con), add = TRUE)
+        sig <- readBin(con, what = "raw", n = 4L)
+        if (length(sig) >= 2L && rawToChar(sig[1:2]) == "PK") ok <- TRUE
+      },
+      silent = TRUE
+    )
+    if (!ok) {
+      return(FALSE)
+    }
+    tryCatch(
+      {
+        sn <- openxlsx::getSheetNames(path)
+        is.character(sn) && length(sn) > 0
+      },
+      error = function(e) FALSE
+    )
+  }
+}
+
+# CST authoritative source (XLSX)
+.CST_WORKBOOK_URL <- "https://www.epa.gov/system/files/documents/2025-07/criteria-search-tool-data.xlsx"
+# Package-installed fallback workbook filename (raw XLSX)
+.CST_WORKBOOK_LOCAL_FILENAME <- "cst-workbook.xlsx"
+
+# Session cache keys
+.CST_CRITERIA_CACHE_KEY <- "CST_criteria_df"
+.CST_LEGEND_CACHE_KEY <- "CST_legend_df"
+.CST_SOURCES_CACHE_KEY <- "CST_sources_df"
+.CST_WORKBOOK_PATH_CACHE_KEY <- "CST_workbook_path"
+
+# =========================
+# Workbook helpers
+# =========================
+
+# Extract ReportDateTime for comparison:
+# - First column label must be exactly "ReportDateTime" (case-sensitive, after trim)
+# - Return the second-column value as character (no formatting changes)
+if (!exists(".tada_cst_get_report_datetime", inherits = FALSE)) {
+  .tada_cst_get_report_datetime <- function(workbook_path) {
+    df <- tryCatch(
+      .tada_cst_read_sheet(workbook_path, target = "legend"),
+      error = function(e) NULL
+    )
+    if (is.null(df) || !is.data.frame(df) || nrow(df) == 0 || ncol(df) < 2) {
+      return(NA_character_)
+    }
+    labels <- trimws(as.character(df[[1]]))
+    idx <- which(!is.na(labels) & labels == "ReportDateTime")
+    if (length(idx) == 0) {
+      return(NA_character_)
+    }
+    val <- df[idx[1], 2, drop = TRUE]
+    as.character(val) # return as-is (could be display text or numeric serial as string)
+  }
+}
+
+# Dev-time: save raw XLSX to inst/extdata only when changed.
+# Uses Legend.ReportDateTime as the primary gate; if unchanged, skips writing.
+# Simplified message: does not include the specific ReportDateTime value.
+.tada_cst_write_ext_workbook_if_changed <- function(
+    src_path,
+    pkg = "EPATADA",
+    filename = .CST_WORKBOOK_LOCAL_FILENAME,
+    normalize_tabs = TRUE
+) {
+  pkg_root <- .tada_find_pkg_root(pkg = pkg)
+  if (is.null(pkg_root)) {
+    stop(
+      "Could not locate package source root for ",
+      pkg,
+      ". Run from the package source directory."
+    )
+  }
+  
+  out_path <- file.path(pkg_root, "inst", "extdata", filename)
+  dir.create(dirname(out_path), recursive = TRUE, showWarnings = FALSE)
+  
+  # Optionally normalize sheet names (Legend/Sources/Criteria) before saving
+  to_write <- src_path
+  if (isTRUE(normalize_tabs)) {
+    norm <- tryCatch(
+      .tada_cst_make_normalized_copy(src_path),
+      error = function(e) NULL
+    )
+    if (!is.null(norm) && file.exists(norm)) to_write <- norm
+  }
+  
+  # If an existing fallback is present, compare ReportDateTime first
+  if (file.exists(out_path)) {
+    old_dt <- tryCatch(
+      .tada_cst_get_report_datetime(out_path),
+      error = function(e) NA_character_
+    )
+    new_dt <- tryCatch(
+      .tada_cst_get_report_datetime(to_write),
+      error = function(e) NA_character_
+    )
+    if (!is.na(old_dt) && !is.na(new_dt) && nzchar(old_dt) && nzchar(new_dt)) {
+      if (identical(old_dt, new_dt)) {
+        message(
+          "CST workbook up to date (ReportDateTime unchanged); not writing ",
+          out_path
+        )
+        return(invisible(out_path))
+      }
+    }
+  }
+  
+  # Secondary guard: compare MD5 digests if dest exists
+  same <- FALSE
+  if (file.exists(out_path)) {
+    old_md5 <- tryCatch(
+      as.character(tools::md5sum(out_path)),
+      error = function(e) NA_character_
+    )
+    new_md5 <- tryCatch(
+      as.character(tools::md5sum(to_write)),
+      error = function(e) NA_character_
+    )
+    same <- isTRUE(old_md5 == new_md5) && !is.na(old_md5) && !is.na(new_md5)
+  }
+  if (same) {
+    message("CST workbook up to date; not writing ", out_path)
+    return(invisible(out_path))
+  }
+  
+  # Write the file
+  ok <- file.copy(to_write, out_path, overwrite = TRUE)
+  if (!ok) {
+    stop("Failed to write CST workbook to ", out_path)
+  }
+  message("CST workbook saved to: ", out_path)
+  invisible(out_path)
+}
+
+# Download CST workbook to a tempfile and return the path
+.tada_cst_download_workbook <- function(url = .CST_WORKBOOK_URL) {
+  tf <- tempfile(fileext = ".xlsx")
+  ok <- tryCatch(
+    {
+      if (requireNamespace("curl", quietly = TRUE)) {
+        curl::curl_download(url, tf, mode = "wb")
+      } else {
+        utils::download.file(url, tf, mode = "wb", quiet = TRUE)
+      }
+      TRUE
+    },
+    error = function(e) FALSE,
+    warning = function(w) FALSE
+  )
+  if (!ok || !.is_valid_xlsx(tf)) {
+    if (file.exists(tf)) {
+      unlink(tf)
+    }
+    return(NULL)
+  }
+  tf
+}
+
+# Resolve a local path to the CST workbook (download once per session).
+# If download fails and download_only = FALSE, fallback to package-installed XLSX if present.
+.tada_cst_get_workbook_path <- function(
+    download_only = FALSE,
+    refresh = FALSE,
+    pkg = "EPATADA",
+    on_fail_message = NULL
+) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.CST_WORKBOOK_PATH_CACHE_KEY)
+    if (
+      !is.null(cached) &&
+      file.exists(cached) &&
+      .is_valid_xlsx(cached) &&
+      !isTRUE(refresh)
+    ) {
+      return(cached)
+    }
+  }
+  
+  # Try to download the latest XLSX
+  path <- .tada_cst_download_workbook(.CST_WORKBOOK_URL)
+  if (!is.null(path) && file.exists(path) && .is_valid_xlsx(path)) {
+    if (!download_only) {
+      .tada_cache_set(.CST_WORKBOOK_PATH_CACHE_KEY, path)
+    }
+    return(path)
+  }
+  
+  # If download_only, fail fast
+  if (download_only) {
+    stop(
+      "CST workbook download failed (download_only=TRUE), or the file was not a valid .xlsx."
+    )
+  }
+  
+  # Fallback to installed workbook if it exists and is valid
+  if (!is.null(on_fail_message)) {
+    message(on_fail_message)
+  }
+  fallback_path <- system.file(
+    "extdata",
+    .CST_WORKBOOK_LOCAL_FILENAME,
+    package = pkg
+  )
+  if (
+    nzchar(fallback_path) &&
+    file.exists(fallback_path) &&
+    .is_valid_xlsx(fallback_path)
+  ) {
+    if (!download_only) {
+      .tada_cache_set(.CST_WORKBOOK_PATH_CACHE_KEY, fallback_path)
+    }
+    return(fallback_path)
+  }
+  
+  NULL
+}
+
+# Read a CST sheet by anchored name (classic) or new naming scheme
+# target ∈ {"legend","sources","criteria"}
+.tada_cst_read_sheet <- function(
+    workbook_path,
+    target = c("legend", "sources", "criteria")
+) {
+  target <- match.arg(target)
+  
+  snames <- tryCatch(
+    openxlsx::getSheetNames(workbook_path),
+    error = function(e) NULL
+  )
+  if (is.null(snames) || length(snames) == 0) {
+    return(NULL)
+  }
+  
+  # 1) Classic names: anchored, case-insensitive
+  classic_pat <- switch(
+    target,
+    legend = "(?i)^\\s*legend",
+    sources = "(?i)^\\s*sources?",
+    criteria = "(?i)^\\s*criteria"
+  )
+  m_classic <- grep(classic_pat, snames, perl = TRUE)
+  if (length(m_classic) >= 1) {
+    sheet_to_read <- snames[m_classic[1]]
+  } else {
+    # 2) New CST naming: "Search Tool Criteria Data", "(2)", "(3)"
+    base_pat <- "(?i)^\\s*search\\s*tool\\s*criteria\\s*data\\s*"
+    base_idx <- grep(base_pat, snames, perl = TRUE)
+    
+    if (length(base_idx) == 0) {
+      warning(sprintf(
+        "No %s sheet found. Available sheets: %s",
+        target,
+        paste(snames, collapse = ", ")
+      ))
+      return(NULL)
+    }
+    
+    candidates <- snames[base_idx]
+    # Helpers to detect trailing "(n)"
+    ends_with_n <- function(x, n) grepl(sprintf("\\(\\s*%d\\s*\\)\\s*$", n), x)
+    ends_with_any_num <- function(x) grepl("\\(\\s*\\d+\\s*\\)\\s*$", x)
+    
+    sheet_to_read <- switch(
+      target,
+      criteria = {
+        pick <- candidates[ends_with_n(candidates, 3)]
+        if (length(pick) >= 1) pick[1] else NULL
+      },
+      sources = {
+        pick <- candidates[ends_with_n(candidates, 2)]
+        if (length(pick) >= 1) pick[1] else NULL
+      },
+      legend = {
+        pick <- candidates[!ends_with_any_num(candidates)]
+        if (length(pick) >= 1) pick[1] else NULL
+      }
+    )
+    
+    if (is.null(sheet_to_read)) {
+      # If exactly three “Search Tool Criteria Data” tabs exist, map heuristically
+      if (length(candidates) == 3) {
+        crit <- candidates[ends_with_n(candidates, 3)]
+        src <- candidates[ends_with_n(candidates, 2)]
+        leg <- candidates[!ends_with_any_num(candidates)]
+        if (target == "criteria" && length(crit) >= 1) {
+          sheet_to_read <- crit[1]
+        }
+        if (target == "sources" && length(src) >= 1) {
+          sheet_to_read <- src[1]
+        }
+        if (target == "legend" && length(leg) >= 1) sheet_to_read <- leg[1]
+      }
+    }
+    
+    if (is.null(sheet_to_read)) {
+      warning(sprintf(
+        "Could not resolve %s sheet from new CST naming. Available sheets: %s",
+        target,
+        paste(snames, collapse = ", ")
+      ))
+      return(NULL)
+    }
+  }
+  
+  out <- tryCatch(
+    openxlsx::read.xlsx(workbook_path, sheet = sheet_to_read),
+    error = function(e) NULL
+  )
+  out
+}
+
+# =========================
+# Normalization
+# =========================
+
+.tada_cst_prepare_table <- function(df) {
+  unique(.tada_trim_char_cols(df))
+}
+
+# =========================
+# Dev-time: save raw XLSX to inst/extdata only when changed
+# =========================
+
+# Create a normalized copy of the workbook with explicit sheet names.
+# Returns the path to a temporary file if renaming occurred; otherwise NULL.
+if (!exists(".tada_cst_make_normalized_copy", inherits = FALSE)) {
+  .tada_cst_make_normalized_copy <- function(src_path) {
+    snames <- tryCatch(openxlsx::getSheetNames(src_path), error = function(e) {
+      NULL
+    })
+    if (is.null(snames) || length(snames) == 0) {
+      return(NULL)
+    }
+    
+    # If explicit names already exist, nothing to do
+    has_classic <- any(grepl("(?i)^\\s*legend", snames, perl = TRUE)) ||
+      any(grepl("(?i)^\\s*sources?", snames, perl = TRUE)) ||
+      any(grepl("(?i)^\\s*criteria", snames, perl = TRUE))
+    if (has_classic) {
+      return(NULL)
+    }
+    
+    # Detect new naming: "Search Tool Criteria Data", "(2)", "(3)"
+    base_pat <- "(?i)^\\s*search\\s*tool\\s*criteria\\s*data\\s*"
+    idx <- grep(base_pat, snames, perl = TRUE)
+    if (length(idx) == 0) {
+      return(NULL)
+    }
+    
+    candidates <- snames[idx]
+    ends_with_n <- function(x, n) grepl(sprintf("\\(\\s*%d\\s*\\)\\s*$", n), x)
+    ends_with_any_num <- function(x) grepl("\\(\\s*\\d+\\s*\\)\\s*$", x)
+    
+    base <- candidates[!ends_with_any_num(candidates)]
+    s2 <- candidates[ends_with_n(candidates, 2)]
+    s3 <- candidates[ends_with_n(candidates, 3)]
+    
+    # Require base + (2) + (3) to avoid guessing
+    if (length(base) < 1 || length(s2) < 1 || length(s3) < 1) {
+      return(NULL)
+    }
+    
+    wb <- tryCatch(openxlsx::loadWorkbook(src_path), error = function(e) NULL)
+    if (is.null(wb)) {
+      return(NULL)
+    }
+    
+    # Rename; ignore if any sheet is missing (defensive)
+    try(
+      openxlsx::renameWorksheet(wb, sheet = base[1], newName = "Legend"),
+      silent = TRUE
+    )
+    try(
+      openxlsx::renameWorksheet(wb, sheet = s2[1], newName = "Sources"),
+      silent = TRUE
+    )
+    try(
+      openxlsx::renameWorksheet(wb, sheet = s3[1], newName = "Criteria"),
+      silent = TRUE
+    )
+    
+    tmp <- tempfile(fileext = ".xlsx")
+    ok <- tryCatch(
+      {
+        openxlsx::saveWorkbook(wb, tmp, overwrite = TRUE)
+        TRUE
+      },
+      error = function(e) FALSE
+    )
+    if (!ok || !file.exists(tmp)) {
+      return(NULL)
+    }
+    tmp
+  }
+}
+
+# Dev-only: refresh the package-installed raw CST workbook
+#' @keywords internal
+.TADA_CST_UpdateWorkbook <- function() {
+  path <- .tada_cst_get_workbook_path(download_only = TRUE, refresh = TRUE)
+  .tada_cst_write_ext_workbook_if_changed(
+    src_path = path,
+    pkg = "EPATADA",
+    filename = .CST_WORKBOOK_LOCAL_FILENAME,
+    normalize_tabs = TRUE
+  )
+  invisible(path)
+}
+
+# =========================
+# Public getters
+# =========================
+
+#' Get CST Criteria table
+#'
+#' Reads the Criteria table from the CST workbook (supports classic "Criteria"
+#' or "Search Tool Criteria Data (3)"), normalizes the table, and caches the result.
+#' Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
+#'
+#' @return data.frame
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback
+#'   and attempts to download the latest workbook directly from EPA, returning the
+#'   requested sheet without updating the cache. Errors if the download fails.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh workbook (download, falling back to the
+#'   package’s raw workbook on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
+#' @export
+TADA_CST_GetCriteria <- function(download_only = FALSE, refresh = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.CST_CRITERIA_CACHE_KEY)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+  }
+  
+  path <- .tada_cst_get_workbook_path(
+    download_only = download_only,
+    refresh = refresh,
+    pkg = "EPATADA",
+    on_fail_message = "Downloading latest CST workbook failed! Falling back to (possibly outdated) internal workbook."
+  )
+  if (is.null(path)) {
+    stop(
+      "Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx."
+    )
+  }
+  
+  df <- .tada_cst_read_sheet(path, target = "criteria")
+  if (is.null(df)) {
+    sn <- tryCatch(openxlsx::getSheetNames(path), error = function(e) {
+      character()
+    })
+    stop(sprintf(
+      "Failed to read Criteria sheet. Available sheets: %s",
+      if (length(sn)) paste(sn, collapse = ", ") else "<unknown>"
+    ))
+  }
+  
+  df <- .tada_cst_prepare_table(df)
+  if (!download_only) {
+    .tada_cache_set(.CST_CRITERIA_CACHE_KEY, df)
+  }
+  df
+}
+
+#' Get CST Legend table
+#'
+#' Reads the Legend table from the CST workbook (supports classic "Legend"
+#' or "Search Tool Criteria Data" without numeric suffix), normalizes the table,
+#' and caches the result for the session.
+#' Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
+#'
+#' @return data.frame
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback
+#'   and attempts to download the latest workbook directly from EPA, returning the
+#'   requested sheet without updating the cache. Errors if the download fails.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh workbook (download, falling back to the
+#'   package’s raw workbook on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
+#' @export
+TADA_CST_GetLegend <- function(download_only = FALSE, refresh = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.CST_LEGEND_CACHE_KEY)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+  }
+  path <- .tada_cst_get_workbook_path(
+    download_only = download_only,
+    refresh = refresh,
+    pkg = "EPATADA",
+    on_fail_message = "Downloading latest CST workbook failed! Falling back to (possibly outdated) internal workbook."
+  )
+  if (is.null(path)) {
+    stop(
+      "Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx."
+    )
+  }
+  
+  df <- .tada_cst_read_sheet(path, target = "legend")
+  if (is.null(df)) {
+    sn <- tryCatch(openxlsx::getSheetNames(path), error = function(e) {
+      character()
+    })
+    stop(sprintf(
+      "Failed to read Legend sheet. Available sheets: %s",
+      if (length(sn)) paste(sn, collapse = ", ") else "<unknown>"
+    ))
+  }
+  
+  df <- .tada_cst_prepare_table(df)
+  if (!download_only) {
+    .tada_cache_set(.CST_LEGEND_CACHE_KEY, df)
+  }
+  df
+}
+
+#' Get CST Sources table
+#'
+#' Reads the Sources table from the CST workbook (supports classic "Sources"
+#' or "Search Tool Criteria Data (2)"), normalizes the table, and caches the result.
+#' Falls back to the installed workbook under inst/extdata/cst-workbook.xlsx on download failure.
+#'
+#' @return data.frame
+#' @param download_only Logical. If TRUE, bypasses the cache and package fallback
+#'   and attempts to download the latest workbook directly from EPA, returning the
+#'   requested sheet without updating the cache. Errors if the download fails.
+#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
+#'   cached copy and attempt to retrieve a fresh workbook (download, falling back to the
+#'   package’s raw workbook on failure), then update the cache. If FALSE (default),
+#'   return the cached table when available. Ignored when download_only = TRUE.
+#' @export
+TADA_CST_GetSources <- function(download_only = FALSE, refresh = FALSE) {
+  if (!download_only) {
+    cached <- .tada_cache_get(.CST_SOURCES_CACHE_KEY)
+    if (!is.null(cached) && !isTRUE(refresh)) return(cached)
+  }
+  
+  path <- .tada_cst_get_workbook_path(
+    download_only = download_only,
+    refresh = refresh,
+    pkg = "EPATADA",
+    on_fail_message = "Downloading latest CST workbook failed! Falling back to (possibly outdated) internal workbook."
+  )
+  if (is.null(path)) {
+    stop(
+      "Failed to retrieve CST workbook. Ensure internet access or ship inst/extdata/cst-workbook.xlsx."
+    )
+  }
+  
+  df <- .tada_cst_read_sheet(path, target = "sources")
+  if (is.null(df)) {
+    sn <- tryCatch(openxlsx::getSheetNames(path), error = function(e) {
+      character()
+    })
+    stop(sprintf(
+      "Failed to read Sources sheet. Available sheets: %s",
+      if (length(sn)) paste(sn, collapse = ", ") else "<unknown>"
+    ))
+  }
+  
+  df <- .tada_cst_prepare_table(df)
+  if (!download_only) {
+    .tada_cache_set(.CST_SOURCES_CACHE_KEY, df)
+  }
+  df
 }
