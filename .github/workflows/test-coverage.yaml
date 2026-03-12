@@ -13,7 +13,7 @@ concurrency:
 
 permissions:
   contents: write
-  checks: read
+  checks: write
   statuses: read
   pull-requests: write
 
@@ -130,3 +130,5 @@ jobs:
           minimum_coverage: 10
           show_missing: true
           link_missing_lines: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
