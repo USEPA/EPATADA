@@ -143,7 +143,8 @@ head(subset(dat_both, TADA.CensoredData.Flag \%in\% c("Non-Detect", "Over-Detect
 # Example 4: If no censored data are present, the function returns the input
 dat_unc <- subset(Data_Nutrients_UT, FALSE)  # empty subset for illustration
 res <- TADA_SimpleCensoredMethods(dat_unc)
-# message: "Cannot apply simple censored methods to dataframe with no censored data results. Returning input dataframe."
+# message: "Cannot apply simple censored methods to dataframe with no censored
+# data results. Returning input dataframe."
 }
 }
 \seealso{
