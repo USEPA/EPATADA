@@ -2064,13 +2064,20 @@ TADA_UsesForAnalysis <- function(
     )) |>
       dplyr::select(-ATTAINS.UseGroup)
 
-    # invalid option
+    # if both AUMLRef and AU_UsesRef are provided
     if(!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
       print(
         paste(
-          "TADA_UsesForAnalysis: Only one of AUMLRef or AU_UsesRef may be supplied. If you already have an AU_UsesRef completed supply only this input to the function."
+          "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
+          "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
         )
       )
+      
+      AU_UsesRef <- dplyr::filter(
+        AU_UsesRef,
+        ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier
+      )
+      
     }
     
     # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
@@ -2120,16 +2127,16 @@ TADA_UsesForAnalysis <- function(
         dplyr::distinct()
 
       # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
-      print(
-        paste(
-          "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
-          length(setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName)),
-          "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
-          "Assigning all unique use names to these parameters.",
-          setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName),
-          "Review and exclude the non-applicable use names as needed."
-        )
-      )
+      # print(
+      #   paste(
+      #     "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
+      #     length(setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName)),
+      #     "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
+      #     "Assigning all unique use names to these parameters.",
+      #     setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName),
+      #     "Review and exclude the non-applicable use names as needed."
+      #   )
+      # )
     }
 
     # Considers if we want to separate speciation, fraction, units as separate columns in the future for crosswalk.
