@@ -5,10 +5,3 @@ repos:
     hooks:
       # Run the formatter
       - id: air-format
-        # Optional: exclude files
-        exclude: |
-          ^\.Rproj\.user/|
-          ^\.git/|
-          \.Rhistory$|
-          \.RData$|
-          \.Rproj$|
