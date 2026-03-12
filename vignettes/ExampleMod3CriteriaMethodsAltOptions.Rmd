@@ -178,7 +178,6 @@ package key will be used.
 if (!exists("api_key")) {
   api_key <- NULL
 }
-
 ```
 
 # Defining Criteria - Magnitude Methodology
