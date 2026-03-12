@@ -1,7 +1,6 @@
 ANDs
 AOI
 ATTAINSOrgIDsRef
-ATTAINSParamToWQPCharRef
 AUML
 AUMLRef
 AURefSource
@@ -235,6 +234,7 @@ ParametersForAnalysis
 PartB
 PhysChem
 Pojoaque
+PollutantName
 ProjectFileUrl
 ProjectName
 ProviderName

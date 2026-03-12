@@ -459,7 +459,22 @@ utils::globalVariables(c(
   "attains.labels",
   "icon.labels",
   "ATTAINS.ParameterName.x",
-  "Ref.AssessmentUnitIdentifier"
+  "Ref.AssessmentUnitIdentifier",
+  "Alias.Name",
+  "CST.SourceLink",
+  "CST.StdPollutantName",
+  "CST_CAS_NO",
+  "PDFPGNO",
+  "SOURCE",
+  "TADA_UpdateATTAINSParamToWQPCharRef",
+  "WQXCharAliasRef",
+  "WQX_CAS_NO",
+  "percent_match_CST_ATTAINS",
+  "percent_match_CST_WQX",
+  "percent_match_WQX_ATTAINS",
+  "percent_match_WQX_CST",
+  "review",
+  "source.y"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
