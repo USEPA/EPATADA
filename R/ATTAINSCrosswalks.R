@@ -1067,9 +1067,6 @@ TADA_ParametersForAnalysis <- function(
   excel = FALSE,
   overwrite = FALSE
 ) {
-  # argument input selection for auto_assign
-  auto_assign <- match.arg(auto_assign)
-
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(paramRef) && missing(AUMLRef)
