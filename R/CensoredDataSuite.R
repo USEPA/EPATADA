@@ -578,7 +578,7 @@ TADA_IDCensoredData <- function(.data) {
 #' # Example 4: If no censored data are present, the function returns the input
 #' dat_unc <- subset(Data_Nutrients_UT, FALSE)  # empty subset for illustration
 #' res <- TADA_SimpleCensoredMethods(dat_unc)
-#' # message: "Cannot apply simple censored methods to dataframe with no censored 
+#' # message: "Cannot apply simple censored methods to dataframe with no censored
 #' # data results. Returning input dataframe."
 #' }
 TADA_SimpleCensoredMethods <- function(
