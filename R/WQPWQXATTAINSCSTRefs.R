@@ -1373,11 +1373,13 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.WQXUnitRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$MeasureUnit, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
-    .tada_require_cols(df, c("Code"), "Measure Unit")  # only "Code" here
+    if (is.null(df)) {
+      stop("TADA_GetMeasureUnitRef(download_only=TRUE): download failed.")
+    }
+    .tada_require_cols(df, c("Code"), "Measure Unit") # only "Code" here
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$MeasureUnit,
@@ -1388,7 +1390,7 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
       on_fail_message = "Downloading latest Measure Unit Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
-  
+
   df <- .TADA_prepare_MeasureUnitRef(df)
 
   if (!download_only) {
