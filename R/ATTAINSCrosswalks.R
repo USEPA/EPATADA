@@ -2061,21 +2061,75 @@ TADA_UsesForAnalysis <- function(
       "extdata",
       "ATTAINSParamUseEntityRef.csv",
       package = "EPATADA"
-    ))
+    )) |>
+      dplyr::select(-ATTAINS.UseGroup)
 
+    # invalid option
+    if(!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
+      print(
+        paste(
+          "TADA_UsesForAnalysis: Only one of AUMLRef or AU_UsesRef may be supplied. If you already have an AU_UsesRef completed supply only this input to the function."
+        )
+      )
+    }
+    
+    # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
+    if(!is.null(AUMLRef) & is.null(AU_UsesRef)) {
+      print(
+        paste(
+          "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
+        )
+      )
+      # runs TADA_AssignUsesToAU to create the AU_UsesRef for this function
+      AU_UsesRef <- TADA_AssignUsesToAU(
+        .data = .data,
+        org_id = org_id,
+        AUMLRef = AUMLRef
+      )
+      
+    }
+    
     # If a user provides an AU_UsesRef, We will use the uses in this table
     if (!is.null(AU_UsesRef)) {
-      ATTAINS_param_all <- ATTAINS_param_all |>
+
+      # filters the param-use-org ref by the necessary inputs
+      ATTAINS_param_all_overlap <- ATTAINS_param_all |>
+        dplyr::filter(
+          ATTAINS.OrganizationIdentifier %in% org_id,
+          ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName,
+          ATTAINS.WaterType %in% AU_UsesRef$ATTAINS.WaterType
+        )
+
+      # identifies all use names not found in the filtered ATTAINS_param_all_overlap
+      AU_UsesRef_new <- AU_UsesRef |>
+        dplyr::filter(!ATTAINS.UseName %in% ATTAINS_param_all_overlap$ATTAINS.UseName)
+ 
+      ATTAINS_param_all <- ATTAINS_param_all_overlap |>
+        #dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
         dplyr::select(-ATTAINS.UseName) |>
-        dplyr::distinct() |>
-        dplyr::left_join(
-          AU_UsesRef,
+        dplyr::right_join(
+          AU_UsesRef_new,
           by = c(
             "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.WaterType",
-            "ATTAINS.UseGroup"
-          )
+            "ATTAINS.WaterType"
+          ),
+          relationship = "many-to-many"
+        ) |>
+        dplyr::select(names(ATTAINS_param_all_overlap)) |>
+        dplyr::bind_rows(ATTAINS_param_all_overlap) |>
+        dplyr::distinct()
+
+      # prints message to indicate any uses not found in prior assessments for a parameter. Will assign all unique use names to it.
+      print(
+        paste(
+          "TADA_UsesForAnalysis: Your user supplied AU_UsesRef contains",
+          length(setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName)),
+          "parameters that could not be found in prior assessments for the specified water types of your assessment unit.",
+          "Assigning all unique use names to these parameters.",
+          setdiff(ATTAINS_param_all$ATTAINS.ParameterName, ATTAINS_param_all_overlap$ATTAINS.ParameterName),
+          "Review and exclude the non-applicable use names as needed."
         )
+      )
     }
 
     # Considers if we want to separate speciation, fraction, units as separate columns in the future for crosswalk.
@@ -2214,6 +2268,15 @@ TADA_UsesForAnalysis <- function(
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
         dplyr::distinct()
+      
+      # if AU_UsesRef is provided, pulls in all prior use names from this source
+      if(!is.null(AU_UsesRef)){
+        use.names <- AU_UsesRef |>
+          dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
+          dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
+          tidyr::drop_na() |>
+          dplyr::distinct()
+      }
 
       CreateUsesRef_temp <- CreateUsesRef |>
         dplyr::filter(is.na(ATTAINS.UseName)) |>
@@ -2977,7 +3040,6 @@ TADA_AssignUsesToAU <- function(
       ATTAINS.OrganizationIdentifier = character(0),
       ATTAINS.AssessmentUnitIdentifier = character(0), # ATTAINS.assessmentunitname,
       ATTAINS.UseName = character(0),
-      ATTAINS.UseType = character(0),
       ATTAINS.WaterType = character(0),
       TADA.AssessmentUnitStatus = character(0),
       IncludeOrExclude = character(0)
@@ -3081,7 +3143,7 @@ TADA_AssignUsesToAU <- function(
       ) >
         0
     ) {
-      warning(paste0(
+      stop(paste0(
         "TADA_AssignUsesToAU: ",
         "One or more organization identifiers entered by user is not found in ATTAINS. "
       ))
@@ -3130,7 +3192,6 @@ TADA_AssignUsesToAU <- function(
         ATTAINS.OrganizationIdentifier,
         ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
         ATTAINS.UseName = useName,
-        ATTAINS.UseGroup = useGroup,
         ATTAINS.WaterType,
         TADA.AssessmentUnitStatus,
         IncludeOrExclude
@@ -3183,7 +3244,6 @@ TADA_AssignUsesToAU <- function(
           ATTAINS.OrganizationIdentifier,
           ATTAINS.AssessmentUnitIdentifier, # ATTAINS.assessmentunitname,
           ATTAINS.UseName,
-          ATTAINS.UseGroup,
           ATTAINS.WaterType,
           TADA.AssessmentUnitStatus,
           IncludeOrExclude

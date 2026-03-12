@@ -338,7 +338,13 @@ missing WQP Char to consider that isn't defined in their criteria and
 methods table that they have supplied. Users will be warned how many WQP
 Char values are not defined from their user supplied table.
 
-In this first example, a user supplies their own criteria table.
+In this example, let's use a filled out criteria table for MTDEQ and
+extract the use and parameters from the crosswalk. TADA has created the
+TADACommunityHub in which TADA users can submit, share and maintain
+user-contributed criteria and methodologies templates to support
+reproducible and efficient analyses. We will use
+**`TADA_LoadCriteriaFile()`** to pull in this criteria table from the
+TADACommunityHub GitHub repository.
 
 Note: If a user has an updated list of use names that have been applied
 to an assessment unit, they should also provide a AU_UsesRef input.
