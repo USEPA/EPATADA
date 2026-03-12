@@ -2074,40 +2074,34 @@ TADA_UsesForAnalysis <- function(
       dplyr::select(-ATTAINS.UseGroup)
 
     # if both AUMLRef and AU_UsesRef are provided
-    if(!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
-      print(
-        paste(
-          "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
-          "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
-        )
-      )
-      
+    if (!is.null(AUMLRef) & !is.null(AU_UsesRef)) {
+      print(paste(
+        "TADA_UsesForAnalysis: Both AUMLRef and AU_UsesRef are supplied.",
+        "Filtering you AU_UsesRef by AU found in your AUMLRef if applicable."
+      ))
+
       AU_UsesRef <- dplyr::filter(
         AU_UsesRef,
-        ATTAINS.AssessmentUnitIdentifier %in% AUMLRef$ATTAINS.AssessmentUnitIdentifier
+        ATTAINS.AssessmentUnitIdentifier %in%
+          AUMLRef$ATTAINS.AssessmentUnitIdentifier
       )
-      
     }
-    
+
     # If a user only provides an AU_MLRef, run TADA_AssignUsesToAU()
-    if(!is.null(AUMLRef) & is.null(AU_UsesRef)) {
-      print(
-        paste(
-          "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
-        )
-      )
+    if (!is.null(AUMLRef) & is.null(AU_UsesRef)) {
+      print(paste(
+        "TADA_UsesForAnalysis: An AUMLRef was provided, pulling in all prior use names for these assessment unit's water type from prior ATTAINS assessment cycles for your defined org_id(s) as the default."
+      ))
       # runs TADA_AssignUsesToAU to create the AU_UsesRef for this function
       AU_UsesRef <- TADA_AssignUsesToAU(
         .data = .data,
         org_id = org_id,
         AUMLRef = AUMLRef
       )
-      
     }
-    
+
     # If a user provides an AU_UsesRef, We will use the uses in this table
     if (!is.null(AU_UsesRef)) {
-
       # filters the param-use-org ref by the necessary inputs
       ATTAINS_param_all_overlap <- ATTAINS_param_all |>
         dplyr::filter(
@@ -2118,17 +2112,16 @@ TADA_UsesForAnalysis <- function(
 
       # identifies all use names not found in the filtered ATTAINS_param_all_overlap
       AU_UsesRef_new <- AU_UsesRef |>
-        dplyr::filter(!ATTAINS.UseName %in% ATTAINS_param_all_overlap$ATTAINS.UseName)
- 
+        dplyr::filter(
+          !ATTAINS.UseName %in% ATTAINS_param_all_overlap$ATTAINS.UseName
+        )
+
       ATTAINS_param_all <- ATTAINS_param_all_overlap |>
         #dplyr::filter(!ATTAINS.UseName %in% AU_UsesRef$ATTAINS.UseName) |>
         dplyr::select(-ATTAINS.UseName) |>
         dplyr::right_join(
           AU_UsesRef_new,
-          by = c(
-            "ATTAINS.OrganizationIdentifier",
-            "ATTAINS.WaterType"
-          ),
+          by = c("ATTAINS.OrganizationIdentifier", "ATTAINS.WaterType"),
           relationship = "many-to-many"
         ) |>
         dplyr::select(names(ATTAINS_param_all_overlap)) |>
@@ -2281,9 +2274,9 @@ TADA_UsesForAnalysis <- function(
         dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
         tidyr::drop_na() |>
         dplyr::distinct()
-      
+
       # if AU_UsesRef is provided, pulls in all prior use names from this source
-      if(!is.null(AU_UsesRef)){
+      if (!is.null(AU_UsesRef)) {
         use.names <- AU_UsesRef |>
           dplyr::filter(ATTAINS.OrganizationIdentifier %in% org_id) |>
           dplyr::select(ATTAINS.OrganizationIdentifier, ATTAINS.UseName) |>
