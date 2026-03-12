@@ -31,6 +31,8 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
+BDL
+BPQL
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -128,6 +130,8 @@ Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
 GetCharacteristicRef
+GetDetCondRef
+GetDetLimitRef
 GetNutrientSummationRef
 GetSynonymRef
 HMW
