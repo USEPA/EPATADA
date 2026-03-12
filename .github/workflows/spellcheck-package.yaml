@@ -15,6 +15,8 @@ permissions:
   contents: read
   checks: read
   statuses: read
+  pull-requests: write
+  issues: write
 
 jobs:
   spelling-check:
@@ -35,12 +37,90 @@ jobs:
         run: install.packages("spelling")
         shell: Rscript {0}
 
-      - name: Spellcheck root directory (include vignettes)
+      - name: Run spellcheck and capture output
         id: spellcheck
-        run: |
-          result <- spelling::spell_check_package()
-          result
-          if (length(result[[1]]) != 0) {
-            stop("Spelling errors found (fix or add to WORDLIST)")
-          }
+        env:
+          GITHUB_TOKEN: ""
         shell: Rscript {0}
+        run: |
+          # Run spell check
+          res <- spelling::spell_check_package()
+          has_errors <- is.data.frame(res) && nrow(res) > 0
+
+          # Create a simple log for PR comment
+          log_path <- "spellcheck.log"
+          header <- if (has_errors) {
+            sprintf("Spelling check failed. Found %d potential misspelling(s).\n\n", nrow(res))
+          } else {
+            "No spelling issues found.\n"
+          }
+          cat(header, file = log_path, append = FALSE)
+
+          if (has_errors) {
+            # Stable ordering
+            ord <- order(res$filename, res$line, res$word, na.last = TRUE)
+            res <- res[ord, , drop = FALSE]
+
+            # Group by file and list words with lines
+            files <- split(res, res$filename)
+            for (fname in names(files)) {
+              cat(sprintf("%s\n", fname), file = log_path, append = TRUE)
+              df <- files[[fname]]
+              for (i in seq_len(nrow(df))) {
+                line <- df$line[i]
+                if (is.null(line) || is.na(line)) line <- "n/a"
+                word <- df$word[i]
+                cat(sprintf("  - line %s: %s\n", line, word), file = log_path, append = TRUE)
+              }
+              cat("\n", file = log_path, append = TRUE)
+            }
+            cat("Note: If a word is acceptable project terminology, add it to WORDLIST.\n", file = log_path, append = TRUE)
+          }
+
+          # Set step output 'ok' for downstream steps
+          out <- Sys.getenv("GITHUB_OUTPUT")
+          cat(sprintf("ok=%s\n", if (!has_errors) "true" else "false"), file = out, append = TRUE)
+
+      - name: Comment on PR with spelling results (same-repo PRs only)
+        if: github.event_name == 'pull_request' && steps.spellcheck.outputs.ok == 'false' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.issue.number;
+
+            let log = fs.readFileSync('spellcheck.log', 'utf8');
+            const max = 65000;
+            if (log.length > max) {
+              log = log.slice(0, max) + '\n… (truncated)';
+            }
+
+            const body = [
+              '<!-- spellcheck-report -->',
+              'Spelling check failed. Details:',
+              '',
+              '```',
+              log.trim(),
+              '```'
+            ].join('\n');
+
+            try {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: number,
+                body
+              });
+            } catch (error) {
+              core.warning(`Could not post comment: ${error?.message || error}`);
+            }
+
+      - name: Fail job if spelling errors
+        if: steps.spellcheck.outputs.ok == 'false'
+        shell: Rscript {0}
+        run: |
+          stop("Spelling errors found. See PR comment for details.")
