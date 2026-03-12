@@ -10,29 +10,17 @@
 #' @keywords internal
 #'
 #' @examples
-#' baseurls <- c(
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
-#' )
+#' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
-#' features <- fetch_bbox(baseurls, df)
+#' features <- fetch_bbox(baseurl, df)
 
-fetch_bbox <- function(baseurls, df) {
-  query_and_fetch <- function(url) {
-    lyr <- arcgislayers::arc_open(url)
-    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-    data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(df))
-    return(data)
-  }
-
-  all_features <- suppressMessages(suppressWarnings({
-    tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
-  }))
-  dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
+fetch_bbox <- function(baseurl, df) {
+  lyr <- arcgislayers::arc_open(baseurl)
+  # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+  data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(df))
+  return(data)
 }
-
+  
 
 #' fetch_au
 #'
@@ -197,9 +185,6 @@ TADA_MakeSpatial <- function(.data, crs = 4326) {
         lon = as.numeric(TADA.LongitudeMeasure)
       )
 
-    print("Data after CRS assignment:")
-    print(sf)
-
     # Transform each subset of data into an `sf` object
     sf <- purrr::map_df(
       split(sf, sf$HorizontalCoordinateReferenceSystemDatumName),
@@ -286,7 +271,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "Depending on your data's observation count and its spatial range, the ATTAINS pull may take a while."
   )
 
-  out_epsg <- 5070
+  out_epsg <- 4326
 
   if (!is.null(.data) && inherits(.data, "sf")) {
     .data <- .data |>
@@ -354,31 +339,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
   points_sf <- .data
 
-  catchment_features <- fetch_bbox(baseurls = baseurls[1], points_sf) |>
+  catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
     sf::st_transform(out_epsg) |>
     sf::st_make_valid()
   
-  # distance_threshold <- 100 # meters; this could be made into a function parameter?
-
-  try(
-    { 
-      catchment_features <- sf::st_filter(catchment_features, points_sf)
-      # # Index of nearest polygon for each point
-      # idx <- sf::st_nearest_feature(points_sf, catchment_features)
-      # # Distance from each point to its nearest polygon
-      # d <- sf::st_distance(
-      #   points_sf,
-      #   catchment_features[idx, ],
-      #   by_element = TRUE
-      # )
-      # # Keep only those matches within the threshold
-      # keep <- as.numeric(d) <= distance_threshold
-      # # Set of polygons that have at least one point within the threshold
-      # catchment_features <- catchment_features |> 
-      #   dplyr::slice(unique(idx[keep]))
-    },
-    silent = TRUE
-  )
+  # Subset catchments to just intersecting catchments
+  catchment_features <- st_filter(catchment_features, points_sf, .predicate = st_intersects)
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
