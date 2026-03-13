@@ -1027,17 +1027,43 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
 #' Create TADA.ComparableDataIdentifier Column
 #'
-#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-#' and TADA.ResultMeasure.MeasureUnitCode.
+#' Create a comparable identifier by concatenating:
+#' - TADA.CharacteristicName
+#' - TADA.ResultSampleFractionText
+#' - TADA.MethodSpeciationName
+#' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' @param .data TADA dataframe
+#' Each component is trimmed of leading/trailing whitespace and coerced to character.
+#' Empty strings, whitespace-only values, and NA values are converted to the literal
+#' "NA" token prior to concatenation, ensuring the identifier is explicit about missing
+#' components (e.g., "DISSOLVED OXYGEN (DO)_NA_NA_MG/L" rather than "DISSOLVED OXYGEN (DO)___MG/L").
 #'
-#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+#'   and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' @return The input dataframe with an added character column TADA.ComparableDataIdentifier.
+#'
+#' @examples
+#' # Example: blanks and NAs become literal "NA" tokens in the identifier
+#' df <- data.frame(
+#'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+#'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+#'   TADA.MethodSpeciationName = c(" ", NA, ""),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "NONE", NA),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' out <- TADA_CreateComparableID(df)
+#' out$TADA.ComparableDataIdentifier
+#' # Expected:
+#' # [1] "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
+#' # [2] "pH_NA_NA_NONE"
+#' # [3] "Nitrate_Dissolved_NA_NA"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1045,20 +1071,29 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+  
+  # handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    return(.data)
   }
-
+  
+  # helper to normalize components: trim, coerce to character, replace NA/blank with "NA"
+  norm <- function(x) {
+    x <- trimws(as.character(x))
+    x[is.na(x) | x == ""] <- "NA"
+    x
+  }
+  
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
-    .data$TADA.ResultSampleFractionText,
-    .data$TADA.MethodSpeciationName,
-    .data$TADA.ResultMeasure.MeasureUnitCode,
+    norm(.data$TADA.CharacteristicName),
+    norm(.data$TADA.ResultSampleFractionText),
+    norm(.data$TADA.MethodSpeciationName),
+    norm(.data$TADA.ResultMeasure.MeasureUnitCode),
     sep = "_"
   )
-  return(.data)
+  
+  .data
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for

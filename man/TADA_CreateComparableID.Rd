@@ -7,13 +7,43 @@
 TADA_CreateComparableID(.data)
 }
 \arguments{
-\item{.data}{TADA dataframe}
+\item{.data}{A TADA dataframe (data.frame or tibble) with the required columns:
+TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+and TADA.ResultMeasure.MeasureUnitCode.}
 }
 \value{
-Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+The input dataframe with an added character column TADA.ComparableDataIdentifier.
 }
 \description{
-This utility function creates the TADA.ComparableDataIdentifier column by pasting
-together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-and TADA.ResultMeasure.MeasureUnitCode.
+Create a comparable identifier by concatenating:
+\itemize{
+\item TADA.CharacteristicName
+\item TADA.ResultSampleFractionText
+\item TADA.MethodSpeciationName
+\item TADA.ResultMeasure.MeasureUnitCode
+}
+}
+\details{
+Each component is trimmed of leading/trailing whitespace and coerced to character.
+Empty strings, whitespace-only values, and NA values are converted to the literal
+"NA" token prior to concatenation, ensuring the identifier is explicit about missing
+components (e.g., "DISSOLVED OXYGEN (DO)_NA_NA_MG/L" rather than "DISSOLVED OXYGEN (DO)___MG/L").
+}
+\examples{
+# Example: blanks and NAs become literal "NA" tokens in the identifier
+df <- data.frame(
+  TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+  TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+  TADA.MethodSpeciationName = c(" ", NA, ""),
+  TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "NONE", NA),
+  stringsAsFactors = FALSE
+)
+
+out <- TADA_CreateComparableID(df)
+out$TADA.ComparableDataIdentifier
+# Expected:
+# [1] "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
+# [2] "pH_NA_NA_NONE"
+# [3] "Nitrate_Dissolved_NA_NA"
+
 }
