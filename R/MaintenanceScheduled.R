@@ -426,6 +426,35 @@
         user_supplied_cw,
         MT_AUMLRef
       )
+      # =======================================
+      # Generate Data_Participatory_Scientists
+      # =======================================
+      selected_orgs <-
+        c(
+          "CONNRIVERCONSERVANCY",
+          "CT_NERR",
+          "BANTAMLAKE_WQX",
+          "CTVOLMON",
+          "CT_NERR"
+        )
+      
+      Data_Participatory_Scientists <- EPATADA::TADA_DataRetrieval(
+        organization = selected_orgs,
+        ask = FALSE,
+        applyautoclean = TRUE
+      )
+      
+      message("Data_Participatory_Scientists")
+      message(dim(Data_Participatory_Scientists))
+      
+      usethis::use_data(
+        Data_Participatory_Scientists,
+        internal = FALSE,
+        overwrite = TRUE,
+        compress = "xz",
+        version = 3,
+        ascii = FALSE
+      )
     },
     error = function(e) {
       message("An error occurred during data update: ", e$message)

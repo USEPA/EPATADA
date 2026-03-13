@@ -29,7 +29,7 @@ knitr::opts_chunk$set(
 
 #### Load the EPATADA R Package
 
-```{r libraries, results = F, eval = F}
+```{r libraries, results = F}
 # Load necessary libraries
 library(EPATADA)
 ```
@@ -100,7 +100,7 @@ Alternatively, choose 5 volunteer monitoring organizations and query
 WQP. We will move forward with this example of volunteer organizations
 in CT:
 
-```{r}
+```{r, eval = F}
 selected_orgs <-
   c(
     "CONNRIVERCONSERVANCY",
@@ -111,11 +111,14 @@ selected_orgs <-
   )
 
 volunteer_data <- EPATADA::TADA_DataRetrieval(
-  # startDate = "2022-01-01",
   organization = selected_orgs,
   ask = FALSE,
   applyautoclean = TRUE
 )
+```
+
+```{r use_example_data, eval = T}
+volunteer_data <- Data_Participatory_Scientists
 ```
 
 #### Explore and refine results
