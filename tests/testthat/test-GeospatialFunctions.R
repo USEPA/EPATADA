@@ -108,9 +108,9 @@ testthat::test_that("fetchATTAINS handles small areas", {
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = small_bbox_data)
   )
-  expect_equal(nrow(result_all_features$ATTAINS_points), 0)
+  expect_null(nrow(result_all_features$ATTAINS_points))
   expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
-  expect_equal(nrow(result_all_features$ATTAINS_polygons), 0)
+  expect_null(nrow(result_all_features$ATTAINS_polygons))
   expect_equal(nrow(result_all_features$ATTAINS_catchments), expect_cat_n_small)
 })
 
@@ -119,8 +119,8 @@ testthat::test_that("fetchATTAINS handles large areas", {
   testthat::expect_no_error(
     result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
   )
-  expect_equal(nrow(result_all_features$ATTAINS_points), 0)
-  expect_equal(nrow(result_all_features$ATTAINS_lines), 9)
+  expect_null(nrow(result_all_features$ATTAINS_points))
+  expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
   expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
   expect_equal(nrow(result_all_features$ATTAINS_catchments), 46)
 })

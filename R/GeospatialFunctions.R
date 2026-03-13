@@ -2,7 +2,7 @@
 #'
 #' This function gets ATTAINS data for the bounding box of a feature.
 #'
-#' @param baseurls A url or set of urls for ESRI REST service layers.
+#' @param baseurls A url for an ESRI REST service layer.
 #' @param df An sf dataframe developed with `TADA_MakeSpatial()`.
 #' @return An sf data frame of features from the REST service within the
 #' bounding box of the spatial feature of interest.
@@ -26,7 +26,7 @@ fetch_bbox <- function(baseurl, df) {
 #'
 #' This function gets ATTAINS data for a set of Assessment Unit IDs.
 #'
-#' @param baseurls A url or set of urls for ESRI REST service layers.
+#' @param baseurl A url for an ESRI REST service layer.
 #' @param assessment_unit_ids An ATTAINS assessment unit ID or IDs
 #' @param org_filter ATTAINS organization identifier(s) as a character string.
 #' If populated, Assessment Units  will only be fetched from the specified
@@ -47,9 +47,9 @@ fetch_bbox <- function(baseurl, df) {
 #' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
 #'
-#' features <- fetch_au(baseurls, assessment_unit_ids)
+#' features <- fetch_au(baseurl, assessment_unit_ids)
 
-fetch_au <- function(baseurls, assessment_unit_ids, org_filter = "all") {
+fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # Convert org_filter to SQL WHERE clause
   if (org_filter == "all") {
     sql_org_filter <- "1=1"
@@ -57,29 +57,17 @@ fetch_au <- function(baseurls, assessment_unit_ids, org_filter = "all") {
     sql_org_filter <- paste0(
       "organizationid IN ('",
       paste(org_filter, collapse = "','"),
-      "')"
-    )
-  }
-
-  query_and_fetch <- function(url) {
-    lyr <- arcgislayers::arc_open(url)
-    # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-    data <- arcgislayers::arc_select(
-      lyr,
-      where = paste0(
-        "assessmentunitidentifier IN ('",
+      "')")}
+  lyr <- arcgislayers::arc_open(baseurl)
+  # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
+  data <- arcgislayers::arc_select(lyr,
+      where = paste0("assessmentunitidentifier IN ('",
         paste(assessment_unit_ids, collapse = "','"),
         "') AND ",
         sql_org_filter
       )
     )
     return(data)
-  }
-
-  all_features <- suppressMessages(suppressWarnings({
-    tryCatch(purrr::map(baseurls, query_and_fetch), error = function(e) NULL)
-  }))
-  dplyr::bind_rows(all_features) |> dplyr::distinct(.keep_all = TRUE)
 }
 
 
@@ -375,7 +363,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
       try(
         points <- fetch_au(
-          baseurls = baseurls[2],
+          baseurl = baseurls[2],
           assessment_unit_ids = unique(
             catchment_features$assessmentunitidentifier
           ),
@@ -386,7 +374,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
       try(
         lines <- fetch_au(
-          baseurls = baseurls[3],
+          baseurl = baseurls[3],
           assessment_unit_ids = unique(
             catchment_features$assessmentunitidentifier
           ),
@@ -397,7 +385,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
       try(
         polygons <- fetch_au(
-          baseurls = baseurls[4],
+          baseurl = baseurls[4],
           assessment_unit_ids = unique(
             catchment_features$assessmentunitidentifier
           ),
@@ -441,7 +429,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     })
   })
-
+  
   return(final_features)
 }
 
@@ -1690,7 +1678,7 @@ TADA_GetATTAINSByAUID <- function(
   # Download associated point, line, polygon, and catchment features using list of auids
   try(
     points <- fetch_au(
-      baseurls = baseurls[2],
+      baseurl = baseurls[2],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
@@ -1701,7 +1689,7 @@ TADA_GetATTAINSByAUID <- function(
 
   try(
     lines <- fetch_au(
-      baseurls = baseurls[3],
+      baseurl = baseurls[3],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
@@ -1712,7 +1700,7 @@ TADA_GetATTAINSByAUID <- function(
 
   try(
     polygons <- fetch_au(
-      baseurls = baseurls[4],
+      baseurl = baseurls[4],
       assessment_unit_ids = paste0(unique(
         filt.data$ATTAINS.AssessmentUnitIdentifier
       )),
@@ -1794,7 +1782,7 @@ TADA_GetATTAINSByAUID <- function(
   if (fill_ATTAINS_catch == TRUE) {
     try(
       catchments <- fetch_au(
-        baseurls = baseurls[1],
+        baseurl = baseurls[1],
         assessment_unit_ids = paste0(unique(
           filt.data$ATTAINS.AssessmentUnitIdentifier
         )),
