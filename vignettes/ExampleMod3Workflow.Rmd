@@ -843,7 +843,7 @@ TADA_TableExport(MT.UsesRef.auto.MT76F007_010)
 
 #### Option 3B: Both AUMLRef and AU_UsesRef are provided
 
-Now let's supply both an AUMLRef and an AU_UsesRef. We will use the filtered AUMLRef as out input along with the full AU_UsesRef defined earlier.
+Now let's supply both an AUMLRef and an AU_UsesRef. We will use the filtered AUMLRef as our input along with the full AU_UsesRef defined earlier.
 
 ```{r usesRef-with-AUMLRef-river}
 MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
@@ -851,7 +851,7 @@ MT.UsesRef.manual.3B <- TADA_UsesForAnalysis(
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
   usesRef = NULL,
-  AU_UsesRef = Data_MT_AU_UsesRef,
+  AU_UsesRef = Data_MT_AU_UsesRef, # define AU_UsesRef
   AUMLRef = AUMLRef.MT76F007_010, # select appropriate crosswalk
   auto_assign = FALSE,
   excel = FALSE
@@ -882,7 +882,9 @@ MT.UsesRef.Final <- TADA_UsesForAnalysis(
   tada.MT.clean,
   org_id = c("MTDEQ"),
   paramRef = MT.ParamRef.Final,
-  usesRef = MT.UsesRef.user.supplied.edit,
+  usesRef = MT.UsesRef.manual.user.supplied,
+  AU_UsesRef = NULL,
+  AUMLRef = NULL,
   auto_assign = TRUE,
   excel = FALSE
   # uncomment excel = TRUE, overwrite = TRUE to run the excel file
@@ -890,7 +892,7 @@ MT.UsesRef.Final <- TADA_UsesForAnalysis(
 )
 
 # Test if the two data frames are same or not.
-identical(MT.UsesRef.Final[1:5], MT.UsesRef.user.supplied.edit[1:5])
+identical(MT.UsesRef.Final[1:5], MT.UsesRef.manual.user.supplied[1:5])
 
 TADA_TableExport(MT.UsesRef.Final)
 ```
