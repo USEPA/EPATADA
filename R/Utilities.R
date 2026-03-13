@@ -1071,20 +1071,20 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # handle empty input
   if (nrow(.data) == 0) {
     .data$TADA.ComparableDataIdentifier <- character(0)
     return(.data)
   }
-  
+
   # helper to normalize components: trim, coerce to character, replace NA/blank with "NA"
   norm <- function(x) {
     x <- trimws(as.character(x))
     x[is.na(x) | x == ""] <- "NA"
     x
   }
-  
+
   .data$TADA.ComparableDataIdentifier <- paste(
     norm(.data$TADA.CharacteristicName),
     norm(.data$TADA.ResultSampleFractionText),
@@ -1092,7 +1092,7 @@ TADA_CreateComparableID <- function(.data) {
     norm(.data$TADA.ResultMeasure.MeasureUnitCode),
     sep = "_"
   )
-  
+
   .data
 }
 
