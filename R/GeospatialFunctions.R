@@ -344,7 +344,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     sf::st_make_valid()
   
   # Subset catchments to just intersecting catchments
-  catchment_features <- st_filter(catchment_features, points_sf, .predicate = st_intersects)
+  catchment_features <- sf::st_filter(catchment_features, points_sf, .predicate = st_intersects)
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
