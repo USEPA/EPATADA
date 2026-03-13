@@ -136,7 +136,7 @@ NULL
 
 #' Data_Participatory_Scientists
 #'
-#' Generate Data_Participatory_Scientists used in 
+#' Generate Data_Participatory_Scientists used in
 #' Participatory-Science-Water-Projects-in-WQX.Rmd
 #'
 #' @docType data

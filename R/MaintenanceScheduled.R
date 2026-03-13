@@ -429,24 +429,23 @@
       # =======================================
       # Generate Data_Participatory_Scientists
       # =======================================
-      selected_orgs <-
-        c(
-          "CONNRIVERCONSERVANCY",
-          "CT_NERR",
-          "BANTAMLAKE_WQX",
-          "CTVOLMON",
-          "CT_NERR"
-        )
-      
+      selected_orgs <- c(
+        "CONNRIVERCONSERVANCY",
+        "CT_NERR",
+        "BANTAMLAKE_WQX",
+        "CTVOLMON",
+        "CT_NERR"
+      )
+
       Data_Participatory_Scientists <- EPATADA::TADA_DataRetrieval(
         organization = selected_orgs,
         ask = FALSE,
         applyautoclean = TRUE
       )
-      
+
       message("Data_Participatory_Scientists")
       message(dim(Data_Participatory_Scientists))
-      
+
       usethis::use_data(
         Data_Participatory_Scientists,
         internal = FALSE,
