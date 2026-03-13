@@ -57,17 +57,21 @@ fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
     sql_org_filter <- paste0(
       "organizationid IN ('",
       paste(org_filter, collapse = "','"),
-      "')")}
+      "')"
+    )
+  }
   lyr <- arcgislayers::arc_open(baseurl)
   # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
-  data <- arcgislayers::arc_select(lyr,
-      where = paste0("assessmentunitidentifier IN ('",
-        paste(assessment_unit_ids, collapse = "','"),
-        "') AND ",
-        sql_org_filter
-      )
+  data <- arcgislayers::arc_select(
+    lyr,
+    where = paste0(
+      "assessmentunitidentifier IN ('",
+      paste(assessment_unit_ids, collapse = "','"),
+      "') AND ",
+      sql_org_filter
     )
-    return(data)
+  )
+  return(data)
 }
 
 
@@ -332,10 +336,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     sf::st_make_valid()
 
   # Subset catchments to just intersecting catchments
-  catchment_features <- sf::st_filter(catchment_features,
-                                      points_sf,
-                                      .predicate = sf::st_intersects
-                                      )
+  catchment_features <- sf::st_filter(
+    catchment_features,
+    points_sf,
+    .predicate = sf::st_intersects
+  )
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
@@ -432,7 +437,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     })
   })
-  
+
   return(final_features)
 }
 
