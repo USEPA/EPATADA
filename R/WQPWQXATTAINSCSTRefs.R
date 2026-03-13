@@ -129,11 +129,11 @@ TADA_ListCacheKeys <- function() {
 
 # Read CSV from URL; returns NULL on error; avoids lingering connections
 .tada_read_csv_url <- function(
-    url,
-    stringsAsFactors = FALSE,
-    encodings = c("UTF-8", "latin1"),
-    retries = 2,
-    user_agent = "EPATADA (R)"
+  url,
+  stringsAsFactors = FALSE,
+  encodings = c("UTF-8", "latin1"),
+  retries = 2,
+  user_agent = "EPATADA (R)"
 ) {
   tf <- tempfile(fileext = ".csv")
   on.exit(
@@ -142,7 +142,7 @@ TADA_ListCacheKeys <- function() {
     },
     add = TRUE
   )
-  
+
   # Attempt download with small retries
   download_ok <- FALSE
   attempt <- 0L
@@ -180,7 +180,7 @@ TADA_ListCacheKeys <- function() {
   if (!download_ok) {
     return(NULL)
   }
-  
+
   # Quick guard against HTML error pages served as "CSV"
   head_bytes <- tryCatch(
     readChar(tf, nchars = 256L, useBytes = TRUE),
@@ -189,7 +189,7 @@ TADA_ListCacheKeys <- function() {
   if (grepl("(?i)<html|<!DOCTYPE", head_bytes)) {
     return(NULL)
   }
-  
+
   # Try to parse with a couple of encodings
   for (enc in encodings) {
     df <- tryCatch(
@@ -207,7 +207,12 @@ TADA_ListCacheKeys <- function() {
       nm <- names(df)
       nm <- sub("^\ufeff", "", nm, perl = TRUE) # true BOM (U+FEFF)
       # Handle mis-decoded BOM as "ï»¿" or the "ï.." style (ASCII-safe via escapes)
-      nm <- sub("^\u00EF(?:\u00BB|\\.)?(?:\u00BF|\\.)?\\s*", "", nm, perl = TRUE)
+      nm <- sub(
+        "^\u00EF(?:\u00BB|\\.)?(?:\u00BF|\\.)?\\s*",
+        "",
+        nm,
+        perl = TRUE
+      )
       nm <- trimws(nm)
       names(df) <- nm
       return(df)
