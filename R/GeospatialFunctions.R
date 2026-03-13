@@ -20,7 +20,7 @@ fetch_bbox <- function(baseurl, df) {
   data <- arcgislayers::arc_select(lyr, filter_geom = sf::st_bbox(df))
   return(data)
 }
-  
+
 
 #' fetch_au
 #'
@@ -342,9 +342,13 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
     sf::st_transform(out_epsg) |>
     sf::st_make_valid()
-  
+
   # Subset catchments to just intersecting catchments
-  catchment_features <- sf::st_filter(catchment_features, points_sf, .predicate = st_intersects)
+  catchment_features <- sf::st_filter(
+    catchment_features,
+    points_sf,
+    .predicate = st_intersects
+  )
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
     message(
