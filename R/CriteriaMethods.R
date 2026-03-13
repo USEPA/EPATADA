@@ -758,7 +758,7 @@ TADA_DefineCriteriaMethodology <- function(
 
           # fill in TADA criteria table with CST magnitude values and other relevant CST columns
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
-            dplyr::left_join(
+            dplyr::full_join(
               CriteriaSearchToolRef_filtered,
               by = c(
                 "ATTAINS.OrganizationIdentifier",
