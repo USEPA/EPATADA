@@ -146,21 +146,11 @@ their column names and data formats (e.g. numeric, character) align with
 WQP profiles.
 
 If you are interested in reviewing the column headers and formats
-required to run TADA, use the function below, which saves an example
-spreadsheet to the user's working directory.
+required to run TADA, use the function below.
 
-```{r template, eval = F}
-getwd() # find your working directory
-template <- TADA_GetTemplate() # download template to working directory
-```
-
-You can also take a look at an example dataframe, like
-`Data_Nutrients_UT` to get an idea of the data structure and format.
-
-```{r UT example data}
-utils::data(Data_Nutrients_UT)
-# review example dataframe
-exampledata_Nutrients_UT <- Data_Nutrients_UT
+```{r template, eval = T}
+template <- TADA_GetTemplate()
+template
 ```
 
 `TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
@@ -208,8 +198,11 @@ about input parameters and to see several examples.
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
 dataset_0 <- Data_6Tribes_5y
+```
 
-# Let's take a look at all of the TADA-created columns:
+Let's take a look at all of the TADA-created columns:
+
+```{r TADAcols}
 names(dataset_0)[grepl("TADA.", names(dataset_0))]
 ```
 
