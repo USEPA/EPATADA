@@ -466,7 +466,6 @@ utils::globalVariables(c(
   "CST_CAS_NO",
   "PDFPGNO",
   "SOURCE",
-  "TADA_UpdateATTAINSParamToWQPCharRef",
   "WQXCharAliasRef",
   "WQX_CAS_NO",
   "percent_match_CST_ATTAINS",
