@@ -338,16 +338,16 @@ TADA_DefineCriteriaMethodology <- function(
     # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
     # Users can edit one or more of the ref files which will update all accordingly.
     if (auto_assign == TRUE) {
-      if(is.null(MLSummaryRef)) {
+      if (is.null(MLSummaryRef)) {
         print(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected but no MLSummaryRef. Generating TADA_MLSummary with default assignment."
         ))
-        
+
         unique_param <- unique(.data$TADA.CharacteristicName)
         # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's data frame.
         TADA_param <- dplyr::distinct(.data[,
-                                            c("TADA.ComparableDataIdentifier"),
-                                            drop = FALSE
+          c("TADA.ComparableDataIdentifier"),
+          drop = FALSE
         ]) |>
           dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
           tidyr::complete(
@@ -355,7 +355,7 @@ TADA_DefineCriteriaMethodology <- function(
             ATTAINS.OrganizationIdentifier = org_id
           ) |>
           dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
-        
+
         # default, runs all reference tables with no user edits
         # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
         # if (updateRef == "none") {
@@ -371,7 +371,7 @@ TADA_DefineCriteriaMethodology <- function(
             overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
           )
         )
-  
+
         print(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment."
         ))
@@ -1167,7 +1167,7 @@ TADA_DefineCriteriaMethodology <- function(
       DefineCriteriaMethodology <- DefineCriteriaMethodology |>
         dplyr::filter(TADA.ComparableDataIdentifier %in% MLSummary_params)
     }
-    
+
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
     # Helps a user identifies all WQP data if they do not fill out the reference tables when TRUE
     # FALSE is recommended if a user has gone through a step by step review process to
