@@ -66,6 +66,7 @@ TADA_FlagFraction <- function(.data, clean = TRUE, flaggedonly = FALSE) {
   if (("TADA.SampleFraction.Flag" %in% colnames(.data)) == TRUE) {
     .data <- dplyr::select(.data, -TADA.SampleFraction.Flag)
   }
+
   # read in fraction reference table from extdata and filter
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
@@ -611,11 +612,7 @@ TADA_FindQCActivities <- function(.data, clean = FALSE, flaggedonly = FALSE) {
   }
 
   # load in ActivityTypeRef Table
-  qc.ref <- utils::read.csv(system.file(
-    "extdata",
-    "WQXActivityTypeRef.csv",
-    package = "EPATADA"
-  )) |>
+  qc.ref <- TADA_GetActivityTypeRef() |>
     dplyr::rename(ActivityTypeCode = Code) |>
     dplyr::select(ActivityTypeCode, TADA.ActivityType.Flag)
 
@@ -978,11 +975,7 @@ TADA_FlagMeasureQualifierCode <- function(
   }
 
   # load in ResultMeasureQualifier Flag Table
-  qc.ref <- utils::read.csv(system.file(
-    "extdata",
-    "WQXMeasureQualifierCodeRef.csv",
-    package = "EPATADA"
-  )) |>
+  qc.ref <- TADA_GetMeasureQualifierCodeRef() |>
     dplyr::rename(MeasureQualifierCode = Code) |>
     dplyr::select(
       MeasureQualifierCode,

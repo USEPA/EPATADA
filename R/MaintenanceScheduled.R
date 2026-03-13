@@ -53,15 +53,16 @@
   # WQPWQXRefTables.R
   tryCatch(
     {
-      TADA_UpdateWQXCharValRef()
-      TADA_UpdateMeasureUnitRef()
-      TADA_UpdateDetCondRef()
-      TADA_UpdateDetLimitRef()
-      TADA_UpdateActivityTypeRef()
-      TADA_UpdateCharacteristicRef()
-      TADA_UpdateMeasureQualifierCodeRef()
-      TADA_UpdateMonLocTypeRef()
-      TADA_UpdateWQPOrgProviderRef()
+      .TADA_UpdateWQXCharValRef()
+      .TADA_UpdateMeasureUnitRef()
+      .TADA_UpdateDetCondRef()
+      .TADA_UpdateDetLimitRef()
+      .TADA_UpdateActivityTypeRef()
+      .TADA_UpdateCharacteristicRef()
+      .TADA_UpdateMeasureQualifierCodeRef()
+      .TADA_UpdateMonLocTypeRef()
+      .TADA_UpdateWQPOrganizationRef()
+      .TADA_UpdateWQXCharAliasRef()
     },
     error = function(e) {
       message("Error updating WQPWQX reference tables: ", e$message)
@@ -71,28 +72,13 @@
   # CriteriaRefTables.R
   tryCatch(
     {
-      TADA_UpdateCriteriaSearchToolRef()
+      .TADA_CST_UpdateWorkbook()
     },
     error = function(e) {
-      message("Error updating EPA CST reference: ", e$message)
-    }
-  )
-  # Legend for CriteriaRefTables.R
-  tryCatch(
-    {
-      TADA_UpdateLegendCSTRef()
-    },
-    error = function(e) {
-      message("Error updating Legend for EPA CST reference: ", e$message)
-    }
-  )
-  # Sources for CriteriaRefTables.R
-  tryCatch(
-    {
-      TADA_UpdateSourcesCSTRef()
-    },
-    error = function(e) {
-      message("Error updating Sources for EPA CST reference: ", e$message)
+      message(
+        "Error updating EPA Criteria Search Tool Excel workbook: ",
+        e$message
+      )
     }
   )
 

@@ -38,7 +38,7 @@ nearby_data <- large_bbox_data |>
 # RI_CT_secchi
 load(testthat::test_path("testdata", "RI_CT_secchi.rda"))
 
-# test_au_ref_MTDEQ.rda is staic, but was generated using:
+# test_au_ref_MTDEQ.rda is static, but was generated using:
 # MT_AU_MLRef <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ")
 # test_au_ref_MTDEQ <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
 #                                                     crosswalk = MT_AU_MLRef)
@@ -251,7 +251,7 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
     )
   )
   # Check .data was updated by adding 83 cols (161+83=244)
-  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 245)
+  expect_equal(ncol(actual_default$TADA_with_ATTAINS), 244)
   # Check results based on number of rows
   expected_rows <- c(0, 5, 1)
   expect_equal(nrow(actual_default$ATTAINS_points), expected_rows[1])
@@ -276,6 +276,51 @@ testthat::test_that("Get ATTAINS by Assessment Unit ID", {
   expect_equal(nrow(actual_catchments$ATTAINS_polygons), expected_rows[4])
 })
 
+# new TADA_CreateAUMLCrosswalk tests
+testthat::test_that("TADA_CreateAUMLCrosswalk correctly identifies already joined ATTAINS data", {
+  # Create mock data with ATTAINS columns
+  mock_attains_data <- TADA_dataframe
+  mock_attains_data$ATTAINS.AssessmentUnitIdentifier <- "TEST"
+
+  testthat::expect_error(
+    TADA_CreateATTAINSAUMLCrosswalk(mock_attains_data),
+    "Your data has already been joined with ATTAINS data"
+  )
+})
+
+testthat::test_that("TADA_CreateAUMLCrosswalk handles empty datasets appropriately", {
+  # Create an empty dataframe with required structure
+  empty_df <- tibble::tibble(
+    ResultIdentifier = character(0),
+    LongitudeMeasure = character(0),
+    LatitudeMeasure = character(0),
+    HorizontalCoordinateReferenceSystemDatumName = character(0)
+  )
+
+  result <- TADA_CreateAUMLCrosswalk(.data = empty_df)
+  testthat::expect_true(length(result) == 5)
+  testthat::expect_true("ResultIdentifier" %in% names(result$TADA_with_ATTAINS))
+  testthat::expect_true(any(grepl(
+    "^ATTAINS\\.",
+    names(result$TADA_with_ATTAINS)
+  )))
+})
+
+
+testthat::test_that("TADA_CreateAUMLCrosswalk contains expected AU Ref Source values", {
+  # Uses example data set that has already had TADA_CreateAUMLCrosswalk applied
+  au.sources <- sort(unique(Data_MT_AUMLRef$ATTAINS_crosswalk$TADA.AURefSource))
+
+  expected <- c(
+    "User-supplied Ref",
+    "ATTAINS Crosswalk",
+    "TADA_CreateATTAINSAUMLCrosswalk"
+  )
+
+  # Tests to ensure that all expected values of TADA.AURefSource are returned
+  missing <- setdiff(expected, au.sources)
+  testthat::expect_equal(missing, character(0))
+})
 
 testthat::test_that("TADA_ViewATTAINS validates input structure", {
   # Test with data that's missing required ATTAINS components

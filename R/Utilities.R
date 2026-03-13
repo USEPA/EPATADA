@@ -454,13 +454,27 @@ utils::globalVariables(c(
   "TADA.NearbySiteGroup.New",
   "code",
   "context",
-  "CriteriaSearchToolRef",
   "ATTAINS_catchments",
   "attains.imgs",
   "attains.labels",
   "icon.labels",
   "ATTAINS.ParameterName.x",
-  "Ref.AssessmentUnitIdentifier"
+  "Ref.AssessmentUnitIdentifier",
+  "Alias.Name",
+  "CST.SourceLink",
+  "CST.StdPollutantName",
+  "CST_CAS_NO",
+  "PDFPGNO",
+  "SOURCE",
+  "TADA_UpdateATTAINSParamToWQPCharRef",
+  "WQXCharAliasRef",
+  "WQX_CAS_NO",
+  "percent_match_CST_ATTAINS",
+  "percent_match_CST_WQX",
+  "percent_match_WQX_ATTAINS",
+  "percent_match_WQX_CST",
+  "review",
+  "source.y"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -875,9 +889,10 @@ TADA_ConvertSpecialChars <- function(
 #' their new names (Comparable.Name).
 #'
 #' @param .data TADA dataframe
+#' @param quiet logical; suppress messages if TRUE
 #'
 #' @return Input TADA dataframe with substituted characteristic names in
-#'   TADA.CharacteristicName column. Original columns are unchanged.
+#' TADA.CharacteristicName column. Original columns are unchanged.
 #'
 #' @export
 #'
@@ -909,78 +924,103 @@ TADA_ConvertSpecialChars <- function(
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
 #' }
-TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame and has required columns
+TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
+  # Ensure required column
   TADA_CheckColumns(.data, c("CharacteristicName"))
-  # Check if the input data frame is empty
+
+  # Handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    if (!quiet) {
+      message(
+        "The entered data frame is empty. Skipping deprecated-name substitution."
+      )
+    }
+    return(.data)
   }
 
-  if ("TADA.CharacteristicName" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original CharacteristicName
+  # Ensure TADA.CharacteristicName exists (initialize uppercase)
+  if (!"TADA.CharacteristicName" %in% colnames(.data)) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
+  # Load the characteristic domain table
+  char.table <- TADA_GetCharacteristicRef()
+
+  # NWIS-friendly variant: trim at first '*' for retired WQX names
+  nwis_table <- char.table |>
     dplyr::filter(
       Char_Flag == "Deprecated",
-      grepl("retired", CharacteristicName)
+      grepl("retired", CharacteristicName, ignore.case = TRUE)
     ) |>
     dplyr::mutate(
       CharacteristicName = trimws(stringr::str_split(
         CharacteristicName,
         "\\*",
-        simplify = T
+        simplify = TRUE
       )[, 1])
     )
 
-  # read in characteristic reference table with deprecation information and filter to deprecated terms.
-  # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
-    dplyr::filter(Char_Flag == "Deprecated") |>
-    rbind(nwis.table)
+  # Build reference table of deprecated names; select only needed columns and de-duplicate
+  ref.table <- char.table |>
+    dplyr::filter(Char_Flag %in% c("Deprecated")) |> # add "Suspect" here if desired
+    dplyr::bind_rows(nwis_table) |>
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name) |>
+    dplyr::distinct(CharacteristicName, .keep_all = TRUE)
 
-  rm(nwis.table)
+  # Left-join on CharacteristicName only; preserve row order
+  .data <- dplyr::left_join(.data, ref.table, by = "CharacteristicName")
 
-  # merge to dataset
-  .data <- merge(.data, ref.table, all.x = TRUE)
-  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  # Substitute deprecated names when Comparable.Name is present and non-empty
   .data$TADA.CharacteristicName <- ifelse(
-    !is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""),
+    !is.na(.data$Char_Flag) &
+      !is.na(.data$Comparable.Name) &
+      nzchar(trimws(.data$Comparable.Name)),
     .data$Comparable.Name,
     .data$TADA.CharacteristicName
   )
 
-  howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
+  # Enforce uppercase for all values in TADA.CharacteristicName
+  .data$TADA.CharacteristicName <- toupper(.data$TADA.CharacteristicName)
 
-  if (howmany > 0) {
-    chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
-    chars <- paste0(chars, collapse = "; ")
-    print(paste0(
-      howmany,
-      " results in your dataset have one of the following deprecated characteristic names: ",
-      chars,
-      ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
-    ))
-  } else {
-    print("No deprecated characteristic names found in dataset.")
+  # Reporting (respect quiet)
+  total_deprecated <- sum(!is.na(.data$Char_Flag))
+  changed_rows <- .data |>
+    dplyr::filter(
+      !is.na(Char_Flag),
+      !is.na(Comparable.Name),
+      nzchar(trimws(Comparable.Name))
+    )
+  changed_n <- nrow(changed_rows)
+
+  if (!quiet) {
+    if (changed_n > 0) {
+      # Unique mapping of original -> substituted (uppercase) names
+      mapping_df <- changed_rows |>
+        dplyr::distinct(CharacteristicName, TADA.CharacteristicName)
+      mapping_pairs <- paste0(
+        mapping_df$CharacteristicName,
+        " -> ",
+        mapping_df$TADA.CharacteristicName
+      )
+      msg <- paste0(
+        changed_n,
+        " results in your dataset had deprecated characteristic names. ",
+        "These were substituted as follows: ",
+        paste(mapping_pairs, collapse = "; "),
+        "."
+      )
+      message(msg)
+    } else if (total_deprecated > 0) {
+      message(
+        "Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank."
+      )
+    } else {
+      message("No deprecated characteristic names found in dataset.")
+    }
   }
 
-  .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
+  # Clean up ref columns
+  .data <- dplyr::select(.data, -Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
@@ -2528,4 +2568,28 @@ TADA_CorrectColType <- function(.data) {
   }
 
   .data
+}
+
+#' .setEQKey
+#' Resolve the rExpertQuery API key, preferring env/options over default
+#' @return Expert Query API key for use in EPATADA functions, checks, or tests.
+.setEQKey <- function() {
+  # check to see if key is stored in R session
+  # this allows developers to easily use their own key during local dev and testing
+  # per session: options(epatada.eq_key = "YOUR_KEY_HERE")
+  # use options(epatada.eq_key = NULL) to remove
+  opt <- getOption("EQ_API_KEY", "")
+  if (nzchar(opt)) {
+    return(opt)
+  }
+
+  # check to see if key is stored in system environment (primarily for use in checks)
+  env <- Sys.getenv("EQ_API_KEY", unset = "")
+  if (nzchar(env)) {
+    return(env)
+  }
+
+  # if neither exist
+  def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  if (nzchar(def)) return(def)
 }

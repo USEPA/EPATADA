@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      EQ_API_KEY: ${{ secrets.EQ_API_KEY }}
 
     steps:
       - name: Checkout repo
@@ -25,7 +26,7 @@ jobs:
 
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
-        
+
       - name: Install EPATADA package
         run: |
           install.packages("remotes")
@@ -38,7 +39,7 @@ jobs:
           library(EPATADA)
           EPATADA:::.TADA_UpdateRefFiles()
         shell: Rscript {0}
- 
+
       - name: Commit updated reference files
         uses: EndBug/add-and-commit@v9
         with:
@@ -46,13 +47,13 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: "Update reference files"
           add: '[./inst/extdata/*]'
-          
+
       - name: Update example data
         run: |
           library(EPATADA)
           EPATADA:::.TADA_UpdateExampleData()
         shell: Rscript {0}
-        
+
       - name: Commit updated example data
         uses: EndBug/add-and-commit@v9
         with:
@@ -60,7 +61,7 @@ jobs:
           author_email: 'github-actions[bot]@users.noreply.github.com'
           message: "Update example data"
           add: '[./data/*]'
-          
+
 #      - uses: pre-commit/action@v3.0.1
 #        with:
 #          extra_args: --files = '[./data/*, ./inst/extdata/*]'

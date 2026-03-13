@@ -18,6 +18,11 @@
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #' When org_id = "all", all assessment unit/monitoring locations matches recorded in
 #' ATTAINS from all organizations will be returned. The default is org_id = "all".
+
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
 #'
 #' @param batch_upload Boolean argument. When batch_upload = TRUE, the final column
 #' names in the output will match those required for batch upload to ATTAINS. When
@@ -58,7 +63,16 @@
 #' AZ_crosswalk <- TADA_GetATTAINSAUMLCrosswalk(org_id = "21ARIZ")
 #' }
 #'
-TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
+TADA_GetATTAINSAUMLCrosswalk <- function(
+  org_id = "all",
+  batch_upload = FALSE,
+  api_key = NULL
+) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
   # get reference df of all organization ids
   org.ref <- TADA_GetATTAINSOrgIDsRef()
 
@@ -83,7 +97,7 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
   } else {
     au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
       org_id = org_id,
-      api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+      api_key = api_key
     ))
   }
 
@@ -211,6 +225,11 @@ TADA_GetATTAINSAUMLCrosswalk <- function(org_id = "all", batch_upload = FALSE) {
 #' org_id = "all", all assessment unit/monitoring locations matches recorded in
 #' ATTAINS from all organizations will be returned. The default is org_id = "all".
 #'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
 #' @param wqp_data_links Character argument. When wqp_data_links is equal to
 #' "add" or "replace", the function will build the URL for the Water Quality
 #' Portal Data Site page for each Monitoring Location Identifier in the data
@@ -334,8 +353,14 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   wqp_data_links = "add",
   update_mlid = TRUE,
   batch_upload = FALSE,
-  check_links = FALSE
+  check_links = FALSE,
+  api_key = NULL
 ) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
   if (is.null(crosswalk) & attains_replace == TRUE) {
     stop(paste0(
       "TADA_UpdateATTAINSAUMLCrosswalk: ",
@@ -404,7 +429,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
 
       wat.types <- au.info <- spsUtil::quiet(rExpertQuery::EQ_AUsMLs(
         org_id = org_id,
-        api_key = "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+        api_key = api_key
       )) |>
         dplyr::select(assessmentUnitId, waterType) |>
         dplyr::rename(
@@ -468,7 +493,7 @@ TADA_UpdateATTAINSAUMLCrosswalk <- function(
   if (
     wqp_data_links == "add" | wqp_data_links == "replace" | update_mlid == TRUE
   ) {
-    provider.ref <- TADA_GetWQPOrgProviderRef() |>
+    provider.ref <- TADA_GetWQPOrganizationRef() |>
       dplyr::select(OrganizationIdentifier, ProviderName) |>
       dplyr::distinct() |>
       dplyr::mutate(OrgIDForURL = OrganizationIdentifier)
@@ -1272,16 +1297,16 @@ TADA_ParametersForAnalysis <- function(
 
     if (tolower(auto_assign) == tolower("All")) {
       print(paste0(
-        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, ",
-        "finding an exact ATTAINS.ParameterName match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
+        "TADA_ParametersForAnalysis: auto_assign == 'All' was selected, \n",
+        "finding an ATTAINS.ParameterName alias match for each TADA.ComparableDataIdentifier - by WQP CharacteristicName, if one is found."
       ))
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param_all$ATTAINS.ParameterName
         )
@@ -1295,7 +1320,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1308,8 +1333,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
-            ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+            ATTAINS.ParameterName == "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1345,13 +1369,13 @@ TADA_ParametersForAnalysis <- function(
         "finding an exact ATTAINS.ParameterName match, by ATTAINS.OrganizationName, for each TADA.ComparableDataIdentifier - by WQP CharacteristicName if one is found."
       ))
 
-      ATTAINSParameterWQPCharRef <- utils::read.csv(system.file(
+      TADACharAliasRef <- utils::read.csv(system.file(
         "extdata",
-        "ATTAINSParamToWQPCharRef.csv",
+        "TADACharAliasRef.csv",
         package = "EPATADA"
       ))
 
-      ATTAINSParameterWQPCharRef <- ATTAINSParameterWQPCharRef |>
+      TADACharAliasRef <- TADACharAliasRef |>
         dplyr::filter(
           ATTAINS.ParameterName %in% ATTAINS_param$ATTAINS.ParameterName
         )
@@ -1365,7 +1389,7 @@ TADA_ParametersForAnalysis <- function(
           ATTAINS.ParameterName # , EPA304A.PollutantName
         ) |>
         dplyr::left_join(
-          ATTAINSParameterWQPCharRef,
+          TADACharAliasRef,
           by = c("TADA.CharacteristicName" = "CharacteristicName"),
           relationship = "many-to-many"
         ) |>
@@ -1378,8 +1402,7 @@ TADA_ParametersForAnalysis <- function(
         dplyr::arrange(ATTAINS.OrganizationIdentifier) |>
         dplyr::mutate(
           ATTAINS.FlagParameterName = dplyr::case_when(
-            ATTAINS.ParameterName ==
-              "No parameter match for TADA.ComparableDataIdentifier" |
+            ATTAINS.ParameterName == "Not Applicable for Analysis." |
               is.na(
                 ATTAINS.ParameterName
               ) ~ "No parameter crosswalk provided for TADA.ComparableDataIdentifier. Parameter will not be used for assessment.",
@@ -1416,7 +1439,7 @@ TADA_ParametersForAnalysis <- function(
             "No crosswalk was provided and no exact matches were found for this organization."
           )
         ) |>
-        dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
+        #dplyr::filter(!is.na(ATTAINS.ParameterName)) |>
         dplyr::distinct()
     }
 
@@ -1712,6 +1735,17 @@ TADA_ParametersForAnalysis <- function(
       rows = 1:nrow(CreateParamRef) + 1,
       type = "notBlanks",
       style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[8])
+    )
+
+    # If a user has chose to Exclude a use name for a parameter, flag as a red cell.
+    openxlsx::conditionalFormatting(
+      wb,
+      "CreateParamRef",
+      cols = 3,
+      rows = 1:nrow(CreateParamRef) + 1,
+      type = "contains",
+      rule = c("Not Applicable for Analysis."),
+      style = openxlsx::createStyle(bgFill = TADA_ColorPalette()[13])
     )
 
     # remove intermediate objects
@@ -2145,10 +2179,7 @@ TADA_UsesForAnalysis <- function(
         ATTAINS.UseName
       ) |>
       # tidyr::drop_na(ATTAINS.ParameterName) |>
-      dplyr::filter(
-        ATTAINS.ParameterName !=
-          "No parameter match for TADA.ComparableDataIdentifier"
-      ) |>
+      dplyr::filter(ATTAINS.ParameterName != "Not Applicable for Analysis.") |>
       dplyr::distinct() |>
       dplyr::mutate(
         IncludeOrExclude = dplyr::if_else(
@@ -2784,6 +2815,11 @@ TADA_UsesForAnalysis <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
 #' @param AU_UsesRef An optional data frame input. If provided, the ATTAINS.UseName
 #' will be populated from the ATTAINS.UseName found in this data frame rather
 #' than the ATTAINS assessment profile. This data frame must contain the following
@@ -2917,8 +2953,14 @@ TADA_AssignUsesToAU <- function(
   AU_UsesRef = NULL,
   waterUseRef = NULL,
   excel = FALSE,
-  overwrite = FALSE
+  overwrite = FALSE,
+  api_key = NULL
 ) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
     missing(.data) && missing(org_id) && missing(excel) && missing(overwrite)
@@ -2952,9 +2994,6 @@ TADA_AssignUsesToAU <- function(
         "You must provide an AUMLRef to run this function."
       ))
     }
-
-    # rExpertQuery API key for TADA
-    tadakey <- "EKtgCrmatyP4G8iFgADMIfwlddbpDlSqRxetlN09"
 
     # Pulls in all domain values of parameter and use names by orgs in ATTAINS. Filtering by state is done in the next steps.
     ATTAINS_param_all <- utils::read.csv(system.file(
@@ -3050,7 +3089,7 @@ TADA_AssignUsesToAU <- function(
 
     OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(
       org_id = org_id,
-      api_key = tadakey
+      api_key = api_key
     ))
 
     OrgID_assessments <- dplyr::filter(
@@ -3313,6 +3352,11 @@ TADA_AssignUsesToAU <- function(
 #' https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
 #' Organization identifiers are listed in the "code" column of the "OrgName" tab.
 #'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
 #' @param waterUseRef An optional data frame input. If provided, this data frame
 #' should contain a completed crosswalk of use names associated with a water type.
 #' Users will need to ensure this crosswalk contains the appropriate column names in
@@ -3338,8 +3382,14 @@ TADA_AssignUsesToWaterType <- function(
   .data,
   org_id = NULL,
   waterUseRef = NULL,
-  AUMLRef = NULL
+  AUMLRef = NULL,
+  api_key = NULL
 ) {
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
   # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
   if (!is.character(org_id) & is.null(org_id)) {
     org_id <- ""
@@ -3403,7 +3453,7 @@ TADA_AssignUsesToWaterType <- function(
 
   OrgID_assessments <- spsUtil::quiet(rExpertQuery::EQ_Assessments(
     org_id = org_id,
-    api_key = tadakey
+    api_key = api_key
   ))
 
   CreateWaterUseRef <- OrgID_assessments[, c(
