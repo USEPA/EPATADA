@@ -27,10 +27,43 @@ knitr::opts_chunk$set(
 )
 ```
 
-#### Load the EPATADA R Package
+## Install and Load the EPATADA R Package
 
-```{r libraries, results = F}
-# Load necessary libraries
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
+
+```{r install_remotes, results = 'hide', eval = F}
+install.packages("remotes")
+# Load the remotes library
+library(remotes)
+```
+
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
+
+```{r install_TADA, eval = F, results = 'hide'}
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+```{r install_TADA_devonly, eval = T, include = F}
+remotes::install_github("USEPA/EPATADA",
+  ref = "review-internal-refs",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+```{r library, results = 'hide'}
 library(EPATADA)
 ```
 
@@ -118,6 +151,8 @@ volunteer_data <- EPATADA::TADA_DataRetrieval(
 ```
 
 ```{r use_example_data, eval = T}
+utils::data("Data_Participatory_Scientists", package = "EPATADA")
+
 volunteer_data <- Data_Participatory_Scientists
 ```
 
@@ -258,7 +293,7 @@ Filter to a single site and continue exploring E. coli:
 ecoli <- dplyr::filter(
   ecoli,
   TADA.MonitoringLocationIdentifier %in% c(
-    "CONNRIVERCONSERVANCY-OXE1"
+    "CONNRIVERCONSERVANCY-WILLIAMS_.92"
   )
 )
 ```
