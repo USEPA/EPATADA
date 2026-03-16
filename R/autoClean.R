@@ -373,8 +373,8 @@ TADA_AutoClean <- function(.data) {
 #' TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 #'
 #' @param .data A TADA dataframe.
-#' @param clean Boolean. Determines whether to keep the suspect rows (or not).
-#' Defaults to `FALSE`.
+#' @param clean Boolean. Must be TRUE or FALSE. Determines whether to keep the
+#' suspect rows (or not). Defaults to FALSE.
 #'
 #' @return A TADA dataframe with the following flagging columns:
 #' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag,
@@ -386,19 +386,24 @@ TADA_AutoClean <- function(.data) {
 #' # Run flagging functions but keep all results
 #' keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
 #'
-#' # Run flagging functions and remove and suspect rows
+#' # Run flagging functions and remove any suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
   TADA_CheckType(.data, "data.frame", "Input object")
-
+  
   # Check if the input .data is NULL
   if (is.null(.data)) {
     warning("The entered data frame is empty. The function will not run.")
     return(NULL) # Exit the function early
   }
-
-  if (clean == TRUE) {
+  
+  # Validate 'clean' is a single logical (TRUE or FALSE)
+  if (!(is.logical(clean) && length(clean) == 1 && !is.na(clean))) {
+    stop("Argument 'clean' must be a single logical value: TRUE or FALSE.")
+  }
+  
+  if (isTRUE(clean)) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)
     .data <- TADA_FlagSpeciation(.data, clean = "suspect_only")
@@ -411,6 +416,6 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
     .data <- TADA_FindQCActivities(.data, clean = FALSE)
     .data <- TADA_FlagMeasureQualifierCode(.data, clean = FALSE)
   }
-
+  
   return(.data)
 }
