@@ -781,11 +781,12 @@ TADA_Scatterplot <- function(
 #' )
 #'
 #' # Load example dataset:
-#' utils::data(Data_6Tribes_5y_Harmonized)
+#' utils::data(Data_6Tribes_5y_Harmonized$TADA.ComparableDataIdentifier)
+#' unique(Data_6Tribes_5y_Harmonized$TADA.ComparableDataIdentifier)
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
-#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
+#'   groups = c("TEMPERATURE, SAMPLE_NA_NA_DEG C", "PH_NA_NA_NONE")
 #' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(

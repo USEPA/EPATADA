@@ -122,7 +122,7 @@
         ask = FALSE
       )
       message("Data_Nutrients_UT")
-      message(dim(Data_Nutrients_UT))
+      dim(Data_Nutrients_UT)
       usethis::use_data(
         Data_Nutrients_UT,
         internal = FALSE,
@@ -150,7 +150,7 @@
         ask = FALSE
       )
       message("Data_6Tribes_5y")
-      message(dim(Data_6Tribes_5y))
+      dim(Data_6Tribes_5y)
       usethis::use_data(
         Data_6Tribes_5y,
         internal = FALSE,
@@ -193,7 +193,7 @@
 
       Data_6Tribes_5y_Harmonized <- TADA_HarmonizeSynonyms(harmonized_data)
       message("Data_6Tribes_5y_Harmonized")
-      message(dim(Data_6Tribes_5y_Harmonized))
+      dim(Data_6Tribes_5y_Harmonized)
       usethis::use_data(
         Data_6Tribes_5y_Harmonized,
         internal = FALSE,
@@ -214,7 +214,7 @@
         ask = FALSE
       )
       message("Data_R5_TADAPackageDemo")
-      message(dim(Data_R5_TADAPackageDemo))
+      dim(Data_R5_TADAPackageDemo)
       usethis::use_data(
         Data_R5_TADAPackageDemo,
         internal = FALSE,
@@ -283,7 +283,7 @@
       # Save example data
       Data_HUC8_02070004_Mod1Output <- Data_WV
       message("Data_HUC8_02070004_Mod1Output")
-      message(dim(Data_HUC8_02070004_Mod1Output))
+      dim(Data_HUC8_02070004_Mod1Output)
       usethis::use_data(
         Data_HUC8_02070004_Mod1Output,
         internal = FALSE,
@@ -310,7 +310,7 @@
         TADA_HarmonizeSynonyms()
 
       message("Data_MT_MissoulaCounty")
-      message(dim(Data_MT_MissoulaCounty))
+      dim(Data_MT_MissoulaCounty)
       usethis::use_data(
         Data_MT_MissoulaCounty,
         internal = FALSE,
@@ -370,7 +370,7 @@
       Data_MT_AUMLRef <- MT_AUMLRef
 
       message("Data_MT_AUMLRef")
-      message(dim(Data_MT_AUMLRef))
+      dim(Data_MT_AUMLRef)
       usethis::use_data(
         Data_MT_AUMLRef,
         internal = FALSE,
@@ -389,7 +389,7 @@
       )
 
       message("Data_MT_AU_UsesRef")
-      message(dim(Data_MT_AU_UsesRef))
+      dim(Data_MT_AU_UsesRef)
       usethis::use_data(
         Data_MT_AU_UsesRef,
         internal = FALSE,
@@ -409,7 +409,7 @@
       )
 
       message("Data_MT_AU_UsesRef_Water")
-      message(dim(Data_MT_AU_UsesRef_Water))
+      dim(Data_MT_AU_UsesRef_Water)
 
       usethis::use_data(
         Data_MT_AU_UsesRef_Water,
@@ -443,7 +443,7 @@
       )
 
       message("Data_Participatory_Scientists")
-      message(dim(Data_Participatory_Scientists))
+      dim(Data_Participatory_Scientists)
 
       usethis::use_data(
         Data_Participatory_Scientists,
