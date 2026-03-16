@@ -108,7 +108,8 @@ Suggests:
     here,
     Polychrome,
     httr2 (>= 1.2.1),
-    roxygen2
+    roxygen2,
+    withr
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown

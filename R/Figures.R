@@ -1149,8 +1149,8 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 #' # create scatterplots for selected counties
 #' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-#'   df2,
-#'   group_col = "CountyCode", groups = c("057", "011", "003", "037")
+#'   Data_Nutrients_UT,
+#'   group_col = "CountyCode", groups = c("57", "11", "3", "37")
 #' )
 #' # view the 3rd and 4th plots
 #' UT_Nutrients_by_CountyCode[[3]]
