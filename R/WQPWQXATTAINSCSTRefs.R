@@ -1691,7 +1691,7 @@ TADA_GetWQPOrganizationRef <- function(download_only = FALSE, refresh = FALSE) {
     "PAM",
     "REC",
     "STE",
-    "T5", 
+    "T5",
     "V1"
   )
   pass <- c(
