@@ -59,8 +59,8 @@
 #' When aggregatedonly = TRUE, only aggregate values are returned.
 #'
 #' @param clean Boolean argument with options TRUE or FALSE. The
-#' default is clean = "FALSE" which means that all results are returned.
-#' When clean = "TRUE", only aggregate results which can be assigned to a depth
+#' default is clean = FALSE which means that all results are returned.
+#' When clean = TRUE, only aggregate results which can be assigned to a depth
 #' category are included in the returned dataframe.
 #'
 #' @param .data TADA dataframe
