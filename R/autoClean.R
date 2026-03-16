@@ -308,6 +308,13 @@ TADA_AutoClean <- function(.data) {
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
+  # CountyCode should either be NA or 3 digits
+  x <- as.character(.data$CountyCode)
+  i <- !is.na(x)
+  x[i] <- sprintf("%03d", as.integer(x[i]))
+  .data$CountyCode <- x
+  rm(x, i)
+
   # Automatically convert USGS only unit "meters" to "m"
   print(
     "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
