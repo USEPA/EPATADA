@@ -2918,20 +2918,16 @@ TADA_AssignUsesToAU <- function(
 
   # ensure correct column types for any user supplied dfs
   if (exists(".data")) {
-
     .data <- TADA_CorrectColType(.data)
   }
 
   if (exists("AU_UsesRef")) {
-
     AU_UsesRef <- TADA_CorrectColType(AU_UsesRef)
   }
 
   if (exists("waterUseRef")) {
-
     waterUseRef <- TADA_CorrectColType(waterUseRef)
   }
-
 
   # Return an empty dataframe with column names only if a user does not define any arg inputs.
   if (
