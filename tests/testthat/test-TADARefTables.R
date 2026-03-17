@@ -4,7 +4,7 @@ test_that("No combos were missed in NP key from harmonization table", {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
-  
+
   normalize <- function(df) {
     df |>
       dplyr::mutate(dplyr::across(
@@ -18,7 +18,7 @@ test_that("No combos were missed in NP key from harmonization table", {
         }
       ))
   }
-  
+
   # Fraction equivalence for matching: NA <-> UNFILTERED
   expand_fraction <- function(df) {
     out <- df
@@ -39,7 +39,7 @@ test_that("No combos were missed in NP key from harmonization table", {
     }
     dplyr::distinct(out)
   }
-  
+
   # Speciation equivalence for matching: NA <-> AS N/P
   expand_spec <- function(df) {
     out <- df
@@ -55,13 +55,15 @@ test_that("No combos were missed in NP key from harmonization table", {
     }
     add_as <- df[is.na(df$TADA.MethodSpeciationName), , drop = FALSE]
     if (nrow(add_as) > 0) {
-      add_asN <- add_as; add_asN$TADA.MethodSpeciationName <- "AS N"
-      add_asP <- add_as; add_asP$TADA.MethodSpeciationName <- "AS P"
+      add_asN <- add_as
+      add_asN$TADA.MethodSpeciationName <- "AS N"
+      add_asP <- add_as
+      add_asP$TADA.MethodSpeciationName <- "AS P"
       out <- dplyr::bind_rows(out, add_asN, add_asP)
     }
     dplyr::distinct(out)
   }
-  
+
   # Prepare NP keys (normalized + expansions)
   np <- TADA_GetNutrientSummationRef() |>
     dplyr::select(dplyr::all_of(keys)) |>
@@ -69,27 +71,28 @@ test_that("No combos were missed in NP key from harmonization table", {
     normalize() |>
     expand_fraction() |>
     expand_spec()
-  
+
   # Prepare harmonization keys (normalized); limit to characteristics appearing in NP
   harm <- TADA_GetSynonymRef() |>
     dplyr::select(dplyr::all_of(keys)) |>
     dplyr::distinct() |>
     normalize() |>
     dplyr::filter(
-      rlang::.data$TADA.CharacteristicName %in% unique(np$TADA.CharacteristicName)
+      rlang::.data$TADA.CharacteristicName %in%
+        unique(np$TADA.CharacteristicName)
     )
-  
+
   # Orphans: harmonization keys that aren’t covered by (expanded) NP keys
   orphs <- dplyr::anti_join(harm, np, by = keys, na_matches = "na") |>
     dplyr::distinct()
-  
+
   if (nrow(orphs) > 0) {
     message(
       "Missing NP combos (after NA/UNFILTERED and NA/AS N/P equivalences):"
     )
     print(orphs)
   }
-  
+
   expect_equal(nrow(orphs), 0)
 })
 
@@ -99,7 +102,7 @@ test_that("np summation keys are a subset of nitrogen/phosphorus harmonization k
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
-  
+
   normalize <- function(df) {
     df |>
       dplyr::mutate(dplyr::across(
@@ -113,18 +116,18 @@ test_that("np summation keys are a subset of nitrogen/phosphorus harmonization k
         }
       ))
   }
-  
+
   harm <- TADA_GetSynonymRef() |>
     dplyr::filter(HarmonizationGroup %in% c("Phosphorus", "Nitrogen")) |>
     dplyr::select(dplyr::all_of(keys)) |>
     dplyr::distinct() |>
     normalize()
-  
+
   np <- TADA_GetNutrientSummationRef() |>
     dplyr::select(dplyr::all_of(keys)) |>
     dplyr::distinct() |>
     normalize()
-  
+
   missing_in_harm <- dplyr::anti_join(np, harm, by = keys, na_matches = "na")
   expect_equal(
     nrow(missing_in_harm),
@@ -145,7 +148,7 @@ test_that("TADA_GetSynonymRef warns when QC flags are missing and preserves temp
   )
   tmpl <- TADA_GetSynonymRef(NULL)
   expect_true(is.data.frame(tmpl))
-  
+
   expect_warning(
     out <- TADA_GetSynonymRef(df_in),
     "missing TADA QC flagging columns",
@@ -166,29 +169,33 @@ test_that("TADA_GetNutrientSummationRef normalizes keys: no empty strings; 'NONE
     skip_if_not(k %in% names(ref), paste("Missing key column:", k))
     expect_false(any(ref[[k]] %in% "", na.rm = TRUE))
   }
-  none_present <- any(toupper(stats::na.omit(ref$TADA.MethodSpeciationName)) == "NONE")
+  none_present <- any(
+    toupper(stats::na.omit(ref$TADA.MethodSpeciationName)) == "NONE"
+  )
   expect_false(none_present)
 })
 
 test_that("Is the saved TADACharAliasRef.csv up to date?", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
-  ATTAINS.raw <- suppressWarnings(suppressMessages(
-    rExpertQuery::EQ_DomainValues("param_name")
-  ))
+
+  ATTAINS.raw <- suppressWarnings(suppressMessages(rExpertQuery::EQ_DomainValues(
+    "param_name"
+  )))
   ref <- unique(ATTAINS.raw[, "name"])
-  old <- utils::read.csv(system.file(
-    "extdata",
-    "TADACharAliasRef.csv",
-    package = "EPATADA"
-  ), stringsAsFactors = FALSE)[, "ATTAINS.ParameterName"]
+  old <- utils::read.csv(
+    system.file("extdata", "TADACharAliasRef.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE
+  )[, "ATTAINS.ParameterName"]
   # All current ATTAINS param names should be present in saved CSV
   missing <- setdiff(ref, old)
   expect_equal(
-    length(missing), 0L,
-    info = paste("New ATTAINS parameters not in TADACharAliasRef.csv:\n",
-                 paste(missing, collapse = "\n"))
+    length(missing),
+    0L,
+    info = paste(
+      "New ATTAINS parameters not in TADACharAliasRef.csv:\n",
+      paste(missing, collapse = "\n")
+    )
   )
 })
 
@@ -199,10 +206,10 @@ test_that("Is the saved TADACharAliasRef.csv up to date?", {
 test_that("TADA_GetTADACharAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
+
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
-  
+
   ref1 <- TADA_GetTADACharAliasRef(
     ATTAINS.CST.tolerance = 1.0,
     CST.ATTAINS.tolerance = 1.0,
@@ -214,7 +221,7 @@ test_that("TADA_GetTADACharAliasRef caches by tolerance", {
   keys_after1 <- TADA_ListCacheKeys()
   new_keys1 <- setdiff(keys_after1, keys_before)
   expect_true(any(grepl("^TADACharAliasRef\\|", new_keys1)))
-  
+
   ref2 <- TADA_GetTADACharAliasRef(
     ATTAINS.CST.tolerance = 1.0,
     CST.ATTAINS.tolerance = 1.0,
@@ -224,7 +231,7 @@ test_that("TADA_GetTADACharAliasRef caches by tolerance", {
     WQX.CST.tolerance = 1.0
   )
   expect_identical(ref1, ref2)
-  
+
   ref3 <- TADA_GetTADACharAliasRef(
     ATTAINS.CST.tolerance = 0.9,
     CST.ATTAINS.tolerance = 0.9,
@@ -242,33 +249,37 @@ test_that("TADA_GetTADACharAliasRef caches by tolerance", {
 test_that("set.all.tolerance propagates to all tolerance notes", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
+
   ref <- TADA_GetTADACharAliasRef(set.all.tolerance = 0.5)
   expect_true(is.data.frame(ref))
   expect_true("Status.Notes" %in% names(ref))
-  
+
   notes <- stats::na.omit(ref$Status.Notes)
   skip_if(length(notes) == 0, "No Status.Notes present to validate.")
-  has_all <- vapply(notes, function(s) {
-    all(c(
-      grepl("WQX\\.ATTAINS = 0\\.5", s),
-      grepl("ATTAINS\\.WQX = 0\\.5", s),
-      grepl("CST\\.WQX = 0\\.5", s),
-      grepl("WQX\\.CST = 0\\.5", s),
-      grepl("ATTAINS\\.CST = 0\\.5", s),
-      grepl("CST\\.ATTAINS = 0\\.5", s)
-    ))
-  }, logical(1))
+  has_all <- vapply(
+    notes,
+    function(s) {
+      all(c(
+        grepl("WQX\\.ATTAINS = 0\\.5", s),
+        grepl("ATTAINS\\.WQX = 0\\.5", s),
+        grepl("CST\\.WQX = 0\\.5", s),
+        grepl("WQX\\.CST = 0\\.5", s),
+        grepl("ATTAINS\\.CST = 0\\.5", s),
+        grepl("CST\\.ATTAINS = 0\\.5", s)
+      ))
+    },
+    logical(1)
+  )
   expect_true(any(has_all))
 })
 
 test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
+
   TADA_ClearCache()
   keys_before <- TADA_ListCacheKeys()
-  
+
   x1 <- TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = 0.15,
     CST.ATTAINS.tolerance = 0.15
@@ -276,13 +287,13 @@ test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
   keys_after1 <- TADA_ListCacheKeys()
   new_keys1 <- setdiff(keys_after1, keys_before)
   expect_true(any(grepl("^TADAUsesAliasRef\\|", new_keys1)))
-  
+
   x2 <- TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = 0.15,
     CST.ATTAINS.tolerance = 0.15
   )
   expect_identical(x1, x2)
-  
+
   invisible(TADA_GetTADAUsesAliasRef(
     ATTAINS.CST.tolerance = 0.5,
     CST.ATTAINS.tolerance = 0.5
@@ -295,7 +306,7 @@ test_that("TADA_GetTADAUsesAliasRef caches by tolerance", {
 test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
+
   TADA_ClearCache()
   expect_message(
     try(
@@ -317,7 +328,7 @@ test_that("TADA_GetTADACharAliasRef emits reviewed-rows or empty-review message"
 test_that("TADA_GetTADAUsesAliasRef emits reviewed-rows or empty-review message", {
   skip_on_cran()
   skip_if_not_installed("rExpertQuery")
-  
+
   TADA_ClearCache()
   expect_message(
     try(
@@ -402,10 +413,10 @@ test_that("TADA_GetTADAUsesAliasRef errors when tolerance exceeds 1.0", {
 })
 
 test_that("TADA_ClearCache empties cache", {
-  invisible(TADA_GetCharacteristicRef())  # populate some key
+  invisible(TADA_GetCharacteristicRef()) # populate some key
   keys1 <- TADA_ListCacheKeys()
   expect_true(length(keys1) >= 1)
-  
+
   TADA_ClearCache()
   keys2 <- TADA_ListCacheKeys()
   expect_identical(length(keys2), 0L)

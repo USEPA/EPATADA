@@ -189,11 +189,11 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     ),
     names(.data)
   )
-  
+
   if (length(flag_cols) > 0) {
     # Use a local alias to avoid ambiguity with the rlang .data pronoun
     df <- .data
-    
+
     check_inv <- df |>
       dplyr::select(dplyr::all_of(flag_cols)) |>
       tidyr::pivot_longer(
@@ -202,12 +202,12 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         values_to = "Flag_Value"
       ) |>
       dplyr::filter(.data$Flag_Value == "Suspect")
-    
+
     if (nrow(check_inv) > 0) {
       summary_inv <- check_inv |>
         dplyr::group_by(.data$Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
-      
+
       message(
         "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
       )
@@ -1019,13 +1019,17 @@ TADA_GetTADAUsesAliasRef <- function(
       comment.char = ""
     )
     reviewed_n <- if ("review" %in% names(current_TADAUsesAlias)) {
-      sum(current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED"), na.rm = TRUE)
+      sum(
+        current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED"),
+        na.rm = TRUE
+      )
     } else {
       0L
     }
     message(paste(
       "The current 'TADAUsesAliasRef.csv' file in EPATADA inst/extdata contains",
-      reviewed_n, "rows already reviewed (review == APPROVED/REJECTED).",
+      reviewed_n,
+      "rows already reviewed (review == APPROVED/REJECTED).",
       "Reviewed rows will be kept; newly discovered potential aliases will be appended."
     ))
   }

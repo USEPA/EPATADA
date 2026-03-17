@@ -1078,13 +1078,13 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # handle empty input
   if (nrow(.data) == 0) {
     .data$TADA.ComparableDataIdentifier <- character(0)
     return(.data)
   }
-  
+
   # helper: normalize to "NONE" for fraction/speciation/unit
   to_NONE <- function(x) {
     y <- trimws(as.character(x))
@@ -1097,12 +1097,16 @@ TADA_CreateComparableID <- function(.data) {
     y[is.na(y) | y == ""] <- "NA"
     y
   }
-  
+
   # harmonize the three metadata fields in-place
-  .data$TADA.ResultSampleFractionText <- to_NONE(.data$TADA.ResultSampleFractionText)
-  .data$TADA.MethodSpeciationName     <- to_NONE(.data$TADA.MethodSpeciationName)
-  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(.data$TADA.ResultMeasure.MeasureUnitCode)
-  
+  .data$TADA.ResultSampleFractionText <- to_NONE(
+    .data$TADA.ResultSampleFractionText
+  )
+  .data$TADA.MethodSpeciationName <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+
   # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
     to_NA(.data$TADA.CharacteristicName),
@@ -1111,7 +1115,7 @@ TADA_CreateComparableID <- function(.data) {
     .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-  
+
   .data
 }
 
