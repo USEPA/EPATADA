@@ -65,42 +65,56 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
     "TADA.ResultMeasureValue"
   )
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # Empty input: keep pipeline continuity
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. Returning input unchanged.")
     return(.data)
   }
-  
+
   # Ensure numeric result value
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
-    stop("TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding.")
+    stop(
+      "TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding."
+    )
   }
-  
+
   # Helpers
-  key_cols <- c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")
-  target_cols <- c("Target.TADA.CharacteristicName", "Target.TADA.ResultSampleFractionText", "Target.TADA.MethodSpeciationName")
-  
+  key_cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )
+  target_cols <- c(
+    "Target.TADA.CharacteristicName",
+    "Target.TADA.ResultSampleFractionText",
+    "Target.TADA.MethodSpeciationName"
+  )
+
   normalize_keys <- function(x) {
     if (is.character(x)) {
       y <- trimws(x)
       y[y == ""] <- NA_character_
       y[toupper(y) == "NONE"] <- NA_character_
       y
-    } else x
+    } else {
+      x
+    }
   }
   to_na_trim <- function(x) {
     if (is.character(x)) {
       y <- trimws(x)
       y[y == ""] <- NA_character_
       y
-    } else x
+    } else {
+      x
+    }
   }
-  
+
   # Normalize .data keys (trim, convert "" and "NONE" -> NA)
   .data <- .data |>
     dplyr::mutate(dplyr::across(dplyr::all_of(key_cols), normalize_keys))
-  
+
   # Build harm.ref (either from user-supplied ref or default template)
   if (!is.null(ref)) {
     required_ref_cols <- c(
@@ -113,7 +127,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       "Target.TADA.SpeciationConversionFactor"
     )
     TADA_CheckColumns(ref, required_ref_cols)
-    
+
     # Add optional columns if missing
     add_ref_cols <- c(
       "TADA.CharacteristicNameAssumptions",
@@ -124,7 +138,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
     for (col in setdiff(add_ref_cols, names(ref))) {
       ref[[col]] <- NA_character_
     }
-    
+
     harm.ref <- ref
   } else {
     harm.ref <- TADA_GetSynonymRef(.data)
@@ -139,29 +153,31 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       harm.ref[[col]] <- NA_character_
     }
   }
-  
+
   # Normalize ref keys and targets (trim, "" -> NA; treat "NONE" -> NA for keys)
   harm.ref <- harm.ref |>
     dplyr::mutate(
       dplyr::across(dplyr::any_of(key_cols), normalize_keys),
       dplyr::across(dplyr::any_of(target_cols), to_na_trim)
     )
-  
+
   # Conversion factor numeric (protect against character input)
   if ("Target.TADA.SpeciationConversionFactor" %in% names(harm.ref)) {
-    harm.ref$Target.TADA.SpeciationConversionFactor <- suppressWarnings(
-      as.numeric(harm.ref$Target.TADA.SpeciationConversionFactor)
-    )
+    harm.ref$Target.TADA.SpeciationConversionFactor <- suppressWarnings(as.numeric(
+      harm.ref$Target.TADA.SpeciationConversionFactor
+    ))
   }
-  
+
   # Warn if duplicate key rows exist (could create many-to-many join duplicates)
   dups <- harm.ref |>
     dplyr::count(dplyr::across(dplyr::all_of(key_cols))) |>
     dplyr::filter(.data$n > 1)
   if (nrow(dups) > 0) {
-    warning("Reference table contains duplicate key combinations. Results may be duplicated.")
+    warning(
+      "Reference table contains duplicate key combinations. Results may be duplicated."
+    )
   }
-  
+
   # NEW: warn if same key maps to multiple distinct target sets
   if (all(target_cols %in% names(harm.ref))) {
     tgt_sets <- harm.ref |>
@@ -177,16 +193,18 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       ) |>
       dplyr::filter(.data$n_target_sets > 1)
     if (nrow(tgt_sets) > 0) {
-      warning("Reference table contains keys with conflicting target assignments. Review your synonym reference.")
+      warning(
+        "Reference table contains keys with conflicting target assignments. Review your synonym reference."
+      )
     }
   }
-  
+
   # Deduplicate ref
   harm.ref <- harm.ref |> dplyr::distinct()
-  
+
   # Drop old comparable ID (will be recreated later)
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
-  
+
   # Join harm.ref to .data (NA-aware join supported in dplyr >= 1.1.0)
   flag.data <- .data |>
     dplyr::left_join(
@@ -198,7 +216,7 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       ),
       na_matches = "na"
     )
-  
+
   # Update TADA.CharacteristicName to target when present
   clean.data <- flag.data |>
     dplyr::mutate(
@@ -207,53 +225,65 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
         TRUE ~ TADA.CharacteristicName
       )
     )
-  
+
   # Update TADA.ResultSampleFractionText to target when present
   clean.data <- clean.data |>
     dplyr::mutate(
       TADA.ResultSampleFractionText = dplyr::case_when(
-        !is.na(Target.TADA.ResultSampleFractionText) ~ Target.TADA.ResultSampleFractionText,
+        !is.na(
+          Target.TADA.ResultSampleFractionText
+        ) ~ Target.TADA.ResultSampleFractionText,
         TRUE ~ TADA.ResultSampleFractionText
       )
     )
-  
+
   # Restrict DO special-case to exact group "DISSOLVED OXYGEN (DO)" when available
   is_DO <- if ("HarmonizationGroup" %in% names(clean.data)) {
     !is.na(clean.data$HarmonizationGroup) &
       toupper(trimws(clean.data$HarmonizationGroup)) == "DISSOLVED OXYGEN (DO)"
   } else {
-    grepl("dissolved\\s*oxygen|\\bDO\\b", clean.data$TADA.CharacteristicName, ignore.case = TRUE)
+    grepl(
+      "dissolved\\s*oxygen|\\bDO\\b",
+      clean.data$TADA.CharacteristicName,
+      ignore.case = TRUE
+    )
   }
   clean.data$TADA.MethodSpeciationName <- ifelse(
     is_DO &
       !is.na(clean.data$TADA.MethodSpeciationName) &
       is.na(clean.data$Target.TADA.MethodSpeciationName) &
       !is.na(clean.data$TADA.SpeciationAssumptions),
-    clean.data$Target.TADA.MethodSpeciationName,  # typically NA
+    clean.data$Target.TADA.MethodSpeciationName, # typically NA
     clean.data$TADA.MethodSpeciationName
   )
-  
+
   # NEW: compute whether speciation actually changes (to guard conversion)
   clean.data <- clean.data |>
     dplyr::mutate(
-      .spec_changed = (is.na(TADA.MethodSpeciationName) & !is.na(Target.TADA.MethodSpeciationName)) |
-        (!is.na(TADA.MethodSpeciationName) & is.na(Target.TADA.MethodSpeciationName)) |
-        (!is.na(TADA.MethodSpeciationName) & !is.na(Target.TADA.MethodSpeciationName) &
-           TADA.MethodSpeciationName != Target.TADA.MethodSpeciationName)
+      .spec_changed = (is.na(TADA.MethodSpeciationName) &
+        !is.na(Target.TADA.MethodSpeciationName)) |
+        (!is.na(TADA.MethodSpeciationName) &
+          is.na(Target.TADA.MethodSpeciationName)) |
+        (!is.na(TADA.MethodSpeciationName) &
+          !is.na(Target.TADA.MethodSpeciationName) &
+          TADA.MethodSpeciationName != Target.TADA.MethodSpeciationName)
     )
-  
+
   # Update speciation and convert measure values if requested
   if (isTRUE(np_speciation)) {
     clean.data <- clean.data |>
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
-          !is.na(Target.TADA.MethodSpeciationName) ~ Target.TADA.MethodSpeciationName,
+          !is.na(
+            Target.TADA.MethodSpeciationName
+          ) ~ Target.TADA.MethodSpeciationName,
           TRUE ~ TADA.MethodSpeciationName
         ),
         # Apply conversion only if a factor is provided AND speciation actually changes
         TADA.ResultMeasureValue = dplyr::case_when(
-          !is.na(Target.TADA.SpeciationConversionFactor) & .spec_changed ~
-            Target.TADA.SpeciationConversionFactor * TADA.ResultMeasureValue,
+          !is.na(Target.TADA.SpeciationConversionFactor) &
+            .spec_changed ~ Target.TADA.SpeciationConversionFactor *
+            TADA.ResultMeasureValue,
           TRUE ~ TADA.ResultMeasureValue
         )
       )
@@ -262,12 +292,14 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
           !is.na(Target.TADA.MethodSpeciationName) &
-            is.na(Target.TADA.SpeciationConversionFactor) ~ Target.TADA.MethodSpeciationName,
+            is.na(
+              Target.TADA.SpeciationConversionFactor
+            ) ~ Target.TADA.MethodSpeciationName,
           TRUE ~ TADA.MethodSpeciationName
         )
       )
   }
-  
+
   # Compute harmonization flag from actual changes (including numeric conversions)
   diff_chr <- function(old, new) {
     (is.na(old) & !is.na(new)) |
@@ -279,23 +311,37 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
       (!is.na(old) & is.na(new)) |
       (!is.na(old) & !is.na(new) & abs(new - old) > tol)
   }
-  clean.data$TADA.Harmonized.Flag <-
-    diff_chr(flag.data$TADA.CharacteristicName,       clean.data$TADA.CharacteristicName) |
-    diff_chr(flag.data$TADA.ResultSampleFractionText, clean.data$TADA.ResultSampleFractionText) |
-    diff_chr(flag.data$TADA.MethodSpeciationName,     clean.data$TADA.MethodSpeciationName) |
-    diff_num(flag.data$TADA.ResultMeasureValue,       clean.data$TADA.ResultMeasureValue, tol = 0)
-  
+  clean.data$TADA.Harmonized.Flag <- diff_chr(
+    flag.data$TADA.CharacteristicName,
+    clean.data$TADA.CharacteristicName
+  ) |
+    diff_chr(
+      flag.data$TADA.ResultSampleFractionText,
+      clean.data$TADA.ResultSampleFractionText
+    ) |
+    diff_chr(
+      flag.data$TADA.MethodSpeciationName,
+      clean.data$TADA.MethodSpeciationName
+    ) |
+    diff_num(
+      flag.data$TADA.ResultMeasureValue,
+      clean.data$TADA.ResultMeasureValue,
+      tol = 0
+    )
+
   # Drop conversion/reference-only columns (use any_of for resilience)
   clean.data <- clean.data |>
-    dplyr::select(-dplyr::any_of(c(
-      "Target.TADA.CharacteristicName",
-      "Target.TADA.ResultSampleFractionText",
-      "Target.TADA.MethodSpeciationName",
-      "Target.TADA.SpeciationConversionFactor",
-      "HarmonizationGroup",
-      ".spec_changed"   # NEW: drop helper column
-    )))
-  
+    dplyr::select(
+      -dplyr::any_of(c(
+        "Target.TADA.CharacteristicName",
+        "Target.TADA.ResultSampleFractionText",
+        "Target.TADA.MethodSpeciationName",
+        "Target.TADA.SpeciationConversionFactor",
+        "HarmonizationGroup",
+        ".spec_changed" # NEW: drop helper column
+      ))
+    )
+
   # Finalize
   clean.data <- TADA_CreateComparableID(clean.data)
   clean.data <- TADA_OrderCols(clean.data)

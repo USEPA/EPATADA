@@ -44,7 +44,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
-  
+
   # Helpers for normalization
   normalize_keys <- function(df, cols) {
     df |>
@@ -73,12 +73,12 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         }
       ))
   }
-  
+
   # NA-safe left join (requires dplyr >= 1.1.0)
   left_join_na <- function(x, y, by) {
     dplyr::left_join(x, y, by = by, na_matches = "na")
   }
-  
+
   # Load and normalize the harmonization template
   harm.raw <- utils::read.csv(
     system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
@@ -90,29 +90,38 @@ TADA_GetSynonymRef <- function(.data = NULL) {
   harm.raw <- normalize_keys(harm.raw, expected_cols)
   harm.raw <- trim_to_na(harm.raw, names(harm.raw))
   harm.raw <- dplyr::distinct(harm.raw)
-  
+
   # If no data supplied, return the normalized internal template
   if (is.null(.data)) {
     return(harm.raw)
   }
-  
+
   # Check input columns
   TADA_CheckColumns(.data, expected_cols)
-  
+
   # Warnings about QC flag columns
-  if (!any(c("TADA.MethodSpeciation.Flag",
-             "TADA.SampleFraction.Flag",
-             "TADA.ResultUnit.Flag") %in% names(.data))) {
+  if (
+    !any(
+      c(
+        "TADA.MethodSpeciation.Flag",
+        "TADA.SampleFraction.Flag",
+        "TADA.ResultUnit.Flag"
+      ) %in%
+        names(.data)
+    )
+  ) {
     warning(
       "This dataframe is missing TADA QC flagging columns. ",
       "Run TADA_FlagResultUnit, TADA_FlagFraction, and TADA_FlagSpeciation and remove Suspect combinations before this step."
     )
   }
-  
+
   flag_cols <- intersect(
-    c("TADA.MethodSpeciation.Flag",
+    c(
+      "TADA.MethodSpeciation.Flag",
       "TADA.SampleFraction.Flag",
-      "TADA.ResultUnit.Flag"),
+      "TADA.ResultUnit.Flag"
+    ),
     names(.data)
   )
   if (length(flag_cols) > 0) {
@@ -122,7 +131,7 @@ TADA_GetSynonymRef <- function(.data = NULL) {
         names_to = "Flag_Column"
       ) |>
       dplyr::filter(.data$value == "Suspect")
-    
+
     if (nrow(check_inv) > 0) {
       summary_inv <- check_inv |>
         dplyr::group_by(.data$Flag_Column) |>
@@ -133,23 +142,19 @@ TADA_GetSynonymRef <- function(.data = NULL) {
       print(as.data.frame(summary_inv))
     }
   }
-  
+
   # Unique combinations from the data, normalized like the template
   combos <- .data[, expected_cols, drop = FALSE]
   combos <- dplyr::distinct(combos)
   combos <- normalize_keys(combos, expected_cols)
-  
+
   # NA-aware join to pull target columns
-  join.data <- left_join_na(
-    combos,
-    harm.raw,
-    by = expected_cols
-  )
-  
+  join.data <- left_join_na(combos, harm.raw, by = expected_cols)
+
   # Return unique rows aligned to template columns
   unique.data <- dplyr::distinct(join.data)
   unique.data <- unique.data[, names(harm.raw), drop = FALSE]
-  
+
   unique.data
 }
 
