@@ -19,7 +19,7 @@ TADA_GetNutrientSummationRef <- function() {
   ref
 }
 
-#' Generate Unique Synonym Reference Table
+#' Get Unique Synonym Reference Table
 #'
 #' Function generates a synonym reference table containing all unique combinations of
 #' TADA.CharacteristicName, TADA.ResultSampleFractionText, and TADA.MethodSpeciationName. The
@@ -37,65 +37,82 @@ TADA_GetNutrientSummationRef <- function() {
 #' @param .data TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.
 #'
 #' @return Synonym Reference Table unique to the input dataframe
-#'
 #' @export
-#'
-#' @examples
-#' # Load example dataset:
-#' utils::data(Data_6Tribes_5y)
-#'
-#' # Create a synonym reference table for flagged, cleaned dataframe:
-#' Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
-#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
-#' Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
-#' CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
-#'
-#' # Get internal synonym reference table
-#' reference <- TADA_GetSynonymRef()
-TADA_GetSynonymRef <- function(.data) {
-  if (missing(.data)) {
-    ref <- utils::read.csv(
-      system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
-      stringsAsFactors = FALSE,
-      check.names = TRUE,
-      comment.char = ""
-    )
-    return(ref)
-  }
-
-  # check .data is data.frame and has required columns
+TADA_GetSynonymRef <- function(.data = NULL) {
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )
+  
+  # Helpers for normalization
+  normalize_keys <- function(df, cols) {
+    df |>
+      dplyr::mutate(dplyr::across(
+        dplyr::any_of(cols),
+        ~ {
+          x <- as.character(.)
+          x <- trimws(x)
+          x[x == ""] <- NA_character_
+          x[toupper(x) == "NONE"] <- NA_character_
+          x
+        }
+      ))
+  }
+  trim_to_na <- function(df, cols) {
+    df |>
+      dplyr::mutate(dplyr::across(
+        dplyr::any_of(cols),
+        ~ {
+          x <- .
+          if (is.character(x)) {
+            x <- trimws(x)
+            x[x == ""] <- NA_character_
+          }
+          x
+        }
+      ))
+  }
+  
+  # NA-safe left join (requires dplyr >= 1.1.0)
+  left_join_na <- function(x, y, by) {
+    dplyr::left_join(x, y, by = by, na_matches = "na")
+  }
+  
+  # Load and normalize the harmonization template
+  harm.raw <- utils::read.csv(
+    system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
+    stringsAsFactors = FALSE,
+    check.names = TRUE,
+    comment.char = "",
+    na.strings = c("", "NA")
+  )
+  harm.raw <- normalize_keys(harm.raw, expected_cols)
+  harm.raw <- trim_to_na(harm.raw, names(harm.raw))
+  harm.raw <- dplyr::distinct(harm.raw)
+  
+  # If no data supplied, return the normalized internal template
+  if (is.null(.data)) {
+    return(harm.raw)
+  }
+  
+  # Check input columns
   TADA_CheckColumns(.data, expected_cols)
-
-  if (
-    !any(
-      c(
-        "TADA.MethodSpeciation.Flag",
-        "TADA.SampleFraction.Flag",
-        "TADA.ResultUnit.Flag"
-      ) %in%
-        names(.data)
-    )
-  ) {
+  
+  # Warnings about QC flag columns
+  if (!any(c("TADA.MethodSpeciation.Flag",
+             "TADA.SampleFraction.Flag",
+             "TADA.ResultUnit.Flag") %in% names(.data))) {
     warning(
       "This dataframe is missing TADA QC flagging columns. ",
       "Run TADA_FlagResultUnit, TADA_FlagFraction, and TADA_FlagSpeciation and remove Suspect combinations before this step."
     )
   }
-
-  # Check to see if any suspect data flags exist (guard when columns are absent)
+  
   flag_cols <- intersect(
-    c(
-      "TADA.MethodSpeciation.Flag",
+    c("TADA.MethodSpeciation.Flag",
       "TADA.SampleFraction.Flag",
-      "TADA.ResultUnit.Flag"
-    ),
+      "TADA.ResultUnit.Flag"),
     names(.data)
   )
   if (length(flag_cols) > 0) {
@@ -104,11 +121,11 @@ TADA_GetSynonymRef <- function(.data) {
         cols = dplyr::all_of(flag_cols),
         names_to = "Flag_Column"
       ) |>
-      dplyr::filter(value == "Suspect")
-
+      dplyr::filter(.data$value == "Suspect")
+    
     if (nrow(check_inv) > 0) {
       summary_inv <- check_inv |>
-        dplyr::group_by(Flag_Column) |>
+        dplyr::group_by(.data$Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
       message(
         "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
@@ -116,26 +133,23 @@ TADA_GetSynonymRef <- function(.data) {
       print(as.data.frame(summary_inv))
     }
   }
-
-  # Load harmonization template with safe options
-  harm.raw <- utils::read.csv(
-    system.file("extdata", "HarmonizationTemplate.csv", package = "EPATADA"),
-    stringsAsFactors = FALSE,
-    check.names = TRUE,
-    comment.char = ""
-  )
-
-  # Join and return unique combinations aligned to template columns
-  join.data <- merge(
-    unique(.data[, expected_cols, drop = FALSE]),
+  
+  # Unique combinations from the data, normalized like the template
+  combos <- .data[, expected_cols, drop = FALSE]
+  combos <- dplyr::distinct(combos)
+  combos <- normalize_keys(combos, expected_cols)
+  
+  # NA-aware join to pull target columns
+  join.data <- left_join_na(
+    combos,
     harm.raw,
-    by = expected_cols,
-    all.x = TRUE
+    by = expected_cols
   )
-
+  
+  # Return unique rows aligned to template columns
   unique.data <- dplyr::distinct(join.data)
   unique.data <- unique.data[, names(harm.raw), drop = FALSE]
-
+  
   unique.data
 }
 
