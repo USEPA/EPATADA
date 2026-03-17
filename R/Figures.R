@@ -772,7 +772,7 @@ TADA_Scatterplot <- function(
 #' utils::data(Data_6Tribes_5y_Harmonized)
 #' # Review monitoring location and result counts for each TADA.ComparableDataIdentifier
 #' TADA_SummarizeColumn(Data_6Tribes_5y_Harmonized, col = "TADA.ComparableDataIdentifier")
-#' 
+#'
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
 #' # These two have the most results in the example data
 #' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
