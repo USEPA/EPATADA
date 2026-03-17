@@ -18,8 +18,8 @@ test_that("harmonization works", {
   expect_true(dim(dat)[1] == dim(dat1)[1])
 })
 
-# If combinations are added to HarmonizationTemplate.csv, they must also 
-# be included in NPsummation_key.csv. If this test fails, you likely need 
+# If combinations are added to HarmonizationTemplate.csv, they must also
+# be included in NPsummation_key.csv. If this test fails, you likely need
 # to add missing rows to NPsummation_key.csv
 test_that("np summation key matches nutrient harmonization ref", {
   # Load and restrict to N/P from the harmonization template
@@ -32,7 +32,7 @@ test_that("np summation key matches nutrient harmonization ref", {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )])
-  
+
   # Load summation ref keys
   np <- TADA_GetNutrientSummationRef()[, c(
     "TADA.CharacteristicName",
@@ -40,10 +40,11 @@ test_that("np summation key matches nutrient harmonization ref", {
     "TADA.MethodSpeciationName"
   )]
   np$np <- 1L
-  
+
   # NA-aware join to respect the package’s normalization rules
   check <- dplyr::left_join(
-    harm, np,
+    harm,
+    np,
     by = c(
       "TADA.CharacteristicName",
       "TADA.ResultSampleFractionText",
@@ -51,10 +52,10 @@ test_that("np summation key matches nutrient harmonization ref", {
     ),
     na_matches = "na"
   )
-  
+
   # Assert all nutrient harmonization keys are covered by the summation ref
   expect_false(any(is.na(check$np)))
-  
+
   # Optional: print any true mismatches for debugging
   missing <- check[is.na(check$np), , drop = FALSE]
   if (nrow(missing) > 0) {
