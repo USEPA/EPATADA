@@ -90,7 +90,7 @@
       message("Error updating tribal geospatial layers: ", e$message)
     }
   )
-  
+
   # TADARefTables.R
   tryCatch(
     {
@@ -98,7 +98,10 @@
       .TADA_UpdateTADAUsesAliasRef()
     },
     error = function(e) {
-      message("Error updating TADA characteristic or use alias reference files: ", e$message)
+      message(
+        "Error updating TADA characteristic or use alias reference files: ",
+        e$message
+      )
     }
   )
 }
