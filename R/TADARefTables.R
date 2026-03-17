@@ -189,18 +189,25 @@ TADA_GetSynonymRef <- function(.data = NULL) {
     ),
     names(.data)
   )
+  
   if (length(flag_cols) > 0) {
-    check_inv <- .data[, flag_cols, drop = FALSE] |>
+    # Use a local alias to avoid ambiguity with the rlang .data pronoun
+    df <- .data
+    
+    check_inv <- df |>
+      dplyr::select(dplyr::all_of(flag_cols)) |>
       tidyr::pivot_longer(
-        cols = dplyr::all_of(flag_cols),
-        names_to = "Flag_Column"
+        cols = dplyr::everything(),
+        names_to = "Flag_Column",
+        values_to = "Flag_Value"
       ) |>
-      dplyr::filter(rlang::.data$value == "Suspect")
-
+      dplyr::filter(.data$Flag_Value == "Suspect")
+    
     if (nrow(check_inv) > 0) {
       summary_inv <- check_inv |>
-        dplyr::group_by(rlang::.data$Flag_Column) |>
+        dplyr::group_by(.data$Flag_Column) |>
         dplyr::summarise(`Result Count` = dplyr::n(), .groups = "drop")
+      
       message(
         "Warning: Your dataframe contains suspect metadata combinations in the following flag columns:"
       )
@@ -239,13 +246,13 @@ TADA_GetSynonymRef <- function(.data = NULL) {
 #'
 #' @export
 TADA_GetUSGSSynonymRef <- function() {
-  ref <- utils::read.csv(
+  utils::read.csv(
     system.file("extdata", "USGS_units_speciation.csv", package = "EPATADA"),
     stringsAsFactors = FALSE,
     check.names = TRUE,
-    comment.char = ""
+    comment.char = "",
+    na.strings = c("", "NA")
   )
-  ref
 }
 
 #' ATTAINS Parameter, CST Pollutant and WQP Characteristic Alias Reference Table
@@ -397,9 +404,14 @@ TADA_GetTADACharAliasRef <- function(
       check.names = TRUE,
       comment.char = ""
     )
+    reviewed_n <- if ("Status" %in% names(current_TADACharAlias)) {
+      sum(current_TADACharAlias$Status != "Needs review", na.rm = TRUE)
+    } else {
+      0L
+    }
     message(paste(
       "The current 'TADACharAliasRef.csv' file in EPATADA inst/extdata folder contains",
-      sum(current_TADACharAlias$Status != "Needs review"),
+      reviewed_n,
       "that have already been reviewed (see 'Status' column as approved or rejected). These rows will not be replaced and will be returned in the new output of this function's run. Any additional rows that are found as potential alias will be appended.",
       "If you would like to make edits to this alias table, open the file and modify the Status column."
     ))
@@ -1006,13 +1018,14 @@ TADA_GetTADAUsesAliasRef <- function(
       check.names = TRUE,
       comment.char = ""
     )
-    reviewed_n <- sum(
-      current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED")
-    )
+    reviewed_n <- if ("review" %in% names(current_TADAUsesAlias)) {
+      sum(current_TADAUsesAlias$review %in% c("APPROVED", "REJECTED"), na.rm = TRUE)
+    } else {
+      0L
+    }
     message(paste(
       "The current 'TADAUsesAliasRef.csv' file in EPATADA inst/extdata contains",
-      reviewed_n,
-      "rows already reviewed (review == APPROVED/REJECTED).",
+      reviewed_n, "rows already reviewed (review == APPROVED/REJECTED).",
       "Reviewed rows will be kept; newly discovered potential aliases will be appended."
     ))
   }

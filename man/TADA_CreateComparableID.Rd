@@ -12,7 +12,11 @@ TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationNam
 and TADA.ResultMeasure.MeasureUnitCode.}
 }
 \value{
-The input dataframe with an added character column TADA.ComparableDataIdentifier.
+The input dataframe with:
+\itemize{
+\item harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+\item a character column TADA.ComparableDataIdentifier
+}
 }
 \description{
 Create a comparable identifier by concatenating:
@@ -24,26 +28,35 @@ Create a comparable identifier by concatenating:
 }
 }
 \details{
-Each component is trimmed of leading/trailing whitespace and coerced to character.
-Empty strings, whitespace-only values, and NA values are converted to the literal
-"NA" token prior to concatenation, ensuring the identifier is explicit about missing
-components (e.g., "DISSOLVED OXYGEN (DO)_NA_NA_MG/L" rather than "DISSOLVED OXYGEN (DO)___MG/L").
+Harmonization:
+\itemize{
+\item TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+or any case variant of "none" are set to the literal "NONE".
+}
+
+Identifier construction:
+\itemize{
+\item Each component is trimmed. For the characteristic name only, blanks/NA are
+converted to the literal "NA". For fraction/speciation/unit, the normalized
+values are used (i.e., "NONE" where missing).
+\item Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+}
 }
 \examples{
-# Example: blanks and NAs become literal "NA" tokens in the identifier
 df <- data.frame(
   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
   TADA.MethodSpeciationName = c(" ", NA, ""),
-  TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "NONE", NA),
+  TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
   stringsAsFactors = FALSE
 )
 
 out <- TADA_CreateComparableID(df)
 out$TADA.ComparableDataIdentifier
 # Expected:
-# [1] "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
-# [2] "pH_NA_NA_NONE"
-# [3] "Nitrate_Dissolved_NA_NA"
+# [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+# [2] "pH_NONE_NONE_NONE"
+# [3] "Nitrate_Dissolved_NONE_NONE"
 
 }

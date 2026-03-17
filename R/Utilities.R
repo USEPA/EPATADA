@@ -1033,33 +1033,40 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 #' - TADA.MethodSpeciationName
 #' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' Each component is trimmed of leading/trailing whitespace and coerced to character.
-#' Empty strings, whitespace-only values, and NA values are converted to the literal
-#' "NA" token prior to concatenation, ensuring the identifier is explicit about missing
-#' components (e.g., "DISSOLVED OXYGEN (DO)_NA_NA_MG/L" rather than "DISSOLVED OXYGEN (DO)___MG/L").
+#' Harmonization:
+#' - TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+#'   TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+#'   or any case variant of "none" are set to the literal "NONE".
+#'
+#' Identifier construction:
+#' - Each component is trimmed. For the characteristic name only, blanks/NA are
+#'   converted to the literal "NA". For fraction/speciation/unit, the normalized
+#'   values are used (i.e., "NONE" where missing).
+#' - Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
 #'
 #' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
 #'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
 #'   and TADA.ResultMeasure.MeasureUnitCode.
 #'
-#' @return The input dataframe with an added character column TADA.ComparableDataIdentifier.
+#' @return The input dataframe with:
+#'   - harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+#'   - a character column TADA.ComparableDataIdentifier
 #'
 #' @examples
-#' # Example: blanks and NAs become literal "NA" tokens in the identifier
 #' df <- data.frame(
 #'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
 #'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
 #'   TADA.MethodSpeciationName = c(" ", NA, ""),
-#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "NONE", NA),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
 #'   stringsAsFactors = FALSE
 #' )
 #'
 #' out <- TADA_CreateComparableID(df)
 #' out$TADA.ComparableDataIdentifier
 #' # Expected:
-#' # [1] "DISSOLVED OXYGEN (DO)_NA_NA_MG/L"
-#' # [2] "pH_NA_NA_NONE"
-#' # [3] "Nitrate_Dissolved_NA_NA"
+#' # [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#' # [2] "pH_NONE_NONE_NONE"
+#' # [3] "Nitrate_Dissolved_NONE_NONE"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
@@ -1071,28 +1078,40 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-
+  
   # handle empty input
   if (nrow(.data) == 0) {
     .data$TADA.ComparableDataIdentifier <- character(0)
     return(.data)
   }
-
-  # helper to normalize components: trim, coerce to character, replace NA/blank with "NA"
-  norm <- function(x) {
-    x <- trimws(as.character(x))
-    x[is.na(x) | x == ""] <- "NA"
-    x
+  
+  # helper: normalize to "NONE" for fraction/speciation/unit
+  to_NONE <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == "" | toupper(y) == "NONE"] <- "NONE"
+    y
   }
-
+  # helper: normalize characteristic name; keep "NA" token for missing
+  to_NA <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == ""] <- "NA"
+    y
+  }
+  
+  # harmonize the three metadata fields in-place
+  .data$TADA.ResultSampleFractionText <- to_NONE(.data$TADA.ResultSampleFractionText)
+  .data$TADA.MethodSpeciationName     <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(.data$TADA.ResultMeasure.MeasureUnitCode)
+  
+  # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
-    norm(.data$TADA.CharacteristicName),
-    norm(.data$TADA.ResultSampleFractionText),
-    norm(.data$TADA.MethodSpeciationName),
-    norm(.data$TADA.ResultMeasure.MeasureUnitCode),
+    to_NA(.data$TADA.CharacteristicName),
+    .data$TADA.ResultSampleFractionText,
+    .data$TADA.MethodSpeciationName,
+    .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-
+  
   .data
 }
 

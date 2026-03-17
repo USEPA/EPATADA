@@ -65,7 +65,7 @@ Imports:
     urltools,
     geojsonsf,
     tibble,
-    rlang,
+    rlang (>= 0.4.7),
     nhdplusTools,
     arcgislayers,
     MESS,

@@ -18,7 +18,6 @@ test_that("harmonization works", {
   expect_true(dim(dat)[1] == dim(dat1)[1])
 })
 
-
 test_that("np summation key matches nutrient harmonization ref", {
   harm <- TADA_GetSynonymRef()
   harm <- unique(subset(
@@ -38,7 +37,6 @@ test_that("np summation key matches nutrient harmonization ref", {
   check <- merge(harm, np, all.x = TRUE)
   expect_false(any(is.na(check$np)))
 })
-
 
 test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result cols", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
