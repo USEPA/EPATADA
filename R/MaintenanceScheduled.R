@@ -90,6 +90,17 @@
       message("Error updating tribal geospatial layers: ", e$message)
     }
   )
+  
+  # TADARefTables.R
+  tryCatch(
+    {
+      .TADA_UpdateTADACharAliasRef()
+      .TADA_UpdateTADAUsesAliasRef()
+    },
+    error = function(e) {
+      message("Error updating TADA characteristic or use alias reference files: ", e$message)
+    }
+  )
 }
 
 #' Update Example Data for EPATADA Package (Internal)

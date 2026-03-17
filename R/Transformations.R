@@ -350,108 +350,77 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
 
 #' Calculate Total Nitrogen and Phosphorus
 #'
-#' This function applies the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen)
-#' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-#' to approximate a total nitrogen value on a single day at a single site. Additional
-#' rows are added with the total nitrogen and total phosphorous estimations.
-#' Before summing subspecies, this function runs TADA_AggregateMeasurements to
-#' obtain the max value of a characteristic-fraction-speciation-unit-media
-#' combination at a given site
-#' and date. Where necessary, it uses conversion factors to convert
-#' nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
-#' as nitrogen based on the atomic weights of the different elements in the
-#' compound. Similarly, phosphate and other phosphorus forms are converted to
-#' AS P where applicable. The reference table is contained within the package but may be
-#' edited/customized by users.
+#' Apply nutrient aggregation logic from EPA's Enforcement and Compliance History
+#' Online (ECHO) Water Pollutant Loading Tool
+#' to add nitrogen subspecies and phosphorus forms together to approximate
+#' total nitrogen (TN) and total phosphorus (TP) by site and day.
 #'
-#' Nutrient equations are as follows:
+#' Before summing, the function aggregates measurements to a single daily value
+#' per characteristic–unit–fraction–speciation–media combination using the chosen
+#' `daily_agg`. Where needed, it converts nitrogen subspecies to "AS N" and
+#' phosphorus forms to "AS P" using conversion factors in the summation reference.
+#' The internal summation reference can be customized and supplied via `sum_ref`.
 #'
-#' NITROGEN:
-#' 1. TOTAL N (UNFILTERED)
-#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
-#' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
-#' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
-#' 5. OTHER NITROGEN FORMS
+#' @details
+#' - If required QA/QC flagging columns are absent, the function runs
+#'   [TADA_FindQCActivities()] (clean = FALSE), [TADA_FlagResultUnit()] (clean = "none"),
+#'   [TADA_FlagFraction()] (clean = FALSE), and [TADA_FlagSpeciation()] (clean = "none"),
+#'   and excludes invalid or suspect combinations from TN/TP summations.
+#' - The function will not run a second time on the same data: if
+#'   TADA.ResultMeasureValueDataTypes.Flag already contains "TN/TP estimated...",
+#'   the input is returned unchanged.
+#' - Daily aggregation uses `daily_agg` ("max", "min", or "mean") per site/day
+#'   and metadata combination. Rows considered but not selected are preserved
+#'   with explanatory flags.
+#' - Keys are normalized (trim whitespace; `""` and `"NONE"` become `NA`) before
+#'   matching to the summation reference; the join is NA-aware (dplyr >= 1.1.0).
+#' - Speciation conversions are applied where a conversion factor is provided.
+#' - New rows for TN/TP totals are added with deterministic ResultIdentifier values
+#'   based on site/date/group to ease testing and traceability.
 #'
-#' PHOSPHORUS:
-#' 1. TOTAL PHOSPHORUS
-#' 2. PHOSPHATE
-#' 3. OTHER PHOSPHORUS FORMS
+#' @param .data TADA dataframe. [TADA_AutoClean()] should have been run and
+#'   TADA.ResultMeasureValueDataTypes.Flag must be present. The function will run
+#'   required flag functions if needed. Suspect/invalid combinations are excluded.
+#' @param sum_ref Optional custom summation reference dataframe with the same
+#'   columns as the internal reference; if omitted, the internal reference is used.
+#' @param daily_agg Aggregation function used to collapse multiple measurements
+#'   per day/site/metadata combination. One of "max", "min", or "mean". Defaults to "max".
 #'
-#' Equations are applied in the order above. The function looks for groups of
-#' nutrients that exactly match each equation before looking for every
-#' combination within each equation (for example, a group of nitrogen subspecies
-#' including AMMONIA and NITRATE will be passed over in an initial sweep of
-#' groups of subspecies containing ORGANIC N, AMMONIA, NITRATE, and NITRITE, but
-#' will be caught as the function moves down the hierarchy of equations to fewer
-#' and fewer subspecies). Eventually, even groups with only one subspecies will
-#' be used to represent a TOTAL N value for that site/day/depth.
+#' @return The input dataframe plus additional rows representing TN and TP totals,
+#'   with explanatory flags: TADA.NutrientSummation.Flag, TADA.NutrientSummationGroup,
+#'   and TADA.NutrientSummationEquation. Original rows not used in summations are preserved.
 #'
-#' @param .data TADA dataframe. TADA_AutoClean() must have been run (and the
-#'   TADA.ResultMeasureValueDataTypes.Flag added)
-#'   before this TM/TP summation function can be used.
-#'   This function runs required flag functions
-#'   (TADA_FindQCActivities, TADA_FlagResultUnit, TADA_FlagFraction, TADA_FlagSpeciation) if
-#'   they have not yet been run. Suspect and invalid combinations are not included in
-#'   TN and TP summation. While not required for this function to run, ideally,
-#'   users should also run TADA_SimpleCensoredMethods
-#'   and TADA_HarmonizeSynonyms before this function.
-#'   If user wants to consider grouping N or P subspecies across multiple
-#'   organizations, user should have also run TADA_FindNearbySites and grouped all
-#'   nearby sites to one common TADA.MonitoringLocationIdentifier,
-#'   TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.
-#' @param sum_ref Optional. A custom summation reference dataframe the user has
-#'   loaded into the R environment. Dataframe must have same columns as default
-#'   TADA.summation reference table.
-#' @param daily_agg If there are multiple measurements for the same
-#'   characteristic-unit-fraction-speciation-media combination at the same location
-#'   (TADA.MonitoringLocationIdentifier) on the same day (ActivityStartDate),
-#'   this will select a single measurement to use in the
-#'   Total N or Total P summation. Defaults to 'max', but can be set
-#'   to 'min' or 'mean'.
+#' @seealso [TADA_AggregateMeasurements()], [TADA_FlagResultUnit()],
+#'   [TADA_FlagFraction()], [TADA_FlagSpeciation()], [TADA_HarmonizeSynonyms()],
+#'   [TADA_GetNutrientSummationRef()]
 #'
-#' @return TADA dataframe with additional rows representing total N and P
-#'   summation values from adding up subspecies. Note that for total phosphorus,
-#'   these additional rows are simply a re-classification of phosphorus or
-#'   phosphate into the total phosphorus as P format. These new rows share the
-#'   same date and monitoring location as the subspecies, but an additional note
-#'   is added in the TADA.NutrientSummation.Flag column describing how the total
-#'   was derived. Also adds TADA.NutrientSummationGroup and
-#'   TADA.NutrientSummationEquation columns, which can be used to trace how the
-#'   total was calculated and from which subspecies.
-#'
-#' @seealso [TADA_AggregateMeasurements()]
-#' @seealso [TADA_FlagDepthCategory()]
-#' @seealso [TADA_SimpleCensoredMethods()]
-#' @seealso [TADA_HarmonizeSynonyms()]
-#' @seealso [TADA_FindNearbySites()]
-#' @seealso [TADA_FindQCActivities()]
-#' @seealso [TADA_FlagResultUnit()]
-#' @seealso [TADA_FlagFraction()]
-#' @seealso [TADA_FlagSpeciation()]
-#' @seealso [TADA_AutoClean()]
-#'
-#' @export
+#' @note Requires dplyr >= 1.1.0 for NA-aware joins when matching to the summation ref.
 #'
 #' @examples
+#' \dontrun{
 #' df <- TADA_DataRetrieval(
-#'   statecode = "UT", startDate = "2024-06-01",
-#'   endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
+#'   statecode = "UT",
+#'   startDate = "2024-06-01",
+#'   endDate = "2024-07-01",
+#'   characteristicType = "Nutrient",
+#'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
 #'
-#' df2 <- TADA_SimpleCensoredMethods(df,
-#'   nd_method = "multiplier",
-#'   nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
+#' df2 <- TADA_SimpleCensoredMethods(
+#'   df, nd_method = "multiplier", nd_multiplier = 0.5,
+#'   od_method = "as-is", od_multiplier = "null"
 #' )
 #'
 #' df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-#'
 #' df2 <- TADA_HarmonizeSynonyms(df2)
 #'
-#' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-#'
-TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
+#' out <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+#' }
+TADA_CalculateTotalNP <- function(.data, sum_ref = NULL, daily_agg = c("max", "min", "mean")) {
+  # Validate daily_agg
+  daily_agg <- match.arg(daily_agg)
+  
   # check .data is data.frame and has required columns
   req_cols <- c(
     "TADA.CharacteristicName",
@@ -480,140 +449,106 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
     "TADA.ResultMeasureValueDataTypes.Flag"
   )
   TADA_CheckColumns(.data, req_cols)
+  
   # Check if the input data frame is empty
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    return(NULL)
   }
-
-  # check to make sure daily_agg is populated with allowable value
-  daily_agg <- match.arg(daily_agg)
-
-  # check if QC flag function ran and message warning if not
+  
+  # Ensure QC/flag functions ran
   if (!"TADA.ActivityType.Flag" %in% names(.data)) {
-    message(
-      "TADA_CalculateTotalNP: Your input dataset was missing the TADA.ActivityType.Flag column, suggesting that QC replicates have not been addressed or reviewed. Running the TADA_FindQCActivities function with the clean = FALSE option before executing this function. This function will not include QC results when aggregating to a daily maximum and total nutrient value."
-    )
+    message("TADA_CalculateTotalNP: Missing TADA.ActivityType.Flag. Running TADA_FindQCActivities(clean = FALSE).")
     .data <- TADA_FindQCActivities(.data, clean = FALSE)
   }
-
-  # check if unit flag function ran and message warning if not
   if (!"TADA.ResultUnit.Flag" %in% names(.data)) {
-    message(
-      "TADA_CalculateTotalNP: Your input dataset was missing the TADA.ResultUnit.Flag column, suggesting that unit and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagResultUnit function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect units when aggregating to a daily maximum and total nutrient value."
-    )
+    message("TADA_CalculateTotalNP: Missing TADA.ResultUnit.Flag. Running TADA_FlagResultUnit(clean = 'none').")
     .data <- TADA_FlagResultUnit(.data, clean = "none")
   }
-
-  # check if fraction flag function ran and message if not
   if (!"TADA.SampleFraction.Flag" %in% names(.data)) {
-    message(
-      "TADA_CalculateTotalNP: Your input dataset was missing the TADA.SampleFraction.Flag column, suggesting that fraction and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagFraction function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect fractions when aggregating to a daily maximum and total nutrient value."
-    )
+    message("TADA_CalculateTotalNP: Missing TADA.SampleFraction.Flag. Running TADA_FlagFraction(clean = FALSE).")
     .data <- TADA_FlagFraction(.data, clean = FALSE)
   }
-
-  # check if speciation flag function ran and message warning if not
   if (!"TADA.MethodSpeciation.Flag" %in% names(.data)) {
-    message(
-      "TADA_CalculateTotalNP: Your input dataset was missing the TADA.MethodSpeciation.Flag column, suggesting that speciation and characteristic combinations have not been addressed or reviewed. Running the TADA_FlagSpeciation function with the clean = FALSE option before executing this function. This function will not include results with invalid or suspect speciations when aggregating to a daily maximum and total nutrient value."
-    )
+    message("TADA_CalculateTotalNP: Missing TADA.MethodSpeciation.Flag. Running TADA_FlagSpeciation(clean = 'none').")
     .data <- TADA_FlagSpeciation(.data, clean = "none")
   }
-
-  # Check if the specified values are present in the TADA.ResultMeasureValueDataTypes.Flag column
-  if (
-    any(
-      .data$TADA.ResultMeasureValueDataTypes.Flag %in%
-        c(
-          "TP estimated from one or more subspecies.",
-          "TN estimated from one or more subspecies."
-        )
-    )
-  ) {
-    # Notify the user that execution is halted
-    message(paste(
-      "TADA_CalculateTotalNP has already been run. Returning data unchanged. See TADA.ResultMeasureValueDataTypes.Flag column."
-    ))
+  
+  # Prevent running twice
+  if (any(.data$TADA.ResultMeasureValueDataTypes.Flag %in%
+          c("TP estimated from one or more subspecies.", "TN estimated from one or more subspecies."))) {
+    message("TADA_CalculateTotalNP has already been run. Returning data unchanged. See TADA.ResultMeasureValueDataTypes.Flag.")
     return(.data)
   }
-
-  # Create the include and exclude data frames
+  
+  # Include/exclude subsets
   include_df <- .data[
     .data$TADA.ActivityType.Flag == "Non_QC" &
       (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-        c(
-          "Numeric",
-          "Result Value/Unit Estimated from Detection Limit",
-          "Less Than",
-          "Percentage",
-          "Approximate Value",
-          "Greater Than",
-          "Comma-Separated Numeric",
-          "Numeric Range - Averaged",
-          "Percentage Range - Averaged",
-          "Approximate Value",
-          "Result Value/Unit Copied from Detection Limit"
-        )) &
+         c("Numeric",
+           "Result Value/Unit Estimated from Detection Limit",
+           "Less Than",
+           "Percentage",
+           "Approximate Value",
+           "Greater Than",
+           "Comma-Separated Numeric",
+           "Numeric Range - Averaged",
+           "Percentage Range - Averaged",
+           "Approximate Value",
+           "Result Value/Unit Copied from Detection Limit")) &
       (.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) &
       (.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) &
       (.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
   ]
-
+  
   exclude_df <- .data[
     .data$TADA.ActivityType.Flag != "Non_QC" |
       is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
       (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-        c(
-          "NA - Not Available",
-          "Text",
-          "Non-ASCII Character(s)",
-          "Result Value/Unit Cannot Be Estimated From Detection Limit",
-          "Coerced to NA"
-        )) |
+         c("NA - Not Available",
+           "Text",
+           "Non-ASCII Character(s)",
+           "Result Value/Unit Cannot Be Estimated From Detection Limit",
+           "Coerced to NA")) |
       !(.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) |
       !(.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) |
       !(.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
   ]
-
-  # add flags noting these are not used in TN/TP summation
+  
   exclude_df <- exclude_df |>
     dplyr::mutate(
-      TADA.NutrientSummation.Flag = "Not used to calculate Total N or P."
-    ) |>
-    dplyr::mutate(
+      TADA.NutrientSummation.Flag = "Not used to calculate Total N or P.",
       TADA.ResultValueAggregation.Flag = "Not considered in max aggregation function"
     )
-
-  # # For function testing only
-  # # Calculate the number of rows in each data frame
-  # total_rows_data <- nrow(.data)
-  # total_rows_include <- nrow(include_df)
-  # total_rows_exclude <- nrow(exclude_df)
-  #
-  # # Check if the sum of rows in include_df and exclude_df equals the total rows in .data
-  # test_result <- total_rows_include + total_rows_exclude == total_rows_data
-  #
-  # # Print the test result
-  # if (test_result) {
-  #   print("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
-  # } else {
-  #   print("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
-  # }
-
-  # bring in custom reference df if provided
-  if (!missing(sum_ref)) {
-    TADA_CheckColumns(sum_ref, names(TADA_GetNutrientSummationRef()))
-  } else {
+  
+  # Summation reference: use default if not provided; normalize and ensure numeric
+  if (is.null(sum_ref)) {
     sum_ref <- TADA_GetNutrientSummationRef()
+  } else {
+    TADA_CheckColumns(sum_ref, names(TADA_GetNutrientSummationRef()))
   }
-
-  # Get grouping cols for daily aggregation
-  # create nutrient groups by site and date
-
-  # # used to include depth as well. cm removed 8/6/25
-  # depths <- names(include_df)[grepl("DepthHeightMeasure", names(include_df))]
-  # depths <- depths[grepl("TADA.", depths)]
+  
+  key_cols <- c("TADA.CharacteristicName", "TADA.ResultSampleFractionText", "TADA.MethodSpeciationName")
+  
+  normalize_keys_vec <- function(x) {
+    if (is.character(x)) {
+      y <- trimws(x)
+      y[y == ""] <- NA_character_
+      y[toupper(y) == "NONE"] <- NA_character_
+      y
+    } else x
+  }
+  
+  # Normalize sum_ref keys and ensure numeric
+  sum_ref <- sum_ref |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(key_cols), normalize_keys_vec))
+  if ("SummationSpeciationConversionFactor" %in% names(sum_ref)) {
+    sum_ref$SummationSpeciationConversionFactor <- suppressWarnings(
+      as.numeric(sum_ref$SummationSpeciationConversionFactor)
+    )
+  }
+  
+  # Daily aggregation (max/min/mean)
   grpcols <- c(
     "ActivityStartDate",
     "TADA.MonitoringLocationIdentifier",
@@ -634,189 +569,120 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
     "HUCEightDigitCode",
     "MonitoringLocationTypeName",
     "MonitoringLocationDescriptionText"
-    # "ActivityRelativeDepthName"
-    # depths # does not make sense for daily aggregation of a max value. Use max value for day regardless of depth
   )
-
+  
   dat <- suppressMessages(TADA_AggregateMeasurements(
     include_df,
     grouping_cols = grpcols,
     agg_fun = daily_agg,
     clean = FALSE
   ))
-  # # for function review only
-  # dat_subset <- dat |>
-  #   select(all_of(c(
-  #     "ActivityStartDate",
-  #     "TADA.MonitoringLocationIdentifier",
-  #     "TADA.ActivityMediaName",
-  #     "TADA.ComparableDataIdentifier",
-  #     "TADA.ResultValueAggregation.Flag")))
-
-  # Add rows not selected back at end but do not include in TN/TP summation
-  # Define the condition for rows to be added back
-  condition <- paste0(
-    "Considered in ",
-    daily_agg,
-    " aggregation function but not selected"
-  )
-  # Initialize dat_addback as an empty data frame. This handles cases where no rows meet the condition
-  dat_addback <- data.frame()
-  # Check if the column exists and subset the rows to add back
-  if ("TADA.ResultValueAggregation.Flag" %in% names(dat)) {
-    dat_addback <- dat[dat$TADA.ResultValueAggregation.Flag %in% condition, ]
+  
+  # Add back not selected rows for info
+  condition <- paste0("Considered in ", daily_agg, " aggregation function but not selected")
+  dat_addback <- if ("TADA.ResultValueAggregation.Flag" %in% names(dat)) {
+    dat[dat$TADA.ResultValueAggregation.Flag %in% condition, ]
+  } else {
+    data.frame()
   }
-  # Add flag to specify these are not used in TN and TP summation
-  if (dim(dat_addback)[1] > 0) {
+  if (nrow(dat_addback) > 0) {
     dat_addback$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
   }
-
-  # move forward with only max values selected for each grouping (dat_TNTP)
-  # TADA.ResultValueAggregation.Flag should be "No aggregation needed" OR "Selected as max aggregate value"
-  # no longer need "Considered in max aggregation function but not selected"
-  # Define the condition for filtering
-
-  valid_flags <- c(
-    "No aggregation needed",
-    paste0("Selected as ", daily_agg, " aggregate value")
-  )
-
-  # Try both original and cleaned column names
-  flag_candidates <- "TADA.ResultValueAggregation.Flag"
-  flag_col <- flag_candidates[flag_candidates %in% names(dat)]
-
-  # Column 'TADA.ResultValueAggregation.Flag' not found
-  if (length(flag_col) == 0) {
-    message(
-      "There is no applicable data to calculate TN or TP. Returning data unchanged."
-    )
+  
+  # Filter to selected/no-agg-needed rows
+  valid_flags <- c("No aggregation needed", paste0("Selected as ", daily_agg, " aggregate value"))
+  flag_col <- "TADA.ResultValueAggregation.Flag"
+  if (!flag_col %in% names(dat)) {
+    message("There is no applicable data to calculate TN or TP. Returning data unchanged.")
     return(.data)
   }
-  flag_col <- flag_col[1]
-
-  # Build logical index, dropping NAs
-  matching_rows <- !is.na(dat[[flag_col]]) & dat[[flag_col]] %in% valid_flags
-
-  dat_TNTP <- dat[matching_rows, , drop = FALSE]
-
-  # join data to summation table and keep only those that match for summations
-  sum_dat <- merge(dat_TNTP, sum_ref, all.x = TRUE)
+  dat_TNTP <- dat[!is.na(dat[[flag_col]]) & dat[[flag_col]] %in% valid_flags, , drop = FALSE]
+  
+  # Normalize dat_TNTP keys
+  dat_TNTP <- dat_TNTP |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(key_cols), normalize_keys_vec))
+  
+  # NA-aware left join to summation ref (pull SummationName/Rank/Group, etc.)
+  sum_dat <- dplyr::left_join(
+    dat_TNTP,
+    sum_ref,
+    by = key_cols,
+    na_matches = "na"
+  )
+  
+  # Keep only rows participating in summations
   sum_dat <- subset(sum_dat, !is.na(sum_dat$NutrientGroup))
-
-  # # REMINDER FOR TADA TEAM: NEED TO ENSURE ALL COMBOS PRESENT IN TABLE
-  # # for review only: what is not matching?
-  # sum_dat_review <- sum_dat |>
-  #   dplyr::select(all_of(c(
-  #     "ActivityStartDate",
-  #     "TADA.MonitoringLocationIdentifier",
-  #     "TADA.ActivityMediaName",
-  #     "TADA.ComparableDataIdentifier",
-  #     "TADA.ResultValueAggregation.Flag",
-  #     "NutrientGroup"))) |>
-  #   dplyr::filter(is.na(NutrientGroup))
-
-  # If the join results in matching rows
-  if (dim(sum_dat)[1] > 0) {
-    thecols <- grpcols[
-      !grpcols %in%
-        c(
-          "TADA.ComparableDataIdentifier",
-          "TADA.ResultMeasure.MeasureUnitCode",
-          "TADA.CharacteristicName",
-          "TADA.MethodSpeciationName",
-          "TADA.ResultSampleFractionText"
-        )
-    ]
-
-    # create nutrient group ID's.
+  
+  if (nrow(sum_dat) > 0) {
+    thecols <- grpcols[!grpcols %in% c(
+      "TADA.ComparableDataIdentifier",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "TADA.CharacteristicName",
+      "TADA.MethodSpeciationName",
+      "TADA.ResultSampleFractionText"
+    )]
+    
     sum_dat <- sum_dat |>
       dplyr::group_by(dplyr::across(dplyr::all_of(thecols))) |>
       dplyr::mutate(TADA.NutrientSummationGroup = dplyr::cur_group_id())
-
-    # bring in equations
-    eqns <- utils::read.csv(system.file(
-      "extdata",
-      "NP_equations.csv",
-      package = "EPATADA"
-    ))
-
-    # dataframe to hold results
-    summeddata <- data.frame()
-    grps <- vector()
-
-    for (i in 1:length(unique(eqns$Nutrient))) {
-      nut <- unique(eqns$Nutrient)[i]
-      nutqns <- subset(eqns, eqns$Nutrient == nut)
-      for (j in 1:length(unique(nutqns$EQN))) {
-        eqnum <- unique(nutqns$EQN)[j]
-        eqn <- subset(nutqns, nutqns$EQN == eqnum)$SummationName
-        nutrient <- ifelse(
-          nut == "N",
-          "Total Nitrogen as N",
-          "Total Phosphorus as P"
-        )
-        # for each equation, see if any groups contain all required subspecies,
-        # and for each pick the variant with the lowest rank.
-        # combine group with other groups and remove group ID from consideration
-        # for the next equation
+    
+    eqns <- utils::read.csv(system.file("extdata", "NP_equations.csv", package = "EPATADA"))
+    
+    summeddata <- dplyr::tibble()
+    grps <- character()
+    
+    for (nut in unique(eqns$Nutrient)) {
+      nutqns <- eqns[eqns$Nutrient == nut, , drop = FALSE]
+      for (eqnum in unique(nutqns$EQN)) {
+        eqn_names <- nutqns$SummationName[nutqns$EQN == eqnum]
+        nutrient <- ifelse(nut == "N", "Total Nitrogen as N", "Total Phosphorus as P")
+        
         out <- sum_dat |>
-          dplyr::filter(!TADA.NutrientSummationGroup %in% grps) |>
-          dplyr::group_by(TADA.NutrientSummationGroup) |>
-          dplyr::filter(all(eqn %in% SummationName)) |> # this line ensures that ALL subspecies are present within an equation group, not just one or more
-          dplyr::filter(SummationName %in% eqn) |>
+          dplyr::filter(!.data$TADA.NutrientSummationGroup %in% grps) |>
+          dplyr::group_by(.data$TADA.NutrientSummationGroup) |>
+          dplyr::filter(all(eqn_names %in% .data$SummationName)) |>
+          dplyr::filter(.data$SummationName %in% eqn_names) |>
           dplyr::mutate(
-            TADA.NutrientSummationEquation = paste0(
-              unique(SummationName),
-              collapse = " + "
-            )
-          )
-
-        out <- out |>
-          dplyr::group_by(TADA.NutrientSummationGroup, SummationName) |>
-          dplyr::slice_min(SummationRank, with_ties = FALSE)
-        out$TADA.NutrientSummation.Flag <- paste0(
-          "Used to calculate ",
-          nutrient,
-          "."
-        )
+            TADA.NutrientSummationEquation = paste0(unique(.data$SummationName), collapse = " + ")
+          ) |>
+          dplyr::group_by(.data$TADA.NutrientSummationGroup, .data$SummationName) |>
+          dplyr::slice_min(.data$SummationRank, with_ties = FALSE) |>
+          dplyr::ungroup()
+        
+        out$TADA.NutrientSummation.Flag <- paste0("Used to calculate ", nutrient, ".")
         out$nutrient <- nutrient
-        summeddata <- plyr::rbind.fill(summeddata, out)
+        
+        summeddata <- dplyr::bind_rows(summeddata, out)
         grps <- c(grps, unique(out$TADA.NutrientSummationGroup))
       }
     }
-
+    
     # Convert speciation if needed
-    summeddata$TADA.ResultMeasureValue <- ifelse(
-      !is.na(summeddata$SummationSpeciationConversionFactor),
-      summeddata$TADA.ResultMeasureValue *
-        summeddata$SummationSpeciationConversionFactor,
-      summeddata$TADA.ResultMeasureValue
-    )
-    summeddata$TADA.MethodSpeciationName <- ifelse(
-      !is.na(summeddata$SummationSpeciationConversionFactor) &
-        summeddata$nutrient == "Total Nitrogen as N",
-      "AS N",
-      summeddata$TADA.MethodSpeciationName
-    )
-    summeddata$TADA.MethodSpeciationName <- ifelse(
-      !is.na(summeddata$SummationSpeciationConversionFactor) &
-        summeddata$nutrient == "Total Phosphorus as P",
-      "AS P",
-      summeddata$TADA.MethodSpeciationName
-    )
-
-    # Get to total N or P
-    totncols <- c(
-      thecols,
-      "TADA.NutrientSummationGroup",
-      "TADA.NutrientSummationEquation"
-    )
+    if ("SummationSpeciationConversionFactor" %in% names(summeddata)) {
+      summeddata$TADA.ResultMeasureValue <- ifelse(
+        !is.na(summeddata$SummationSpeciationConversionFactor),
+        summeddata$TADA.ResultMeasureValue * summeddata$SummationSpeciationConversionFactor,
+        summeddata$TADA.ResultMeasureValue
+      )
+      summeddata$TADA.MethodSpeciationName <- ifelse(
+        !is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Nitrogen as N",
+        "AS N",
+        summeddata$TADA.MethodSpeciationName
+      )
+      summeddata$TADA.MethodSpeciationName <- ifelse(
+        !is.na(summeddata$SummationSpeciationConversionFactor) & summeddata$nutrient == "Total Phosphorus as P",
+        "AS P",
+        summeddata$TADA.MethodSpeciationName
+      )
+    }
+    
+    # Compute totals
+    totncols <- c(thecols, "TADA.NutrientSummationGroup", "TADA.NutrientSummationEquation")
+    
     TotalN <- summeddata |>
-      dplyr::filter(nutrient == "Total Nitrogen as N") |>
+      dplyr::filter(.data$nutrient == "Total Nitrogen as N") |>
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) |>
-      dplyr::summarise(
-        TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)
-      ) |>
+      dplyr::summarise(TADA.ResultMeasureValue = sum(.data$TADA.ResultMeasureValue), .groups = "drop") |>
       dplyr::mutate(
         TADA.CharacteristicName = "TOTAL NITROGEN, MIXED FORMS",
         TADA.ResultSampleFractionText = "UNFILTERED",
@@ -827,12 +693,11 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
         TADA.ResultMeasureValueDataTypes.Flag = "TN estimated from one or more subspecies.",
         TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed."
       )
+    
     TotalP <- summeddata |>
-      dplyr::filter(nutrient == "Total Phosphorus as P") |>
+      dplyr::filter(.data$nutrient == "Total Phosphorus as P") |>
       dplyr::group_by(dplyr::across(dplyr::all_of(totncols))) |>
-      dplyr::summarise(
-        TADA.ResultMeasureValue = sum(TADA.ResultMeasureValue)
-      ) |>
+      dplyr::summarise(TADA.ResultMeasureValue = sum(.data$TADA.ResultMeasureValue), .groups = "drop") |>
       dplyr::mutate(
         TADA.CharacteristicName = "TOTAL PHOSPHORUS, MIXED FORMS",
         TADA.ResultSampleFractionText = "UNFILTERED",
@@ -843,97 +708,103 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
         TADA.ResultMeasureValueDataTypes.Flag = "TP estimated from one or more subspecies.",
         TADA.ResultValueAggregation.Flag = "Nutrient summation from selected aggregate values and values where no aggregation was needed."
       )
-
-    # If summation is zero....include anyway
-    # Generate unique ResultIdentifier
-    Totals <- plyr::rbind.fill(TotalN, TotalP) |>
-      dplyr::mutate(
-        ResultIdentifier = paste0(
-          "TADA-",
-          sample(seq_len(1000000000), dplyr::n())
-        )
+    
+    # Deterministic ResultIdentifier for totals
+    make_id <- function(df, suffix) {
+      paste0(
+        "TADA-",
+        df$TADA.MonitoringLocationIdentifier, "_",
+        df$ActivityStartDate, "_",
+        df$TADA.NutrientSummationGroup, "_",
+        suffix
       )
-
-    # Combine all data back into dat_TNTP and get rid of unneeded columns
-    dat_TNTP_combined <- dat_TNTP |>
-      base::merge(summeddata, all.x = TRUE) |>
-      plyr::rbind.fill(Totals) |>
+    }
+    if (nrow(TotalN) > 0) TotalN$ResultIdentifier <- make_id(TotalN, "TN")
+    if (nrow(TotalP) > 0) TotalP$ResultIdentifier <- make_id(TotalP, "TP")
+    
+    Totals <- dplyr::bind_rows(TotalN, TotalP)
+    
+    # Join back the "used" flags to the selected daily rows (NA-safe join)
+    back_keys <- c(
+      "ActivityStartDate",
+      "TADA.MonitoringLocationIdentifier",
+      "TADA.MonitoringLocationName",
+      "TADA.LongitudeMeasure",
+      "TADA.LatitudeMeasure",
+      "TADA.ActivityMediaName",
+      "TADA.ResultMeasure.MeasureUnitCode",
+      "TADA.CharacteristicName",
+      "TADA.MethodSpeciationName",
+      "TADA.ResultSampleFractionText",
+      "OrganizationIdentifier",
+      "OrganizationFormalName",
+      "CountryCode",
+      "StateCode",
+      "CountyCode",
+      "HUCEightDigitCode",
+      "MonitoringLocationTypeName",
+      "MonitoringLocationDescriptionText"
+    )
+    
+    used_cols <- c(back_keys, "TADA.NutrientSummation.Flag", "TADA.NutrientSummationEquation")
+    used_subset <- dplyr::distinct(summeddata[, used_cols, drop = FALSE])
+    
+    dat_TNTP_combined <- dplyr::left_join(
+      dat_TNTP,
+      used_subset,
+      by = back_keys,
+      na_matches = "na"
+    ) |>
+      dplyr::bind_rows(Totals) |>
       dplyr::select(
-        -SummationFractionNotes,
-        -SummationSpeciationNotes,
-        -SummationSpeciationConversionFactor,
-        -SummationName,
-        -SummationRank,
-        -SummationNote,
-        -nutrient,
-        -NutrientGroup
+        -dplyr::any_of(c(
+          "SummationFractionNotes",
+          "SummationSpeciationNotes",
+          "SummationSpeciationConversionFactor",
+          "SummationName",
+          "SummationRank",
+          "SummationNote"
+        ))
       ) |>
       dplyr::mutate(
         TADA.NutrientSummation.Flag = dplyr::if_else(
-          is.na(TADA.NutrientSummation.Flag),
+          is.na(.data$TADA.NutrientSummation.Flag),
           "Not used to calculate Total N or P.",
-          TADA.NutrientSummation.Flag
+          .data$TADA.NutrientSummation.Flag
         )
       )
-    # At end... summation complete at this point
-    # Check if each data frame is not empty
-    dat_TNTP_combined_non_empty <- if (nrow(dat_TNTP_combined) > 0) {
-      dat_TNTP_combined
-    } else {
-      NULL
-    }
-    exclude_df_non_empty <- if (nrow(exclude_df) > 0) exclude_df else NULL
-    dat_addback_non_empty <- if (nrow(dat_addback) > 0) dat_addback else NULL
-    # Bind rows only if the data frames are not NULL
-    final_TNTP <- dplyr::bind_rows(
-      dat_TNTP_combined_non_empty,
-      exclude_df_non_empty,
-      dat_addback_non_empty
-    )
-
-    # Filter rows based on specific conditions
+    
+    final_TNTP <- dat_TNTP_combined
+    # Duplicate removal
     duplicates <- final_TNTP |>
-      dplyr::group_by(TADA.NutrientSummationGroup) |>
-      dplyr::filter(
-        dplyr::n() == 2 &
-          TADA.ResultMeasureValue[1] == TADA.ResultMeasureValue[2]
-      ) |>
-      dplyr::filter(
-        TADA.NutrientSummation.Flag ==
-          "New row added: Nutrient summation from one or more subspecies."
-      )
-
+      dplyr::group_by(.data$TADA.NutrientSummationGroup) |>
+      dplyr::filter(dplyr::n() == 2 & .data$TADA.ResultMeasureValue[1] == .data$TADA.ResultMeasureValue[2]) |>
+      dplyr::filter(.data$TADA.NutrientSummation.Flag == "New row added: Nutrient summation from one or more subspecies.")
     remove_list <- unique(duplicates$ResultIdentifier)
-
-    # Filter the data frame
     complete_df <- final_TNTP |>
-      dplyr::filter(!ResultIdentifier %in% remove_list)
+      dplyr::filter(!.data$ResultIdentifier %in% remove_list)
+    
   } else {
-    # Check if each data frame is not empty
+    # No data to sum
     dat_TNTP_non_empty <- if (nrow(dat_TNTP) > 0) dat_TNTP else NULL
     exclude_df_non_empty <- if (nrow(exclude_df) > 0) exclude_df else NULL
     dat_addback_non_empty <- if (nrow(dat_addback) > 0) dat_addback else NULL
-
-    # Bind rows only if the data frames are not NULL
+    
     complete_df <- dplyr::bind_rows(
       dat_TNTP_non_empty,
       exclude_df_non_empty,
       dat_addback_non_empty
     )
-
-    # if there are no data to sum
+    
     complete_df$TADA.NutrientSummation.Flag <- "Not used to calculate Total N or P."
-    message(
-      "No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'"
-    )
+    message("No Total N or P subspecies exist in dataset. Returning input dataset with TADA.NutrientSummation.Flag set to 'Not used to calculate Total N or P'")
   }
-
-  # order columns and return complete_df
+  
+  # Order columns and return complete_df
   complete_df <- TADA_CreateComparableID(complete_df)
   complete_df <- TADA_OrderCols(complete_df)
   return(complete_df)
 }
-
 
 #' Aggregate multiple result values to a min, max, or mean
 #'
