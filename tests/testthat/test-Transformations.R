@@ -18,7 +18,11 @@ test_that("harmonization works", {
   expect_true(dim(dat)[1] == dim(dat1)[1])
 })
 
+# If combinations are added to HarmonizationTemplate.csv, they must also 
+# be included in NPsummation_key.csv. If this test fails, you likely need 
+# to add missing rows to NPsummation_key.csv
 test_that("np summation key matches nutrient harmonization ref", {
+  # Load and restrict to N/P from the harmonization template
   harm <- TADA_GetSynonymRef()
   harm <- unique(subset(
     harm,
@@ -28,14 +32,35 @@ test_that("np summation key matches nutrient harmonization ref", {
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )])
+  
+  # Load summation ref keys
   np <- TADA_GetNutrientSummationRef()[, c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
     "TADA.MethodSpeciationName"
   )]
-  np$np <- 1
-  check <- merge(harm, np, all.x = TRUE)
+  np$np <- 1L
+  
+  # NA-aware join to respect the package’s normalization rules
+  check <- dplyr::left_join(
+    harm, np,
+    by = c(
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName"
+    ),
+    na_matches = "na"
+  )
+  
+  # Assert all nutrient harmonization keys are covered by the summation ref
   expect_false(any(is.na(check$np)))
+  
+  # Optional: print any true mismatches for debugging
+  missing <- check[is.na(check$np), , drop = FALSE]
+  if (nrow(missing) > 0) {
+    message("Missing from summation ref (showing up to 10 rows):")
+    print(utils::head(missing, 10))
+  }
 })
 
 test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result cols", {
@@ -61,9 +86,6 @@ test_that("TADA_CalculateTotalNP does not introduce duplicates or NAs in result 
 
   # Test to ensure value column does not contain any NA values
   expect_true(!any(is.na(testdat$TADA.ResultMeasureValue)))
-
-  # # Test to ensure unit column does not contain any NA values
-  # expect_true(!any(is.na(testdat$TADA.ResultMeasure.MeasureUnitCode)))
 })
 
 test_that("TADA package functions maintain ResultIdentifier integrity", {
@@ -121,12 +143,6 @@ test_that("TADA package functions maintain ResultIdentifier integrity", {
       paste(duplicate_ids, collapse = ", ")
     )
   )
-
-  # Optionally verify column names
-  # print(names(df2))  # Uncomment to print column names for verification
-
-  # Optionally subset df2 to include only rows with missing identifiers
-  # filtered_df2 <- df2[df2$ResultIdentifier %in% missing_identifiers, ]
 })
 
 test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not applicable", {
@@ -189,10 +205,4 @@ test_that("TADA_CalculateTotalNP maintains ResultIdentifier integrity when not a
       paste(duplicate_ids, collapse = ", ")
     )
   )
-
-  # Optionally verify column names
-  # print(names(df2))  # Uncomment to print column names for verification
-
-  # Optionally subset df2 to include only rows with missing identifiers
-  # filtered_df2 <- df2[df2$ResultIdentifier %in% missing_identifiers, ]
 })
