@@ -20,7 +20,6 @@ ActivityType
 ActivityTypeCode
 ActivityTypeCode's
 ActivityTypeCodes
-AggregateMeasurements
 AnalyticalMethod
 Animas
 ArcGIS
@@ -45,7 +44,6 @@ COMBITR
 COMIDs
 CWA
 CalculateTotalNP
-CalculateTotalNitrogen
 CensoredData
 CensoredMethod
 CharacteristicGroup
@@ -95,7 +93,6 @@ DomainValues
 Dumelle
 EASP
 EASP's
-ECHO's
 EMEF
 EQ
 ExampleMod
@@ -152,7 +149,6 @@ IncludeOrExclude
 InvalidCoordinates
 Jhguch
 JoinWQPProfiles
-KJELDAHL
 Kaplan
 Kjeldahl
 LaboratoryName
@@ -181,7 +177,6 @@ MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
 MethodName
-MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
@@ -213,6 +208,7 @@ NonStandardized
 Nondetects
 Nonpoint
 Ns
+NutrientGroup
 NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
@@ -316,6 +312,12 @@ StringA
 StringB
 SubstituteDeprecatedChars
 SummarizeColumn
+SummationFractionNotes
+SummationName
+SummationNote
+SummationRank
+SummationSpeciationConversionFactor
+SummationSpeciationNotes
 SuspectCoordinates
 Sys
 TADA

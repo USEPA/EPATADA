@@ -89,14 +89,14 @@ test_that("No combos were missed in NP key from harmonization table", {
     expand_fraction() |>
     expand_spec()
 
-  # Prepare harmonization keys (normalized); limit to characteristics appearing in NP
+  # Prepare harmonization keys
   harm <- TADA_GetSynonymRef() |>
     dplyr::select(dplyr::all_of(keys)) |>
     dplyr::distinct() |>
     normalize() |>
-    dplyr::filter(
-      rlang::.data$TADA.CharacteristicName %in%
-        unique(np$TADA.CharacteristicName)
+    dplyr::semi_join(
+      np |> dplyr::distinct(`TADA.CharacteristicName`),
+      by = "TADA.CharacteristicName"
     )
 
   # Orphans: harmonization keys that aren’t covered by (expanded) NP keys
