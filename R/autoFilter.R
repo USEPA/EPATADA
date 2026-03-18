@@ -297,12 +297,12 @@ TADA_FieldValuesTable <- function(
 #'   surface_water = TRUE
 #' )
 TADA_MediaFilter <- function(
-  .data,
-  clean = FALSE,
-  surface_water = FALSE,
-  ground_water = FALSE,
-  sediment = FALSE,
-  other = FALSE
+    .data,
+    clean = FALSE,
+    surface_water = FALSE,
+    ground_water = FALSE,
+    sediment = FALSE,
+    other = FALSE
 ) {
   # Validate input
   if (!is.data.frame(.data)) {
@@ -312,57 +312,18 @@ TADA_MediaFilter <- function(
     message("The entered data frame is empty. The function will not run.")
     return(NULL)
   }
-
-  # Required columns (MonitoringLocationTypeName must exist)
-  required_columns <- c(
-    "ActivityMediaSubdivisionName",
-    "AquiferName",
-    "MonitoringLocationTypeName"
-  )
-  missing_columns <- setdiff(required_columns, names(.data))
-  if (length(missing_columns) > 0) {
+  
+  # Require only MonitoringLocationTypeName; other fields are optional and will be created if missing
+  required_columns <- c("MonitoringLocationTypeName")
+  missing_required <- setdiff(required_columns, names(.data))
+  if (length(missing_required) > 0) {
     stop(paste(
       "Missing required columns:",
-      paste(missing_columns, collapse = ", ")
+      paste(missing_required, collapse = ", ")
     ))
   }
-
-  # Ensure optional column exists to avoid downstream errors
-  if (!"ActivityMediaName" %in% names(.data)) {
-    .data$ActivityMediaName <- NA_character_
-  }
-
-  # Read the monitoring location reference table
-  monitoring_location_types <- TADA_GetMonLocTypeRef()
-
-  # Standardize names for robust detection
-  std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
-
-  # Exact matches: "Name" and "TADA.Media.Flag"
-  idx_name <- match("name", std_names)
-  idx_flag <- match("tada.media.flag", std_names)
-
-  if (!is.na(idx_name)) {
-    names(monitoring_location_types)[idx_name] <- "Name"
-    monitoring_location_types <- monitoring_location_types |>
-      dplyr::mutate(Name = toupper(Name))
-  } else {
-    has_ref <- FALSE
-  }
-
-  if (!is.na(idx_flag)) {
-    names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
-  } else {
-    monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
-  }
-
-  # Uppercase ML type name in .data for reliable joining
-  .data <- .data |>
-    dplyr::mutate(
-      MonitoringLocationTypeName = toupper(MonitoringLocationTypeName)
-    )
-
-  # Build a groundwater indicator from any available groundwater-related fields
+  
+  # Ensure optional columns exist to avoid downstream errors
   gw_cols <- c(
     "AquiferName",
     "AquiferTypeName",
@@ -373,44 +334,92 @@ TADA_MediaFilter <- function(
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode"
   )
+  optional_cols <- c("ActivityMediaSubdivisionName", "ActivityMediaName", gw_cols)
+  for (col in setdiff(optional_cols, names(.data))) {
+    .data[[col]] <- NA_character_
+  }
+  
+  # Read the monitoring location reference table
+  monitoring_location_types <- TADA_GetMonLocTypeRef()
+  
+  # Initialize has_ref and standardize names for robust detection
+  has_ref <- FALSE
+  std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
+  
+  # Exact matches: "Name" and "TADA.Media.Flag" (after normalization)
+  idx_name <- match("name", std_names)
+  idx_flag <- match("tada.media.flag", std_names)
+  
+  if (!is.na(idx_name)) {
+    names(monitoring_location_types)[idx_name] <- "Name"
+    monitoring_location_types <- monitoring_location_types |>
+      dplyr::mutate(Name = toupper(.data$Name))
+    has_ref <- TRUE
+  } else {
+    has_ref <- FALSE
+  }
+  
+  if (!is.na(idx_flag)) {
+    names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
+  } else if (has_ref) {
+    monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
+  }
+  
+  # Uppercase ML type name in .data for reliable joining
+  .data <- .data |>
+    dplyr::mutate(
+      MonitoringLocationTypeName = toupper(.data$MonitoringLocationTypeName)
+    )
+  
+  # Build a groundwater indicator from any available groundwater-related fields
   present_gw_cols <- intersect(gw_cols, names(.data))
   if (length(present_gw_cols) > 0) {
-    gw_has_fields <- apply(
-      .data[, present_gw_cols, drop = FALSE],
-      1,
-      function(row) any(!is.na(row))
-    )
+    gw_logicals <- lapply(present_gw_cols, function(col) {
+      x <- .data[[col]]
+      if (is.factor(x)) x <- as.character(x)
+      if (is.character(x)) {
+        !is.na(x) & nzchar(trimws(x))
+      } else {
+        !is.na(x)
+      }
+    })
+    gw_has_fields <- Reduce(`|`, gw_logicals, init = rep(FALSE, nrow(.data)))
   } else {
     gw_has_fields <- rep(FALSE, nrow(.data))
   }
   .data$gw_has_fields <- gw_has_fields
-
+  
+  # Precompute normalized media/subdivision for robust comparisons
+  ams <- tolower(trimws(as.character(.data$ActivityMediaSubdivisionName)))
+  am  <- tolower(trimws(as.character(.data$ActivityMediaName)))
+  ams_blank <- is.na(ams) | !nzchar(ams)
+  am_blank  <- is.na(am)  | !nzchar(am)
+  
   # Classify media from data columns
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        # If subdivision is missing and media name is WATER (and not groundwater), treat as SURFACE WATER
-        (is.na(ActivityMediaSubdivisionName) |
-          !nzchar(trimws(ActivityMediaSubdivisionName))) &
-          !is.na(ActivityMediaName) &
-          nzchar(trimws(ActivityMediaName)) &
-          tolower(trimws(ActivityMediaName)) == "water" &
-          !gw_has_fields ~ "SURFACE WATER",
-        ActivityMediaSubdivisionName == "Groundwater" |
-          gw_has_fields ~ "GROUNDWATER",
-        ActivityMediaSubdivisionName == "Surface Water" ~ "SURFACE WATER",
-        ActivityMediaSubdivisionName == "Sediment" ~ "SEDIMENT",
-
-        # Keep any non-"water" ActivityMediaName as-is (uppercased)
-        !is.na(ActivityMediaName) &
-          nzchar(trimws(ActivityMediaName)) &
-          tolower(trimws(ActivityMediaName)) != "water" ~ toupper(trimws(
-          ActivityMediaName
-        )),
+        # 1) Sediment by media name (give this highest priority so GW hints don't override)
+        !am_blank & am %in% c("sediment", "soil", "soil or sediment", "soil/sediment", "soil-sediment") ~ "SEDIMENT",
+        # 2) Sediment by subdivision
+        ams == "sediment" ~ "SEDIMENT",
+        
+        # 3) Explicit surface water subdivision
+        ams == "surface water" ~ "SURFACE WATER",
+        
+        # 4) Groundwater by subdivision or GW-related fields
+        ams == "groundwater" | gw_has_fields ~ "GROUNDWATER",
+        
+        # 5) If subdivision is blank and media name is water and no GW fields -> SURFACE WATER
+        ams_blank & !am_blank & am == "water" & !gw_has_fields ~ "SURFACE WATER",
+        
+        # 6) Keep any other non-"water" ActivityMediaName as-is (uppercased)
+        !am_blank & am != "water" ~ toupper(trimws(as.character(.data$ActivityMediaName))),
+        
         TRUE ~ NA_character_
       )
     )
-
+  
   # Join with reference (if available) and coalesce media flag
   if (isTRUE(has_ref)) {
     .data <- .data |>
@@ -419,32 +428,33 @@ TADA_MediaFilter <- function(
         by = c("MonitoringLocationTypeName" = "Name")
       ) |>
       dplyr::mutate(
+        # Prefer reference classification when available
         TADA.Media.Flag = dplyr::coalesce(
-          TADA.Media.Flag,
-          Ref.TADA.Media.Flag,
+          .data$Ref.TADA.Media.Flag,
+          .data$TADA.Media.Flag,
           "OTHER"
         )
       ) |>
       dplyr::select(-dplyr::any_of(c("Ref.TADA.Media.Flag")))
   } else {
     .data <- .data |>
-      dplyr::mutate(TADA.Media.Flag = dplyr::coalesce(TADA.Media.Flag, "OTHER"))
+      dplyr::mutate(TADA.Media.Flag = dplyr::coalesce(.data$TADA.Media.Flag, "OTHER"))
   }
-
-  # Normalize TADA.Media.Flag
+  
+  # Normalize TADA.Media.Flag to core values
   core_flags <- c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
   .data <- .data |>
     dplyr::mutate(
-      TADA.Media.Flag = toupper(trimws(TADA.Media.Flag)),
+      TADA.Media.Flag = toupper(trimws(.data$TADA.Media.Flag)),
       TADA.Media.Flag = dplyr::case_when(
-        is.na(TADA.Media.Flag) ~ "OTHER",
-        TADA.Media.Flag == "" ~ "OTHER",
-        TADA.Media.Flag %in% c("HABITAT", "AIR", "BIOLOGICAL") ~ "OTHER",
-        !(TADA.Media.Flag %in% core_flags) ~ "OTHER",
-        TRUE ~ TADA.Media.Flag
+        is.na(.data$TADA.Media.Flag) ~ "OTHER",
+        .data$TADA.Media.Flag == "" ~ "OTHER",
+        .data$TADA.Media.Flag %in% c("HABITAT", "AIR", "BIOLOGICAL") ~ "OTHER",
+        !(.data$TADA.Media.Flag %in% core_flags) ~ "OTHER",
+        TRUE ~ .data$TADA.Media.Flag
       )
     )
-
+  
   # Build removal set based on arguments (used only when clean = TRUE)
   remove_media <- c(
     if (isTRUE(surface_water)) "SURFACE WATER",
@@ -452,28 +462,48 @@ TADA_MediaFilter <- function(
     if (isTRUE(sediment)) "SEDIMENT",
     if (isTRUE(other)) "OTHER"
   )
-
+  
   if (clean) {
     # Pre-flight guard: warn when all media toggles are TRUE
     all_selected <- isTRUE(surface_water) &&
       isTRUE(ground_water) &&
       isTRUE(sediment) &&
       isTRUE(other)
-
+    
     if (all_selected) {
       warning("All media types are selected for removal", call. = FALSE)
     }
-
-    # Inform if no toggles are set (clean requested but nothing to remove)
-    if (length(remove_media) == 0) {
-      message(
-        "TADA_MediaFilter: No media types selected for removal (all toggles are FALSE). Returning original data without TADA.Media.Flag."
-      )
+    
+    # Small helpers for robust counts (always return a 4-length named vector)
+    count_by_core <- function(v) {
+      f <- factor(v, levels = core_flags)
+      stats::setNames(tabulate(as.integer(f), nbins = length(core_flags)), core_flags)
     }
-
-    # Remove requested media and drop flag/helper columns
-    .data <- .data |> dplyr::filter(!(TADA.Media.Flag %in% remove_media))
-
+    format_counts <- function(cnts) {
+      paste(sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")), collapse = " | ")
+    }
+    
+    # Counts BEFORE filtering
+    flags_before <- .data$TADA.Media.Flag
+    counts_pre <- count_by_core(flags_before)
+    message(sprintf("TADA_MediaFilter: Counts by media (before filter) - %s", format_counts(counts_pre)))
+    
+    # Determine rows to remove
+    removed_idx <- flags_before %in% remove_media
+    n_remove <- sum(removed_idx)
+    
+    # Counts TO REMOVE (by selected media)
+    counts_removed <- count_by_core(flags_before[removed_idx])
+    message(sprintf("TADA_MediaFilter: Counts by media (to remove) - %s", format_counts(counts_removed)))
+    
+    # Counts AFTER filtering (compute from flags_before for robustness)
+    flags_after <- flags_before[!removed_idx]
+    counts_post <- count_by_core(flags_after)
+    message(sprintf("TADA_MediaFilter: Counts by media (after filter) - %s", format_counts(counts_post)))
+    
+    # Perform removal
+    .data <- .data[!removed_idx, , drop = FALSE]
+    
     # Warn if all rows were removed, except when all toggles were TRUE (pre-flight warning already emitted)
     if (nrow(.data) == 0 && !all_selected) {
       warning(
@@ -481,32 +511,51 @@ TADA_MediaFilter <- function(
         call. = FALSE
       )
     }
-
-    # Build a readable list of which media types were set to TRUE
-    removed_types_str <- if (length(remove_media) > 0) {
-      paste(remove_media, collapse = ", ")
-    } else {
-      "none"
-    }
-
+    
+    # Drop flag/helper columns and order
     .data <- .data |>
       dplyr::select(-dplyr::any_of(c("TADA.Media.Flag", "gw_has_fields"))) |>
       TADA_OrderCols()
-
-    message(sprintf(
-      "TADA_MediaFilter: Removed media types: %s. Returning cleaned data without flag columns.",
-      removed_types_str
-    ))
+    
+    # Tailored summary messages
+    if (length(remove_media) == 0) {
+      message(
+        "TADA_MediaFilter: No media types selected for removal (all toggles are FALSE). Returning original data without TADA.Media.Flag."
+      )
+    } else if (n_remove == 0) {
+      message(sprintf(
+        "TADA_MediaFilter: No rows matched the selected media types for removal (%s). Returning data unchanged (without flag columns).",
+        paste(remove_media, collapse = ", ")
+      ))
+    } else {
+      message(sprintf(
+        "TADA_MediaFilter: Removed %s rows matching media types: %s. Returning cleaned data without flag columns.",
+        format(n_remove, big.mark = ","),
+        paste(remove_media, collapse = ", ")
+      ))
+    }
+    
   } else {
+    # Counts when not cleaning
+    count_by_core <- function(v) {
+      f <- factor(v, levels = core_flags)
+      stats::setNames(tabulate(as.integer(f), nbins = length(core_flags)), core_flags)
+    }
+    format_counts <- function(cnts) {
+      paste(sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")), collapse = " | ")
+    }
+    counts <- count_by_core(.data$TADA.Media.Flag)
+    message(sprintf("TADA_MediaFilter: Counts by media - %s", format_counts(counts)))
+    
     # Do not clean; keep flag and drop helper
     .data <- .data |>
       dplyr::select(-dplyr::any_of("gw_has_fields")) |>
       TADA_OrderCols()
-
+    
     message(
       "TADA_MediaFilter: Returning all results with TADA.Media.Flag; media toggles ignored because clean = FALSE."
     )
   }
-
+  
   return(.data)
 }
