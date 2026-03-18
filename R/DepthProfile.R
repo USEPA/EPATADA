@@ -146,6 +146,7 @@ TADA_FlagDepthCategory <- function(
     "DEPTH, SECCHI DISK DEPTH",
     "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
     "DEPTH, SECCHI DISK DEPTH REAPPEARS",
+    "TRANSPARENCY, SECCHI TUBE WITH DISK",
     "DEPTH, DATA-LOGGER (NON-PORTED)",
     "DEPTH, DATA-LOGGER (PORTED)",
     "RBP STREAM DEPTH - RIFFLE",
@@ -687,7 +688,17 @@ TADA_IDDepthProfiles <- function(
     .data <- TADA_FlagDepthCategory(.data)
   }
 
-  depth.params <- c("DEPTH, SECCHI DISK DEPTH")
+  depth.params <- c(
+    "DEPTH, SECCHI DISK DEPTH",
+    "DEPTH, SECCHI DISK DEPTH (CHOICE LIST)",
+    "DEPTH, SECCHI DISK DEPTH REAPPEARS",
+    "TRANSPARENCY, SECCHI TUBE WITH DISK",
+    "DEPTH, DATA-LOGGER (NON-PORTED)",
+    "DEPTH, DATA-LOGGER (PORTED)",
+    "RBP STREAM DEPTH - RIFFLE",
+    "RBP STREAM DEPTH - RUN",
+    "THALWEG DEPTH"
+  )
 
   if (aggregates == FALSE) {
     if ("TADA.DepthProfileAggregation.Flag" %in% names(.data) == TRUE) {
@@ -730,18 +741,11 @@ TADA_IDDepthProfiles <- function(
         TADA.ComparableDataIdentifier
       ) |>
       dplyr::mutate(
-        TADA.NResults = length(unique(TADA.ConsolidatedDepth)),
-        TADA.CharacteristicsForDepthProfile = paste(
-          TADA.ComparableDataIdentifier,
-          " (",
-          TADA.NResults,
-          ")",
-          sep = ""
-        )
+        TADA.NResults = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE),
+        has_depth_param = any(TADA.CharacteristicName %in% depth.params, na.rm = TRUE),
+        TADA.CharacteristicsForDepthProfile = paste0(TADA.ComparableDataIdentifier, " (", TADA.NResults, ")")
       ) |>
-      dplyr::filter(
-        TADA.NResults >= nvalue | TADA.CharacteristicName %in% depth.params
-      ) |>
+      dplyr::filter(TADA.NResults >= nvalue | has_depth_param) |>
       dplyr::ungroup() |>
       dplyr::group_by(
         TADA.MonitoringLocationIdentifier,
@@ -1217,6 +1221,7 @@ TADA_DepthProfilePlot <- function(
     "DEPTH, SECCHI DISK DEPTH REAPPEARS",
     "DEPTH, DATA-LOGGER (NON-PORTED)",
     "DEPTH, DATA-LOGGER (PORTED)",
+    "TRANSPARENCY, SECCHI TUBE WITH DISK",
     "RBP STREAM DEPTH - RIFFLE",
     "RBP STREAM DEPTH - RUN",
     "THALWEG DEPTH"
