@@ -681,7 +681,7 @@ characteristic groups.
 
 ```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "PH_NA_NA_NONE"
+comp_data_id <- "PH_NONE_NONE_NONE"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```
@@ -732,9 +732,9 @@ secchi depth, and pH.
 ```{r depth plot}
 TADA_DepthProfilePlot(dataset_cens,
   groups = c(
-    "TEMPERATURE, WATER_NA_NA_DEG C",
-    "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
-    "PH_NA_NA_NONE"
+    "TEMPERATURE, WATER_NONE_NONE_DEG C",
+    "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN",
+    "PH_NONE_NONE_NONE"
   ),
   location = "REDLAKE_WQX-ANKE",
   activity_date = "2018-10-04",
