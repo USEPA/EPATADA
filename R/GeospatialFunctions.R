@@ -339,7 +339,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
   catchment_features <- sf::st_filter(
     catchment_features,
     points_sf,
-    .predicate = sf::st_intersects
+    .predicate = sf::st_covers
   )
 
   if (length(catchment_features) == 0 || is.null(catchment_features)) {
