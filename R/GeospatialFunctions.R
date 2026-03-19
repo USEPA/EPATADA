@@ -317,27 +317,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     purrr::map_dfr(id_chunks, fetch_chunk)
   }
 
-  grab_waterbody_type <- function(au_list, chunk_size = 50) {
-    num_chunks <- ceiling(length(au_list) / chunk_size)
-    chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
-    water_types <- vector("list", length = length(chunks))
-
-    for (i in seq_along(chunks)) {
-      dat <- httr::GET(utils::URLencode(paste0(
-        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
-        paste(chunks[[i]], collapse = ",")
-      ))) |>
-        httr::content(as = "text", encoding = "UTF-8") |>
-        jsonlite::fromJSON()
-
-      water_types[[i]] <- dat[["items"]] |>
-        tidyr::unnest("assessmentUnits") |>
-        tidyr::unnest("waterTypes") |>
-        dplyr::select(assessmentUnitIdentifier, waterTypeCode)
-    }
-    dplyr::bind_rows(water_types)
-  }
-
   if (as.numeric(sf::st_area(sf::st_as_sfc(.data |> sf::st_bbox()))) >= 6e+9) {
     perform_iterative_clustering <- function(
       points_sf,
@@ -503,12 +482,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     } else {
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+      water_types <- fetchWaterType(all_units)
       try(
         catchment_features <- dplyr::left_join(
           catchment_features,
           water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+          by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
         )
       )
     }
@@ -534,7 +513,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       points <- points |>
         dplyr::left_join(
           water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+          by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
         ),
       silent = TRUE
     )
@@ -543,7 +522,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       lines <- lines |>
         dplyr::left_join(
           water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+          by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
         ),
       silent = TRUE
     )
@@ -552,7 +531,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       polygons <- polygons |>
         dplyr::left_join(
           water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+          by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
         ),
       silent = TRUE
     )
@@ -585,12 +564,12 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     } else {
       all_units <- unique(catchment_features$assessmentunitidentifier)
-      water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+      water_types <- fetchWaterType(all_units)
       try(
         catchment_features <- dplyr::left_join(
           catchment_features,
           water_types,
-          by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+          by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
         ),
         silent = TRUE
       )
@@ -640,7 +619,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           points <- points |>
             dplyr::left_join(
               water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+              by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
             ),
           silent = TRUE
         )
@@ -649,7 +628,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           lines <- lines |>
             dplyr::left_join(
               water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+              by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
             ),
           silent = TRUE
         )
@@ -658,7 +637,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
           polygons <- polygons |>
             dplyr::left_join(
               water_types,
-              by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+              by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
             ),
           silent = TRUE
         )
@@ -1876,35 +1855,9 @@ TADA_GetATTAINSByAUID <- function(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
   )
 
-  # get water type info using ATTAINS Expert Query
-  get_wb_type <- function(au_list) {
-    au_list <- unique(au_list)
-
-    # split the au_list into chunks
-    chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
-
-    # get water type
-    # need to edit funciton to silent print outs from EQ_AUs
-
-    wat_type <- function(chunk) {
-      results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = api_key,
-        auid = chunk
-      ))
-    }
-
-    results <- purrr::map_dfr(.x = chunks, .f = wat_type)
-
-    results <- results |>
-      dplyr::select(assessmentUnitId, waterType) |>
-      dplyr::distinct()
-
-    return(results)
-  }
-
   # get water types
   water_types <- try(
-    get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
+    fetchWaterType(au_ref$ATTAINS.AssessmentUnitIdentifier),
     silent = TRUE
   )
 
