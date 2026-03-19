@@ -525,30 +525,39 @@ TADA_MediaFilter <- function(
       isTRUE(ground_water) &&
       isTRUE(sediment) &&
       isTRUE(other)
-    
+
     if (all_selected) {
       warning("All media types are selected for removal", call. = FALSE)
     }
-    
+
     # Helpers for robust counts (always return a 4-length named vector)
     count_by_core <- function(v) {
       f <- factor(v, levels = core_flags)
-      stats::setNames(tabulate(as.integer(f), nbins = length(core_flags)), core_flags)
+      stats::setNames(
+        tabulate(as.integer(f), nbins = length(core_flags)),
+        core_flags
+      )
     }
     format_counts <- function(cnts) {
-      paste(sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")), collapse = " | ")
+      paste(
+        sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")),
+        collapse = " | "
+      )
     }
-    
+
     # Counts BEFORE filtering
     flags_before <- .data$TADA.Media.Flag
     counts_pre <- count_by_core(flags_before)
-    message(sprintf("TADA_MediaFilter: Counts by media (before filter) - %s", format_counts(counts_pre)))
-    
+    message(sprintf(
+      "TADA_MediaFilter: Counts by media (before filter) - %s",
+      format_counts(counts_pre)
+    ))
+
     # Determine rows to remove and perform removal
     removed_idx <- flags_before %in% remove_media
     n_remove <- sum(removed_idx)
     .data <- .data[!removed_idx, , drop = FALSE]
-    
+
     # Warn if all rows were removed, except when all toggles were TRUE
     if (nrow(.data) == 0 && !all_selected) {
       warning(
@@ -556,12 +565,12 @@ TADA_MediaFilter <- function(
         call. = FALSE
       )
     }
-    
+
     # Drop flag/helper columns and order
     .data <- .data |>
       dplyr::select(-dplyr::any_of(c("TADA.Media.Flag", "gw_has_fields"))) |>
       TADA_OrderCols()
-    
+
     # Final single summary message
     if (length(remove_media) == 0) {
       message(
@@ -579,24 +588,32 @@ TADA_MediaFilter <- function(
         paste(remove_media, collapse = ", ")
       ))
     }
-    
   } else {
     # Counts when not cleaning
     count_by_core <- function(v) {
       f <- factor(v, levels = core_flags)
-      stats::setNames(tabulate(as.integer(f), nbins = length(core_flags)), core_flags)
+      stats::setNames(
+        tabulate(as.integer(f), nbins = length(core_flags)),
+        core_flags
+      )
     }
     format_counts <- function(cnts) {
-      paste(sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")), collapse = " | ")
+      paste(
+        sprintf("%s: %s", names(cnts), format(cnts, big.mark = ",")),
+        collapse = " | "
+      )
     }
     counts <- count_by_core(.data$TADA.Media.Flag)
-    message(sprintf("TADA_MediaFilter: Counts by media - %s", format_counts(counts)))
-    
+    message(sprintf(
+      "TADA_MediaFilter: Counts by media - %s",
+      format_counts(counts)
+    ))
+
     # Do not clean; keep flag and drop helper
     .data <- .data |>
       dplyr::select(-dplyr::any_of("gw_has_fields")) |>
       TADA_OrderCols()
-    
+
     message(
       "TADA_MediaFilter: Returning all results with TADA.Media.Flag; media toggles ignored because clean = FALSE."
     )
