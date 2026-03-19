@@ -129,81 +129,152 @@ TADA_ListCacheKeys <- function() {
 
 # Read CSV from URL; returns NULL on error; avoids lingering connections
 .tada_read_csv_url <- function(
-    url,
-    stringsAsFactors = FALSE,
-    encodings = c("UTF-8", "latin1"),
-    retries = 2,
-    user_agent = "EPATADA (R)"
+  url,
+  stringsAsFactors = FALSE,
+  encodings = c("UTF-8", "latin1"),
+  retries = 2,
+  user_agent = "EPATADA (R)"
 ) {
   tf <- tempfile(fileext = ".csv")
-  on.exit({ if (file.exists(tf)) unlink(tf, force = TRUE) }, add = TRUE)
-  
+  on.exit(
+    {
+      if (file.exists(tf)) unlink(tf, force = TRUE)
+    },
+    add = TRUE
+  )
+
   ua <- getOption("EPATADA.user_agent", user_agent)
   verbose <- isTRUE(getOption("EPATADA.verbose"))
-  
+
   download_ok <- FALSE
   attempt <- 0L
-  
+
   # 1) Preferred: curl with headers and proxy support
   if (requireNamespace("curl", quietly = TRUE)) {
     while (!download_ok && attempt <= retries) {
       attempt <- attempt + 1L
-      download_ok <- tryCatch({
-        h <- curl::new_handle(followlocation = TRUE)
-        curl::handle_setheaders(h, "User-Agent" = ua, "Accept" = "text/csv, */*")
-        
-        if (.Platform$OS.type == "windows") {
-          p <- try(curl::ie_proxy_info(), silent = TRUE)
-          if (!inherits(p, "try-error") && is.list(p) &&
-              is.character(p$url) && length(p$url) && nzchar(p$url[1])) {
-            curl::handle_setopt(h, proxy = p$url[1])
-            if (is.character(p$userpwd) && length(p$userpwd) && nzchar(p$userpwd[1])) {
-              curl::handle_setopt(h, proxyuserpwd = p$userpwd[1])
+      download_ok <- tryCatch(
+        {
+          h <- curl::new_handle(followlocation = TRUE)
+          curl::handle_setheaders(
+            h,
+            "User-Agent" = ua,
+            "Accept" = "text/csv, */*"
+          )
+
+          if (.Platform$OS.type == "windows") {
+            p <- try(curl::ie_proxy_info(), silent = TRUE)
+            if (
+              !inherits(p, "try-error") &&
+                is.list(p) &&
+                is.character(p$url) &&
+                length(p$url) &&
+                nzchar(p$url[1])
+            ) {
+              curl::handle_setopt(h, proxy = p$url[1])
+              if (
+                is.character(p$userpwd) &&
+                  length(p$userpwd) &&
+                  nzchar(p$userpwd[1])
+              ) {
+                curl::handle_setopt(h, proxyuserpwd = p$userpwd[1])
+              }
             }
           }
+          px <- Sys.getenv(c(
+            "https_proxy",
+            "HTTPS_PROXY",
+            "http_proxy",
+            "HTTP_PROXY"
+          ))
+          px <- px[nzchar(px)]
+          if (length(px)) {
+            curl::handle_setopt(h, proxy = px[[1]])
+          }
+
+          curl::curl_download(url, tf, mode = "wb", handle = h)
+          file.exists(tf) &&
+            is.finite(file.info(tf)$size) &&
+            file.info(tf)$size > 0
+        },
+        error = function(e) {
+          if (verbose) {
+            message("curl_download failed [", conditionMessage(e), "]")
+          }
+          FALSE
+        },
+        warning = function(w) {
+          if (verbose) {
+            message("curl_download warning [", conditionMessage(w), "]")
+          }
+          FALSE
         }
-        px <- Sys.getenv(c("https_proxy", "HTTPS_PROXY", "http_proxy", "HTTP_PROXY"))
-        px <- px[nzchar(px)]
-        if (length(px)) curl::handle_setopt(h, proxy = px[[1]])
-        
-        curl::curl_download(url, tf, mode = "wb", handle = h)
-        file.exists(tf) && is.finite(file.info(tf)$size) && file.info(tf)$size > 0
-      }, error = function(e) {
-        if (verbose) message("curl_download failed [", conditionMessage(e), "]")
-        FALSE
-      }, warning = function(w) {
-        if (verbose) message("curl_download warning [", conditionMessage(w), "]")
-        FALSE
-      })
+      )
       if (!download_ok) Sys.sleep(0.4 * attempt)
     }
   }
-  
+
   # 2) Fallback: utils::download.file (libcurl), then wininet on Windows
   if (!download_ok) {
-    ok <- try({
-      utils::download.file(url, tf, mode = "wb", method = "libcurl", quiet = TRUE)
-      TRUE
-    }, silent = TRUE)
-    download_ok <- !inherits(ok, "try-error") && file.exists(tf) && file.info(tf)$size > 0
-    if (verbose && !download_ok) message("utils::download.file(libcurl) failed.")
-    
-    if (!download_ok && .Platform$OS.type == "windows") {
-      ok <- try({
-        utils::download.file(url, tf, mode = "wb", method = "wininet", quiet = TRUE)
+    ok <- try(
+      {
+        utils::download.file(
+          url,
+          tf,
+          mode = "wb",
+          method = "libcurl",
+          quiet = TRUE
+        )
         TRUE
-      }, silent = TRUE)
-      download_ok <- !inherits(ok, "try-error") && file.exists(tf) && file.info(tf)$size > 0
-      if (verbose && !download_ok) message("utils::download.file(wininet) failed.")
+      },
+      silent = TRUE
+    )
+    download_ok <- !inherits(ok, "try-error") &&
+      file.exists(tf) &&
+      file.info(tf)$size > 0
+    if (verbose && !download_ok) {
+      message("utils::download.file(libcurl) failed.")
+    }
+
+    if (!download_ok && .Platform$OS.type == "windows") {
+      ok <- try(
+        {
+          utils::download.file(
+            url,
+            tf,
+            mode = "wb",
+            method = "wininet",
+            quiet = TRUE
+          )
+          TRUE
+        },
+        silent = TRUE
+      )
+      download_ok <- !inherits(ok, "try-error") &&
+        file.exists(tf) &&
+        file.info(tf)$size > 0
+      if (verbose && !download_ok) {
+        message("utils::download.file(wininet) failed.")
+      }
     }
   }
-  
+
   # 3) If we got a file, guard against HTML but still try to parse once
   if (download_ok) {
-    head_bytes <- tryCatch(readChar(tf, nchars = 256L, useBytes = TRUE), error = function(e) "")
+    head_bytes <- tryCatch(
+      readChar(tf, nchars = 256L, useBytes = TRUE),
+      error = function(e) ""
+    )
     looks_html <- grepl("(?i)<html|<!DOCTYPE", head_bytes)
-    if (verbose) message("Downloaded file size: ", file.info(tf)$size, " bytes; looks_html=", looks_html)
-    
+    if (verbose) {
+      message(
+        "Downloaded file size: ",
+        file.info(tf)$size,
+        " bytes; looks_html=",
+        looks_html
+      )
+    }
+
     # Attempt to parse even if looks_html (some gateways add harmless tags or false positives)
     for (enc in encodings) {
       df <- tryCatch(
@@ -215,21 +286,33 @@ TADA_ListCacheKeys <- function() {
           check.names = TRUE
         ),
         error = function(e) {
-          if (verbose) message("read.csv(temp, enc=", enc, ") failed: ", conditionMessage(e))
+          if (verbose) {
+            message(
+              "read.csv(temp, enc=",
+              enc,
+              ") failed: ",
+              conditionMessage(e)
+            )
+          }
           NULL
         }
       )
       if (!is.null(df)) {
         nm <- names(df)
         nm <- sub("^\ufeff", "", nm, perl = TRUE)
-        nm <- sub("^\u00EF(?:\u00BB|\\.)?(?:\u00BF|\\.)?\\s*", "", nm, perl = TRUE)
+        nm <- sub(
+          "^\u00EF(?:\u00BB|\\.)?(?:\u00BF|\\.)?\\s*",
+          "",
+          nm,
+          perl = TRUE
+        )
         nm <- trimws(nm)
         names(df) <- nm
         return(df)
       }
     }
   }
-  
+
   # 4) Stream directly from URL using base R (often succeeds when temp-file parse fails)
   df <- tryCatch(
     utils::read.csv(
@@ -239,7 +322,9 @@ TADA_ListCacheKeys <- function() {
       check.names = TRUE
     ),
     error = function(e) {
-      if (verbose) message("utils::read.csv(URL) failed: ", conditionMessage(e))
+      if (verbose) {
+        message("utils::read.csv(URL) failed: ", conditionMessage(e))
+      }
       NULL
     }
   )
@@ -250,17 +335,27 @@ TADA_ListCacheKeys <- function() {
     names(df) <- nm
     return(df)
   }
-  
+
   # 5) Stream via curl connection (if available)
   if (requireNamespace("curl", quietly = TRUE)) {
-    df <- tryCatch({
-      con <- curl::curl(url)
-      on.exit(try(close(con), silent = TRUE), add = TRUE)
-      utils::read.csv(con, stringsAsFactors = stringsAsFactors, comment.char = "", check.names = TRUE)
-    }, error = function(e) {
-      if (verbose) message("read.csv(curl(url)) failed: ", conditionMessage(e))
-      NULL
-    })
+    df <- tryCatch(
+      {
+        con <- curl::curl(url)
+        on.exit(try(close(con), silent = TRUE), add = TRUE)
+        utils::read.csv(
+          con,
+          stringsAsFactors = stringsAsFactors,
+          comment.char = "",
+          check.names = TRUE
+        )
+      },
+      error = function(e) {
+        if (verbose) {
+          message("read.csv(curl(url)) failed: ", conditionMessage(e))
+        }
+        NULL
+      }
+    )
     if (!is.null(df)) {
       nm <- names(df)
       nm <- sub("^\ufeff", "", nm, perl = TRUE)
@@ -269,16 +364,21 @@ TADA_ListCacheKeys <- function() {
       return(df)
     }
   }
-  
+
   # 6) readr fallback from URL (if installed)
   if (requireNamespace("readr", quietly = TRUE)) {
-    df <- tryCatch({
-      tb <- readr::read_csv(url, show_col_types = FALSE, progress = FALSE)
-      as.data.frame(tb, stringsAsFactors = stringsAsFactors)
-    }, error = function(e) {
-      if (verbose) message("readr::read_csv(URL) failed: ", conditionMessage(e))
-      NULL
-    })
+    df <- tryCatch(
+      {
+        tb <- readr::read_csv(url, show_col_types = FALSE, progress = FALSE)
+        as.data.frame(tb, stringsAsFactors = stringsAsFactors)
+      },
+      error = function(e) {
+        if (verbose) {
+          message("readr::read_csv(URL) failed: ", conditionMessage(e))
+        }
+        NULL
+      }
+    )
     if (!is.null(df)) {
       nm <- names(df)
       nm <- sub("^\ufeff", "", nm, perl = TRUE)
@@ -287,38 +387,46 @@ TADA_ListCacheKeys <- function() {
       return(df)
     }
   }
-  
+
   NULL
 }
 
 # Reusable colname normalizer (BOM strip, trim, syntactic)
 .tada_norm_colnames <- function(df) {
   nm <- names(df)
-  nm <- sub("^\ufeff", "", nm, perl = TRUE)  # strip BOM
+  nm <- sub("^\ufeff", "", nm, perl = TRUE) # strip BOM
   nm <- trimws(nm)
-  nm <- make.names(nm, unique = TRUE)        # match read.csv(check.names=TRUE)
+  nm <- make.names(nm, unique = TRUE) # match read.csv(check.names=TRUE)
   names(df) <- nm
   df
 }
 
 # Load a data.frame from an installed extdata .rda (returns NULL if not found/invalid)
 .tada_load_extdata_rda <- function(
-    pkg = "EPATADA",
-    filename,
-    object_name = NULL,
-    required_cols = NULL,
-    trim = TRUE
+  pkg = "EPATADA",
+  filename,
+  object_name = NULL,
+  required_cols = NULL,
+  trim = TRUE
 ) {
   path <- system.file("extdata", filename, package = pkg)
-  if (!nzchar(path) || !file.exists(path)) return(NULL)
-  
+  if (!nzchar(path) || !file.exists(path)) {
+    return(NULL)
+  }
+
   e <- new.env(parent = emptyenv())
   objs <- try(load(path, envir = e), silent = TRUE)
-  if (inherits(objs, "try-error")) return(NULL)
-  
+  if (inherits(objs, "try-error")) {
+    return(NULL)
+  }
+
   pick_df <- function(obj) {
-    if (!is.data.frame(obj)) return(NULL)
-    if (trim) obj <- .tada_trim_char_cols(obj)
+    if (!is.data.frame(obj)) {
+      return(NULL)
+    }
+    if (trim) {
+      obj <- .tada_trim_char_cols(obj)
+    }
     obj <- .tada_norm_colnames(obj)
     if (!is.null(required_cols)) {
       miss <- setdiff(required_cols, names(obj))
@@ -326,13 +434,13 @@ TADA_ListCacheKeys <- function() {
     }
     obj
   }
-  
+
   # Prefer explicit object_name
   if (!is.null(object_name) && object_name %in% objs) {
     df <- pick_df(e[[object_name]])
     if (!is.null(df)) return(df)
   }
-  
+
   # Otherwise first matching data.frame
   for (nm in objs) {
     df <- pick_df(e[[nm]])
@@ -492,12 +600,12 @@ TADA_ListCacheKeys <- function() {
 
 # Assign labels based on vector membership (first match wins, NA optional)
 .tada_flag_by_groups <- function(
-    df,
-    source_col,
-    out_col,
-    groups,
-    default = "Not Reviewed",
-    na_default = NULL
+  df,
+  source_col,
+  out_col,
+  groups,
+  default = "Not Reviewed",
+  na_default = NULL
 ) {
   if (!(source_col %in% names(df))) {
     stop(sprintf(
@@ -508,9 +616,13 @@ TADA_ListCacheKeys <- function() {
   }
   # Trim the source vector to make matching resilient to whitespace
   v <- df[[source_col]]
-  if (is.factor(v)) v <- as.character(v)
-  if (is.character(v)) v <- trimws(v)
-  
+  if (is.factor(v)) {
+    v <- as.character(v)
+  }
+  if (is.character(v)) {
+    v <- trimws(v)
+  }
+
   flag <- rep(default, length(v))
   for (lab in names(groups)) {
     idx <- (v %in% groups[[lab]]) & (flag == default)
@@ -1162,7 +1274,7 @@ TADA_GetWQXCharValRef <- function(download_only = FALSE, refresh = FALSE) {
       fallback_filename = "WQXcharValRef.rda",
       object_name = "WQXcharValRef",
       pkg = "EPATADA",
-      required_cols = c("Status"),  # add this
+      required_cols = c("Status"), # add this
       on_fail_message = "Downloading latest Validation Reference Table failed! Falling back to (possibly outdated) internal file."
     )
   }
@@ -1311,20 +1423,28 @@ TADA_GetMeasureUnitRef <- function(download_only = FALSE, refresh = FALSE) {
 #'
 #' @export
 TADA_GetDetCondRef <- function(
-    download_only = FALSE,
-    refresh = FALSE,
-    quiet = FALSE
+  download_only = FALSE,
+  refresh = FALSE,
+  quiet = FALSE
 ) {
   if (!download_only) {
     cached <- .tada_cache_get(.WQXDetCondRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  msg <- if (quiet) NULL else
+  msg <- if (quiet) {
+    NULL
+  } else {
     "Live Detection Condition table unavailable or unexpected structure; using package fallback."
-  
+  }
+
   if (download_only) {
-    df <- .tada_read_csv_url(.WQX_URLS$ResultDetectionCondition, stringsAsFactors = FALSE)
-    if (is.null(df)) stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
+    df <- .tada_read_csv_url(
+      .WQX_URLS$ResultDetectionCondition,
+      stringsAsFactors = FALSE
+    )
+    if (is.null(df)) {
+      stop("TADA_GetDetCondRef(download_only=TRUE): download failed.")
+    }
   } else {
     df <- .tada_download_or_extdata_rda(
       url = .WQX_URLS$ResultDetectionCondition,
@@ -1336,11 +1456,11 @@ TADA_GetDetCondRef <- function(
       on_fail_message = msg
     )
   }
-  
+
   # Name harmonization and structural check (covers both live and fallback)
   df <- .tada_normalize_detcond_cols(df)
   .tada_require_cols(df, c("Name"), "Result Detection Condition")
-  
+
   # Flag, cache, return
   df <- .TADA_flag_DetCondRef(df)
   if (!download_only) {
@@ -1353,7 +1473,10 @@ TADA_GetDetCondRef <- function(
 #' @keywords internal
 .TADA_UpdateDetCondRef <- function() {
   df <- TADA_GetDetCondRef(download_only = TRUE)
-  names(df) <- make.names(trimws(sub("^\ufeff", "", names(df), perl = TRUE)), unique = TRUE)
+  names(df) <- make.names(
+    trimws(sub("^\ufeff", "", names(df), perl = TRUE)),
+    unique = TRUE
+  )
   .tada_save_ext_rda(
     df,
     obj_name = "WQXResultDetectionConditionRef",
