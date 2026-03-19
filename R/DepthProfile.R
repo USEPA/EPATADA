@@ -1596,7 +1596,7 @@ TADA_DepthProfilePlot <- function(
         data = param1,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param1$TADA.ResultSampleFractionText[1],
           " ",
           param1$TADA.CharacteristicName[1],
@@ -1649,7 +1649,7 @@ TADA_DepthProfilePlot <- function(
       plotly::add_lines(
         y = param1$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param1$TADA.ResultSampleFractionText[1],
           " ",
           param1$TADA.CharacteristicName[1],
@@ -1703,7 +1703,7 @@ TADA_DepthProfilePlot <- function(
         data = param2,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param2$TADA.ResultSampleFractionText[1],
           " ",
           param2$TADA.CharacteristicName[1],
@@ -1756,7 +1756,7 @@ TADA_DepthProfilePlot <- function(
       plotly::add_lines(
         y = param2$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param2$TADA.ResultSampleFractionText[1],
           " ",
           param2$TADA.CharacteristicName[1],
@@ -1811,7 +1811,7 @@ TADA_DepthProfilePlot <- function(
         data = param3,
         x = ~TADA.ResultMeasureValue,
         y = ~TADA.ConsolidatedDepth,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param3$TADA.ResultSampleFractionText[1],
           " ",
           param3$TADA.CharacteristicName[1],
@@ -1864,7 +1864,7 @@ TADA_DepthProfilePlot <- function(
       plotly::add_lines(
         y = param3$TADA.ResultMeasureValue[1],
         x = xrange,
-        name = TADA_CharStringRemoveNA(paste0(
+        name = TADA_CharStringRemoveNANone(paste0(
           param3$TADA.ResultSampleFractionText[1],
           " ",
           param3$TADA.CharacteristicName[1],

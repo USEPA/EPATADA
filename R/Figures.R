@@ -104,7 +104,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -306,7 +306,7 @@ TADA_Histogram <- function(
 
   for (i in seq_along(groups)) {
     plot.data <- groups[[i]]
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols, drop = TRUE]),
       collapse = " "
     ))
@@ -615,7 +615,7 @@ TADA_Scatterplot <- function(
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -1348,7 +1348,7 @@ TADA_GroupedScatterplot <- function(
     title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
-        TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[
+        TADA_CharStringRemoveNANone(unique(plot.data$TADA.ComparableDataIdentifier)[
           i
         ]),
         " Over Time"
@@ -1392,8 +1392,8 @@ TADA_GroupedScatterplot <- function(
         ),
         yaxis = list(
           title = paste(
-            TADA_CharStringRemoveNA(plot.data.y$TADA.CharacteristicName[1]),
-            TADA_CharStringRemoveNA(unique(
+            TADA_CharStringRemoveNANone(plot.data.y$TADA.CharacteristicName[1]),
+            TADA_CharStringRemoveNANone(unique(
               plot.data.y$TADA.ResultMeasure.MeasureUnitCode
             ))
           ),
@@ -1510,7 +1510,7 @@ TADA_GroupedScatterplot <- function(
     all_scatterplots[[i]] <- scatterplot
 
     # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
-    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(
+    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNANone(
       plot.data$TADA.ComparableDataIdentifier
     ))[i]
   }

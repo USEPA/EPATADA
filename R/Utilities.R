@@ -1932,7 +1932,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 }
 
 
-#' Remove NAs in Strings for Figure Titles and Axis Labels
+#' Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
 #' found in columns such as TADA.ComparableDataIdentifier. Can also
@@ -1954,9 +1954,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
-#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNANone(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
-TADA_CharStringRemoveNA <- function(char_string) {
+TADA_CharStringRemoveNANone <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
     stop(paste0(
@@ -1967,14 +1967,14 @@ TADA_CharStringRemoveNA <- function(char_string) {
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
 
-  # Looks through each item in the vector and removes NAs from each.
-  labs <- c()
-  for (i in 1:length(char_string)) {
-    labs[i] <- paste0(char_string[i], collapse = " ")
-    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
-    labs[i] <- gsub("_", " ", labs[i])
-    labs[i] <- gsub("\\s+", " ", labs[i])
-    labs <- as.vector(labs)
+  labs <- character(length(char_string))
+  for (i in seq_along(char_string)) {
+    x <- char_string[i]
+    x <- gsub("_", " ", x)
+    x <- gsub("\\b(?:NA|NONE)\\b", "", x, perl = TRUE, ignore.case = TRUE)
+    x <- gsub("\\(\\s*\\)", "", x)
+    x <- gsub("\\s+", " ", x)
+    labs[i] <- trimws(x)
   }
 
   return(labs)
