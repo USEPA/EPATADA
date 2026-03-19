@@ -1024,7 +1024,9 @@ TADA_DataRetrieval <- function(
 
       # Run TADA_AutoClean function
       if (applyautoclean == TRUE) {
-        message("Data successfully downloaded. Running TADA_AutoClean function.")
+        message(
+          "Data successfully downloaded. Running TADA_AutoClean function."
+        )
 
         TADAprofile.clean <- TADA_AutoClean(TADAprofile)
       } else {
