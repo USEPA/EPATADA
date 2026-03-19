@@ -275,11 +275,11 @@ TADA_Histogram <- function(
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
-  start <- dim(.data)[1]
+  start <- nrow(.data)
 
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
 
-  end <- dim(.data)[1]
+  end <- nrow(.data)
 
   if (!start == end) {
     net <- start - end
@@ -294,14 +294,20 @@ TADA_Histogram <- function(
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
-  histograms <- list()
+  # split by groups
+  groups <- dplyr::group_split(.data, .keep = TRUE)
+  if (length(groups) == 0L) {
+    message("No data to plot; returning NULL.")
+    return(NULL)
+  }
 
-  for (i in 1:max(.data$Group)) {
-    plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
-      unique(plot.data[, id_cols]),
-      collapse = " "
-    ))
+  # create list of histograms
+  histograms <- vector("list", length(groups))
+
+  for (i in seq_along(groups)) {
+    plot.data <- groups[[i]]
+    groupid <- TADA_CharStringRemoveNA(paste0(unique(plot.data[, id_cols, drop = TRUE]), collapse = " "))
+
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)

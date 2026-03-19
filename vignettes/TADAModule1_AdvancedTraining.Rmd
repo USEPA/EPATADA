@@ -108,7 +108,7 @@ GitHub (un-comment).
 
 ```{r install_TADA, eval = F, results = 'hide'}
 remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
+  ref = "review-internal-refs",
   dependencies = TRUE
 )
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
@@ -733,11 +733,11 @@ secchi depth, and pH.
 TADA_DepthProfilePlot(dataset_cens,
   groups = c(
     "TEMPERATURE, WATER_NONE_NONE_DEG C",
-    "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN",
+    "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M",
     "PH_NONE_NONE_NONE"
   ),
-  location = "REDLAKE_WQX-10RD014",
-  activity_date = "2018-09-26",
+  location = "REDLAKE_WQX-ANKE",
+  activity_date = "2018-10-04",
   depthcat = TRUE,
   surfacevalue = 2,
   bottomvalue = 2,

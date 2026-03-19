@@ -783,7 +783,7 @@ TADA_IDDepthProfiles <- function(
       ) |>
       unique()
 
-    return(.data)
+  return(.data)
   }
 
   if (nresults == FALSE) {

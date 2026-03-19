@@ -258,7 +258,9 @@ TADA_FlagSpeciation <- function(
   file_path <- system.file("extdata", "WQXcharValRef.rda", package = "EPATADA")
   load(file_path)
   rm(file_path)
-  spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation")
+  spec.ref <- dplyr::filter(WQXcharValRef, Type == "CharacteristicSpeciation") |>
+    # remove problematic secchi line for testing purposes (HM note 3/19/26)
+    dplyr::filter(Unique.Identifier != 50941)
   rm(WQXcharValRef)
 
   # join "TADA.WQXVal.Flag" column to .data by CharacteristicName and Value (Speciation)
