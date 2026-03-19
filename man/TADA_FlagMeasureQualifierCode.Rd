@@ -43,9 +43,8 @@ Output shape depends on arguments:
 Messages:
 \itemize{
 \item A message is printed when unknown qualifier codes are encountered; those rows are labeled
-"Not Reviewed".
+"Not Reviewed". Blank tokens are ignored and will not produce messages.
 \item A message is printed if the entire 'MeasureQualifierCode' column is NA.
-\item Informational messages may be printed when results are empty after filtering.
 }
 }
 \description{
@@ -75,22 +74,16 @@ building a definition column.
 the following precedence is used when assigning the flag:
 Suspect > Non-Detect > Over-Detect > Pass > Not Reviewed.
 }
-\item Unknown/missing codes:
+\item Unknown/missing/blank codes:
 \itemize{
 \item Any qualifier code not found in the WQX domain reference is labeled "Not Reviewed"
 and a message is issued.
-}
-\item NA handling:
-\itemize{
-\item If the entire 'MeasureQualifierCode' column is NA, all rows are flagged "Pass".
-\item If only some rows have NA 'MeasureQualifierCode', those rows are flagged "Pass".
 }
 \item Definitions:
 \itemize{
 \item When \code{define = TRUE}, an additional column 'TADA.MeasureQualifierCode.Def' is added,
 containing concatenated "Code - Description" definitions (for all codes present in
-a record). When \code{define = FALSE}, this column is not added. If the entire column is NA,
-the definition (when requested) is set to "NA - Not Applicable".
+a record).
 }
 \item Cleaning vs filtering:
 \itemize{
@@ -123,5 +116,7 @@ mq_clean_nodefs <- TADA_FlagMeasureQualifierCode(
 )
 }
 \seealso{
-TADA_SimpleCensoredMethods
+\code{\link[=TADA_GetMeasureQualifierCodeRef]{TADA_GetMeasureQualifierCodeRef()}}
+
+\code{\link[=TADA_SimpleCensoredMethods]{TADA_SimpleCensoredMethods()}}
 }

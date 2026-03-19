@@ -742,8 +742,16 @@ TADA_IDDepthProfiles <- function(
       ) |>
       dplyr::mutate(
         TADA.NResults = dplyr::n_distinct(TADA.ConsolidatedDepth, na.rm = TRUE),
-        has_depth_param = any(TADA.CharacteristicName %in% depth.params, na.rm = TRUE),
-        TADA.CharacteristicsForDepthProfile = paste0(TADA.ComparableDataIdentifier, " (", TADA.NResults, ")")
+        has_depth_param = any(
+          TADA.CharacteristicName %in% depth.params,
+          na.rm = TRUE
+        ),
+        TADA.CharacteristicsForDepthProfile = paste0(
+          TADA.ComparableDataIdentifier,
+          " (",
+          TADA.NResults,
+          ")"
+        )
       ) |>
       dplyr::filter(TADA.NResults >= nvalue | has_depth_param) |>
       dplyr::ungroup() |>
@@ -783,7 +791,7 @@ TADA_IDDepthProfiles <- function(
       ) |>
       unique()
 
-  return(.data)
+    return(.data)
   }
 
   if (nresults == FALSE) {
