@@ -276,7 +276,7 @@ Filter data to review a single characteristic:
 ecoli <- dplyr::filter(
   volunteer_data,
   TADA.ComparableDataIdentifier %in% c(
-    "ESCHERICHIA COLI_NA_NA_CFU/100ML"
+    "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"
   )
 )
 ```
