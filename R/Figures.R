@@ -306,8 +306,10 @@ TADA_Histogram <- function(
 
   for (i in seq_along(groups)) {
     plot.data <- groups[[i]]
-    groupid <- TADA_CharStringRemoveNA(paste0(unique(plot.data[, id_cols, drop = TRUE]), collapse = " "))
-
+    groupid <- TADA_CharStringRemoveNA(paste0(
+      unique(plot.data[, id_cols, drop = TRUE]),
+      collapse = " "
+    ))
 
     # units
     unit <- unique(plot.data$TADA.ResultMeasure.MeasureUnitCode)
