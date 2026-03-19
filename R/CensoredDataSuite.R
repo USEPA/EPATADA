@@ -147,9 +147,12 @@ TADA_IDCensoredData <- function(.data) {
     .data[[nm]] <- x
   }
   
-  # Copy det limit value/unit to TADA result when result text is BPQL/BDL/ND and BOTH limit value and unit are present
-  cond_text_nd <- (!is.na(.data$ResultMeasureValue)) &
-    (.data$ResultMeasureValue %in% c("BPQL", "BDL", "ND")) &
+  # Case-insensitive ND tokens
+  rv_upper <- toupper(trimws(as.character(.data$ResultMeasureValue)))
+  
+  # Copy det limit value/unit to TADA result when result text is BPQL/BDL/ND and BOTH limit pieces present
+  cond_text_nd <- (!is.na(rv_upper)) &
+    (rv_upper %in% c("BPQL", "BDL", "ND")) &
     !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
     !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
   idx <- which(cond_text_nd)
@@ -162,9 +165,9 @@ TADA_IDCensoredData <- function(.data) {
       "Result Value/Unit Copied from Detection Limit"
   }
   
-  # If result is text BPQL/BDL/ND but BOTH limit value and unit are missing, flag cannot estimate
-  cond_text_nd_no_limit <- (!is.na(.data$ResultMeasureValue)) &
-    (.data$ResultMeasureValue %in% c("BPQL", "BDL", "ND")) &
+  # If result is BPQL/BDL/ND but BOTH limit pieces missing, flag cannot estimate
+  cond_text_nd_no_limit <- (!is.na(rv_upper)) &
+    (rv_upper %in% c("BPQL", "BDL", "ND")) &
     is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
     is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
   idx <- which(cond_text_nd_no_limit)
@@ -173,20 +176,36 @@ TADA_IDCensoredData <- function(.data) {
       "Result Value/Unit Cannot Be Estimated From Detection Limit"
   }
   
-  # Copy detection limit to TADA value/unit when flag indicates NA and targets are actually NA
-  cond_copy_na_flag <- !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue) &
-    !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode) &
-    (is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
-       .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available") &
-    is.na(.data$TADA.ResultMeasureValue) &
-    is.na(.data$TADA.ResultMeasure.MeasureUnitCode)
-  idx <- which(cond_copy_na_flag)
-  if (length(idx)) {
-    .data$TADA.ResultMeasureValue[idx] <-
-      .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue[idx]
-    .data$TADA.ResultMeasure.MeasureUnitCode[idx] <-
-      .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode[idx]
-    .data$TADA.ResultMeasureValueDataTypes.Flag[idx] <-
+  # Identify rows eligible for NA-flag copy
+  ok_flag <- is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
+    .data$TADA.ResultMeasureValueDataTypes.Flag == "NA - Not Available"
+  
+  # Copy value if missing and limit value present
+  idx_val <- which(
+    ok_flag &
+      is.na(.data$TADA.ResultMeasureValue) &
+      !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureValue)
+  )
+  if (length(idx_val)) {
+    .data$TADA.ResultMeasureValue[idx_val] <-
+      .data$TADA.DetectionQuantitationLimitMeasure.MeasureValue[idx_val]
+  }
+  
+  # Copy unit if missing and limit unit present
+  idx_unit <- which(
+    ok_flag &
+      is.na(.data$TADA.ResultMeasure.MeasureUnitCode) &
+      !is.na(.data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode)
+  )
+  if (length(idx_unit)) {
+    .data$TADA.ResultMeasure.MeasureUnitCode[idx_unit] <-
+      .data$TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode[idx_unit]
+  }
+  
+  # Set flag to 'Copied' for any row where either value or unit was copied
+  idx_any <- sort(unique(c(idx_val, idx_unit)))
+  if (length(idx_any)) {
+    .data$TADA.ResultMeasureValueDataTypes.Flag[idx_any] <-
       "Result Value/Unit Copied from Detection Limit"
   }
   
@@ -259,18 +278,24 @@ TADA_IDCensoredData <- function(.data) {
     )
     
     ## Fill in detection type when ResultMeasureValue indicates it is a nondetect
-    nd.rmv.list <- TADA_GetMeasureQualifierCodeRef() |>
-      dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") |>
-      dplyr::select(Code) |>
-      dplyr::pull()
+    # Build a robust set of ND tokens: fixed ["ND","BDL","BPQL"] plus domain codes
+    nd_texts <- tryCatch({
+      c("ND", "BDL", "BPQL",
+        TADA_GetMeasureQualifierCodeRef() |>
+          dplyr::filter(TADA.MeasureQualifierCode.Flag == "Non-Detect") |>
+          dplyr::pull(Code))
+    }, error = function(e) c("ND", "BDL", "BPQL"))
     
-    cens$TADA.Detection_Type <- ifelse(
-      cens$ResultMeasureValue %in% nd.rmv.list,
-      "Non-Detect",
-      cens$TADA.Detection_Type
-    )
+    # Normalize
+    nd_texts <- unique(toupper(trimws(as.character(nd_texts))))
+    nd_texts <- nd_texts[nd_texts != ""]
     
-    rm(nd.rmv.list)
+    # Compare using character, trim and uppercase for safety
+    rv_chr <- if (is.factor(cens$ResultMeasureValue)) as.character(cens$ResultMeasureValue) else cens$ResultMeasureValue
+    rv_chr <- toupper(trimws(as.character(rv_chr)))
+    
+    idx_nd <- !is.na(rv_chr) & rv_chr %in% nd_texts
+    cens$TADA.Detection_Type[idx_nd] <- "Non-Detect"
     
     ## Missing detection condition message
     if (
@@ -580,29 +605,35 @@ TADA_SimpleCensoredMethods <- function(
     return(NULL)
   }
 
-  # check that multiplier is provided and valid if method = "multiplier"
-  if (nd_method == "multiplier" & nd_multiplier == "null") {
-    stop(
-      "Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1."
-    )
-  }
-  if (
-    nd_method == "multiplier" &
-      (!is.numeric(nd_multiplier) || length(nd_multiplier) != 1)
-  ) {
-    stop("nd_multiplier must be a single numeric value.")
-  }
-  if (od_method == "multiplier" & od_multiplier == "null") {
-    stop(
-      "Please provide a multiplier for the upper detection limit handling method of 'multiplier'"
-    )
-  }
-  if (
-    od_method == "multiplier" &
-      (!is.numeric(od_multiplier) || length(od_multiplier) != 1)
-  ) {
+    # Validate method and multiplier arguments (scalar-safe)
+      if (length(nd_method) != 1L) {
+          stop("nd_method must be length 1.")
+        }
+    if (length(od_method) != 1L) {
+        stop("od_method must be length 1.")
+      }
+  
+      # ND multiplier checks
+      if (identical(nd_method, "multiplier") && identical(nd_multiplier, "null")) {
+          stop(
+              "Please provide a multiplier for the lower detection limit handling method of 'multiplier'. Typically, the multiplier value is between 0 and 1."
+            )
+        }
+    if (identical(nd_method, "multiplier") &&
+               (!is.numeric(nd_multiplier) || length(nd_multiplier) != 1L)) {
+        stop("nd_multiplier must be a single numeric value.")
+     }
+  
+      # OD multiplier checks
+      if (identical(od_method, "multiplier") && identical(od_multiplier, "null")) {
+          stop(
+              "Please provide a multiplier for the upper detection limit handling method of 'multiplier'"
+           )
+        }
+    if (identical(od_method, "multiplier") &&
+               (!is.numeric(od_multiplier) || length(od_multiplier) != 1L)) {
     stop("od_multiplier must be a single numeric value.")
-  }
+    }
 
   # If user has not previously run TADA_IDCensoredData, run it here
   if (!"TADA.CensoredData.Flag" %in% names(.data)) {
