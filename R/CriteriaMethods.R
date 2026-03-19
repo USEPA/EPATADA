@@ -285,7 +285,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
-        print(paste0(
+        message(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
         ))
@@ -293,7 +293,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
       if (!is.null(AUMLRef)) {
-        print(paste0(
+        message(paste0(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
@@ -339,7 +339,7 @@ TADA_DefineCriteriaMethodology <- function(
     # Users can edit one or more of the ref files which will update all accordingly.
     if (auto_assign == TRUE) {
       if (is.null(MLSummaryRef)) {
-        print(paste0(
+        message(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected but no MLSummaryRef. Generating TADA_MLSummary with default assignment."
         ))
 
@@ -359,7 +359,7 @@ TADA_DefineCriteriaMethodology <- function(
         # default, runs all reference tables with no user edits
         # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
         # if (updateRef == "none") {
-        print(paste0(
+        message(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
         ))
         suppressMessages(
@@ -372,7 +372,7 @@ TADA_DefineCriteriaMethodology <- function(
           )
         )
 
-        print(paste0(
+        message(paste0(
           "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment."
         ))
         suppressWarnings(
@@ -819,7 +819,7 @@ TADA_DefineCriteriaMethodology <- function(
                 c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
             )
           ) {
-            print(paste(
+            message(paste(
               "TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'.",
               "TADA functions cannot currently handle analysis for these instances."
             ))
@@ -883,7 +883,7 @@ TADA_DefineCriteriaMethodology <- function(
 
           # print message to indicate there are values pulled in from the CST that are being converted to match those in the TADA df
           if (length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
-            print(paste(
+            message(paste(
               "Warning in TADA_DefineCriteriaMethodology: ",
               "There are",
               length(unique(unitRef_CST$TADA.CharacteristicName)),
@@ -894,7 +894,7 @@ TADA_DefineCriteriaMethodology <- function(
           }
           # print message to identify those that could not be converted. Recommend users to select appropriate unit alias or convert manually.
           if (nrow(unitRef_CST_NA) > 0) {
-            print(paste(
+            message(paste(
               "Warning in TADA_DefineCriteriaMethodology:",
               "There are",
               length(unique(unitRef_CST_NA$TADA.CharacteristicName)),
@@ -1173,7 +1173,7 @@ TADA_DefineCriteriaMethodology <- function(
     # FALSE is recommended if a user has gone through a step by step review process to
     # determine what they would like summarized in their final output.
     if (displayUniqueId == FALSE) {
-      print(paste0(
+      message(paste0(
         "TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. ",
         "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
       ))
@@ -1193,7 +1193,7 @@ TADA_DefineCriteriaMethodology <- function(
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
   if ("USEPA" %in% org_id) {
-    print(paste0(
+    message(paste0(
       "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
     ))
     epa304a <- utils::read.csv(
