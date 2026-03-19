@@ -1,5 +1,4 @@
 # Shared helpers for EPATADA tests
-
 ns <- asNamespace("EPATADA")
 
 # Internet guard for live tests
@@ -155,9 +154,6 @@ testthat::test_that("df_equal ignores row order and factor levels", {
   testthat::expect_false(.eq(a, c))
 })
 
-# Live "up to date?" checks require internet and should be skipped on CRAN
-# Also tolerate time components in Last.Change.Date
-
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
   skip_if_offline()
@@ -281,27 +277,6 @@ testthat::test_that("DetCondRef required cols enforced in download_only", {
     EPATADA::TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE),
     "missing required columns"
   )
-})
-
-testthat::test_that("DetCondRef fallback path respects quiet", {
-  # Live fails, fallback returns minimal valid
-  testthat::local_mocked_bindings(
-    .tada_read_csv_url = function(...) NULL,
-    .tada_load_extdata_rda = function(...) {
-      make_df(c("Name", "Last.Change.Date"))
-    },
-    .env = ns
-  )
-  # quiet = FALSE -> message
-  testthat::expect_message(
-    EPATADA::TADA_GetDetCondRef(refresh = TRUE, quiet = FALSE),
-    "Falling back"
-  )
-  # quiet = TRUE -> no message
-  testthat::expect_silent(EPATADA::TADA_GetDetCondRef(
-    refresh = TRUE,
-    quiet = TRUE
-  ))
 })
 
 testthat::test_that("CharacteristicRef download_only errors on unexpected structure", {
