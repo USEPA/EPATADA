@@ -248,8 +248,7 @@ TADA_FieldValuesTable <- function(
 #'   all media types), and if the filter removes all rows.
 #'
 #' Inputs used for classification:
-#' - `MonitoringLocationTypeName` (joined to the reference table’s `Name`)
-#' - `ActivityMediaSubdivisionName` and `ActivityMediaName`
+#' - `MonitoringLocationTypeName`, `ActivityMediaSubdivisionName` and `ActivityMediaName`
 #' - Groundwater-related fields: `AquiferName`, `AquiferTypeName`, `LocalAqfrName`,
 #'   `ConstructionDateText`, `WellDepthMeasure.MeasureValue`, `WellDepthMeasure.MeasureUnitCode`,
 #'   `WellHoleDepthMeasure.MeasureValue`, `WellHoleDepthMeasure.MeasureUnitCode`
@@ -257,8 +256,8 @@ TADA_FieldValuesTable <- function(
 #' Classification details:
 #' - ActivityMediaName of "Soil", "Sediment" (and common variants like "Soil or Sediment")
 #'   map to `SEDIMENT` even if groundwater fields are present.
-#' - `ActivityMediaSubdivisionName` is recognized (case/whitespace-insensitive) for
-#'   "Surface Water", "Groundwater", and "Sediment".
+#' - `ActivityMediaSubdivisionName` is reviewed for identifying "Surface Water", 
+#'   "Groundwater", and "Sediment".
 #' - If the subdivision is blank and `ActivityMediaName` is "Water" with no groundwater
 #'   fields present, the row is classified as `SURFACE WATER`.
 #' - Groundwater fields are considered present if they are non-NA and non-blank (for
@@ -270,9 +269,14 @@ TADA_FieldValuesTable <- function(
 #'   or non-core values are coerced to `OTHER`.
 #'
 #' Requirements and defaults:
-#' - Only `MonitoringLocationTypeName` is strictly required. All other referenced
-#'   columns are treated as optional; missing columns are created (with appropriate
-#'   types) as `NA`.
+#' - Required columns: `MonitoringLocationTypeName`, `ActivityMediaSubdivisionName`, and `AquiferName`.
+#'   If any required columns are missing (rare), the function stops with an error of the form
+#'   "Missing required columns: <col1>, <col2>, ...".
+#' - Optional columns are created if missing (with appropriate types) and filled with `NA`:
+#'   `ActivityMediaName`, `AquiferTypeName`, `LocalAqfrName`, `ConstructionDateText`,
+#'   `WellDepthMeasure.MeasureValue` (numeric), `WellDepthMeasure.MeasureUnitCode`,
+#'   `WellHoleDepthMeasure.MeasureValue` (numeric), `WellHoleDepthMeasure.MeasureUnitCode`.
+#' - If the input data frame has 0 rows, the function emits a message and returns `NULL`.
 #'
 #' @param .data A data frame representing a TADA profile object.
 #' @param clean Logical. If `TRUE`, remove rows according to the media toggles and return
@@ -286,6 +290,7 @@ TADA_FieldValuesTable <- function(
 #' @return A data frame.
 #' - If `clean = FALSE`, returns all rows with the column `TADA.Media.Flag` added.
 #' - If `clean = TRUE`, returns rows with the selected media removed and no flag columns added.
+#' - If the input has 0 rows, returns `NULL`.
 #'
 #' @section Messages and warnings:
 #' - Always prints counts by media before filtering.
@@ -349,7 +354,9 @@ TADA_MediaFilter <- function(
   }
 
   # Require only MonitoringLocationTypeName; other fields are optional and will be created if missing
-  required_columns <- c("MonitoringLocationTypeName")
+  required_columns <- c("MonitoringLocationTypeName", 
+                        "AquiferName",
+                        "ActivityMediaSubdivisionName")
   missing_required <- setdiff(required_columns, names(.data))
   if (length(missing_required) > 0) {
     stop(paste(
@@ -359,36 +366,37 @@ TADA_MediaFilter <- function(
   }
 
   # Ensure optional columns exist to avoid downstream errors
-  gw_cols <- c(
-    "AquiferName",
-    "AquiferTypeName",
-    "LocalAqfrName",
+  # Split aquifer metadata (do NOT imply groundwater) from true well/GW fields
+  aquifer_meta_cols <- c("AquiferName", "AquiferTypeName", "LocalAqfrName")
+  gw_field_cols <- c(
     "ConstructionDateText",
     "WellDepthMeasure.MeasureValue",
     "WellDepthMeasure.MeasureUnitCode",
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode"
   )
+  
   optional_cols <- c(
     "ActivityMediaSubdivisionName",
     "ActivityMediaName",
-    gw_cols
+    aquifer_meta_cols,
+    gw_field_cols
   )
   for (col in setdiff(optional_cols, names(.data))) {
     .data[[col]] <- NA_character_
   }
-
+  
   # Read the monitoring location reference table
   monitoring_location_types <- TADA_GetMonLocTypeRef()
-
+  
   # Initialize has_ref and standardize names for robust detection
   has_ref <- FALSE
   std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
-
+  
   # Exact matches: "Name" and "TADA.Media.Flag" (after normalization)
   idx_name <- match("name", std_names)
   idx_flag <- match("tada.media.flag", std_names)
-
+  
   if (!is.na(idx_name)) {
     names(monitoring_location_types)[idx_name] <- "Name"
     monitoring_location_types <- monitoring_location_types |>
@@ -397,27 +405,25 @@ TADA_MediaFilter <- function(
   } else {
     has_ref <- FALSE
   }
-
+  
   if (!is.na(idx_flag)) {
     names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
   } else if (has_ref) {
     monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
   }
-
+  
   # Uppercase ML type name in .data for reliable joining
   .data <- .data |>
     dplyr::mutate(
       MonitoringLocationTypeName = toupper(.data$MonitoringLocationTypeName)
     )
-
-  # Build a groundwater indicator from any available groundwater-related fields
-  present_gw_cols <- intersect(gw_cols, names(.data))
-  if (length(present_gw_cols) > 0) {
-    gw_logicals <- lapply(present_gw_cols, function(col) {
+  
+  # Build a groundwater indicator from true well/GW fields only (exclude aquifer metadata)
+  present_gw_field_cols <- intersect(gw_field_cols, names(.data))
+  if (length(present_gw_field_cols) > 0) {
+    gw_logicals <- lapply(present_gw_field_cols, function(col) {
       x <- .data[[col]]
-      if (is.factor(x)) {
-        x <- as.character(x)
-      }
+      if (is.factor(x)) x <- as.character(x)
       if (is.character(x)) {
         !is.na(x) & nzchar(trimws(x))
       } else {
@@ -437,39 +443,28 @@ TADA_MediaFilter <- function(
   am_blank <- is.na(am) | !nzchar(am)
 
   # Classify media from data columns
+  # Classify media from data columns
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        # 1) Sediment by media name (give this highest priority so GW hints don't override)
-        !am_blank &
-          am %in%
-            c(
-              "sediment",
-              "soil",
-              "soil or sediment",
-              "soil/sediment",
-              "soil-sediment"
-            ) ~ "SEDIMENT",
+        # 1) Sediment by media name ...
+        !am_blank & am %in% c("sediment","soil","soil or sediment","soil/sediment","soil-sediment") ~ "SEDIMENT",
         # 2) Sediment by subdivision
         ams == "sediment" ~ "SEDIMENT",
-
-        # 3) Explicit surface water subdivision
+        
+        # 3) Groundwater by subdivision, well/GW fields, or WELL location type (override any SW subdivision)
+        ams == "groundwater" |
+          gw_has_fields |
+          grepl("\\bWELL\\b", .data$MonitoringLocationTypeName) ~ "GROUNDWATER",
+        
+        # 4) Explicit surface water subdivision
         ams == "surface water" ~ "SURFACE WATER",
-
-        # 4) Groundwater by subdivision or GW-related fields
-        ams == "groundwater" | gw_has_fields ~ "GROUNDWATER",
-
-        # 5) If subdivision is blank and media name is water and no GW fields -> SURFACE WATER
-        ams_blank &
-          !am_blank &
-          am == "water" &
-          !gw_has_fields ~ "SURFACE WATER",
-
-        # 6) Keep any other non-"water" ActivityMediaName as-is (uppercased)
-        !am_blank & am != "water" ~ toupper(trimws(as.character(
-          .data$ActivityMediaName
-        ))),
-
+        
+        # 5) Water heuristic (no GW fields) -> SURFACE WATER
+        ams_blank & !am_blank & am == "water" & !gw_has_fields ~ "SURFACE WATER",
+        
+        # 6) Keep other ActivityMediaName as-is
+        !am_blank & am != "water" ~ toupper(trimws(as.character(.data$ActivityMediaName))),
         TRUE ~ NA_character_
       )
     )
@@ -477,15 +472,12 @@ TADA_MediaFilter <- function(
   # Join with reference (if available) and coalesce media flag
   if (isTRUE(has_ref)) {
     .data <- .data |>
-      dplyr::left_join(
-        monitoring_location_types,
-        by = c("MonitoringLocationTypeName" = "Name")
-      ) |>
+      dplyr::left_join(monitoring_location_types, by = c("MonitoringLocationTypeName" = "Name")) |>
       dplyr::mutate(
-        # Prefer reference classification when available
+        # Prefer computed classification; use reference as fallback
         TADA.Media.Flag = dplyr::coalesce(
-          .data$Ref.TADA.Media.Flag,
           .data$TADA.Media.Flag,
+          .data$Ref.TADA.Media.Flag,
           "OTHER"
         )
       ) |>
@@ -510,7 +502,27 @@ TADA_MediaFilter <- function(
         TRUE ~ .data$TADA.Media.Flag
       )
     )
-
+  
+  # Aquifer-only classification: aquifer metadata present, no well/GW fields, and not a well location
+  aquifer_meta_present <- Reduce(`|`, lapply(intersect(aquifer_meta_cols, names(.data)), function(col) {
+    x <- .data[[col]]
+    if (is.factor(x)) x <- as.character(x)
+    if (is.character(x)) !is.na(x) & nzchar(trimws(x)) else !is.na(x)
+  }), init = rep(FALSE, nrow(.data)))
+  
+  non_well_loc <- !grepl("\\bWELL\\b", .data$MonitoringLocationTypeName, ignore.case = TRUE)
+  
+  idx_aquifer_only <- aquifer_meta_present & !.data$gw_has_fields & non_well_loc
+  .data <- .data |>
+    dplyr::mutate(
+      TADA.Media.Flag = dplyr::case_when(
+        idx_aquifer_only & (is.na(.data$TADA.Media.Flag) |
+                              .data$TADA.Media.Flag == "" |
+                              .data$TADA.Media.Flag == "SURFACE WATER") ~ "OTHER",
+        TRUE ~ .data$TADA.Media.Flag
+      )
+    )
+  
   # Build removal set based on arguments (used only when clean = TRUE)
   remove_media <- c(
     if (isTRUE(surface_water)) "SURFACE WATER",

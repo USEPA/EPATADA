@@ -33,6 +33,7 @@ A data frame.
 \itemize{
 \item If \code{clean = FALSE}, returns all rows with the column \code{TADA.Media.Flag} added.
 \item If \code{clean = TRUE}, returns rows with the selected media removed and no flag columns added.
+\item If the input has 0 rows, returns \code{NULL}.
 }
 }
 \description{
@@ -60,8 +61,7 @@ all media types), and if the filter removes all rows.
 
 Inputs used for classification:
 \itemize{
-\item \code{MonitoringLocationTypeName} (joined to the reference table’s \code{Name})
-\item \code{ActivityMediaSubdivisionName} and \code{ActivityMediaName}
+\item \code{MonitoringLocationTypeName}, \code{ActivityMediaSubdivisionName} and \code{ActivityMediaName}
 \item Groundwater-related fields: \code{AquiferName}, \code{AquiferTypeName}, \code{LocalAqfrName},
 \code{ConstructionDateText}, \code{WellDepthMeasure.MeasureValue}, \code{WellDepthMeasure.MeasureUnitCode},
 \code{WellHoleDepthMeasure.MeasureValue}, \code{WellHoleDepthMeasure.MeasureUnitCode}
@@ -71,8 +71,8 @@ Classification details:
 \itemize{
 \item ActivityMediaName of "Soil", "Sediment" (and common variants like "Soil or Sediment")
 map to \code{SEDIMENT} even if groundwater fields are present.
-\item \code{ActivityMediaSubdivisionName} is recognized (case/whitespace-insensitive) for
-"Surface Water", "Groundwater", and "Sediment".
+\item \code{ActivityMediaSubdivisionName} is reviewed for identifying "Surface Water",
+"Groundwater", and "Sediment".
 \item If the subdivision is blank and \code{ActivityMediaName} is "Water" with no groundwater
 fields present, the row is classified as \verb{SURFACE WATER}.
 \item Groundwater fields are considered present if they are non-NA and non-blank (for
@@ -86,9 +86,14 @@ or non-core values are coerced to \code{OTHER}.
 
 Requirements and defaults:
 \itemize{
-\item Only \code{MonitoringLocationTypeName} is strictly required. All other referenced
-columns are treated as optional; missing columns are created (with appropriate
-types) as \code{NA}.
+\item Required columns: \code{MonitoringLocationTypeName}, \code{ActivityMediaSubdivisionName}, and \code{AquiferName}.
+If any required columns are missing (rare), the function stops with an error of the form
+"Missing required columns: \if{html}{\out{<col1>}}, \if{html}{\out{<col2>}}, ...".
+\item Optional columns are created if missing (with appropriate types) and filled with \code{NA}:
+\code{ActivityMediaName}, \code{AquiferTypeName}, \code{LocalAqfrName}, \code{ConstructionDateText},
+\code{WellDepthMeasure.MeasureValue} (numeric), \code{WellDepthMeasure.MeasureUnitCode},
+\code{WellHoleDepthMeasure.MeasureValue} (numeric), \code{WellHoleDepthMeasure.MeasureUnitCode}.
+\item If the input data frame has 0 rows, the function emits a message and returns \code{NULL}.
 }
 }
 \section{Messages and warnings}{
