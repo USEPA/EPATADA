@@ -1348,9 +1348,9 @@ TADA_GroupedScatterplot <- function(
     title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
-        TADA_CharStringRemoveNANone(unique(plot.data$TADA.ComparableDataIdentifier)[
-          i
-        ]),
+        TADA_CharStringRemoveNANone(unique(
+          plot.data$TADA.ComparableDataIdentifier
+        )[i]),
         " Over Time"
       ),
       width = 45
