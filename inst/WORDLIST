@@ -42,6 +42,7 @@ CNENVSER
 COLI
 COMBITR
 COMIDs
+CRS
 CWA
 CalculateTotalNP
 CensoredData
@@ -147,6 +148,7 @@ IDCensoredData
 IDDepthProfiles
 IncludeOrExclude
 InvalidCoordinates
+JSON
 Jhguch
 JoinWQPProfiles
 Kaplan
@@ -198,6 +200,7 @@ NHDPlus
 NHDPlusTools
 NLCD
 NLDI
+NONEs
 NWIS
 NationalExtract
 NearbySiteGroup
@@ -261,6 +264,7 @@ RWQC
 Rancherias
 RenametoLegacy
 ReplicateSampleID
+Repo
 ResultAggregation
 ResultAnalyticalMethod
 ResultCommentText
@@ -357,6 +361,7 @@ UsesForAnalysis
 UsesRef
 VCS
 ViewATTAINS
+WGS
 WQC
 WQP
 WQS
@@ -427,6 +432,7 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
+datetimes
 de
 decimaldigits
 depthcat
@@ -525,7 +531,9 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
+repo
 reportingCycle
+reproducibility
 resultCount
 sampleMedia
 sd
