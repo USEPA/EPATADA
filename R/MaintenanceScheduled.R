@@ -42,7 +42,7 @@
   tryCatch(
     {
       .TADA_UpdateATTAINSOrgIDsRef()
-      .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time
+      .TADA_UpdateATTAINSParamUseOrgRef() # takes a long time, this is the Assessments Profile (Expert Query National Extract)
     },
     error = function(e) {
       message("Error updating ATTAINS reference tables: ", e$message)
