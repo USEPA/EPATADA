@@ -3,21 +3,14 @@ dummy_media_df <- function() {
   df <- data.frame(
     ResultIdentifier = paste0("R", 1:6),
     ActivityMediaSubdivisionName = c(
-      "Surface Water",  # SURFACE WATER
-      NA,               # GROUNDWATER (via well/aquifer)
-      NA,               # SEDIMENT (via ActivityMediaName)
-      NA,               # OTHER (HABITAT)
-      NA,               # SURFACE WATER (via "water")
-      NA                # GROUNDWATER override (via GW field)
+      "Surface Water", # SURFACE WATER
+      NA, # GROUNDWATER (via well/aquifer)
+      NA, # SEDIMENT (via ActivityMediaName)
+      NA, # OTHER (HABITAT)
+      NA, # SURFACE WATER (via "water")
+      NA # GROUNDWATER override (via GW field)
     ),
-    AquiferName = c(
-      NA,
-      "Aquifer A",
-      NA,
-      NA,
-      NA,
-      NA
-    ),
+    AquiferName = c(NA, "Aquifer A", NA, NA, NA, NA),
     MonitoringLocationTypeName = c(
       "River/Stream",
       "Well",
@@ -29,10 +22,10 @@ dummy_media_df <- function() {
     ActivityMediaName = c(
       NA,
       NA,
-      "SEDIMENT",       # ensure SEDIMENT classification
-      "HABITAT",        # OTHER normalization
-      "water",          # SURFACE WATER unless GW fields present
-      "water"           # overridden to GW via GW field below
+      "SEDIMENT", # ensure SEDIMENT classification
+      "HABITAT", # OTHER normalization
+      "water", # SURFACE WATER unless GW fields present
+      "water" # overridden to GW via GW field below
     ),
     stringsAsFactors = FALSE
   )
@@ -45,39 +38,41 @@ test_that("clean = FALSE: adds flag and normalizes to core values", {
   df <- dummy_media_df()
   res <- suppressMessages(TADA_MediaFilter(df, clean = FALSE))
   flags <- sort(unique(res$TADA.Media.Flag))
-  expect_true(all(flags %in% c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")))
-  expect_true("SEDIMENT" %in% flags)  # ensure dummy covers sediment
+  expect_true(all(
+    flags %in% c("SURFACE WATER", "GROUNDWATER", "SEDIMENT", "OTHER")
+  ))
+  expect_true("SEDIMENT" %in% flags) # ensure dummy covers sediment
 })
 
 test_that("clean = TRUE: removes selected media and drops flag column", {
   df <- dummy_media_df()
-  
+
   # Silence messages from the clean = FALSE pass
   flagged <- suppressMessages(TADA_MediaFilter(df, clean = FALSE))
   flags <- flagged$TADA.Media.Flag
   expected_n <- sum(flags %in% c("SURFACE WATER", "GROUNDWATER"))
-  
+
   # Execute clean = TRUE removing SEDIMENT and OTHER; capture but don't assert on messages
-  ev <- testthat::evaluate_promise(
-    TADA_MediaFilter(
-      df,
-      clean = TRUE,
-      sediment = TRUE,
-      other = TRUE
-    )
-  )
+  ev <- testthat::evaluate_promise(TADA_MediaFilter(
+    df,
+    clean = TRUE,
+    sediment = TRUE,
+    other = TRUE
+  ))
   res_clean <- ev$result
-  
+
   # Rows match expectation
   expect_equal(nrow(res_clean), expected_n)
-  
+
   # Helper/flag columns are absent in clean mode
   expect_false("TADA.Media.Flag" %in% names(res_clean))
   expect_false("gw_has_fields" %in% names(res_clean))
-  
+
   # Verify exactly which media were removed (behavioral check)
   kept_ids <- res_clean$ResultIdentifier
-  removed_flags <- unique(flagged$TADA.Media.Flag[!flagged$ResultIdentifier %in% kept_ids])
+  removed_flags <- unique(flagged$TADA.Media.Flag[
+    !flagged$ResultIdentifier %in% kept_ids
+  ])
   expect_setequal(removed_flags, c("SEDIMENT", "OTHER"))
 })
 
@@ -111,7 +106,11 @@ test_that("clean = TRUE: emits a message when no toggles set", {
   ev <- testthat::evaluate_promise(TADA_MediaFilter(df, clean = TRUE))
   combined <- c(ev$output, ev$messages, ev$warnings)
   expect_true(
-    any(grepl("No media types selected for removal", combined, ignore.case = TRUE)) ||
+    any(grepl(
+      "No media types selected for removal",
+      combined,
+      ignore.case = TRUE
+    )) ||
       any(grepl("Removed media types:\\s*none", combined, ignore.case = TRUE))
   )
   # And still verify behavior:
@@ -121,26 +120,31 @@ test_that("clean = TRUE: emits a message when no toggles set", {
 
 test_that("Clean-mode output lists exactly the removed media types", {
   df <- dummy_media_df()
-  
+
   # Groundwater only
-  ev1 <- testthat::evaluate_promise(
-    suppressWarnings(TADA_MediaFilter(df, clean = TRUE, ground_water = TRUE))
-  )
+  ev1 <- testthat::evaluate_promise(suppressWarnings(TADA_MediaFilter(
+    df,
+    clean = TRUE,
+    ground_water = TRUE
+  )))
   combined1 <- paste(c(ev1$output, ev1$messages), collapse = "\n")
   expect_true(grepl("media types:\\s*GROUNDWATER\\b", combined1))
-  
+
   # Surface water + other
-  ev2 <- testthat::evaluate_promise(
-    suppressWarnings(TADA_MediaFilter(df, clean = TRUE, surface_water = TRUE, other = TRUE))
-  )
+  ev2 <- testthat::evaluate_promise(suppressWarnings(TADA_MediaFilter(
+    df,
+    clean = TRUE,
+    surface_water = TRUE,
+    other = TRUE
+  )))
   combined2 <- paste(c(ev2$output, ev2$messages), collapse = "\n")
-  
+
   # Either order is acceptable
   expect_true(
     grepl("media types:\\s*SURFACE WATER, OTHER", combined2) ||
       grepl("media types:\\s*OTHER, SURFACE WATER", combined2)
   )
-  
+
   # Or, alternatively, just ensure both tokens appear somewhere after "media types:"
   # expect_true(grepl("media types:", combined2) &&
   #             grepl("\\bSURFACE WATER\\b", combined2) &&
@@ -168,7 +172,12 @@ test_that("clean = TRUE: warns when all media toggles are TRUE (muffling post-fi
         other = TRUE
       ),
       warning = function(w) {
-        if (grepl("All rows were removed by the media filter", conditionMessage(w))) {
+        if (
+          grepl(
+            "All rows were removed by the media filter",
+            conditionMessage(w)
+          )
+        ) {
           invokeRestart("muffleWarning")
         }
       }

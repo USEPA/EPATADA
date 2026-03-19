@@ -256,7 +256,7 @@ TADA_FieldValuesTable <- function(
 #' Classification details:
 #' - ActivityMediaName of "Soil", "Sediment" (and common variants like "Soil or Sediment")
 #'   map to `SEDIMENT` even if groundwater fields are present.
-#' - `ActivityMediaSubdivisionName` is reviewed for identifying "Surface Water", 
+#' - `ActivityMediaSubdivisionName` is reviewed for identifying "Surface Water",
 #'   "Groundwater", and "Sediment".
 #' - If the subdivision is blank and `ActivityMediaName` is "Water" with no groundwater
 #'   fields present, the row is classified as `SURFACE WATER`.
@@ -354,9 +354,11 @@ TADA_MediaFilter <- function(
   }
 
   # Require only MonitoringLocationTypeName; other fields are optional and will be created if missing
-  required_columns <- c("MonitoringLocationTypeName", 
-                        "AquiferName",
-                        "ActivityMediaSubdivisionName")
+  required_columns <- c(
+    "MonitoringLocationTypeName",
+    "AquiferName",
+    "ActivityMediaSubdivisionName"
+  )
   missing_required <- setdiff(required_columns, names(.data))
   if (length(missing_required) > 0) {
     stop(paste(
@@ -375,7 +377,7 @@ TADA_MediaFilter <- function(
     "WellHoleDepthMeasure.MeasureValue",
     "WellHoleDepthMeasure.MeasureUnitCode"
   )
-  
+
   optional_cols <- c(
     "ActivityMediaSubdivisionName",
     "ActivityMediaName",
@@ -385,18 +387,18 @@ TADA_MediaFilter <- function(
   for (col in setdiff(optional_cols, names(.data))) {
     .data[[col]] <- NA_character_
   }
-  
+
   # Read the monitoring location reference table
   monitoring_location_types <- TADA_GetMonLocTypeRef()
-  
+
   # Initialize has_ref and standardize names for robust detection
   has_ref <- FALSE
   std_names <- tolower(gsub("[^a-z.]", "", names(monitoring_location_types)))
-  
+
   # Exact matches: "Name" and "TADA.Media.Flag" (after normalization)
   idx_name <- match("name", std_names)
   idx_flag <- match("tada.media.flag", std_names)
-  
+
   if (!is.na(idx_name)) {
     names(monitoring_location_types)[idx_name] <- "Name"
     monitoring_location_types <- monitoring_location_types |>
@@ -405,25 +407,27 @@ TADA_MediaFilter <- function(
   } else {
     has_ref <- FALSE
   }
-  
+
   if (!is.na(idx_flag)) {
     names(monitoring_location_types)[idx_flag] <- "Ref.TADA.Media.Flag"
   } else if (has_ref) {
     monitoring_location_types$Ref.TADA.Media.Flag <- NA_character_
   }
-  
+
   # Uppercase ML type name in .data for reliable joining
   .data <- .data |>
     dplyr::mutate(
       MonitoringLocationTypeName = toupper(.data$MonitoringLocationTypeName)
     )
-  
+
   # Build a groundwater indicator from true well/GW fields only (exclude aquifer metadata)
   present_gw_field_cols <- intersect(gw_field_cols, names(.data))
   if (length(present_gw_field_cols) > 0) {
     gw_logicals <- lapply(present_gw_field_cols, function(col) {
       x <- .data[[col]]
-      if (is.factor(x)) x <- as.character(x)
+      if (is.factor(x)) {
+        x <- as.character(x)
+      }
       if (is.character(x)) {
         !is.na(x) & nzchar(trimws(x))
       } else {
@@ -448,23 +452,36 @@ TADA_MediaFilter <- function(
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
         # 1) Sediment by media name ...
-        !am_blank & am %in% c("sediment","soil","soil or sediment","soil/sediment","soil-sediment") ~ "SEDIMENT",
+        !am_blank &
+          am %in%
+            c(
+              "sediment",
+              "soil",
+              "soil or sediment",
+              "soil/sediment",
+              "soil-sediment"
+            ) ~ "SEDIMENT",
         # 2) Sediment by subdivision
         ams == "sediment" ~ "SEDIMENT",
-        
+
         # 3) Groundwater by subdivision, well/GW fields, or WELL location type (override any SW subdivision)
         ams == "groundwater" |
           gw_has_fields |
           grepl("\\bWELL\\b", .data$MonitoringLocationTypeName) ~ "GROUNDWATER",
-        
+
         # 4) Explicit surface water subdivision
         ams == "surface water" ~ "SURFACE WATER",
-        
+
         # 5) Water heuristic (no GW fields) -> SURFACE WATER
-        ams_blank & !am_blank & am == "water" & !gw_has_fields ~ "SURFACE WATER",
-        
+        ams_blank &
+          !am_blank &
+          am == "water" &
+          !gw_has_fields ~ "SURFACE WATER",
+
         # 6) Keep other ActivityMediaName as-is
-        !am_blank & am != "water" ~ toupper(trimws(as.character(.data$ActivityMediaName))),
+        !am_blank & am != "water" ~ toupper(trimws(as.character(
+          .data$ActivityMediaName
+        ))),
         TRUE ~ NA_character_
       )
     )
@@ -472,7 +489,10 @@ TADA_MediaFilter <- function(
   # Join with reference (if available) and coalesce media flag
   if (isTRUE(has_ref)) {
     .data <- .data |>
-      dplyr::left_join(monitoring_location_types, by = c("MonitoringLocationTypeName" = "Name")) |>
+      dplyr::left_join(
+        monitoring_location_types,
+        by = c("MonitoringLocationTypeName" = "Name")
+      ) |>
       dplyr::mutate(
         # Prefer computed classification; use reference as fallback
         TADA.Media.Flag = dplyr::coalesce(
@@ -502,27 +522,38 @@ TADA_MediaFilter <- function(
         TRUE ~ .data$TADA.Media.Flag
       )
     )
-  
+
   # Aquifer-only classification: aquifer metadata present, no well/GW fields, and not a well location
-  aquifer_meta_present <- Reduce(`|`, lapply(intersect(aquifer_meta_cols, names(.data)), function(col) {
-    x <- .data[[col]]
-    if (is.factor(x)) x <- as.character(x)
-    if (is.character(x)) !is.na(x) & nzchar(trimws(x)) else !is.na(x)
-  }), init = rep(FALSE, nrow(.data)))
-  
-  non_well_loc <- !grepl("\\bWELL\\b", .data$MonitoringLocationTypeName, ignore.case = TRUE)
-  
+  aquifer_meta_present <- Reduce(
+    `|`,
+    lapply(intersect(aquifer_meta_cols, names(.data)), function(col) {
+      x <- .data[[col]]
+      if (is.factor(x)) {
+        x <- as.character(x)
+      }
+      if (is.character(x)) !is.na(x) & nzchar(trimws(x)) else !is.na(x)
+    }),
+    init = rep(FALSE, nrow(.data))
+  )
+
+  non_well_loc <- !grepl(
+    "\\bWELL\\b",
+    .data$MonitoringLocationTypeName,
+    ignore.case = TRUE
+  )
+
   idx_aquifer_only <- aquifer_meta_present & !.data$gw_has_fields & non_well_loc
   .data <- .data |>
     dplyr::mutate(
       TADA.Media.Flag = dplyr::case_when(
-        idx_aquifer_only & (is.na(.data$TADA.Media.Flag) |
-                              .data$TADA.Media.Flag == "" |
-                              .data$TADA.Media.Flag == "SURFACE WATER") ~ "OTHER",
+        idx_aquifer_only &
+          (is.na(.data$TADA.Media.Flag) |
+            .data$TADA.Media.Flag == "" |
+            .data$TADA.Media.Flag == "SURFACE WATER") ~ "OTHER",
         TRUE ~ .data$TADA.Media.Flag
       )
     )
-  
+
   # Build removal set based on arguments (used only when clean = TRUE)
   remove_media <- c(
     if (isTRUE(surface_water)) "SURFACE WATER",
