@@ -437,7 +437,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       )
     })
   })
-
   return(final_features)
 }
 
