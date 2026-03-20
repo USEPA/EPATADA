@@ -162,7 +162,7 @@ TADA_AutoClean <- function(.data) {
 
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
-  print("TADA_Autoclean: creating TADA-specific columns.")
+  message("TADA_Autoclean: creating TADA-specific columns.")
 
   if (
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
@@ -258,7 +258,7 @@ TADA_AutoClean <- function(.data) {
   # result unit is "%" or "% SATURATN".
 
   if (any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
-    print(
+    message(
       "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."
     )
 
@@ -292,7 +292,7 @@ TADA_AutoClean <- function(.data) {
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
 
   # run TADA_ConvertSpecialChars function
-  print(
+  message(
     "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
   )
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
@@ -302,7 +302,7 @@ TADA_AutoClean <- function(.data) {
   )
 
   # change latitude and longitude measures to class numeric
-  print(
+  message(
     "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
   )
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
@@ -316,7 +316,7 @@ TADA_AutoClean <- function(.data) {
   rm(x, i)
 
   # Automatically convert USGS only unit "meters" to "m"
-  print(
+  message(
     "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
   )
   .data$TADA.ResultMeasure.MeasureUnitCode[
@@ -336,13 +336,13 @@ TADA_AutoClean <- function(.data) {
   ] <- "m"
 
   # Substitute updated characteristic name for deprecated names
-  print(
+  message(
     "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
   )
   .data <- TADA_SubstituteDeprecatedChars(.data)
 
   # Implement unit harmonization
-  print("TADA_Autoclean: harmonizing result and depth units.")
+  message("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(
     .data,
     transform = TRUE,
@@ -351,12 +351,12 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
-  print(
+  message(
     "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
   )
   .data <- TADA_CreateComparableID(.data)
 
-  print(
+  message(
     "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
   )
 

@@ -89,11 +89,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
@@ -283,11 +283,11 @@ TADA_Histogram <- function(
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
@@ -813,7 +813,7 @@ TADA_TwoCharacteristicScatterplot <- function(
   TADA_CheckColumns(.data, expected_cols)
 
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
-    print(
+    message(
       "Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended."
     )
   }
@@ -1262,7 +1262,7 @@ TADA_GroupedScatterplot <- function(
     }
 
     # print message describing groups that will be plotted
-    print(paste0(
+    message(
       "TADA_GroupedScatterplot: No 'groups' selected for ",
       group_col,
       ". There are ",
@@ -1277,7 +1277,7 @@ TADA_GroupedScatterplot <- function(
       groups.string,
       ".",
       sep = ""
-    ))
+    )
 
     # remove intermediate objects
     rm(groups.string, n.groups.plotted)

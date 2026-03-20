@@ -872,10 +872,10 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
       attains <- FALSE
 
       # print missing to user explaning that assessment unit data are not present
-      print(paste0(
+      message(
         "getWQPSiteStats: ATTAINS.AssessmentUnitIdentifier is not present in .data. ",
         "Returning WQP site stats without assessment unit identifiers."
-      ))
+      )
     }
 
     # if assessment unit data are available

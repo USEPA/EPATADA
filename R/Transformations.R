@@ -560,9 +560,9 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   #
   # # Print the test result
   # if (test_result) {
-  #   print("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
+  #   message("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
   # } else {
-  #   print("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
+  #   message("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
   # }
 
   # bring in custom reference df if provided
