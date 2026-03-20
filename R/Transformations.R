@@ -392,6 +392,8 @@ TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
 #'
 #' @note Requires dplyr >= 1.1.0 for NA-aware joins when matching to the summation ref.
 #'
+#' @export
+#'
 #' @examples
 #' \dontrun{
 #' df <- TADA_DataRetrieval(
