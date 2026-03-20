@@ -111,13 +111,17 @@ testthat::test_that("fetchATTAINS handles small areas", {
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 2)
   testthat::expect_null(result_all_features$ATTAINS_polygons)
-  testthat::expect_equal(nrow(result_all_features$ATTAINS_catchments), expect_cat_n_small)
+  testthat::expect_equal(
+    nrow(result_all_features$ATTAINS_catchments),
+    expect_cat_n_small
+  )
 })
 
 testthat::test_that("fetchATTAINS handles large areas", {
   # large_bbox_data from fixtures (testdata/Hill_MT_pH.Rd)
   testthat::expect_no_error(
-    result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data))
+    result_all_features <- EPATADA:::fetchATTAINS(.data = large_bbox_data)
+  )
   testthat::expect_null(result_all_features$ATTAINS_points)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_lines), 10)
   testthat::expect_equal(nrow(result_all_features$ATTAINS_polygons), 1)
@@ -160,7 +164,10 @@ testthat::test_that("fetchATTAINS org_id parameter", {
     "organizationid" == org
   ]
   # Compare the two sets of results (should be same)
-  testthat::expect_equal(nrow(org_results$ATTAINS_catchments), nrow(all_orgs_filtered))
+  testthat::expect_equal(
+    nrow(org_results$ATTAINS_catchments),
+    nrow(all_orgs_filtered)
+  )
 })
 
 
