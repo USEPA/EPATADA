@@ -115,7 +115,7 @@ dat_mq <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT, clean = FALSE)
 dat_flagged2 <- TADA_IDCensoredData(dat_mq)
 table(dat_flagged2$TADA.CensoredData.Flag)
 }
-Prepare and Flag Censored Data (NA/blank safe)
+# Prepare and Flag Censored Data (NA/blank safe)
 }
 \seealso{
 \itemize{
