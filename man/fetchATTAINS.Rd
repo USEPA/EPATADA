@@ -45,6 +45,7 @@ tada_data <- TADA_DataRetrieval(
 
 nv_attains_features <- EPATADA:::fetchATTAINS(tada_data, catchments_only = FALSE)
 }
+
 }
 \seealso{
 \code{\link[=TADA_MakeSpatial]{TADA_MakeSpatial()}}
