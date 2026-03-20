@@ -489,10 +489,10 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   if (
     any(
       .data$TADA.ResultMeasureValueDataTypes.Flag %in%
-      c(
-        "TP estimated from one or more subspecies.",
-        "TN estimated from one or more subspecies."
-      )
+        c(
+          "TP estimated from one or more subspecies.",
+          "TN estimated from one or more subspecies."
+        )
     )
   ) {
     # Notify the user that execution is halted
@@ -506,19 +506,19 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   include_df <- .data[
     .data$TADA.ActivityType.Flag == "Non_QC" &
       (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-         c(
-           "Numeric",
-           "Result Value/Unit Estimated from Detection Limit",
-           "Less Than",
-           "Percentage",
-           "Approximate Value",
-           "Greater Than",
-           "Comma-Separated Numeric",
-           "Numeric Range - Averaged",
-           "Percentage Range - Averaged",
-           "Approximate Value",
-           "Result Value/Unit Copied from Detection Limit"
-         )) &
+        c(
+          "Numeric",
+          "Result Value/Unit Estimated from Detection Limit",
+          "Less Than",
+          "Percentage",
+          "Approximate Value",
+          "Greater Than",
+          "Comma-Separated Numeric",
+          "Numeric Range - Averaged",
+          "Percentage Range - Averaged",
+          "Approximate Value",
+          "Result Value/Unit Copied from Detection Limit"
+        )) &
       (.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) &
       (.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) &
       (.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
@@ -528,13 +528,13 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
     .data$TADA.ActivityType.Flag != "Non_QC" |
       is.na(.data$TADA.ResultMeasureValueDataTypes.Flag) |
       (.data$TADA.ResultMeasureValueDataTypes.Flag %in%
-         c(
-           "NA - Not Available",
-           "Text",
-           "Non-ASCII Character(s)",
-           "Result Value/Unit Cannot Be Estimated From Detection Limit",
-           "Coerced to NA"
-         )) |
+        c(
+          "NA - Not Available",
+          "Text",
+          "Non-ASCII Character(s)",
+          "Result Value/Unit Cannot Be Estimated From Detection Limit",
+          "Coerced to NA"
+        )) |
       !(.data$TADA.ResultUnit.Flag %in% c("Pass", "Not Reviewed")) |
       !(.data$TADA.SampleFraction.Flag %in% c("Pass", "Not Reviewed")) |
       !(.data$TADA.MethodSpeciation.Flag %in% c("Pass", "Not Reviewed")),
