@@ -105,7 +105,7 @@
 #' dat_flagged2 <- TADA_IDCensoredData(dat_mq)
 #' table(dat_flagged2$TADA.CensoredData.Flag)
 #' }
-#' Prepare and Flag Censored Data (NA/blank safe)
+#' # Prepare and Flag Censored Data (NA/blank safe)
 TADA_IDCensoredData <- function(.data) {
   # check .data is data.frame and has required columns
   expected_cols <- c(

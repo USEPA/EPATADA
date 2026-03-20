@@ -247,7 +247,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'     "MonitoringLocationTypeName"
 #'   )
 #' )
-#' # This example generates 32 histograms
+#' # This example generates 46 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
 #' Histogram_output[[30]]
