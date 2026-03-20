@@ -474,7 +474,12 @@ utils::globalVariables(c(
   "percent_match_WQX_CST",
   "review",
   "source.y",
-  ".data"
+  ".data",
+  "Target.TADA.CharacteristicName",
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.ResultSampleFractionText",
+  "Target.TADA.SpeciationConversionFactor",
+  "has_depth_param"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
