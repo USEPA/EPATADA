@@ -1630,35 +1630,9 @@ TADA_GetATTAINSByAUID <- function(
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
   )
 
-  # get water type info using ATTAINS Expert Query
-  get_wb_type <- function(au_list) {
-    au_list <- unique(au_list)
-
-    # split the au_list into chunks
-    chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
-
-    # get water type
-    # need to edit funciton to silent print outs from EQ_AUs
-
-    wat_type <- function(chunk) {
-      results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = api_key,
-        auid = chunk
-      ))
-    }
-
-    results <- purrr::map_dfr(.x = chunks, .f = wat_type)
-
-    results <- results |>
-      dplyr::select(assessmentUnitId, waterType) |>
-      dplyr::distinct()
-
-    return(results)
-  }
-
   # get water types
   water_types <- try(
-    get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
+    fetchWaterType(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
     silent = TRUE
   )
 
