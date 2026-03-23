@@ -122,7 +122,7 @@ TADA_Stats <- function(
   }
 
   if ("TADA.NutrientSummation.Flag" %in% names(.data)) {
-    print(
+    message(
       "Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table."
     )
   }
