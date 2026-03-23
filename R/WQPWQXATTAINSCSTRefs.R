@@ -834,11 +834,7 @@ TADA_ListCacheKeys <- function() {
     Name = c("*Non-detect", "*Present <QL", "*Present"),
     Description = rep("Hard-coded legacy detection condition", 3),
     TADA.Detection_Type = c("Non-Detect", "Non-Detect", "Non-Detect"),
-    Last.Change.Date = c(
-      "8/7/2023",
-      "8/7/2023",
-      "12/14/2023"
-    ),
+    Last.Change.Date = c("8/7/2023", "8/7/2023", "12/14/2023"),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, others)
@@ -914,12 +910,7 @@ TADA_ListCacheKeys <- function() {
     ),
     Description = rep("USGS hard-coded limit", 4),
     TADA.Limit_Type = rep("Non-Detect", 4),
-    Last.Change.Date = c(
-      "4/6/2023",
-      "4/6/2023",
-      "4/6/2023",
-      "12/14/2023"
-    ),
+    Last.Change.Date = c("4/6/2023", "4/6/2023", "4/6/2023", "12/14/2023"),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, usgs)
@@ -1046,12 +1037,7 @@ TADA_ListCacheKeys <- function() {
       "Not Reviewed",
       "Non_QC"
     ),
-    Last.Change.Date = c(
-      "8/11/2023",
-      "8/11/2023",
-      "1/5/2024",
-      "1/5/2024"
-    ),
+    Last.Change.Date = c("8/11/2023", "8/11/2023", "1/5/2024", "1/5/2024"),
     stringsAsFactors = FALSE
   )
   df <- .tada_bind_rows(df, new.atcs)

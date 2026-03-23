@@ -937,11 +937,7 @@ testthat::test_that("WQXcharValRef has unique characteristic/media/unit/max/min 
 testthat::test_that(".tada_norm_colnames strips BOM and makes unique names", {
   ns <- asNamespace("EPATADA")
   f <- get(".tada_norm_colnames", envir = ns)
-  df <- data.frame(
-    "\ufeffCol" = 1,
-    "Col" = 2,
-    check.names = FALSE
-  )
+  df <- data.frame("\ufeffCol" = 1, "Col" = 2, check.names = FALSE)
   out <- f(df)
   testthat::expect_identical(names(out), c("Col", "Col.1"))
 })
@@ -949,14 +945,14 @@ testthat::test_that(".tada_norm_colnames strips BOM and makes unique names", {
 testthat::test_that("df_equal handles non-data.frames and name mismatch", {
   ns <- asNamespace("EPATADA")
   f <- get(".tada_df_equal", envir = ns)
-  
+
   testthat::expect_true(f(1:3, 1:3))
   testthat::expect_false(f(1:3, 1:4))
-  
+
   a <- data.frame(x = 1, y = 2)
   b <- data.frame(y = 2, x = 1)
   testthat::expect_true(f(a, b))
-  
+
   c <- data.frame(x = 1, z = 2)
   testthat::expect_false(f(a, c))
 })
@@ -965,7 +961,10 @@ testthat::test_that("tada_require_cols errors with context", {
   ns <- asNamespace("EPATADA")
   f <- get(".tada_require_cols", envir = ns)
   df <- data.frame(a = 1)
-  testthat::expect_error(f(df, c("x", "y"), "MyTable"), "MyTable: missing required columns: x, y")
+  testthat::expect_error(
+    f(df, c("x", "y"), "MyTable"),
+    "MyTable: missing required columns: x, y"
+  )
 })
 
 testthat::test_that("DetLimitRef required cols enforced in download_only", {
@@ -995,16 +994,22 @@ testthat::test_that("ActivityTypeRef required cols enforced in download_only", {
 testthat::test_that("download_or_extdata_rda emits message and fails when fallback invalid", {
   ns <- asNamespace("EPATADA")
   f <- get(".tada_download_or_extdata_rda", envir = ns)
-  
+
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) data.frame(bad = 1),
     .tada_load_extdata_rda = function(...) NULL,
     .env = ns
   )
-  
+
   testthat::expect_error(
-    f("http://x", "fallback.rda", "OBJ", pkg="EPATADA",
-      required_cols = "Need", on_fail_message = "msg"),
+    f(
+      "http://x",
+      "fallback.rda",
+      "OBJ",
+      pkg = "EPATADA",
+      required_cols = "Need",
+      on_fail_message = "msg"
+    ),
     "Fallback extdata 'fallback.rda'"
   )
 })
@@ -1013,7 +1018,7 @@ testthat::test_that("safe bind rows promotes logical NA placeholders to other at
   ns <- asNamespace("EPATADA")
   f <- get(".tada_bind_rows", envir = ns)
   d1 <- data.frame(a = 1L, b = 1.5, c = "x", stringsAsFactors = FALSE)
-  d2 <- data.frame(a = NA,  b = NA,  c = NA,  stringsAsFactors = FALSE)
+  d2 <- data.frame(a = NA, b = NA, c = NA, stringsAsFactors = FALSE)
   out <- f(d1, d2)
   testthat::expect_type(out$a, "integer")
   testthat::expect_type(out$b, "double")
@@ -1025,7 +1030,7 @@ testthat::test_that("flag_by_groups trims and first match wins", {
   ns <- asNamespace("EPATADA")
   f <- get(".tada_flag_by_groups", envir = ns)
   df <- data.frame(v = c(" A ", "B", NA), stringsAsFactors = TRUE)
-  groups <- list("X" = c("A","B"), "Y" = c("A"))
+  groups <- list("X" = c("A", "B"), "Y" = c("A"))
   out <- f(df, "v", "flag", groups, default = "D", na_default = "N")
   testthat::expect_identical(out$flag, c("X", "X", "N"))
 })
