@@ -11,15 +11,6 @@ skip_if_offline <- function(msg = "No internet connection") {
   }
 }
 
-# Parse m/d/Y from character, stripping any time portion
-to_mdy <- function(x) {
-  d <- try(
-    as.Date(sub("\\s+.*$", "", as.character(x)), format = "%m/%d/%Y"),
-    silent = TRUE
-  )
-  suppressWarnings(as.Date(d))
-}
-
 # Minimal data.frame with named columns
 make_df <- function(cols) {
   as.data.frame(
@@ -157,6 +148,7 @@ testthat::test_that("df_equal ignores row order and factor levels", {
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+  
   file_path <- system.file(
     "extdata",
     "WQXResultDetectionConditionRef.rda",
@@ -165,15 +157,26 @@ testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXResultDetectionConditionRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+  
+  # Parse m/d/Y to Date
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  ref <- EPATADA::TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks to avoid -Inf if all parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+  
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+  
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+  
   file_path <- system.file(
     "extdata",
     "WQXDetectionQuantitationLimitTypeRef.rda",
@@ -182,15 +185,27 @@ testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXDetectionQuantitationLimitTypeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+  
+  # Parse m/d/Y to Date
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  
+  ref <- EPATADA::TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks to avoid -Inf if parsing ever fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+  
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+  
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+  
   file_path <- system.file(
     "extdata",
     "WQXActivityTypeRef.rda",
@@ -199,15 +214,27 @@ testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXActivityTypeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+  
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  
+  ref <- EPATADA::TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+  
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+  
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+  
   file_path <- system.file(
     "extdata",
     "WQXMeasureQualifierCodeRef.rda",
@@ -216,15 +243,25 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXMeasureQualifierCodeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetMeasureQualifierCodeRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+  
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  
+  ref <- EPATADA::TADA_GetMeasureQualifierCodeRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks to avoid -Inf if parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+  
+  testthat::expect_equal(max(old_dates, na.rm = TRUE),
+                         max(new_dates, na.rm = TRUE))
 })
 
 testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+  
   file_path <- system.file(
     "extdata",
     "WQXCharAliasRef.rda",
@@ -233,10 +270,19 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXCharAliasRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+  
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  
+  ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+  
+  # Optional sanity checks to avoid -Inf if parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+  
+  testthat::expect_equal(max(old_dates, na.rm = TRUE),
+                         max(new_dates, na.rm = TRUE))
 })
 
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
@@ -831,7 +877,6 @@ testthat::test_that("RDA writer saves and skips when unchanged", {
 })
 
 # Live ATTAINS test: skip on CRAN, require internet and required packages
-
 testthat::test_that("Is the saved ATTAINSOrgIDsRef up to date (live domain subset in fallback)?", {
   skip_on_cran()
   testthat::skip_if_not_installed("rExpertQuery")
