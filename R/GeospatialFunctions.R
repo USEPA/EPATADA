@@ -308,27 +308,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
 
-  grab_waterbody_type <- function(au_list, chunk_size = 50) {
-    num_chunks <- ceiling(length(au_list) / chunk_size)
-    chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
-    water_types <- vector("list", length = length(chunks))
-
-    for (i in seq_along(chunks)) {
-      dat <- httr::GET(utils::URLencode(paste0(
-        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
-        paste(chunks[[i]], collapse = ",")
-      ))) |>
-        httr::content(as = "text", encoding = "UTF-8") |>
-        jsonlite::fromJSON()
-
-      water_types[[i]] <- dat[["items"]] |>
-        tidyr::unnest("assessmentUnits") |>
-        tidyr::unnest("waterTypes") |>
-        dplyr::select(assessmentUnitIdentifier, waterTypeCode)
-    }
-    dplyr::bind_rows(water_types)
-  }
-
   points_sf <- .data
 
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
@@ -348,7 +327,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     )
   } else {
     all_units <- unique(catchment_features$assessmentunitidentifier)
-    water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+    water_types <- fetchWaterType(all_units)
     try(
       catchment_features <- dplyr::left_join(
         catchment_features,
@@ -429,11 +408,22 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         silent = TRUE
       )
 
+      # if no results in a df, set to NULL
+      setNullWhenNoResults <- function(.data) {
+
+        if (nrow(.data) == 0) {
+          .data <- NULL
+        } else
+          .data <- .data
+
+        return(.data)
+      }
+
       final_features <- list(
-        "ATTAINS_catchments" = catchment_features,
-        "ATTAINS_points" = points,
-        "ATTAINS_lines" = lines,
-        "ATTAINS_polygons" = polygons
+        "ATTAINS_catchments" = setNullWhenNoResults(catchment_features),
+        "ATTAINS_points" = setNullWhenNoResults(points),
+        "ATTAINS_lines" = setNullWhenNoResults(lines),
+        "ATTAINS_polygons" = setNullWhenNoResults(polygons)
       )
     })
   })
