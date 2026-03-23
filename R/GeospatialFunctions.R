@@ -1769,6 +1769,13 @@ TADA_GetATTAINSByAUID <- function(
       silent = TRUE
     )
 
+    # ensure CRS is correct for workflow
+    if(sf::st_crs(catchments)$epsg != 4326) {
+
+      catchments <- sf::st_transform(catchments, 4326)
+
+    }
+
     if (nrow(catchments) > 0) {
       # get one catchment per WQP location
       catchments.cw <- filt.data |>
