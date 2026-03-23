@@ -562,7 +562,6 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   # if (test_result) {
   #   message("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
   # } else {
-  #   message("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
   # }
 
   # bring in custom reference df if provided
@@ -1019,14 +1018,14 @@ TADA_AggregateMeasurements <- function(
         " aggregation function but not selected"
       )
     )
-    multiples <- dat |> dplyr::filter(.data$ncount > 1)
-    dat <- dat |> dplyr::select(-.data$ncount)
+    multiples <- dat |> dplyr::filter(ncount > 1)
+    dat <- dat |> dplyr::select(-ncount)
 
     if (agg_fun == "max") {
       out <- multiples |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_max(
-          order_by = .data$TADA.ResultMeasureValue,
+          order_by = TADA.ResultMeasureValue,
           n = 1,
           with_ties = FALSE
         )
