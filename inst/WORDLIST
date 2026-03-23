@@ -455,6 +455,7 @@ extdata
 fabec
 fetchATTAINS
 fetchNHD
+fetchWaterType
 findATTAINSMissingRawFeatures
 flaggedonly
 flowline
