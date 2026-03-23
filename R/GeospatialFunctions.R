@@ -410,11 +410,11 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
 
       # if no results in a df, set to NULL
       setNullWhenNoResults <- function(.data) {
-
         if (nrow(.data) == 0) {
           .data <- NULL
-        } else
+        } else {
           .data <- .data
+        }
 
         return(.data)
       }
@@ -1693,37 +1693,43 @@ TADA_GetATTAINSByAUID <- function(
     return(final_features)
   }
 
-  if(!is.null(points)) {
-  try(
-    points <- points |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(points)) {
+    try(
+      points <- points |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
   }
 
-  if(!is.null(lines)) {
-  try(
-    lines <- lines |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(lines)) {
+    try(
+      lines <- lines |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
   }
 
-  if(!is.null(polygons)) {
-  try(
-    polygons <- polygons |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(polygons)) {
+    try(
+      polygons <- polygons |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
   }
 
   if (fill_ATTAINS_catch == FALSE) {
@@ -1805,7 +1811,9 @@ TADA_GetATTAINSByAUID <- function(
         catchments <- catchments.filt |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
+            by = c(
+              "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+            )
           )
       } else {
         catchments <- catchments.filt
