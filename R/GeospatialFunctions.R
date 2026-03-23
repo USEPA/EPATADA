@@ -1621,13 +1621,13 @@ TADA_GetATTAINSByAUID <- function(
   # REST for ATTAINS geospatial data:
   baseurls <- c(
     # ATTAINS catchments:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/",
     # ATTAINS points:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/",
     # ATTAINS lines:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/",
     # ATTAINS polygons:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/"
   )
 
   # get water types
@@ -1696,7 +1696,7 @@ TADA_GetATTAINSByAUID <- function(
     points <- points |>
       dplyr::left_join(
         water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
+        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
       ),
     silent = TRUE
   )
@@ -1705,7 +1705,7 @@ TADA_GetATTAINSByAUID <- function(
     lines <- lines |>
       dplyr::left_join(
         water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
+        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
       ),
     silent = TRUE
   )
@@ -1714,7 +1714,7 @@ TADA_GetATTAINSByAUID <- function(
     polygons <- polygons |>
       dplyr::left_join(
         water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
+        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
       ),
     silent = TRUE
   )
@@ -1791,7 +1791,7 @@ TADA_GetATTAINSByAUID <- function(
         catchments <- catchments.filt |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "assessmentUnitId")
+            by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
           )
       } else {
         catchments <- catchments.filt
