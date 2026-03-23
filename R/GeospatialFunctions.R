@@ -1647,6 +1647,7 @@ TADA_GetATTAINSByAUID <- function(
   TADA_with_ATTAINS <- .data
 
   # Download associated point, line, polygon, and catchment features using list of auids
+
   try(
     points <- fetch_au(
       baseurl = baseurls[2],
@@ -1692,6 +1693,7 @@ TADA_GetATTAINSByAUID <- function(
     return(final_features)
   }
 
+  if(!is.null(points)) {
   try(
     points <- points |>
       dplyr::left_join(
@@ -1700,7 +1702,9 @@ TADA_GetATTAINSByAUID <- function(
       ),
     silent = TRUE
   )
+  }
 
+  if(!is.null(lines)) {
   try(
     lines <- lines |>
       dplyr::left_join(
@@ -1709,7 +1713,9 @@ TADA_GetATTAINSByAUID <- function(
       ),
     silent = TRUE
   )
+  }
 
+  if(!is.null(polygons)) {
   try(
     polygons <- polygons |>
       dplyr::left_join(
@@ -1718,6 +1724,7 @@ TADA_GetATTAINSByAUID <- function(
       ),
     silent = TRUE
   )
+  }
 
   if (fill_ATTAINS_catch == FALSE) {
     catchments <- NULL
@@ -1860,6 +1867,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
+    dplyr::select(-waterType) |>
     TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>
