@@ -11,15 +11,6 @@ skip_if_offline <- function(msg = "No internet connection") {
   }
 }
 
-# Parse m/d/Y from character, stripping any time portion
-to_mdy <- function(x) {
-  d <- try(
-    as.Date(sub("\\s+.*$", "", as.character(x)), format = "%m/%d/%Y"),
-    silent = TRUE
-  )
-  suppressWarnings(as.Date(d))
-}
-
 # Minimal data.frame with named columns
 make_df <- function(cols) {
   as.data.frame(
@@ -157,6 +148,7 @@ testthat::test_that("df_equal ignores row order and factor levels", {
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+
   file_path <- system.file(
     "extdata",
     "WQXResultDetectionConditionRef.rda",
@@ -165,15 +157,26 @@ testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXResultDetectionConditionRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+
+  # Parse m/d/Y to Date
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+  ref <- EPATADA::TADA_GetDetCondRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+
+  # Optional sanity checks to avoid -Inf if all parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+
   file_path <- system.file(
     "extdata",
     "WQXDetectionQuantitationLimitTypeRef.rda",
@@ -182,15 +185,27 @@ testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXDetectionQuantitationLimitTypeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+
+  # Parse m/d/Y to Date
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+
+  ref <- EPATADA::TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+
+  # Optional sanity checks to avoid -Inf if parsing ever fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+
   file_path <- system.file(
     "extdata",
     "WQXActivityTypeRef.rda",
@@ -199,15 +214,27 @@ testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXActivityTypeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+
+  ref <- EPATADA::TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+
+  # Optional sanity checks
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+
+  old_latedate <- max(old_dates, na.rm = TRUE)
+  new_latedate <- max(new_dates, na.rm = TRUE)
+
+  testthat::expect_equal(old_latedate, new_latedate)
 })
 
 testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+
   file_path <- system.file(
     "extdata",
     "WQXMeasureQualifierCodeRef.rda",
@@ -216,15 +243,30 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXMeasureQualifierCodeRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetMeasureQualifierCodeRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+
+  ref <- EPATADA::TADA_GetMeasureQualifierCodeRef(
+    download_only = TRUE,
+    refresh = TRUE
+  )
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+
+  # Optional sanity checks to avoid -Inf if parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+
+  testthat::expect_equal(
+    max(old_dates, na.rm = TRUE),
+    max(new_dates, na.rm = TRUE)
+  )
 })
 
 testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   skip_on_cran()
   skip_if_offline()
+
   file_path <- system.file(
     "extdata",
     "WQXCharAliasRef.rda",
@@ -233,10 +275,21 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   e <- new.env(parent = emptyenv())
   load(file_path, envir = e)
   old <- e$WQXCharAliasRef
-  old_latedate <- max(to_mdy(old$Last.Change.Date), na.rm = TRUE)
-  ref <- TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
-  new_latedate <- max(to_mdy(ref$Last.Change.Date), na.rm = TRUE)
-  testthat::expect_true(old_latedate == new_latedate)
+
+  # Parse m/d/Y to Date (safe if already Date)
+  old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
+
+  ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
+  new_dates <- as.Date(ref$Last.Change.Date, format = "%m/%d/%Y")
+
+  # Optional sanity checks to avoid -Inf if parsing fails
+  testthat::expect_true(any(!is.na(old_dates)))
+  testthat::expect_true(any(!is.na(new_dates)))
+
+  testthat::expect_equal(
+    max(old_dates, na.rm = TRUE),
+    max(new_dates, na.rm = TRUE)
+  )
 })
 
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
@@ -831,7 +884,6 @@ testthat::test_that("RDA writer saves and skips when unchanged", {
 })
 
 # Live ATTAINS test: skip on CRAN, require internet and required packages
-
 testthat::test_that("Is the saved ATTAINSOrgIDsRef up to date (live domain subset in fallback)?", {
   skip_on_cran()
   testthat::skip_if_not_installed("rExpertQuery")
@@ -880,4 +932,105 @@ testthat::test_that("WQXcharValRef has unique characteristic/media/unit/max/min 
     dplyr::filter(Min_n > 1 | Max_n > 1)
 
   testthat::expect_true(nrow(find.dups) == 0)
+})
+
+testthat::test_that(".tada_norm_colnames strips BOM and makes unique names", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_norm_colnames", envir = ns)
+  df <- data.frame("\ufeffCol" = 1, "Col" = 2, check.names = FALSE)
+  out <- f(df)
+  testthat::expect_identical(names(out), c("Col", "Col.1"))
+})
+
+testthat::test_that("df_equal handles non-data.frames and name mismatch", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_df_equal", envir = ns)
+
+  testthat::expect_true(f(1:3, 1:3))
+  testthat::expect_false(f(1:3, 1:4))
+
+  a <- data.frame(x = 1, y = 2)
+  b <- data.frame(y = 2, x = 1)
+  testthat::expect_true(f(a, b))
+
+  c <- data.frame(x = 1, z = 2)
+  testthat::expect_false(f(a, c))
+})
+
+testthat::test_that("tada_require_cols errors with context", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_require_cols", envir = ns)
+  df <- data.frame(a = 1)
+  testthat::expect_error(
+    f(df, c("x", "y"), "MyTable"),
+    "MyTable: missing required columns: x, y"
+  )
+})
+
+testthat::test_that("DetLimitRef required cols enforced in download_only", {
+  ns <- asNamespace("EPATADA")
+  testthat::local_mocked_bindings(
+    .tada_read_csv_url = function(...) data.frame(NotName = 1),
+    .env = ns
+  )
+  testthat::expect_error(
+    EPATADA::TADA_GetDetLimitRef(download_only = TRUE, refresh = TRUE),
+    "missing required columns"
+  )
+})
+
+testthat::test_that("ActivityTypeRef required cols enforced in download_only", {
+  ns <- asNamespace("EPATADA")
+  testthat::local_mocked_bindings(
+    .tada_read_csv_url = function(...) data.frame(NotCode = 1),
+    .env = ns
+  )
+  testthat::expect_error(
+    EPATADA::TADA_GetActivityTypeRef(download_only = TRUE, refresh = TRUE),
+    "missing required columns"
+  )
+})
+
+testthat::test_that("download_or_extdata_rda emits message and fails when fallback invalid", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_download_or_extdata_rda", envir = ns)
+
+  testthat::local_mocked_bindings(
+    .tada_read_csv_url = function(...) data.frame(bad = 1),
+    .tada_load_extdata_rda = function(...) NULL,
+    .env = ns
+  )
+
+  testthat::expect_error(
+    f(
+      "http://x",
+      "fallback.rda",
+      "OBJ",
+      pkg = "EPATADA",
+      required_cols = "Need",
+      on_fail_message = "msg"
+    ),
+    "Fallback extdata 'fallback.rda'"
+  )
+})
+
+testthat::test_that("safe bind rows promotes logical NA placeholders to other atomic types", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_bind_rows", envir = ns)
+  d1 <- data.frame(a = 1L, b = 1.5, c = "x", stringsAsFactors = FALSE)
+  d2 <- data.frame(a = NA, b = NA, c = NA, stringsAsFactors = FALSE)
+  out <- f(d1, d2)
+  testthat::expect_type(out$a, "integer")
+  testthat::expect_type(out$b, "double")
+  testthat::expect_type(out$c, "character")
+  testthat::expect_true(is.na(out$a[2]) && is.na(out$b[2]) && is.na(out$c[2]))
+})
+
+testthat::test_that("flag_by_groups trims and first match wins", {
+  ns <- asNamespace("EPATADA")
+  f <- get(".tada_flag_by_groups", envir = ns)
+  df <- data.frame(v = c(" A ", "B", NA), stringsAsFactors = TRUE)
+  groups <- list("X" = c("A", "B"), "Y" = c("A"))
+  out <- f(df, "v", "flag", groups, default = "D", na_default = "N")
+  testthat::expect_identical(out$flag, c("X", "X", "N"))
 })
