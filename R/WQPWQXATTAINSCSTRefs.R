@@ -446,7 +446,6 @@ TADA_ListCacheKeys <- function() {
     df <- pick_df(e[[nm]])
     if (!is.null(df)) return(df)
   }
-  NULL
 }
 
 # Download authoritative CSV; if it fails, fallback to installed RDA
