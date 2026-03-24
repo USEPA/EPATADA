@@ -1865,7 +1865,8 @@ checkForATTAINSGeo <- function(
 #'
 # get water types
 # get water type info using ATTAINS Expert Query
-fetchWaterType <- function(au_list, api_key = NULL) {
+fetchWaterType <- function(au_list,
+                           api_key = NULL) {
   au_list <- unique(au_list)
 
   # split the au_list into chunks
@@ -1889,10 +1890,9 @@ fetchWaterType <- function(au_list, api_key = NULL) {
   results <- results |>
     dplyr::select(assessmentUnitId, waterType) |>
     dplyr::distinct() |>
-    dplyr::rename(
-      ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
-      ATTAINS.WaterType = waterType
-    )
+    dplyr::rename(ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
+                  ATTAINS.WaterType = waterType)
 
   return(results)
 }
+
