@@ -1780,7 +1780,7 @@ TADA_GetATTAINSByAUID <- function(
         ) |>
         dplyr::distinct() |>
         TADA_MakeSpatial() |>
-        sf::st_nearest_join(catchments, left = TRUE) |>
+        sf::st_join(catchments, join = sf::st_nearest_feature) |>
         dplyr::group_by(TADA.MonitoringLocationIdentifier) |>
         dplyr::mutate(catchCount = dplyr::n()) |>
         dplyr::select(TADA.MonitoringLocationIdentifier, nhdplusid) |>
