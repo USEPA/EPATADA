@@ -743,17 +743,19 @@ TADA_ListCacheKeys <- function() {
 
 # Keeps exactly: Name, Comparable.Name, CAS.Number, Domain.Value.Status
 .TADA_normalize_characteristic_ref <- function(df) {
-  if (!is.data.frame(df) || ncol(df) == 0) return(NULL)
+  if (!is.data.frame(df) || ncol(df) == 0) {
+    return(NULL)
+  }
   required <- c("Name", "Comparable.Name", "CAS.Number", "Domain.Value.Status")
   if (!all(required %in% names(df))) {
     return(NULL)
   }
   out <- data.frame(
     CharacteristicName = df[["Name"]],
-    Comparable.Name    = df[["Comparable.Name"]],
-    CAS.Number         = df[["CAS.Number"]],
-    Char_Flag          = df[["Domain.Value.Status"]],
-    stringsAsFactors   = FALSE
+    Comparable.Name = df[["Comparable.Name"]],
+    CAS.Number = df[["CAS.Number"]],
+    Char_Flag = df[["Domain.Value.Status"]],
+    stringsAsFactors = FALSE
   )
   out <- .tada_trim_char_cols(out)
   unique(out)
@@ -1157,8 +1159,10 @@ TADA_ListCacheKeys <- function() {
 TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
   # Cache hit
   cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
-  if (!is.null(cached)) return(cached)
-  
+  if (!is.null(cached)) {
+    return(cached)
+  }
+
   # Load internal RDA (works in dev and installed builds)
   ref <- .tada_load_extdata_rda(
     pkg = "EPATADA",
@@ -1169,18 +1173,25 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
     trim = TRUE
   )
   if (is.null(ref)) {
-    stop("Internal extdata 'WQXCharacteristicRef.rda' not found or invalid. ",
-         "Rebuild the package with an internal copy.")
+    stop(
+      "Internal extdata 'WQXCharacteristicRef.rda' not found or invalid. ",
+      "Rebuild the package with an internal copy."
+    )
   }
-  
+
   # Enforce final schema and order (drop extras; fill missing with NA)
-  keep_order <- c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
+  keep_order <- c(
+    "CharacteristicName",
+    "Comparable.Name",
+    "CAS.Number",
+    "Char_Flag"
+  )
   for (nm in keep_order) {
     if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
   }
   ref <- ref[, keep_order, drop = FALSE]
   ref <- unique(.tada_trim_char_cols(ref))
-  
+
   .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
   ref
 }
@@ -1190,26 +1201,38 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
 #' inst/extdata/WQXCharacteristicRef.rda if changed.
 #' @keywords internal
 .TADA_UpdateCharacteristicRef <- function() {
-  raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
+  raw.data <- .tada_read_csv_url(
+    .WQX_URLS$Characteristic,
+    stringsAsFactors = FALSE
+  )
   if (is.null(raw.data)) {
-    stop(".TADA_UpdateCharacteristicRef: download failed; cannot update internal file.")
+    stop(
+      ".TADA_UpdateCharacteristicRef: download failed; cannot update internal file."
+    )
   }
-  
+
   # Exact-headers normalizer: requires Name, Comparable.Name, CAS.Number, Domain.Value.Status
   ref <- .TADA_normalize_characteristic_ref(raw.data)
   if (is.null(ref)) {
-    stop(".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table: ",
-         paste(names(raw.data), collapse = ", "))
+    stop(
+      ".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table: ",
+      paste(names(raw.data), collapse = ", ")
+    )
   }
-  
+
   # Enforce final schema/order defensively
-  keep_order <- c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
+  keep_order <- c(
+    "CharacteristicName",
+    "Comparable.Name",
+    "CAS.Number",
+    "Char_Flag"
+  )
   for (nm in keep_order) {
     if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
   }
   ref <- ref[, keep_order, drop = FALSE]
   ref <- unique(.tada_trim_char_cols(ref))
-  
+
   .tada_save_ext_rda(
     obj = ref,
     obj_name = "WQXCharacteristicRef",
