@@ -275,7 +275,7 @@ testthat::test_that("CharacteristicRef updater errors on unexpected structure", 
 testthat::test_that("CharacteristicRef normalizer keeps exact columns and trims/dedups", {
   ns <- asNamespace("EPATADA")
   norm <- get(".TADA_normalize_characteristic_ref", envir = ns)
-  
+
   live <- data.frame(
     Name = c("  Ch1 ", "Ch1 "),
     `Comparable.Name` = " CN ",
@@ -285,12 +285,12 @@ testthat::test_that("CharacteristicRef normalizer keeps exact columns and trims/
     stringsAsFactors = FALSE
   )
   out <- norm(live)
-  
+
   testthat::expect_identical(
     names(out),
     c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
   )
-  testthat::expect_equal(nrow(out), 1L)           # unique() removes duplicate row
+  testthat::expect_equal(nrow(out), 1L) # unique() removes duplicate row
   testthat::expect_equal(out$CharacteristicName, "Ch1")
   testthat::expect_equal(out$Comparable.Name, "CN")
   testthat::expect_equal(out$CAS.Number, "123")
@@ -683,7 +683,7 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
     cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
     rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
   }
-  
+
   wb <- tempfile(fileext = ".xlsx")
   x <- list(
     data.frame(L = "Legend_by_index", stringsAsFactors = FALSE),
@@ -692,12 +692,12 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
   )
   names(x) <- c("AAA", "BBB", "CCC")
   openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
-  
+
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
-    download_only = FALSE,
-    refresh = FALSE,
-    ...
+      download_only = FALSE,
+      refresh = FALSE,
+      ...
     ) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
@@ -706,7 +706,7 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
     },
     .env = ns
   )
-  
+
   suppressWarnings(testthat::expect_error(
     EPATADA::TADA_CST_GetLegend(refresh = TRUE),
     "Failed to read Legend sheet"
@@ -1058,7 +1058,7 @@ testthat::test_that("flag_by_groups trims and first match wins", {
 testthat::test_that("CharacteristicRef getter loads internal RDA and caches", {
   ns <- asNamespace("EPATADA")
   EPATADA::TADA_ClearCache()
-  
+
   fb <- data.frame(
     CharacteristicName = "X",
     Comparable.Name = "Y",
@@ -1066,15 +1066,15 @@ testthat::test_that("CharacteristicRef getter loads internal RDA and caches", {
     Char_Flag = "A",
     stringsAsFactors = FALSE
   )
-  
+
   testthat::local_mocked_bindings(
     .tada_load_extdata_rda = function(...) fb,
     .env = ns
   )
-  
+
   out1 <- EPATADA::TADA_GetCharacteristicRef()
   testthat::expect_identical(out1, fb)
-  
+
   # Second call should return from cache (no new loader calls)
   out2 <- EPATADA::TADA_GetCharacteristicRef()
   testthat::expect_identical(out2, fb)
@@ -1092,7 +1092,7 @@ testthat::test_that("CharacteristicRef updater normalizes and saves", {
   )
   saved <- FALSE
   captured <- NULL
-  
+
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) live,
     .tada_save_ext_rda = function(obj, obj_name, ...) {
@@ -1102,7 +1102,7 @@ testthat::test_that("CharacteristicRef updater normalizes and saves", {
     },
     .env = ns
   )
-  
+
   invisible(EPATADA:::.TADA_UpdateCharacteristicRef())
   testthat::expect_true(saved)
   testthat::expect_identical(captured$obj_name, "WQXCharacteristicRef")

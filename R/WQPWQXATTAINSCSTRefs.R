@@ -1567,7 +1567,7 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     cached <- .tada_cache_get(.WQXActivityTypeRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   if (download_only) {
     df <- .tada_read_csv_url(.WQX_URLS$ActivityType, stringsAsFactors = FALSE)
     if (is.null(df)) {
@@ -1587,7 +1587,7 @@ TADA_GetActivityTypeRef <- function(download_only = FALSE, refresh = FALSE) {
     )
     df <- .tada_norm_colnames(df)
   }
-  
+
   df <- .TADA_flag_ActivityTypeRef(df)
   if (!download_only) {
     .tada_cache_set(.WQXActivityTypeRef_cache_key, df)
