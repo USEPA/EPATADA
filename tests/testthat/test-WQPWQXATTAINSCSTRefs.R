@@ -1,81 +1,6 @@
-# Shared helpers for EPATADA tests
-ns <- asNamespace("EPATADA")
-
-# Internet guard for live tests
-skip_if_offline <- function(msg = "No internet connection") {
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip(msg)
-  }
-}
-
-# Minimal data.frame with named columns
-make_df <- function(cols) {
-  as.data.frame(
-    setNames(as.list(rep_len("", length(cols))), cols),
-    stringsAsFactors = FALSE
-  )
-}
-
-# Build a simple workbook for CST tests
-make_cst_xlsx <- function(
-  legend_df,
-  sources_df,
-  criteria_df,
-  sheet_names = c("Legend", "Sources", "Criteria")
-) {
-  testthat::skip_if_not_installed("openxlsx")
-  tmp <- tempfile(fileext = ".xlsx")
-  x <- list(legend_df, sources_df, criteria_df)
-  if (!is.null(sheet_names)) {
-    names(x) <- sheet_names
-  }
-  openxlsx::write.xlsx(x, file = tmp, asTable = FALSE, overwrite = TRUE)
-  tmp
-}
-
-# Reset the package-scoped cache env (clear contents of the locked binding)
-reset_cst_cache <- function() {
-  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
-    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
-    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
-  }
-}
-
-get_cache_value <- function(key) {
-  get(".tada_cache_get", envir = ns)(key)
-}
-
-# Mock the CST resolver to return a specific workbook path
-mock_resolver_to_path <- function(wb_path) {
-  testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      pkg = "EPATADA",
-      on_fail_message = NULL
-    ) {
-      if (!download_only) {
-        get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
-      }
-      wb_path
-    },
-    .env = ns
-  )
-}
-
-# Helper to build Legend sheet with ReportDateTime for CST
-make_legend_with_report_dt <- function(val = "2025-01-01T00:00:00Z") {
-  data.frame(
-    X1 = c("ReportDateTime", "Other"),
-    X2 = c(val, "ignore"),
-    stringsAsFactors = FALSE
-  )
-}
-
 testthat::test_that("Cache helpers: set, list, clear", {
+  ns <- asNamespace("EPATADA")
+
   # Ensure clean cache
   EPATADA::TADA_ClearCache()
   testthat::expect_equal(EPATADA::TADA_ListCacheKeys(), character(0))
@@ -92,6 +17,7 @@ testthat::test_that("Cache helpers: set, list, clear", {
 })
 
 testthat::test_that("trim converts factors to character and trims", {
+  ns <- asNamespace("EPATADA")
   .trim <- get(".tada_trim_char_cols", envir = ns)
   df <- data.frame(
     a = factor(c("  X ", "Y  ")),
@@ -107,6 +33,7 @@ testthat::test_that("trim converts factors to character and trims", {
 })
 
 testthat::test_that("safe bind rows handles Date/POSIXct/factors/logicals and tzone", {
+  ns <- asNamespace("EPATADA")
   .bind <- get(".tada_bind_rows", envir = ns)
 
   d1 <- data.frame(
@@ -135,6 +62,7 @@ testthat::test_that("safe bind rows handles Date/POSIXct/factors/logicals and tz
 })
 
 testthat::test_that("df_equal ignores row order and factor levels", {
+  ns <- asNamespace("EPATADA")
   .eq <- get(".tada_df_equal", envir = ns)
 
   a <- data.frame(x = factor(c("b", "a")), y = c(2, 1))
@@ -147,7 +75,14 @@ testthat::test_that("df_equal ignores row order and factor levels", {
 
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   file_path <- system.file(
     "extdata",
@@ -175,7 +110,14 @@ testthat::test_that("Is TADA_GetDetCondRef up to date?", {
 
 testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   skip_on_cran()
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   file_path <- system.file(
     "extdata",
@@ -204,7 +146,14 @@ testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
 
 testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   skip_on_cran()
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   file_path <- system.file(
     "extdata",
@@ -233,7 +182,14 @@ testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
 
 testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   skip_on_cran()
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   file_path <- system.file(
     "extdata",
@@ -265,7 +221,14 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
 
 testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   skip_on_cran()
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   file_path <- system.file(
     "extdata",
@@ -293,6 +256,8 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
 })
 
 testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fallback invalid", {
+  ns <- asNamespace("EPATADA")
+
   # Mock live download to fail
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) NULL,
@@ -300,7 +265,7 @@ testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fa
   )
 
   # Successful fallback
-  fallback_df <- make_df(c("Code", "Name"))
+  fallback_df <- data.frame(Code = "", Name = "", stringsAsFactors = FALSE)
   testthat::local_mocked_bindings(
     .tada_load_extdata_rda = function(...) fallback_df,
     .env = ns
@@ -320,8 +285,10 @@ testthat::test_that("MeasureUnitRef falls back when live fails, and errors if fa
 })
 
 testthat::test_that("DetCondRef required cols enforced in download_only", {
+  ns <- asNamespace("EPATADA")
+
   # Live download returns df missing Name
-  bad_df <- make_df(c("NotName"))
+  bad_df <- data.frame(NotName = "", stringsAsFactors = FALSE)
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) bad_df,
     .env = ns
@@ -333,8 +300,10 @@ testthat::test_that("DetCondRef required cols enforced in download_only", {
 })
 
 testthat::test_that("CharacteristicRef download_only errors on unexpected structure", {
+  ns <- asNamespace("EPATADA")
+
   # Live returns wrong columns
-  bad_df <- make_df(c("foo"))
+  bad_df <- data.frame(foo = "", stringsAsFactors = FALSE)
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) bad_df,
     .env = ns
@@ -346,6 +315,8 @@ testthat::test_that("CharacteristicRef download_only errors on unexpected struct
 })
 
 testthat::test_that("CharacteristicRef normalizes expected columns and trims", {
+  ns <- asNamespace("EPATADA")
+
   live <- data.frame(
     Name = c("  Ch1 ", "Ch1 "),
     `Domain.Value.Status` = c("A", "A"),
@@ -373,6 +344,8 @@ testthat::test_that("CharacteristicRef normalizes expected columns and trims", {
 })
 
 testthat::test_that("CharacteristicRef falls back when structure unexpected", {
+  ns <- asNamespace("EPATADA")
+
   bad <- data.frame(Other = 1)
   fb <- data.frame(
     CharacteristicName = "X",
@@ -389,6 +362,8 @@ testthat::test_that("CharacteristicRef falls back when structure unexpected", {
 })
 
 testthat::test_that("WQP Organization: column selection + fallback", {
+  ns <- asNamespace("EPATADA")
+
   # Live returns extra columns
   live <- data.frame(
     OrganizationIdentifier = "ID",
@@ -426,6 +401,7 @@ testthat::test_that("WQP Organization: column selection + fallback", {
 })
 
 testthat::test_that("Detection Condition classifier assigns expected flags + legacy rows", {
+  ns <- asNamespace("EPATADA")
   f <- get(".TADA_flag_DetCondRef", envir = ns)
   df <- data.frame(
     Name = c(
@@ -448,6 +424,7 @@ testthat::test_that("Detection Condition classifier assigns expected flags + leg
 })
 
 testthat::test_that("Detection Limit Type classifier assigns expected flags", {
+  ns <- asNamespace("EPATADA")
   f <- get(".TADA_flag_DetLimitRef", envir = ns)
   df <- data.frame(
     Name = c(
@@ -467,6 +444,7 @@ testthat::test_that("Detection Limit Type classifier assigns expected flags", {
 })
 
 testthat::test_that("ActivityType classifier by Code handles QC bins and Non_QC", {
+  ns <- asNamespace("EPATADA")
   f <- get(".TADA_flag_ActivityTypeRef", envir = ns)
   df <- data.frame(
     Code = c(
@@ -497,6 +475,7 @@ testthat::test_that("ActivityType classifier by Code handles QC bins and Non_QC"
 })
 
 testthat::test_that("Monitoring Location Type flag assigns Surface Water / Groundwater", {
+  ns <- asNamespace("EPATADA")
   f <- get(".TADA_flag_MonLocTypeRef", envir = ns)
   df <- data.frame(
     Name = c("Lake", "Well", "Other-Surface Water", "Other-X"),
@@ -511,6 +490,7 @@ testthat::test_that("Monitoring Location Type flag assigns Surface Water / Groun
 })
 
 testthat::test_that("Measure Qualifier Code classifier flags Pass/Suspect/Non-Detect/Over-Detect and NA -> Pass", {
+  ns <- asNamespace("EPATADA")
   f <- get(".TADA_flag_MeasureQualifierCodeRef", envir = ns)
   df <- data.frame(Code = c("P", "AR", "U", "GT", NA), stringsAsFactors = FALSE)
   out <- f(df)
@@ -530,9 +510,12 @@ testthat::test_that("Measure Qualifier Code classifier flags Pass/Suspect/Non-De
 # CST getters + helpers
 
 testthat::test_that("Getters read, normalize, and cache results (classic and fuzzy names)", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
-
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
   legend_in <- data.frame(
     A = c(" a ", "a "),
     B = c(" x ", "x "),
@@ -565,13 +548,27 @@ testthat::test_that("Getters read, normalize, and cache results (classic and fuz
     stringsAsFactors = FALSE
   ))
 
-  wb_path <- make_cst_xlsx(
-    legend_in,
-    sources_in,
-    criteria_in,
-    sheet_names = c("LEGEND notes", "SourCes", "criteria_table")
+  # Inline make_cst_xlsx
+  wb_path <- tempfile(fileext = ".xlsx")
+  x <- list(legend_in, sources_in, criteria_in)
+  names(x) <- c("LEGEND notes", "SourCes", "criteria_table")
+  openxlsx::write.xlsx(x, file = wb_path, asTable = FALSE, overwrite = TRUE)
+
+  # Inline mock_resolver_to_path
+  testthat::local_mocked_bindings(
+    .tada_cst_get_workbook_path = function(
+      download_only = FALSE,
+      refresh = FALSE,
+      pkg = "EPATADA",
+      on_fail_message = NULL
+    ) {
+      if (!download_only) {
+        get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
+      }
+      wb_path
+    },
+    .env = ns
   )
-  mock_resolver_to_path(wb_path)
 
   out_legend <- EPATADA::TADA_CST_GetLegend(refresh = TRUE)
   out_sources <- EPATADA::TADA_CST_GetSources(refresh = TRUE)
@@ -581,11 +578,18 @@ testthat::test_that("Getters read, normalize, and cache results (classic and fuz
   testthat::expect_equal(out_sources, expected_sources)
   testthat::expect_equal(out_criteria, expected_criteria)
 
-  testthat::expect_true(is.data.frame(get_cache_value("CST_legend_df")))
-  testthat::expect_true(is.data.frame(get_cache_value("CST_sources_df")))
-  testthat::expect_true(is.data.frame(get_cache_value("CST_criteria_df")))
+  # Inline get_cache_value
+  testthat::expect_true(is.data.frame(get(".tada_cache_get", envir = ns)(
+    "CST_legend_df"
+  )))
+  testthat::expect_true(is.data.frame(get(".tada_cache_get", envir = ns)(
+    "CST_sources_df"
+  )))
+  testthat::expect_true(is.data.frame(get(".tada_cache_get", envir = ns)(
+    "CST_criteria_df"
+  )))
 
-  wp <- get_cache_value("CST_workbook_path")
+  wp <- get(".tada_cache_get", envir = ns)("CST_workbook_path")
   testthat::expect_true(is.character(wp) && length(wp) == 1 && nzchar(wp))
 
   # Second call without refresh returns from cache
@@ -594,37 +598,67 @@ testthat::test_that("Getters read, normalize, and cache results (classic and fuz
 })
 
 testthat::test_that("download_only = TRUE returns data but does not populate cache", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
 
-  wb_path <- make_cst_xlsx(
-    legend_df = data.frame(A = "  foo "),
-    sources_df = data.frame(Src = " bar "),
-    criteria_df = data.frame(C1 = " baz "),
-    sheet_names = c("Legend", "Sources", "Criteria")
+  legend_df <- data.frame(A = "  foo ", stringsAsFactors = FALSE)
+  sources_df <- data.frame(Src = " bar ", stringsAsFactors = FALSE)
+  criteria_df <- data.frame(C1 = " baz ", stringsAsFactors = FALSE)
+
+  wb_path <- tempfile(fileext = ".xlsx")
+  x <- list(legend_df, sources_df, criteria_df)
+  names(x) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x, file = wb_path, asTable = FALSE, overwrite = TRUE)
+
+  testthat::local_mocked_bindings(
+    .tada_cst_get_workbook_path = function(
+      download_only = FALSE,
+      refresh = FALSE,
+      ...
+    ) {
+      if (!download_only) {
+        get(".tada_cache_set", envir = ns)("CST_workbook_path", wb_path)
+      }
+      wb_path
+    },
+    .env = ns
   )
-  mock_resolver_to_path(wb_path)
 
   out <- EPATADA::TADA_CST_GetLegend(download_only = TRUE, refresh = FALSE)
   testthat::expect_equal(out, data.frame(A = "foo", stringsAsFactors = FALSE))
-  testthat::expect_null(get_cache_value("CST_legend_df"))
-  testthat::expect_null(get_cache_value("CST_workbook_path"))
+  testthat::expect_null(get(".tada_cache_get", envir = ns)("CST_legend_df"))
+  testthat::expect_null(get(".tada_cache_get", envir = ns)("CST_workbook_path"))
 })
 
 testthat::test_that("refresh = TRUE bypasses cached data and updates it", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
 
-  wb1 <- make_cst_xlsx(
-    legend_df = data.frame(A = "old", stringsAsFactors = FALSE),
-    sources_df = data.frame(Src = "old", stringsAsFactors = FALSE),
-    criteria_df = data.frame(C1 = "old", stringsAsFactors = FALSE)
+  wb1 <- tempfile(fileext = ".xlsx")
+  x1 <- list(
+    data.frame(A = "old", stringsAsFactors = FALSE),
+    data.frame(Src = "old", stringsAsFactors = FALSE),
+    data.frame(C1 = "old", stringsAsFactors = FALSE)
   )
-  wb2 <- make_cst_xlsx(
-    legend_df = data.frame(A = "new", stringsAsFactors = FALSE),
-    sources_df = data.frame(Src = "new", stringsAsFactors = FALSE),
-    criteria_df = data.frame(C1 = "new", stringsAsFactors = FALSE)
+  names(x1) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x1, file = wb1, asTable = FALSE, overwrite = TRUE)
+
+  wb2 <- tempfile(fileext = ".xlsx")
+  x2 <- list(
+    data.frame(A = "new", stringsAsFactors = FALSE),
+    data.frame(Src = "new", stringsAsFactors = FALSE),
+    data.frame(C1 = "new", stringsAsFactors = FALSE)
   )
+  names(x2) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x2, file = wb2, asTable = FALSE, overwrite = TRUE)
 
   current_path <- wb1
   testthat::local_mocked_bindings(
@@ -648,26 +682,45 @@ testthat::test_that("refresh = TRUE bypasses cached data and updates it", {
   out2 <- EPATADA::TADA_CST_GetLegend(refresh = TRUE)
   testthat::expect_equal(out2, data.frame(A = "new", stringsAsFactors = FALSE))
   testthat::expect_equal(
-    get_cache_value("CST_legend_df"),
+    get(".tada_cache_get", envir = ns)("CST_legend_df"),
     data.frame(A = "new", stringsAsFactors = FALSE)
   )
 })
 
 testthat::test_that("Resolves new CST naming: base=(legend), (2)=(sources), (3)=(criteria)", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
 
-  wb <- make_cst_xlsx(
-    legend_df = data.frame(Lcol = "L_new", stringsAsFactors = FALSE),
-    sources_df = data.frame(Scol = "S_new", stringsAsFactors = FALSE),
-    criteria_df = data.frame(Ccol = "C_new", stringsAsFactors = FALSE),
-    sheet_names = c(
-      "Search Tool Criteria Data", # legend
-      "Search Tool Criteria Data (2)", # sources
-      "Search Tool Criteria Data (3)" # criteria
-    )
+  wb <- tempfile(fileext = ".xlsx")
+  x <- list(
+    data.frame(Lcol = "L_new", stringsAsFactors = FALSE),
+    data.frame(Scol = "S_new", stringsAsFactors = FALSE),
+    data.frame(Ccol = "C_new", stringsAsFactors = FALSE)
   )
-  mock_resolver_to_path(wb)
+  names(x) <- c(
+    "Search Tool Criteria Data",
+    "Search Tool Criteria Data (2)",
+    "Search Tool Criteria Data (3)"
+  )
+  openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
+
+  testthat::local_mocked_bindings(
+    .tada_cst_get_workbook_path = function(
+      download_only = FALSE,
+      refresh = FALSE,
+      ...
+    ) {
+      if (!download_only) {
+        get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
+      }
+      wb
+    },
+    .env = ns
+  )
 
   l <- EPATADA::TADA_CST_GetLegend(refresh = TRUE)
   s <- EPATADA::TADA_CST_GetSources(refresh = TRUE)
@@ -688,16 +741,35 @@ testthat::test_that("Resolves new CST naming: base=(legend), (2)=(sources), (3)=
 })
 
 testthat::test_that("Errors when sheet names are unrecognized (no index fallback)", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
 
-  wb <- make_cst_xlsx(
-    legend_df = data.frame(L = "Legend_by_index", stringsAsFactors = FALSE),
-    sources_df = data.frame(S = "Sources_by_index", stringsAsFactors = FALSE),
-    criteria_df = data.frame(C = "Criteria_by_index", stringsAsFactors = FALSE),
-    sheet_names = c("AAA", "BBB", "CCC")
+  wb <- tempfile(fileext = ".xlsx")
+  x <- list(
+    data.frame(L = "Legend_by_index", stringsAsFactors = FALSE),
+    data.frame(S = "Sources_by_index", stringsAsFactors = FALSE),
+    data.frame(C = "Criteria_by_index", stringsAsFactors = FALSE)
   )
-  mock_resolver_to_path(wb)
+  names(x) <- c("AAA", "BBB", "CCC")
+  openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
+
+  testthat::local_mocked_bindings(
+    .tada_cst_get_workbook_path = function(
+      download_only = FALSE,
+      refresh = FALSE,
+      ...
+    ) {
+      if (!download_only) {
+        get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
+      }
+      wb
+    },
+    .env = ns
+  )
 
   testthat::expect_error(
     EPATADA::TADA_CST_GetLegend(refresh = TRUE),
@@ -714,16 +786,36 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
 })
 
 testthat::test_that("Falls back to internal workbook when download fails", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
 
-  fallback_wb <- make_cst_xlsx(
-    legend_df = data.frame(A = "from_fallback", stringsAsFactors = FALSE),
-    sources_df = data.frame(Src = "from_fallback", stringsAsFactors = FALSE),
-    criteria_df = data.frame(C1 = "from_fallback", stringsAsFactors = FALSE),
-    sheet_names = c("Legend", "Sources", "Criteria")
+  fallback_wb <- tempfile(fileext = ".xlsx")
+  x <- list(
+    data.frame(A = "from_fallback", stringsAsFactors = FALSE),
+    data.frame(Src = "from_fallback", stringsAsFactors = FALSE),
+    data.frame(C1 = "from_fallback", stringsAsFactors = FALSE)
   )
-  mock_resolver_to_path(fallback_wb)
+  names(x) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x, file = fallback_wb, asTable = FALSE, overwrite = TRUE)
+
+  testthat::local_mocked_bindings(
+    .tada_cst_get_workbook_path = function(
+      download_only = FALSE,
+      refresh = FALSE,
+      ...
+    ) {
+      if (!download_only) {
+        get(".tada_cache_set", envir = ns)("CST_workbook_path", fallback_wb)
+      }
+      fallback_wb
+    },
+    .env = ns
+  )
+
   out <- EPATADA::TADA_CST_GetCriteria(refresh = TRUE)
   testthat::expect_equal(
     out,
@@ -732,7 +824,12 @@ testthat::test_that("Falls back to internal workbook when download fails", {
 })
 
 testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
-  reset_cst_cache()
+  ns <- asNamespace("EPATADA")
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
+
   fake_src <- tempfile(fileext = ".xlsx")
   file.create(fake_src)
 
@@ -770,29 +867,38 @@ testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
 })
 
 testthat::test_that("ReportDateTime is extracted from Legend", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  legend <- make_legend_with_report_dt("2024-12-31 23:59:59")
-  wb <- make_cst_xlsx(
-    legend_df = legend,
-    sources_df = data.frame(S = 1),
-    criteria_df = data.frame(C = 1)
+
+  # Inline make_legend_with_report_dt
+  legend <- data.frame(
+    X1 = c("ReportDateTime", "Other"),
+    X2 = c("2024-12-31 23:59:59", "ignore"),
+    stringsAsFactors = FALSE
   )
+
+  wb <- tempfile(fileext = ".xlsx")
+  x <- list(legend, data.frame(S = 1), data.frame(C = 1))
+  names(x) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
+
   f <- get(".tada_cst_get_report_datetime", envir = ns)
   testthat::expect_identical(f(wb), "2024-12-31 23:59:59")
 })
 
 testthat::test_that("Normalized copy renames new CST naming to classic", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  wb <- make_cst_xlsx(
-    legend_df = data.frame(L = 1),
-    sources_df = data.frame(S = 1),
-    criteria_df = data.frame(C = 1),
-    sheet_names = c(
-      "Search Tool Criteria Data",
-      "Search Tool Criteria Data (2)",
-      "Search Tool Criteria Data (3)"
-    )
+
+  wb <- tempfile(fileext = ".xlsx")
+  x <- list(data.frame(L = 1), data.frame(S = 1), data.frame(C = 1))
+  names(x) <- c(
+    "Search Tool Criteria Data",
+    "Search Tool Criteria Data (2)",
+    "Search Tool Criteria Data (3)"
   )
+  openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
+
   g <- get(".tada_cst_make_normalized_copy", envir = ns)
   tmp <- g(wb)
   testthat::expect_true(file.exists(tmp) || is.null(tmp))
@@ -803,13 +909,18 @@ testthat::test_that("Normalized copy renames new CST naming to classic", {
 })
 
 testthat::test_that("Workbook path is cached and reused when refresh = FALSE", {
+  ns <- asNamespace("EPATADA")
   testthat::skip_if_not_installed("openxlsx")
-  reset_cst_cache()
-  wb <- make_cst_xlsx(
-    legend_df = data.frame(L = 1),
-    sources_df = data.frame(S = 1),
-    criteria_df = data.frame(C = 1)
-  )
+  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
+    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
+    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
+  }
+
+  wb <- tempfile(fileext = ".xlsx")
+  x <- list(data.frame(L = 1), data.frame(S = 1), data.frame(C = 1))
+  names(x) <- c("Legend", "Sources", "Criteria")
+  openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
+
   # First resolution caches the path
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
@@ -835,6 +946,8 @@ testthat::test_that("Workbook path is cached and reused when refresh = FALSE", {
 })
 
 testthat::test_that("CST getters error clearly when workbook path cannot be retrieved", {
+  ns <- asNamespace("EPATADA")
+
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(...) NULL,
     .env = ns
@@ -854,6 +967,8 @@ testthat::test_that("CST getters error clearly when workbook path cannot be retr
 })
 
 testthat::test_that("RDA writer saves and skips when unchanged", {
+  ns <- asNamespace("EPATADA")
+
   tmp_pkg <- withr::local_tempdir()
   dir.create(
     file.path(tmp_pkg, "inst", "extdata"),
@@ -888,7 +1003,14 @@ testthat::test_that("Is the saved ATTAINSOrgIDsRef up to date (live domain subse
   skip_on_cran()
   testthat::skip_if_not_installed("rExpertQuery")
   testthat::skip_if_not_installed("spsUtil")
-  skip_if_offline()
+
+  # Inline skip_if_offline
+  if (!requireNamespace("curl", quietly = TRUE)) {
+    testthat::skip("curl not installed")
+  }
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
 
   # retrieve the ATTAINS domain value from rExpertQuery
   ATTAINS.raw <- spsUtil::quiet(rExpertQuery::EQ_DomainValues("org_id"))

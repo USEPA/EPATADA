@@ -1777,7 +1777,7 @@ TADA_GetATTAINSByAUID <- function(
 
     if (nrow(catchments) > 0) {
       # check CRS for catchments and transform if needed
-      if(sf::st_crs(catchments) != 4326) {
+      if (sf::st_crs(catchments) != 4326) {
         catchments <- sf::st_transform(catchments, 4326)
       }
 

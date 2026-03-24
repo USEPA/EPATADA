@@ -409,7 +409,18 @@ TADA_ListCacheKeys <- function() {
   required_cols = NULL,
   trim = TRUE
 ) {
+  # Try installed path first
   path <- system.file("extdata", filename, package = pkg)
+
+  # Dev-time fallback: look in package source inst/extdata
+  if (!nzchar(path) || !file.exists(path)) {
+    pkg_root <- .tada_find_pkg_root(pkg = pkg)
+    if (!is.null(pkg_root)) {
+      alt <- file.path(pkg_root, "inst", "extdata", filename)
+      if (file.exists(alt)) path <- alt
+    }
+  }
+
   if (!nzchar(path) || !file.exists(path)) {
     return(NULL)
   }
@@ -428,20 +439,16 @@ TADA_ListCacheKeys <- function() {
       obj <- .tada_trim_char_cols(obj)
     }
     obj <- .tada_norm_colnames(obj)
-    if (!is.null(required_cols)) {
-      miss <- setdiff(required_cols, names(obj))
-      if (length(miss)) return(NULL)
+    if (!is.null(required_cols) && length(setdiff(required_cols, names(obj)))) {
+      return(NULL)
     }
     obj
   }
 
-  # Prefer explicit object_name
   if (!is.null(object_name) && object_name %in% objs) {
     df <- pick_df(e[[object_name]])
     if (!is.null(df)) return(df)
   }
-
-  # Otherwise first matching data.frame
   for (nm in objs) {
     df <- pick_df(e[[nm]])
     if (!is.null(df)) return(df)
@@ -733,24 +740,24 @@ TADA_ListCacheKeys <- function() {
 # Characteristic reference
 # =========================
 
-# Normalize authoritative CSV to stable schema
+# Keeps exactly: Name, Comparable.Name, CAS.Number, Domain.Value.Status
 .TADA_normalize_characteristic_ref <- function(df) {
-  if (!all(c("Name", "Domain.Value.Status") %in% names(df))) {
+  if (!is.data.frame(df) || ncol(df) == 0) {
     return(NULL)
   }
-  ref <- data.frame(
+  required <- c("Name", "Comparable.Name", "CAS.Number", "Domain.Value.Status")
+  if (!all(required %in% names(df))) {
+    return(NULL)
+  }
+  out <- data.frame(
     CharacteristicName = df[["Name"]],
+    Comparable.Name = df[["Comparable.Name"]],
+    CAS.Number = df[["CAS.Number"]],
     Char_Flag = df[["Domain.Value.Status"]],
     stringsAsFactors = FALSE
   )
-  if ("Comparable.Name" %in% names(df)) {
-    ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
-  }
-  if ("CAS.Number" %in% names(df)) {
-    ref[["CAS.Number"]] <- df[["CAS.Number"]]
-  }
-  ref <- .tada_trim_char_cols(ref)
-  unique(ref)
+  out <- .tada_trim_char_cols(out)
+  unique(out)
 }
 
 # ================
@@ -1138,85 +1145,95 @@ TADA_ListCacheKeys <- function() {
 # Paired getters + updates
 # =========================
 
-#' Get WQX Characteristic Domain Table
-#' @return data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
-#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Characteristic reference table directly from WQX,
-#'   returning it without updating the cache. Errors if the download fails. If FALSE
-#'   (default), uses a cached copy when available and updates the cache; on download
-#'   failure, falls back to the package’s internal file.
+#' Get WQX Characteristic Domain Table (internal-only)
 #'
-#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
-#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
-#'   package’s internal file on failure), then update the cache. If FALSE (default),
-#'   return the cached table when available. Ignored when download_only = TRUE.
+#' Loads the package-installed internal reference table from inst/extdata and caches
+#' it for the session. No network is used. Arguments download_only and refresh are
+#' kept for backward compatibility but are ignored.
+#'
+#' @return data.frame with columns: CharacteristicName, Comparable.Name, CAS.Number, Char_Flag
+#' @param download_only Ignored. Present for backward compatibility.
+#' @param refresh Ignored. Present for backward compatibility.
 #' @export
 TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
-  if (!download_only) {
-    ref_cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
-    if (!is.null(ref_cached) && !isTRUE(refresh)) return(ref_cached)
+  # Cache hit
+  cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
+  if (!is.null(cached)) {
+    return(cached)
   }
 
-  # Try download first when not download_only; otherwise error if download fails
-  if (download_only) {
-    raw.data <- .tada_read_csv_url(
-      .WQX_URLS$Characteristic,
-      stringsAsFactors = FALSE
+  # Load internal RDA (works in dev and installed builds)
+  ref <- .tada_load_extdata_rda(
+    pkg = "EPATADA",
+    filename = "WQXCharacteristicRef.rda",
+    object_name = "WQXCharacteristicRef",
+    # Old RDAs might have a different order; we enforce below
+    required_cols = NULL,
+    trim = TRUE
+  )
+  if (is.null(ref)) {
+    stop(
+      "Internal extdata 'WQXCharacteristicRef.rda' not found or invalid. ",
+      "Rebuild the package with an internal copy."
     )
-    if (is.null(raw.data)) {
-      stop("TADA_GetCharacteristicRef(download_only==TRUE): download failed.")
-    }
-    ref <- .TADA_normalize_characteristic_ref(raw.data)
-    if (is.null(ref)) {
-      stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
-    }
-  } else {
-    raw.data <- .tada_read_csv_url(
-      .WQX_URLS$Characteristic,
-      stringsAsFactors = FALSE
-    )
-    if (!is.null(raw.data)) {
-      ref <- .TADA_normalize_characteristic_ref(raw.data)
-      if (is.null(ref)) {
-        message(
-          "Downloaded Characteristic table had unexpected structure. Falling back to internal file."
-        )
-        ref <- NULL
-      }
-    } else {
-      message(
-        "Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file."
-      )
-      ref <- NULL
-    }
-    if (is.null(ref)) {
-      ref <- .tada_load_extdata_rda(
-        pkg = "EPATADA",
-        filename = "WQXCharacteristicRef.rda",
-        object_name = "WQXCharacteristicRef",
-        required_cols = c("CharacteristicName", "Char_Flag"),
-        trim = TRUE
-      )
-      if (is.null(ref)) {
-        stop(
-          "Fallback extdata 'WQXCharacteristicRef.rda' not found or invalid."
-        )
-      }
-    }
   }
 
-  if (!download_only) {
-    .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
+  # Enforce final schema and order (drop extras; fill missing with NA)
+  keep_order <- c(
+    "CharacteristicName",
+    "Comparable.Name",
+    "CAS.Number",
+    "Char_Flag"
+  )
+  for (nm in keep_order) {
+    if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
   }
+  ref <- ref[, keep_order, drop = FALSE]
+  ref <- unique(.tada_trim_char_cols(ref))
+
+  .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
   ref
 }
 
 #' Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
+#' Downloads the live CSV, normalizes to the 4-column schema, and writes
+#' inst/extdata/WQXCharacteristicRef.rda if changed.
 #' @keywords internal
 .TADA_UpdateCharacteristicRef <- function() {
-  ref <- TADA_GetCharacteristicRef(download_only = TRUE)
+  raw.data <- .tada_read_csv_url(
+    .WQX_URLS$Characteristic,
+    stringsAsFactors = FALSE
+  )
+  if (is.null(raw.data)) {
+    stop(
+      ".TADA_UpdateCharacteristicRef: download failed; cannot update internal file."
+    )
+  }
+
+  # Exact-headers normalizer: requires Name, Comparable.Name, CAS.Number, Domain.Value.Status
+  ref <- .TADA_normalize_characteristic_ref(raw.data)
+  if (is.null(ref)) {
+    stop(
+      ".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table: ",
+      paste(names(raw.data), collapse = ", ")
+    )
+  }
+
+  # Enforce final schema/order defensively
+  keep_order <- c(
+    "CharacteristicName",
+    "Comparable.Name",
+    "CAS.Number",
+    "Char_Flag"
+  )
+  for (nm in keep_order) {
+    if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
+  }
+  ref <- ref[, keep_order, drop = FALSE]
+  ref <- unique(.tada_trim_char_cols(ref))
+
   .tada_save_ext_rda(
-    ref,
+    obj = ref,
     obj_name = "WQXCharacteristicRef",
     pkg = "EPATADA",
     filename = "WQXCharacteristicRef.rda",
@@ -2093,6 +2110,9 @@ TADA_GetMeasureQualifierCodeRef <- function(
 #'   package’s internal file on failure), then update the cache. If FALSE (default),
 #'   return the cached table when available. Ignored when download_only = TRUE.
 #' @export
+#' @examples
+#' WQX_alias_ref <- TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
+#'
 TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
   # Return cached table unless refresh is requested
   if (!download_only) {
@@ -2115,56 +2135,141 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       add = TRUE
     )
 
-    # Download and check status + size
-    status <- tryCatch(
-      utils::download.file(
-        zip_url,
-        destfile = temp_zip,
-        mode = "wb",
-        quiet = TRUE
-      ),
-      error = function(e) 1L
-    )
-    if (!identical(status, 0L) || !file.exists(temp_zip)) {
-      return(NULL)
+    # 5-minute default timeout (configurable via options(EPATADA.timeout))
+    timeout_sec <- suppressWarnings(as.numeric(getOption(
+      "EPATADA.timeout",
+      300
+    )))
+    if (!is.finite(timeout_sec) || timeout_sec <= 0) {
+      timeout_sec <- 300
     }
-    fi <- tryCatch(file.info(temp_zip)$size, error = function(e) NA_real_)
-    if (!is.finite(fi) || fi <= 0) {
+
+    # Download ZIP with longer timeout; prefer curl if available
+    ok <- FALSE
+    if (requireNamespace("curl", quietly = TRUE)) {
+      h <- curl::new_handle(followlocation = TRUE)
+      curl::handle_setheaders(
+        h,
+        "User-Agent" = getOption("EPATADA.user_agent", "EPATADA (R)")
+      )
+      curl::handle_setopt(h, connecttimeout = 60, timeout = timeout_sec)
+      ok <- tryCatch(
+        {
+          curl::curl_download(
+            zip_url,
+            destfile = temp_zip,
+            handle = h,
+            mode = "wb"
+          )
+          file.exists(temp_zip) &&
+            is.finite(file.info(temp_zip)$size) &&
+            file.info(temp_zip)$size > 0
+        },
+        error = function(e) FALSE,
+        warning = function(w) FALSE
+      )
+    }
+    if (!ok) {
+      old_to <- getOption("timeout")
+      old_to_num <- suppressWarnings(as.numeric(old_to))
+      if (!is.finite(old_to_num)) {
+        old_to_num <- 60
+      }
+      on.exit(options(timeout = old_to), add = TRUE)
+      options(timeout = max(old_to_num, timeout_sec))
+
+      ok <- tryCatch(
+        {
+          utils::download.file(
+            zip_url,
+            destfile = temp_zip,
+            mode = "wb",
+            method = "libcurl",
+            quiet = TRUE
+          )
+          file.exists(temp_zip) &&
+            is.finite(file.info(temp_zip)$size) &&
+            file.info(temp_zip)$size > 0
+        },
+        error = function(e) FALSE,
+        warning = function(w) FALSE
+      )
+
+      if (!ok && .Platform$OS.type == "windows") {
+        ok <- tryCatch(
+          {
+            utils::download.file(
+              zip_url,
+              destfile = temp_zip,
+              mode = "wb",
+              method = "wininet",
+              quiet = TRUE
+            )
+            file.exists(temp_zip) &&
+              is.finite(file.info(temp_zip)$size) &&
+              file.info(temp_zip)$size > 0
+          },
+          error = function(e) FALSE,
+          warning = function(w) FALSE
+        )
+      }
+    }
+    if (!ok) {
       return(NULL)
     }
 
+    # List archive and choose the CSV (robust to small filename changes)
+    listing <- tryCatch(
+      utils::unzip(temp_zip, list = TRUE),
+      error = function(e) NULL
+    )
+    if (is.null(listing) || !is.data.frame(listing) || !nrow(listing)) {
+      return(NULL)
+    }
+
+    nms <- as.character(listing$Name)
+    is_csv <- grepl("(?i)\\.csv$", nms)
+    if (!any(is_csv)) {
+      return(NULL)
+    }
+
+    cand <- which(is_csv)
+    base <- basename(nms[cand])
+    exact_ci <- cand[tolower(base) == "characteristic alias.csv"]
+    pat_ci <- cand[grep(
+      "(?i)characteristic.*alias.*\\.csv$",
+      base,
+      perl = TRUE
+    )]
+    pick_idx <- if (length(exact_ci) >= 1) {
+      exact_ci[1]
+    } else if (length(pat_ci) >= 1) {
+      pat_ci[1]
+    } else {
+      cand[which.max(as.numeric(listing$Length[cand]))]
+    }
+    target_in_zip <- nms[pick_idx]
+
+    # Extract only the chosen CSV
     dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
-    uz <- tryCatch(
-      utils::unzip(temp_zip, exdir = temp_dir),
+    extracted <- tryCatch(
+      utils::unzip(temp_zip, files = target_in_zip, exdir = temp_dir),
       error = function(e) character(0)
     )
-    if (!length(uz)) {
+    if (!length(extracted)) {
       return(NULL)
     }
 
-    # Prefer exactly "Characteristic Alias.csv" (case-sensitive) by basename.
-    files <- list.files(
-      temp_dir,
-      pattern = "\\.csv$",
-      full.names = TRUE,
-      recursive = TRUE
-    )
-    if (!length(files)) {
-      return(NULL)
+    target_csv <- file.path(temp_dir, target_in_zip)
+    if (!file.exists(target_csv)) {
+      if (length(extracted) && file.exists(extracted[1])) {
+        target_csv <- extracted[1]
+      } else {
+        return(NULL)
+      }
     }
 
-    exact <- files[basename(files) == "Characteristic Alias.csv"]
-    if (length(exact) >= 1) {
-      # Deterministic choice if multiple copies exist: prefer shortest path, then alphabetical
-      path_len <- nchar(normalizePath(exact, winslash = "/", mustWork = FALSE))
-      ord <- order(path_len, exact)
-      target_csv <- exact[ord][1]
-    } else {
-      # Strict: if the expected file isn't present, consider the download invalid
-      return(NULL)
-    }
-
-    # Read as-is; do not reorder rows; try common encodings
+    # Read and normalize; preserve row order
     try_read <- function(enc) {
       tryCatch(
         utils::read.csv(
@@ -2185,20 +2290,24 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       return(NULL)
     }
 
-    # Trim character columns (no row reordering)
+    # Normalize headers and trim character cols
+    nm <- names(df)
+    nm <- sub("^\ufeff", "", nm, perl = TRUE)
+    nm <- trimws(nm)
+    nm <- make.names(nm, unique = TRUE)
+    names(df) <- nm
     df <- .tada_trim_char_cols(df)
-    # Drop row names to avoid accidental reindexing downstream
     rownames(df) <- NULL
     df
   }
 
+  # Use the helper to fetch, with fallback to installed RDA when allowed
   if (download_only) {
     df <- .download_unzip_read_alias()
     if (is.null(df)) {
       stop("TADA_GetWQXCharAliasRef(download_only=TRUE): download failed.")
     }
   } else {
-    # Try live download; fallback to installed RDA if it fails
     df <- .download_unzip_read_alias()
     if (is.null(df)) {
       message(
@@ -2214,12 +2323,10 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       if (is.null(df)) {
         stop("Fallback extdata 'WQXCharAliasRef.rda' not found or invalid.")
       }
-      # Ensure row names are plain sequential; preserve row ordering as stored
       rownames(df) <- NULL
     }
   }
 
-  # Cache and return without altering row order
   if (!download_only) {
     .tada_cache_set(.WQXCharAliasRef_cache_key, df)
   }

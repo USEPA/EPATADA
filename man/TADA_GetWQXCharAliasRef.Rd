@@ -25,3 +25,7 @@ data.frame with "Domain", "Unique.Identifier", "Alias.Name", "Description",
 \description{
 WQX Characteristic Alias Reference Table
 }
+\examples{
+WQX_alias_ref <- TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
+
+}
