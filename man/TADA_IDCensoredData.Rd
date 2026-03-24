@@ -94,20 +94,20 @@ table(dat_flagged$TADA.CensoredData.Flag)
 # Review Non-Detects and confirm the detection limit value was copied
 nd <- subset(dat_flagged, TADA.CensoredData.Flag == "Non-Detect")
 head(nd[, c("ResultIdentifier",
-           "ResultDetectionConditionText",
-           "DetectionQuantitationLimitTypeName",
-           "TADA.ResultMeasureValue",
-           "TADA.ResultMeasure.MeasureUnitCode",
-           "TADA.ResultMeasureValueDataTypes.Flag")])
+  "ResultDetectionConditionText",
+  "DetectionQuantitationLimitTypeName",
+  "TADA.ResultMeasureValue",
+  "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ResultMeasureValueDataTypes.Flag")])
 
 # Review conflicts (values/units set to NA)
 conf <- subset(dat_flagged, TADA.CensoredData.Flag == "Conflict between Condition and Limit")
 head(conf[, c("ResultIdentifier",
-              "ResultDetectionConditionText",
-              "DetectionQuantitationLimitTypeName",
-              "TADA.ResultMeasureValue",
-              "TADA.ResultMeasure.MeasureUnitCode",
-              "TADA.ResultMeasureValueDataTypes.Flag")])
+  "ResultDetectionConditionText",
+  "DetectionQuantitationLimitTypeName",
+  "TADA.ResultMeasureValue",
+  "TADA.ResultMeasure.MeasureUnitCode",
+  "TADA.ResultMeasureValueDataTypes.Flag")])
 
 # Example 2: Ensure measure qualifier flags are present (optional)
 # This can improve censored result identification via user-supplied codes.

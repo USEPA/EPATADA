@@ -13,7 +13,6 @@
 #' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
 #' features <- fetch_bbox(baseurl, df)
-
 fetch_bbox <- function(baseurl, df) {
   lyr <- arcgislayers::arc_open(baseurl)
   # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
@@ -42,18 +41,17 @@ fetch_bbox <- function(baseurl, df) {
 #'
 #' @examples
 #' baseurls <- c(
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
 #' line.features <- fetch_au(baseurl = baseurls[[3]],
-#'                           assessment_unit_ids = c("IL_N-99",
-#'                                                   "IL_N-12",
-#'                                                   "IL_N-16",
-#'                                                   "IL_N-17"))
+#'   assessment_unit_ids = c("IL_N-99",
+#'     "IL_N-12",
+#'     "IL_N-16",
+#'     "IL_N-17"))
 #'
-
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # Convert org_filter to SQL WHERE clause
   if (org_filter == "all") {
