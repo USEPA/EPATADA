@@ -1775,7 +1775,6 @@ TADA_GetATTAINSByAUID <- function(
         catchments <- sf::st_transform(catchments, 4326)
       }
 
-
       # get one catchment per WQP location
       catchments.cw <- filt.data |>
         dplyr::select(
