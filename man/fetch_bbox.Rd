@@ -7,9 +7,9 @@
 fetch_bbox(baseurl, df)
 }
 \arguments{
-\item{df}{An sf dataframe developed with \code{TADA_MakeSpatial()}.}
+\item{baseurl}{A url for an ESRI REST service layer.}
 
-\item{baseurls}{A url for an ESRI REST service layer.}
+\item{df}{An sf dataframe developed with \code{TADA_MakeSpatial()}.}
 }
 \value{
 An sf data frame of features from the REST service within the

@@ -76,14 +76,6 @@ testthat::test_that("df_equal ignores row order and factor levels", {
 testthat::test_that("Is TADA_GetDetCondRef up to date?", {
   skip_on_cran()
 
-  # Inline skip_if_offline
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip("No internet connection")
-  }
-
   file_path <- system.file(
     "extdata",
     "WQXResultDetectionConditionRef.rda",
@@ -110,14 +102,6 @@ testthat::test_that("Is TADA_GetDetCondRef up to date?", {
 
 testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
   skip_on_cran()
-
-  # Inline skip_if_offline
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip("No internet connection")
-  }
 
   file_path <- system.file(
     "extdata",
@@ -147,14 +131,6 @@ testthat::test_that("Is TADA_GetDetLimitRef up to date?", {
 testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
   skip_on_cran()
 
-  # Inline skip_if_offline
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip("No internet connection")
-  }
-
   file_path <- system.file(
     "extdata",
     "WQXActivityTypeRef.rda",
@@ -182,14 +158,6 @@ testthat::test_that("Is TADA_GetActivityTypeRef up to date?", {
 
 testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
   skip_on_cran()
-
-  # Inline skip_if_offline
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip("No internet connection")
-  }
 
   file_path <- system.file(
     "extdata",
@@ -222,14 +190,6 @@ testthat::test_that("Is TADA_GetMeasureQualifierCodeRef up to date?", {
 testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   skip_on_cran()
 
-  # Inline skip_if_offline
-  if (!requireNamespace("curl", quietly = TRUE)) {
-    testthat::skip("curl not installed")
-  }
-  if (!curl::has_internet()) {
-    testthat::skip("No internet connection")
-  }
-
   file_path <- system.file(
     "extdata",
     "WQXCharAliasRef.rda",
@@ -239,7 +199,7 @@ testthat::test_that("Is TADA_GetWQXCharAliasRef up to date?", {
   load(file_path, envir = e)
   old <- e$WQXCharAliasRef
 
-  # Parse m/d/Y to Date (safe if already Date)
+  # Parse m/d/Y to Date
   old_dates <- as.Date(old$Last.Change.Date, format = "%m/%d/%Y")
 
   ref <- EPATADA::TADA_GetWQXCharAliasRef(download_only = TRUE, refresh = TRUE)
@@ -299,66 +259,42 @@ testthat::test_that("DetCondRef required cols enforced in download_only", {
   )
 })
 
-testthat::test_that("CharacteristicRef download_only errors on unexpected structure", {
+testthat::test_that("CharacteristicRef updater errors on unexpected structure", {
   ns <- asNamespace("EPATADA")
-
-  # Live returns wrong columns
   bad_df <- data.frame(foo = "", stringsAsFactors = FALSE)
   testthat::local_mocked_bindings(
     .tada_read_csv_url = function(...) bad_df,
     .env = ns
   )
   testthat::expect_error(
-    EPATADA::TADA_GetCharacteristicRef(download_only = TRUE, refresh = TRUE),
+    EPATADA:::.TADA_UpdateCharacteristicRef(),
     "Unexpected columns"
   )
 })
 
-testthat::test_that("CharacteristicRef normalizes expected columns and trims", {
+testthat::test_that("CharacteristicRef normalizer keeps exact columns and trims/dedups", {
   ns <- asNamespace("EPATADA")
-
+  norm <- get(".TADA_normalize_characteristic_ref", envir = ns)
+  
   live <- data.frame(
     Name = c("  Ch1 ", "Ch1 "),
-    `Domain.Value.Status` = c("A", "A"),
     `Comparable.Name` = " CN ",
     `CAS.Number` = " 123 ",
+    `Domain.Value.Status` = c("A", "A"),
     check.names = FALSE,
     stringsAsFactors = FALSE
   )
-  testthat::local_mocked_bindings(
-    .tada_read_csv_url = function(...) live,
-    .env = ns
+  out <- norm(live)
+  
+  testthat::expect_identical(
+    names(out),
+    c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
   )
-  out <- EPATADA::TADA_GetCharacteristicRef(
-    download_only = FALSE,
-    refresh = TRUE
-  )
-  testthat::expect_true(all(
-    c("CharacteristicName", "Char_Flag", "Comparable.Name", "CAS.Number") %in%
-      names(out)
-  ))
+  testthat::expect_equal(nrow(out), 1L)           # unique() removes duplicate row
   testthat::expect_equal(out$CharacteristicName, "Ch1")
-  testthat::expect_equal(out$`Comparable.Name`, "CN")
-  testthat::expect_equal(out$`CAS.Number`, "123")
-  testthat::expect_equal(nrow(out), 1L) # unique()
-})
-
-testthat::test_that("CharacteristicRef falls back when structure unexpected", {
-  ns <- asNamespace("EPATADA")
-
-  bad <- data.frame(Other = 1)
-  fb <- data.frame(
-    CharacteristicName = "X",
-    Char_Flag = "A",
-    stringsAsFactors = FALSE
-  )
-  testthat::local_mocked_bindings(
-    .tada_read_csv_url = function(...) bad, # triggers message and fallback
-    .tada_load_extdata_rda = function(...) fb,
-    .env = ns
-  )
-  out <- EPATADA::TADA_GetCharacteristicRef(refresh = TRUE)
-  testthat::expect_identical(out, fb)
+  testthat::expect_equal(out$Comparable.Name, "CN")
+  testthat::expect_equal(out$CAS.Number, "123")
+  testthat::expect_equal(out$Char_Flag, "A")
 })
 
 testthat::test_that("WQP Organization: column selection + fallback", {
@@ -785,44 +721,6 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
   )
 })
 
-testthat::test_that("Falls back to internal workbook when download fails", {
-  ns <- asNamespace("EPATADA")
-  testthat::skip_if_not_installed("openxlsx")
-  if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
-    cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
-    rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
-  }
-
-  fallback_wb <- tempfile(fileext = ".xlsx")
-  x <- list(
-    data.frame(A = "from_fallback", stringsAsFactors = FALSE),
-    data.frame(Src = "from_fallback", stringsAsFactors = FALSE),
-    data.frame(C1 = "from_fallback", stringsAsFactors = FALSE)
-  )
-  names(x) <- c("Legend", "Sources", "Criteria")
-  openxlsx::write.xlsx(x, file = fallback_wb, asTable = FALSE, overwrite = TRUE)
-
-  testthat::local_mocked_bindings(
-    .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
-    ) {
-      if (!download_only) {
-        get(".tada_cache_set", envir = ns)("CST_workbook_path", fallback_wb)
-      }
-      fallback_wb
-    },
-    .env = ns
-  )
-
-  out <- EPATADA::TADA_CST_GetCriteria(refresh = TRUE)
-  testthat::expect_equal(
-    out,
-    data.frame(C1 = "from_fallback", stringsAsFactors = FALSE)
-  )
-})
-
 testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
   ns <- asNamespace("EPATADA")
   if (exists(".TADA_cache", envir = ns, inherits = FALSE)) {
@@ -1155,4 +1053,61 @@ testthat::test_that("flag_by_groups trims and first match wins", {
   groups <- list("X" = c("A", "B"), "Y" = c("A"))
   out <- f(df, "v", "flag", groups, default = "D", na_default = "N")
   testthat::expect_identical(out$flag, c("X", "X", "N"))
+})
+
+testthat::test_that("CharacteristicRef getter loads internal RDA and caches", {
+  ns <- asNamespace("EPATADA")
+  EPATADA::TADA_ClearCache()
+  
+  fb <- data.frame(
+    CharacteristicName = "X",
+    Comparable.Name = "Y",
+    CAS.Number = "Z",
+    Char_Flag = "A",
+    stringsAsFactors = FALSE
+  )
+  
+  testthat::local_mocked_bindings(
+    .tada_load_extdata_rda = function(...) fb,
+    .env = ns
+  )
+  
+  out1 <- EPATADA::TADA_GetCharacteristicRef()
+  testthat::expect_identical(out1, fb)
+  
+  # Second call should return from cache (no new loader calls)
+  out2 <- EPATADA::TADA_GetCharacteristicRef()
+  testthat::expect_identical(out2, fb)
+})
+
+testthat::test_that("CharacteristicRef updater normalizes and saves", {
+  ns <- asNamespace("EPATADA")
+  live <- data.frame(
+    Name = "N",
+    `Comparable.Name` = "C",
+    `CAS.Number` = "1",
+    `Domain.Value.Status` = "A",
+    check.names = FALSE,
+    stringsAsFactors = FALSE
+  )
+  saved <- FALSE
+  captured <- NULL
+  
+  testthat::local_mocked_bindings(
+    .tada_read_csv_url = function(...) live,
+    .tada_save_ext_rda = function(obj, obj_name, ...) {
+      saved <<- TRUE
+      captured <<- list(obj = obj, obj_name = obj_name)
+      tempfile()
+    },
+    .env = ns
+  )
+  
+  invisible(EPATADA:::.TADA_UpdateCharacteristicRef())
+  testthat::expect_true(saved)
+  testthat::expect_identical(captured$obj_name, "WQXCharacteristicRef")
+  testthat::expect_identical(
+    names(captured$obj),
+    c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
+  )
 })
