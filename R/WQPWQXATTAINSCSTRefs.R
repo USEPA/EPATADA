@@ -403,15 +403,15 @@ TADA_ListCacheKeys <- function() {
 
 # Load a data.frame from an installed extdata .rda (returns NULL if not found/invalid)
 .tada_load_extdata_rda <- function(
-    pkg = "EPATADA",
-    filename,
-    object_name = NULL,
-    required_cols = NULL,
-    trim = TRUE
+  pkg = "EPATADA",
+  filename,
+  object_name = NULL,
+  required_cols = NULL,
+  trim = TRUE
 ) {
   # Try installed path first
   path <- system.file("extdata", filename, package = pkg)
-  
+
   # Dev-time fallback: look in package source inst/extdata
   if (!nzchar(path) || !file.exists(path)) {
     pkg_root <- .tada_find_pkg_root(pkg = pkg)
@@ -420,25 +420,31 @@ TADA_ListCacheKeys <- function() {
       if (file.exists(alt)) path <- alt
     }
   }
-  
+
   if (!nzchar(path) || !file.exists(path)) {
     return(NULL)
   }
-  
+
   e <- new.env(parent = emptyenv())
   objs <- try(load(path, envir = e), silent = TRUE)
-  if (inherits(objs, "try-error")) return(NULL)
-  
+  if (inherits(objs, "try-error")) {
+    return(NULL)
+  }
+
   pick_df <- function(obj) {
-    if (!is.data.frame(obj)) return(NULL)
-    if (trim) obj <- .tada_trim_char_cols(obj)
+    if (!is.data.frame(obj)) {
+      return(NULL)
+    }
+    if (trim) {
+      obj <- .tada_trim_char_cols(obj)
+    }
     obj <- .tada_norm_colnames(obj)
     if (!is.null(required_cols) && length(setdiff(required_cols, names(obj)))) {
       return(NULL)
     }
     obj
   }
-  
+
   if (!is.null(object_name) && object_name %in% objs) {
     df <- pick_df(e[[object_name]])
     if (!is.null(df)) return(df)
@@ -737,17 +743,19 @@ TADA_ListCacheKeys <- function() {
 
 # Keeps exactly: Name, Comparable.Name, CAS.Number, Domain.Value.Status
 .TADA_normalize_characteristic_ref <- function(df) {
-  if (!is.data.frame(df) || ncol(df) == 0) return(NULL)
+  if (!is.data.frame(df) || ncol(df) == 0) {
+    return(NULL)
+  }
   required <- c("Name", "Comparable.Name", "CAS.Number", "Domain.Value.Status")
   if (!all(required %in% names(df))) {
     return(NULL)
   }
   out <- data.frame(
     CharacteristicName = df[["Name"]],
-    Comparable.Name    = df[["Comparable.Name"]],
-    CAS.Number         = df[["CAS.Number"]],
-    Char_Flag          = df[["Domain.Value.Status"]],
-    stringsAsFactors   = FALSE
+    Comparable.Name = df[["Comparable.Name"]],
+    CAS.Number = df[["CAS.Number"]],
+    Char_Flag = df[["Domain.Value.Status"]],
+    stringsAsFactors = FALSE
   )
   out <- .tada_trim_char_cols(out)
   unique(out)
@@ -1180,13 +1188,16 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
       if (is.null(ref)) {
         message(
           "Downloaded Characteristic table had unexpected structure. ",
-          "Columns seen: ", paste(names(raw.data), collapse = ", "),
+          "Columns seen: ",
+          paste(names(raw.data), collapse = ", "),
           ". Falling back to internal file."
         )
         ref <- NULL
       }
     } else {
-      message("Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file.")
+      message(
+        "Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file."
+      )
       ref <- NULL
     }
     if (is.null(ref)) {
