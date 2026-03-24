@@ -403,45 +403,46 @@ TADA_ListCacheKeys <- function() {
 
 # Load a data.frame from an installed extdata .rda (returns NULL if not found/invalid)
 .tada_load_extdata_rda <- function(
-  pkg = "EPATADA",
-  filename,
-  object_name = NULL,
-  required_cols = NULL,
-  trim = TRUE
+    pkg = "EPATADA",
+    filename,
+    object_name = NULL,
+    required_cols = NULL,
+    trim = TRUE
 ) {
+  # Try installed path first
   path <- system.file("extdata", filename, package = pkg)
+  
+  # Dev-time fallback: look in package source inst/extdata
+  if (!nzchar(path) || !file.exists(path)) {
+    pkg_root <- .tada_find_pkg_root(pkg = pkg)
+    if (!is.null(pkg_root)) {
+      alt <- file.path(pkg_root, "inst", "extdata", filename)
+      if (file.exists(alt)) path <- alt
+    }
+  }
+  
   if (!nzchar(path) || !file.exists(path)) {
     return(NULL)
   }
-
+  
   e <- new.env(parent = emptyenv())
   objs <- try(load(path, envir = e), silent = TRUE)
-  if (inherits(objs, "try-error")) {
-    return(NULL)
-  }
-
+  if (inherits(objs, "try-error")) return(NULL)
+  
   pick_df <- function(obj) {
-    if (!is.data.frame(obj)) {
-      return(NULL)
-    }
-    if (trim) {
-      obj <- .tada_trim_char_cols(obj)
-    }
+    if (!is.data.frame(obj)) return(NULL)
+    if (trim) obj <- .tada_trim_char_cols(obj)
     obj <- .tada_norm_colnames(obj)
-    if (!is.null(required_cols)) {
-      miss <- setdiff(required_cols, names(obj))
-      if (length(miss)) return(NULL)
+    if (!is.null(required_cols) && length(setdiff(required_cols, names(obj)))) {
+      return(NULL)
     }
     obj
   }
-
-  # Prefer explicit object_name
+  
   if (!is.null(object_name) && object_name %in% objs) {
     df <- pick_df(e[[object_name]])
     if (!is.null(df)) return(df)
   }
-
-  # Otherwise first matching data.frame
   for (nm in objs) {
     df <- pick_df(e[[nm]])
     if (!is.null(df)) return(df)
@@ -734,24 +735,22 @@ TADA_ListCacheKeys <- function() {
 # Characteristic reference
 # =========================
 
-# Normalize authoritative CSV to stable schema
+# Keeps exactly: Name, Comparable.Name, CAS.Number, Domain.Value.Status
 .TADA_normalize_characteristic_ref <- function(df) {
-  if (!all(c("Name", "Domain.Value.Status") %in% names(df))) {
+  if (!is.data.frame(df) || ncol(df) == 0) return(NULL)
+  required <- c("Name", "Comparable.Name", "CAS.Number", "Domain.Value.Status")
+  if (!all(required %in% names(df))) {
     return(NULL)
   }
-  ref <- data.frame(
+  out <- data.frame(
     CharacteristicName = df[["Name"]],
-    Char_Flag = df[["Domain.Value.Status"]],
-    stringsAsFactors = FALSE
+    Comparable.Name    = df[["Comparable.Name"]],
+    CAS.Number         = df[["CAS.Number"]],
+    Char_Flag          = df[["Domain.Value.Status"]],
+    stringsAsFactors   = FALSE
   )
-  if ("Comparable.Name" %in% names(df)) {
-    ref[["Comparable.Name"]] <- df[["Comparable.Name"]]
-  }
-  if ("CAS.Number" %in% names(df)) {
-    ref[["CAS.Number"]] <- df[["CAS.Number"]]
-  }
-  ref <- .tada_trim_char_cols(ref)
-  unique(ref)
+  out <- .tada_trim_char_cols(out)
+  unique(out)
 }
 
 # ================
@@ -1180,14 +1179,14 @@ TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
       ref <- .TADA_normalize_characteristic_ref(raw.data)
       if (is.null(ref)) {
         message(
-          "Downloaded Characteristic table had unexpected structure. Falling back to internal file."
+          "Downloaded Characteristic table had unexpected structure. ",
+          "Columns seen: ", paste(names(raw.data), collapse = ", "),
+          ". Falling back to internal file."
         )
         ref <- NULL
       }
     } else {
-      message(
-        "Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file."
-      )
+      message("Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file.")
       ref <- NULL
     }
     if (is.null(ref)) {
