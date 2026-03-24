@@ -2096,75 +2096,135 @@ TADA_GetMeasureQualifierCodeRef <- function(
 #' @export
 #' @examples
 #' WQX_alias_ref <- TADA_GetWQXCharAliasRef(download_only = FALSE, refresh = FALSE)
-#' 
+#'
 TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
   # Return cached table unless refresh is requested
   if (!download_only) {
     cached <- .tada_cache_get(.WQXCharAliasRef_cache_key)
     if (!is.null(cached) && !isTRUE(refresh)) return(cached)
   }
-  
+
   # Helper: download ZIP, unzip, locate CSV, read it, preserving row order
   .download_unzip_read_alias <- function() {
     zip_url <- "https://cdx.epa.gov/wqx/download/DomainValues/CharacteristicAlias_CSV.zip"
     temp_zip <- tempfile(fileext = ".zip")
     temp_dir <- tempfile("wqx_alias_unzip_")
-    on.exit({
-      if (dir.exists(temp_dir)) unlink(temp_dir, recursive = TRUE, force = TRUE)
-      if (file.exists(temp_zip)) unlink(temp_zip, force = TRUE)
-    }, add = TRUE)
-    
+    on.exit(
+      {
+        if (dir.exists(temp_dir)) {
+          unlink(temp_dir, recursive = TRUE, force = TRUE)
+        }
+        if (file.exists(temp_zip)) unlink(temp_zip, force = TRUE)
+      },
+      add = TRUE
+    )
+
     # 5-minute default timeout (configurable via options(EPATADA.timeout))
-    timeout_sec <- suppressWarnings(as.numeric(getOption("EPATADA.timeout", 300)))
-    if (!is.finite(timeout_sec) || timeout_sec <= 0) timeout_sec <- 300
-    
+    timeout_sec <- suppressWarnings(as.numeric(getOption(
+      "EPATADA.timeout",
+      300
+    )))
+    if (!is.finite(timeout_sec) || timeout_sec <= 0) {
+      timeout_sec <- 300
+    }
+
     # Download ZIP with longer timeout; prefer curl if available
     ok <- FALSE
     if (requireNamespace("curl", quietly = TRUE)) {
       h <- curl::new_handle(followlocation = TRUE)
-      curl::handle_setheaders(h, "User-Agent" = getOption("EPATADA.user_agent", "EPATADA (R)"))
-      curl::handle_setopt(h,
-                          connecttimeout = 60,
-                          timeout = timeout_sec
+      curl::handle_setheaders(
+        h,
+        "User-Agent" = getOption("EPATADA.user_agent", "EPATADA (R)")
       )
-      ok <- tryCatch({
-        curl::curl_download(zip_url, destfile = temp_zip, handle = h, mode = "wb")
-        file.exists(temp_zip) && is.finite(file.info(temp_zip)$size) && file.info(temp_zip)$size > 0
-      }, error = function(e) FALSE, warning = function(w) FALSE)
+      curl::handle_setopt(h, connecttimeout = 60, timeout = timeout_sec)
+      ok <- tryCatch(
+        {
+          curl::curl_download(
+            zip_url,
+            destfile = temp_zip,
+            handle = h,
+            mode = "wb"
+          )
+          file.exists(temp_zip) &&
+            is.finite(file.info(temp_zip)$size) &&
+            file.info(temp_zip)$size > 0
+        },
+        error = function(e) FALSE,
+        warning = function(w) FALSE
+      )
     }
     if (!ok) {
       old_to <- getOption("timeout")
       old_to_num <- suppressWarnings(as.numeric(old_to))
-      if (!is.finite(old_to_num)) old_to_num <- 60
+      if (!is.finite(old_to_num)) {
+        old_to_num <- 60
+      }
       on.exit(options(timeout = old_to), add = TRUE)
       options(timeout = max(old_to_num, timeout_sec))
-      
-      ok <- tryCatch({
-        utils::download.file(zip_url, destfile = temp_zip, mode = "wb", method = "libcurl", quiet = TRUE)
-        file.exists(temp_zip) && is.finite(file.info(temp_zip)$size) && file.info(temp_zip)$size > 0
-      }, error = function(e) FALSE, warning = function(w) FALSE)
-      
+
+      ok <- tryCatch(
+        {
+          utils::download.file(
+            zip_url,
+            destfile = temp_zip,
+            mode = "wb",
+            method = "libcurl",
+            quiet = TRUE
+          )
+          file.exists(temp_zip) &&
+            is.finite(file.info(temp_zip)$size) &&
+            file.info(temp_zip)$size > 0
+        },
+        error = function(e) FALSE,
+        warning = function(w) FALSE
+      )
+
       if (!ok && .Platform$OS.type == "windows") {
-        ok <- tryCatch({
-          utils::download.file(zip_url, destfile = temp_zip, mode = "wb", method = "wininet", quiet = TRUE)
-          file.exists(temp_zip) && is.finite(file.info(temp_zip)$size) && file.info(temp_zip)$size > 0
-        }, error = function(e) FALSE, warning = function(w) FALSE)
+        ok <- tryCatch(
+          {
+            utils::download.file(
+              zip_url,
+              destfile = temp_zip,
+              mode = "wb",
+              method = "wininet",
+              quiet = TRUE
+            )
+            file.exists(temp_zip) &&
+              is.finite(file.info(temp_zip)$size) &&
+              file.info(temp_zip)$size > 0
+          },
+          error = function(e) FALSE,
+          warning = function(w) FALSE
+        )
       }
     }
-    if (!ok) return(NULL)
-    
+    if (!ok) {
+      return(NULL)
+    }
+
     # List archive and choose the CSV (robust to small filename changes)
-    listing <- tryCatch(utils::unzip(temp_zip, list = TRUE), error = function(e) NULL)
-    if (is.null(listing) || !is.data.frame(listing) || !nrow(listing)) return(NULL)
-    
+    listing <- tryCatch(
+      utils::unzip(temp_zip, list = TRUE),
+      error = function(e) NULL
+    )
+    if (is.null(listing) || !is.data.frame(listing) || !nrow(listing)) {
+      return(NULL)
+    }
+
     nms <- as.character(listing$Name)
     is_csv <- grepl("(?i)\\.csv$", nms)
-    if (!any(is_csv)) return(NULL)
-    
+    if (!any(is_csv)) {
+      return(NULL)
+    }
+
     cand <- which(is_csv)
     base <- basename(nms[cand])
     exact_ci <- cand[tolower(base) == "characteristic alias.csv"]
-    pat_ci <- cand[grep("(?i)characteristic.*alias.*\\.csv$", base, perl = TRUE)]
+    pat_ci <- cand[grep(
+      "(?i)characteristic.*alias.*\\.csv$",
+      base,
+      perl = TRUE
+    )]
     pick_idx <- if (length(exact_ci) >= 1) {
       exact_ci[1]
     } else if (length(pat_ci) >= 1) {
@@ -2173,15 +2233,17 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       cand[which.max(as.numeric(listing$Length[cand]))]
     }
     target_in_zip <- nms[pick_idx]
-    
+
     # Extract only the chosen CSV
     dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
     extracted <- tryCatch(
       utils::unzip(temp_zip, files = target_in_zip, exdir = temp_dir),
       error = function(e) character(0)
     )
-    if (!length(extracted)) return(NULL)
-    
+    if (!length(extracted)) {
+      return(NULL)
+    }
+
     target_csv <- file.path(temp_dir, target_in_zip)
     if (!file.exists(target_csv)) {
       if (length(extracted) && file.exists(extracted[1])) {
@@ -2190,7 +2252,7 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
         return(NULL)
       }
     }
-    
+
     # Read and normalize; preserve row order
     try_read <- function(enc) {
       tryCatch(
@@ -2204,9 +2266,14 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
         error = function(e) NULL
       )
     }
-    df <- try_read("UTF-8"); if (is.null(df)) df <- try_read("latin1")
-    if (is.null(df)) return(NULL)
-    
+    df <- try_read("UTF-8")
+    if (is.null(df)) {
+      df <- try_read("latin1")
+    }
+    if (is.null(df)) {
+      return(NULL)
+    }
+
     # Normalize headers and trim character cols
     nm <- names(df)
     nm <- sub("^\ufeff", "", nm, perl = TRUE)
@@ -2217,7 +2284,7 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
     rownames(df) <- NULL
     df
   }
-  
+
   # Use the helper to fetch, with fallback to installed RDA when allowed
   if (download_only) {
     df <- .download_unzip_read_alias()
@@ -2243,7 +2310,7 @@ TADA_GetWQXCharAliasRef <- function(download_only = FALSE, refresh = FALSE) {
       rownames(df) <- NULL
     }
   }
-  
+
   if (!download_only) {
     .tada_cache_set(.WQXCharAliasRef_cache_key, df)
   }
