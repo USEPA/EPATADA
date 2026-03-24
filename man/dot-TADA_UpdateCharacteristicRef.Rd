@@ -2,11 +2,15 @@
 % Please edit documentation in R/WQPWQXATTAINSCSTRefs.R
 \name{.TADA_UpdateCharacteristicRef}
 \alias{.TADA_UpdateCharacteristicRef}
-\title{Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)}
+\title{Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
+Downloads the live CSV, normalizes to the 4-column schema, and writes
+inst/extdata/WQXCharacteristicRef.rda if changed.}
 \usage{
 .TADA_UpdateCharacteristicRef()
 }
 \description{
 Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
+Downloads the live CSV, normalizes to the 4-column schema, and writes
+inst/extdata/WQXCharacteristicRef.rda if changed.
 }
 \keyword{internal}

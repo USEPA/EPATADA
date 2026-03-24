@@ -743,19 +743,17 @@ TADA_ListCacheKeys <- function() {
 
 # Keeps exactly: Name, Comparable.Name, CAS.Number, Domain.Value.Status
 .TADA_normalize_characteristic_ref <- function(df) {
-  if (!is.data.frame(df) || ncol(df) == 0) {
-    return(NULL)
-  }
+  if (!is.data.frame(df) || ncol(df) == 0) return(NULL)
   required <- c("Name", "Comparable.Name", "CAS.Number", "Domain.Value.Status")
   if (!all(required %in% names(df))) {
     return(NULL)
   }
   out <- data.frame(
     CharacteristicName = df[["Name"]],
-    Comparable.Name = df[["Comparable.Name"]],
-    CAS.Number = df[["CAS.Number"]],
-    Char_Flag = df[["Domain.Value.Status"]],
-    stringsAsFactors = FALSE
+    Comparable.Name    = df[["Comparable.Name"]],
+    CAS.Number         = df[["CAS.Number"]],
+    Char_Flag          = df[["Domain.Value.Status"]],
+    stringsAsFactors   = FALSE
   )
   out <- .tada_trim_char_cols(out)
   unique(out)
@@ -1146,88 +1144,74 @@ TADA_ListCacheKeys <- function() {
 # Paired getters + updates
 # =========================
 
-#' Get WQX Characteristic Domain Table
-#' @return data.frame with columns CharacteristicName, Char_Flag, Comparable.Name, and CAS.Number
-#' @param download_only Logical. If TRUE, bypasses the cache and package fallback and
-#'   attempts to download the latest Characteristic reference table directly from WQX,
-#'   returning it without updating the cache. Errors if the download fails. If FALSE
-#'   (default), uses a cached copy when available and updates the cache; on download
-#'   failure, falls back to the package’s internal file.
+#' Get WQX Characteristic Domain Table (internal-only)
 #'
-#' @param refresh Logical. Only used when download_only = FALSE. If TRUE, ignore any
-#'   cached copy and attempt to retrieve a fresh table (download, falling back to the
-#'   package’s internal file on failure), then update the cache. If FALSE (default),
-#'   return the cached table when available. Ignored when download_only = TRUE.
+#' Loads the package-installed internal reference table from inst/extdata and caches
+#' it for the session. No network is used. Arguments download_only and refresh are
+#' kept for backward compatibility but are ignored.
+#'
+#' @return data.frame with columns: CharacteristicName, Comparable.Name, CAS.Number, Char_Flag
+#' @param download_only Ignored. Present for backward compatibility.
+#' @param refresh Ignored. Present for backward compatibility.
 #' @export
 TADA_GetCharacteristicRef <- function(download_only = FALSE, refresh = FALSE) {
-  if (!download_only) {
-    ref_cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
-    if (!is.null(ref_cached) && !isTRUE(refresh)) return(ref_cached)
+  # Cache hit
+  cached <- .tada_cache_get(.WQXCharacteristicRef_cache_key)
+  if (!is.null(cached)) return(cached)
+  
+  # Load internal RDA (works in dev and installed builds)
+  ref <- .tada_load_extdata_rda(
+    pkg = "EPATADA",
+    filename = "WQXCharacteristicRef.rda",
+    object_name = "WQXCharacteristicRef",
+    # Old RDAs might have a different order; we enforce below
+    required_cols = NULL,
+    trim = TRUE
+  )
+  if (is.null(ref)) {
+    stop("Internal extdata 'WQXCharacteristicRef.rda' not found or invalid. ",
+         "Rebuild the package with an internal copy.")
   }
-
-  # Try download first when not download_only; otherwise error if download fails
-  if (download_only) {
-    raw.data <- .tada_read_csv_url(
-      .WQX_URLS$Characteristic,
-      stringsAsFactors = FALSE
-    )
-    if (is.null(raw.data)) {
-      stop("TADA_GetCharacteristicRef(download_only==TRUE): download failed.")
-    }
-    ref <- .TADA_normalize_characteristic_ref(raw.data)
-    if (is.null(ref)) {
-      stop("TADA_GetCharacteristicRef: Unexpected columns in downloaded table.")
-    }
-  } else {
-    raw.data <- .tada_read_csv_url(
-      .WQX_URLS$Characteristic,
-      stringsAsFactors = FALSE
-    )
-    if (!is.null(raw.data)) {
-      ref <- .TADA_normalize_characteristic_ref(raw.data)
-      if (is.null(ref)) {
-        message(
-          "Downloaded Characteristic table had unexpected structure. ",
-          "Columns seen: ",
-          paste(names(raw.data), collapse = ", "),
-          ". Falling back to internal file."
-        )
-        ref <- NULL
-      }
-    } else {
-      message(
-        "Downloading latest Characteristic table failed! Falling back to (possibly outdated) internal file."
-      )
-      ref <- NULL
-    }
-    if (is.null(ref)) {
-      ref <- .tada_load_extdata_rda(
-        pkg = "EPATADA",
-        filename = "WQXCharacteristicRef.rda",
-        object_name = "WQXCharacteristicRef",
-        required_cols = c("CharacteristicName", "Char_Flag"),
-        trim = TRUE
-      )
-      if (is.null(ref)) {
-        stop(
-          "Fallback extdata 'WQXCharacteristicRef.rda' not found or invalid."
-        )
-      }
-    }
+  
+  # Enforce final schema and order (drop extras; fill missing with NA)
+  keep_order <- c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
+  for (nm in keep_order) {
+    if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
   }
-
-  if (!download_only) {
-    .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
-  }
+  ref <- ref[, keep_order, drop = FALSE]
+  ref <- unique(.tada_trim_char_cols(ref))
+  
+  .tada_cache_set(.WQXCharacteristicRef_cache_key, ref)
   ref
 }
 
 #' Update EPATADA Internal Copy of WQX Characteristic Domain Table (DEV-TIME ONLY)
+#' Downloads the live CSV, normalizes to the 4-column schema, and writes
+#' inst/extdata/WQXCharacteristicRef.rda if changed.
 #' @keywords internal
 .TADA_UpdateCharacteristicRef <- function() {
-  ref <- TADA_GetCharacteristicRef(download_only = TRUE)
+  raw.data <- .tada_read_csv_url(.WQX_URLS$Characteristic, stringsAsFactors = FALSE)
+  if (is.null(raw.data)) {
+    stop(".TADA_UpdateCharacteristicRef: download failed; cannot update internal file.")
+  }
+  
+  # Exact-headers normalizer: requires Name, Comparable.Name, CAS.Number, Domain.Value.Status
+  ref <- .TADA_normalize_characteristic_ref(raw.data)
+  if (is.null(ref)) {
+    stop(".TADA_UpdateCharacteristicRef: Unexpected columns in downloaded table: ",
+         paste(names(raw.data), collapse = ", "))
+  }
+  
+  # Enforce final schema/order defensively
+  keep_order <- c("CharacteristicName", "Comparable.Name", "CAS.Number", "Char_Flag")
+  for (nm in keep_order) {
+    if (!nm %in% names(ref)) ref[[nm]] <- NA_character_
+  }
+  ref <- ref[, keep_order, drop = FALSE]
+  ref <- unique(.tada_trim_char_cols(ref))
+  
   .tada_save_ext_rda(
-    ref,
+    obj = ref,
     obj_name = "WQXCharacteristicRef",
     pkg = "EPATADA",
     filename = "WQXCharacteristicRef.rda",
