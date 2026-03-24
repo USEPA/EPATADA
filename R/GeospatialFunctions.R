@@ -2,7 +2,7 @@
 #'
 #' This function gets ATTAINS data for the bounding box of a feature.
 #'
-#' @param baseurls A url for an ESRI REST service layer.
+#' @param baseurl A url for an ESRI REST service layer.
 #' @param df An sf dataframe developed with `TADA_MakeSpatial()`.
 #' @return An sf data frame of features from the REST service within the
 #' bounding box of the spatial feature of interest.
