@@ -683,7 +683,7 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
     cache_env <- get(".TADA_cache", envir = ns, inherits = FALSE)
     rm(list = ls(envir = cache_env, all.names = TRUE), envir = cache_env)
   }
-
+  
   wb <- tempfile(fileext = ".xlsx")
   x <- list(
     data.frame(L = "Legend_by_index", stringsAsFactors = FALSE),
@@ -692,12 +692,12 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
   )
   names(x) <- c("AAA", "BBB", "CCC")
   openxlsx::write.xlsx(x, file = wb, asTable = FALSE, overwrite = TRUE)
-
+  
   testthat::local_mocked_bindings(
     .tada_cst_get_workbook_path = function(
-      download_only = FALSE,
-      refresh = FALSE,
-      ...
+    download_only = FALSE,
+    refresh = FALSE,
+    ...
     ) {
       if (!download_only) {
         get(".tada_cache_set", envir = ns)("CST_workbook_path", wb)
@@ -706,19 +706,19 @@ testthat::test_that("Errors when sheet names are unrecognized (no index fallback
     },
     .env = ns
   )
-
-  testthat::expect_error(
+  
+  suppressWarnings(testthat::expect_error(
     EPATADA::TADA_CST_GetLegend(refresh = TRUE),
     "Failed to read Legend sheet"
-  )
-  testthat::expect_error(
+  ))
+  suppressWarnings(testthat::expect_error(
     EPATADA::TADA_CST_GetSources(refresh = TRUE),
     "Failed to read Sources sheet"
-  )
-  testthat::expect_error(
+  ))
+  suppressWarnings(testthat::expect_error(
     EPATADA::TADA_CST_GetCriteria(refresh = TRUE),
     "Failed to read Criteria sheet"
-  )
+  ))
 })
 
 testthat::test_that(".TADA_CST_UpdateWorkbook delegates to write helper", {
