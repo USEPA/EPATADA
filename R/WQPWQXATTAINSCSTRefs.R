@@ -2515,6 +2515,7 @@ TADA_GetATTAINSParamUseOrgRef <- function(
       "organizationType",
       "parameterName",
       "useName",
+      "useGroup",
       "waterType",
       "reportingCycle"
     )
@@ -2582,6 +2583,11 @@ TADA_GetATTAINSParamUseOrgRef <- function(
       } else {
         NA_character_
       },
+      ATTAINS.UseName = if ("useGroup" %in% names(x)) {
+        x[["useGroup"]]
+      } else {
+        NA_character_
+      },
       ATTAINS.WaterType = if ("waterType" %in% names(x)) {
         x[["waterType"]]
       } else {
@@ -2619,6 +2625,7 @@ TADA_GetATTAINSParamUseOrgRef <- function(
       "ATTAINS.OrganizationType",
       "ATTAINS.ParameterName",
       "ATTAINS.UseName",
+      "ATTAINS.UseGroup",
       "ATTAINS.WaterType"
     )
     out <- .tada_load_extdata_rda(
