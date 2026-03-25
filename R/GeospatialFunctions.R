@@ -38,7 +38,7 @@ fetch_bbox <- function(baseurl, df) {
 #' The default is "all".
 #'
 #' @keywords internal
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' baseurls <- c(
