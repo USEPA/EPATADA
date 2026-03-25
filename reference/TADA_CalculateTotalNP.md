@@ -1,19 +1,9 @@
 # Calculate Total Nitrogen and Phosphorus
 
-This function applies the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen)
-from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies
-together to approximate a total nitrogen value on a single day at a
-single site. Additional rows are added with the total nitrogen and total
-phosphorous estimations. Before summing subspecies, this function runs
-TADA_AggregateMeasurements to obtain the max value of a
-characteristic-fraction-speciation-unit-media combination at a given
-site and date. Where necessary, it uses conversion factors to convert
-nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium,
-etc. to as nitrogen based on the atomic weights of the different
-elements in the compound. Similarly, phosphate and other phosphorus
-forms are converted to AS P where applicable. The reference table is
-contained within the package but may be edited/customized by users.
+Apply nutrient aggregation logic from EPA's Enforcement and Compliance
+History Online (ECHO) Water Pollutant Loading Tool to add nitrogen
+subspecies and phosphorus forms together to approximate total nitrogen
+(TN) and total phosphorus (TP) by site and day.
 
 ## Usage
 
@@ -25,137 +15,104 @@ TADA_CalculateTotalNP(.data, sum_ref, daily_agg = "max")
 
 - .data:
 
-  TADA dataframe. TADA_AutoClean() must have been run (and the
-  TADA.ResultMeasureValueDataTypes.Flag added) before this TM/TP
-  summation function can be used. This function runs required flag
-  functions (TADA_FindQCActivities, TADA_FlagResultUnit,
-  TADA_FlagFraction, TADA_FlagSpeciation) if they have not yet been run.
-  Suspect and invalid combinations are not included in TN and TP
-  summation. While not required for this function to run, ideally, users
-  should also run TADA_SimpleCensoredMethods and TADA_HarmonizeSynonyms
-  before this function. If user wants to consider grouping N or P
-  subspecies across multiple organizations, user should have also run
-  TADA_FindNearbySites and grouped all nearby sites to one common
-  TADA.MonitoringLocationIdentifier, TADA.LatitudeMeasure,
-  TADA.LongitudeMeasure, etc.
+  TADA dataframe.
+  [`TADA_AutoClean()`](https://usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
+  should have been run and TADA.ResultMeasureValueDataTypes.Flag must be
+  present. The function will run required flag functions if needed.
+  Suspect/invalid combinations are excluded.
 
 - sum_ref:
 
-  Optional. A custom summation reference dataframe the user has loaded
-  into the R environment. Dataframe must have same columns as default
-  TADA.summation reference table.
+  Optional custom summation reference dataframe with the same columns as
+  the internal reference; if omitted, the internal reference is used.
 
 - daily_agg:
 
-  If there are multiple measurements for the same
-  characteristic-unit-fraction-speciation-media combination at the same
-  location (TADA.MonitoringLocationIdentifier) on the same day
-  (ActivityStartDate), this will select a single measurement to use in
-  the Total N or Total P summation. Defaults to 'max', but can be set to
-  'min' or 'mean'.
+  Aggregation function used to collapse multiple measurements per
+  day/site/metadata combination. One of "max", "min", or "mean".
+  Defaults to "max".
 
 ## Value
 
-TADA dataframe with additional rows representing total N and P summation
-values from adding up subspecies. Note that for total phosphorus, these
-additional rows are simply a re-classification of phosphorus or
-phosphate into the total phosphorus as P format. These new rows share
-the same date and monitoring location as the subspecies, but an
-additional note is added in the TADA.NutrientSummation.Flag column
-describing how the total was derived. Also adds
-TADA.NutrientSummationGroup and TADA.NutrientSummationEquation columns,
-which can be used to trace how the total was calculated and from which
-subspecies.
+The input dataframe plus additional rows representing TN and TP totals,
+with explanatory flags: TADA.NutrientSummation.Flag,
+TADA.NutrientSummationGroup, and TADA.NutrientSummationEquation.
+Original rows not used in summations are preserved.
 
 ## Details
 
-Nutrient equations are as follows:
+Before summing, the function aggregates measurements to a single daily
+value per characteristic–unit–fraction–speciation–media combination
+using the chosen `daily_agg`. Where needed, it converts nitrogen
+subspecies to "AS N" and phosphorus forms to "AS P" using conversion
+factors in the summation reference. The internal summation reference can
+be customized and supplied via `sum_ref`.
 
-NITROGEN:
+- If required QA/QC flagging columns are absent, the function runs
+  [`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
+  (clean = FALSE),
+  [`TADA_FlagResultUnit()`](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md)
+  (clean = "none"),
+  [`TADA_FlagFraction()`](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.md)
+  (clean = FALSE), and
+  [`TADA_FlagSpeciation()`](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md)
+  (clean = "none"), and excludes invalid or suspect combinations from
+  TN/TP summations.
 
-1.  TOTAL N (UNFILTERED)
+- The function will not run a second time on the same data: if
+  TADA.ResultMeasureValueDataTypes.Flag already contains "TN/TP
+  estimated...", the input is returned unchanged.
 
-2.  TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
+- Daily aggregation uses `daily_agg` ("max", "min", or "mean") per
+  site/day and metadata combination. Rows considered but not selected
+  are preserved with explanatory flags.
 
-3.  TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
+- Keys are normalized (trim whitespace; `""` and `"NONE"` become `NA`)
+  before matching to the summation reference; the join is NA-aware
+  (dplyr \>= 1.1.0).
 
-4.  ORGANIC N + AMMONIA + NITRATE + NITRITE
+- Speciation conversions are applied where a conversion factor is
+  provided.
 
-5.  OTHER NITROGEN FORMS
+- New rows for TN/TP totals are added with deterministic
+  ResultIdentifier values based on site/date/group to ease testing and
+  traceability.
 
-PHOSPHORUS:
+## Note
 
-1.  TOTAL PHOSPHORUS
-
-2.  PHOSPHATE
-
-3.  OTHER PHOSPHORUS FORMS
-
-Equations are applied in the order above. The function looks for groups
-of nutrients that exactly match each equation before looking for every
-combination within each equation (for example, a group of nitrogen
-subspecies including AMMONIA and NITRATE will be passed over in an
-initial sweep of groups of subspecies containing ORGANIC N, AMMONIA,
-NITRATE, and NITRITE, but will be caught as the function moves down the
-hierarchy of equations to fewer and fewer subspecies). Eventually, even
-groups with only one subspecies will be used to represent a TOTAL N
-value for that site/day/depth.
+Requires dplyr \>= 1.1.0 for NA-aware joins when matching to the
+summation ref.
 
 ## See also
 
-[`TADA_AggregateMeasurements()`](https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
-
-[`TADA_FlagDepthCategory()`](https://usepa.github.io/EPATADA/reference/TADA_FlagDepthCategory.md)
-
-[`TADA_SimpleCensoredMethods()`](https://usepa.github.io/EPATADA/reference/TADA_SimpleCensoredMethods.md)
-
-[`TADA_HarmonizeSynonyms()`](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.md)
-
-[`TADA_FindNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_FindNearbySites.md)
-
-[`TADA_FindQCActivities()`](https://usepa.github.io/EPATADA/reference/TADA_FindQCActivities.md)
-
-[`TADA_FlagResultUnit()`](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md)
-
-[`TADA_FlagFraction()`](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.md)
-
-[`TADA_FlagSpeciation()`](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md)
-
-[`TADA_AutoClean()`](https://usepa.github.io/EPATADA/reference/TADA_AutoClean.md)
+[`TADA_AggregateMeasurements()`](https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md),
+[`TADA_FlagResultUnit()`](https://usepa.github.io/EPATADA/reference/TADA_FlagResultUnit.md),
+[`TADA_FlagFraction()`](https://usepa.github.io/EPATADA/reference/TADA_FlagFraction.md),
+[`TADA_FlagSpeciation()`](https://usepa.github.io/EPATADA/reference/TADA_FlagSpeciation.md),
+[`TADA_HarmonizeSynonyms()`](https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.md),
+[`TADA_GetNutrientSummationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
 
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 df <- TADA_DataRetrieval(
-  statecode = "UT", startDate = "2024-06-01",
-  endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
+  statecode = "UT",
+  startDate = "2024-06-01",
+  endDate = "2024-07-01",
+  characteristicType = "Nutrient",
+  applyautoclean = TRUE,
   ask = FALSE
 )
-#> Checking what data is available. This may take a moment.
-#> The number of sites and/or records matched by the query terms is large, so the download may take some time.
-#> [1] "Downloading data from sites with fewer than 350000 results by grouping them together."
-#>   |                                                                              |                                                                      |   0%  |                                                                              |=====================================================                 |  76%  |                                                                              |======================================================================| 100%
-#> [1] "Data successfully downloaded. Running TADA_AutoClean function."
-#> [1] "TADA_Autoclean: creating TADA-specific columns."
-#> [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
-#> [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
-#> [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
-#> [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-#> No deprecated characteristic names found in dataset.
-#> [1] "TADA_Autoclean: harmonizing result and depth units."
-#> [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
-#> [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
 
-df2 <- TADA_SimpleCensoredMethods(df,
-  nd_method = "multiplier",
-  nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
+df2 <- TADA_SimpleCensoredMethods(
+  df, nd_method = "multiplier", nd_multiplier = 0.5,
+  od_method = "as-is", od_multiplier = "null"
 )
 
 df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-#> [1] "TADA_FlagSpeciation: All characteristic/method speciation combinations are valid in your dataframe. Returning input dataframe with TADA.MethodSpeciation.Flag column for tracking."
-#> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
-
 df2 <- TADA_HarmonizeSynonyms(df2)
 
-df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+out <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+} # }
 ```

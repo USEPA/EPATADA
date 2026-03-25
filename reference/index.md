@@ -26,12 +26,11 @@
 - [`Data_Nutrients_UT`](https://usepa.github.io/EPATADA/reference/Data_Nutrients_UT.md)
   : Data_Nutrients_UT
 
+- [`Data_Participatory_Scientists`](https://usepa.github.io/EPATADA/reference/Data_Participatory_Scientists.md)
+  : Data_Participatory_Scientists
+
 - [`Data_R5_TADAPackageDemo`](https://usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.md)
   : Data_R5_TADAPackageDemo
-
-- [`TADA_AdditionalCharAliasForReview()`](https://usepa.github.io/EPATADA/reference/TADA_AdditionalCharAliasForReview.md)
-  : TADA Alias Methodology for ATTAINS, WQP and CST Alias Table for
-  Review
 
 - [`TADA_AggregateMeasurements()`](https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.md)
   : Aggregate multiple result values to a min, max, or mean
@@ -64,8 +63,8 @@
 - [`TADA_CalculateTotalNP()`](https://usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.md)
   : Calculate Total Nitrogen and Phosphorus
 
-- [`TADA_CharStringRemoveNA()`](https://usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNA.md)
-  : Remove NAs in Strings for Figure Titles and Axis Labels
+- [`TADA_CharStringRemoveNANone()`](https://usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNANone.md)
+  : Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 
 - [`TADA_CheckColumns()`](https://usepa.github.io/EPATADA/reference/TADA_CheckColumns.md)
   : Check Columns
@@ -75,6 +74,9 @@
 
 - [`TADA_CheckType()`](https://usepa.github.io/EPATADA/reference/TADA_CheckType.md)
   : Check Type
+
+- [`TADA_ClearCache()`](https://usepa.github.io/EPATADA/reference/TADA_ClearCache.md)
+  : Clear EPATADA reference table cache
 
 - [`TADA_ColorPalette()`](https://usepa.github.io/EPATADA/reference/TADA_ColorPalette.md)
   : Create Color Palette For Use in Graphs and Maps
@@ -177,7 +179,7 @@
   : Check Sample Fraction Validity
 
 - [`TADA_FlagMeasureQualifierCode()`](https://usepa.github.io/EPATADA/reference/TADA_FlagMeasureQualifierCode.md)
-  : Check for results with suspect result Measure Qualifier Codes
+  : Check for results with suspect Measure Qualifier Codes
 
 - [`TADA_FlagMethod()`](https://usepa.github.io/EPATADA/reference/TADA_FlagMethod.md)
   : Check for Suspect Analytical Methods
@@ -205,17 +207,14 @@
 - [`TADA_GetATTAINSOrgIDsRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.md)
   : ATTAINS Organization Identifier Reference Table
 
-- [`TADA_GetATTAINSParamToWQPCharRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamToWQPCharRef.md)
-  : ATTAINS Parameter and WQP Characteristic Alias Reference Table
-
 - [`TADA_GetATTAINSParamUseOrgRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.md)
-  : ATTAINS Parameter and Use Name by Organization Reference Key
+  : ATTAINS Parameter and Use Name by Organization Reference
 
 - [`TADA_GetActivityTypeRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.md)
   : Get WQX Activity Type Reference Table
 
 - [`TADA_GetCharacteristicRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.md)
-  : Get WQX Characteristic Domain Table
+  : Get WQX Characteristic Domain Table (internal-only)
 
 - [`TADA_GetDetCondRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetDetCondRef.md)
   : Get WQX Result Detection Condition Reference Table
@@ -233,22 +232,33 @@
   : Get WQX Monitoring Location Type Name Reference Table
 
 - [`TADA_GetNutrientSummationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.md)
-  : Nutrient Summation Reference Key
+  : Get Nutrient Summation Reference Key
 
 - [`TADA_GetSynonymRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.md)
-  : Generate Unique Synonym Reference Table
+  : Get Unique Synonym Reference Table
+
+- [`TADA_GetTADACharAliasRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetTADACharAliasRef.md)
+  : ATTAINS Parameter, CST Pollutant and WQP Characteristic Alias
+  Reference Table
+
+- [`TADA_GetTADAUsesAliasRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetTADAUsesAliasRef.md)
+  : TADA Alias Methodology for ATTAINS and CST Uses Alias Table for
+  Review
 
 - [`TADA_GetTemplate()`](https://usepa.github.io/EPATADA/reference/TADA_GetTemplate.md)
   : Get TADA Template
 
 - [`TADA_GetUSGSSynonymRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.md)
-  : Nutrient Summation Reference Key
+  : USGS Unit and Speciation Conversion Table
 
 - [`TADA_GetUniqueNearbySites()`](https://usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.md)
   : Get grouped monitoring stations that are near each other
 
 - [`TADA_GetWQPOrganizationRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrganizationRef.md)
   : Get WQP Organization and Provider Reference Table
+
+- [`TADA_GetWQXCharAliasRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharAliasRef.md)
+  : WQX Characteristic Alias Reference Table
 
 - [`TADA_GetWQXCharValRef()`](https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.md)
   : WQX QAQC Characteristic Validation Reference Table
@@ -264,13 +274,16 @@
   : Create Histogram(s)
 
 - [`TADA_IDCensoredData()`](https://usepa.github.io/EPATADA/reference/TADA_IDCensoredData.md)
-  : Prepare Censored Data
+  : Prepare and Flag Censored Data
 
 - [`TADA_IDDepthProfiles()`](https://usepa.github.io/EPATADA/reference/TADA_IDDepthProfiles.md)
   : TADA_IDDepthProfiles
 
 - [`TADA_JoinWQPProfiles()`](https://usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.md)
   : Join WQP Profiles
+
+- [`TADA_ListCacheKeys()`](https://usepa.github.io/EPATADA/reference/TADA_ListCacheKeys.md)
+  : List keys in the EPATADA cache
 
 - [`TADA_MLSummary()`](https://usepa.github.io/EPATADA/reference/TADA_MLSummary.md)
   : Review and Apply Any Site-specific Criteria to Monitoring Location
@@ -355,10 +368,6 @@
   : Function to update tribal layer shapefiles. Shapefiles are stored in
   inst/extdata. Existing shapefiles with the same name will be deleted
   first if they exist.
-
-- [`TADA_UsesAliasForReview()`](https://usepa.github.io/EPATADA/reference/TADA_UsesAliasForReview.md)
-  : TADA Alias Methodology for ATTAINS and CST Uses Alias Table for
-  Review
 
 - [`TADA_UsesForAnalysis()`](https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.md)
   : Create or Update ATTAINS Parameter and Use crosswalk
@@ -447,6 +456,9 @@
 
 - [`fetchNHD()`](https://usepa.github.io/EPATADA/reference/fetchNHD.md)
   : fetchNHD
+
+- [`fetchWaterType()`](https://usepa.github.io/EPATADA/reference/fetchWaterType.md)
+  : fetchWaterType
 
 - [`findATTAINSMissingRawFeatures()`](https://usepa.github.io/EPATADA/reference/findATTAINSMissingRawFeatures.md)
   : findATTAINSMissingRawFeatures

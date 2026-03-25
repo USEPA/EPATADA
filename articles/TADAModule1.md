@@ -8,31 +8,30 @@ harmonize) [Water Quality Portal
 (WQP)](https://www.waterqualitydata.us/) data from multiple
 organizations.
 
-## Install and load packages
+## Install and Load the EPATADA R Package
 
 First, install and load the remotes package specifying the repo. This is
 needed before installing EPATADA because it is only available on GitHub
 (not CRAN).
 
 ``` r
-install.packages("remotes",
-  repos = "http://cran.us.r-project.org"
-)
+install.packages("remotes")
+# Load the remotes library
 library(remotes)
 ```
 
-Next, install and load EPATADA using the remotes package. USGS’s
-dataRetrieval and other TADA R Package dependencies will also be
-downloaded automatically from CRAN with the TADA install. If desired,
-the development version of dataRetrieval can be downloaded directly from
-GitHub (un-comment).
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
 
 ``` r
 remotes::install_github("USEPA/EPATADA",
   ref = "develop",
   dependencies = TRUE
 )
-# remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
 Finally, use the **library()** function to load the TADA R Package into
@@ -182,17 +181,6 @@ du Lac Band), 5) Pueblo of Tesuque, and 6) The Chickasaw Nation.
 TADAProfile <- TADA_DataRetrieval(organization = c("REDLAKE_WQX", "SFNOES_WQX", "PUEBLO_POJOAQUE", "FONDULAC_WQX", "PUEBLOOFTESUQUE", "CNENVSER"), startDate = "2018-01-01", endDate = "2019-01-01", applyautoclean = FALSE, ask = FALSE)
 ```
 
-    ## [1] "Downloading WQP query results. This may take some time depending upon the query size."
-    ## $startDate
-    ## [1] "2018-01-01"
-    ## 
-    ## $organization
-    ## [1] "REDLAKE_WQX"     "SFNOES_WQX"      "PUEBLO_POJOAQUE" "FONDULAC_WQX"   
-    ## [5] "PUEBLOOFTESUQUE" "CNENVSER"       
-    ## 
-    ## $endDate
-    ## [1] "2019-01-01"
-
 We will move forward with this example in the remainder of the vignette.
 
 We will first use a subset of this example to demonstrate using new
@@ -211,16 +199,6 @@ TADAProfile_single <- TADA_DataRetrieval(
   ask = FALSE
 )
 ```
-
-    ## [1] "Downloading WQP query results. This may take some time depending upon the query size."
-    ## $startDate
-    ## [1] "2018-01-01"
-    ## 
-    ## $organization
-    ## [1] "PUEBLO_POJOAQUE"
-    ## 
-    ## $endDate
-    ## [1] "2019-01-01"
 
 The same results can now be obtained using a combination of the
 tribal_area_type and tribe_name_parcel arguments. Both must be used
@@ -452,17 +430,6 @@ specifies what the special characters are.
 
 TADAProfile <- TADA_AutoClean(TADAProfile)
 ```
-
-    ## [1] "TADA_Autoclean: creating TADA-specific columns."
-    ## [1] "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."
-    ## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
-    ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
-    ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
-    ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-
-    ## [1] "TADA_Autoclean: harmonizing result and depth units."
-    ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
-    ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
 
 Review all column names in the TADA Profile to familiarize yourself with
 the dataset after TADA_AutoClean has added additional TADA prefixed
@@ -942,11 +909,7 @@ console:
 
 ``` r
 TADAProfileClean3 <- TADA_FindPotentialDuplicatesSingleOrg(TADAProfileClean3)
-```
 
-    ## [1] "TADA_FindPotentialDuplicatesSingleOrg: 148 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."
-
-``` r
 # filter to keep only unique rows using TADA.SingleOrgDup.Flag
 TADAProfileClean3 <- dplyr::filter(
   TADAProfileClean3,
@@ -997,8 +960,6 @@ will not do anything.
 TADAProfileClean3 <- TADA_FindQAPPApproval(TADAProfileClean3, clean = FALSE, cleanNA = FALSE)
 ```
 
-    ## [1] "Data is flagged but not removed because clean and cleanNA were FALSE"
-
 The **TADA_FindQAPPDoc** function checks to see if a QAPP Doc is
 Available
 
@@ -1018,8 +979,6 @@ TADAProfileClean3 <- TADA_FindQAPPDoc(TADAProfileClean3,
   clean = FALSE
 )
 ```
-
-    ## [1] "No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking."
 
 ## Full Dataframe Filtering
 
@@ -1080,8 +1039,8 @@ TADA_FieldCounts(TADAProfileClean3)
 ```
 
     ##                             Fields Count
-    ## 1    TADA.ComparableDataIdentifier   122
-    ## 2          TADA.CharacteristicName    99
+    ## 1    TADA.ComparableDataIdentifier    35
+    ## 2          TADA.CharacteristicName    28
     ## 3             SubjectTaxonomicName    13
     ## 4           OrganizationFormalName     6
     ## 5           TADA.ActivityType.Flag     3
@@ -1089,8 +1048,8 @@ TADA_FieldCounts(TADAProfileClean3)
     ## 7        ActivityRelativeDepthName     3
     ## 8     ActivityMediaSubdivisionName     2
     ## 9           ResultStatusIdentifier     2
-    ## 10             ResultValueTypeName     2
-    ## 11          TADA.ActivityMediaName     1
+    ## 10          TADA.ActivityMediaName     1
+    ## 11             ResultValueTypeName     1
 
 ``` r
 # create object of table
@@ -1107,10 +1066,10 @@ TADA_FieldValuesTable(TADAProfileClean3, field = "ActivityTypeCode")
 ```
 
     ##                                    Value Count
-    ## 1                          Field Msr/Obs 19988
-    ## 2                         Sample-Routine  4099
-    ## 3 Quality Control Sample-Field Replicate   187
-    ## 4 Quality Control Sample-Equipment Blank    31
+    ## 1                          Field Msr/Obs 12935
+    ## 2                         Sample-Routine  1580
+    ## 3 Quality Control Sample-Field Replicate    83
+    ## 4 Quality Control Sample-Equipment Blank    20
 
 ``` r
 TADA_FieldValuesPie(TADAProfileClean3, field = "ActivityTypeCode")
@@ -1225,52 +1184,26 @@ TADAProfileClean3b <- TADA_PairReplicates(TADAProfileClean3)
 unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 ```
 
-    ##   [1] NA                 "STORET-738677181" "STORET-738677182"
-    ##   [4] "STORET-738677872" "STORET-738678004" "STORET-738678005"
-    ##   [7] "STORET-738678052" "STORET-738678053" "STORET-738678066"
-    ##  [10] "STORET-738678728" "STORET-738678722" "STORET-738679070"
-    ##  [13] "STORET-738679883" "STORET-738679884" "STORET-738680635"
-    ##  [16] "STORET-738681838" "STORET-738681839" "STORET-738681567"
-    ##  [19] "STORET-738681566" "STORET-738681582" "STORET-738681583"
-    ##  [22] "STORET-738681742" "STORET-738681741" "STORET-738682016"
-    ##  [25] "STORET-738683894" "STORET-738683895" "STORET-738684233"
-    ##  [28] "STORET-738684234" "STORET-738684637" "STORET-738684635"
-    ##  [31] "STORET-738684636" "STORET-738684858" "STORET-738684859"
-    ##  [34] "STORET-738685617" "STORET-738685618" "STORET-738685619"
-    ##  [37] "STORET-738687020" "STORET-738687096" "STORET-738687162"
-    ##  [40] "STORET-738688568" "STORET-738689666" "STORET-738689761"
-    ##  [43] "STORET-738690356" "STORET-738690360" "STORET-738690508"
-    ##  [46] "STORET-738690893" "STORET-738691579" "STORET-738691571"
-    ##  [49] "STORET-738691593" "STORET-738691651" "STORET-738691793"
-    ##  [52] "STORET-738691845" "STORET-738691902" "STORET-738691903"
-    ##  [55] "STORET-738691940" "STORET-738692026" "STORET-738692088"
-    ##  [58] "STORET-738692119" "STORET-738692301" "Orphan"          
-    ##  [61] "STORET-954146116" "STORET-954146117" "STORET-954146118"
-    ##  [64] "STORET-954146119" "STORET-954146120" "STORET-954146122"
-    ##  [67] "STORET-954146123" "STORET-954146124" "STORET-954146125"
-    ##  [70] "STORET-954146126" "STORET-954146127" "STORET-954146129"
-    ##  [73] "STORET-954146163" "STORET-954146164" "STORET-954146165"
-    ##  [76] "STORET-954146167" "STORET-954146168" "STORET-974501819"
-    ##  [79] "STORET-974501818" "STORET-974501815" "STORET-974501820"
-    ##  [82] "STORET-974501816" "STORET-974495554" "STORET-974498873"
-    ##  [85] "STORET-974498871" "STORET-974498869" "STORET-974498870"
-    ##  [88] "STORET-974498874" "STORET-974510302" "STORET-974510305"
-    ##  [91] "STORET-974510304" "STORET-974510301" "STORET-974510303"
-    ##  [94] "STORET-974508583" "STORET-974502340" "STORET-974502342"
-    ##  [97] "STORET-974502339" "STORET-974502341" "STORET-974502344"
-    ## [100] "STORET-974502345" "STORET-974502192" "STORET-974502193"
-    ## [103] "STORET-974502194" "STORET-974502195" "STORET-974502196"
-    ## [106] "STORET-974502198" "STORET-974502199" "STORET-974506891"
-    ## [109] "STORET-974504800" "STORET-974504801" "STORET-974504802"
-    ## [112] "STORET-974504803" "STORET-974504805" "STORET-974506247"
-    ## [115] "STORET-974506248" "STORET-974506249" "STORET-974506251"
-    ## [118] "STORET-974506252" "STORET-974506253" "STORET-974512254"
-    ## [121] "STORET-974512255" "STORET-974512260" "STORET-974512256"
-    ## [124] "STORET-974512258" "STORET-974512257" "STORET-974512261"
-    ## [127] "STORET-974515119" "STORET-974515116" "STORET-974515115"
-    ## [130] "STORET-974515120" "STORET-974515117" "STORET-974515118"
-    ## [133] "STORET-974515122" "STORET-974514935" "STORET-974514940"
-    ## [136] "STORET-974514939" "STORET-974514941" "STORET-974514938"
+    ##  [1] NA                 "STORET-738677181" "STORET-738677872" "STORET-738678005"
+    ##  [5] "STORET-738678052" "STORET-738678066" "STORET-738678722" "STORET-738679883"
+    ##  [9] "STORET-738680635" "STORET-738681839" "STORET-738681566" "STORET-738681582"
+    ## [13] "STORET-738681741" "STORET-738683894" "STORET-738684234" "STORET-738684636"
+    ## [17] "STORET-738684859" "STORET-738685617" "STORET-738685619" "STORET-738691902"
+    ## [21] "Orphan"           "STORET-954146117" "STORET-954146118" "STORET-954146119"
+    ## [25] "STORET-954146120" "STORET-954146124" "STORET-954146125" "STORET-954146126"
+    ## [29] "STORET-954146127" "STORET-954146163" "STORET-954146164" "STORET-954146165"
+    ## [33] "STORET-954146168" "STORET-974501819" "STORET-974501818" "STORET-974501815"
+    ## [37] "STORET-974501816" "STORET-974495554" "STORET-974495555" "STORET-974498873"
+    ## [41] "STORET-974498871" "STORET-974498869" "STORET-974498874" "STORET-974510305"
+    ## [45] "STORET-974510304" "STORET-974510301" "STORET-974510303" "STORET-974508583"
+    ## [49] "STORET-974502338" "STORET-974502342" "STORET-974502341" "STORET-974502344"
+    ## [53] "STORET-974502345" "STORET-974502193" "STORET-974502196" "STORET-974502198"
+    ## [57] "STORET-974502199" "STORET-974506891" "STORET-974504800" "STORET-974504801"
+    ## [61] "STORET-974504802" "STORET-974504805" "STORET-974506248" "STORET-974506249"
+    ## [65] "STORET-974506251" "STORET-974506252" "STORET-974512260" "STORET-974512256"
+    ## [69] "STORET-974512258" "STORET-974512261" "STORET-974515119" "STORET-974515115"
+    ## [73] "STORET-974515120" "STORET-974515122" "STORET-974514935" "STORET-974514940"
+    ## [77] "STORET-974514939" "STORET-974514941"
 
 ``` r
 # Filter df to include only unique values that are paired replicate samples (parent-result and child-replicate).
@@ -1284,52 +1217,25 @@ TADAProfileClean3b <- dplyr::filter(TADAProfileClean3b, TADA.ReplicateSampleID !
 unique(TADAProfileClean3b$TADA.ReplicateSampleID)
 ```
 
-    ##   [1] "STORET-738677181" "STORET-738677182" "STORET-738677872"
-    ##   [4] "STORET-738678004" "STORET-738678005" "STORET-738678052"
-    ##   [7] "STORET-738678053" "STORET-738678066" "STORET-738678728"
-    ##  [10] "STORET-738678722" "STORET-738679070" "STORET-738679883"
-    ##  [13] "STORET-738679884" "STORET-738680635" "STORET-738681838"
-    ##  [16] "STORET-738681839" "STORET-738681567" "STORET-738681566"
-    ##  [19] "STORET-738681582" "STORET-738681583" "STORET-738681742"
-    ##  [22] "STORET-738681741" "STORET-738682016" "STORET-738683894"
-    ##  [25] "STORET-738683895" "STORET-738684233" "STORET-738684234"
-    ##  [28] "STORET-738684637" "STORET-738684635" "STORET-738684636"
-    ##  [31] "STORET-738684858" "STORET-738684859" "STORET-738685617"
-    ##  [34] "STORET-738685618" "STORET-738685619" "STORET-738687020"
-    ##  [37] "STORET-738687096" "STORET-738687162" "STORET-738688568"
-    ##  [40] "STORET-738689666" "STORET-738689761" "STORET-738690356"
-    ##  [43] "STORET-738690360" "STORET-738690508" "STORET-738690893"
-    ##  [46] "STORET-738691579" "STORET-738691571" "STORET-738691593"
-    ##  [49] "STORET-738691651" "STORET-738691793" "STORET-738691845"
-    ##  [52] "STORET-738691902" "STORET-738691903" "STORET-738691940"
-    ##  [55] "STORET-738692026" "STORET-738692088" "STORET-738692119"
-    ##  [58] "STORET-738692301" "STORET-954146116" "STORET-954146117"
-    ##  [61] "STORET-954146118" "STORET-954146119" "STORET-954146120"
-    ##  [64] "STORET-954146122" "STORET-954146123" "STORET-954146124"
-    ##  [67] "STORET-954146125" "STORET-954146126" "STORET-954146127"
-    ##  [70] "STORET-954146129" "STORET-954146163" "STORET-954146164"
-    ##  [73] "STORET-954146165" "STORET-954146167" "STORET-954146168"
-    ##  [76] "STORET-974501819" "STORET-974501818" "STORET-974501815"
-    ##  [79] "STORET-974501820" "STORET-974501816" "STORET-974495554"
-    ##  [82] "STORET-974498873" "STORET-974498871" "STORET-974498869"
-    ##  [85] "STORET-974498870" "STORET-974498874" "STORET-974510302"
-    ##  [88] "STORET-974510305" "STORET-974510304" "STORET-974510301"
-    ##  [91] "STORET-974510303" "STORET-974508583" "STORET-974502340"
-    ##  [94] "STORET-974502342" "STORET-974502339" "STORET-974502341"
-    ##  [97] "STORET-974502344" "STORET-974502345" "STORET-974502192"
-    ## [100] "STORET-974502193" "STORET-974502194" "STORET-974502195"
-    ## [103] "STORET-974502196" "STORET-974502198" "STORET-974502199"
-    ## [106] "STORET-974506891" "STORET-974504800" "STORET-974504801"
-    ## [109] "STORET-974504802" "STORET-974504803" "STORET-974504805"
-    ## [112] "STORET-974506247" "STORET-974506248" "STORET-974506249"
-    ## [115] "STORET-974506251" "STORET-974506252" "STORET-974506253"
-    ## [118] "STORET-974512254" "STORET-974512255" "STORET-974512260"
-    ## [121] "STORET-974512256" "STORET-974512258" "STORET-974512257"
-    ## [124] "STORET-974512261" "STORET-974515119" "STORET-974515116"
-    ## [127] "STORET-974515115" "STORET-974515120" "STORET-974515117"
-    ## [130] "STORET-974515118" "STORET-974515122" "STORET-974514935"
-    ## [133] "STORET-974514940" "STORET-974514939" "STORET-974514941"
-    ## [136] "STORET-974514938"
+    ##  [1] "STORET-738677181" "STORET-738677872" "STORET-738678005" "STORET-738678052"
+    ##  [5] "STORET-738678066" "STORET-738678722" "STORET-738679883" "STORET-738680635"
+    ##  [9] "STORET-738681839" "STORET-738681566" "STORET-738681582" "STORET-738681741"
+    ## [13] "STORET-738683894" "STORET-738684234" "STORET-738684636" "STORET-738684859"
+    ## [17] "STORET-738685617" "STORET-738685619" "STORET-738691902" "STORET-954146117"
+    ## [21] "STORET-954146118" "STORET-954146119" "STORET-954146120" "STORET-954146124"
+    ## [25] "STORET-954146125" "STORET-954146126" "STORET-954146127" "STORET-954146163"
+    ## [29] "STORET-954146164" "STORET-954146165" "STORET-954146168" "STORET-974501819"
+    ## [33] "STORET-974501818" "STORET-974501815" "STORET-974501816" "STORET-974495554"
+    ## [37] "STORET-974495555" "STORET-974498873" "STORET-974498871" "STORET-974498869"
+    ## [41] "STORET-974498874" "STORET-974510305" "STORET-974510304" "STORET-974510301"
+    ## [45] "STORET-974510303" "STORET-974508583" "STORET-974502338" "STORET-974502342"
+    ## [49] "STORET-974502341" "STORET-974502344" "STORET-974502345" "STORET-974502193"
+    ## [53] "STORET-974502196" "STORET-974502198" "STORET-974502199" "STORET-974506891"
+    ## [57] "STORET-974504800" "STORET-974504801" "STORET-974504802" "STORET-974504805"
+    ## [61] "STORET-974506248" "STORET-974506249" "STORET-974506251" "STORET-974506252"
+    ## [65] "STORET-974512260" "STORET-974512256" "STORET-974512258" "STORET-974512261"
+    ## [69] "STORET-974515119" "STORET-974515115" "STORET-974515120" "STORET-974515122"
+    ## [73] "STORET-974514935" "STORET-974514940" "STORET-974514939" "STORET-974514941"
 
 Now, let’s remove QC samples/measurements from the dataframe.
 
@@ -1338,18 +1244,14 @@ Now, let’s remove QC samples/measurements from the dataframe.
 TADAProfileClean4 <- TADA_FindQCActivities(TADAProfileClean3,
   clean = TRUE
 )
-```
 
-    ## [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
-
-``` r
 # regenerate table and pie chart
 TADA_FieldValuesTable(TADAProfileClean4, "ActivityTypeCode")
 ```
 
     ##            Value Count
-    ## 1  Field Msr/Obs 19988
-    ## 2 Sample-Routine  4099
+    ## 1  Field Msr/Obs 12935
+    ## 2 Sample-Routine  1580
 
 ``` r
 TADA_FieldValuesPie(TADAProfileClean4, "ActivityTypeCode")
@@ -1478,8 +1380,6 @@ TADAProfileClean4 <- TADA_SimpleCensoredMethods(TADAProfileClean4,
 )
 ```
 
-    ## [1] "TADA_IDCensoredData: There are 22 results in your dataframe that are missing ResultDetectionConditionText. TADA requires BOTH ResultDetectionConditionText and DetectionQuantitationLimitTypeName fields to be populated in order to categorize censored data."
-
 Next, review unique values within the *TADA.CensoredData.Flag*,
 *DetectionQuantitationLimitTypeName*, and *ResultDetectionConditionText*
 columns.
@@ -1489,15 +1389,13 @@ columns.
 unique(TADAProfileClean4$TADA.CensoredData.Flag)
 ```
 
-    ## [1] "Uncensored"                                                       
-    ## [2] "Non-Detect"                                                       
-    ## [3] "Detection condition is missing and required for censored data ID."
+    ## [1] "Uncensored" "Non-Detect"
 
 ``` r
 unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 ```
 
-    ## [1] NA                             "Lower Reporting Limit"       
+    ## [1] "Lower Reporting Limit"        NA                            
     ## [3] "Method Detection Level"       "Practical Quantitation Limit"
     ## [5] "Upper Quantitation Limit"
 
@@ -1505,8 +1403,8 @@ unique(TADAProfileClean4$DetectionQuantitationLimitTypeName)
 unique(TADAProfileClean4$ResultDetectionConditionText)
 ```
 
-    ## [1] NA                                   "Not Detected at Reporting Limit"   
-    ## [3] "Present Below Quantification Limit" "Not Detected"
+    ## [1] "Not Detected at Reporting Limit"    NA                                  
+    ## [3] "Present Below Quantification Limit"
 
 Also, review the *TADA.ResultMeasureValueDataTypes.Flag* to see if any
 NAs or NDs (non-detects) remain.
@@ -1515,11 +1413,10 @@ NAs or NDs (non-detects) remain.
 unique(TADAProfileClean4$TADA.ResultMeasureValueDataTypes.Flag)
 ```
 
-    ## [1] "Numeric"                                                   
-    ## [2] "Result Value/Unit Estimated from Detection Limit"          
-    ## [3] "Result Value/Unit Cannot Be Estimated From Detection Limit"
-    ## [4] "Text"                                                      
-    ## [5] "NA - Not Available"
+    ## [1] "Coerced to NA"                                   
+    ## [2] "Numeric"                                         
+    ## [3] "Result Value/Unit Estimated from Detection Limit"
+    ## [4] "Text"
 
 Count how many NAs remain in the TADA.ResultMeasureValue.
 
@@ -1527,7 +1424,7 @@ Count how many NAs remain in the TADA.ResultMeasureValue.
 sum(is.na(TADAProfileClean4$TADA.ResultMeasureValue))
 ```
 
-    ## [1] 494
+    ## [1] 677
 
 Filter down to only include data that is numeric in the
 “TADA.ResultMeasureValue” column. This removes data where the
@@ -1550,7 +1447,7 @@ unique(TADAProfileClean5$TADA.ResultMeasureValueDataTypes.Flag)
 nrow(TADAProfileClean4) - nrow(TADAProfileClean5)
 ```
 
-    ## [1] 494
+    ## [1] 677
 
 ``` r
 sum(is.na(TADAProfileClean5$TADA.ResultMeasureValue))
@@ -1624,7 +1521,7 @@ This section covers summing nutrient subspecies to estimate total
 nitrogen and phosphorus. This can be a challenging endeavor because some
 subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate
@@ -1664,104 +1561,32 @@ Enter ?TADA_FieldValuesTable into the console for more information.
 TADA_FieldValuesTable(TADAProfileClean6, field = "TADA.CharacteristicName")
 ```
 
-    ##                                             Value Count
-    ## 1                           DISSOLVED OXYGEN (DO)  3575
-    ## 2                                              PH  3572
-    ## 3                                     TEMPERATURE  3564
-    ## 4                                    CONDUCTIVITY  2723
-    ## 5                                       TURBIDITY  1229
-    ## 6                   TOTAL PHOSPHORUS, MIXED FORMS   822
-    ## 7                     DISSOLVED OXYGEN SATURATION   727
-    ## 8                          TOTAL DISSOLVED SOLIDS   724
-    ## 9                            SPECIFIC CONDUCTANCE   690
-    ## 10                                          DEPTH   481
-    ## 11                            BAROMETRIC PRESSURE   391
-    ## 12                                       SALINITY   379
-    ## 13                                           FLOW   363
-    ## 14                       DEPTH, SECCHI DISK DEPTH   331
-    ## 15                                   STREAM STAGE   317
-    ## 16      TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)   315
-    ## 17                                        NITRATE   244
-    ## 18        CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN   236
-    ## 19                                       CHLORIDE   227
-    ## 20                    TOTAL NITROGEN, MIXED FORMS   224
-    ## 21            TRANSPARENCY, SECCHI TUBE WITH DISK   212
-    ## 22                               ESCHERICHIA COLI   188
-    ## 23                                 ORTHOPHOSPHATE   186
-    ## 24                              NITRATE + NITRITE   160
-    ## 25                         TOTAL SUSPENDED SOLIDS   148
-    ## 26        CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
-    ## 27                            TEMPERATURE, SAMPLE   124
-    ## 28                                        SULFATE   119
-    ## 29                                        NITRITE   114
-    ## 30                                TURBIDITY FIELD    99
-    ## 31                               HARDNESS, CA, MG    98
-    ## 32                                       AMMONIUM    93
-    ## 33                                       NITROGEN    93
-    ## 34                        DISSOLVED OXYGEN UPTAKE    82
-    ## 35                                         COPPER    58
-    ## 36                                       CHROMIUM    52
-    ## 37                                        MERCURY    52
-    ## 38                                   PHEOPHYTIN A    52
-    ## 39                                 APPARENT COLOR    49
-    ## 40                                  CHLOROPHYLL A    49
-    ## 41                                        ARSENIC    41
-    ## 42                      VOLATILE SUSPENDED SOLIDS    38
-    ## 43                                        CADMIUM    37
-    ## 44                                           LEAD    37
-    ## 45                                         NICKEL    37
-    ## 46                                       SELENIUM    37
-    ## 47                                           ZINC    37
-    ## 48                              DEPTH, SNOW COVER    33
-    ## 49                            HARDNESS, CARBONATE    29
-    ## 50                                           IRON    29
-    ## 51                                  ICE THICKNESS    28
-    ## 52 BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS    23
-    ## 53                         CHEMICAL OXYGEN DEMAND    23
-    ## 54                                       FLUORIDE    23
-    ## 55                                        SILICON    23
-    ## 56                                 TOTAL HARDNESS    23
-    ## 57                                          COUNT    20
-    ## 58                                      MANGANESE    19
-    ## 59                                     PERIPHYTON     7
-    ## 60                             .ALPHA.-ENDOSULFAN     6
-    ## 61                  .ALPHA.-HEXACHLOROCYCLOHEXANE     6
-    ## 62                              .BETA.-ENDOSULFAN     6
-    ## 63                   .BETA.-HEXACHLOROCYCLOHEXANE     6
-    ## 64                  .DELTA.-HEXACHLOROCYCLOHEXANE     6
-    ## 65                                         ALDRIN     6
-    ## 66                                 ALPHA PARTICLE     6
-    ## 67                                       ALUMINUM     6
-    ## 68                                      BERYLLIUM     6
-    ## 69 BHC, .BETA.-BHC & .GAMMA.-BHC MIX, UNSPECIFIED     6
-    ## 70                                          BORON     6
-    ## 71                                        CALCIUM     6
-    ## 72                                      CHLORDANE     6
-    ## 73                                         COBALT     6
-    ## 74                                       DIELDRIN     6
-    ## 75                             ENDOSULFAN SULFATE     6
-    ## 76                                         ENDRIN     6
-    ## 77                                ENDRIN ALDEHYDE     6
-    ## 78                                     HEPTACHLOR     6
-    ## 79                             HEPTACHLOR EPOXIDE     6
-    ## 80                                      MAGNESIUM     6
-    ## 81                                   METHOXYCHLOR     6
-    ## 82                                     MOLYBDENUM     6
-    ## 83                                       P,P'-DDD     6
-    ## 84                                       P,P'-DDE     6
-    ## 85                                       P,P'-DDT     6
-    ## 86                                      POTASSIUM     6
-    ## 87                                         SILVER     6
-    ## 88                                         SODIUM     6
-    ## 89                                       THALLIUM     6
-    ## 90                                      TOXAPHENE     6
-    ## 91                                        URANIUM     6
-    ## 92                                       VANADIUM     6
-    ## 93                                     RADIUM-226     5
-    ## 94                                     RADIUM-228     5
-    ## 95                                        TRITIUM     5
-    ## 96                                 ORGANIC CARBON     4
-    ## 97                                         BARIUM     3
+    ##                                        Value Count
+    ## 1                      DISSOLVED OXYGEN (DO)  3575
+    ## 2                                         PH  3572
+    ## 3                                TEMPERATURE  3564
+    ## 4              TOTAL PHOSPHORUS, MIXED FORMS   771
+    ## 5                DISSOLVED OXYGEN SATURATION   727
+    ## 6                   DEPTH, SECCHI DISK DEPTH   331
+    ## 7                                    NITRATE   242
+    ## 8  TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)   242
+    ## 9        TRANSPARENCY, SECCHI TUBE WITH DISK   212
+    ## 10               TOTAL NITROGEN, MIXED FORMS   203
+    ## 11   CONDITION CLASS (DISSOLVED OXYGEN (DO))   129
+    ## 12                                   NITRITE   111
+    ## 13                                  AMMONIUM    93
+    ## 14                   DISSOLVED OXYGEN UPTAKE    82
+    ## 15                            ORTHOPHOSPHATE    82
+    ## 16                         NITRATE + NITRITE    71
+    ## 17                            APPARENT COLOR    49
+    ## 18                         DEPTH, SNOW COVER    33
+    ## 19                 VOLATILE SUSPENDED SOLIDS    31
+    ## 20                       HARDNESS, CARBONATE    29
+    ## 21                                     COUNT    20
+    ## 22                                PERIPHYTON     7
+    ## 23                                RADIUM-226     5
+    ## 24                                RADIUM-228     5
+    ## 25                                   TRITIUM     5
 
 Next, we can revisit the **TADA_FieldCounts** function at the
 characteristic level to review how many unique allowable values are
@@ -1830,50 +1655,51 @@ included within each of the following fields:
 - *DetectionQuantitationLimitTypeName*
 
 ``` r
-TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldCounts(TADAProfileClean6, display = "most", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
     ##                                            Fields Count
-    ## 1               TADA.MonitoringLocationIdentifier   129
-    ## 2                          MonitoringLocationName   129
-    ## 3                     TADA.MonitoringLocationName   129
-    ## 4                               ProjectIdentifier    12
-    ## 5                                     ProjectName    12
-    ## 6                               HUCEightDigitCode     9
-    ## 7                               ResultCommentText     8
-    ## 8         SampleCollectionMethod.MethodIdentifier     7
-    ## 9               SampleCollectionMethod.MethodName     7
-    ## 10   SampleCollectionMethod.MethodDescriptionText     6
-    ## 11 SampleCollectionMethod.MethodIdentifierContext     5
-    ## 12                  SampleCollectionEquipmentName     5
-    ## 13                         ProjectDescriptionText     5
-    ## 14                         OrganizationIdentifier     4
-    ## 15                         OrganizationFormalName     4
-    ## 16        ResultAnalyticalMethod.MethodIdentifier     4
-    ## 17              ResultAnalyticalMethod.MethodName     4
-    ## 18                                 LaboratoryName     4
-    ## 19             DetectionQuantitationLimitTypeName     4
-    ## 20                      ActivityRelativeDepthName     3
-    ## 21                         ResultStatusIdentifier     3
-    ## 22 ResultAnalyticalMethod.MethodIdentifierContext     3
-    ## 23   ResultAnalyticalMethod.MethodDescriptionText     3
-    ## 24              MonitoringLocationDescriptionText     3
-    ## 25   HorizontalCoordinateReferenceSystemDatumName     3
-    ## 26                         QAPPApprovalAgencyName     3
-    ## 27                TADA.MonitoringLocationTypeName     3
-    ## 28                               ActivityTypeCode     2
-    ## 29                         TADA.ActivityType.Flag     2
-    ## 30                   ActivityMediaSubdivisionName     2
-    ## 31                   ResultDetectionConditionText     2
-    ## 32                            ResultValueTypeName     2
-    ## 33                                   ProviderName     2
-    ## 34             TADA.CharacteristicNameAssumptions     2
-    ## 35                  TADA.MeasureQualifierCode.Def     2
+    ## 1               TADA.MonitoringLocationIdentifier    74
+    ## 2                          MonitoringLocationName    74
+    ## 3                     TADA.MonitoringLocationName    74
+    ## 4                               ResultCommentText     9
+    ## 5                               ProjectIdentifier     6
+    ## 6                                     ProjectName     6
+    ## 7                               HUCEightDigitCode     6
+    ## 8         SampleCollectionMethod.MethodIdentifier     4
+    ## 9               SampleCollectionMethod.MethodName     4
+    ## 10   SampleCollectionMethod.MethodDescriptionText     4
+    ## 11                  SampleCollectionEquipmentName     3
+    ## 12                                 LaboratoryName     3
+    ## 13             DetectionQuantitationLimitTypeName     3
+    ## 14              MonitoringLocationDescriptionText     3
+    ## 15                         ProjectDescriptionText     3
+    ## 16                         QAPPApprovalAgencyName     3
+    ## 17                         OrganizationIdentifier     2
+    ## 18                         OrganizationFormalName     2
+    ## 19                   ActivityMediaSubdivisionName     2
+    ## 20                      ActivityRelativeDepthName     2
+    ## 21 SampleCollectionMethod.MethodIdentifierContext     2
+    ## 22                         ResultStatusIdentifier     2
+    ## 23   HorizontalCoordinateReferenceSystemDatumName     2
+    ## 24                  TADA.MeasureQualifierCode.Def     2
+    ## 25                TADA.MonitoringLocationTypeName     2
+    ## 26                               ActivityTypeCode     1
+    ## 27                         TADA.ActivityType.Flag     1
+    ## 28                            ActivityCommentText     1
+    ## 29                            ResultValueTypeName     1
+    ## 30                           SubjectTaxonomicName     1
+    ## 31        ResultAnalyticalMethod.MethodIdentifier     1
+    ## 32 ResultAnalyticalMethod.MethodIdentifierContext     1
+    ## 33              ResultAnalyticalMethod.MethodName     1
+    ## 34   ResultAnalyticalMethod.MethodDescriptionText     1
+    ## 35                                   ProviderName     1
     ## 36                         TADA.ActivityMediaName     1
     ## 37                        TADA.CharacteristicName     1
-    ## 38                      TADA.MethodSpeciationName     1
-    ## 39                  TADA.ResultSampleFractionText     1
-    ## 40                  TADA.ComparableDataIdentifier     1
+    ## 38             TADA.CharacteristicNameAssumptions     1
+    ## 39                      TADA.MethodSpeciationName     1
+    ## 40                  TADA.ResultSampleFractionText     1
+    ## 41                  TADA.ComparableDataIdentifier     1
 
 Selecting a parameter generates the list above, which is subset by the
 selected parameter. The list includes fields you may want to review, and
@@ -1889,20 +1715,17 @@ the characteristic-level to review a column of interest.
 
 ``` r
 # In this example we review values from the SampleCollectionMethod.MethodName field
-TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesTable(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
     ##                       Value Count
-    ## 1        Integrated Sampler   295
-    ## 2                        NA   241
-    ## 3                  FDL QAPP    97
-    ## 4 Standard Sampling Methods    94
-    ## 5      PUEBLOOFTESUQUE_QAPP    64
-    ## 6               Hand Dipper    30
-    ## 7                      Grab     1
+    ## 1                  FDL QAPP    96
+    ## 2 Standard Sampling Methods    86
+    ## 3        Integrated Sampler    32
+    ## 4               Hand Dipper    28
 
 ``` r
-TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL PHOSPHORUS, MIXED FORMS")
+TADA_FieldValuesPie(TADAProfileClean6, field = "SampleCollectionMethod.MethodName", characteristicName = "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)")
 ```
 
 ![](TADAModule1_files/figure-html/TADA_FieldValuesTable_Pie_char-1.png)
@@ -1913,119 +1736,34 @@ Review unique TADA.ComparableDataIdentifier’s.
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
-    ##   [1] "ARSENIC_TOTAL_NA_UG/L"                                         
-    ##   [2] "CHLORIDE_TOTAL_NA_UG/L"                                        
-    ##   [3] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ##   [4] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##   [5] "PH_NONE_NONE_NONE"                                             
-    ##   [6] "TEMPERATURE_NA_NA_DEG C"                                       
-    ##   [7] "TURBIDITY_NA_NA_NTU"                                           
-    ##   [8] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
-    ##   [9] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [10] "FLOW_NA_NA_CFS"                                                
-    ##  [11] "ESCHERICHIA COLI_NA_NA_CFU/100ML"                              
-    ##  [12] "ESCHERICHIA COLI_UNFILTERED_NA_MPN"                            
-    ##  [13] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ##  [14] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ##  [15] "DEPTH_NA_NA_M"                                                 
-    ##  [16] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ##  [17] "SPECIFIC CONDUCTANCE_NA_NA_US/CM"                              
-    ##  [18] "TOTAL DISSOLVED SOLIDS_NA_NA_UG/L"                             
-    ##  [19] "SALINITY_NA_NA_PSS"                                            
-    ##  [20] "SULFATE_TOTAL_NA_UG/L"                                         
-    ##  [21] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L"  
-    ##  [22] "FLUORIDE_TOTAL_NA_UG/L"                                        
-    ##  [23] "IRON_TOTAL_NA_UG/L"                                            
-    ##  [24] "MANGANESE_TOTAL_NA_UG/L"                                       
-    ##  [25] "SILICON_TOTAL_NA_UG/L"                                         
-    ##  [26] "HARDNESS, CARBONATE_TOTAL_NA_UG/L"                             
-    ##  [27] "TOTAL HARDNESS_TOTAL_NA_MG/L"                                  
-    ##  [28] "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L"                          
-    ##  [29] "CHROMIUM_TOTAL_NA_UG/L"                                        
-    ##  [30] "COPPER_TOTAL_NA_UG/L"                                          
-    ##  [31] "TURBIDITY_UNFILTERED_NA_NTU"                                   
-    ##  [32] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ##  [33] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NA_UG/L"     
-    ##  [34] "CONDUCTIVITY_NA_NA_US/CM"                                      
-    ##  [35] "DEPTH, SECCHI DISK DEPTH_NA_NA_M"                              
-    ##  [36] "STREAM STAGE_NA_NA_M"                                          
-    ##  [37] "TRANSPARENCY, SECCHI TUBE WITH DISK_NA_NA_IN"                  
-    ##  [38] "ICE THICKNESS_NA_NA_IN"                                        
-    ##  [39] "DEPTH, SNOW COVER_NA_NA_IN"                                    
-    ##  [40] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ##  [41] "BAROMETRIC PRESSURE_NA_NA_G/M2"                                
-    ##  [42] "TOTAL DISSOLVED SOLIDS_TOTAL_NA_UG/L"                          
-    ##  [43] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ##  [44] "CHLOROPHYLL A_NA_NA_UG/L"                                      
-    ##  [45] "COUNT_NA_NA_COUNT"                                             
-    ##  [46] "ARSENIC_DISSOLVED_NA_UG/L"                                     
-    ##  [47] "LEAD_DISSOLVED_NA_UG/L"                                        
-    ##  [48] "THALLIUM_DISSOLVED_NA_UG/L"                                    
-    ##  [49] "URANIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [50] "ALUMINUM_DISSOLVED_NA_UG/L"                                    
-    ##  [51] "BERYLLIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [52] "BORON_DISSOLVED_NA_UG/L"                                       
-    ##  [53] "CADMIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [54] "COBALT_DISSOLVED_NA_UG/L"                                      
-    ##  [55] "COPPER_DISSOLVED_NA_UG/L"                                      
-    ##  [56] "IRON_DISSOLVED_NA_UG/L"                                        
-    ##  [57] "MAGNESIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [58] "MOLYBDENUM_DISSOLVED_NA_UG/L"                                  
-    ##  [59] "NICKEL_DISSOLVED_NA_UG/L"                                      
-    ##  [60] "POTASSIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [61] "SILVER_DISSOLVED_NA_UG/L"                                      
-    ##  [62] "SODIUM_DISSOLVED_NA_UG/L"                                      
-    ##  [63] "VANADIUM_DISSOLVED_NA_UG/L"                                    
-    ##  [64] "CALCIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [65] "ZINC_DISSOLVED_NA_UG/L"                                        
-    ##  [66] "HARDNESS, CARBONATE_NA_AS CACO3_UG/L"                          
-    ##  [67] "SELENIUM_TOTAL_NA_UG/L"                                        
-    ##  [68] "MERCURY_TOTAL_NA_UG/L"                                         
-    ##  [69] "P,P'-DDD_TOTAL_NA_UG/L"                                        
-    ##  [70] "P,P'-DDE_TOTAL_NA_UG/L"                                        
-    ##  [71] "P,P'-DDT_TOTAL_NA_UG/L"                                        
-    ##  [72] "ALDRIN_TOTAL_NA_UG/L"                                          
-    ##  [73] ".ALPHA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                   
-    ##  [74] ".BETA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                    
-    ##  [75] "CHLORDANE_TOTAL_NA_UG/L"                                       
-    ##  [76] ".DELTA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                   
-    ##  [77] "DIELDRIN_TOTAL_NA_UG/L"                                        
-    ##  [78] ".ALPHA.-ENDOSULFAN_TOTAL_NA_UG/L"                              
-    ##  [79] ".BETA.-ENDOSULFAN_TOTAL_NA_UG/L"                               
-    ##  [80] "ENDOSULFAN SULFATE_TOTAL_NA_UG/L"                              
-    ##  [81] "ENDRIN_TOTAL_NA_UG/L"                                          
-    ##  [82] "ENDRIN ALDEHYDE_TOTAL_NA_UG/L"                                 
-    ##  [83] "BHC, .BETA.-BHC & .GAMMA.-BHC MIX, UNSPECIFIED_TOTAL_NA_UG/L"  
-    ##  [84] "HEPTACHLOR_TOTAL_NA_UG/L"                                      
-    ##  [85] "HEPTACHLOR EPOXIDE_TOTAL_NA_UG/L"                              
-    ##  [86] "METHOXYCHLOR_TOTAL_NA_UG/L"                                    
-    ##  [87] "TOXAPHENE_TOTAL_NA_UG/L"                                       
-    ##  [88] "ALPHA PARTICLE_NA_NA_PCI/L"                                    
-    ##  [89] "RADIUM-228_NA_NA_PCI/L"                                        
-    ##  [90] "TRITIUM_NA_NA_PCI/L"                                           
-    ##  [91] "RADIUM-226_NA_NA_PCI/L"                                        
-    ##  [92] "BARIUM_DISSOLVED_NA_UG/L"                                      
-    ##  [93] "MANGANESE_DISSOLVED_NA_UG/L"                                   
-    ##  [94] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ##  [95] "NITROGEN_TOTAL_NA_MG/L"                                        
-    ##  [96] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NA_UG/L"      
-    ##  [97] "ORGANIC CARBON_DISSOLVED_NA_UG/L"                              
-    ##  [98] "VOLATILE SUSPENDED SOLIDS_TOTAL_NA_UG/L"                       
-    ##  [99] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NA_NA_%"               
-    ## [100] "TEMPERATURE, SAMPLE_NA_NA_DEG C"                               
-    ## [101] "DISSOLVED OXYGEN UPTAKE_NA_NA_UG/L"                            
-    ## [102] "TURBIDITY FIELD_NA_NA_NTU"                                     
-    ## [103] "PHEOPHYTIN A_TOTAL_NA_UG/L"                                    
-    ## [104] "NICKEL_TOTAL_NA_UG/L"                                          
-    ## [105] "LEAD_TOTAL_NA_UG/L"                                            
-    ## [106] "CHLOROPHYLL A_UNFILTERED_NA_UG/L"                              
-    ## [107] "CADMIUM_TOTAL_NA_UG/L"                                         
-    ## [108] "ZINC_TOTAL_NA_UG/L"                                            
-    ## [109] "HARDNESS, CA, MG_TOTAL_NA_MG/L"                                
-    ## [110] "MERCURY_DISSOLVED_NA_UG/L"                                     
-    ## [111] "APPARENT COLOR_TOTAL_NA_PCU"                                   
-    ## [112] "PERIPHYTON_NA_NA_G/M2"                                         
-    ## [113] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"
+    ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
+    ##  [2] "PH_NONE_NONE_NONE"                                             
+    ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
+    ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
+    ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
+    ##  [6] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [7] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ##  [8] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ##  [9] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [10] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [11] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [12] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [13] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [14] "COUNT_NONE_NONE_COUNT"                                         
+    ## [15] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
+    ## [16] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [17] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [18] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [19] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [20] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [21] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [22] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [23] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [24] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [25] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [26] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [27] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [28] "PERIPHYTON_NONE_NONE_G/M2"
 
 Filter dataframe and generate scatterplots for each selected
 TADA.ComparableDataIdentifier:
@@ -2034,40 +1772,33 @@ TADA.ComparableDataIdentifier:
 TADAProfileClean6_filtered <- TADAProfileClean6[
   TADAProfileClean6$TADA.ComparableDataIdentifier %in%
     c(
-      "ARSENIC_TOTAL_NA_UG/L",
-      "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L",
-      "PH_NONE_NONE_NONE",
-      "TEMPERATURE_NA_NA_DEG C",
-      "IRON_TOTAL_NA_UG/L",
+      "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L",
+      "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L",
+      "SULFATE_TOTAL_NA_UG/L",
+      "NICKEL_TOTAL_NA_UG/L",
+      "COPPER_TOTAL_NA_UG/L",
+      "ZINC_TOTAL_NA_UG/L",
+      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L",
       "SELENIUM_TOTAL_NA_UG/L",
-      "MERCURY_DISSOLVED_NA_UG/L",
-      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"
+      "LEAD_TOTAL_NA_UG/L",
+      "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L",
+      "CHLORIDE_TOTAL_NA_UG/L",
+      "ARSENIC_TOTAL_NA_UG/L",
+      "CHROMIUM_TOTAL_NA_UG/L"
     ),
 ]
 
 TADA_Scatterplot(TADAProfileClean6_filtered, id_cols = c("TADA.ComparableDataIdentifier"))
 ```
 
-    ## $`ARSENIC TOTAL UG/L`
-    ## 
-    ## $`DISSOLVED OXYGEN (DO) NONE NONE MG/L`
-    ## 
-    ## $`IRON TOTAL UG/L`
-    ## 
-    ## $`MERCURY DISSOLVED UG/L`
-    ## 
     ## $`ORTHOPHOSPHATE UNFILTERED AS P UG/L`
     ## 
-    ## $`PH NONE NONE NONE`
-    ## 
-    ## $`SELENIUM TOTAL UG/L`
-    ## 
-    ## $`TEMPERATURE DEG C`
+    ## $`TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3) UNFILTERED AS N MG/L`
 
 Choose two from TADAProfileClean6 and generate scatterplot:
 
 ``` r
-TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L", "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"))
+TADA_TwoCharacteristicScatterplot(TADAProfileClean6, id_cols = "TADA.ComparableDataIdentifier", groups = c("TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L", "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"))
 ```
 
 Now we will summarize results for a single comparable data group using
@@ -2082,141 +1813,52 @@ group.
 unique(TADAProfileClean6$TADA.ComparableDataIdentifier)
 ```
 
-    ##   [1] "ARSENIC_TOTAL_NA_UG/L"                                         
-    ##   [2] "CHLORIDE_TOTAL_NA_UG/L"                                        
-    ##   [3] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
-    ##   [4] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
-    ##   [5] "PH_NONE_NONE_NONE"                                             
-    ##   [6] "TEMPERATURE_NA_NA_DEG C"                                       
-    ##   [7] "TURBIDITY_NA_NA_NTU"                                           
-    ##   [8] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
-    ##   [9] "NITRATE_UNFILTERED_AS N_MG/L"                                  
-    ##  [10] "FLOW_NA_NA_CFS"                                                
-    ##  [11] "ESCHERICHIA COLI_NA_NA_CFU/100ML"                              
-    ##  [12] "ESCHERICHIA COLI_UNFILTERED_NA_MPN"                            
-    ##  [13] "NITRITE_UNFILTERED_AS N_MG/L"                                  
-    ##  [14] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
-    ##  [15] "DEPTH_NA_NA_M"                                                 
-    ##  [16] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
-    ##  [17] "SPECIFIC CONDUCTANCE_NA_NA_US/CM"                              
-    ##  [18] "TOTAL DISSOLVED SOLIDS_NA_NA_UG/L"                             
-    ##  [19] "SALINITY_NA_NA_PSS"                                            
-    ##  [20] "SULFATE_TOTAL_NA_UG/L"                                         
-    ##  [21] "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L"  
-    ##  [22] "FLUORIDE_TOTAL_NA_UG/L"                                        
-    ##  [23] "IRON_TOTAL_NA_UG/L"                                            
-    ##  [24] "MANGANESE_TOTAL_NA_UG/L"                                       
-    ##  [25] "SILICON_TOTAL_NA_UG/L"                                         
-    ##  [26] "HARDNESS, CARBONATE_TOTAL_NA_UG/L"                             
-    ##  [27] "TOTAL HARDNESS_TOTAL_NA_MG/L"                                  
-    ##  [28] "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L"                          
-    ##  [29] "CHROMIUM_TOTAL_NA_UG/L"                                        
-    ##  [30] "COPPER_TOTAL_NA_UG/L"                                          
-    ##  [31] "TURBIDITY_UNFILTERED_NA_NTU"                                   
-    ##  [32] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
-    ##  [33] "CHLOROPHYLL A, CORRECTED FOR PHEOPHYTIN_SUSPENDED_NA_UG/L"     
-    ##  [34] "CONDUCTIVITY_NA_NA_US/CM"                                      
-    ##  [35] "DEPTH, SECCHI DISK DEPTH_NA_NA_M"                              
-    ##  [36] "STREAM STAGE_NA_NA_M"                                          
-    ##  [37] "TRANSPARENCY, SECCHI TUBE WITH DISK_NA_NA_IN"                  
-    ##  [38] "ICE THICKNESS_NA_NA_IN"                                        
-    ##  [39] "DEPTH, SNOW COVER_NA_NA_IN"                                    
-    ##  [40] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
-    ##  [41] "BAROMETRIC PRESSURE_NA_NA_G/M2"                                
-    ##  [42] "TOTAL DISSOLVED SOLIDS_TOTAL_NA_UG/L"                          
-    ##  [43] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
-    ##  [44] "CHLOROPHYLL A_NA_NA_UG/L"                                      
-    ##  [45] "COUNT_NA_NA_COUNT"                                             
-    ##  [46] "ARSENIC_DISSOLVED_NA_UG/L"                                     
-    ##  [47] "LEAD_DISSOLVED_NA_UG/L"                                        
-    ##  [48] "THALLIUM_DISSOLVED_NA_UG/L"                                    
-    ##  [49] "URANIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [50] "ALUMINUM_DISSOLVED_NA_UG/L"                                    
-    ##  [51] "BERYLLIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [52] "BORON_DISSOLVED_NA_UG/L"                                       
-    ##  [53] "CADMIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [54] "COBALT_DISSOLVED_NA_UG/L"                                      
-    ##  [55] "COPPER_DISSOLVED_NA_UG/L"                                      
-    ##  [56] "IRON_DISSOLVED_NA_UG/L"                                        
-    ##  [57] "MAGNESIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [58] "MOLYBDENUM_DISSOLVED_NA_UG/L"                                  
-    ##  [59] "NICKEL_DISSOLVED_NA_UG/L"                                      
-    ##  [60] "POTASSIUM_DISSOLVED_NA_UG/L"                                   
-    ##  [61] "SILVER_DISSOLVED_NA_UG/L"                                      
-    ##  [62] "SODIUM_DISSOLVED_NA_UG/L"                                      
-    ##  [63] "VANADIUM_DISSOLVED_NA_UG/L"                                    
-    ##  [64] "CALCIUM_DISSOLVED_NA_UG/L"                                     
-    ##  [65] "ZINC_DISSOLVED_NA_UG/L"                                        
-    ##  [66] "HARDNESS, CARBONATE_NA_AS CACO3_UG/L"                          
-    ##  [67] "SELENIUM_TOTAL_NA_UG/L"                                        
-    ##  [68] "MERCURY_TOTAL_NA_UG/L"                                         
-    ##  [69] "P,P'-DDD_TOTAL_NA_UG/L"                                        
-    ##  [70] "P,P'-DDE_TOTAL_NA_UG/L"                                        
-    ##  [71] "P,P'-DDT_TOTAL_NA_UG/L"                                        
-    ##  [72] "ALDRIN_TOTAL_NA_UG/L"                                          
-    ##  [73] ".ALPHA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                   
-    ##  [74] ".BETA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                    
-    ##  [75] "CHLORDANE_TOTAL_NA_UG/L"                                       
-    ##  [76] ".DELTA.-HEXACHLOROCYCLOHEXANE_TOTAL_NA_UG/L"                   
-    ##  [77] "DIELDRIN_TOTAL_NA_UG/L"                                        
-    ##  [78] ".ALPHA.-ENDOSULFAN_TOTAL_NA_UG/L"                              
-    ##  [79] ".BETA.-ENDOSULFAN_TOTAL_NA_UG/L"                               
-    ##  [80] "ENDOSULFAN SULFATE_TOTAL_NA_UG/L"                              
-    ##  [81] "ENDRIN_TOTAL_NA_UG/L"                                          
-    ##  [82] "ENDRIN ALDEHYDE_TOTAL_NA_UG/L"                                 
-    ##  [83] "BHC, .BETA.-BHC & .GAMMA.-BHC MIX, UNSPECIFIED_TOTAL_NA_UG/L"  
-    ##  [84] "HEPTACHLOR_TOTAL_NA_UG/L"                                      
-    ##  [85] "HEPTACHLOR EPOXIDE_TOTAL_NA_UG/L"                              
-    ##  [86] "METHOXYCHLOR_TOTAL_NA_UG/L"                                    
-    ##  [87] "TOXAPHENE_TOTAL_NA_UG/L"                                       
-    ##  [88] "ALPHA PARTICLE_NA_NA_PCI/L"                                    
-    ##  [89] "RADIUM-228_NA_NA_PCI/L"                                        
-    ##  [90] "TRITIUM_NA_NA_PCI/L"                                           
-    ##  [91] "RADIUM-226_NA_NA_PCI/L"                                        
-    ##  [92] "BARIUM_DISSOLVED_NA_UG/L"                                      
-    ##  [93] "MANGANESE_DISSOLVED_NA_UG/L"                                   
-    ##  [94] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
-    ##  [95] "NITROGEN_TOTAL_NA_MG/L"                                        
-    ##  [96] "TOTAL SUSPENDED SOLIDS_NON-FILTERABLE (PARTICLE)_NA_UG/L"      
-    ##  [97] "ORGANIC CARBON_DISSOLVED_NA_UG/L"                              
-    ##  [98] "VOLATILE SUSPENDED SOLIDS_TOTAL_NA_UG/L"                       
-    ##  [99] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NA_NA_%"               
-    ## [100] "TEMPERATURE, SAMPLE_NA_NA_DEG C"                               
-    ## [101] "DISSOLVED OXYGEN UPTAKE_NA_NA_UG/L"                            
-    ## [102] "TURBIDITY FIELD_NA_NA_NTU"                                     
-    ## [103] "PHEOPHYTIN A_TOTAL_NA_UG/L"                                    
-    ## [104] "NICKEL_TOTAL_NA_UG/L"                                          
-    ## [105] "LEAD_TOTAL_NA_UG/L"                                            
-    ## [106] "CHLOROPHYLL A_UNFILTERED_NA_UG/L"                              
-    ## [107] "CADMIUM_TOTAL_NA_UG/L"                                         
-    ## [108] "ZINC_TOTAL_NA_UG/L"                                            
-    ## [109] "HARDNESS, CA, MG_TOTAL_NA_MG/L"                                
-    ## [110] "MERCURY_DISSOLVED_NA_UG/L"                                     
-    ## [111] "APPARENT COLOR_TOTAL_NA_PCU"                                   
-    ## [112] "PERIPHYTON_NA_NA_G/M2"                                         
-    ## [113] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"
+    ##  [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"                          
+    ##  [2] "PH_NONE_NONE_NONE"                                             
+    ##  [3] "TEMPERATURE_NONE_NONE_DEG C"                                   
+    ##  [4] "AMMONIUM_UNFILTERED_AS N_MG/L"                                 
+    ##  [5] "NITRATE_UNFILTERED_AS N_MG/L"                                  
+    ##  [6] "NITRITE_UNFILTERED_AS N_MG/L"                                  
+    ##  [7] "DISSOLVED OXYGEN SATURATION_NONE_NONE_%"                       
+    ##  [8] "HARDNESS, CARBONATE_TOTAL_NONE_UG/L"                           
+    ##  [9] "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"            
+    ## [10] "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M"                          
+    ## [11] "TRANSPARENCY, SECCHI TUBE WITH DISK_NONE_NONE_IN"              
+    ## [12] "DEPTH, SNOW COVER_NONE_NONE_IN"                                
+    ## [13] "ORTHOPHOSPHATE_FILTERED_AS P_UG/L"                             
+    ## [14] "COUNT_NONE_NONE_COUNT"                                         
+    ## [15] "HARDNESS, CARBONATE_NONE_AS CACO3_UG/L"                        
+    ## [16] "RADIUM-226_NONE_NONE_PCI/L"                                    
+    ## [17] "TRITIUM_NONE_NONE_PCI/L"                                       
+    ## [18] "RADIUM-228_NONE_NONE_PCI/L"                                    
+    ## [19] "NITRATE + NITRITE_UNFILTERED_AS N_MG/L"                        
+    ## [20] "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L"
+    ## [21] "NITRATE + NITRITE_FILTERED_AS N_MG/L"                          
+    ## [22] "TOTAL NITROGEN, MIXED FORMS_UNFILTERED_AS N_MG/L"              
+    ## [23] "VOLATILE SUSPENDED SOLIDS_TOTAL_NONE_UG/L"                     
+    ## [24] "CONDITION CLASS (DISSOLVED OXYGEN (DO))_NONE_NONE_%"           
+    ## [25] "DISSOLVED OXYGEN UPTAKE_NONE_NONE_UG/L"                        
+    ## [26] "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"                           
+    ## [27] "APPARENT COLOR_TOTAL_NONE_PCU"                                 
+    ## [28] "PERIPHYTON_NONE_NONE_G/M2"
 
 ``` r
 # filter dataframe to only "TOTAL PHOSPHORUS, MIXED FORMS"
 TADAProfileCleanTP <- dplyr::filter(
   TADAProfileClean6,
-  TADA.ComparableDataIdentifier == "TOTAL PHOSPHORUS, MIXED FORMS_UNFILTERED_AS P_UG/L"
+  TADA.ComparableDataIdentifier == "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L"
 )
 
 # generate stats table
 TADAProfileCleanTP_stats <- TADA_Stats(TADAProfileCleanTP)
-```
 
-    ## [1] "Note: Your dataset contains TADA-generated total nutrient results, which have fewer columns populated with metadata. This might affect how groups are displayed in the stats table."
-
-``` r
 TADAProfileCleanTP_stats
 ```
 
     ## # A tibble: 1 × 23
     ##   TADA.ComparableDataIdentif…¹ Location_Count Measurement_Count Non_Detect_Count
     ##   <chr>                                 <int>             <int>            <int>
-    ## 1 TOTAL PHOSPHORUS, MIXED FOR…            129               822                1
+    ## 1 ORTHOPHOSPHATE_UNFILTERED_A…             32                62                0
     ## # ℹ abbreviated name: ¹​TADA.ComparableDataIdentifier
     ## # ℹ 19 more variables: Non_Detect_Pct <dbl>, Non_Detect_Lvls <int>,
     ## #   Over_Detect_Count <int>, Over_Detect_Pct <dbl>, UpperFence <dbl>,
@@ -2258,13 +1900,6 @@ in the TADA workflow. This reduces the size of the dataframe.
 ``` r
 TADAProfileClean7 <- TADA_RetainRequired(TADAProfileClean6)
 ```
-
-    ## [1] "TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs."
-    ## [1] "The following column(s) were removed as they contained only NAs and are not required for the TADA workflow: ActivityDepthAltitudeReferencePointText, SampleAquifer, ResultWeightBasisText, ResultTemperatureBasisText, ResultParticleSizeBasisText, USGSPCode, BinaryObjectFileName, BinaryObjectFileTypeCode, LabSamplePreparationUrl, HorizontalAccuracyMeasure.MeasureValue, HorizontalAccuracyMeasure.MeasureUnitCode, VerticalMeasure.MeasureValue, VerticalMeasure.MeasureUnitCode, VerticalAccuracyMeasure.MeasureValue, VerticalAccuracyMeasure.MeasureUnitCode, VerticalCollectionMethodName, VerticalCoordinateReferenceSystemDatumName, FormationTypeText, ProjectMonitoringLocationWeightingUrl, DrainageAreaMeasure.MeasureValue, DrainageAreaMeasure.MeasureUnitCode, ContributingDrainageAreaMeasure.MeasureValue and ContributingDrainageAreaMeasure.MeasureUnitCode."
-    ## [1] "TADA_RetainRequired: checking required columns for non-NA values."
-    ## [1] "TADA_RetainRequired: TADA Required column(s) SampleTissueAnatomyName, ResultDepthAltitudeReferencePointText, ResultTimeBasisText, StatisticalBaseCode, ResultFileUrl, ResultAnalyticalMethod.MethodUrl, HydrologicCondition, HydrologicEvent, DataQuality.PrecisionValue, DataQuality.BiasValue, DataQuality.ConfidenceIntervalValue, SamplingDesignTypeCode, ResultLaboratoryCommentText, ProjectFileUrl, AquiferName, AquiferTypeName, LocalAqfrName, ConstructionDateText, WellDepthMeasure.MeasureValue, WellDepthMeasure.MeasureUnitCode, WellHoleDepthMeasure.MeasureValue and WellHoleDepthMeasure.MeasureUnitCode contain only NA values. This may impact other TADA functions."
-    ## [1] "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."
-    ## [1] "TADA_RetainRequired: The following non-required columns were removed: ActivityEndDate, ActivityEndTime.Time, ActivityEndTime.TimeZoneCode, ActivityEndDateTime, ActivityConductingOrganizationText, ActivityLocation.LatitudeMeasure, ActivityLocation.LongitudeMeasure, AnalysisStartDate, ResultDetectionQuantitationLimitUrl, ActivityStartTime.TimeZoneCode_offset, ActivityEndTime.TimeZoneCode_offset, SourceMapScaleNumeric, HorizontalCollectionMethodName, ProviderName and LastUpdated."
 
 ## TADA Shiny Application
 

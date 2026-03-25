@@ -96,7 +96,7 @@ Speciation_clean <- TADA_FlagSpeciation(Data_Nutrients_UT, clean = "both")
 SuspectSpeciation_flags <- TADA_FlagSpeciation(Data_Nutrients_UT,
   clean = "none"
 )
-#> [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."
+#> TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'.
 
 # Show only Suspect characteristic-method speciation combinations:
 SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT,
@@ -107,5 +107,5 @@ SuspectSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT,
 NonstandardSpeciation_flaggedonly <- TADA_FlagSpeciation(Data_Nutrients_UT,
   clean = "suspect_only", flaggedonly = TRUE
 )
-#> [1] "This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-method speciation combinations or they were all filtered out"
+#> This dataframe is empty because either we did not find any Suspect/NonStandardized characteristic-method speciation combinations or they were all filtered out
 ```

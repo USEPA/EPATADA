@@ -86,7 +86,7 @@ utils::data(Data_R5_TADAPackageDemo)
 
 # Show data where the QAPPApprovedIndicator equals "Y" or "NA":
 QAPPapproved_clean <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo)
-#> [1] "Data is flagged but not removed because clean and cleanNA were FALSE"
+#> Data is flagged but not removed because clean and cleanNA were FALSE
 
 # Show only data where the QAPPApprovedIndicator equals "Y":
 QAPPapproved_cleanNAs <- TADA_FindQAPPApproval(Data_R5_TADAPackageDemo, cleanNA = TRUE)

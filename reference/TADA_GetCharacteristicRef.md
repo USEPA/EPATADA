@@ -1,6 +1,9 @@
-# Get WQX Characteristic Domain Table
+# Get WQX Characteristic Domain Table (internal-only)
 
-Get WQX Characteristic Domain Table
+Loads the package-installed internal reference table from inst/extdata
+and caches it for the session. No network is used. Arguments
+download_only and refresh are kept for backward compatibility but are
+ignored.
 
 ## Usage
 
@@ -12,22 +15,13 @@ TADA_GetCharacteristicRef(download_only = FALSE, refresh = FALSE)
 
 - download_only:
 
-  Logical. If TRUE, bypasses the cache and package fallback and attempts
-  to download the latest Activity Type reference table directly from
-  WQX, returning it without updating the cache. Errors if the download
-  fails. If FALSE (default), uses a cached copy when available and
-  updates the cache; on download failure, falls back to the package’s
-  internal file.
+  Ignored. Present for backward compatibility.
 
 - refresh:
 
-  Logical. Only used when download_only = FALSE. If TRUE, ignore any
-  cached copy and attempt to retrieve a fresh table (download, falling
-  back to the package’s internal file on failure), then update the
-  cache. If FALSE (default), return the cached table when available.
-  Ignored when download_only = TRUE.
+  Ignored. Present for backward compatibility.
 
 ## Value
 
-data.frame with columns CharacteristicName, Char_Flag, Comparable.Name,
-and CAS.Number
+data.frame with columns: CharacteristicName, Comparable.Name,
+CAS.Number, Char_Flag

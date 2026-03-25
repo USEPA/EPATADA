@@ -4,8 +4,8 @@
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set. The sample data set contains data
 from one week from all EPA Region 5 states.
@@ -845,7 +845,7 @@ This section covers summing nutrient subspecies to estimate total
 nitrogen and phosphorus. This can be challenging because some
 subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add subspecies to obtain a total. TADA adds one more equation to the
 mix: total particulate nitrogen + total dissolved nitrogen. The function
 uses as many subspecies as possible to calculate a total for each given

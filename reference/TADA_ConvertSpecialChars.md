@@ -71,7 +71,8 @@ HandleSpecialChars_ResultMeasureValue <-
   TADA_ConvertSpecialChars(Data_Nutrients_UT, "ResultMeasureValue")
 unique(HandleSpecialChars_ResultMeasureValue$
   TADA.ResultMeasureValueDataTypes.Flag)
-#> [1] "NA - Not Available" "Numeric"            "Text"              
+#> [1] "Coerced to NA"      "Numeric"            "NA - Not Available"
+#> [4] "Text"              
 
 HandleSpecialChars_DetLimMeasureValue <-
   TADA_ConvertSpecialChars(

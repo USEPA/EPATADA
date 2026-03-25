@@ -58,17 +58,17 @@ utils::data(Data_Nutrients_UT)
 
 # Remove data with Suspect characteristic-fraction combinations:
 SuspectFraction_clean <- TADA_FlagFraction(Data_Nutrients_UT)
-#> [1] "All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking."
+#> All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.
 
 # Flag, but do not remove, data with Suspect characteristic-fraction
 # combinations
 # in new column titled "TADA.SampleFraction.Flag":
 SuspectFraction_flags <- TADA_FlagFraction(Data_Nutrients_UT, clean = FALSE)
-#> [1] "All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking."
+#> All characteristic/fraction combinations are valid in your dataframe. Returning input dataframe with TADA.SampleFraction.Flag column for tracking.
 
 # Show only Suspect characteristic-fraction combinations:
 SuspectFraction_flaggedonly <- TADA_FlagFraction(Data_Nutrients_UT,
   clean = FALSE, flaggedonly = TRUE
 )
-#> [1] "This dataframe is empty because we did not find any Suspect fraction/characteristic combinations in your dataframe"
+#> This dataframe is empty because we did not find any Suspect fraction/characteristic combinations in your dataframe
 ```

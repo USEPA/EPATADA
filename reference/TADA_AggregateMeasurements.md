@@ -70,8 +70,9 @@ Data_6Tribes_5y_max <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   agg_fun = "max",
   clean = TRUE
 )
+#> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 5406110659
+#> 5406010659
 
 # Calculate a mean value per day, site, comparable data identifier, unit,
 # result detection condition,
@@ -85,6 +86,7 @@ Data_6Tribes_5y_mean <- TADA_AggregateMeasurements(Data_6Tribes_5y,
   agg_fun = "mean",
   clean = FALSE
 )
+#> Warning: TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation.
 #> Aggregation results:
-#> 818715406110659
+#> 818725406010659
 ```

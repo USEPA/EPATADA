@@ -6,8 +6,8 @@
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.
 
@@ -225,8 +225,6 @@ results.
 ``` r
 tada.MT.clean <- TADA_FindQCActivities(tada.MT.clean, clean = TRUE)
 ```
-
-    ## [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
 
 The functions TADA_FlagAboveThreshold and TADA_FlagBelowThreshold are
 used to flag results falling above and below the WQX national

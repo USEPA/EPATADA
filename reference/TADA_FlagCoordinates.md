@@ -130,7 +130,7 @@ OutsideUSACoord_changed <- TADA_FlagCoordinates(
   mock_coords,
   clean_outsideUSA = "change sign"
 )
-#> [1] "When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."
+#> When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov).
 
 # Remove data with imprecise coordinates, but keep flagged data with
 # coordinates outside the USA;

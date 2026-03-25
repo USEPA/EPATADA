@@ -6,8 +6,8 @@
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to download the TADA R package from GitHub, access and
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.
 
@@ -239,11 +239,11 @@ ATTAINS_orgs <- rExpertQuery::EQ_DomainValues("org_id")
 
 # get crosswalk from ATTAINS
 attains.existing.MT <- TADA_GetATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-                                                    api_key = api_key)
+  api_key = api_key)
 
 # clean existing crosswalk from ATTAINS to make sure WQP monitoring location IDs pulled from ATTAINS are WQP compatible (adds org ID if missing)
 clean.existing.attains.MT <- TADA_UpdateATTAINSAUMLCrosswalk(org_id = "MTDEQ",
-                                                             api_key = api_key)
+  api_key = api_key)
 
 # create example user supplied crosswalk (select a few Monitoring Locations from the tada df to use in the example for demonstration purposes)
 user.supplied.cw <- clean.existing.attains.MT |>
@@ -355,28 +355,6 @@ to make the water quality data spatial.
 TADA_spatial <- TADA_MakeSpatial(.data = tada.MT.clean, crs = 4326)
 ```
 
-    ## [1] "Data after CRS assignment:"
-    ## # A tibble: 426 × 164
-    ## # Rowwise: 
-    ##    ResultIdentifier ActivityTypeCode TADA.ActivityType.Flag ActivityMediaName
-    ##    <chr>            <chr>            <chr>                  <chr>            
-    ##  1 NWIS-118797649   Sample-Routine   Non_QC                 Water            
-    ##  2 NWIS-118797650   Sample-Routine   Non_QC                 Water            
-    ##  3 NWIS-118797697   Sample-Routine   Non_QC                 Water            
-    ##  4 NWIS-118797698   Sample-Routine   Non_QC                 Water            
-    ##  5 NWIS-118887962   Sample-Routine   Non_QC                 Water            
-    ##  6 NWIS-118887963   Sample-Routine   Non_QC                 Water            
-    ##  7 NWIS-118888011   Sample-Routine   Non_QC                 Water            
-    ##  8 NWIS-118888012   Sample-Routine   Non_QC                 Water            
-    ##  9 NWIS-118888061   Sample-Routine   Non_QC                 Water            
-    ## 10 NWIS-118888062   Sample-Routine   Non_QC                 Water            
-    ## # ℹ 416 more rows
-    ## # ℹ 160 more variables: TADA.ActivityMediaName <chr>,
-    ## #   ActivityMediaSubdivisionName <chr>, CountryCode <chr>, StateCode <chr>,
-    ## #   CountyCode <chr>, MonitoringLocationName <chr>,
-    ## #   TADA.MonitoringLocationName <chr>, MonitoringLocationTypeName <chr>,
-    ## #   TADA.MonitoringLocationTypeName <chr>,
-    ## #   MonitoringLocationDescriptionText <chr>, LatitudeMeasure <chr>, …
     ## [1] "Processing CRS: NAD27"
     ## [1] "Processing CRS: NAD83"
     ## [1] "Processing CRS: UNKWN"

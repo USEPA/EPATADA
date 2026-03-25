@@ -1,4 +1,4 @@
-# Nutrient Summation Reference Key
+# USGS Unit and Speciation Conversion Table
 
 This internal reference file includes USGS only units/speciations. It
 was created in July 2023 using the pcodes domain table from NWIS. All

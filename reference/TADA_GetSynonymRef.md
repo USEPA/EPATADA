@@ -1,4 +1,4 @@
-# Generate Unique Synonym Reference Table
+# Get Unique Synonym Reference Table
 
 Function generates a synonym reference table containing all unique
 combinations of TADA.CharacteristicName, TADA.ResultSampleFractionText,
@@ -20,7 +20,7 @@ etc.).
 ## Usage
 
 ``` r
-TADA_GetSynonymRef(.data)
+TADA_GetSynonymRef(.data = NULL)
 ```
 
 ## Arguments
@@ -33,21 +33,3 @@ TADA_GetSynonymRef(.data)
 ## Value
 
 Synonym Reference Table unique to the input dataframe
-
-## Examples
-
-``` r
-# Load example dataset:
-utils::data(Data_6Tribes_5y)
-
-# Create a synonym reference table for flagged, cleaned dataframe:
-Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
-Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
-Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
-CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
-
-# Get internal synonym reference table
-reference <- TADA_GetSynonymRef()
-```

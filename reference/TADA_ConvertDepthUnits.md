@@ -92,7 +92,7 @@ DepthUnitsNotConverted <- TADA_ConvertDepthUnits(Data_Nutrients_UT,
 # Compare columns before and after transformation to see example
 # transformation from "meters" to "m"
 unique(DepthUnitsNotConverted$TADA.ActivityDepthHeightMeasure.MeasureUnitCode)
-#> [1] NA     "m"    "feet"
+#> [1] ""     "m"    NA     "feet"
 unique(DepthUnitsNotConverted$ActivityDepthHeightMeasure.MeasureUnitCode)
-#> [1] NA     "m"    "feet"
+#> [1] ""     "m"    NA     "feet"
 ```

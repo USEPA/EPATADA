@@ -1,0 +1,73 @@
+# TADA Alias Methodology for ATTAINS and CST Uses Alias Table for Review
+
+This function prioritizes matching the use name's type for the ATTAINS
+use_name domain with the Criteria Search Tool (CST) uses. It achieves
+this by aligning the context2 field from the ATTAINS use_name domain,
+which acts as a uses category, with the Human Health and Aquatic Life
+column indicators from the CST.
+
+## Usage
+
+``` r
+TADA_GetTADAUsesAliasRef(
+  ATTAINS.CST.tolerance = 0.15,
+  CST.ATTAINS.tolerance = 0.15,
+  set.all.tolerance = NA
+)
+```
+
+## Arguments
+
+- ATTAINS.CST.tolerance:
+
+  a numeric value ranging from 0 to 1 (0% to 100%). Default is 100%.
+  This value is an OR condition with CST.ATTAINS.tolerance which defines
+  the minimum percentage of the number of words that must be found in an
+  ATTAINS parameter to a CST pollutant name for it to be considered an
+  alias match.
+
+- CST.ATTAINS.tolerance:
+
+  a numeric value ranging from 0 to 1 (0% to 100%). Default is 100%.
+  This value is an OR condition with ATTAINS.CST.tolerance which defines
+  the minimum percentage of the number of words that must be found in a
+  CST pollutant name to an ATTAINS parameter to for it to be considered
+  an alias match.
+
+- set.all.tolerance:
+
+  optional: default is NA, if a user specifies a numeric value ranging
+  from 0 to 1 (0% to 100%), this will populate all tolerances to this
+  value.
+
+## Value
+
+a data frame consisting of potential additional ATTAINS.ParameterName to
+WQX.CharacteristicName alias for review. TADA team will review and
+decide if these are appropriate aliases.
+
+## Details
+
+Next, this function then compares ATTAINS.UseName and CST uses by
+extracting individual words from each use domain string and calculating
+the percentage of words that match between each ATTAINS use and CST use.
+Users are advised to review this uses alias table and adjust their
+tolerance levels as desired to determine the accuracy of the crosswalk.
+
+Lastly, if no use matches are found between ATTAINS and the CST, but an
+ATTAINS parameter matches a CST standard pollutant name for the
+organization, return all CST uses for each distinct ATTAINS use name.
+Users must then select the appropriate CST magnitude value(s) to
+populate for each ATTAINS parameter and use combination.
+
+Many-to-many matches are likely and will require thorough review. Users
+should be aware that a CST use may be duplicated for each
+ATTAINS.UseName. It is the user's responsibility to ensure that CST uses
+are appropriately matched to ATTAINS.UseName.
+
+Note for Development: We should keep a reference file to indicate which
+rows have already been reviewed during this process.In addition, we can
+modify the 'strictness' of percent matches. Being more strict can result
+in less potential match (false negatives) findings while less strict may
+result in greater number of matches that shouldn't be matched (false
+positives). Default for now is to be more strict.

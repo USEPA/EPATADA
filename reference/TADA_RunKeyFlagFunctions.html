@@ -86,8 +86,8 @@ TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.</p>
 
 
 <dt id="arg-clean">clean<a class="anchor" aria-label="anchor" href="#arg-clean"></a></dt>
-<dd><p>Boolean. Determines whether to keep the suspect rows (or not).
-Defaults to <code>FALSE</code>.</p></dd>
+<dd><p>Boolean. Must be TRUE or FALSE. Determines whether to keep the
+suspect rows (or not). Defaults to FALSE.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -101,12 +101,12 @@ TADA.MeasureQualifierCode.Flag and TADA.ActivityType.Flag.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Run flagging functions but keep all results</span></span></span>
 <span class="r-in"><span><span class="va">keep_all</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE."</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'."</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagFraction: Rows with Suspect sample fractions have been flagged but retained. Review these rows using the TADA.SampleFraction.Flag column before proceeding and/or set clean = TRUE.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FlagSpeciation: Rows with Suspect speciations have been flagged but retained. Review these rows using the new TADA.MethodSpeciation.Flag column before proceeding and/or set clean = 'suspect_only' or 'both'.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Run flagging functions and remove and suspect rows</span></span></span>
+<span class="r-in"><span><span class="co"># Run flagging functions and remove any suspect rows</span></span></span>
 <span class="r-in"><span><span class="va">remove_suspect</span> <span class="op">&lt;-</span> <span class="fu">TADA_RunKeyFlagFunctions</span><span class="op">(</span><span class="va">Data_6Tribes_5y</span>, clean <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

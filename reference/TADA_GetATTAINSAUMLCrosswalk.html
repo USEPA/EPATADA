@@ -95,69 +95,31 @@ tribal nations record this information in ATTAINS but only a few states.</p>
 
 
 <dl><dt id="arg-org-id">org_id<a class="anchor" aria-label="anchor" href="#arg-org-id"></a></dt>
-<dd><p>Character string. The ATTAINS organization identifier must be
-supplied by the user. More than one org_id may be provided.
-Enter <code>rExpertQuery::EQ_DomainValues("org_id")</code> into the console to
-get a list of valid organization identifiers. A list of organization identifiers
-can also be found by downloading the ATTAINS Domains Excel file:
-https://www.epa.gov/system/files/other-files/2025-02/domains_2025-02-25.xlsx.
-Organization identifiers are listed in the "code" column of the "OrgName" tab.
-When org_id = "all", all assessment unit/monitoring locations matches recorded in
-ATTAINS from all organizations will be returned. The default is org_id = "all".</p></dd>
+<dd><p>Character vector. ATTAINS organization identifier(s). Use "all"
+(default) to retrieve the national extract for all organizations.</p></dd>
 
 
 <dt id="arg-batch-upload">batch_upload<a class="anchor" aria-label="anchor" href="#arg-batch-upload"></a></dt>
-<dd><p>Boolean argument. When batch_upload = TRUE, the final column
-names in the output will match those required for batch upload to ATTAINS. When
-batch_upload = FALSE, the output column names will be consistent with the TADA
-workflow. Default is batch_upload = FALSE.</p></dd>
+<dd><p>Logical. If TRUE, return columns formatted for ATTAINS
+batch upload (ASSESSMENT_UNIT_ID, MS_ORG_ID, MS_LOCATION_ID, MS_DATA_LINK).
+If FALSE (default), return TADA workflow column names.</p></dd>
 
 
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
-<dd><p>Optional character string. An api key for Expert Query web
-services. If not supplied, the default TADA api key will be used. For best
-performance, it is recommended that users obtain and use their own api key.
-Request an api key here: https://owapps.epa.gov/expertquery/api-documentation</p></dd>
+<dd><p>Optional API key for Expert Query. If NULL, the default TADA key
+will be used via .setEQKey().</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>When batch_upload = FALSE, A dataframe with six columns:
+    <p>A data.frame. When batch_upload = FALSE, columns:
 OrganizationIdentifier, ATTAINS.OrganizationIdentifier,
 ATTAINS.MonitoringLocationIdentifier, ATTAINS.AssessmentUnitIdentifier,
-ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType is returned.
-When batch_upload = TRUE, A dataframe with four columns:
-MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK
-is returned. This is the crosswalk between monitoring location identifiers
-and assessment units that the state or tribal organization submitted
-to ATTAINS (optional). If an ATTAINS organization has not submitted this
-information in ATTAINS, the function will not return a dataframe.</p>
+ATTAINS.MonitoringDataLinkText, ATTAINS.WaterType.
+When batch_upload = TRUE, columns:
+MS_ORG_ID, MS_LOCATION_ID, ASSESSMENT_UNIT_ID, MS_DATA_LINK.</p>
     </div>
 
-    <div class="section level2">
-    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="co"># Alaska example in</span></span></span>
-<span class="r-in"><span><span class="va">AK_crosswalk</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetATTAINSAUMLCrosswalk</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"AKDECWQ"</span>, batch_upload <span class="op">=</span> <span class="cn">TRUE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Alaska example with ATTAINS prefix compatible with TADA Analysis workflow</span></span></span>
-<span class="r-in"><span><span class="va">AK_crosswalk2</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetATTAINSAUMLCrosswalk</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"AKDECWQ"</span>, batch_upload <span class="op">=</span> <span class="cn">FALSE</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Pueblo of Tesuque example</span></span></span>
-<span class="r-in"><span><span class="va">PUEBLOOFTESUQUE_crosswalk</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetATTAINSAUMLCrosswalk</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  org_id <span class="op">=</span> <span class="st">"PUEBLOOFTESUQUE"</span></span></span>
-<span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Arizona example, returns an empty df as of 10/17/25</span></span></span>
-<span class="r-in"><span><span class="va">AZ_crosswalk</span> <span class="op">&lt;-</span> <span class="fu">TADA_GetATTAINSAUMLCrosswalk</span><span class="op">(</span>org_id <span class="op">=</span> <span class="st">"21ARIZ"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
-<span class="r-in"><span></span></span>
-</code></pre></div>
-    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

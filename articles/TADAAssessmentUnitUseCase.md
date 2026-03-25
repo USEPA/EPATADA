@@ -443,7 +443,7 @@ Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
 ## Total Nitrogen and Total Phosphorus Calculations
 
 `TADA_CalculateTotalNP` uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate

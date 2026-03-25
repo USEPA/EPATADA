@@ -104,17 +104,23 @@ we can run `TADA_AutoClean`:
 wqx3_legacynames <- TADA_AutoClean(wqx3_legacynames)
 ```
 
-    ## [1] "TADA_Autoclean: creating TADA-specific columns."
-    ## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
-    ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
-    ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
-    ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
+    ## TADA_Autoclean: creating TADA-specific columns.
+
+    ## TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric.
+
+    ## TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric.
+
+    ## TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m.
+
+    ## TADA_Autoclean: updating deprecated (i.e. retired) characteristic names.
 
     ## No deprecated characteristic names found in dataset.
 
-    ## [1] "TADA_Autoclean: harmonizing result and depth units."
-    ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
-    ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
+    ## TADA_Autoclean: harmonizing result and depth units.
+
+    ## TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses.
+
+    ## NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')
 
 The WQP and WQX teams (USGS and EPA) are interested in hearing feedback
 from users on the new WQX 3.0 schema (data profiles) and WQP beta web

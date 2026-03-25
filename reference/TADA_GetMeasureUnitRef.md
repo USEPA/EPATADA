@@ -13,11 +13,10 @@ TADA_GetMeasureUnitRef(download_only = FALSE, refresh = FALSE)
 - download_only:
 
   Logical. If TRUE, bypasses the cache and package fallback and attempts
-  to download the latest Activity Type reference table directly from
-  WQX, returning it without updating the cache. Errors if the download
-  fails. If FALSE (default), uses a cached copy when available and
-  updates the cache; on download failure, falls back to the package’s
-  internal file.
+  to download the latest Measure Unit reference table directly from WQX,
+  returning it without updating the cache. Errors if the download fails.
+  If FALSE (default), uses a cached copy when available and updates the
+  cache; on download failure, falls back to the package’s internal file.
 
 - refresh:
 

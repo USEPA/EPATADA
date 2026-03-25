@@ -1,9 +1,35 @@
 # Participatory (Volunteer) Scientists are Monitoring Waters and Sharing Data via EPA's Water Quality eXchange (WQX)
 
-#### Load the EPATADA R Package
+## Install and Load the EPATADA R Package
+
+First, install and load the remotes package specifying the repo. This is
+needed before installing EPATADA because it is only available on GitHub
+(not CRAN).
 
 ``` r
-# Load necessary libraries
+install.packages("remotes")
+# Load the remotes library
+library(remotes)
+```
+
+Next, install and load TADA using the remotes package. TADA R Package
+dependencies will also be downloaded automatically from CRAN with the
+TADA install. You may be prompted in the console to update dependency
+packages that have more recent versions available. If you see this
+prompt, it is recommended to update all of them (enter 1 into the
+console).
+
+``` r
+remotes::install_github("USEPA/EPATADA",
+  ref = "develop",
+  dependencies = TRUE
+)
+```
+
+Finally, use the **library()** function to load the TADA R Package into
+your R session.
+
+``` r
 library(EPATADA)
 ```
 
@@ -84,32 +110,17 @@ selected_orgs <-
   )
 
 volunteer_data <- EPATADA::TADA_DataRetrieval(
-  # startDate = "2022-01-01",
   organization = selected_orgs,
   ask = FALSE,
   applyautoclean = TRUE
 )
 ```
 
-    ## Checking what data is available. This may take a moment.
+``` r
+utils::data("Data_Participatory_Scientists", package = "EPATADA")
 
-    ## The number of sites and/or records matched by the query terms is large, so the download may take some time.
-
-    ## [1] "Downloading data from sites with fewer than 350000 results by grouping them together."
-    ##   |                                                                              |                                                                      |   0%  |                                                                              |=                                                                     |   2%  |                                                                              |======                                                                |   8%  |                                                                              |=============                                                         |  19%  |                                                                              |==========================                                            |  37%  |                                                                              |===================================================================   |  95%  |                                                                              |======================================================================| 100%
-    ## [1] "Data successfully downloaded. Running TADA_AutoClean function."
-    ## [1] "TADA_Autoclean: creating TADA-specific columns."
-    ## [1] "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."
-    ## [1] "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
-    ## [1] "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
-    ## [1] "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
-    ## [1] "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
-
-    ## No deprecated characteristic names found in dataset.
-
-    ## [1] "TADA_Autoclean: harmonizing result and depth units."
-    ## [1] "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
-    ## [1] "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
+volunteer_data <- Data_Participatory_Scientists
+```
 
 #### Explore and refine results
 
@@ -176,7 +187,7 @@ Review and remove duplicate results if present:
 volunteer_data <- EPATADA::TADA_FindPotentialDuplicatesSingleOrg(volunteer_data)
 ```
 
-    ## [1] "TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."
+    ## TADA_FindPotentialDuplicatesSingleOrg: 355 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering.
 
 ``` r
 volunteer_data <- dplyr::filter(volunteer_data, TADA.SingleOrgDup.Flag == "Unique")
@@ -194,7 +205,9 @@ volunteer_data <- EPATADA::TADA_SimpleCensoredMethods(
 )
 ```
 
-    ## [1] "TADA_IDCensoredData: 85 records in supplied dataset have conflicting detection condition and detection limit type information. These records will not be included in detection limit handling calculations."
+    ## TADA_IDCensoredData: No censored data detected in your dataframe. Returning input dataframe with new column TADA.CensoredData.Flag set to Uncensored
+
+    ## Cannot apply simple censored methods to dataframe with no censored data results. Returning input dataframe.
 
 Run key TADA quality control flagging functions and remove suspect
 results:
@@ -206,7 +219,7 @@ volunteer_data <- EPATADA::TADA_RunKeyFlagFunctions(
 )
 ```
 
-    ## [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
+    ## TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.
 
 Flag results above and below thresholds. Review carefully and consider
 removing.
@@ -218,7 +231,7 @@ volunteer_data <- EPATADA::TADA_FlagAboveThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3556, Pass: 35322, Suspect: 723
+    ## TADA_FlagAboveThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3153, Pass: 34449, Suspect: 1999
 
 ``` r
 volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
@@ -227,7 +240,7 @@ volunteer_data <- EPATADA::TADA_FlagBelowThreshold(volunteer_data,
 )
 ```
 
-    ## TADA_FlagBelowThreshold: No data below the WQX Lower Threshold was found in your dataframe. Returning the input dataframe with TADA.ResultValueBelowLowerThreshold.Flag column for tracking. Counts:  NA - Not Available: 3556, Pass: 36045
+    ## TADA_FlagBelowThreshold: Returning the dataframe with flags. Counts:  NA - Not Available: 3153, Pass: 35930, Suspect: 518
 
 Harmonize synonyms if found:
 
@@ -278,18 +291,18 @@ EPATADA::TADA_SummarizeColumn(volunteer_data)
 ```
 
     ## # A tibble: 23 × 3
-    ##    TADA.CharacteristicName$TADA.CharacteristicName n_sites n_records
-    ##    <chr>                                             <int>     <int>
-    ##  1 AMMONIA                                              15       244
-    ##  2 CHLOROPHYLL A                                         4       144
-    ##  3 CONDUCTANCE                                          15       149
-    ##  4 COUNT                                               808     23121
-    ##  5 DEPTH, SECCHI DISK DEPTH                             41       474
-    ##  6 DISSOLVED OXYGEN (DO)                                15       589
-    ##  7 ENTEROCOCCUS                                         15       117
-    ##  8 ESCHERICHIA COLI                                    422      9294
-    ##  9 FECAL COLIFORM                                       16       129
-    ## 10 INORGANIC NITROGEN (NO2, NO3, & NH3)                 15       269
+    ##    TADA.CharacteristicName              n_sites n_records
+    ##    <chr>                                  <int>     <int>
+    ##  1 AMMONIA                                   15       244
+    ##  2 CHLOROPHYLL A                              4       144
+    ##  3 CONDUCTANCE                               15       149
+    ##  4 COUNT                                    808     23121
+    ##  5 DEPTH, SECCHI DISK DEPTH                  41       474
+    ##  6 DISSOLVED OXYGEN (DO)                     15       589
+    ##  7 ENTEROCOCCUS                              15       115
+    ##  8 ESCHERICHIA COLI                         420      9182
+    ##  9 FECAL COLIFORM                            16       128
+    ## 10 INORGANIC NITROGEN (NO2, NO3, & NH3)      15       269
     ## # ℹ 13 more rows
 
 Filter data to review a single characteristic:
@@ -298,7 +311,7 @@ Filter data to review a single characteristic:
 ecoli <- dplyr::filter(
   volunteer_data,
   TADA.ComparableDataIdentifier %in% c(
-    "ESCHERICHIA COLI_NA_NA_CFU/100ML"
+    "ESCHERICHIA COLI_NONE_NONE_CFU/100ML"
   )
 )
 ```
@@ -309,7 +322,7 @@ Generate scatter plot for E. coli:
 EPATADA::TADA_GroupedScatterplot(ecoli)
 ```
 
-    ## [1] "TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 247 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp."
+    ## TADA_GroupedScatterplot: No 'groups' selected for MonitoringLocationName. There are 396 MonitoringLocationNames in the TADA dataframe. The top four MonitoringLocationNames by number of results will be plotted: Sunderland Boat Ramp; CT River at Barton Cove Boat Ramp (now MA-CTR_122.5); DCR/UMASS boat dock and Oxbow/Easthampton Boat Ramp.
 
 Filter to a single site and continue exploring E. coli:
 
@@ -317,7 +330,7 @@ Filter to a single site and continue exploring E. coli:
 ecoli <- dplyr::filter(
   ecoli,
   TADA.MonitoringLocationIdentifier %in% c(
-    "CONNRIVERCONSERVANCY-OXE1"
+    "CONNRIVERCONSERVANCY-WILLIAMS_.92"
   )
 )
 ```

@@ -58,11 +58,11 @@ can also access function help pages from RStudio by entering
 
 ## Introduction to TADA Module 3
 
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
-users through how to create WQP and ATTAINS crosswalks that are needed
-prior to defining and capturing organization specific water quality
-analysis criteria and methodologies. It is the first of several
-vignettes that are being developed as part of TADA Module 3.
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks users
+through how to create WQP and ATTAINS crosswalks that are needed prior
+to defining and capturing organization specific water quality analysis
+criteria and methodologies. It is the first of several vignettes that
+are being developed as part of TADA Module 3.
 
 Specifically, this vignette provides an overview of two functions that
 can assist users with:

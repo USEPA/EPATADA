@@ -29,8 +29,8 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_MT_AU_UsesRef_Water.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_MT_MissoulaCounty.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_Nutrients_UT.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/Data_Participatory_Scientists.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/Data_R5_TADAPackageDemo.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_AdditionalCharAliasForReview.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AggregateMeasurements.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToAU.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_AssignUsesToWaterType.html</loc></url>
@@ -41,10 +41,11 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CST_GetLegend.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CST_GetSources.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CalculateTotalNP.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNA.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_CharStringRemoveNANone.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CheckColumns.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CheckRequiredFields.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_CheckType.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_ClearCache.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ColorPalette.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ConvertDepthUnits.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ConvertResultUnits.html</loc></url>
@@ -86,7 +87,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSAUMLCrosswalk.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSByAUID.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSOrgIDsRef.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamToWQPCharRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetActivityTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetCharacteristicRef.html</loc></url>
@@ -97,10 +97,13 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetMonLocTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetNutrientSummationRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetSynonymRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTADACharAliasRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTADAUsesAliasRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetTemplate.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetUSGSSynonymRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetUniqueNearbySites.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQPOrganizationRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharAliasRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GetWQXCharValRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_GroupedScatterplot.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_HarmonizeSynonyms.html</loc></url>
@@ -108,6 +111,7 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_IDCensoredData.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_IDDepthProfiles.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_JoinWQPProfiles.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/TADA_ListCacheKeys.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MLSummary.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MakeSpatial.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_MediaFilter.html</loc></url>
@@ -133,7 +137,6 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UniqueCharUnitSpeciation.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UpdateATTAINSAUMLCrosswalk.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UpdateTribalLayers.html</loc></url>
-<url><loc>https://usepa.github.io/EPATADA/reference/TADA_UsesAliasForReview.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_UsesForAnalysis.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ViewATTAINS.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/TADA_ViewColorPalette.html</loc></url>
@@ -154,6 +157,8 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/checkTADAColsForMap.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/createBBox.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/createTADABasemap.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSOrgIDsRef.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSParamUseOrgRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateActivityTypeRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateCharacteristicRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateDetCondRef.html</loc></url>
@@ -168,6 +173,9 @@
 <url><loc>https://usepa.github.io/EPATADA/reference/dot-setEQKey.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchATTAINS.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/fetchNHD.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/fetchWaterType.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/fetch_au.html</loc></url>
+<url><loc>https://usepa.github.io/EPATADA/reference/fetch_bbox.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/findATTAINSMissingRawFeatures.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getATTAINSColorsRef.html</loc></url>
 <url><loc>https://usepa.github.io/EPATADA/reference/getBboxJson.html</loc></url>

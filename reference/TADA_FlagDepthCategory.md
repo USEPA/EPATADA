@@ -79,9 +79,9 @@ TADA_FlagDepthCategory(
 - clean:
 
   Boolean argument with options TRUE or FALSE. The default is clean =
-  "FALSE" which means that all results are returned. When clean =
-  "TRUE", only aggregate results which can be assigned to a depth
-  category are included in the returned dataframe.
+  FALSE which means that all results are returned. When clean = TRUE,
+  only aggregate results which can be assigned to a depth category are
+  included in the returned dataframe.
 
 ## Value
 
@@ -114,18 +114,18 @@ utils::data(Data_6Tribes_5y)
 
 # assign TADA.DepthCategory.Flag with no aggregation
 Data_6Tribs_5y_DepthCat <- TADA_FlagDepthCategory(Data_6Tribes_5y)
-#> [1] "TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available."
-#> [1] "TADA_FlagDepthCategory: assigning depth categories."
-#> [1] "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column."
-#> [1] "TADA_FlagDepthCategory: No aggregation performed."
+#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+#> TADA_FlagDepthCategory: assigning depth categories.
+#> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, and ActivityStartDate for aggregation for entire water column.
+#> TADA_FlagDepthCategory: No aggregation performed.
 
 # assign TADA.DepthCategory.Flag and determine average values by depth
 # category and returning only aggregate values
 Data_6Tribs_5y_Mean <- TADA_FlagDepthCategory(Data_6Tribes_5y,
   bycategory = "all", dailyagg = "avg", aggregatedonly = FALSE
 )
-#> [1] "TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available."
-#> [1] "TADA_FlagDepthCategory: assigning depth categories."
-#> [1] "TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag."
-#> [1] "TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata."
+#> TADA_FlagDepthCategory: checking data set for depth values. 59647 results have depth values available.
+#> TADA_FlagDepthCategory: assigning depth categories.
+#> TADA_FlagDepthCategory: Grouping results by TADA.MonitoringLocationIdentifier, OrganizationIdentifier, CharacteristicName, ActivityStartDate, and TADA.DepthCategory.Flag for aggregation by TADA.DepthCategory.Flag.
+#> TADA_FlagDepthCategory: Calculating mean aggregate value with randomly selected metadata.
 ```

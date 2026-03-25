@@ -42,7 +42,7 @@ results in the group will have the value TADA.SingleOrgDup.Flag =
 utils::data(Data_6Tribes_5y)
 # If duplicates exist, identify and flag them for removal
 Data_6Tribes_5y_dups <- TADA_FindPotentialDuplicatesSingleOrg(Data_6Tribes_5y)
-#> [1] "TADA_FindPotentialDuplicatesSingleOrg: 994 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering."
+#> TADA_FindPotentialDuplicatesSingleOrg: 994 groups of potentially duplicated results found in dataset. These have been placed into duplicate groups in the TADA.SingleOrgDupGroupID column and the function randomly selected one result from each group to represent a single, unduplicated value. Selected values are indicated in the TADA.SingleOrgDup.Flag as 'Unique', while duplicates are flagged as 'Duplicate' for easy filtering.
 table(Data_6Tribes_5y_dups$TADA.SingleOrgDup.Flag)
 #> 
 #> Duplicate    Unique 

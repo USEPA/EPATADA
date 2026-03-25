@@ -68,5 +68,5 @@ QC_flags_only <- TADA_FindQCActivities(Data_Nutrients_UT, flaggedonly = TRUE)
 
 # Remove all QC samples:
 QC_clean <- TADA_FindQCActivities(Data_Nutrients_UT, clean = TRUE)
-#> [1] "TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking."
+#> TADA_FindQCActivities: Quality control samples have been removed or were not present in the input dataframe. Returning dataframe with TADA.ActivityType.Flag column for tracking.
 ```

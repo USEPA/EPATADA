@@ -60,4 +60,5 @@ utils::data(Data_Nutrients_UT)
 
 # Create a unit reference dataframe
 UT_UnitRef <- TADA_CreateUnitRef(Data_Nutrients_UT)
+#> TADA.CreateUnitRef: The following characteristics have more than one listed target unit: NITROGEN (MG/L and NONE) and NITRATE (MG/L and NONE). This may be due to units of different types that cannot be converted to match each other. You may wish to review the output of TADA.CreateUnitRef and edit it.
 ```

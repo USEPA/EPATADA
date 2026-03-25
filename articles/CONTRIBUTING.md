@@ -83,7 +83,7 @@ might be needed for Mac or Linux OS:
 
   - [GitHub Desktop](https://github.com/apps/desktop)
 
-  - [Git](https://git-scm.com/downloads)
+  - [Git](https://git-scm.com/downloads/)
 
 External Collaborators (using GitHub Desktop):
 

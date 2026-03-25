@@ -19,7 +19,9 @@ effect.
 
 The function sequentially calls several internal functions that update
 different sets of reference data. Some updates may take longer than
-others, particularly the `TADA_UpdateATTAINSParamUseOrgRef()` function.
+others, particularly the
+[`.TADA_UpdateATTAINSParamUseOrgRef()`](https://usepa.github.io/EPATADA/reference/dot-TADA_UpdateATTAINSParamUseOrgRef.md)
+function.
 
 The specific reference files updated by this function include:
 
