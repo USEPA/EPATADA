@@ -10,9 +10,14 @@
 #' @keywords internal
 #'
 #' @examples
+#' \dontrun{
 #' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
+#' df <- Data_MT_MissoulaCounty |>
+#'       TADA_MakeSpatial()
+#'
 #' features <- fetch_bbox(baseurl, df)
+#' }
 fetch_bbox <- function(baseurl, df) {
   lyr <- arcgislayers::arc_open(baseurl)
   # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
