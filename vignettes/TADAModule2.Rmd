@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 
 Thank you for your interest in Tools for Automated Data Analysis (TADA).
 TADA is an open-source tool set built in the R programming language.
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks
 users through how to download the TADA R package from GitHub, access and
 parameterize several important functions, and create basic
 visualizations with a sample data set.

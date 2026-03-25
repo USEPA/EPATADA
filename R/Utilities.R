@@ -466,7 +466,6 @@ utils::globalVariables(c(
   "CST_CAS_NO",
   "PDFPGNO",
   "SOURCE",
-  "TADA_UpdateATTAINSParamToWQPCharRef",
   "WQXCharAliasRef",
   "WQX_CAS_NO",
   "percent_match_CST_ATTAINS",
@@ -474,7 +473,14 @@ utils::globalVariables(c(
   "percent_match_WQX_ATTAINS",
   "percent_match_WQX_CST",
   "review",
-  "source.y"
+  "source.y",
+  ".data",
+  "Target.TADA.CharacteristicName",
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.ResultSampleFractionText",
+  "Target.TADA.SpeciationConversionFactor",
+  "has_depth_param",
+  "out_epsg"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -1027,17 +1033,50 @@ TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
 
 #' Create TADA.ComparableDataIdentifier Column
 #'
-#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-#' and TADA.ResultMeasure.MeasureUnitCode.
+#' Create a comparable identifier by concatenating:
+#' - TADA.CharacteristicName
+#' - TADA.ResultSampleFractionText
+#' - TADA.MethodSpeciationName
+#' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' @param .data TADA dataframe
+#' Harmonization:
+#' - TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+#'   TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+#'   or any case variant of "none" are set to the literal "NONE".
 #'
-#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#' Identifier construction:
+#' - Each component is trimmed. For the characteristic name only, blanks/NA are
+#'   converted to the literal "NA". For fraction/speciation/unit, the normalized
+#'   values are used (i.e., "NONE" where missing).
+#' - Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#'
+#' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+#'   and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' @return The input dataframe with:
+#'   - harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+#'   - a character column TADA.ComparableDataIdentifier
+#'
+#' @examples
+#' df <- data.frame(
+#'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+#'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+#'   TADA.MethodSpeciationName = c(" ", NA, ""),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' out <- TADA_CreateComparableID(df)
+#' out$TADA.ComparableDataIdentifier
+#' # Expected:
+#' # [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#' # [2] "pH_NONE_NONE_NONE"
+#' # [3] "Nitrate_Dissolved_NONE_NONE"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -1045,20 +1084,45 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+
+  # handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    return(.data)
   }
 
+  # helper: normalize to "NONE" for fraction/speciation/unit
+  to_NONE <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == "" | toupper(y) == "NONE"] <- "NONE"
+    y
+  }
+  # helper: normalize characteristic name; keep "NA" token for missing
+  to_NA <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == ""] <- "NA"
+    y
+  }
+
+  # harmonize the three metadata fields in-place
+  .data$TADA.ResultSampleFractionText <- to_NONE(
+    .data$TADA.ResultSampleFractionText
+  )
+  .data$TADA.MethodSpeciationName <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+
+  # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
+    to_NA(.data$TADA.CharacteristicName),
     .data$TADA.ResultSampleFractionText,
     .data$TADA.MethodSpeciationName,
     .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-  return(.data)
+
+  .data
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for
@@ -1874,7 +1938,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 }
 
 
-#' Remove NAs in Strings for Figure Titles and Axis Labels
+#' Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
 #' found in columns such as TADA.ComparableDataIdentifier. Can also
@@ -1896,9 +1960,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
-#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNANone(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
-TADA_CharStringRemoveNA <- function(char_string) {
+TADA_CharStringRemoveNANone <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
     stop(paste0(
@@ -1909,14 +1973,14 @@ TADA_CharStringRemoveNA <- function(char_string) {
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
 
-  # Looks through each item in the vector and removes NAs from each.
-  labs <- c()
-  for (i in 1:length(char_string)) {
-    labs[i] <- paste0(char_string[i], collapse = " ")
-    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
-    labs[i] <- gsub("_", " ", labs[i])
-    labs[i] <- gsub("\\s+", " ", labs[i])
-    labs <- as.vector(labs)
+  labs <- character(length(char_string))
+  for (i in seq_along(char_string)) {
+    x <- char_string[i]
+    x <- gsub("_", " ", x)
+    x <- gsub("\\b(?:NA|NONE)\\b", "", x, perl = TRUE, ignore.case = TRUE)
+    x <- gsub("\\(\\s*\\)", "", x)
+    x <- gsub("\\s+", " ", x)
+    labs[i] <- trimws(x)
   }
 
   return(labs)
