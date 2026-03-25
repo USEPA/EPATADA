@@ -1308,7 +1308,7 @@ This section covers summing nutrient subspecies to estimate total
 nitrogen and phosphorus. This can be a challenging endeavor because some
 subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate
@@ -1450,18 +1450,18 @@ TADA.ComparableDataIdentifier:
 TADAProfileClean6_filtered <- TADAProfileClean6[
   TADAProfileClean6$TADA.ComparableDataIdentifier %in%
     c(
-      "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L", 
-      "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L", 
-      "SULFATE_TOTAL_NA_UG/L", 
-      "NICKEL_TOTAL_NA_UG/L", 
-      "COPPER_TOTAL_NA_UG/L", 
-      "ZINC_TOTAL_NA_UG/L", 
-      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L", 
-      "SELENIUM_TOTAL_NA_UG/L", 
+      "BIOCHEMICAL OXYGEN DEMAND, STANDARD CONDITIONS_TOTAL_NA_UG/L",
+      "CHEMICAL OXYGEN DEMAND_TOTAL_NA_UG/L",
+      "SULFATE_TOTAL_NA_UG/L",
+      "NICKEL_TOTAL_NA_UG/L",
+      "COPPER_TOTAL_NA_UG/L",
+      "ZINC_TOTAL_NA_UG/L",
+      "ORTHOPHOSPHATE_UNFILTERED_AS P_UG/L",
+      "SELENIUM_TOTAL_NA_UG/L",
       "LEAD_TOTAL_NA_UG/L",
-      "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L", 
+      "TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3)_UNFILTERED_AS N_MG/L",
       "CHLORIDE_TOTAL_NA_UG/L",
-      "ARSENIC_TOTAL_NA_UG/L", 
+      "ARSENIC_TOTAL_NA_UG/L",
       "CHROMIUM_TOTAL_NA_UG/L"
     ),
 ]

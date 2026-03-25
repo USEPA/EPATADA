@@ -112,7 +112,7 @@ dat_simple <- TADA_SimpleCensoredMethods(
 table(dat_simple$TADA.CensoredData.Flag)
 head(subset(dat_simple, TADA.CensoredData.Flag == "Non-Detect")[
   , c("ResultIdentifier", "TADA.ResultMeasureValue",
-      "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod")
+    "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod")
 ])
 
 # Example 2: Randomize Non-Detects below the detection limit, keep Over-Detects as-is
