@@ -270,11 +270,11 @@ TADA_DefineCriteriaMethodology <- function(
       )
     }
 
-    # Invalid function input combos - MLSummaryRef and auto_assign = TRUE cannot be used together
+    # If MLSummaryRef and auto_assign = TRUE, assign a final filter dataframe
     if (!is.null(MLSummaryRef) && auto_assign == TRUE) {
-      stop(
-        "TADA_DefineCriteriaMethodology: MLSummaryRef is provided and auto_assign = TRUE are not valid function argument input combinations."
-      )
+      MLSummary_params <- unique(MLSummaryRef$TADA.ComparableDataIdentifier)
+    } else {
+      MLSummary_params <- NULL
     }
 
     # if null, creates a list of all unique TADA.ComparableDataIdentifier, but no org populated.
@@ -285,7 +285,7 @@ TADA_DefineCriteriaMethodology <- function(
     if (tolower("all") %in% tolower(org_id)) {
       # If a user selects org_id = all but doesn't provide an AUMLRef with ATTAINS organization identifier.
       if (is.null(AUMLRef)) {
-        print(paste0(
+        message(paste0(
           "org_id == 'All' was selected, ",
           "No AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier domain value."
         ))
@@ -293,7 +293,7 @@ TADA_DefineCriteriaMethodology <- function(
       }
       # If a user selects org_id = all and does provide an AUMLRef with ATTAINS organization identifier.
       if (!is.null(AUMLRef)) {
-        print(paste0(
+        message(paste0(
           "org_id == 'All' was selected, ",
           "An AUMLRef was provided. Returning all unique ATTAINS.OrganizationIdentifiers found as an ATTAINS organization identifier in your AUMLRef."
         ))
@@ -338,71 +338,75 @@ TADA_DefineCriteriaMethodology <- function(
     # If user wants to create a pre-populated CriteriaMethods table, it will run all crosswalk tables and use the default.
     # Users can edit one or more of the ref files which will update all accordingly.
     if (auto_assign == TRUE) {
-      # default, runs all reference tables with no user edits
-      # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
-      # if (updateRef == "none") {
-      print(paste0(
-        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
-      ))
-      suppressMessages(
-        TADA_ParamRef <- TADA_ParametersForAnalysis(
-          .data,
-          org_id = org_id,
-          auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
-          excel = excel,
-          overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+      if (is.null(MLSummaryRef)) {
+        message(paste0(
+          "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected but no MLSummaryRef. Generating TADA_MLSummary with default assignment."
+        ))
+
+        unique_param <- unique(.data$TADA.CharacteristicName)
+        # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's data frame.
+        TADA_param <- dplyr::distinct(.data[,
+          c("TADA.ComparableDataIdentifier"),
+          drop = FALSE
+        ]) |>
+          dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
+          tidyr::complete(
+            TADA.ComparableDataIdentifier,
+            ATTAINS.OrganizationIdentifier = org_id
+          ) |>
+          dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
+
+        # default, runs all reference tables with no user edits
+        # commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
+        # if (updateRef == "none") {
+        message(paste0(
+          "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_ParametersForAnalysis with default assignment."
+        ))
+        suppressMessages(
+          TADA_ParamRef <- TADA_ParametersForAnalysis(
+            .data,
+            org_id = org_id,
+            auto_assign = "Org", # auto-populate any exact matches found between WQP CharacteristicName and ATTAINS ParameterName
+            excel = excel,
+            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+          )
         )
-      )
 
-      print(paste0(
-        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment."
-      ))
-      suppressWarnings(
-        TADA_usesRef <- TADA_UsesForAnalysis(
-          .data,
-          org_id = org_id,
-          paramRef = TADA_ParamRef,
-          AU_UsesRef = AU_UsesRef,
-          AUMLRef = AUMLRef,
-          auto_assign = TRUE,
-          excel = excel,
-          overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        message(paste0(
+          "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_UsesForAnalysis with default assignment."
+        ))
+        suppressWarnings(
+          TADA_usesRef <- TADA_UsesForAnalysis(
+            .data,
+            org_id = org_id,
+            paramRef = TADA_ParamRef,
+            AU_UsesRef = AU_UsesRef,
+            AUMLRef = AUMLRef,
+            auto_assign = TRUE,
+            excel = excel,
+            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+          )
         )
-      )
 
-      print(paste0(
-        "TADA_DefineCriteriaMethodology: auto_assign = TRUE was selected. Running TADA_MLSummary with default assignment."
-      ))
-      suppressMessages(
-        MLSummaryRef <- TADA_MLSummary(
-          .data,
-          displayNA = TRUE,
-          org_id = org_id,
-          usesRef = TADA_usesRef,
-          AUMLRef = AUMLRef,
-          AU_UsesRef = AU_UsesRef,
-          excel = excel,
-          overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+        suppressMessages(
+          MLSummaryRef <- TADA_MLSummary(
+            .data,
+            displayNA = TRUE,
+            org_id = org_id,
+            usesRef = TADA_usesRef,
+            AUMLRef = AUMLRef,
+            AU_UsesRef = AU_UsesRef,
+            excel = excel,
+            overwrite = overwrite # You must include overwrite = TRUE to overwrite the excel file when you first create the excel spreadsheet.
+          )
         )
-      )
 
-      unique_param <- unique(.data$TADA.CharacteristicName)
-      # Pulls in all unique combinations of TADA.ComparableDataIdentifier in user's data frame.
-      TADA_param <- dplyr::distinct(.data[,
-        c("TADA.ComparableDataIdentifier"),
-        drop = FALSE
-      ]) |>
-        dplyr::mutate(ATTAINS.OrganizationIdentifier = NA_character_) |>
-        tidyr::complete(
-          TADA.ComparableDataIdentifier,
-          ATTAINS.OrganizationIdentifier = org_id
-        ) |>
-        dplyr::filter(!is.na(ATTAINS.OrganizationIdentifier))
-
-      MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
-      # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
-      MLSummaryRef <- TADA_param |>
-        dplyr::full_join(MLSummaryRef, by = names(TADA_param))
+        # correct column types for any empty columns
+        MLSummaryRef <- TADA_CorrectColType(MLSummaryRef)
+        # Will include all unique TADA Char/ComparableDataIdentifier to be shown in the criteria table
+        MLSummaryRef <- TADA_param |>
+          dplyr::full_join(MLSummaryRef, by = names(TADA_param))
+      }
 
       # # Commenting out all code related to updateRef for now. See https://github.com/USEPA/EPATADA/issues/667
       # # user only updates paramRef. This will update paramRef, usesRef, and MLSummaryRef based on these modifications.
@@ -758,7 +762,7 @@ TADA_DefineCriteriaMethodology <- function(
 
           # fill in TADA criteria table with CST magnitude values and other relevant CST columns
           DefineCriteriaMethodology2 <- DefineCriteriaMethodology |>
-            dplyr::left_join(
+            dplyr::full_join(
               CriteriaSearchToolRef_filtered,
               by = c(
                 "ATTAINS.OrganizationIdentifier",
@@ -815,7 +819,7 @@ TADA_DefineCriteriaMethodology <- function(
                 c("PH VARIATION", "TEMPERATURE RISE ABOVE AMBIENT")
             )
           ) {
-            print(paste(
+            message(paste(
               "TADA_DefineCriteriaMethodology: removing any instances where CST Pollutant names are 'PH VARIATION', 'TEMPERATURE RISE ABOVE AMBIENT'.",
               "TADA functions cannot currently handle analysis for these instances."
             ))
@@ -879,7 +883,7 @@ TADA_DefineCriteriaMethodology <- function(
 
           # print message to indicate there are values pulled in from the CST that are being converted to match those in the TADA df
           if (length(unique(unitRef_CST$TADA.CharacteristicName)) > 0) {
-            print(paste(
+            message(paste(
               "Warning in TADA_DefineCriteriaMethodology: ",
               "There are",
               length(unique(unitRef_CST$TADA.CharacteristicName)),
@@ -890,7 +894,7 @@ TADA_DefineCriteriaMethodology <- function(
           }
           # print message to identify those that could not be converted. Recommend users to select appropriate unit alias or convert manually.
           if (nrow(unitRef_CST_NA) > 0) {
-            print(paste(
+            message(paste(
               "Warning in TADA_DefineCriteriaMethodology:",
               "There are",
               length(unique(unitRef_CST_NA$TADA.CharacteristicName)),
@@ -1158,12 +1162,18 @@ TADA_DefineCriteriaMethodology <- function(
       )
     }
 
+    # now, if a user originally supplied a MLSummaryRef, filter the dataframe back to only the relevant TADA.ComparableDataIdentifier in their reviewed MLSummaryRef
+    if (!is.null(MLSummary_params)) {
+      DefineCriteriaMethodology <- DefineCriteriaMethodology |>
+        dplyr::filter(TADA.ComparableDataIdentifier %in% MLSummary_params)
+    }
+
     # Display all unique TADA.ComparableDataIdentifier in the Criteria Methods list or not.
     # Helps a user identifies all WQP data if they do not fill out the reference tables when TRUE
     # FALSE is recommended if a user has gone through a step by step review process to
     # determine what they would like summarized in their final output.
     if (displayUniqueId == FALSE) {
-      print(paste0(
+      message(paste0(
         "TADA_DefineCriteriaMethodology: displayUniqueId == FALSE was selected, TADA.ComparableDataIdentifier is converted to NA and duplicated rows are removed. ",
         "Users are recommended to fill out any applicable combinations of Characteristic, Fraction and Speciation for analysis."
       ))
@@ -1183,7 +1193,7 @@ TADA_DefineCriteriaMethodology <- function(
   # User wants to populate the Criteria table using the EPA304(a) criteria
   # joins the EPA304(a) criteria to the current Criteria Table.
   if ("USEPA" %in% org_id) {
-    print(paste0(
+    message(paste0(
       "TADA_DefineCriteriaMethodology: USEPA was included in your 'org_id': Including EPA304a recommended criteria by each unique TADA.CharacteristicName if one is found."
     ))
     epa304a <- utils::read.csv(
@@ -1292,7 +1302,7 @@ TADA_DefineCriteriaMethodology <- function(
       suppressMessages(TADA_MLSummary(excel = excel, overwrite = overwrite))
     }
 
-    wb <- openxlsx::loadWorkbook(wb, downloads_path)
+    wb <- openxlsx::loadWorkbook(downloads_path)
 
     tryCatch(
       {
@@ -1865,7 +1875,8 @@ TADA_CriteriaDataDictionary <- function() {
     downloads_path <- default_downloads_path
   }
 
-  wb <- openxlsx::loadWorkbook(wb, downloads_path)
+  wb <- openxlsx::loadWorkbook(downloads_path)
+
   tryCatch(
     {
       openxlsx::addWorksheet(wb, "DataDictionary")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ResultFlagsDependent.R
 \name{TADA_FlagMeasureQualifierCode}
 \alias{TADA_FlagMeasureQualifierCode}
-\title{Check for results with suspect result Measure Qualifier Codes}
+\title{Check for results with suspect Measure Qualifier Codes}
 \usage{
 TADA_FlagMeasureQualifierCode(
   .data,
@@ -12,61 +12,111 @@ TADA_FlagMeasureQualifierCode(
 )
 }
 \arguments{
-\item{.data}{TADA dataframe which must include the column 'MeasureQualifierCode'}
+\item{.data}{A TADA dataframe which must include the column 'MeasureQualifierCode'.}
 
-\item{clean}{Boolean argument with options "TRUE" or "FALSE". The default is
-clean = "FALSE" which does not remove any rows of data. When clean = "TRUE",
-any rows of data flagged as "Suspect" based on the MeasureQualifierCode
-will be removed.}
+\item{clean}{Logical; default \code{FALSE}. When \code{TRUE}, rows flagged as "Suspect" are removed.
+Ignored when \code{flaggedonly = TRUE}.}
 
-\item{flaggedonly}{Boolean argument; the default is flaggedonly = FALSE. When
-flaggedonly = TRUE, the function will filter the dataframe to show only the
-rows of data flagged as Suspect.}
+\item{flaggedonly}{Logical; default \code{FALSE}. When \code{TRUE}, returns only rows flagged as
+"Suspect" and overrides the \code{clean} argument.}
 
-\item{define}{Boolean argument; the default is define = TRUE. When define = TRUE,
-the function will add an additional column (TADA.MeasureQualifierCode.Def) providing
-all available definitions for the MethodQualifierCodes for each result. When
-define = FALSE, no additional column is added.}
+\item{define}{Logical; default \code{TRUE}. When \code{TRUE}, adds a column
+'TADA.MeasureQualifierCode.Def' with concatenated definitions for any qualifier codes
+present in each result. When \code{FALSE}, no definition column is added.}
 }
 \value{
-This function adds the column "TADA.MeasureQualifierCode.Flag" to the dataframe
-which flags suspect samples based on the "MeasureQualifierCode" column. When
-clean = "FALSE", all suspect data are kept in the dataframe. When clean = "TRUE",
-all suspect data are removed from the dataframe. When flaggedonly = TRUE, the dataframe
-is filtered to show only the suspect data. When flaggedonly = FALSE, the full,
-cleaned dataframe is returned. The default is clean = FALSE and flaggedonly = FALSE.
+The input dataframe with:
+\itemize{
+\item A new column 'TADA.MeasureQualifierCode.Flag' indicating the flag for each result:
+"Suspect", "Non-Detect", "Over-Detect", "Pass", or "Not Reviewed".
+\item Optionally, a new column 'TADA.MeasureQualifierCode.Def' (when \code{define = TRUE}),
+containing concatenated "Code - Description" strings for any qualifiers present.
+}
+
+Output shape depends on arguments:
+\itemize{
+\item \code{clean = FALSE}, \code{flaggedonly = FALSE} (default): return all rows with flags (no removal).
+\item \code{clean = TRUE}, \code{flaggedonly = FALSE}: return all rows except those flagged "Suspect".
+\item \code{flaggedonly = TRUE} (regardless of \code{clean}): return only rows flagged "Suspect".
+}
+
+Messages:
+\itemize{
+\item A message is printed when unknown qualifier codes are encountered; those rows are labeled
+"Not Reviewed". Blank tokens are ignored and will not produce messages.
+\item A message is printed if the entire 'MeasureQualifierCode' column is NA.
+}
 }
 \description{
-This function checks for and flags or removes samples denoted as suspect
-based on the 'MeasureQualifierCode' column. The function will flag
-suspect samples as "Suspect" and passing samples as "Pass". This function also
-flags censored data as "Over-Detect" or "Non-Detect" for later use in the
-censored data function, TADA_SimpleCensoredMethods.
+This function inspects the 'MeasureQualifierCode' column and flags results based
+on a reference table of qualifier codes. Results are flagged as:
+\itemize{
+\item "Suspect" for suspect qualifiers
+\item "Non-Detect" or "Over-Detect" for censored-data qualifiers (for later use in
+TADA_SimpleCensoredMethods)
+\item "Pass" when qualifiers indicate a passing result (or when no qualifier is provided)
+\item "Not Reviewed" for qualifiers not present in the WQX domain table
+}
+}
+\details{
+Multiple qualifiers in a single record are supported when delimited by semicolons (;).
+Unknown qualifiers are assigned "Not Reviewed" and a message is emitted.
+\itemize{
+\item Requirements:
+\itemize{
+\item The input must contain a 'MeasureQualifierCode' column.
+\item If \code{define = TRUE}, the input must also contain 'ResultIdentifier' to support
+building a definition column.
+}
+\item Multiple codes:
+\itemize{
+\item When multiple qualifier codes are present in a single record (semicolon-separated),
+the following precedence is used when assigning the flag:
+Suspect > Non-Detect > Over-Detect > Pass > Not Reviewed.
+}
+\item Unknown/missing/blank codes:
+\itemize{
+\item Any qualifier code not found in the WQX domain reference is labeled "Not Reviewed"
+and a message is issued.
+}
+\item Definitions:
+\itemize{
+\item When \code{define = TRUE}, an additional column 'TADA.MeasureQualifierCode.Def' is added,
+containing concatenated "Code - Description" definitions (for all codes present in
+a record).
+}
+\item Cleaning vs filtering:
+\itemize{
+\item \code{clean = TRUE} removes only rows flagged as "Suspect". Other flags (e.g., "Non-Detect",
+"Over-Detect", "Not Reviewed") are retained.
+\item \code{flaggedonly = TRUE} overrides \code{clean} and returns only rows flagged as "Suspect".
+}
+}
 }
 \examples{
 # Load example dataset:
 utils::data(Data_Nutrients_UT)
 
-# Flag and keep all suspect samples:
-MeasureQualifierCode_flagged <-
-  TADA_FlagMeasureQualifierCode(Data_Nutrients_UT)
+# 1) Flag all records and keep everything:
+mq_flagged <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT)
 
-# Flag suspect samples and filter to suspect data only:
-MeasureQualifierCode_flags_only <- TADA_FlagMeasureQualifierCode(
+# 2) Return only suspect records (flaggedonly overrides clean):
+mq_suspect_only <- TADA_FlagMeasureQualifierCode(
   Data_Nutrients_UT,
   flaggedonly = TRUE
 )
 
-# Remove all suspect samples:
-MeasureQualifierCode_clean <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT,
-  clean = TRUE
-)
+# 3) Remove suspect records but retain Non-Detect, Over-Detect, Not Reviewed, and Pass:
+mq_clean <- TADA_FlagMeasureQualifierCode(Data_Nutrients_UT, clean = TRUE)
 
-# Remove all suspect samples and DO NOT include a new column with
-# qualifier definitions (TADA.MeasureQualifierCode.Def):
-MeasureQualifierCode_clean_nodefs <- TADA_FlagMeasureQualifierCode(
+# 4) Remove suspect records and skip adding the definition column:
+mq_clean_nodefs <- TADA_FlagMeasureQualifierCode(
   Data_Nutrients_UT,
   clean = TRUE, define = FALSE
 )
+}
+\seealso{
+\code{\link[=TADA_GetMeasureQualifierCodeRef]{TADA_GetMeasureQualifierCodeRef()}}
 
+\code{\link[=TADA_SimpleCensoredMethods]{TADA_SimpleCensoredMethods()}}
 }

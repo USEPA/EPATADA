@@ -2,7 +2,7 @@
 #'
 #' This function gets ATTAINS data for the bounding box of a feature.
 #'
-#' @param baseurls A url for an ESRI REST service layer.
+#' @param baseurl A url for an ESRI REST service layer.
 #' @param df An sf dataframe developed with `TADA_MakeSpatial()`.
 #' @return An sf data frame of features from the REST service within the
 #' bounding box of the spatial feature of interest.
@@ -10,10 +10,14 @@
 #' @keywords internal
 #'
 #' @examples
+#' \dontrun{
 #' baseurl <- "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3"
 #'
+#' df <- Data_MT_MissoulaCounty |>
+#'       TADA_MakeSpatial()
+#'
 #' features <- fetch_bbox(baseurl, df)
-
+#' }
 fetch_bbox <- function(baseurl, df) {
   lyr <- arcgislayers::arc_open(baseurl)
   # Fetch the data. Adjust parameters as needed (e.g., fields, where, etc.)
@@ -37,18 +41,23 @@ fetch_bbox <- function(baseurl, df) {
 #' contains the organization identifiers that should be used for this param. When
 #' org_id = "all", Assessment Units from all organizations will be considered.
 #' The default is "all".
+#'
 #' @keywords internal
 #'
 #' @examples
+#' \dontrun{
 #' baseurls <- c(
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
-#' "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1",
+#'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
 #' )
-#'
-#' features <- fetch_au(baseurl, assessment_unit_ids)
-
+#' line.features <- fetch_au(baseurl = baseurls[[3]],
+#'   assessment_unit_ids = c("IL_N-99",
+#'     "IL_N-12",
+#'     "IL_N-16",
+#'     "IL_N-17"))
+#'}
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # Convert org_filter to SQL WHERE clause
   if (org_filter == "all") {
@@ -308,27 +317,6 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2"
   )
 
-  grab_waterbody_type <- function(au_list, chunk_size = 50) {
-    num_chunks <- ceiling(length(au_list) / chunk_size)
-    chunks <- split(au_list, ceiling(seq_along(au_list) / chunk_size))
-    water_types <- vector("list", length = length(chunks))
-
-    for (i in seq_along(chunks)) {
-      dat <- httr::GET(utils::URLencode(paste0(
-        "https://attains.epa.gov/attains-public/api/assessmentUnits?assessmentUnitIdentifier=",
-        paste(chunks[[i]], collapse = ",")
-      ))) |>
-        httr::content(as = "text", encoding = "UTF-8") |>
-        jsonlite::fromJSON()
-
-      water_types[[i]] <- dat[["items"]] |>
-        tidyr::unnest("assessmentUnits") |>
-        tidyr::unnest("waterTypes") |>
-        dplyr::select(assessmentUnitIdentifier, waterTypeCode)
-    }
-    dplyr::bind_rows(water_types)
-  }
-
   points_sf <- .data
 
   catchment_features <- fetch_bbox(baseurls[1], points_sf) |>
@@ -348,7 +336,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
     )
   } else {
     all_units <- unique(catchment_features$assessmentunitidentifier)
-    water_types <- grab_waterbody_type(all_units, chunk_size = 50)
+    water_types <- fetchWaterType(all_units)
     try(
       catchment_features <- dplyr::left_join(
         catchment_features,
@@ -429,11 +417,22 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
         silent = TRUE
       )
 
+      # if no results in a df, set to NULL
+      setNullWhenNoResults <- function(.data) {
+        if (nrow(.data) == 0) {
+          .data <- NULL
+        } else {
+          .data <- .data
+        }
+
+        return(.data)
+      }
+
       final_features <- list(
-        "ATTAINS_catchments" = catchment_features,
-        "ATTAINS_points" = points,
-        "ATTAINS_lines" = lines,
-        "ATTAINS_polygons" = polygons
+        "ATTAINS_catchments" = setNullWhenNoResults(catchment_features),
+        "ATTAINS_points" = setNullWhenNoResults(points),
+        "ATTAINS_lines" = setNullWhenNoResults(lines),
+        "ATTAINS_polygons" = setNullWhenNoResults(polygons)
       )
     })
   })
@@ -1631,44 +1630,18 @@ TADA_GetATTAINSByAUID <- function(
   # REST for ATTAINS geospatial data:
   baseurls <- c(
     # ATTAINS catchments:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3/",
     # ATTAINS points:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0/",
     # ATTAINS lines:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/query?",
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/1/",
     # ATTAINS polygons:
-    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/query?"
+    "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/2/"
   )
-
-  # get water type info using ATTAINS Expert Query
-  get_wb_type <- function(au_list) {
-    au_list <- unique(au_list)
-
-    # split the au_list into chunks
-    chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
-
-    # get water type
-    # need to edit funciton to silent print outs from EQ_AUs
-
-    wat_type <- function(chunk) {
-      results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
-        api_key = api_key,
-        auid = chunk
-      ))
-    }
-
-    results <- purrr::map_dfr(.x = chunks, .f = wat_type)
-
-    results <- results |>
-      dplyr::select(assessmentUnitId, waterType) |>
-      dplyr::distinct()
-
-    return(results)
-  }
 
   # get water types
   water_types <- try(
-    get_wb_type(au_ref$ATTAINS.AssessmentUnitIdentifier),
+    fetchWaterType(unique(au_ref$ATTAINS.AssessmentUnitIdentifier)),
     silent = TRUE
   )
 
@@ -1683,6 +1656,7 @@ TADA_GetATTAINSByAUID <- function(
   TADA_with_ATTAINS <- .data
 
   # Download associated point, line, polygon, and catchment features using list of auids
+
   try(
     points <- fetch_au(
       baseurl = baseurls[2],
@@ -1728,32 +1702,44 @@ TADA_GetATTAINSByAUID <- function(
     return(final_features)
   }
 
-  try(
-    points <- points |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(points)) {
+    try(
+      points <- points |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
+  }
 
-  try(
-    lines <- lines |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(lines)) {
+    try(
+      lines <- lines |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
+  }
 
-  try(
-    polygons <- polygons |>
-      dplyr::left_join(
-        water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitId")
-      ),
-    silent = TRUE
-  )
+  if (!is.null(polygons)) {
+    try(
+      polygons <- polygons |>
+        dplyr::left_join(
+          water_types,
+          by = c(
+            "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+          )
+        ),
+      silent = TRUE
+    )
+  }
 
   if (fill_ATTAINS_catch == FALSE) {
     catchments <- NULL
@@ -1799,6 +1785,11 @@ TADA_GetATTAINSByAUID <- function(
     )
 
     if (nrow(catchments) > 0) {
+      # check CRS for catchments and transform if needed
+      if (sf::st_crs(catchments) != 4326) {
+        catchments <- sf::st_transform(catchments, 4326)
+      }
+
       # get one catchment per WQP location
       catchments.cw <- filt.data |>
         dplyr::select(
@@ -1827,7 +1818,9 @@ TADA_GetATTAINSByAUID <- function(
         catchments <- catchments.filt |>
           dplyr::left_join(
             water_types,
-            by = c("assessmentunitidentifier" = "assessmentUnitId")
+            by = c(
+              "assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier"
+            )
           )
       } else {
         catchments <- catchments.filt
@@ -1896,6 +1889,7 @@ TADA_GetATTAINSByAUID <- function(
 
   # remame cols and set up TADA_with_ATTAINS df
   TADA_with_ATTAINS <- attains.geo |>
+    dplyr::select(-waterType) |>
     TADA_CorrectColType() |>
     dplyr::filter(!is.na(ResultIdentifier)) |>
     dplyr::full_join(.data, by = names(.data)) |>

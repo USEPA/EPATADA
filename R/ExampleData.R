@@ -133,3 +133,13 @@ NULL
 #' @name Data_MT_AU_UsesRef_Water
 #' @format A data frame with 48 rows and 6 variables.
 NULL
+
+#' Data_Participatory_Scientists
+#'
+#' Generate Data_Participatory_Scientists used in
+#' Participatory-Science-Water-Projects-in-WQX.Rmd
+#'
+#' @docType data
+#' @name Data_Participatory_Scientists
+#' @format A data frame with 41723 rows and 150 variables.
+NULL

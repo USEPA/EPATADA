@@ -9,7 +9,7 @@ TADA_ParametersForAnalysis(
   .data,
   org_id = NULL,
   paramRef = NULL,
-  auto_assign = c("None", "All", "Org"),
+  auto_assign = "All",
   AUMLRef = NULL,
   excel = FALSE,
   overwrite = FALSE

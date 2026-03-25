@@ -539,7 +539,7 @@ TADA_RetainRequired <- function(.data) {
 
   ############################
   # first, remove columns that are not required for TADA workflow and contain only NA
-  print(
+  message(
     "TADA_RetainRequired: removing columns not required for TADA workflow if they contain only NAs."
   )
 
@@ -577,30 +577,30 @@ TADA_RetainRequired <- function(.data) {
 
   # print list of columns removed from data frame
   if (length(remove.cols) > 0) {
-    print(paste0(
+    message(
       "The following column(s) were removed as they contained only NAs ",
       "and are not required for the TADA workflow: ",
       remove.paste,
       "."
-    ))
+    )
   } else {
-    print(
+    message(
       "All columns contained some non-NA values and were retained in the dataframe."
     )
   }
 
   # remove columns that are not required for TADA workflow
-  print("TADA_RetainRequired: checking required columns for non-NA values.")
+  message("TADA_RetainRequired: checking required columns for non-NA values.")
 
   # if some required columns contain only NA values print a warning message.
   if (length(req.check) > 0) {
-    print(paste0(
+    message(
       "TADA_RetainRequired: TADA Required column(s) ",
       req.paste,
       " contain only NA values. This may impact other TADA functions."
-    ))
+    )
   } else {
-    print(
+    message(
       "TADA_RetainRequired: All TADA Required columns contain some non-NA values."
     )
   }
@@ -611,7 +611,7 @@ TADA_RetainRequired <- function(.data) {
   ######################
 
   # Now removing any columns not required for the TADA workflow where all values are equal to NA
-  print(
+  message(
     "TADA_RetainRequired: removing columns not required for TADA workflow including original columns that have been replaced with TADA prefix duplicates."
   )
 
@@ -635,12 +635,12 @@ TADA_RetainRequired <- function(.data) {
   .data <- .data |> dplyr::select(dplyr::contains(keep.cols))
 
   # print a message to list names for all removed columns
-  print(paste(
+  message(
     "TADA_RetainRequired: The following non-required columns were removed: ",
     remove.paste,
     ".",
     sep = ""
-  ))
+  )
 
   return(.data)
 

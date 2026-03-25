@@ -162,7 +162,7 @@ TADA_AutoClean <- function(.data) {
 
   # check to make sure columns do not already exist and capitalize fields with known synonyms that
   # only differ in caps
-  print("TADA_Autoclean: creating TADA-specific columns.")
+  message("TADA_Autoclean: creating TADA-specific columns.")
 
   if (
     "TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode" %in%
@@ -258,7 +258,7 @@ TADA_AutoClean <- function(.data) {
   # result unit is "%" or "% SATURATN".
 
   if (any(.data$CharacteristicName == "Dissolved oxygen (DO)")) {
-    print(
+    message(
       "TADA_Autoclean: harmonizing dissolved oxygen characterisic name to DISSOLVED OXYGEN SATURATION if unit is % or % SATURATN."
     )
 
@@ -292,7 +292,7 @@ TADA_AutoClean <- function(.data) {
   # TADAProfile = dplyr::filter(TADAProfile, TADA.BiologicalIntentName != "TISSUE" | "TOXICITY" | is.na(TADA.BiologicalIntentName) == TRUE)
 
   # run TADA_ConvertSpecialChars function
-  print(
+  message(
     "TADA_Autoclean: handling special characters and coverting TADA.ResultMeasureValue and TADA.DetectionQuantitationLimitMeasure.MeasureValue value fields to numeric."
   )
   .data <- TADA_ConvertSpecialChars(.data, "ResultMeasureValue")
@@ -301,38 +301,22 @@ TADA_AutoClean <- function(.data) {
     "DetectionQuantitationLimitMeasure.MeasureValue"
   )
 
-  # include only in TADA_SimpleCensoredMethods
-  # # Identify detection limit data
-  # print("TADA_Autoclean: identifying and copying detection limit data to result value if blank.")
-  # .data <- TADA_IDCensoredData(.data)
-
   # change latitude and longitude measures to class numeric
-  print(
+  message(
     "TADA_Autoclean: converting TADA.LatitudeMeasure and TADA.LongitudeMeasure fields to numeric."
   )
   .data$TADA.LatitudeMeasure <- as.numeric(.data$LatitudeMeasure)
   .data$TADA.LongitudeMeasure <- as.numeric(.data$LongitudeMeasure)
 
-  # update data types (only needed if TADA_JoinWQPProfiles is used to download data). commenting out for now (these data type conversions should happen on TADA versions of these columns? review what USGS DR does)
-  # join2$ActivityStartDate <- as.Date(join2$ActivityStartDate)
-  # join2$ActivityEndDate <- as.Date(join2$ActivityEndDate)
-  # join2$ActivityDepthHeightMeasure.MeasureValue <- as.double(join2$ActivityDepthHeightMeasure.MeasureValue)
-  # join2$ResultDepthHeightMeasure.MeasureValue <- as.double(join2$ResultDepthHeightMeasure.MeasureValue)
-  # join2$AnalysisStartDate <- as.Date(join2$AnalysisStartDate)
-  # join2$timeZoneStart <- as.double(join2$timeZoneStart)
-  # join2$timeZoneEnd <- as.double(join2$timeZoneEnd)
-  # #conversion to UTC should happen on the TADA versions of these columns, ActivityStartTime.TimeZoneCode and ActivityEndTime.TimeZoneCode would also need to be edited
-  # join2$ActivityStartDateTime <- as.Date.POSIXct(join2$ActivityStartDateTime, tz = "UTC")
-  # join2$ActivityEndDateTime <- as.Date.POSIXct(join2$ActivityEndDateTime, tz = "UTC")
-  # join2$DrainageAreaMeasure.MeasureValue <- as.double(join2$DrainageAreaMeasure.MeasureValue)
-  # join2$ContributingDrainageAreaMeasure.MeasureValue <- as.double(join2$ContributingDrainageAreaMeasure.MeasureValue)
-  # join2$VerticalMeasure.MeasureValue <- as.double(join2$VerticalMeasure.MeasureValue)
-  # join2$VerticalAccuracyMeasure.MeasureValue <- as.double(join2$VerticalAccuracyMeasure.MeasureValue)
-  # join2$WellDepthMeasure.MeasureValue <- as.double(join2$WellDepthMeasure.MeasureValue)
-  # join2$WellHoleDepthMeasure.MeasureValue <- as.double(join2$WellHoleDepthMeasure.MeasureValue)
+  # CountyCode should either be NA or 3 digits
+  x <- as.character(.data$CountyCode)
+  i <- !is.na(x)
+  x[i] <- sprintf("%03d", as.integer(x[i]))
+  .data$CountyCode <- x
+  rm(x, i)
 
   # Automatically convert USGS only unit "meters" to "m"
-  print(
+  message(
     "TADA_Autoclean: harmonizing synonymous unit names (m and meters) to m."
   )
   .data$TADA.ResultMeasure.MeasureUnitCode[
@@ -352,13 +336,13 @@ TADA_AutoClean <- function(.data) {
   ] <- "m"
 
   # Substitute updated characteristic name for deprecated names
-  print(
+  message(
     "TADA_Autoclean: updating deprecated (i.e. retired) characteristic names."
   )
   .data <- TADA_SubstituteDeprecatedChars(.data)
 
   # Implement unit harmonization
-  print("TADA_Autoclean: harmonizing result and depth units.")
+  message("TADA_Autoclean: harmonizing result and depth units.")
   .data <- suppressWarnings(TADA_ConvertResultUnits(
     .data,
     transform = TRUE,
@@ -367,12 +351,12 @@ TADA_AutoClean <- function(.data) {
   .data <- suppressWarnings(TADA_ConvertDepthUnits(.data, unit = "m"))
 
   # create comparable data identifier column
-  print(
+  message(
     "TADA_Autoclean: creating TADA.ComparableDataIdentifier field for use when generating visualizations and analyses."
   )
   .data <- TADA_CreateComparableID(.data)
 
-  print(
+  message(
     "NOTE: This version of the TADA package is designed to work with numeric data with media name: 'WATER'. TADA_AutoClean does not currently remove (filter) data with non-water media types. If desired, the user must make this specification on their own outside of package functions. Example: dplyr::filter(.data, TADA.ActivityMediaName == 'WATER')"
   )
 
@@ -389,8 +373,8 @@ TADA_AutoClean <- function(.data) {
 #' TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 #'
 #' @param .data A TADA dataframe.
-#' @param clean Boolean. Determines whether to keep the suspect rows (or not).
-#' Defaults to `FALSE`.
+#' @param clean Boolean. Must be TRUE or FALSE. Determines whether to keep the
+#' suspect rows (or not). Defaults to FALSE.
 #'
 #' @return A TADA dataframe with the following flagging columns:
 #' TADA.ResultUnit.Flag, TADA.MethodSpeciation.Flag, TADA.SampleFraction.Flag,
@@ -402,7 +386,7 @@ TADA_AutoClean <- function(.data) {
 #' # Run flagging functions but keep all results
 #' keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
 #'
-#' # Run flagging functions and remove and suspect rows
+#' # Run flagging functions and remove any suspect rows
 #' remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
 TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
   # check .data is data.frame
@@ -414,7 +398,12 @@ TADA_RunKeyFlagFunctions <- function(.data, clean = FALSE) {
     return(NULL) # Exit the function early
   }
 
-  if (clean == TRUE) {
+  # Validate 'clean' is a single logical (TRUE or FALSE)
+  if (!(is.logical(clean) && length(clean) == 1 && !is.na(clean))) {
+    stop("Argument 'clean' must be a single logical value: TRUE or FALSE.")
+  }
+
+  if (isTRUE(clean)) {
     .data <- TADA_FlagResultUnit(.data, clean = "suspect_only")
     .data <- TADA_FlagFraction(.data, clean = TRUE)
     .data <- TADA_FlagSpeciation(.data, clean = "suspect_only")

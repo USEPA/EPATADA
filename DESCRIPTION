@@ -46,8 +46,8 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports:
-    plyr, 
-    data.table, 
+    plyr,
+    data.table,
     dplyr (>= 1.1.0),
     tidyr,
     tidyselect,
@@ -55,27 +55,23 @@ Imports:
     grDevices,
     stringr,
     stringi,
-    utils, 
-    stats, 
-    lubridate (>= 1.5.0), 
-    ggplot2, 
+    utils,
+    stats,
+    lubridate (>= 1.5.0),
+    ggplot2,
     sf,
     leaflet,
     plotly,
-    urltools,
-    geojsonsf,
     tibble,
-    rlang,
+    rlang (>= 0.4.7),
     nhdplusTools,
     arcgislayers,
     MESS,
     units,
     igraph,
-    jsonlite, 
     openxlsx,
     DT,
     dataRetrieval (>= 2.7.21),
-    dbscan,
     rExpertQuery,
     readr (>= 1.4.0),
     spsUtil,
@@ -108,7 +104,8 @@ Suggests:
     here,
     Polychrome,
     httr2 (>= 1.2.1),
-    roxygen2
+    roxygen2,
+    withr
 Remotes:
     USEPA/rExpertQuery@develop
 VignetteBuilder: knitr, rmarkdown

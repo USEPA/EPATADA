@@ -1,6 +1,5 @@
 ANDs
 AOI
-ATTAINSOrgIDsRef
 AUML
 AUMLRef
 AURefSource
@@ -21,7 +20,6 @@ ActivityType
 ActivityTypeCode
 ActivityTypeCode's
 ActivityTypeCodes
-AggregateMeasurements
 AnalyticalMethod
 Animas
 ArcGIS
@@ -31,6 +29,8 @@ AssessmentUnitStatus
 AssignUsesToAU
 AssignUsesToWaterType
 AutoClean
+BDL
+BPQL
 BiasValue
 BigDataRetrieval
 BiologicalIntentName
@@ -44,7 +44,6 @@ COMBITR
 COMIDs
 CWA
 CalculateTotalNP
-CalculateTotalNitrogen
 CensoredData
 CensoredMethod
 CharacteristicGroup
@@ -94,7 +93,6 @@ DomainValues
 Dumelle
 EASP
 EASP's
-ECHO's
 EMEF
 EQ
 ExampleMod
@@ -128,6 +126,8 @@ Geospatial
 GetATTAINSAUMLCrosswalk
 GetATTAINSByAUID
 GetCharacteristicRef
+GetDetCondRef
+GetDetLimitRef
 GetNutrientSummationRef
 GetSynonymRef
 HMW
@@ -149,7 +149,6 @@ IncludeOrExclude
 InvalidCoordinates
 Jhguch
 JoinWQPProfiles
-KJELDAHL
 Kaplan
 Kjeldahl
 LaboratoryName
@@ -178,7 +177,6 @@ MethodDescriptionText
 MethodIdentifier
 MethodIdentifierContext
 MethodName
-MethodQualifierCodes
 MethodQualifierTypeName
 MethodSpeciation
 MethodSpeciationName
@@ -200,7 +198,9 @@ NHDPlus
 NHDPlusTools
 NLCD
 NLDI
+NONEs
 NWIS
+NationalExtract
 NearbySiteGroup
 NearbySites
 NoResultValue
@@ -209,6 +209,7 @@ NonStandardized
 Nondetects
 Nonpoint
 Ns
+NutrientGroup
 NutrientSummation
 NutrientSummationEquation
 NutrientSummationGroup
@@ -219,6 +220,7 @@ OrgName
 OrganizationFormalName
 OrganizationIdentifier
 OrganizationName
+OrganizationType
 OutsideUSA
 OverviewMap
 POJOAQUE
@@ -227,6 +229,7 @@ PairForCriteriaCalc
 PairReplicates
 PairingGroup
 PairingGroupRank
+Param
 ParamRef
 ParameterName
 ParameterNames
@@ -310,6 +313,12 @@ StringA
 StringB
 SubstituteDeprecatedChars
 SummarizeColumn
+SummationFractionNotes
+SummationName
+SummationNote
+SummationRank
+SummationSpeciationConversionFactor
+SummationSpeciationNotes
 SuspectCoordinates
 Sys
 TADA
@@ -354,6 +363,7 @@ WQP
 WQS
 WQX
 WQX's
+WQXCharacteristicRef
 WQXResultUnitConversion
 WQXUnitConversionFactor
 WQXVal
@@ -419,6 +429,7 @@ cwa
 dailyagg
 dataRetrieval
 dateTime
+de
 decimaldigits
 depthcat
 devtools
@@ -440,6 +451,7 @@ extdata
 fabec
 fetchATTAINS
 fetchNHD
+fetchWaterType
 findATTAINSMissingRawFeatures
 flaggedonly
 flowline
@@ -516,6 +528,7 @@ randombelowlimit
 rda
 readWQPdata
 renameATTAINSCols
+reportingCycle
 resultCount
 sampleMedia
 sd

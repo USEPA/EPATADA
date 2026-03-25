@@ -872,10 +872,10 @@ getWQPSiteStats <- function(.data, attains = TRUE) {
       attains <- FALSE
 
       # print missing to user explaning that assessment unit data are not present
-      print(paste0(
+      message(
         "getWQPSiteStats: ATTAINS.AssessmentUnitIdentifier is not present in .data. ",
         "Returning WQP site stats without assessment unit identifiers."
-      ))
+      )
     }
 
     # if assessment unit data are available
@@ -1845,4 +1845,54 @@ checkForATTAINSGeo <- function(
   if (is.null(lines_layer) & is.null(points_layer) & is.null(polygons_layer)) {
     message("No ATTAINS data associated with this Water Quality Portal data.")
   }
+}
+
+#' fetchWaterType
+#'
+#' Use Expert Query web services to create a crosswalk of assessment unit identifier
+#' to water type.
+#'
+#' @param au_list A list of assessment units to fetch water types for.
+#'
+#' @param api_key Optional character string. An api key for Expert Query web
+#' services. If not supplied, the default TADA api key will be used. For best
+#' performance, it is recommended that users obtain and use their own api key.
+#' Request an api key here: https://owapps.epa.gov/expertquery/api-documentation
+#'
+#' @return The function returns a data frame with an assessment unit/water type
+#' crosswalk. If no water type matches are found, a message explaining this is
+#' printed.
+#'
+# get water types
+# get water type info using ATTAINS Expert Query
+fetchWaterType <- function(au_list, api_key = NULL) {
+  au_list <- unique(au_list)
+
+  # split the au_list into chunks
+  chunks <- split(au_list, ceiling(seq_along(unique(au_list)) / 20))
+
+  # get default api_key if user does not supply one
+  if (is.null(api_key)) {
+    api_key <- .setEQKey()
+  }
+
+  # get water type
+  wat_type <- function(chunk) {
+    results <- spsUtil::quiet(rExpertQuery::EQ_AssessmentUnits(
+      api_key = api_key,
+      auid = chunk
+    ))
+  }
+
+  results <- purrr::map_dfr(.x = chunks, .f = wat_type)
+
+  results <- results |>
+    dplyr::select(assessmentUnitId, waterType) |>
+    dplyr::distinct() |>
+    dplyr::rename(
+      ATTAINS.AssessmentUnitIdentifier = assessmentUnitId,
+      ATTAINS.WaterType = waterType
+    )
+
+  return(results)
 }

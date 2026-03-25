@@ -14,9 +14,9 @@
 #'
 #' @param .data TADA dataframe
 #' @param ref Optional argument to specify which dataframe to use as a reference
-#' file. The primary use for this argument is when a user has generated a
-#' synonym reference file unique to their data, and they made changes to
-#' that file.
+#'   file. The primary use for this argument is when a user has generated a
+#'   synonym reference file unique to their data, and they made changes to
+#'   that file.
 #' @param np_speciation Boolean. Determines whether the user wants to convert
 #'   nitrogen and phosphorus subspecies to speciation 'as N' and 'as P', where
 #'   speciation conversions are provided. Defaults to TRUE. For example, if
@@ -44,15 +44,9 @@
 #'   Data_6Tribes_5y,
 #'   !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue)
 #' )
-#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean,
-#'   clean = TRUE
-#' )
-#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean,
-#'   clean = "suspect_only"
-#' )
-#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean,
-#'   clean = "suspect_only"
-#' )
+#' Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
+#' Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
+#' Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
 #' Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
 #' CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
 #'
@@ -62,84 +56,156 @@
 #'   TADA_HarmonizeSynonyms(Data_6Tribes_5yClean, ref = CreateRefTable)
 #' }
 #'
-TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
-  # check .data is data.frame and has required columns
+TADA_HarmonizeSynonyms <- function(.data, ref = NULL, np_speciation = TRUE) {
+  # Required columns in .data
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
-    "TADA.MethodSpeciationName"
+    "TADA.MethodSpeciationName",
+    "TADA.ResultMeasureValue"
   )
   TADA_CheckColumns(.data, expected_cols)
 
-  # Check if the input data frame is empty
+  # Empty input: keep pipeline continuity
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    message("The entered data frame is empty. Returning input unchanged.")
+    return(.data)
   }
 
-  # if class(ResultMeasureValue) != numeric, run special char function - EDH - should not be needed at this point but doesn't hurt.
+  # Ensure numeric result value
   if (!is.numeric(.data$TADA.ResultMeasureValue)) {
     stop(
       "TADA.ResultMeasureValue is not numeric. This column must be numeric before proceeding."
     )
   }
 
-  # Changes NONE in fraction and speciation to NA for better harmonization
-  # Should this be specified in the template instead? 7/25/25 cm
-  .data <- .data |>
-    dplyr::mutate(
-      TADA.ResultSampleFractionText = replace(
-        TADA.ResultSampleFractionText,
-        TADA.ResultSampleFractionText %in% c("NONE"),
-        NA
-      ),
-      TADA.MethodSpeciationName = replace(
-        TADA.MethodSpeciationName,
-        TADA.MethodSpeciationName %in% c("NONE"),
-        NA
-      )
-    )
-
-  # define harm.ref
-  # if input for ref exists, use that data
-  if (!missing(ref)) {
-    # check ref has all of the required columns
-    expected_ref_cols <- c(
-      expected_cols,
-      c(
-        "Target.TADA.CharacteristicName",
-        "Target.TADA.ResultSampleFractionText",
-        "Target.TADA.MethodSpeciationName",
-        "TADA.CharacteristicNameAssumptions",
-        "TADA.FractionAssumptions",
-        "TADA.SpeciationAssumptions",
-        "Target.TADA.SpeciationConversionFactor",
-        "HarmonizationGroup"
-      )
-    )
-    TADA_CheckColumns(ref, expected_ref_cols)
-
-    harm.ref <- ref
-  }
-
-  # if input for ref does not exist, use raw harmonization template
-  if (missing(ref)) {
-    # use output of TADA_GetSynonymRef which uses the TADA HarmonizationTemplate.csv in the extdata folder
-    harm.ref <- TADA_GetSynonymRef(.data) |> dplyr::distinct()
-  }
-
-  # find places where metadata will be changed and add targets
-  harm.ref$TADA.Harmonized.Flag <- ifelse(
-    !is.na(harm.ref$Target.TADA.CharacteristicName) |
-      !is.na(harm.ref$Target.TADA.ResultSampleFractionText) |
-      !is.na(harm.ref$Target.TADA.MethodSpeciationName),
-    TRUE,
-    FALSE
+  # Helpers
+  key_cols <- c(
+    "TADA.CharacteristicName",
+    "TADA.ResultSampleFractionText",
+    "TADA.MethodSpeciationName"
+  )
+  target_cols <- c(
+    "Target.TADA.CharacteristicName",
+    "Target.TADA.ResultSampleFractionText",
+    "Target.TADA.MethodSpeciationName"
   )
 
+  normalize_keys <- function(x) {
+    if (is.character(x)) {
+      y <- trimws(x)
+      y[y == ""] <- NA_character_
+      y[toupper(y) == "NONE"] <- NA_character_
+      y
+    } else {
+      x
+    }
+  }
+  to_na_trim <- function(x) {
+    if (is.character(x)) {
+      y <- trimws(x)
+      y[y == ""] <- NA_character_
+      y
+    } else {
+      x
+    }
+  }
+
+  # Normalize .data keys (trim, convert "" and "NONE" -> NA)
+  .data <- .data |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(key_cols), normalize_keys))
+
+  # Build harm.ref (either from user-supplied ref or default template)
+  if (!is.null(ref)) {
+    required_ref_cols <- c(
+      "TADA.CharacteristicName",
+      "TADA.ResultSampleFractionText",
+      "TADA.MethodSpeciationName",
+      "Target.TADA.CharacteristicName",
+      "Target.TADA.ResultSampleFractionText",
+      "Target.TADA.MethodSpeciationName",
+      "Target.TADA.SpeciationConversionFactor"
+    )
+    TADA_CheckColumns(ref, required_ref_cols)
+
+    # Add optional columns if missing
+    add_ref_cols <- c(
+      "TADA.CharacteristicNameAssumptions",
+      "TADA.FractionAssumptions",
+      "TADA.SpeciationAssumptions",
+      "HarmonizationGroup"
+    )
+    for (col in setdiff(add_ref_cols, names(ref))) {
+      ref[[col]] <- NA_character_
+    }
+
+    harm.ref <- ref
+  } else {
+    harm.ref <- TADA_GetSynonymRef(.data)
+    # Ensure optional columns exist (if the internal template ever changes)
+    add_ref_cols <- c(
+      "TADA.CharacteristicNameAssumptions",
+      "TADA.FractionAssumptions",
+      "TADA.SpeciationAssumptions",
+      "HarmonizationGroup"
+    )
+    for (col in setdiff(add_ref_cols, names(harm.ref))) {
+      harm.ref[[col]] <- NA_character_
+    }
+  }
+
+  # Normalize ref keys and targets (trim, "" -> NA; treat "NONE" -> NA for keys)
+  harm.ref <- harm.ref |>
+    dplyr::mutate(
+      dplyr::across(dplyr::any_of(key_cols), normalize_keys),
+      dplyr::across(dplyr::any_of(target_cols), to_na_trim)
+    )
+
+  # Conversion factor numeric (protect against character input)
+  if ("Target.TADA.SpeciationConversionFactor" %in% names(harm.ref)) {
+    harm.ref$Target.TADA.SpeciationConversionFactor <- suppressWarnings(as.numeric(
+      harm.ref$Target.TADA.SpeciationConversionFactor
+    ))
+  }
+
+  # Warn if duplicate key rows exist (could create many-to-many join duplicates)
+  dups <- harm.ref |>
+    dplyr::count(dplyr::across(dplyr::all_of(key_cols))) |>
+    dplyr::filter(.data$n > 1)
+  if (nrow(dups) > 0) {
+    warning(
+      "Reference table contains duplicate key combinations. Results may be duplicated."
+    )
+  }
+
+  # Warn if same key maps to multiple distinct target sets
+  if (all(target_cols %in% names(harm.ref))) {
+    tgt_sets <- harm.ref |>
+      dplyr::group_by(dplyr::across(dplyr::all_of(key_cols))) |>
+      dplyr::summarise(
+        n_target_sets = dplyr::n_distinct(paste(
+          `Target.TADA.CharacteristicName`,
+          `Target.TADA.ResultSampleFractionText`,
+          `Target.TADA.MethodSpeciationName`,
+          `Target.TADA.SpeciationConversionFactor`
+        )),
+        .groups = "drop"
+      ) |>
+      dplyr::filter(.data$n_target_sets > 1)
+    if (nrow(tgt_sets) > 0) {
+      warning(
+        "Reference table contains keys with conflicting target assignments. Review your synonym reference."
+      )
+    }
+  }
+
+  # Deduplicate ref
+  harm.ref <- harm.ref |> dplyr::distinct()
+
+  # Drop old comparable ID (will be recreated later)
   .data <- .data[, !names(.data) %in% c("TADA.ComparableDataIdentifier")]
 
-  # join harm.ref to .data
+  # Join harm.ref to .data (NA-aware join supported in dplyr >= 1.1.0)
   flag.data <- .data |>
     dplyr::left_join(
       harm.ref,
@@ -147,219 +213,208 @@ TADA_HarmonizeSynonyms <- function(.data, ref, np_speciation = TRUE) {
         "TADA.CharacteristicName",
         "TADA.ResultSampleFractionText",
         "TADA.MethodSpeciationName"
-      )
+      ),
+      na_matches = "na"
     )
 
-  # TADA.CharacteristicName
-  # replace TADA.CharacteristicName with Target.TADA.CharacteristicName
+  # Update TADA.CharacteristicName to target when present
   clean.data <- flag.data |>
-    # use TADA suggested name where there is a suggested name, use original name if no suggested name
     dplyr::mutate(
       TADA.CharacteristicName = dplyr::case_when(
         !is.na(Target.TADA.CharacteristicName) ~ Target.TADA.CharacteristicName,
-        # is.na(Target.TADA.CharacteristicName) ~ TADA.CharacteristicName,
-        .default = TADA.CharacteristicName
+        TRUE ~ TADA.CharacteristicName
       )
     )
 
-  # TADA.ResultSampleFractionText
-  # replace ResultSampleFractionText with Target.TADA.ResultSampleFractionText
+  # Update TADA.ResultSampleFractionText to target when present
   clean.data <- clean.data |>
-    # use TADA suggested frac where there is a suggested frac, use original frac if no suggested frac
     dplyr::mutate(
       TADA.ResultSampleFractionText = dplyr::case_when(
         !is.na(
           Target.TADA.ResultSampleFractionText
         ) ~ Target.TADA.ResultSampleFractionText,
-        !is.na(TADA.ResultSampleFractionText) &
-          is.na(Target.TADA.ResultSampleFractionText) &
-          !is.na(
-            TADA.FractionAssumptions
-          ) ~ Target.TADA.ResultSampleFractionText,
-        # is.na(Target.TADA.ResultSampleFractionText) ~ TADA.ResultSampleFractionText
-        .default = TADA.ResultSampleFractionText
+        TRUE ~ TADA.ResultSampleFractionText
       )
     )
 
-  # Handle instances with DO where the speciation is listed "AS O2" but it should be NA
-  clean.data$TADA.MethodSpeciationName <- ifelse(
-    !is.na(clean.data$TADA.MethodSpeciationName) &
-      is.na(clean.data$Target.TADA.MethodSpeciationName) &
-      !is.na(clean.data$TADA.SpeciationAssumptions),
-    clean.data$Target.TADA.MethodSpeciationName,
-    clean.data$TADA.MethodSpeciationName
-  )
+  # Compute whether speciation actually changes (to guard conversion)
+  clean.data <- clean.data |>
+    dplyr::mutate(
+      .spec_changed = (is.na(TADA.MethodSpeciationName) &
+        !is.na(Target.TADA.MethodSpeciationName)) |
+        (!is.na(TADA.MethodSpeciationName) &
+          is.na(Target.TADA.MethodSpeciationName)) |
+        (!is.na(TADA.MethodSpeciationName) &
+          !is.na(Target.TADA.MethodSpeciationName) &
+          TADA.MethodSpeciationName != Target.TADA.MethodSpeciationName)
+    )
 
-  # TADA.MethodSpeciationName
-  # replace MethodSpeciationName with Target.TADA.MethodSpeciationName
-
-  if (np_speciation == TRUE) {
+  # Update speciation and convert measure values if requested
+  if (isTRUE(np_speciation)) {
     clean.data <- clean.data |>
-      # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
           !is.na(
             Target.TADA.MethodSpeciationName
           ) ~ Target.TADA.MethodSpeciationName,
-          # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
-          .default = TADA.MethodSpeciationName
-        )
-      ) |>
-      # if conversion factor exists, multiply by ResultMeasureValue
-      dplyr::rowwise() |>
-      dplyr::mutate(
+          TRUE ~ TADA.MethodSpeciationName
+        ),
+        # Apply conversion only if a factor is provided AND speciation actually changes
         TADA.ResultMeasureValue = dplyr::case_when(
-          !is.na(
-            Target.TADA.SpeciationConversionFactor
-          ) ~ (Target.TADA.SpeciationConversionFactor *
-            TADA.ResultMeasureValue),
-          # is.na(Target.TADA.SpeciationConversionFactor) ~ TADA.ResultMeasureValue
-          .default = TADA.ResultMeasureValue
+          !is.na(Target.TADA.SpeciationConversionFactor) &
+            .spec_changed ~ Target.TADA.SpeciationConversionFactor *
+            TADA.ResultMeasureValue,
+          TRUE ~ TADA.ResultMeasureValue
         )
       )
   } else {
     clean.data <- clean.data |>
-      # use TADA suggested spec where there is a suggested spec, use original spec if no suggested spec
       dplyr::mutate(
         TADA.MethodSpeciationName = dplyr::case_when(
           !is.na(Target.TADA.MethodSpeciationName) &
             is.na(
               Target.TADA.SpeciationConversionFactor
             ) ~ Target.TADA.MethodSpeciationName,
-          # is.na(Target.TADA.MethodSpeciationName) ~ TADA.MethodSpeciationName
-          .default = TADA.MethodSpeciationName
+          TRUE ~ TADA.MethodSpeciationName
         )
       )
   }
 
-  # remove conversion columns
+  # Create Comparable ID and normalize fraction/speciation/unit ("NONE" for missing)
+  clean.data <- TADA_CreateComparableID(clean.data)
+
+  # Compute harmonization flag AFTER Comparable ID creation so NA/blank -> "NONE" changes are included
+  diff_chr <- function(old, new) {
+    (is.na(old) & !is.na(new)) |
+      (!is.na(old) & is.na(new)) |
+      (!is.na(old) & !is.na(new) & old != new)
+  }
+  diff_num <- function(old, new, tol = 0) {
+    (is.na(old) & !is.na(new)) |
+      (!is.na(old) & is.na(new)) |
+      (!is.na(old) & !is.na(new) & abs(new - old) > tol)
+  }
+
+  # Guard for unit column if not present
+  old_unit <- if ("TADA.ResultMeasure.MeasureUnitCode" %in% names(flag.data)) {
+    flag.data$TADA.ResultMeasure.MeasureUnitCode
+  } else {
+    rep(NA_character_, nrow(flag.data))
+  }
+  new_unit <- if ("TADA.ResultMeasure.MeasureUnitCode" %in% names(clean.data)) {
+    clean.data$TADA.ResultMeasure.MeasureUnitCode
+  } else {
+    rep(NA_character_, nrow(clean.data))
+  }
+
+  clean.data$TADA.Harmonized.Flag <- diff_chr(
+    flag.data$TADA.CharacteristicName,
+    clean.data$TADA.CharacteristicName
+  ) |
+    diff_chr(
+      flag.data$TADA.ResultSampleFractionText,
+      clean.data$TADA.ResultSampleFractionText
+    ) |
+    diff_chr(
+      flag.data$TADA.MethodSpeciationName,
+      clean.data$TADA.MethodSpeciationName
+    ) |
+    diff_chr(old_unit, new_unit) |
+    diff_num(
+      flag.data$TADA.ResultMeasureValue,
+      clean.data$TADA.ResultMeasureValue,
+      tol = 0
+    )
+
+  # Drop conversion/reference-only columns (use any_of for resilience)
   clean.data <- clean.data |>
     dplyr::select(
-      -c(
+      -dplyr::any_of(c(
         "Target.TADA.CharacteristicName",
         "Target.TADA.ResultSampleFractionText",
         "Target.TADA.MethodSpeciationName",
         "Target.TADA.SpeciationConversionFactor",
-        "HarmonizationGroup"
-      )
+        "HarmonizationGroup",
+        ".spec_changed"
+      ))
     )
 
-  clean.data$TADA.Harmonized.Flag <- ifelse(
-    is.na(clean.data$TADA.Harmonized.Flag),
-    FALSE,
-    clean.data$TADA.Harmonized.Flag
-  )
-
-  # return clean.data
-  clean.data <- TADA_CreateComparableID(clean.data)
+  # Finalize
   clean.data <- TADA_OrderCols(clean.data)
   return(clean.data)
 }
 
-
 #' Calculate Total Nitrogen and Phosphorus
 #'
-#' This function applies the [Nutrient Aggregation logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen)
-#' from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-#' to approximate a total nitrogen value on a single day at a single site. Additional
-#' rows are added with the total nitrogen and total phosphorous estimations.
-#' Before summing subspecies, this function runs TADA_AggregateMeasurements to
-#' obtain the max value of a characteristic-fraction-speciation-unit-media
-#' combination at a given site
-#' and date. Where necessary, it uses conversion factors to convert
-#' nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
-#' as nitrogen based on the atomic weights of the different elements in the
-#' compound. Similarly, phosphate and other phosphorus forms are converted to
-#' AS P where applicable. The reference table is contained within the package but may be
-#' edited/customized by users.
+#' Apply nutrient aggregation logic from EPA's Enforcement and Compliance History
+#' Online (ECHO) Water Pollutant Loading Tool
+#' to add nitrogen subspecies and phosphorus forms together to approximate
+#' total nitrogen (TN) and total phosphorus (TP) by site and day.
 #'
-#' Nutrient equations are as follows:
+#' Before summing, the function aggregates measurements to a single daily value
+#' per characteristic–unit–fraction–speciation–media combination using the chosen
+#' `daily_agg`. Where needed, it converts nitrogen subspecies to "AS N" and
+#' phosphorus forms to "AS P" using conversion factors in the summation reference.
+#' The internal summation reference can be customized and supplied via `sum_ref`.
 #'
-#' NITROGEN:
-#' 1. TOTAL N (UNFILTERED)
-#' 2. TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
-#' 3. TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
-#' 4. ORGANIC N + AMMONIA + NITRATE + NITRITE
-#' 5. OTHER NITROGEN FORMS
+#' @details
+#' - If required QA/QC flagging columns are absent, the function runs
+#'   [TADA_FindQCActivities()] (clean = FALSE), [TADA_FlagResultUnit()] (clean = "none"),
+#'   [TADA_FlagFraction()] (clean = FALSE), and [TADA_FlagSpeciation()] (clean = "none"),
+#'   and excludes invalid or suspect combinations from TN/TP summations.
+#' - The function will not run a second time on the same data: if
+#'   TADA.ResultMeasureValueDataTypes.Flag already contains "TN/TP estimated...",
+#'   the input is returned unchanged.
+#' - Daily aggregation uses `daily_agg` ("max", "min", or "mean") per site/day
+#'   and metadata combination. Rows considered but not selected are preserved
+#'   with explanatory flags.
+#' - Keys are normalized (trim whitespace; `""` and `"NONE"` become `NA`) before
+#'   matching to the summation reference; the join is NA-aware (dplyr >= 1.1.0).
+#' - Speciation conversions are applied where a conversion factor is provided.
+#' - New rows for TN/TP totals are added with deterministic ResultIdentifier values
+#'   based on site/date/group to ease testing and traceability.
 #'
-#' PHOSPHORUS:
-#' 1. TOTAL PHOSPHORUS
-#' 2. PHOSPHATE
-#' 3. OTHER PHOSPHORUS FORMS
+#' @param .data TADA dataframe. [TADA_AutoClean()] should have been run and
+#'   TADA.ResultMeasureValueDataTypes.Flag must be present. The function will run
+#'   required flag functions if needed. Suspect/invalid combinations are excluded.
+#' @param sum_ref Optional custom summation reference dataframe with the same
+#'   columns as the internal reference; if omitted, the internal reference is used.
+#' @param daily_agg Aggregation function used to collapse multiple measurements
+#'   per day/site/metadata combination. One of "max", "min", or "mean". Defaults to "max".
 #'
-#' Equations are applied in the order above. The function looks for groups of
-#' nutrients that exactly match each equation before looking for every
-#' combination within each equation (for example, a group of nitrogen subspecies
-#' including AMMONIA and NITRATE will be passed over in an initial sweep of
-#' groups of subspecies containing ORGANIC N, AMMONIA, NITRATE, and NITRITE, but
-#' will be caught as the function moves down the hierarchy of equations to fewer
-#' and fewer subspecies). Eventually, even groups with only one subspecies will
-#' be used to represent a TOTAL N value for that site/day/depth.
+#' @return The input dataframe plus additional rows representing TN and TP totals,
+#'   with explanatory flags: TADA.NutrientSummation.Flag, TADA.NutrientSummationGroup,
+#'   and TADA.NutrientSummationEquation. Original rows not used in summations are preserved.
 #'
-#' @param .data TADA dataframe. TADA_AutoClean() must have been run (and the
-#'   TADA.ResultMeasureValueDataTypes.Flag added)
-#'   before this TM/TP summation function can be used.
-#'   This function runs required flag functions
-#'   (TADA_FindQCActivities, TADA_FlagResultUnit, TADA_FlagFraction, TADA_FlagSpeciation) if
-#'   they have not yet been run. Suspect and invalid combinations are not included in
-#'   TN and TP summation. While not required for this function to run, ideally,
-#'   users should also run TADA_SimpleCensoredMethods
-#'   and TADA_HarmonizeSynonyms before this function.
-#'   If user wants to consider grouping N or P subspecies across multiple
-#'   organizations, user should have also run TADA_FindNearbySites and grouped all
-#'   nearby sites to one common TADA.MonitoringLocationIdentifier,
-#'   TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.
-#' @param sum_ref Optional. A custom summation reference dataframe the user has
-#'   loaded into the R environment. Dataframe must have same columns as default
-#'   TADA.summation reference table.
-#' @param daily_agg If there are multiple measurements for the same
-#'   characteristic-unit-fraction-speciation-media combination at the same location
-#'   (TADA.MonitoringLocationIdentifier) on the same day (ActivityStartDate),
-#'   this will select a single measurement to use in the
-#'   Total N or Total P summation. Defaults to 'max', but can be set
-#'   to 'min' or 'mean'.
+#' @seealso [TADA_AggregateMeasurements()], [TADA_FlagResultUnit()],
+#'   [TADA_FlagFraction()], [TADA_FlagSpeciation()], [TADA_HarmonizeSynonyms()],
+#'   [TADA_GetNutrientSummationRef()]
 #'
-#' @return TADA dataframe with additional rows representing total N and P
-#'   summation values from adding up subspecies. Note that for total phosphorus,
-#'   these additional rows are simply a re-classification of phosphorus or
-#'   phosphate into the total phosphorus as P format. These new rows share the
-#'   same date and monitoring location as the subspecies, but an additional note
-#'   is added in the TADA.NutrientSummation.Flag column describing how the total
-#'   was derived. Also adds TADA.NutrientSummationGroup and
-#'   TADA.NutrientSummationEquation columns, which can be used to trace how the
-#'   total was calculated and from which subspecies.
-#'
-#' @seealso [TADA_AggregateMeasurements()]
-#' @seealso [TADA_FlagDepthCategory()]
-#' @seealso [TADA_SimpleCensoredMethods()]
-#' @seealso [TADA_HarmonizeSynonyms()]
-#' @seealso [TADA_FindNearbySites()]
-#' @seealso [TADA_FindQCActivities()]
-#' @seealso [TADA_FlagResultUnit()]
-#' @seealso [TADA_FlagFraction()]
-#' @seealso [TADA_FlagSpeciation()]
-#' @seealso [TADA_AutoClean()]
+#' @note Requires dplyr >= 1.1.0 for NA-aware joins when matching to the summation ref.
 #'
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' df <- TADA_DataRetrieval(
-#'   statecode = "UT", startDate = "2024-06-01",
-#'   endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
+#'   statecode = "UT",
+#'   startDate = "2024-06-01",
+#'   endDate = "2024-07-01",
+#'   characteristicType = "Nutrient",
+#'   applyautoclean = TRUE,
 #'   ask = FALSE
 #' )
 #'
-#' df2 <- TADA_SimpleCensoredMethods(df,
-#'   nd_method = "multiplier",
-#'   nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
+#' df2 <- TADA_SimpleCensoredMethods(
+#'   df, nd_method = "multiplier", nd_multiplier = 0.5,
+#'   od_method = "as-is", od_multiplier = "null"
 #' )
 #'
 #' df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-#'
 #' df2 <- TADA_HarmonizeSynonyms(df2)
 #'
-#' df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-#'
+#' out <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+#' }
 TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   # check .data is data.frame and has required columns
   req_cols <- c(
@@ -505,9 +560,8 @@ TADA_CalculateTotalNP <- function(.data, sum_ref, daily_agg = "max") {
   #
   # # Print the test result
   # if (test_result) {
-  #   print("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
+  #   message("Test passed: The sum of rows in include_df and exclude_df equals the total rows in .data.")
   # } else {
-  #   print("Test failed: The sum of rows in include_df and exclude_df does not equal the total rows in .data.")
   # }
 
   # bring in custom reference df if provided
@@ -917,29 +971,42 @@ TADA_AggregateMeasurements <- function(
   agg_fun = c("max", "min", "mean"),
   clean = FALSE
 ) {
-  # check .data is data.frame and has required columns
-  TADA_CheckColumns(.data, grouping_cols)
-  # Check if the input data frame is empty
+  # Require grouping columns + identifiers/values we depend on
+  req_cols <- unique(c(
+    grouping_cols,
+    "ResultIdentifier",
+    "TADA.ResultMeasureValue"
+  ))
+  TADA_CheckColumns(.data, req_cols)
+
+  # Short-circuit empty input
   if (nrow(.data) == 0) {
     message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    return(NULL)
   }
 
   agg_fun <- match.arg(agg_fun)
 
-  # Find multiple values in groups
+  # Count per group
   ncount <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
-    dplyr::summarise(ncount = length(ResultIdentifier))
+    dplyr::summarise(ncount = length(.data$ResultIdentifier), .groups = "drop")
 
   if (max(ncount$ncount) < 2) {
     message("TADA_AggregateMeasurements: No rows to aggregate.")
     return(.data)
   } else {
-    dat <- merge(.data, ncount, all.x = TRUE)
+    dat <- dplyr::left_join(
+      .data,
+      ncount,
+      by = grouping_cols,
+      na_matches = "na"
+    )
 
     if (any(is.na(dat$TADA.ResultMeasureValue))) {
-      "TADA_AggregateMeasurements: Your dataset contains one or more rows where TADA.ResultMeasureValue = NA. Recommend removing these rows before proceeding. Otherwise, the function will not consider NAs in its calculations."
+      warning(
+        "TADA_AggregateMeasurements: One or more rows have TADA.ResultMeasureValue = NA. These NAs are ignored in aggregation."
+      )
     }
 
     dat$TADA.ResultValueAggregation.Flag <- ifelse(
@@ -952,7 +1019,6 @@ TADA_AggregateMeasurements <- function(
       )
     )
     multiples <- dat |> dplyr::filter(ncount > 1)
-
     dat <- dat |> dplyr::select(-ncount)
 
     if (agg_fun == "max") {
@@ -969,11 +1035,12 @@ TADA_AggregateMeasurements <- function(
         dat$TADA.ResultValueAggregation.Flag
       )
     }
+
     if (agg_fun == "min") {
       out <- multiples |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::slice_min(
-          order_by = TADA.ResultMeasureValue,
+          order_by = .data$TADA.ResultMeasureValue,
           n = 1,
           with_ties = FALSE
         )
@@ -983,36 +1050,45 @@ TADA_AggregateMeasurements <- function(
         dat$TADA.ResultValueAggregation.Flag
       )
     }
+
     if (agg_fun == "mean") {
+      # Compute mean value; pick a deterministic metadata row to keep (ResultIdentifier lowest)
       out <- multiples |>
         dplyr::group_by(dplyr::across(dplyr::all_of(grouping_cols))) |>
         dplyr::mutate(
-          TADA.ResultMeasureValue1 = mean(TADA.ResultMeasureValue, na.rm = TRUE)
+          TADA.ResultMeasureValue1 = mean(
+            .data$TADA.ResultMeasureValue,
+            na.rm = TRUE
+          )
         ) |>
-        dplyr::slice_sample(n = 1) |>
+        dplyr::slice_min(.data$ResultIdentifier, n = 1, with_ties = FALSE) |>
         dplyr::mutate(
           TADA.ResultValueAggregation.Flag = paste0(
             "Selected as ",
             agg_fun,
-            " aggregate value, with randomly selected metadata from a row in the aggregate group"
+            " aggregate value, with deterministically selected metadata from the group"
           )
+        ) |>
+        dplyr::select(-.data$TADA.ResultMeasureValue) |>
+        dplyr::rename(
+          TADA.ResultMeasureValue = .data$TADA.ResultMeasureValue1
+        ) |>
+        dplyr::mutate(
+          ResultIdentifier = paste0("TADA-", .data$ResultIdentifier)
         )
-      out <- out |>
-        dplyr::select(-TADA.ResultMeasureValue) |>
-        dplyr::rename(TADA.ResultMeasureValue = TADA.ResultMeasureValue1) |>
-        dplyr::mutate(ResultIdentifier = paste0("TADA-", ResultIdentifier))
-      dat <- plyr::rbind.fill(dat, out)
+
+      dat <- dplyr::bind_rows(dat, out)
     }
 
     if (clean == TRUE) {
       dat <- subset(
         dat,
         !dat$TADA.ResultValueAggregation.Flag %in%
-          c(paste0(
+          paste0(
             "Considered in ",
             agg_fun,
             " aggregation function but not selected"
-          ))
+          )
       )
     }
 

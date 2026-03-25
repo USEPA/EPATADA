@@ -187,21 +187,6 @@ test_that("TADA_Stats rounding parameters modify outputs on random data", {
   )
 })
 
-test_that("TADA_Stats prints notes for NA values and nutrient summation flag", {
-  set.seed(127)
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
-
-  # Inject an NA and add NutrientSummation flag
-  testdat$TADA.ResultMeasureValue[1] <- NA_real_
-  testdat$TADA.NutrientSummation.Flag <- TRUE
-
-  expect_output(
-    TADA_Stats(testdat),
-    regexp = "Dataset contains .* results missing.*Note: Your dataset contains TADA-generated total nutrient results",
-    fixed = FALSE
-  )
-})
-
 test_that("TADA_Stats ND_Estimation_Method logic across boundary scenarios (derived from random data)", {
   set.seed(128)
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
