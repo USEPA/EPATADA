@@ -2,9 +2,9 @@
 % Please edit documentation in R/TADARefTables.R
 \name{TADA_GetSynonymRef}
 \alias{TADA_GetSynonymRef}
-\title{Generate Unique Synonym Reference Table}
+\title{Get Unique Synonym Reference Table}
 \usage{
-TADA_GetSynonymRef(.data)
+TADA_GetSynonymRef(.data = NULL)
 }
 \arguments{
 \item{.data}{TADA dataframe. If a dataframe is not provided, the function will return the default internal reference table.}
@@ -25,19 +25,4 @@ target columns in the reference table to meet their needs. Additionally, the fun
 the user has already removed any data containing suspect characteristic-unit-fraction-speciation
 combinations (i.e. user has already run TADA_FlagFraction, TADA_FlagSpeciation, TADA_FlagResultUnit,
 etc.).
-}
-\examples{
-# Load example dataset:
-utils::data(Data_6Tribes_5y)
-
-# Create a synonym reference table for flagged, cleaned dataframe:
-Data_6Tribes_5yClean <- subset(Data_6Tribes_5y, !is.na(Data_6Tribes_5y$TADA.ResultMeasureValue))
-Data_6Tribes_5yClean <- TADA_FlagFraction(Data_6Tribes_5yClean, clean = TRUE)
-Data_6Tribes_5yClean <- TADA_FlagResultUnit(Data_6Tribes_5yClean, clean = "suspect_only")
-Data_6Tribes_5yClean <- TADA_FlagSpeciation(Data_6Tribes_5yClean, clean = "suspect_only")
-Data_6Tribes_5yClean <- TADA_FlagMethod(Data_6Tribes_5yClean, clean = TRUE)
-CreateRefTable <- TADA_GetSynonymRef(Data_6Tribes_5yClean)
-
-# Get internal synonym reference table
-reference <- TADA_GetSynonymRef()
 }

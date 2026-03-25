@@ -13,60 +13,143 @@ TADA_SimpleCensoredMethods(
 )
 }
 \arguments{
-\item{.data}{A TADA dataframe}
+\item{.data}{A TADA dataframe. If TADA.CensoredData.Flag is not present, the
+function will call TADA_IDCensoredData to generate it (and may call
+TADA_FlagMeasureQualifierCode inside that step).}
 
-\item{nd_method}{A text string indicating the type of method used to populate a non-detect
-(lower limit) data value. Can be set to "multiplier" (default),"randombelowlimit", or "as-is".}
+\item{nd_method}{Character. Method for Non-Detect handling: "multiplier"
+(default), "randombelowlimit", or "as-is".}
 
-\item{nd_multiplier}{A number to be multiplied to the LOWER detection limit for each entry to obtain the censored data value. Must be supplied if nd_method = "multiplier". Defaults to 0.5, or half the detection limit.}
+\item{nd_multiplier}{Numeric scalar. Multiplier applied to the LOWER detection
+limit when nd_method = "multiplier". Default is 0.5 (half the detection limit).}
 
-\item{od_method}{A text string indicating the type of method used to populate an over-detect (upper limit) data value. Can be set to "multiplier" or "as-is" (default).}
+\item{od_method}{Character. Method for Over-Detect handling: "multiplier" or
+"as-is" (default).}
 
-\item{od_multiplier}{A number to be multiplied to the UPPER detection limit for each entry to obtain the censored data value. Must be supplied if od_method = "multiplier". Defaults to 0.5, or half the detection limit.}
+\item{od_multiplier}{Numeric scalar or "null". Multiplier applied to the UPPER
+detection limit when od_method = "multiplier". When od_method = "as-is", this
+parameter is ignored. If od_method = "multiplier", a numeric multiplier must
+be supplied.}
 }
 \value{
-A TADA dataframe with the additional column TADA.CensoredMethod,
-which documents the method used to fill censored data values.
-If user has not previously run TADA_IDCensoredData or
-TADA_FlagMeasureQualifierCode, this function will also run those and add the
-columns TADA.CensoredData.Flag, TADA.MeasureQualifierCode.Flag and
-TADA.MeasureQualifierCode.Def.
+A TADA dataframe with:
+\itemize{
+\item Updated TADA.ResultMeasureValue for censored records according to the chosen method(s),
+\item Updated TADA.ResultMeasureValueDataTypes.Flag documenting that values were
+estimated from detection limits,
+\item Added TADA.CensoredMethod indicating the method used (e.g., "Detection Limit Value
+Multiplied by 0.5", "Random Value Between 0 and Detection Limit Using this Multiplier: 0.317"),
+\item For problematic records (missing detection condition or undocumented types),
+values/units are set to NA and the data type flag indicates they cannot be
+estimated from detection limits.
+}
 }
 \description{
-This function determines if detection limit type and detection condition are parsimonious
-before applying simple tools for non-detect and over-detect data handling, including filling
-in the values as-is, X times the detection limit, or a random number between 0
-and the LOWER detection limit. These methods do NOT depend upon censored data frequency
-in the dataframe.
+Apply simple, non-frequency-based methods to populate values for censored
+results categorized as "Non-Detect" (lower limit) or "Over-Detect" (upper limit).
+This function first ensures censored data are identified and categorized by
+calling TADA_IDCensoredData (if needed), then fills result values using one of
+the supported methods:
+\itemize{
+\item For Non-Detects (lower limits):
+\itemize{
+\item "multiplier": value = nd_multiplier × lower detection limit (default)
+\item "randombelowlimit": value = U(0, 1) × lower detection limit (a new random
+uniform value per row)
+\item "as-is": retain lower detection limit value unchanged
+}
+\item For Over-Detects (upper limits):
+\itemize{
+\item "multiplier": value = od_multiplier × upper detection limit
+\item "as-is": retain upper detection limit value unchanged (default)
+}
+}
 }
 \details{
-This function runs TADA_IDCensoredData within it which adds the column
-TADA.CensoredData.Flag. Enter ?TADA_IDCensoredData into the console for more
-information.
+Records flagged as:
+\itemize{
+\item "Detection condition is missing and required for censored data ID."
+\item "Detection condition or detection limit is not documented in TADA reference tables."
+are set to NA for TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode and
+given TADA.ResultMeasureValueDataTypes.Flag =
+"Result Value/Unit Cannot Be Estimated From Detection Limit".
+}
+
+If the dataframe contains no censored results, the function returns the input
+unchanged and prints an informational message.
+
+This function assumes detection limits have already been copied to
+TADA.ResultMeasureValue and TADA.ResultMeasure.MeasureUnitCode for censored
+records by TADA_IDCensoredData when feasible. It coerces TADA.ResultMeasureValue to
+numeric before applying multipliers or randomness.
+
+Required columns in .data (either pre-existing or created by TADA_IDCensoredData):
+\itemize{
+\item ResultIdentifier
+\item ResultMeasureValue
+\item ResultDetectionConditionText
+\item DetectionQuantitationLimitTypeName
+\item TADA.ResultMeasureValueDataTypes.Flag
+\item TADA.ResultMeasureValue
+\item TADA.ResultMeasure.MeasureUnitCode
+\item TADA.CensoredData.Flag
+}
 }
 \examples{
 \dontrun{
 # Load example dataframe:
 utils::data(Data_Nutrients_UT)
-# Check for agreement between detection condition and detection limit type,
-# and in instances where the measurement is non-detect, set the result value
-# to half of the detection limit value. For over-detect measurements, retain
-# the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <-
-  TADA_SimpleCensoredMethods(Data_Nutrients_UT,
-    nd_method = "multiplier",
-    nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
-  )
 
-# Check for agreement between detection condition and detection limit type,
-# and in instances where the measurement is non-detect, set the result value
-# to a random value between 0 and the detection limit value. For over-detect
-# measurements, retain the detection limit value as the result value as-is.
-Data_Nutrients_UT_CensoredFlag <-
-  TADA_SimpleCensoredMethods(Data_Nutrients_UT,
-    nd_method = "randombelowlimit", nd_multiplier = "null",
-    od_method = "as-is", od_multiplier = "null"
-  )
+# Example 1: Fill Non-Detects with half the lower detection limit,
+# keep Over-Detects as-is
+dat_simple <- TADA_SimpleCensoredMethods(
+  Data_Nutrients_UT,
+  nd_method = "multiplier",
+  nd_multiplier = 0.5,
+  od_method = "as-is",
+  od_multiplier = "null"
+)
+table(dat_simple$TADA.CensoredData.Flag)
+head(subset(dat_simple, TADA.CensoredData.Flag == "Non-Detect")[
+  , c("ResultIdentifier", "TADA.ResultMeasureValue",
+    "TADA.ResultMeasure.MeasureUnitCode", "TADA.CensoredMethod")
+])
+
+# Example 2: Randomize Non-Detects below the detection limit, keep Over-Detects as-is
+set.seed(42)
+dat_rand <- TADA_SimpleCensoredMethods(
+  Data_Nutrients_UT,
+  nd_method = "randombelowlimit",
+  nd_multiplier = "null",
+  od_method = "as-is",
+  od_multiplier = "null"
+)
+head(subset(dat_rand, TADA.CensoredData.Flag == "Non-Detect")[
+  , c("ResultIdentifier", "TADA.ResultMeasureValue", "TADA.CensoredMethod")
+])
+
+# Example 3: Apply multipliers to both Non-Detects and Over-Detects
+dat_both <- TADA_SimpleCensoredMethods(
+  Data_Nutrients_UT,
+  nd_method = "multiplier",
+  nd_multiplier = 0.2,
+  od_method = "multiplier",
+  od_multiplier = 0.8
+)
+head(subset(dat_both, TADA.CensoredData.Flag \%in\% c("Non-Detect", "Over-Detect"))[
+  , c("ResultIdentifier", "TADA.ResultMeasureValue", "TADA.CensoredMethod")
+])
+
+# Example 4: If no censored data are present, the function returns the input
+dat_unc <- subset(Data_Nutrients_UT, FALSE)  # empty subset for illustration
+res <- TADA_SimpleCensoredMethods(dat_unc)
+# message: "Cannot apply simple censored methods to dataframe with no censored
+# data results. Returning input dataframe."
 }
-
+}
+\seealso{
+\itemize{
+\item TADA_IDCensoredData for censored data identification and flagging
+\item TADA_FlagMeasureQualifierCode for measure qualifier flagging that can aid in censor identification
+}
 }

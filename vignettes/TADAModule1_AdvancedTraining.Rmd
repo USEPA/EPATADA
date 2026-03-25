@@ -54,7 +54,7 @@ TADA is an open-source tool set built in the R programming language and
 available for anyone to download and edit to their specific needs. This
 **TADA Module 1: Training for Intermediate/Advanced R Users** RMarkdown
 document ([learn more about
-RMarkdown](https://bookdown.org/yihui/rmarkdown/)) walks through how to
+RMarkdown](https://yihui.org/rmarkdown/)) walks through how to
 download the TADA R package from GitHub, access and parameterize several
 important functions with a sample dataframe, and create basic
 visualizations.
@@ -146,21 +146,11 @@ their column names and data formats (e.g. numeric, character) align with
 WQP profiles.
 
 If you are interested in reviewing the column headers and formats
-required to run TADA, use the function below, which saves an example
-spreadsheet to the user's working directory.
+required to run TADA, use the function below.
 
-```{r template, eval = F}
-getwd() # find your working directory
-template <- TADA_GetTemplate() # download template to working directory
-```
-
-You can also take a look at an example dataframe, like
-`Data_Nutrients_UT` to get an idea of the data structure and format.
-
-```{r UT example data}
-utils::data(Data_Nutrients_UT)
-# review example dataframe
-exampledata_Nutrients_UT <- Data_Nutrients_UT
+```{r template, eval = T}
+template <- TADA_GetTemplate()
+template
 ```
 
 `TADA_DataRetrieval` is built upon USGS's `dataRetrieval::readWQPdata`
@@ -208,8 +198,11 @@ about input parameters and to see several examples.
 
 # For brevity, we'll skip pinging the WQP and instead load the example dataframe:
 dataset_0 <- Data_6Tribes_5y
+```
 
-# Let's take a look at all of the TADA-created columns:
+Let's take a look at all of the TADA-created columns:
+
+```{r TADAcols}
 names(dataset_0)[grepl("TADA.", names(dataset_0))]
 ```
 
@@ -688,7 +681,7 @@ characteristic groups.
 
 ```{r select comp id}
 # Look at a histogram, boxplot, and stats for TADA.ComparableDataIdentifier(s) of your choice.
-comp_data_id <- "PH_NA_NA_NONE"
+comp_data_id <- "PH_NONE_NONE_NONE"
 
 plot_data <- subset(dataset_cens, dataset_cens$TADA.ComparableDataIdentifier %in% comp_data_id)
 ```
@@ -739,9 +732,9 @@ secchi depth, and pH.
 ```{r depth plot}
 TADA_DepthProfilePlot(dataset_cens,
   groups = c(
-    "TEMPERATURE, WATER_NA_NA_DEG C",
-    "DEPTH, SECCHI DISK DEPTH_NA_NA_M",
-    "PH_NA_NA_NONE"
+    "TEMPERATURE, WATER_NONE_NONE_DEG C",
+    "DEPTH, SECCHI DISK DEPTH_NONE_NONE_M",
+    "PH_NONE_NONE_NONE"
   ),
   location = "REDLAKE_WQX-ANKE",
   activity_date = "2018-10-04",

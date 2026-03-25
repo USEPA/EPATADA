@@ -17,7 +17,7 @@ datasets and geospatial layers.
 \details{
 The function sequentially calls several internal functions that update different sets
 of reference data. Some updates may take longer than others, particularly the
-\code{TADA_UpdateATTAINSParamUseOrgRef()} function.
+\code{.TADA_UpdateATTAINSParamUseOrgRef()} function.
 
 The specific reference files updated by this function include:
 \itemize{

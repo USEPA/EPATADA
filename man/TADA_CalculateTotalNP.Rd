@@ -7,122 +7,78 @@
 TADA_CalculateTotalNP(.data, sum_ref, daily_agg = "max")
 }
 \arguments{
-\item{.data}{TADA dataframe. TADA_AutoClean() must have been run (and the
-TADA.ResultMeasureValueDataTypes.Flag added)
-before this TM/TP summation function can be used.
-This function runs required flag functions
-(TADA_FindQCActivities, TADA_FlagResultUnit, TADA_FlagFraction, TADA_FlagSpeciation) if
-they have not yet been run. Suspect and invalid combinations are not included in
-TN and TP summation. While not required for this function to run, ideally,
-users should also run TADA_SimpleCensoredMethods
-and TADA_HarmonizeSynonyms before this function.
-If user wants to consider grouping N or P subspecies across multiple
-organizations, user should have also run TADA_FindNearbySites and grouped all
-nearby sites to one common TADA.MonitoringLocationIdentifier,
-TADA.LatitudeMeasure, TADA.LongitudeMeasure, etc.}
+\item{.data}{TADA dataframe. \code{\link[=TADA_AutoClean]{TADA_AutoClean()}} should have been run and
+TADA.ResultMeasureValueDataTypes.Flag must be present. The function will run
+required flag functions if needed. Suspect/invalid combinations are excluded.}
 
-\item{sum_ref}{Optional. A custom summation reference dataframe the user has
-loaded into the R environment. Dataframe must have same columns as default
-TADA.summation reference table.}
+\item{sum_ref}{Optional custom summation reference dataframe with the same
+columns as the internal reference; if omitted, the internal reference is used.}
 
-\item{daily_agg}{If there are multiple measurements for the same
-characteristic-unit-fraction-speciation-media combination at the same location
-(TADA.MonitoringLocationIdentifier) on the same day (ActivityStartDate),
-this will select a single measurement to use in the
-Total N or Total P summation. Defaults to 'max', but can be set
-to 'min' or 'mean'.}
+\item{daily_agg}{Aggregation function used to collapse multiple measurements
+per day/site/metadata combination. One of "max", "min", or "mean". Defaults to "max".}
 }
 \value{
-TADA dataframe with additional rows representing total N and P
-summation values from adding up subspecies. Note that for total phosphorus,
-these additional rows are simply a re-classification of phosphorus or
-phosphate into the total phosphorus as P format. These new rows share the
-same date and monitoring location as the subspecies, but an additional note
-is added in the TADA.NutrientSummation.Flag column describing how the total
-was derived. Also adds TADA.NutrientSummationGroup and
-TADA.NutrientSummationEquation columns, which can be used to trace how the
-total was calculated and from which subspecies.
+The input dataframe plus additional rows representing TN and TP totals,
+with explanatory flags: TADA.NutrientSummation.Flag, TADA.NutrientSummationGroup,
+and TADA.NutrientSummationEquation. Original rows not used in summations are preserved.
 }
 \description{
-This function applies the \href{https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation#nitrogen}{Nutrient Aggregation logic}
-from ECHO's Water Pollutant Loading Tool to add nitrogen subspecies together
-to approximate a total nitrogen value on a single day at a single site. Additional
-rows are added with the total nitrogen and total phosphorous estimations.
-Before summing subspecies, this function runs TADA_AggregateMeasurements to
-obtain the max value of a characteristic-fraction-speciation-unit-media
-combination at a given site
-and date. Where necessary, it uses conversion factors to convert
-nitrogen subspecies expressed as nitrate, nitrite, ammonia, ammonium, etc. to
-as nitrogen based on the atomic weights of the different elements in the
-compound. Similarly, phosphate and other phosphorus forms are converted to
-AS P where applicable. The reference table is contained within the package but may be
-edited/customized by users.
+Apply nutrient aggregation logic from EPA's Enforcement and Compliance History
+Online (ECHO) Water Pollutant Loading Tool
+to add nitrogen subspecies and phosphorus forms together to approximate
+total nitrogen (TN) and total phosphorus (TP) by site and day.
 }
 \details{
-Nutrient equations are as follows:
-
-NITROGEN:
-\enumerate{
-\item TOTAL N (UNFILTERED)
-\item TOTAL N (FILTERED) + TOTAL N (PARTICULATE)
-\item TOTAL KJELDAHL NITROGEN + NITRATE + NITRITE
-\item ORGANIC N + AMMONIA + NITRATE + NITRITE
-\item OTHER NITROGEN FORMS
+Before summing, the function aggregates measurements to a single daily value
+per characteristic–unit–fraction–speciation–media combination using the chosen
+\code{daily_agg}. Where needed, it converts nitrogen subspecies to "AS N" and
+phosphorus forms to "AS P" using conversion factors in the summation reference.
+The internal summation reference can be customized and supplied via \code{sum_ref}.
+\itemize{
+\item If required QA/QC flagging columns are absent, the function runs
+\code{\link[=TADA_FindQCActivities]{TADA_FindQCActivities()}} (clean = FALSE), \code{\link[=TADA_FlagResultUnit]{TADA_FlagResultUnit()}} (clean = "none"),
+\code{\link[=TADA_FlagFraction]{TADA_FlagFraction()}} (clean = FALSE), and \code{\link[=TADA_FlagSpeciation]{TADA_FlagSpeciation()}} (clean = "none"),
+and excludes invalid or suspect combinations from TN/TP summations.
+\item The function will not run a second time on the same data: if
+TADA.ResultMeasureValueDataTypes.Flag already contains "TN/TP estimated...",
+the input is returned unchanged.
+\item Daily aggregation uses \code{daily_agg} ("max", "min", or "mean") per site/day
+and metadata combination. Rows considered but not selected are preserved
+with explanatory flags.
+\item Keys are normalized (trim whitespace; \code{""} and \code{"NONE"} become \code{NA}) before
+matching to the summation reference; the join is NA-aware (dplyr >= 1.1.0).
+\item Speciation conversions are applied where a conversion factor is provided.
+\item New rows for TN/TP totals are added with deterministic ResultIdentifier values
+based on site/date/group to ease testing and traceability.
 }
-
-PHOSPHORUS:
-\enumerate{
-\item TOTAL PHOSPHORUS
-\item PHOSPHATE
-\item OTHER PHOSPHORUS FORMS
 }
-
-Equations are applied in the order above. The function looks for groups of
-nutrients that exactly match each equation before looking for every
-combination within each equation (for example, a group of nitrogen subspecies
-including AMMONIA and NITRATE will be passed over in an initial sweep of
-groups of subspecies containing ORGANIC N, AMMONIA, NITRATE, and NITRITE, but
-will be caught as the function moves down the hierarchy of equations to fewer
-and fewer subspecies). Eventually, even groups with only one subspecies will
-be used to represent a TOTAL N value for that site/day/depth.
+\note{
+Requires dplyr >= 1.1.0 for NA-aware joins when matching to the summation ref.
 }
 \examples{
+\dontrun{
 df <- TADA_DataRetrieval(
-  statecode = "UT", startDate = "2024-06-01",
-  endDate = "2024-07-01", characteristicType = "Nutrient", applyautoclean = TRUE,
+  statecode = "UT",
+  startDate = "2024-06-01",
+  endDate = "2024-07-01",
+  characteristicType = "Nutrient",
+  applyautoclean = TRUE,
   ask = FALSE
 )
 
-df2 <- TADA_SimpleCensoredMethods(df,
-  nd_method = "multiplier",
-  nd_multiplier = 0.5, od_method = "as-is", od_multiplier = "null"
+df2 <- TADA_SimpleCensoredMethods(
+  df, nd_method = "multiplier", nd_multiplier = 0.5,
+  od_method = "as-is", od_multiplier = "null"
 )
 
 df2 <- TADA_RunKeyFlagFunctions(df2, clean = TRUE)
-
 df2 <- TADA_HarmonizeSynonyms(df2)
 
-df3 <- TADA_CalculateTotalNP(df2, daily_agg = "max")
-
+out <- TADA_CalculateTotalNP(df2, daily_agg = "max")
+}
 }
 \seealso{
-\code{\link[=TADA_AggregateMeasurements]{TADA_AggregateMeasurements()}}
-
-\code{\link[=TADA_FlagDepthCategory]{TADA_FlagDepthCategory()}}
-
-\code{\link[=TADA_SimpleCensoredMethods]{TADA_SimpleCensoredMethods()}}
-
-\code{\link[=TADA_HarmonizeSynonyms]{TADA_HarmonizeSynonyms()}}
-
-\code{\link[=TADA_FindNearbySites]{TADA_FindNearbySites()}}
-
-\code{\link[=TADA_FindQCActivities]{TADA_FindQCActivities()}}
-
-\code{\link[=TADA_FlagResultUnit]{TADA_FlagResultUnit()}}
-
-\code{\link[=TADA_FlagFraction]{TADA_FlagFraction()}}
-
-\code{\link[=TADA_FlagSpeciation]{TADA_FlagSpeciation()}}
-
-\code{\link[=TADA_AutoClean]{TADA_AutoClean()}}
+\code{\link[=TADA_AggregateMeasurements]{TADA_AggregateMeasurements()}}, \code{\link[=TADA_FlagResultUnit]{TADA_FlagResultUnit()}},
+\code{\link[=TADA_FlagFraction]{TADA_FlagFraction()}}, \code{\link[=TADA_FlagSpeciation]{TADA_FlagSpeciation()}}, \code{\link[=TADA_HarmonizeSynonyms]{TADA_HarmonizeSynonyms()}},
+\code{\link[=TADA_GetNutrientSummationRef]{TADA_GetNutrientSummationRef()}}
 }

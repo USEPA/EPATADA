@@ -2,17 +2,53 @@
 % Please edit documentation in R/TADARefTables.R
 \name{TADA_GetNutrientSummationRef}
 \alias{TADA_GetNutrientSummationRef}
-\title{Nutrient Summation Reference Key}
+\title{Get Nutrient Summation Reference Key}
 \usage{
 TADA_GetNutrientSummationRef()
 }
 \value{
-Dataframe of nutrient summation combinations
+A data.frame of nutrient summation combinations with normalized keys.
 }
 \description{
-Function downloads and returns the newest available nutrient summation
-reference dataframe. This dataframe is used in TADA_CalculateTotalNitrogen as
-the basis for the combinations added together to get total nitrogen. Users
-may customize this reference table for their own dataset and use the custom
-dataframe as an input in TADA_CalculateTotalNitrogen.
+Return the installed nutrient summation reference table used by
+TADA_CalculateTotalNP() to identify which nitrogen and phosphorus subspecies
+are combined into total N and total P.
+}
+\details{
+The internal file can be customized by users and supplied back to
+TADA_CalculateTotalNP() via the \code{sum_ref} argument.
+\itemize{
+\item Key columns (TADA.CharacteristicName, TADA.ResultSampleFractionText,
+TADA.MethodSpeciationName) are normalized: leading/trailing whitespace is
+trimmed and both \code{""} and \code{"NONE"} are treated as \code{NA}.
+\item Rows are de-duplicated after normalization.
+\item The CSV is read with \code{na.strings = c("", "NA")} so blanks are converted to \code{NA}.
+}
+
+Expected columns include, at minimum:
+\itemize{
+\item TADA.CharacteristicName
+\item TADA.ResultSampleFractionText
+\item TADA.MethodSpeciationName
+\item NutrientGroup
+\item SummationName
+\item SummationRank
+\item SummationNote
+\item SummationFractionNotes
+\item SummationSpeciationNotes
+\item SummationSpeciationConversionFactor
+}
+}
+\examples{
+ref <- TADA_GetNutrientSummationRef()
+head(ref)
+
+# Use a customized version:
+# my_ref <- ref
+# ...edit rows/targets as needed...
+# df_out <- TADA_CalculateTotalNP(df_in, sum_ref = my_ref)
+
+}
+\seealso{
+TADA_CalculateTotalNP()
 }

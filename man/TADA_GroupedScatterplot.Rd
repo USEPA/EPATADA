@@ -49,13 +49,13 @@ utils::data(Data_Nutrients_UT)
 # transform non-detect data
 df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 # create scatterplots for selected counties
-UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-  df2,
-  group_col = "CountyCode", groups = c("057", "011", "003", "037")
+UT_Nutrients_by_HUCEightDigitCode <- TADA_GroupedScatterplot(
+  Data_Nutrients_UT,
+  group_col = "HUCEightDigitCode", groups = c("14050007", "16020204", "14060008", "14080202")
 )
-# view the 3rd and 4th plots
-UT_Nutrients_by_CountyCode[[3]]
-UT_Nutrients_by_CountyCode[[4]]
+# view the 2nd and 3rd plots
+UT_Nutrients_by_HUCEightDigitCode[[2]]
+UT_Nutrients_by_HUCEightDigitCode[[3]]
 
 # Load example dataset:
 utils::data(Data_6Tribes_5y_Harmonized)
