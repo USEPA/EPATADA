@@ -95,13 +95,12 @@ NULL
 
 #' Data_MT_MissoulaCounty
 #'
-#' See Module 2 and 3 workflows for examples of this data set can be used in the
-#' TADA analysis workflow.
+#' This example data is used in the Module 2 and 3 vignettes.
 #'
 #' @docType data
 #' @keywords data frame
 #' @name Data_MT_MissoulaCounty
-#' @format A data frame with 426 rows and 161 variables
+#' @format A data frame with 426 rows and 162 variables
 NULL
 
 #' Data_MT_AUMLRef
@@ -133,4 +132,14 @@ NULL
 #' @docType data
 #' @name Data_MT_AU_UsesRef_Water
 #' @format A data frame with 48 rows and 6 variables.
+NULL
+
+#' Data_Participatory_Scientists
+#'
+#' Generate Data_Participatory_Scientists used in
+#' Participatory-Science-Water-Projects-in-WQX.Rmd
+#'
+#' @docType data
+#' @name Data_Participatory_Scientists
+#' @format A data frame with 41723 rows and 150 variables.
 NULL

@@ -9,8 +9,8 @@ TADA_RunKeyFlagFunctions(.data, clean = FALSE)
 \arguments{
 \item{.data}{A TADA dataframe.}
 
-\item{clean}{Boolean. Determines whether to keep the suspect rows (or not).
-Defaults to \code{FALSE}.}
+\item{clean}{Boolean. Must be TRUE or FALSE. Determines whether to keep the
+suspect rows (or not). Defaults to FALSE.}
 }
 \value{
 A TADA dataframe with the following flagging columns:
@@ -27,6 +27,6 @@ TADA_FlagMeasureQualifierCode, and TADA_FlagSpeciation for more information.
 # Run flagging functions but keep all results
 keep_all <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = FALSE)
 
-# Run flagging functions and remove and suspect rows
+# Run flagging functions and remove any suspect rows
 remove_suspect <- TADA_RunKeyFlagFunctions(Data_6Tribes_5y, clean = TRUE)
 }

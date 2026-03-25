@@ -1,4 +1,4 @@
-test_that("No NA's in dependent flag columns", {
+test_that("No NAs in dependent flag columns", {
   today <- Sys.Date()
   twoago <- as.character(today - 2 * 365)
   testdat <- TADA_DataRetrieval(

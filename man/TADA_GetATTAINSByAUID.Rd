@@ -6,9 +6,9 @@
 \usage{
 TADA_GetATTAINSByAUID(
   .data,
-  au_ref = NULL,
+  au_ref,
   fill_ATTAINS_catch = FALSE,
-  return_sf = TRUE
+  api_key = NULL
 )
 }
 \arguments{
@@ -32,19 +32,15 @@ are included in the output. When fill_ATTAINS_catch = FALSE, catchment data
 are not included. Setting fill_ATTAINS_catch = TRUE, may increase the
 run time of the function significantly. Default is fill_ATTAINS_catch = FALSE.}
 
-\item{return_sf}{Whether to return the ATTAINS associated catchments, lines,
-points, and polygon shapefile objects along with the data frame(s).
-TRUE (yes, return list) or FALSE (no, do not return). All shapefile features
-are in WGS84 (crs = 4326).}
+\item{api_key}{Optional character string. An api key for Expert Query web
+services. If not supplied, the default TADA api key will be used. For best
+performance, it is recommended that users obtain and use their own api key.
+Request an api key here: https://owapps.epa.gov/expertquery/api-documentation}
 }
 \value{
 A modified \code{TADA_DataRetrieval()} dataframe or list with additional
-columns associated with the ATTAINS assessment unit data, and, if
-fill_USGS_catch = TRUE, an additional dataframe of the observations without
-intersecting ATTAINS features.
-Moreover, if return_sf = TRUE, this function will additionally return the
-raw ATTAINS and catchment shapefile features associated with those
-observations.
+columns associated with the ATTAINS assessment unit data and the raw
+ATTAINS and catchment shapefile features associated with those observations.
 }
 \description{
 Returns ATTAINS data for assessment unit identifiers provided by the user.

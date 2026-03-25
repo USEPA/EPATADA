@@ -81,13 +81,6 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
@@ -118,7 +111,7 @@ their decision making processes. Use of EPATADA is not required.
 
 # Introduction to TADA Module 3
 
-This [RMarkdown](https://bookdown.org/yihui/rmarkdown/) document walks
+This [RMarkdown](https://yihui.org/rmarkdown/) document walks
 users through how to create WQP and ATTAINS crosswalks that are needed
 to define and capture organization specific water quality analysis
 criteria and methodologies. This is a continuation of an example TADA
@@ -128,7 +121,8 @@ Specifically, this vignette provides an overview of three functions that
 can assist users with:
 
 -   Creating a crosswalk (reference table) between ATTAINS parameter
-    names and WQP/TADA characteristic names/TADA comparable data identifier.
+    names and WQP/TADA characteristic names/TADA comparable data
+    identifier.
 
 -   Creating a crosswalk (reference table) of all unique combinations of
     ATTAINS uses and parameters applicable to your analysis needs.
@@ -143,10 +137,11 @@ link it information from ATTAINS. While TADA functions can help generate
 these crosswalks and fill in some values, users must review and modify
 the tables generated in each step to ensure accuracy. The TADA team has
 also incorporated national recommended Clean Water Act (CWA) EPA 304(a)
-numeric criteria for optional use in Module 3 functions that has been filled out and reviewed by the TADA team.
-This allows users to analyze their data against the EPA 304(a) criteria; and
-to easily compare results when when using EPA 304(a) criteria vs. their own state or tribe's
-criteria.
+numeric criteria for optional use in Module 3 functions that has been
+filled out and reviewed by the TADA team. This allows users to analyze
+their data against the EPA 304(a) criteria; and to easily compare
+results when when using EPA 304(a) criteria vs. their own state or
+tribe's criteria.
 
 # Getting Started
 
@@ -260,9 +255,9 @@ corresponding ATTAINS parameter name.
 
 TADA_ParametersForAnalysis() includes an argument input 'auto_assign' to
 assist users in finding an alias name between TADA Characteristic Names
-to ATTAINS Parameter Name, if one is found. It is important to note
-that even with these exact matches, there are additional complexities
-related to fraction, speciation and units that may be unique to your
+to ATTAINS Parameter Name, if one is found. It is important to note that
+even with these exact matches, there are additional complexities related
+to fraction, speciation and units that may be unique to your
 organization. For example, some organizations may consider Total
 Nitrogen, Nitrate/Nitrite, and Ammonia all to match the ATTAINS
 parameter "Nitrogen", while others may consider only some
@@ -459,7 +454,8 @@ identical(MT.ParamRef.Final[1:4], MT.ParamRef.user.supplied[1:4])
 TADA_TableExport(MT.ParamRef.Final)
 ```
 
-Remove intermediate variable, we will keep only the crosswalk tables that are relevant for the remaining workflow.
+Remove intermediate variable, we will keep only the crosswalk tables
+that are relevant for the remaining workflow.
 
 ```{r remove-intermediate-variables}
 rm(ParamRef, MT.ParamRef.All, MT.ParamRef.Manual, MT.ParamRef.None, MT.ParamRef.Org, MT.ParamRef.user.supplied)
@@ -472,7 +468,12 @@ and parameter names (ATTAINS.ParameterName) from the specified ATTAINS
 organization (defined by the org_id function argument for
 TADA_UsesForAnalysis), which in this case is "MTDEQ" (Montana) using
 ExpertQuery web services. Users will review the output and choose which
-ATTAINS.UseName(s) are applicable to their analysis. Later in the data analysis process, users will be asked to define criteria and methodologies that is applicable to each ATTAINS use name and parameter name labeled as "Include". If an ATTAINS.UseName is not applicable, users should choose "Exclude" for that ATTAINS parameter name and use name.
+ATTAINS.UseName(s) are applicable to their analysis. Later in the data
+analysis process, users will be asked to define criteria and
+methodologies that is applicable to each ATTAINS use name and parameter
+name labeled as "Include". If an ATTAINS.UseName is not applicable,
+users should choose "Exclude" for that ATTAINS parameter name and use
+name.
 
 ### Manual Uses to Parameter Assignment
 
@@ -522,7 +523,9 @@ add.data <- data.frame(
 )
 ```
 
-The output of this will not reflect changes to the ATTAINS.FlagUseName column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef = add_data as an argument input.
+The output of this will not reflect changes to the ATTAINS.FlagUseName
+column. To do so, we need to re run TADA_UsesForAnalysis() with usesRef
+= add_data as an argument input.
 
 ```{r usesRef-Manual-Update2}
 usesRef <- MT.usesRef.Manual |>

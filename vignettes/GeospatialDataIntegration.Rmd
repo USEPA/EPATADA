@@ -248,7 +248,7 @@ GreenBay_FoxRiver <- dplyr::filter(GreenBay_FoxRiver, TADA.ResultSelectedMultipl
 
 #### **Quality and other issues**
 
-Filter out any remaining irrelevant data, NA's and empty columns.
+Filter out any remaining irrelevant data, NAs and empty columns.
 
 ```{r autofilter}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -258,7 +258,7 @@ sum(is.na(GreenBay_FoxRiver$TADA.ResultMeasureValue))
 GreenBay_FoxRiver <- TADA_ConvertSpecialChars(GreenBay_FoxRiver, col = "TADA.ResultMeasureValue", clean = TRUE)
 ```
 
-Check to make sure there are no more NA's in TADA.ResultMeasureValue.
+Check to make sure there are no more NAs in TADA.ResultMeasureValue.
 
 ```{r recheck}
 unique(GreenBay_FoxRiver$TADA.ResultMeasureValueDataTypes.Flag)
@@ -420,9 +420,7 @@ subsets all of the NHDPlus.
 all_network <- dataRetrieval::findNLDI(comid = outlet$comid, nav = "UT", distance_km = 500)
 
 # we could select only comids on network
-if (FALSE) { # don't run this one
-  nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
-}
+nhdplus_data <- nhdplusTools::subset_nhdplus(comids = as.integer(all_network$UT_flowlines$nhdplus_comid), nhdplus_data = "download", flowline_only = FALSE)
 
 # or we could just get everything in the bbox to be sure we get non-network stuff too!
 nhdplus_data <- nhdplusTools::subset_nhdplus(
@@ -649,7 +647,7 @@ quality data is the WQP.
     applicable to their use case
 
 ```{r}
-WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, fill_USGS_catch = FALSE, return_sf = TRUE)
+WQP_with_ATTAINSonly <- TADA_CreateATTAINSAUMLCrosswalk(GreenBay_FoxRiver_Subset, return_sf = TRUE)
 
 TADA_ViewATTAINS(WQP_with_ATTAINSonly)
 ```

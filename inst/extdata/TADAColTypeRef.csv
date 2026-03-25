@@ -262,3 +262,13 @@ DistrCount,numeric
 DistrPeriod,character
 DistrMinSample,numeric
 Notes,character
+epsg,character
+ATTAINS.EcologicalUse,character
+ATTAINS.FishConsumptionUse,character
+ATTAINS.RecreationUse,character
+ATTAINS.OtherUse,character
+epsg,character
+Location_Latitude,numeric
+Activity_EndDate,character
+IncludeOrExclude,character
+TADA.AssessmentUnitStatus,character

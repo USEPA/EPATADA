@@ -89,11 +89,11 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
@@ -104,7 +104,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -247,7 +247,7 @@ TADA_Boxplot <- function(.data, id_cols = c("TADA.ComparableDataIdentifier")) {
 #'     "MonitoringLocationTypeName"
 #'   )
 #' )
-#' # This example generates 32 histograms
+#' # This example generates 46 histograms
 #' Histogram_output[[10]]
 #' Histogram_output[[25]]
 #' Histogram_output[[30]]
@@ -275,31 +275,39 @@ TADA_Histogram <- function(
 
   tada.pal <- TADA_ColorPalette(col_pair = TRUE)
 
-  start <- dim(.data)[1]
+  start <- nrow(.data)
 
   .data <- subset(.data, !is.na(.data$TADA.ResultMeasureValue))
 
-  end <- dim(.data)[1]
+  end <- nrow(.data)
 
   if (!start == end) {
     net <- start - end
-    print(paste0(
+    message(
       "Plotting function removed ",
       net,
       " results where TADA.ResultMeasureValue = NA. These results cannot be plotted."
-    ))
+    )
   }
 
   .data <- .data |>
     dplyr::group_by(dplyr::across(dplyr::all_of(id_cols))) |>
     dplyr::mutate(Group = dplyr::cur_group_id())
 
-  histograms <- list()
+  # split by groups
+  groups <- dplyr::group_split(.data, .keep = TRUE)
+  if (length(groups) == 0L) {
+    message("No data to plot; returning NULL.")
+    return(NULL)
+  }
 
-  for (i in 1:max(.data$Group)) {
-    plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
-      unique(plot.data[, id_cols]),
+  # create list of histograms
+  histograms <- vector("list", length(groups))
+
+  for (i in seq_along(groups)) {
+    plot.data <- groups[[i]]
+    groupid <- TADA_CharStringRemoveNANone(paste0(
+      unique(plot.data[, id_cols, drop = TRUE]),
       collapse = " "
     ))
 
@@ -412,7 +420,6 @@ TADA_Histogram <- function(
 
   return(histograms)
 }
-
 
 #' Field Values Pie Chart
 #'
@@ -608,7 +615,7 @@ TADA_Scatterplot <- function(
 
   for (i in 1:max(.data$Group)) {
     plot.data <- subset(.data, .data$Group == i)
-    groupid <- TADA_CharStringRemoveNA(paste0(
+    groupid <- TADA_CharStringRemoveNANone(paste0(
       unique(plot.data[, id_cols]),
       collapse = " "
     ))
@@ -770,22 +777,18 @@ TADA_Scatterplot <- function(
 #'
 #' @examples
 #' # Load example dataset:
-#' utils::data(Data_Nutrients_UT)
-#' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
-#' TADA_TwoCharacteristicScatterplot(Data_Nutrients_UT,
-#'   id_cols = "TADA.ComparableDataIdentifier",
-#'   groups = c(
-#'     "AMMONIA_UNFILTERED_AS N_MG/L",
-#'     "NITRATE_UNFILTERED_AS N_MG/L"
-#'   )
-#' )
-#'
-#' # Load example dataset:
 #' utils::data(Data_6Tribes_5y_Harmonized)
+#' # Review monitoring location and result counts for each TADA.ComparableDataIdentifier
+#' TADA_SummarizeColumn(Data_6Tribes_5y_Harmonized, col = "TADA.ComparableDataIdentifier")
+#'
 #' # Create a single scatterplot with two specified groups from TADA.ComparableDataIdentifier
+#' # These two have the most results in the example data
 #' TADA_TwoCharacteristicScatterplot(Data_6Tribes_5y_Harmonized,
 #'   id_cols = "TADA.ComparableDataIdentifier",
-#'   groups = c("TEMPERATURE_NA_NA_DEG C", "PH_NONE_NONE_NONE")
+#'   groups = c(
+#'     "TEMPERATURE_NONE_NONE_DEG C",
+#'     "PH_NONE_NONE_NONE"
+#'   )
 #' )
 #'
 TADA_TwoCharacteristicScatterplot <- function(
@@ -810,7 +813,7 @@ TADA_TwoCharacteristicScatterplot <- function(
   TADA_CheckColumns(.data, expected_cols)
 
   if (!"TADA.ComparableDataIdentifier" %in% id_cols) {
-    print(
+    message(
       "Note: TADA.ComparableDataIdentifier not found in id_cols argument and is highly recommended."
     )
   }
@@ -1148,13 +1151,13 @@ TADA_TwoCharacteristicScatterplot <- function(
 #' # transform non-detect data
 #' df2 <- TADA_SimpleCensoredMethods(Data_Nutrients_UT)
 #' # create scatterplots for selected counties
-#' UT_Nutrients_by_CountyCode <- TADA_GroupedScatterplot(
-#'   df2,
-#'   group_col = "CountyCode", groups = c("057", "011", "003", "037")
+#' UT_Nutrients_by_HUCEightDigitCode <- TADA_GroupedScatterplot(
+#'   Data_Nutrients_UT,
+#'   group_col = "HUCEightDigitCode", groups = c("14050007", "16020204", "14060008", "14080202")
 #' )
-#' # view the 3rd and 4th plots
-#' UT_Nutrients_by_CountyCode[[3]]
-#' UT_Nutrients_by_CountyCode[[4]]
+#' # view the 2nd and 3rd plots
+#' UT_Nutrients_by_HUCEightDigitCode[[2]]
+#' UT_Nutrients_by_HUCEightDigitCode[[3]]
 #'
 #' # Load example dataset:
 #' utils::data(Data_6Tribes_5y_Harmonized)
@@ -1259,7 +1262,7 @@ TADA_GroupedScatterplot <- function(
     }
 
     # print message describing groups that will be plotted
-    print(paste0(
+    message(
       "TADA_GroupedScatterplot: No 'groups' selected for ",
       group_col,
       ". There are ",
@@ -1274,7 +1277,7 @@ TADA_GroupedScatterplot <- function(
       groups.string,
       ".",
       sep = ""
-    ))
+    )
 
     # remove intermediate objects
     rm(groups.string, n.groups.plotted)
@@ -1345,9 +1348,9 @@ TADA_GroupedScatterplot <- function(
     title <- stringr::str_wrap(
       paste0(
         "Scatterplot of ",
-        TADA_CharStringRemoveNA(unique(plot.data$TADA.ComparableDataIdentifier)[
-          i
-        ]),
+        TADA_CharStringRemoveNANone(unique(
+          plot.data$TADA.ComparableDataIdentifier
+        )[i]),
         " Over Time"
       ),
       width = 45
@@ -1389,8 +1392,8 @@ TADA_GroupedScatterplot <- function(
         ),
         yaxis = list(
           title = paste(
-            TADA_CharStringRemoveNA(plot.data.y$TADA.CharacteristicName[1]),
-            TADA_CharStringRemoveNA(unique(
+            TADA_CharStringRemoveNANone(plot.data.y$TADA.CharacteristicName[1]),
+            TADA_CharStringRemoveNANone(unique(
               plot.data.y$TADA.ResultMeasure.MeasureUnitCode
             ))
           ),
@@ -1507,7 +1510,7 @@ TADA_GroupedScatterplot <- function(
     all_scatterplots[[i]] <- scatterplot
 
     # rename scatterplots to reflect TADA.ComparbaleDataIdentifier (with NAs removed)
-    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNA(
+    names(all_scatterplots)[i] <- unique(TADA_CharStringRemoveNANone(
       plot.data$TADA.ComparableDataIdentifier
     ))[i]
   }

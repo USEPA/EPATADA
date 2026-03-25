@@ -85,13 +85,6 @@ remotes::install_github("USEPA/EPATADA",
 # remotes::install_github("USGS-R/dataRetrieval", dependencies=TRUE)
 ```
 
-```{r dev_install, eval = F, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
@@ -501,7 +494,7 @@ Harmonized_data <- TADA_HarmonizeSynonyms(Analysis_data,
 ## Total Nitrogen and Total Phosphorus Calculations
 
 `TADA_CalculateTotalNP` uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate

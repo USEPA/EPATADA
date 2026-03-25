@@ -107,7 +107,7 @@ might be needed for Mac or Linux OS:
 
     -   [GitHub Desktop](https://github.com/apps/desktop)
 
-    -   [Git](https://git-scm.com/downloads)
+    -   [Git](https://git-scm.com/downloads/)
 
 External Collaborators (using GitHub Desktop):
 
@@ -207,7 +207,7 @@ A few tips:
 
 -   We have set up [automated
     checks](https://github.com/USEPA/EPATADA/tree/develop/.github/workflows)
-    (using Github Actions). Any new code included in Pull Requests must
+    (using GitHub Actions). Any new code included in Pull Requests must
     pass these checks before it can be merged into develop. These checks
     will run automatically when Pull Requests are submitted, and are
     ancillary to our content review, and help make sure the code is

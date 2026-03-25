@@ -421,7 +421,7 @@ utils::globalVariables(c(
   "Mismatch",
   "Ref.WaterType",
   "Alias.Type.Name",
-  "CAS_NO CAS.Number",
+  "CAS_NO",
   "Char_Flag.x",
   "Char_Flag.y",
   "Characteristic.Name",
@@ -447,7 +447,40 @@ utils::globalVariables(c(
   "percent_match_CST",
   "UserRef.AssessmentUnitIdentifier",
   "Group.n",
-  "Ref.TADA.Media.Flag"
+  "Ref.TADA.Media.Flag",
+  "context2",
+  "CST.STD_POLLUTANT_NAME",
+  "ENTITY_NAME",
+  "TADA.NearbySiteGroup.New",
+  "code",
+  "context",
+  "ATTAINS_catchments",
+  "attains.imgs",
+  "attains.labels",
+  "icon.labels",
+  "ATTAINS.ParameterName.x",
+  "Ref.AssessmentUnitIdentifier",
+  "Alias.Name",
+  "CST.SourceLink",
+  "CST.StdPollutantName",
+  "CST_CAS_NO",
+  "PDFPGNO",
+  "SOURCE",
+  "WQXCharAliasRef",
+  "WQX_CAS_NO",
+  "percent_match_CST_ATTAINS",
+  "percent_match_CST_WQX",
+  "percent_match_WQX_ATTAINS",
+  "percent_match_WQX_CST",
+  "review",
+  "source.y",
+  ".data",
+  "Target.TADA.CharacteristicName",
+  "Target.TADA.MethodSpeciationName",
+  "Target.TADA.ResultSampleFractionText",
+  "Target.TADA.SpeciationConversionFactor",
+  "has_depth_param",
+  "out_epsg"
 ))
 
 # global variables for tribal feature layers used in TADA_OverviewMap in Utilities.R
@@ -862,9 +895,10 @@ TADA_ConvertSpecialChars <- function(
 #' their new names (Comparable.Name).
 #'
 #' @param .data TADA dataframe
+#' @param quiet logical; suppress messages if TRUE
 #'
 #' @return Input TADA dataframe with substituted characteristic names in
-#'   TADA.CharacteristicName column. Original columns are unchanged.
+#' TADA.CharacteristicName column. Original columns are unchanged.
 #'
 #' @export
 #'
@@ -896,95 +930,153 @@ TADA_ConvertSpecialChars <- function(
 #' unique(df4$CharacteristicName)
 #' unique(df4$TADA.CharacteristicName)
 #' }
-TADA_SubstituteDeprecatedChars <- function(.data) {
-  # check .data is data.frame and has required columns
+TADA_SubstituteDeprecatedChars <- function(.data, quiet = FALSE) {
+  # Ensure required column
   TADA_CheckColumns(.data, c("CharacteristicName"))
-  # Check if the input data frame is empty
+
+  # Handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    if (!quiet) {
+      message(
+        "The entered data frame is empty. Skipping deprecated-name substitution."
+      )
+    }
+    return(.data)
   }
 
-  if ("TADA.CharacteristicName" %in% colnames(.data)) {
-    .data <- .data
-  } else {
-    # create uppercase version of original CharacteristicName
+  # Ensure TADA.CharacteristicName exists (initialize uppercase)
+  if (!"TADA.CharacteristicName" %in% colnames(.data)) {
     .data$TADA.CharacteristicName <- toupper(.data$CharacteristicName)
   }
 
-  # read in characteristic reference table with deprecation information, filter to deprecated terms and for "retired" in CharacteristicName.
-  # remove all characters after first "*" in CharacteristicName and remove any leading or trailing white space to make compatible with deprecated NWIS CharacteristicName.
-  nwis.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
+  # Load the characteristic domain table
+  char.table <- TADA_GetCharacteristicRef()
+
+  # NWIS-friendly variant: trim at first '*' for retired WQX names
+  nwis_table <- char.table |>
     dplyr::filter(
       Char_Flag == "Deprecated",
-      grepl("retired", CharacteristicName)
+      grepl("retired", CharacteristicName, ignore.case = TRUE)
     ) |>
     dplyr::mutate(
       CharacteristicName = trimws(stringr::str_split(
         CharacteristicName,
         "\\*",
-        simplify = T
+        simplify = TRUE
       )[, 1])
     )
 
-  # read in characteristic reference table with deprecation information and filter to deprecated terms.
-  # join with deprecated NWIS CharacteristicName data.frame.
-  ref.table <- utils::read.csv(system.file(
-    "extdata",
-    "WQXCharacteristicRef.csv",
-    package = "EPATADA"
-  )) |>
-    dplyr::filter(Char_Flag == "Deprecated") |>
-    rbind(nwis.table)
+  # Build reference table of deprecated names; select only needed columns and de-duplicate
+  ref.table <- char.table |>
+    dplyr::filter(Char_Flag %in% c("Deprecated")) |> # add "Suspect" here if desired
+    dplyr::bind_rows(nwis_table) |>
+    dplyr::select(CharacteristicName, Char_Flag, Comparable.Name) |>
+    dplyr::distinct(CharacteristicName, .keep_all = TRUE)
 
-  rm(nwis.table)
+  # Left-join on CharacteristicName only; preserve row order
+  .data <- dplyr::left_join(.data, ref.table, by = "CharacteristicName")
 
-  # merge to dataset
-  .data <- merge(.data, ref.table, all.x = TRUE)
-  # if CharacteristicName is deprecated and comparable name is not blank (NA), use the provided Comparable.Name. Otherwise, keep TADA.CharacteristicName as-is.
+  # Substitute deprecated names when Comparable.Name is present and non-empty
   .data$TADA.CharacteristicName <- ifelse(
-    !is.na(.data$Char_Flag) & !.data$Comparable.Name %in% c(""),
+    !is.na(.data$Char_Flag) &
+      !is.na(.data$Comparable.Name) &
+      nzchar(trimws(.data$Comparable.Name)),
     .data$Comparable.Name,
     .data$TADA.CharacteristicName
   )
 
-  howmany <- length(.data$Char_Flag[!is.na(.data$Char_Flag)])
+  # Enforce uppercase for all values in TADA.CharacteristicName
+  .data$TADA.CharacteristicName <- toupper(.data$TADA.CharacteristicName)
 
-  if (howmany > 0) {
-    chars <- unique(.data$CharacteristicName[!is.na(.data$Char_Flag)])
-    chars <- paste0(chars, collapse = "; ")
-    print(paste0(
-      howmany,
-      " results in your dataset have one of the following deprecated characteristic names: ",
-      chars,
-      ". These names have been substituted with the updated preferred names in the TADA.CharacteristicName field."
-    ))
-  } else {
-    print("No deprecated characteristic names found in dataset.")
+  # Reporting (respect quiet)
+  total_deprecated <- sum(!is.na(.data$Char_Flag))
+  changed_rows <- .data |>
+    dplyr::filter(
+      !is.na(Char_Flag),
+      !is.na(Comparable.Name),
+      nzchar(trimws(Comparable.Name))
+    )
+  changed_n <- nrow(changed_rows)
+
+  if (!quiet) {
+    if (changed_n > 0) {
+      # Unique mapping of original -> substituted (uppercase) names
+      mapping_df <- changed_rows |>
+        dplyr::distinct(CharacteristicName, TADA.CharacteristicName)
+      mapping_pairs <- paste0(
+        mapping_df$CharacteristicName,
+        " -> ",
+        mapping_df$TADA.CharacteristicName
+      )
+      msg <- paste0(
+        changed_n,
+        " results in your dataset had deprecated characteristic names. ",
+        "These were substituted as follows: ",
+        paste(mapping_pairs, collapse = "; "),
+        "."
+      )
+      message(msg)
+    } else if (total_deprecated > 0) {
+      message(
+        "Deprecated characteristic names were detected, but no substitutions were applied because Comparable.Name was missing or blank."
+      )
+    } else {
+      message("No deprecated characteristic names found in dataset.")
+    }
   }
 
-  .data <- .data |> dplyr::select(-Char_Flag, -Comparable.Name)
+  # Clean up ref columns
+  .data <- dplyr::select(.data, -Char_Flag, -Comparable.Name)
   .data <- TADA_OrderCols(.data)
   return(.data)
 }
 
 #' Create TADA.ComparableDataIdentifier Column
 #'
-#' This utility function creates the TADA.ComparableDataIdentifier column by pasting
-#' together TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
-#' and TADA.ResultMeasure.MeasureUnitCode.
+#' Create a comparable identifier by concatenating:
+#' - TADA.CharacteristicName
+#' - TADA.ResultSampleFractionText
+#' - TADA.MethodSpeciationName
+#' - TADA.ResultMeasure.MeasureUnitCode
 #'
-#' @param .data TADA dataframe
+#' Harmonization:
+#' - TADA.ResultSampleFractionText, TADA.MethodSpeciationName, and
+#'   TADA.ResultMeasure.MeasureUnitCode are first normalized so any blank, NULL/NA,
+#'   or any case variant of "none" are set to the literal "NONE".
 #'
-#' @return Input TADA dataframe with added TADA.ComparableDataIdentifier column.
+#' Identifier construction:
+#' - Each component is trimmed. For the characteristic name only, blanks/NA are
+#'   converted to the literal "NA". For fraction/speciation/unit, the normalized
+#'   values are used (i.e., "NONE" where missing).
+#' - Example: "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#'
+#' @param .data A TADA dataframe (data.frame or tibble) with the required columns:
+#'   TADA.CharacteristicName, TADA.ResultSampleFractionText, TADA.MethodSpeciationName,
+#'   and TADA.ResultMeasure.MeasureUnitCode.
+#'
+#' @return The input dataframe with:
+#'   - harmonized fields (fraction/speciation/unit) where missing/"none" -> "NONE"
+#'   - a character column TADA.ComparableDataIdentifier
+#'
+#' @examples
+#' df <- data.frame(
+#'   TADA.CharacteristicName = c("DISSOLVED OXYGEN (DO)", "pH", "Nitrate"),
+#'   TADA.ResultSampleFractionText = c("", NA, "Dissolved"),
+#'   TADA.MethodSpeciationName = c(" ", NA, ""),
+#'   TADA.ResultMeasure.MeasureUnitCode = c("MG/L", "none", NA),
+#'   stringsAsFactors = FALSE
+#' )
+#'
+#' out <- TADA_CreateComparableID(df)
+#' out$TADA.ComparableDataIdentifier
+#' # Expected:
+#' # [1] "DISSOLVED OXYGEN (DO)_NONE_NONE_MG/L"
+#' # [2] "pH_NONE_NONE_NONE"
+#' # [3] "Nitrate_Dissolved_NONE_NONE"
 #'
 #' @export
 TADA_CreateComparableID <- function(.data) {
-  # check .data is data.frame and has required columns
+  # required columns
   expected_cols <- c(
     "TADA.CharacteristicName",
     "TADA.ResultSampleFractionText",
@@ -992,20 +1084,45 @@ TADA_CreateComparableID <- function(.data) {
     "TADA.ResultMeasure.MeasureUnitCode"
   )
   TADA_CheckColumns(.data, expected_cols)
-  # Check if the input data frame is empty
+
+  # handle empty input
   if (nrow(.data) == 0) {
-    message("The entered data frame is empty. The function will not run.")
-    return(NULL) # Exit the function early
+    .data$TADA.ComparableDataIdentifier <- character(0)
+    return(.data)
   }
 
+  # helper: normalize to "NONE" for fraction/speciation/unit
+  to_NONE <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == "" | toupper(y) == "NONE"] <- "NONE"
+    y
+  }
+  # helper: normalize characteristic name; keep "NA" token for missing
+  to_NA <- function(x) {
+    y <- trimws(as.character(x))
+    y[is.na(y) | y == ""] <- "NA"
+    y
+  }
+
+  # harmonize the three metadata fields in-place
+  .data$TADA.ResultSampleFractionText <- to_NONE(
+    .data$TADA.ResultSampleFractionText
+  )
+  .data$TADA.MethodSpeciationName <- to_NONE(.data$TADA.MethodSpeciationName)
+  .data$TADA.ResultMeasure.MeasureUnitCode <- to_NONE(
+    .data$TADA.ResultMeasure.MeasureUnitCode
+  )
+
+  # build the comparable ID
   .data$TADA.ComparableDataIdentifier <- paste(
-    .data$TADA.CharacteristicName,
+    to_NA(.data$TADA.CharacteristicName),
     .data$TADA.ResultSampleFractionText,
     .data$TADA.MethodSpeciationName,
     .data$TADA.ResultMeasure.MeasureUnitCode,
     sep = "_"
   )
-  return(.data)
+
+  .data
 }
 
 #' Convert a delimited string to the format used by WQX 3.0 profiles for
@@ -1098,14 +1215,19 @@ TADA_RandomTestingData <- function(
   max_attempts = 3
 ) {
   # Retrieve random data
-  get_random_data <- function(ndays, state_choice, ac) {
+  get_random_data <- function(
+    ndays = number_of_days,
+    state_choice = choose_random_state,
+    ac = autoclean,
+    ask = FALSE
+  ) {
     # Calculate a random start date within the last 20 years
     twenty_years_ago <- Sys.Date() - 20 * 365
     random_start_date <- twenty_years_ago + sample(20 * 365, 1)
     end_date <- random_start_date + ndays
 
     # Determine if a random state should be selected
-    if (state_choice) {
+    if (state_choice == TRUE) {
       load(system.file("extdata", "statecodes_df.Rdata", package = "EPATADA"))
       state <- sample(statecodes_df$STUSAB, 1)
     } else {
@@ -1816,7 +1938,7 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 }
 
 
-#' Remove NAs in Strings for Figure Titles and Axis Labels
+#' Remove NAs and NONEs in Strings for Figure Titles and Axis Labels
 #'
 #' Returns a vector of string(s) that removes common NA strings
 #' found in columns such as TADA.ComparableDataIdentifier. Can also
@@ -1838,9 +1960,9 @@ TADA_ViewColorPalette <- function(col_pair = FALSE) {
 #' # Removes NAs based on each TADA.ComparableDataIdentifier found in a dataset.
 #' utils::data(Data_Nutrients_UT)
 #' unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier)
-#' UT_Titles <- TADA_CharStringRemoveNA(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
+#' UT_Titles <- TADA_CharStringRemoveNANone(unique(Data_Nutrients_UT$TADA.ComparableDataIdentifier))
 #' unique(UT_Titles)
-TADA_CharStringRemoveNA <- function(char_string) {
+TADA_CharStringRemoveNANone <- function(char_string) {
   # Checks if data type is a character string.
   if (!is.character(char_string)) {
     stop(paste0(
@@ -1851,14 +1973,14 @@ TADA_CharStringRemoveNA <- function(char_string) {
   # Converts character string to a vector.
   title_string <- as.vector(char_string)
 
-  # Looks through each item in the vector and removes NAs from each.
-  labs <- c()
-  for (i in 1:length(char_string)) {
-    labs[i] <- paste0(char_string[i], collapse = " ")
-    labs[i] <- gsub("_NA|\\(NA|\\(NA)", "", labs[i])
-    labs[i] <- gsub("_", " ", labs[i])
-    labs[i] <- gsub("\\s+", " ", labs[i])
-    labs <- as.vector(labs)
+  labs <- character(length(char_string))
+  for (i in seq_along(char_string)) {
+    x <- char_string[i]
+    x <- gsub("_", " ", x)
+    x <- gsub("\\b(?:NA|NONE)\\b", "", x, perl = TRUE, ignore.case = TRUE)
+    x <- gsub("\\(\\s*\\)", "", x)
+    x <- gsub("\\s+", " ", x)
+    labs[i] <- trimws(x)
   }
 
   return(labs)
@@ -2035,8 +2157,6 @@ TADA_RenametoLegacy <- function(.data) {
   # Create vectors of WQX3.0 and WQX2.0 (Legacy) column names
   beta_names <- wqxnames_mod$FieldName3.0
   legacy_names <- wqxnames_mod$WqxV2.FieldName
-
-  rm(WqxV2.FieldName)
 
   if (length(beta_names) != length(legacy_names)) {
     stop("`old names` and `new names` must be the same length", call. = FALSE)
@@ -2335,43 +2455,205 @@ renameATTAINSCols <- function(.data, return_list = FALSE, format = "tada") {
   }
 }
 
-#' correctColType (UNDER ACTIVE DEVELOPMENT)
+#' TADA_CorrectColType
 #'
-#' This function corrects the column data types for TADA, ATTAINS and User Ref data to
-#' ensure all TADA functions can function correctly.
+#' Correct column data types for TADA, ATTAINS, and user reference data using the
+#' TADA column-type reference file bundled with EPATADA. This ensures downstream
+#' TADA functions operate with expected classes.
 #'
-#' @param .data A data frame containing columns required for TADA functions.
+#' The mapping of column names to target classes is read from:
+#' inst/extdata/TADAColTypeRef.csv within the EPATADA package.
 #'
-#' @return A data frame with correct column data types to use TADA functions.
+#' Supported types in the reference file are:
+#' - character
+#' - numeric
+#' - integer
+#' - logical
+#' - factor
+#' - date
 #'
-# coerce column types based TADA ref file
-correctColType <- function(.data) {
-  # read in ref csv
-  coltype.ref <- utils::read.csv(system.file(
-    "extdata",
-    "TADAColTypeRef.csv",
-    package = "EPATADA"
-  ))
-
-  # Iterate over each row in the type specification
-  for (i in 1:nrow(coltype.ref)) {
-    col.name <- coltype.ref$column_name[i]
-    col.type <- coltype.ref$column_type[i]
-
-    # check to see if each col.name is in .data
-    if (col.name %in% names(.data)) {
-      # coerce to correct type
-      .data[[col.name]] <- switch(
-        col.type,
-        "character" = as.character(.data[[col.name]]),
-        "numeric" = as.numeric(.data[[col.name]]),
-        "integer" = as.integer(.data[[col.name]]),
-        "logical" = as.logical(.data[[col.name]]),
-        "factor" = as.factor(.data[[col.name]]),
-        "date" = as.Date(.data[[col.name]])
-      )
-    }
+#' Unrecognized or missing types are left unchanged.
+#'
+#' @param .data A data.frame (or tibble) containing columns required for TADA functions.
+#'
+#' @return A data.frame with corrected column classes.
+#'
+#' @examples
+#' # df <- TADA_CorrectColType()
+#'
+#' @export
+#' @importFrom utils read.csv
+TADA_CorrectColType <- function(.data) {
+  if (is.null(.data)) {
+    return(NULL)
+  }
+  if (inherits(.data, "sf")) {
+    return(.data)
+  } # simplest safe behavior
+  if (!is.data.frame(.data)) {
+    warning(
+      "TADA_CorrectColType: input is neither data.frame nor sf; returning unchanged"
+    )
+    return(.data)
+  }
+  ref_path <- system.file("extdata", "TADAColTypeRef.csv", package = "EPATADA")
+  if (!nzchar(ref_path) || !file.exists(ref_path)) {
+    stop("TADAColTypeRef.csv not found in EPATADA/extdata.")
   }
 
-  return(.data)
+  coltype.ref <- utils::read.csv(
+    ref_path,
+    stringsAsFactors = FALSE,
+    strip.white = TRUE
+  )
+
+  required_cols <- c("column_name", "column_type")
+  if (!all(required_cols %in% names(coltype.ref))) {
+    stop("TADAColTypeRef.csv must contain columns: column_name, column_type.")
+  }
+
+  # Normalize entries
+  coltype.ref$column_name <- trimws(coltype.ref$column_name)
+  coltype.ref$column_type <- tolower(trimws(coltype.ref$column_type))
+
+  # Converter per type
+  convert <- function(x, type) {
+    switch(
+      type,
+      character = as.character(x),
+      numeric = suppressWarnings(as.numeric(x)),
+      integer = suppressWarnings(as.integer(x)),
+      logical = {
+        # Leave as-is if already logical; convert reasonable string/numeric representations
+        if (is.logical(x)) {
+          return(x)
+        }
+        if (is.numeric(x)) {
+          return(x != 0)
+        }
+        if (is.character(x)) {
+          lx <- trimws(tolower(x))
+          map <- c(
+            "true" = "TRUE",
+            "t" = "TRUE",
+            "y" = "TRUE",
+            "yes" = "TRUE",
+            "1" = "TRUE",
+            "false" = "FALSE",
+            "f" = "FALSE",
+            "n" = "FALSE",
+            "no" = "FALSE",
+            "0" = "FALSE"
+          )
+          lx <- ifelse(lx %in% names(map), map[lx], lx)
+          return(as.logical(lx))
+        }
+        as.logical(x)
+      },
+      factor = as.factor(x),
+      date = {
+        if (inherits(x, "Date")) {
+          return(x)
+        }
+        if (inherits(x, "POSIXt")) {
+          return(as.Date(x))
+        }
+        if (is.character(x)) {
+          out <- suppressWarnings(as.Date(x))
+          if (all(is.na(out)) && any(grepl("[:T]", x))) {
+            out <- suppressWarnings(as.Date(as.POSIXct(x, tz = "UTC")))
+          }
+          return(out)
+        }
+        suppressWarnings(as.Date(x))
+      },
+      # Default: unknown type -> leave unchanged
+      x
+    )
+  }
+
+  # Columns present in both the CSV and the data
+  present <- intersect(coltype.ref$column_name, names(.data))
+
+  # Also ensure we process any ATTAINS.*Use columns even if not listed in CSV
+  use_cols <- grep("^ATTAINS\\..*Use$", names(.data), value = TRUE)
+  extra_use_cols <- setdiff(use_cols, present)
+
+  # Union of CSV-present columns and ATTAINS.*Use columns
+  process_cols <- union(present, extra_use_cols)
+
+  if (length(process_cols) == 0L) {
+    return(.data)
+  }
+
+  for (nm in process_cols) {
+    # Skip geometry columns (sf objects)
+    if (inherits(.data[[nm]], "sfc")) {
+      next
+    }
+
+    # Determine target type: from CSV if present, otherwise default for ATTAINS.*Use
+    if (nm %in% present) {
+      target_type <- coltype.ref$column_type[coltype.ref$column_name == nm][1]
+    } else {
+      # Any ATTAINS.*Use not in CSV gets coerced to character
+      target_type <- "character"
+    }
+
+    # Generic override: ensure any ATTAINS.*Use column ends up as character
+    if (grepl("^ATTAINS\\..*Use$", nm)) {
+      target_type <- "character"
+    }
+
+    old <- .data[[nm]]
+    before_na <- sum(is.na(old))
+    new <- try(convert(old, target_type), silent = TRUE)
+
+    if (inherits(new, "try-error")) {
+      warning(sprintf(
+        "Failed to coerce column '%s' to type '%s'; leaving unchanged.",
+        nm,
+        target_type
+      ))
+      next
+    }
+
+    after_na <- sum(is.na(new))
+    if (after_na > before_na) {
+      warning(sprintf(
+        "Coercing column '%s' to '%s' introduced %d additional NA values.",
+        nm,
+        target_type,
+        after_na - before_na
+      ))
+    }
+
+    .data[[nm]] <- new
+  }
+
+  .data
+}
+
+#' .setEQKey
+#' Resolve the rExpertQuery API key, preferring env/options over default
+#' @return Expert Query API key for use in EPATADA functions, checks, or tests.
+.setEQKey <- function() {
+  # check to see if key is stored in R session
+  # this allows developers to easily use their own key during local dev and testing
+  # per session: options(epatada.eq_key = "YOUR_KEY_HERE")
+  # use options(epatada.eq_key = NULL) to remove
+  opt <- getOption("EQ_API_KEY", "")
+  if (nzchar(opt)) {
+    return(opt)
+  }
+
+  # check to see if key is stored in system environment (primarily for use in checks)
+  env <- Sys.getenv("EQ_API_KEY", unset = "")
+  if (nzchar(env)) {
+    return(env)
+  }
+
+  # if neither exist
+  def <- "lfzVzpwIlKS1O4l1QmbOLUeTzxyql4QdbHVR5Yf5"
+  if (nzchar(def)) return(def)
 }

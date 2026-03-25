@@ -112,7 +112,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     if (
       any("Suspect" %in% unique(check.data$TADA.AnalyticalMethod.Flag)) == FALSE
     ) {
-      print(
+      message(
         "No Suspect method/characteristic combinations in your dataframe. Returning the input dataframe with TADA.AnalyticalMethod.Flag column for tracking."
       )
       check.data <- TADA_OrderCols(check.data)
@@ -149,7 +149,7 @@ TADA_FlagMethod <- function(.data, clean = FALSE, flaggedonly = FALSE) {
     )
     if (nrow(Suspect.data) == 0) {
       # Suspect.data <- dplyr::select(Suspect.data, -TADA.AnalyticalMethod.Flag)
-      print(
+      message(
         "This dataframe is empty because we did not find any Suspect method/characteristic combinations in your dataframe"
       )
     }
@@ -385,7 +385,7 @@ TADA_FlagContinuousData <- function(
 
   # Combine continuous and non-continuous data
   if (nrow(noncont.data) == 0) {
-    print(
+    message(
       "All data is flagged as continuous in TADA.ContinuousData.Flag column."
     )
     flag.data <- cont.data
@@ -419,7 +419,7 @@ TADA_FlagContinuousData <- function(
     nrow(flag.data[flag.data$TADA.ContinuousData.Flag == "Continuous", ]) == 0
   ) {
     if (flaggedonly == FALSE) {
-      print(
+      message(
         "No evidence of aggregated continuous data in your dataframe. Returning the input dataframe with TADA.ContinuousData.Flag column for tracking."
       )
       .data <- TADA_OrderCols(.data)
@@ -427,7 +427,7 @@ TADA_FlagContinuousData <- function(
     }
 
     if (flaggedonly == TRUE) {
-      print(
+      message(
         "This dataframe is empty because we did not find any aggregated continuous data in your dataframe"
       )
       all.cont.data <- flag.data |>
@@ -1016,7 +1016,7 @@ TADA_FlagBelowThreshold <- function(.data, clean = FALSE, flaggedonly = FALSE) {
 #' Y indicates yes, N indicates no.  This function has three default inputs:
 #' clean = TRUE, cleanNA = FALSE, and flaggedonly == FALSE. The default flags
 #' rows of data where the QAPPApprovedIndicator equals "N". Users could
-#' remove NA's in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
+#' remove NAs in addition to N's using the inputs clean = TRUE, cleanNA = TRUE,
 #' and flaggedonly = FALSE. If flaggedonly = TRUE, the function will filter out all
 #' rows where the QAPPApprovedIndicator is 'Y'. If clean = FALSE, cleanNA = FALSE,
 #' and flaggedonly = FALSE, the function will not make any changes to the data.
@@ -1118,20 +1118,20 @@ TADA_FindQAPPApproval <- function(
       )
 
       if (nrow(.data) == 0) {
-        print("All QAPPApprovedIndicator data is N")
+        message("All QAPPApprovedIndicator data is N")
       }
     }
     if (cleanNA == TRUE) {
       .data <- dplyr::filter(.data, is.na(QAPPApprovedIndicator) == FALSE)
 
       if (nrow(.data) == 0 & clean == TRUE) {
-        print("All QAPPApprovedIndicator data is NA or N")
+        message("All QAPPApprovedIndicator data is NA or N")
       } else if (nrow(.data) == 0 & clean == FALSE) {
-        print("All QAPPApprovedIndicator data is NA")
+        message("All QAPPApprovedIndicator data is NA")
       }
     }
     if (clean == FALSE & cleanNA == FALSE) {
-      print(
+      message(
         "Data is flagged but not removed because clean and cleanNA were FALSE"
       )
     }
@@ -1258,14 +1258,14 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
   # if no associated QAPP url data is in the data set
   if (nrow(QAPPdoc.data) == 0) {
     if (clean == FALSE) {
-      print(
+      message(
         "No QAPP document url data found in your dataframe. Returning input dataframe with TADA.QAPPDocAvailable column for tracking."
       )
       .data <- TADA_OrderCols(.data)
       return(.data)
     }
     if (clean == TRUE) {
-      print(
+      message(
         "This dataframe is empty because we did not find any QAPP document url data in your dataframe"
       )
       QAPPdoc.data <- TADA_OrderCols(QAPPdoc.data)
@@ -1317,30 +1317,64 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' @export
 #'
 #' @examples
-#' # Load example dataset:
-#' utils::data(Data_R5_TADAPackageDemo)
+#' # Create a small mock dataset with minimal required columns.
+#' # Rows cover: Pass, LAT_OutsideUSA, LONG_OutsideUSA, American Samoa,
+#' # Northern Mariana Islands, Guam, and an imprecise coordinate.
+#' mock_coords <- data.frame(
+#'   ID = c(
+#'     "Pass_US_mainland",
+#'     "Lat_outside",
+#'     "Long_outside",
+#'     "American_Samoa",
+#'     "Northern_Mariana_Islands",
+#'     "Guam",
+#'     "Imprecise"
+#'   ),
+#'   TADA.LatitudeMeasure = c(
+#'     38.8977,   # Pass (USA mainland-like)
+#'     -5.0000,   # LAT_OutsideUSA
+#'     40.0000,   # LONG_OutsideUSA (long between 0 and 145)
+#'     -13.5000,  # American Samoa (excluded from outside flags)
+#'     15.0000,   # Northern Mariana Islands (excluded)
+#'     13.4000,   # Guam (excluded)
+#'     35.12      # Imprecise (< 3 decimal places)
+#'   ),
+#'   TADA.LongitudeMeasure = c(
+#'     -77.0365,  # Pass
+#'     -120.0000, # LAT_OutsideUSA
+#'     10.0000,   # LONG_OutsideUSA
+#'     -170.0000, # American Samoa
+#'     145.5000,  # Northern Mariana Islands
+#'     144.8500,  # Guam
+#'     -120.0     # Imprecise (<= 1 decimal place)
+#'   ),
+#'   stringsAsFactors = FALSE
+#' )
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag":
 #' # Return ALL data:
-#' SuspectCoord_flags <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo)
+#' SuspectCoord_flags <- TADA_FlagCoordinates(mock_coords)
 #'
 #' # Flag, but do not remove, data with Suspect coordinates in new column
 #' # titled "TADA.SuspectCoordinates.Flag"
 #' # Return ONLY the flagged data:
-#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' SuspectCoord_flags_flaggedonly <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   flaggedonly = TRUE
 #' )
 #'
 #' # Remove data with coordinates outside the USA, but keep flagged data with
 #' # imprecise coordinates:
-#' OutsideUSACoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' OutsideUSACoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_outsideUSA = "remove"
 #' )
 #'
 #' # Change the sign of coordinates flagged as outside the USA and keep all
 #' # flagged data:
-#' OutsideUSACoord_changed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' OutsideUSACoord_changed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_outsideUSA = "change sign"
 #' )
 #'
@@ -1348,14 +1382,17 @@ TADA_FindQAPPDoc <- function(.data, clean = FALSE) {
 #' # coordinates outside the USA;
 #' # imprecise data may have less than 3 significant figures to the right
 #' # of the decimal point:
-#' ImpreciseCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
+#' ImpreciseCoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
 #'   clean_imprecise = TRUE
 #' )
 #'
 #' # Remove data with imprecise coordinates or coordinates outside the USA
 #' # from the dataframe:
-#' SuspectCoord_removed <- TADA_FlagCoordinates(Data_R5_TADAPackageDemo,
-#'   clean_outsideUSA = "remove", clean_imprecise = TRUE
+#' SuspectCoord_removed <- TADA_FlagCoordinates(
+#'   mock_coords,
+#'   clean_outsideUSA = "remove",
+#'   clean_imprecise = TRUE
 #' )
 #'
 TADA_FlagCoordinates <- function(
@@ -1434,7 +1471,7 @@ TADA_FlagCoordinates <- function(
 
   # if clean_outsideUSA is "change sign", change the sign of lat/long coordinates outside of USA
   if (clean_outsideUSA == "change sign") {
-    print(
+    message(
       "When clean_outsideUSA == change sign, the sign for any lat/long coordinates flagged as outside of USA are switched. This is a temporary solution. Data owners should fix the raw data to address Suspect coordinates through WQX. For assistance fixing data errors you see in the WQP, email the WQX helpdesk (WQX@epa.gov)."
     )
     .data <- .data |>
@@ -1459,11 +1496,11 @@ TADA_FlagCoordinates <- function(
 
   if (all(.data$TADA.SuspectCoordinates.Flag %in% c("OK")) == TRUE) {
     if (orig_dim == dim(.data)[1]) {
-      print(
+      message(
         "Your dataframe does not contain monitoring stations with Suspect coordinates. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     } else {
-      print(
+      message(
         "All Suspect coordinates were removed. Returning input dataframe with TADA.SuspectCoordinates.Flag column for tracking."
       )
     }
@@ -1627,7 +1664,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     if (!any(org_hierarchy == "none")) {
       data_orgs <- unique(.data$OrganizationIdentifier)
       if (any(!org_hierarchy %in% data_orgs)) {
-        print(
+        message(
           "TADA_FindPotentialDuplicatesMultipleOrgs: One or more organizations in input hierarchy are not present in the input dataset."
         )
       }
@@ -1706,7 +1743,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
         )
       )
 
-    print(paste0(
+    message(paste0(
       length(dupsdat$TADA.MultipleOrgDuplicate[
         dupsdat$TADA.MultipleOrgDuplicate %in% c("Y")
       ]),
@@ -1716,7 +1753,7 @@ TADA_FindPotentialDuplicatesMultipleOrgs <- function(
     .data$TADA.MultipleOrgDupGroupID <- "Not a duplicate"
     .data$TADA.MultipleOrgDuplicate <- "N"
     .data$TADA.ResultSelectedMultipleOrgs <- "Y"
-    print(
+    message(
       "No duplicate results detected. Returning input dataframe with duplicate flagging columns set to 'N'."
     )
   }
@@ -1822,7 +1859,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
       "Unique",
       .data$TADA.SingleOrgDup.Flag
     )
-    print(paste0(
+    message(paste0(
       "TADA_FindPotentialDuplicatesSingleOrg: ",
       dim(dups_sum_org)[1],
       " groups of potentially duplicated results found in dataset.",
@@ -1851,7 +1888,7 @@ TADA_FindPotentialDuplicatesSingleOrg <- function(.data) {
       "Unique",
       .data$TADA.SingleOrgDup.Flag
     )
-    print(
+    message(
       "No duplicate results detected. Returning input dataframe with TADA.SingleOrgDup.Flag flag column set to 'Unique'"
     )
   }

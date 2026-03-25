@@ -96,7 +96,7 @@ test_that("Imprecise_lessthan3decimaldigits works again", {
   ))
 })
 
-test_that("No NA's in independent flag columns", {
+test_that("No NAs in independent flag columns", {
   testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
   testdat <- TADA_ConvertResultUnits(testdat, transform = TRUE)
 
@@ -133,7 +133,7 @@ test_that("No NA's in independent flag columns", {
 })
 
 test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- Data_R5_TADAPackageDemo
 
   # Skip the test if the test dataframe is empty
   if (dim(testdat)[1] == 0) {
@@ -148,7 +148,7 @@ test_that("TADA_FindPotentialDuplicates functions do not grow dataset", {
 })
 
 test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multiple org groupings incrementally if duplicates are found", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+  testdat <- Data_R5_TADAPackageDemo
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
   testdat1 <- testdat |>
@@ -171,8 +171,8 @@ test_that("TADA_FindPotentialDuplicatesMultipleOrgs labels nearby site and multi
   expect_true(length(unique(diff(testdat2))) < 2 | length(testdat2 == 0))
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- Data_R5_TADAPackageDemo
 
   testthat::skip_if(
     is.null(testdat) || NROW(testdat) == 0,
@@ -209,8 +209,8 @@ test_that("WQXcharValRef.rda contains only one row for each unique characteristi
   expect_true(nrow(find.dups) == 0)
 })
 
-test_that("TADA_FindPotentialDuplicatsMultipleOrgs has non-NA values for each row in columns added in function", {
-  testdat <- TADA_RandomTestingData(choose_random_state = TRUE)
+test_that("TADA_FindPotentialDuplicatesMultipleOrgs has non-NA values for each row in columns added in function", {
+  testdat <- Data_R5_TADAPackageDemo
   testdat <- TADA_FindPotentialDuplicatesMultipleOrgs(testdat)
 
   expect_false(any(is.na(testdat$TADA.MultipleOrgDupGroupID)))
