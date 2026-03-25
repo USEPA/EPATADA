@@ -68,13 +68,6 @@ remotes::install_github("USEPA/EPATADA",
 )
 ```
 
-```{r dev_install, results = 'hide', include = F}
-remotes::install_github("USEPA/EPATADA",
-  ref = "develop",
-  dependencies = TRUE
-)
-```
-
 Finally, use the **library()** function to load the TADA R Package into
 your R session.
 
