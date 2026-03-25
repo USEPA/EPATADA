@@ -1308,7 +1308,7 @@ This section covers summing nutrient subspecies to estimate total
 nitrogen and phosphorus. This can be a challenging endeavor because some
 subspecies/compounds overlap in total nutrient calculations. Thus,
 **TADA_CalculateTotalNP** uses the [Nutrient Aggregation
-logic](https://echo.epa.gov/trends/loading-tool/resources/nutrient-aggregation)
+logic](https://echo.epa.gov/trends/loading-tool/resources/technical-background-methodology/nutrient-aggregation)
 to add together specific subspecies to obtain a total. TADA adds one
 more equation to the mix: total particulate nitrogen + total dissolved
 nitrogen. The function uses as many subspecies as possible to calculate

@@ -25,6 +25,7 @@ The default is "all".}
 This function gets ATTAINS data for a set of Assessment Unit IDs.
 }
 \examples{
+\dontrun{
 baseurls <- c(
   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
@@ -36,6 +37,6 @@ line.features <- fetch_au(baseurl = baseurls[[3]],
     "IL_N-12",
     "IL_N-16",
     "IL_N-17"))
-
+}
 }
 \keyword{internal}

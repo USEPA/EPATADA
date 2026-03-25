@@ -38,8 +38,9 @@ fetch_bbox <- function(baseurl, df) {
 #' The default is "all".
 #'
 #' @keywords internal
-#'
+#' 
 #' @examples
+#' \dontrun{
 #' baseurls <- c(
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/3",
 #'   "https://gispub.epa.gov/arcgis/rest/services/OW/ATTAINS_Assessment/MapServer/0",
@@ -51,7 +52,7 @@ fetch_bbox <- function(baseurl, df) {
 #'     "IL_N-12",
 #'     "IL_N-16",
 #'     "IL_N-17"))
-#'
+#'}
 fetch_au <- function(baseurl, assessment_unit_ids, org_filter = "all") {
   # Convert org_filter to SQL WHERE clause
   if (org_filter == "all") {
