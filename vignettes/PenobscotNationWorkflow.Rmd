@@ -201,12 +201,12 @@ Remove duplicates:
 df_clean <- dplyr::filter(df_flag, TADA.SingleOrgDup.Flag == "Unique")
 ```
 
-Run key TADA quality control flagging functions and remove suspect
-results:
+Run key TADA quality control flagging functions. Review carefully and
+consider removing flagged results.
 
 ```{r}
 df_flag <- EPATADA::TADA_RunKeyFlagFunctions(
-  df_flag,
+  df_clean,
   clean = FALSE
 )
 ```
@@ -275,7 +275,8 @@ EPATADA::TADA_TableExport(EPATADA::TADA_Stats(df_clean,
                                                     "TADA.MonitoringLocationIdentifier")))
 ```
 
-Generate scatter plot for E. coli (all monitoring locations):
+Generate scatter plot for E. coli (top four monitoring location by
+number of results will be displayed):
 
 ```{r}
 EPATADA::TADA_GroupedScatterplot(df_clean, 
@@ -676,3 +677,4 @@ TADA_TableExport(res$summary)
 
 Disclaimer: This example workflow is not meant to be representative of
 Penobscot Nation's or Maine's assessment process.
+
