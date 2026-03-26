@@ -341,7 +341,7 @@ fetchATTAINS <- function(.data, catchments_only = FALSE, org_id = "all") {
       catchment_features <- dplyr::left_join(
         catchment_features,
         water_types,
-        by = c("assessmentunitidentifier" = "assessmentUnitIdentifier")
+        by = c("assessmentunitidentifier" = "ATTAINS.AssessmentUnitIdentifier")
       ),
       silent = TRUE
     )
@@ -1431,6 +1431,8 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
   if (!exists("ATTAINS_polygons", inherits = FALSE)) {
     ATTAINS_polygons <- NULL
   }
+
+  # add waterbody
 
   # create final list for output
   final_list <- list(
