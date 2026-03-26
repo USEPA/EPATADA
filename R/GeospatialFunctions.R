@@ -1418,8 +1418,6 @@ TADA_CreateATTAINSAUMLCrosswalk <- function(
     }
   }
 
-  # add waterbody
-
   # create final list for output
   final_list <- list(
     "TADA_with_ATTAINS" = TADA_with_ATTAINS |> renameATTAINSCols(),
